@@ -20,13 +20,13 @@ all.ok <- TRUE
             
 qbox20 <- quartimax(box20)
 
- if( fuzz < max(abs(qbox20$Lh -
-          GPForth(box20, Tmat=diag(1,3), method="quartimax")$loadings))) {
+ if( fuzz < max(abs(qbox20$loadings -
+          GPForth(box20, Tmat=diag(1,3), method="quartimax")$Lh))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
-    print(qbox20$Lh - 
-       GPForth(box20, Tmat=diag(1,3), method="quartimax")$loadings, digits=18)
+    print(qbox20$loadings - 
+       GPForth(box20, Tmat=diag(1,3), method="quartimax")$Lh, digits=18)
     cat("difference:\n")
-    print(qbox20$Lh - tst, digits=18)
+    print(qbox20$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -35,47 +35,47 @@ qbox20 <- quartimax(box20)
 # These values compare with those in:
 #    http://www.stat.ucla.edu/research/web.pdf
  tst <- t(matrix(c(
-  0.01049160722101243233, -0.9933960879283945111, -0.0898617753356861643,
-  0.15846463838980426320, -0.1673050855701762318, -0.9670878795240610559,
-  0.98227410577039719897, -0.0949613390792482664, -0.0819385453449292256,
-  0.12499620201627810456, -0.5970654972836810792, -0.7892906571313870190,
-  0.86956141678749099277, -0.4716224500933667851, -0.0904389683845496645,
-  0.87571148931767484047, -0.1410120807682344601, -0.4523339259379439703,
-  0.06794232110196804508, -0.8114110717162390518, -0.5885549368577087659,
-  0.40667681084165113736, -0.9078621491466950522, -0.1156732020409568795,
-  0.57708088942497415275, -0.1423707261639317601, -0.8065272614066036905,
-  0.10127128637627820507, -0.7233367476961829468, -0.6946402493291059521,
-  0.50009286577744949120, -0.9497465690499469204, -0.0468463464568175114,
-  0.74125897983266775260, -0.1403505619659150827, -0.6635780621549246527,
-  0.00556555010031100760, -0.9838471004017754762, -0.1200371096082350486,
-  0.21423301039030956394, -0.1194291007521572356, -0.9474211878318093971,
-  0.95508040661065285448, -0.1082756597566192219, -0.0392275211133628204,
-  0.78232187376974515747, -0.4054375968101910366, -0.4392753588743311677,
-  0.36269711022210243678, -0.7531224629572265128, -0.5462813945447685393,
-  0.01624832987800044204, -0.9662303593377582489, -0.0521141484647103248,
-  0.10766923868767128147, -0.2067349539506432021, -0.9346207754246868005,
-  0.97442394201617521521, -0.0926505528545987223, -0.0908287194745999726
+  0.01049224101015650695, -0.9933959484975959375, -0.0898632426921399663,
+  0.15846386925931635337, -0.1673035521816268190, -0.9670882708247350301,
+  0.98227409886903438441, -0.0949605103942631062, -0.0819395884581307077,
+  0.12499590643003444246, -0.5970642489315750590, -0.7892916482666647582,
+  0.86956167372517545466, -0.4716216902265565336, -0.0904404605036790155,
+  0.87571117483705962492, -0.1410107854239633640, -0.4523349385793823396,
+  0.06794236480112916809, -0.8114101590712718970, -0.5885561900287546999,
+  0.40667735919219394347, -0.9078616860985385673, -0.1156749084061958477,
+  0.57708025003901430861, -0.1423691264610307261, -0.8065280012780906560,
+  0.10127116894665386115, -0.7233356553444891812, -0.6946414039254620310,
+  0.50009350766237592456, -0.9497461396230388875, -0.0468482002330534233,
+  0.74125847051398263687, -0.1403490536150223400, -0.6635789501187019379,
+  0.00556614923876662133, -0.9838469202447402973, -0.1200385584201652395,
+  0.21423222482498216479, -0.1194275560004390141, -0.9474215601907634010,
+  0.95508044860948959620, -0.1082749133584915424, -0.0392285587436913968,
+  0.78232176201621861367, -0.4054363879833205453, -0.4392766736065978894,
+  0.36269715077640651835, -0.7531213997572889784, -0.5462828333805650471,
+  0.01624897880510550383, -0.9662302711456739468, -0.0521155812550193748,
+  0.10766852786756214710, -0.2067335048393877106, -0.9346211778488945354,
+  0.97442392526855226009, -0.0926497167860333842, -0.0908297519742005677
   ), 3, 20))
  
- if( fuzz < max(abs(qbox20$Lh - tst ))) {
+ if( fuzz < max(abs(qbox20$loadings - tst ))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
-    print(qbox20$Lh, digits=18)
+    print(qbox20$loadings, digits=18)
     cat("difference:\n")
-    print(qbox20$Lh - tst, digits=18)
+    print(qbox20$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 
  tst <- t(matrix(c(
-  0.572323458942761265, -0.607511949478214741, -0.550794961473843658,
-  0.602494602833418380,  0.767167971983653163, -0.220121685254065780,
-  0.556278807703830647, -0.205870187262914422,  0.805090898033220315
+  0.572323390325136794, -0.607510728465793681, -0.550796379513974199,
+  0.602493846997876670,  0.767168729526892967, -0.220121113857330908,
+  0.556279696929916967, -0.205870967440903690,  0.805090084120097749
   ), 3, 3))
  
- if( fuzz < max(abs(qbox20$Th - tst ))) {
+ if( fuzz < max(abs(qbox20$rotmat - tst ))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
-    print(qbox20$Th, digits=18)
+    print(qbox20$rotmat, digits=18)
     cat("difference:\n")
-    print(qbox20$Th - tst, digits=18)
+    print(qbox20$rotmat - tst, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -91,30 +91,28 @@ plot(seq(length(sal)), sal)
 
 
  #compare quartimax rotation of the initial loading matrix box20.
- max(abs(qbox20$Lh - box20 %*% qbox20$Th))
-   if( fuzz < max(abs(qbox20$Lh - box20 %*% qbox20$Th ))) {
+ max(abs(qbox20$loadings - box20 %*% qbox20$rotmat))
+   if( fuzz < max(abs(qbox20$loadings - box20 %*% qbox20$rotmat ))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
-    print(qbox20$Lh, digits=18)
+    print(qbox20$loadings, digits=18)
     cat("difference:\n")
-    print(qbox20$Lh - box20 %*% qbox20$Th, digits=18)
+    print(qbox20$loadings - box20 %*% qbox20$rotmat, digits=18)
     all.ok <- FALSE  
     } 
 
 
             
-qminbox20 <- quartimin(box20)
+qminbox20 <- GPFoblq(box20, Tmat=diag(1,3), method="quartimin")
 
- if( fuzz < max(abs(qminbox20$Lh -
-                   GPFoblq(box20, Tmat=diag(1,3), method="quartimin")$loadings))) {
+ if( fuzz < max(abs(qminbox20$Lh - quartimin(box20)$loadings))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
-    print(qminbox20$Lh - 
-        GPFoblq(box20, Tmat=diag(1,3), method="quartimin")$loadings, digits=18)
+    print(qminbox20$Lh - quartimin(box20)$loadings, digits=18)
     cat("difference:\n")
     print(qminbox20$Lh - tst, digits=18)
     all.ok <- FALSE  
     } 
 
-#qminbox20$rotmat - GPFoblq(box20, Tmat=diag(1,3), method="quartimin")$Th 
+#qminbox20$Th - quartimin(box20)$rotmat 
 
 # These values compare with those in:
 #    http://www.stat.ucla.edu/research/web.pdf
@@ -187,10 +185,10 @@ qminbox20 <- quartimin(box20)
     all.ok <- FALSE  
     } 
 
- data("Thurstone", package="GPArotation") 
+ data("box26", package="GPArotation") 
  if (!exists("box26")) stop("Test data box26 not found. Testing stopped.")
 
-qbox26  <- GPForth(box26,"quartimax")
+qbox26  <- GPForth(box26,, Tmat=diag(1,3), method="quartimax")
 qbox26$Lh
               [,1]        [,2]        [,3]
   [1,]  0.62451974 -0.27089547  0.71519840

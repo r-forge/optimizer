@@ -85,6 +85,7 @@
  and return a matrix which is used like the matrix above. 
 }
 \seealso{
+   \code{\link{Random.Start}}
    \code{\link[stats]{factanal}}
    \code{\link{oblimin}}
    \code{\link{quartimin}}
@@ -111,7 +112,7 @@
    \code{\link{mccammon}}
    \code{\link[stats]{promax}}
 }
-\example{
+\examples{
   data("Harman", package="GPArotation")
   qHarman  <- GPForth(Harman8, Tmat=diag(2), method="quartimax")
   }
@@ -166,7 +167,7 @@
    \code{\link{GPFoblq}}
    \code{\link{oblimin}}
    }
-\example{
+\examples{
    Global.min <- function(A,method,B=10){
       fv <- rep(0,B)
       seeds <- sample(1e+7, B)
@@ -183,6 +184,8 @@
       ans <- GPFoblq(A=A, Random.Start(ncol(A)), method=method)
       ans
       }
+
+   data("Thurstone", package="GPArotation")
 
    Global.min(box26,"simplimax",10)
    }
@@ -318,43 +321,46 @@
  criterion calculation.
    
  Rotations which are available are 
+\tabular{lll}{
 
-  \item{oblimin  }{oblique    oblimin family                                  }
-  \item{quartimin}{oblique						      }
-  \item{targetT  }{orthogonal target rotation				      }
-  \item{targetQ  }{oblique    target rotation				      }
-  \item{pstT	 }{orthogonal partially specified target rotation	      }
-  \item{pstQ	 }{oblique    partially specified target rotation	      }
-  \item{oblimax  }{oblique						      }
-  \item{entropy  }{orthogonal minimum entropy				      }
-  \item{quartimax}{orthogonal						      }
-  \item{varimax  }{orthogonal						      }
-  \item{simplimax}{oblique						      }
-  \item{bentlerT }{orthogonal Bentler's invariant pattern simplicity criterion}
-  \item{bentlerQ }{oblique    Bentler's invariant pattern simplicity criterion}
-  \item{tandemI  }{orthogonal Tandem Criterion, Comrey, 1967		      }
-  \item{tandemII }{orthogonal Tandem Criterion, Comrey, 1967		      }
-  \item{geominT  }{orthogonal						      }
-  \item{geominQ  }{oblique						      }
-  \item{cfT	 }{orthogonal Crawford-Ferguson family			      }
-  \item{cfQ	 }{oblique      Crawford-Ferguson family		      }
-  \item{infomaxT }{orthogonal						      }
-  \item{infomaxQ }{oblique						      }
-  \item{mccammon }{orthogonal McCammon minimum entropy ratio		      }
-
+ oblimin   \tab oblique    \tab  oblimin family 			\cr
+ quartimin \tab oblique	   \tab         				\cr
+ targetT   \tab orthogonal \tab  target rotation			\cr
+ targetQ   \tab oblique    \tab  target rotation			\cr
+ pstT	   \tab orthogonal \tab  partially specified target rotation	\cr
+ pstQ	   \tab oblique    \tab  partially specified target rotation	\cr
+ oblimax   \tab oblique	   \tab         				\cr
+ entropy   \tab orthogonal \tab  minimum entropy			\cr
+ quartimax \tab orthogonal \tab 					\cr
+ varimax   \tab orthogonal \tab 					\cr
+ simplimax \tab oblique	   \tab         				\cr
+ bentlerT  \tab orthogonal \tab  Bentler's invariant pattern simplicity criterion\cr
+ bentlerQ  \tab oblique    \tab  Bentler's invariant pattern simplicity criterion\cr
+ tandemI   \tab orthogonal \tab  Tandem Criterion, Comrey, 1967 		 \cr
+ tandemII  \tab orthogonal \tab  Tandem Criterion, Comrey, 1967 		 \cr
+ geominT   \tab orthogonal \tab 					 \cr
+ geominQ   \tab oblique	   \tab         				 \cr
+ cfT	   \tab orthogonal \tab  Crawford-Ferguson family		 \cr
+ cfQ	   \tab oblique	   \tab  Crawford-Ferguson family		 \cr
+ infomaxT  \tab orthogonal \tab 					 \cr
+ infomaxQ  \tab oblique	   \tab         				 \cr
+ mccammon  \tab orthogonal \tab  McCammon minimum entropy ratio 	 \cr
+}
  Note that \code{Varimax} defined here uses \code{vgQ.varimax} and 
  is not \code{varimax}
- defined in the \code{stats} package. The default here is not to do Kaiser 
- normalization as is done by \code{stats:::varimax}.
+ defined in the \code{stats} package. \code{stats:::varimax} does Kaiser 
+ normalization by default whereas \code{Varimax} defined here does not.
  
  New rotation methods can be programmed with a name "vgQ.newmethod". The 
  inputs are the matrix L, and optionally any additional arguments. The
  output should be a list with elements 
-  \item{f}{the value of the criterion at L.}
-  \item{Gq}{the gradient at L.}
-  \item{Method}{a string indicating the criterion.}
+\tabular{ll}{
+  \code{f}       \tab the value of the criterion at L.\cr
+  \code{Gq}      \tab the gradient at L.\cr
+  \code{Method}  \tab a string indicating the criterion.\cr
  }
-\example{
+ }
+\examples{
   data(ability.cov)
   factanal(factors = 2, covmat = ability.cov, rotation="oblimin")
 

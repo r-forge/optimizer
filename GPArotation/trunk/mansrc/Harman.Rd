@@ -21,8 +21,8 @@
 }
 
 \source{
-	\emph{Harman, H. H. (1976) _Modern Factor Analysis_, Third Edition
-     Revised, University of Chicago Press.} 
+	Harman, H. H. (1976) \emph{Modern Factor Analysis}, Third Edition
+     Revised, University of Chicago Press. 
 }
 
 \seealso{

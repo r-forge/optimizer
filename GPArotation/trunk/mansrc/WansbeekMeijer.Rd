@@ -19,7 +19,7 @@
 }
 \source{
 	Tom Wansbeek and Erik Meijer (2000) \emph{Measurement 
-   Error and Latent Variables in Econometrics}, North-Holland: Amsterdam.
+   Error and Latent Variables in Econometrics}, Amsterdam: North-Holland.
 }
 \seealso{
 	\code{\link{GPForth}}

@@ -77,5 +77,4 @@ all.ok <- TRUE
 
 cat("tests completed.\n")
 
-
 if (! all.ok) stop("some tests FAILED")

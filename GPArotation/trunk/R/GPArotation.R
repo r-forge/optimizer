@@ -62,6 +62,7 @@ GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
  if ((iter == maxit) & !convergence)
      warning("convergence not obtained.", maxit, " iterations used.")
  if(normalize) L <- L * W
+ dimnames(L) <- dimnames(A)
  list(Lh=L, Th=Tmat, Table=Table, 
       method=VgQ$Method, orthogonal=TRUE, convergence=convergence)
 }
@@ -107,6 +108,7 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
  if ((iter == maxit) & !convergence)
      warning("convergence not obtained.", maxit, " iterations used.")
  if(normalize) L <- L * W
+ dimnames(L) <- dimnames(A)
  list(Lh=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,
       method=VgQ$Method, orthogonal=FALSE, convergence=convergence)
 }

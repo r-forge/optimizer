@@ -26,12 +26,13 @@
    }
 \value{A list with elements 
   \item{Lh}{The rotated loadings, one column for each factor.}
-  \item{Th}{The rotation matrix.}
+  \item{Th}{The rotation matrix,  Lh \%*\% t(Th) = A.}
   \item{Table}{A matrix recording the iterations of the rotation optimization.}
   \item{method}{A string indicating the rotation objective function.}
   \item{orthogonal}{A logical indicating if the rotation is orthogonal.}
   \item{convergence}{A logical indicating if convergence was obtained.}
-  \item{Phi}{t(Th) \%*\% Th.  This will be the identity matrix for orthogonal
+  \item{Phi}{t(Th) \%*\% Th.  The covariance matrix of the rotated factors.
+  This will be the identity matrix for orthogonal
   rotations so is omitted from the result of GPForth.}
   }
 \details{
@@ -44,10 +45,15 @@
 
  GPForth is the main GP algorithm for orthogonal rotation.
  GPFoblq is the main GP algorithm for oblique rotation.
- Both algorithms require a loadings matrix \code{A} and optionally 
- an initial rotation matrix \code{Tmat} indicating any rotation that has already
- been performed. (These together fix the equivalence class over which the optimization
- is done.) By default the initial rotation is the identity matrix.
+ Both algorithms require a loadings matrix \code{A} which fixes the 
+ equivalence class over which the optimization is done. It must be 
+ the solution to the orthogonal factor analysis problem. 
+ \code{A \%*\% t(solve(Tmat))} indicates the starting point for 
+ iterative optimization. By default the initial rotation is the 
+ identity matrix. For some rotation criteria local optima may exist
+ and it is recommended to check for this by starting with many different
+ initial rotations. The function \code{\link{Random.Start}} will help to do
+ this.
  
  The argument \code{method} can be used to specify a string indicating
  the rotation objective. \code{GPFoblq} defaults to \code{"quartimin"} 
@@ -78,9 +84,10 @@
  If \code{normalize} is a vector of length equal to the number of indicators (=
  number of rows of \code{A}) then the colums are divided by \code{normalize} 
  before rotation and multiplied by \code{normalize} after rotation. 
- If \code{normalize} is a matrix of the same dimension as \code{A} then \code{A}
- is divided by \code{normalize} before rotation and multiplied 
- by \code{normalize} after rotation. 
+ If \code{normalize} is a matrix of the same dimension as \code{A} then each
+ element of \code{A} is divided by the corresponding element 
+ of \code{normalize} before rotation and multiplied 
+ by the corresponding element of \code{normalize} after rotation. 
  If \code{normalize} is a function then it should take \code{A} as an argument
  and return a matrix which is used like the matrix above. 
 }
@@ -115,6 +122,14 @@
 \examples{
   data("Harman", package="GPArotation")
   qHarman  <- GPForth(Harman8, Tmat=diag(2), method="quartimax")
+
+  data("WansbeekMeijer", package="GPArotation")
+  fa.unrotated  <- factanal(factors = 2, covmat=NetherlandsTV, 
+              normalize=TRUE, rotation="none")
+
+  GPForth(loadings(fa.unrotated), method="varimax", normalize=TRUE, eps=1e-5)$Lh
+
+  GPFoblq(loadings(fa.unrotated), method="oblimin", normalize=TRUE, eps=1e-5)$Lh
   }
 \author{Coen A. Bernaards and Robert I. Jennrich
         with some R modifications by Paul Gilbert}
@@ -369,16 +384,20 @@
   qHarman2 <- quartimax(Harman8) 
 
   data("WansbeekMeijer", package="GPArotation")
-  unrotated  <- factanal(factors = 2, covmat=NetherlandsTV, rotation="none")
-  unrotated
-  GPForth(loadings(unrotated), Tmat=diag(2), method="varimax")$Lh
-  factanal(factors = 2, covmat=NetherlandsTV, rotation="Varimax")
-  factanal(factors = 2, covmat=NetherlandsTV, rotation="varimax")
-  GPFoblq(loadings(unrotated), Tmat=diag(2), method="oblimin")$Lh
+  fa.unrotated  <- factanal(factors = 2, covmat=NetherlandsTV, rotation="none")
+
+  fa.varimax <- factanal(factors = 2, covmat=NetherlandsTV, 
+                rotation="varimax", control=list(rotate=list(normalize=TRUE)))
+  fa.oblimin <- factanal(factors = 2, covmat=NetherlandsTV,
+                rotation="oblimin", control=list(rotate=list(normalize=TRUE)))
+  
+  cbind(loadings(fa.unrotated), loadings(fa.varimax), loadings(fa.oblimin))
+
   }
 \seealso{
    \code{\link{GPForth}}
    \code{\link{GPFoblq}}
+   \code{\link{WansbeekMeijer}}
    \code{\link[stats]{factanal}}
    \code{\link[stats]{varimax}}
    \code{\link[stats]{promax}}

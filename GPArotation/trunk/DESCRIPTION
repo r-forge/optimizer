@@ -1,0 +1,10 @@
+Package: GPArotation
+Title: GPA Factor Rotation
+Description:  Gradient Projection Algorithm Rotation for Factor Analysis.
+Depends: R (>= 2.0.0)
+Version: 2005.1-1
+LazyLoad: yes
+License: GPL Version 2. See the LICENCE file for details.
+Author: Coen Bernaards and Robert Jennrich
+Maintainer: Paul Gilbert <pgilbert@bank-banque-canada.ca> and Coen Bernaards
+URL: http://www.stat.ucla.edu/research/gpa

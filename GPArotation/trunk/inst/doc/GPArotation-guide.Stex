@@ -1,0 +1,20 @@
+\documentclass[english]{article}
+\begin{document}
+
+%\VignetteIndexEntry{gpa Guide}
+\SweaveOpts{eval=TRUE,echo=TRUE,results=hide,fig=FALSE}
+\begin{Scode}{echo=FALSE,results=hide}
+ options(continue="  ")
+\end{Scode}
+
+\section{gpa Functions}
+In R, the functions in this package are made available with
+
+\begin{Scode}
+library("gpa") 
+ls()
+ 
+\end{Scode}
+
+Not yet.
+\end{document}

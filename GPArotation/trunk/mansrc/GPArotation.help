@@ -1,0 +1,283 @@
+
+\name{GPA}
+\alias{GPForth}
+\alias{GPFoblq}
+
+\title{Rotation optimization}
+\usage{
+    GPForth(A, Tmat=diag(ncol(A)), method="varimax", eps=1e-8, ...)
+    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", eps=1e-8, ...)
+    }
+\arguments{
+    \item{A}{initial factor loadings matrix for which the rotation 
+             is to be optimized.}
+    \item{Tmat}{initial rotation matrix.}
+    \item{method}{rotation objective.}
+    \item{eps}{convergence is assumed when the norm of the gradient is smaller
+         than eps.}
+    \item{...}{additional arguments passed to the rotation objective}
+}
+
+\description{
+   Gradient projection rotation optimization routine used by various rotation
+   objective.
+   }
+\value{A list with elements 
+  \item{Lh}{The rotated loadings, one column for each factor.}
+  \item{Th}{The rotation matrix.}
+  \item{Table}{A matrix recording the iterations of the rotation optimization.}
+  \item{method}{A string indicating the rotation objective function.}
+  \item{orthogonal}{A logical indicating if the rotation is orthogonal.}
+  and GPFoblq has the additional element
+  \item{Phi}{t(Th) %*% Th  (which will be the identity matrix for orthogonal
+  rotations)}
+  }
+\details{
+ Gradient projection rotation optimization routines developed by
+ Coen A. Bernaards and Robert I. Jennrich. These functions can be used directly
+ to rotate a loadings matrix, or indirectly through a rotation
+ objective passed to a factor estimation routine such as \code{\link{factanal}}.
+ For examples of the indirect use see the documention for 
+ rotations (such as \code{\link{oblimin}}).
+
+ GPForth is the main GP algorithm for orthogonal rotation.
+ GPFoblq is the main GP algorithm for oblique rotation.
+ Both algorithms require a loadings matrix \code{A} and optionally 
+ an initial rotation matrix \code{Tmat} indicating any rotation that has already
+ been performed. (These together fix the equivalence class over which the optimization
+ is done.) By default the initial rotation is the identity matrix.
+ The argument \code{method} can be used to specify a string indicating
+ the rotation objective. \code{GPFoblq} defaults to \code{"quartimin"} 
+ and \code{GPForth}
+ defaults to \code{"varimax"}. The string is prefixed with "vgQ." to give the actual
+ function call. 
+
+ Some rotation criteria (including \code{simplimax}, \code{pst}, 
+ \code{procrustes})
+ require one or more additional arguments. For example, \code{simplimax}
+ needs the number of 'close to zero loadings' which is given  as
+ the extra argument \code{k}. Check the rotation methods for details. 
+ (If a new rotation method is implemented and needs additional
+ arguments then this is the  way to pass them.)
+}
+\seealso{
+   \code{\link[stats]{factanal}}
+   \code{\link{oblimin}}
+   \code{\link{quartimin}}
+   \code{\link{target}}
+   \code{\link{pst}}
+   \code{\link{oblimax}}
+   \code{\link{entropy}}
+   \code{\link{quartimax}}
+   \code{\link{varimax}}
+   \code{\link{simplimax}}
+   \code{\link{bentler}}
+   \code{\link{tandemI}}
+   \code{\link{tandemII}}
+   \code{\link{geomin}}
+   \code{\link{cf}}
+   \code{\link{infomax}}
+   \code{\link{mccammon}}
+   \code{\link[stats]{varimax}}
+   \code{\link[stats]{promax}}
+}
+\author{Coen A. Bernaards and Robert I. Jennrich
+        with some R modifications by Paul Gilbert}
+\source{code is modified from original source splusfunctions.net available at 
+  \url{http://www.stat.ucla.edu/research/gpa}.
+}
+\reference{
+   source{\url{http://www.stat.ucla.edu/research} or
+          \url{http://www.stat.ucla.edu/research/gpa}
+   }
+   The software reference is
+
+   Bernaards, C.A. and Jennrich, R.I. (in press) Gradient Projection 
+     Algorithms and Software for Arbitrary Rotation Criteria in Factor
+     Analysis. Educational and Psychological Measurement.
+
+   Theory of gradient projection algorithms may be found in:
+
+   Jennrich, R.I. (2001). A simple general procedure for orthogonal rotation.
+       Psychometrika, 66, 289-306.
+
+   Jennrich, R.I. (2002). A simple general method for oblique rotation. 
+       Psychometrika, 67, 7-19.
+   }
+\concept{rotation}
+\keyword{multivariate}
+
+
+\name{rotations}
+\alias{oblimin}
+\alias{quartimin}
+\alias{targetT}
+\alias{targetQ}
+\alias{pstT}
+\alias{pstQ}
+\alias{oblimax}
+\alias{entropy}
+\alias{quartimax}
+\alias{varimax}
+\alias{simplimax}
+\alias{bentlerT}
+\alias{bentlerQ}
+\alias{tandemI}
+\alias{tandemII}
+\alias{geominT}
+\alias{geominQ}
+\alias{cfT}
+\alias{cfQ}
+\alias{infomaxT}
+\alias{infomaxQ}
+\alias{mccammon}
+
+\alias{vgQ.oblimin}
+\alias{vgQ.quartimin}
+\alias{vgQ.target}
+\alias{vgQ.pst}
+\alias{vgQ.oblimax}
+\alias{vgQ.entropy}
+\alias{vgQ.quartimax}
+\alias{vgQ.varimax}
+\alias{vgQ.simplimax}
+\alias{vgQ.bentler}
+\alias{vgQ.tandemI}
+\alias{vgQ.tandemII}
+\alias{vgQ.geomin}
+\alias{vgQ.cf}
+\alias{vgQ.infomax}
+\alias{vgQ.mccammon}
+
+\title{Rotations}
+\usage{
+    oblimin(L, Tmat=diag(ncol(L)), gam=0, eps=1e-8)
+    quartimin(L, Tmat=diag(ncol(L)))
+    targetT(L, Tmat=diag(ncol(L)), Target=NULL)
+    targetQ(L, Tmat=diag(ncol(L)), Target=NULL)
+    pstT(L, Tmat=diag(ncol(L)), W, Target=NULL)
+    pstQ(L, Tmat=diag(ncol(L)), W, Target=NULL)
+    oblimax(L, Tmat=diag(ncol(L)))
+    entropy(L, Tmat=diag(ncol(L)))
+    quartimax(L, Tmat=diag(ncol(L)))
+    varimax(L, Tmat=diag(ncol(L)))
+    simplimax(L, Tmat=diag(ncol(L)), k=nrow(L))
+    bentlerT(L, Tmat=diag(ncol(L)))
+    bentlerQ(L, Tmat=diag(ncol(L)))
+    tandemI(L, Tmat=diag(ncol(L)))
+    tandemII(L, Tmat=diag(ncol(L)))
+    geominT(L, Tmat=diag(ncol(L)), delta=.01)
+    geominQ(L, Tmat=diag(ncol(L)), delta=.01)
+    cfT(L, Tmat=diag(ncol(L)), kappa=0)
+    cfQ(L, Tmat=diag(ncol(L)), kappa=0)
+    infomaxT(L, Tmat=diag(ncol(L)))
+    infomaxQ(L, Tmat=diag(ncol(L)))
+    mccammon(L, Tmat=diag(ncol(L)))
+
+    vgQ.oblimin(L, gam=0)
+    vgQ.quartimin(L)
+    vgQ.target(L, Target=NULL)
+    vgQ.pst(L, W, Target=NULL)
+    vgQ.oblimax(L)
+    vgQ.entropy(L)
+    vgQ.quartimax(L)
+    vgQ.varimax(L)
+    vgQ.simplimax(L, k=nrow(L))
+    vgQ.bentler(L)
+    vgQ.tandemI(L)
+    vgQ.tandemII(L)
+    vgQ.geomin(L, delta=.01)
+    vgQ.cf(L, kappa=0)
+    vgQ.infomax(L)
+    vgQ.mccammon(L)
+}
+\arguments{
+    \item{L}{a factor loading matrix}
+    \item{Tmat}{initial rotation matrix.}
+    \item{gam}   {parameters for rotation objective calculation.}
+    \item{Target}{parameters for rotation objective calculation.}
+    \item{W}     {parameters for rotation objective calculation.}
+    \item{k}     {parameters for rotation objective calculation.}
+    \item{delta} {parameters for rotation objective calculation.}
+    \item{kappa} {parameters for rotation objective calculation.}
+    \item{eps}{parameters passed to optimization routine (GPForth or GPFoblq).}
+}
+
+\value{A list as needed by \code{factanal} with elements
+   \item{loadings}{Lh from \code{GPForth} or \code{GPFoblq}.} 
+   \item{rotmat}{Th from \code{GPForth} or \code{GPFoblq}.}  
+   \item{Table}{Table from \code{GPForth} or \code{GPFoblq}.}
+   }
+\description{
+   A rotation objective value used by \code{factanal}.
+}
+\details{
+ The \code{vgQ.*} versions of the code are called by the optimization routine and
+ would typically not be used directly, so these methods are not exported
+ from the package namespace. (They simply return the function value and gradient
+ for a given rotation matrix.) You can print these functions but the package 
+ name needs to be specified, since they are not exported. For example, use
+ \code{GPArotation:::vgQ.oblimin} to view the function \code{vgQ.oblimin}.
+   
+ Rotations which are available are 
+
+  \item{oblimin  }{oblique    oblimin family                                  }
+  \item{quartimin}{oblique						      }
+  \item{targetT  }{orthogonal target rotation				      }
+  \item{targetQ  }{oblique    target rotation				      }
+  \item{pstT	 }{orthogonal partially specified target rotation	      }
+  \item{pstQ	 }{oblique    partially specified target rotation	      }
+  \item{oblimax  }{oblique						      }
+  \item{entropy  }{orthogonal minimum entropy				      }
+  \item{quartimax}{orthogonal						      }
+  \item{varimax  }{orthogonal						      }
+  \item{simplimax}{oblique						      }
+  \item{bentlerT }{orthogonal Bentler's invariant pattern simplicity criterion}
+  \item{bentlerQ }{oblique    Bentler's invariant pattern simplicity criterion}
+  \item{tandemI  }{orthogonal Tandem Criterion, Comrey, 1967		      }
+  \item{tandemII }{orthogonal Tandem Criterion, Comrey, 1967		      }
+  \item{geominT  }{orthogonal						      }
+  \item{geominQ  }{oblique						      }
+  \item{cfT	 }{orthogonal Crawford-Ferguson family			      }
+  \item{cfQ	 }{oblique      Crawford-Ferguson family		      }
+  \item{infomaxT }{orthogonal						      }
+  \item{infomaxQ }{oblique						      }
+  \item{mccammon }{orthogonal McCammon minimum entropy ratio		      }
+
+ New rotation methods can be programmed with a name "vgQ.newmethod". The 
+ inputs are the matrix L, and optionally any additional arguments. The
+ output should be a list with elements 
+  \item{f}{the value of the criterion at L.}
+  \item{Gq}{the gradient at L.}
+  \item{Method}{a string indicating the criterion.}
+ }
+\example{
+  data(ability.cov)
+  factanal(factors = 2, covmat = ability.cov, rotation="oblimin")
+  }
+\seealso{
+   \code{\link{GPForth}}
+   \code{\link{GPFoblq}}
+   \code{\link[stats]{factanal}}
+   \code{\link[stats]{varimax}}
+   \code{\link[stats]{promax}}
+}
+\reference{
+   source{\url{http://www.stat.ucla.edu/research} or
+          \url{http://www.stat.ucla.edu/research/gpa}
+   }
+   The software reference is
+
+   Bernaards, C.A. and Jennrich, R.I. (in press) Gradient Projection 
+     Algorithms and Software for Arbitrary Rotation Criteria in Factor
+     Analysis. Educational and Psychological Measurement.
+
+   A discussion of rotation objectives can be found in many references,
+   for example, Tom Wansbeek and Erik Meijer (2000) Measurement 
+   Error and Latent Variables in Econometrics, North-Holland: Amsterdam
+  }
+
+\author{Coen A. Bernaards and Robert I. Jennrich
+        with some R modifications by Paul Gilbert and Erik Meijer}
+\concept{rotation}
+\keyword{multivariate}

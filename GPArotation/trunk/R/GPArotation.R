@@ -5,7 +5,7 @@ Random.Start <- function(k){
 NormalizingWeight <- function(A, normalize=FALSE){
  if ("function" == mode(normalize)) normalize <- normalize(A)
  if (is.logical(normalize)){
-    if (normalize) normalize <- sqrt(apply(A^2,1,sum))
+    if (normalize) normalize <- sqrt(rowSums(A^2))
     else return(array(1, dim(A)))
     }
  if (is.vector(normalize)) 
@@ -267,7 +267,7 @@ Varimax <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000
    }
 
 vgQ.varimax <- function(L){
-  QL <- sweep(L^2,2,apply(L^2,2,mean),"-")
+  QL <- sweep(L^2,2,colMeans(L^2),"-")
   list(Gq= -L * QL,
        f= -sqrt(sum(diag(crossprod(QL))))^2/4, 
        Method="varimax")
@@ -375,7 +375,7 @@ vgQ.geomin <- function(L, delta=.01){
   k <- ncol(L)
   p <- nrow(L)
   L2 <- L^2 + delta
-  pro <- exp(apply(log(L2),1,sum)/k) 
+  pro <- exp(rowSums(log(L2))/k) 
   list(Gq=(2/k)*(L/L2)*matrix(rep(pro,k),p),
        f= sum(pro), 
        Method="Geomin")
@@ -425,8 +425,8 @@ vgQ.infomax <- function(L){
   p <- nrow(L)
   S <- L^2
   s <- sum(S)
-  s1 <- apply(S, 1, sum)
-  s2 <- apply(S, 2, sum)
+  s1 <- rowSums(S)
+  s2 <- colSums(S)
   E <- S/s
   e1 <- s1/s
   e2 <- s2/s
@@ -458,7 +458,7 @@ vgQ.mccammon <- function(L){
   p <- nrow(L)
   S <- L^2
   M <- matrix(1,p,p)
-  s2 <- apply(S, 2, sum)
+  s2 <- colSums(S)
   P <- S / matrix(rep(s2,p),ncol=k,byrow=T)
   Q1 <- -sum(P * log(P))
   H <- -(log(P) + 1)

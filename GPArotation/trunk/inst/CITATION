@@ -1,6 +1,6 @@
 citHeader("To cite package 'GPArotation' in publications use:")
 
-citEntry(entry="inproceedings",
+citEntry(entry="article",
   author  = personList(as.person("Coen A. Bernaards"),
                        as.person("Robert I.Jennrich")),
   year    = 2005,

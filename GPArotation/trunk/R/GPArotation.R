@@ -240,7 +240,7 @@ vgQ.oblimax <- function(L){
 }
 
 entropy <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="entropy", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, method="entropy", normalize=normalize, eps=eps, maxit=maxit)
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -306,7 +306,7 @@ vgQ.bentler <- function(L){
 }
 
 tandemI <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="tandemI", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, method="tandemI", normalize=normalize, eps=eps, maxit=maxit)
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -333,7 +333,7 @@ vgQ.tandemI <- function(L){  # Tandem Criterion, Comrey, 1967.
   }
 
 tandemII <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="tandemII", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, method="tandemII", normalize=normalize, eps=eps, maxit=maxit)
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -448,7 +448,7 @@ vgQ.infomax <- function(L){
 }
 
 mccammon <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="mccammon", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, method="mccammon", normalize=normalize, eps=eps, maxit=maxit)
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 

@@ -2,8 +2,7 @@
 #   to ensure there was no accidental change. It would be better to have
 #   comparisons with known correct values.
 
-# Tests for oblimax, tandemI and tandemII are commented out as 
-#   they appear to be  unstable.
+# Test for oblimax is commented out as it appears to be  unstable.
 
 
  Sys.getenv("R_LIBS")
@@ -42,6 +41,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- oblimin(L)$loadings 
   tst <- t(matrix(c(
            0.3863615904740822504,  0.4745127741495974161,
           -0.0110059418769087539,  0.6458720769633764514,
@@ -51,8 +51,6 @@ all.ok <- TRUE
            0.7905657274265397438,  0.0526109550054999417
       ), 2, 6))
  
-
-  v <- oblimin(L)$loadings 
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 1. Value:\n")
     print(v, digits=18)
@@ -62,6 +60,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- quartimin(L)$loadings
   tst <- t(matrix(c(
            0.3863615904740822504,  0.4745127741495974161,
           -0.0110059418769087539,  0.6458720769633764514,
@@ -71,7 +70,6 @@ all.ok <- TRUE
            0.7905657274265397438,  0.0526109550054999417
       ), 2, 6))
 
-  v <- quartimin(L)$loadings
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 2. Value:\n")
     print(v, digits=18)
@@ -81,6 +79,8 @@ all.ok <- TRUE
     } 
 
 
+  v <- targetT(L, Target=matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
+               eps=1e-5)$loadings 
   tst <- t(matrix(c(
   	  0.551529228817982942, 0.4905002767031292898,
   	  0.217748645523411000, 0.6027046291262584399,
@@ -90,8 +90,6 @@ all.ok <- TRUE
   	  0.803390575440818822, 0.1448091121037717866
       ), 2, 6))
 
-  v <- targetT(L, Target=matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
-               eps=1e-5)$loadings 
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 3. Value:\n")
     print(v, digits=18)
@@ -101,6 +99,8 @@ all.ok <- TRUE
     } 
 
 
+  v <- targetQ(L, Target=matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
+               eps=1e-5)$loadings  
   tst <- t(matrix(c(
   	  0.735795682866631218, 0.565351705145453853,
   	  0.433590223819374398, 0.664644550038417159,
@@ -110,8 +110,6 @@ all.ok <- TRUE
   	  0.872521244896209747, 0.208735706420634437
       ), 2, 6))
 
-  v <- targetQ(L, Target=matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
-               eps=1e-5)$loadings  
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 4. Value:\n")
     print(v, digits=18)
@@ -121,6 +119,11 @@ all.ok <- TRUE
     } 
 
 
+ # Does not converge even with maxit=10000, but the loadings matrix is not
+ #  changing. Possibly the gradient is extremely large even very close to opt.
+  v <- pstT(L, W = matrix(c(rep(.4,6),rep(.6,6)), 6,2),
+           Target= matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
+               maxit=1000, eps=1e-5)$loadings     
   tst <- t(matrix(c(
           0.37067889993474656407, 0.638257130653133720,
           0.01855112570739854416, 0.640564749523800270,
@@ -130,11 +133,6 @@ all.ok <- TRUE
           0.71793428958051475064, 0.388556883222951677
       ), 2, 6))
 
- # Does not converge even with maxit=10000, but the loadings matrix is not
- #  changing. Possibly the gradient is extremely large even very close to opt.
-  v <- pstT(L, W = matrix(c(rep(.4,6),rep(.6,6)), 6,2),
-           Target= matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
-               maxit=1000, eps=1e-5)$loadings     
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 5. Value:\n")
     print(v, digits=18)
@@ -144,6 +142,11 @@ all.ok <- TRUE
     } 
 
 
+ # Does not converge even with maxit=10000, but the loadings matrix is not
+ #  changing. Possibly the gradient is extremely large even very close to opt.
+  v <- pstQ(L, W = matrix(c(rep(.4,6),rep(.6,6)), 6,2),
+           Target= matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
+               maxit=1000, eps=1e-5)$loadings     
   tst <- t(matrix(c(
           0.573125161748393785, 0.700868331877288475,
           0.214899397066479453, 0.681727425525818886,
@@ -153,11 +156,6 @@ all.ok <- TRUE
           0.850691132520651205, 0.456859727346562328
       ), 2, 6))
 
- # Does not converge even with maxit=10000, but the loadings matrix is not
- #  changing. Possibly the gradient is extremely large even very close to opt.
-  v <- pstQ(L, W = matrix(c(rep(.4,6),rep(.6,6)), 6,2),
-           Target= matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
-               maxit=1000, eps=1e-5)$loadings     
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 6. Value:\n")
     print(v, digits=18)
@@ -198,17 +196,16 @@ all.ok <- TRUE
 #    } 
 
 
+  v <- entropy(L, maxit=3000, eps=1e-5)$loadings  
   tst <- t(matrix(c(
-	  -0.595241134680514428, -0.593413784323445381,
-	  -0.648726078098998959, -0.257389315895841408,
-          -0.896758845688784056, -0.345816215796869053,
-          -0.487533402896166868, -0.184649783402633882,
-          -0.260349007963903922, -0.999438062373664504,
-          -0.290878679630171777, -0.832224919261500662
+	  0.528292107548243184, 0.515443945340967824,
+	  0.189686511729033253, 0.612116304198454975,
+          0.252311894464850861, 0.847442931117894815,
+          0.133843268148035738, 0.461156452364903380,
+          0.964740133927989407, 0.129750551769587635,
+          0.795847094000000532, 0.181751199795689433
       ), 2, 6))
 
-  v <- entropy(L, maxit=3000, eps=1e-5)$loadings  
- # this still does not converge and fuzz is relaxed for different platforms
   if( 0.01 < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 8. Value:\n")
     print(v, digits=18)
@@ -218,6 +215,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- quartimax(L, eps=1e-5)$loadings
   tst <- t(matrix(c(
   	  0.534714740804540178, 0.508778102568043678,
   	  0.197348140750149392, 0.609689309353509956,
@@ -227,7 +225,6 @@ all.ok <- TRUE
   	  0.798063848020893585, 0.171756193883937508
       ), 2, 6))
 
-  v <- quartimax(L, eps=1e-5)$loadings
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 9. Value:\n")
     print(v, digits=18)
@@ -237,6 +234,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- Varimax(L)$loadings  
   tst <- t(matrix(c(
           0.515866523962843160, 0.527879475961036904,
           0.175054634278874244, 0.616460231981747930,
@@ -246,7 +244,6 @@ all.ok <- TRUE
           0.791292800869773050, 0.200653429940987366
       ), 2, 6))
 
-  v <- Varimax(L)$loadings  
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 10. Value:\n")
     print(v, digits=18)
@@ -256,6 +253,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- simplimax(L, eps=1e-5)$loadings
   tst <- t(matrix(c(
   	   0.3384175759313114429, 0.508414890494446547464,
   	  -0.0654601124161610648, 0.670992229004664153535,
@@ -265,7 +263,6 @@ all.ok <- TRUE
   	   0.7702037184085044341, 0.085651123319384916965
       ), 2, 6))
 
-  v <- simplimax(L, eps=1e-5)$loadings
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 11. Value:\n")
     print(v, digits=18)
@@ -275,6 +272,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- bentlerT(L)$loadings 
   tst <- t(matrix(c(
           0.523583611303327312, 0.520226117818945788,
           0.184113022124463677, 0.613815719643687197,
@@ -284,7 +282,6 @@ all.ok <- TRUE
           0.794161628656258278, 0.188979901644201559
       ), 2, 6))
 
-  v <- bentlerT(L)$loadings 
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 12. Value:\n")
     print(v, digits=18)
@@ -294,6 +291,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- bentlerQ(L)$loadings 
   tst <- t(matrix(c(
            0.3801726240258240241,  0.4741208368044214638,
           -0.0223632969057368826,  0.6514196922540864687,
@@ -303,7 +301,6 @@ all.ok <- TRUE
            0.7939648477384558811,  0.0440983921679098251
       ), 2, 6))
 
-  v <- bentlerQ(L)$loadings 
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 13. Value:\n")
     print(v, digits=18)
@@ -313,76 +310,46 @@ all.ok <- TRUE
     } 
 
 
-#  tandemI
+  v <- tandemI(L, eps=1e-5)$loadings  
+  tst <- t(matrix(c(
+       0.615424480780047745,  0.4074649925368262759,
+       0.300894306348887419,  0.5658002819054848143,
+       0.406455233467338028,  0.7852483408305571677,
+       0.217785179074990981,  0.4279590047675180808,
+       0.971977129465111611, -0.0530960591067626969,
+       0.815800376450207976,  0.0295946184147908228
+      ), 2, 6))
 
-# this is test value on one computer
-#  tst <- t(matrix(c(
-#	   0.842839618436879490, 1.147474221357566826,
-#	   0.966496634451572856, 0.899179738613143820,
-#	   1.337254014063740337, 1.233960563362769269,
-#	   0.727426977709420441, 0.667827007601493383,
-#	   0.277572186047747749, 1.169666309336891752,
-#	   0.345129603963082010, 1.050133434159491896
-#      ), 2, 6))
-
-# this is test value on another computer
-#  tst <- t(matrix(c(
-#   -2.412020090290893037,  1.78042342943448961,
-#   -0.507776871994296775, -0.13486874428921994,
-#   -0.647537290802076337, -0.23964447636732431,
-#   -0.333752530229566025, -0.14818009846219479,
-#   -5.085550056645820938,  4.72244907426028604,
-#   -4.132560331522083352,  3.76026575054581880
-#   ), 2, 6))
-#
-# # Does not converge even with maxit=10000, but the loadings matrix is not
-# #  changing. Possibly the gradient is extremely large even very close to opt.
-#  v <- tandemI(L, eps=1e-5)$loadings  
-#  if( fuzz < max(abs(v - tst))) {
-#    cat("Calculated value is not the same as test value in test rotations 14. Value:\n")
-#    print(v, digits=18)
-#    cat("difference:\n")
-#    print(v - tst, digits=18)
-#    all.ok <- FALSE  
-#    } 
+  if( fuzz < max(abs(v - tst))) {
+    cat("Calculated value is not the same as test value in test rotations 14. Value:\n")
+    print(v, digits=18)
+    cat("difference:\n")
+    print(v - tst, digits=18)
+    all.ok <- FALSE  
+    } 
 
 
 
-#  tandemII
+  v <- tandemII(L, eps=1e-5)$loadings 
+  tst <- t(matrix(c(
+      0.512160139332842212, 0.531476249107136312,
+      0.170736763115044710, 0.617670057812827134,
+      0.226081850628144149, 0.854814488884392154,
+      0.119571200821562001, 0.465061309851099225,
+      0.960284416460420398, 0.159413208985883820,
+      0.789869387186175276, 0.206185467095899383
+      ), 2, 6))
 
-# this is test value on one computer
-#  tst <- t(matrix(c(
-#	   -19.9573339993058916, -19.9414309667870207,
-#	   -15.2547723459692186, -15.5482769465485902,
-#	   -20.9207010736416947, -21.3343935951843306,
-#	   -11.3177711730793167, -11.5453602088763034,
-#	   -21.0732738925002536, -20.4756229416411912,
-#	   -18.7993114151414424, -18.3586393947653654
-#      ), 2, 6))
-
-# this is test value on another computer
-#  tst <- t(matrix(c(
-#      3.9329030000992886, 3.95622514761479760,
-#      3.2060668977597535, 2.91701194947276399,
-#      4.4041716662983701, 3.99653683894223333,
-#      2.3850647548554367, 2.16073770186518788,
-#      3.7729824283143452, 4.38078821177391475,
-#      3.4263291865646557, 3.87569071461652559
-#      ), 2, 6))
-#
-
-# # Does not converge even with maxit=10000, but the loadings matrix is not
-# #  changing. Possibly the gradient is extremely large even very close to opt.
-#  v <- tandemII(L, eps=1e-5)$loadings 
-#  if( fuzz < max(abs(v - tst))) {
-#    cat("Calculated value is not the same as test value in test rotations 15. Value:\n")
-#    print(v, digits=18)
-#    cat("difference:\n")
-#    print(v - tst, digits=18)
-#    all.ok <- FALSE  
-#    } 
+  if( fuzz < max(abs(v - tst))) {
+    cat("Calculated value is not the same as test value in test rotations 15. Value:\n")
+    print(v, digits=18)
+    cat("difference:\n")
+    print(v - tst, digits=18)
+    all.ok <- FALSE  
+    } 
 
 
+  v <- geominT(L, eps=1e-5)$loadings  
   tst <- t(matrix(c(
   	  0.572197044101002361, 0.4662247895688098054,
   	  0.243573415560656120, 0.5927388411683653935,
@@ -392,7 +359,6 @@ all.ok <- TRUE
   	  0.808894688433769660, 0.1099794466209375043
       ), 2, 6))
 
-  v <- geominT(L, eps=1e-5)$loadings  
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 16. Value:\n")
     print(v, digits=18)
@@ -402,6 +368,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- geominQ(L, eps=1e-5)$loadings  
   tst <- t(matrix(c(
            0.39672053553904490508,  0.4713295988080449250,
            0.00424452688463150020,  0.6389466007374070555,
@@ -411,7 +378,6 @@ all.ok <- TRUE
            0.79011178369962709045,  0.0558689642678330683
       ), 2, 6))
 
-  v <- geominQ(L, eps=1e-5)$loadings  
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 17. Value:\n")
     print(v, digits=18)
@@ -421,6 +387,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- cfT(L)$loadings	
   tst <- t(matrix(c(
           0.534721263659975854, 0.508771247100584523,
           0.197355957387199576, 0.609686779159006154,
@@ -430,7 +397,6 @@ all.ok <- TRUE
           0.798066049992627313, 0.171745962120156664
       ), 2, 6))
 
-  v <- cfT(L)$loadings	
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 18. Value:\n")
     print(v, digits=18)
@@ -440,6 +406,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- cfQ(L)$loadings	
   tst <- t(matrix(c(
            0.3863615904740822504,  0.4745127741495974161,
           -0.0110059418769087539,  0.6458720769633764514,
@@ -449,7 +416,6 @@ all.ok <- TRUE
            0.7905657274265397438,  0.0526109550054999417
       ), 2, 6))
 
-  v <- cfQ(L)$loadings	
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 19. Value:\n")
     print(v, digits=18)
@@ -459,6 +425,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- infomaxT(L, eps=1e-5)$loadings 
   tst <- t(matrix(c(
   	  0.495330443338021176, 0.547195361446864537,
   	  0.151384273205308784, 0.622695868320644275,
@@ -468,7 +435,6 @@ all.ok <- TRUE
   	  0.783052579543945471, 0.230726576980168713
       ), 2, 6))
 
-  v <- infomaxT(L, eps=1e-5)$loadings 
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 20. Value:\n")
     print(v, digits=18)
@@ -478,6 +444,7 @@ all.ok <- TRUE
     } 
 
 
+  v <- infomaxQ(L, eps=1e-5)$loadings 
   tst <- t(matrix(c(
   	   0.39327554287862442894,  0.4693137508305071925,
   	  -0.00319802321222481794,  0.6422985517185823001,
@@ -487,7 +454,6 @@ all.ok <- TRUE
   	   0.79356458059567791530,  0.0471559021503157039
       ), 2, 6))
 
-  v <- infomaxQ(L, eps=1e-5)$loadings 
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 21. Value:\n")
     print(v, digits=18)
@@ -497,17 +463,16 @@ all.ok <- TRUE
     } 
 
 
+  v <- mccammon(L, eps=1e-5)$loadings 
   tst <- t(matrix(c(
-          0.499563849536320603, 0.543711314635863419,
-          0.156214100300119313, 0.621620013394660775,
-          0.205986246705249010, 0.860034043856927166,
-          0.108639140267620352, 0.467818061529905960,
-          0.956284901268870557, 0.182598340120454394,
-          0.784820467897764273, 0.225234145534117969
+        0.4293472299617892007, 0.600363196582340275,
+        0.0790140496845253004, 0.635943490060206229,
+        0.0992523811009183854, 0.878618107277518656,
+        0.0506062164774049028, 0.477512622702450096,
+        0.9268544198491108776, 0.297488850382792269,
+        0.7514463663627769519, 0.318958389348199534
       ), 2, 6))
 
-  v <- mccammon(L, eps=1e-5)$loadings 
- # this still does not converge
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test rotations 22. Value:\n")
     print(v, digits=18)

@@ -89,8 +89,7 @@
     \item{W}{weighting of each element in target.}
     \item{k}{number of close to zero loadings.}
     \item{delta}{constant added to L\^2 in objective calculation.}
-    \item{kappa}{0=Quartimax, 1/p=Varimax, m/(2*p)=Equamax,
-        (m-1)/(p+m-2)=Parsimax, 1=Factor parsimony.}
+    \item{kappa}{see details.}
     \item{normalize}{parameter passed to optimization routine (GPForth or GPFoblq).}
     \item{eps}{parameter passed to optimization routine (GPForth or GPFoblq).}
     \item{maxit}{parameter passed to optimization routine (GPForth or GPFoblq).}
@@ -138,20 +137,26 @@
  simplimax \tab oblique	   \tab         				\cr
  bentlerT  \tab orthogonal \tab  Bentler's invariant pattern simplicity criterion\cr
  bentlerQ  \tab oblique    \tab  Bentler's invariant pattern simplicity criterion\cr
- tandemI   \tab orthogonal \tab  Tandem Criterion, Comrey, 1967 		 \cr
- tandemII  \tab orthogonal \tab  Tandem Criterion, Comrey, 1967 		 \cr
- geominT   \tab orthogonal \tab 					 \cr
- geominQ   \tab oblique	   \tab         				 \cr
- cfT	   \tab orthogonal \tab  Crawford-Ferguson family		 \cr
- cfQ	   \tab oblique	   \tab  Crawford-Ferguson family		 \cr
- infomaxT  \tab orthogonal \tab 					 \cr
- infomaxQ  \tab oblique	   \tab         				 \cr
- mccammon  \tab orthogonal \tab  McCammon minimum entropy ratio 	 \cr
+ tandemI   \tab orthogonal \tab  Tandem Criterion		   \cr
+ tandemII  \tab orthogonal \tab  Tandem Criterion		   \cr
+ geominT   \tab orthogonal \tab 				   \cr
+ geominQ   \tab oblique	   \tab         			   \cr
+ cfT	   \tab orthogonal \tab  Crawford-Ferguson family	   \cr
+ cfQ	   \tab oblique	   \tab  Crawford-Ferguson family	   \cr
+ infomaxT  \tab orthogonal \tab 				   \cr
+ infomaxQ  \tab oblique	   \tab         			   \cr
+ mccammon  \tab orthogonal \tab  McCammon minimum entropy ratio    \cr
 }
+
  Note that \code{Varimax} defined here uses \code{vgQ.varimax} and 
  is not \code{varimax}
  defined in the \code{stats} package. \code{stats:::varimax} does Kaiser 
  normalization by default whereas \code{Varimax} defined here does not.
+ 
+ The argument \code{kappa} parameterizes the family for the Crawford-Ferguson 
+ method. If \code{m} is the number of factors and \code{p} is the number of 
+ indicators then \code{kappa} values having special names are 0=Quartimax, 
+ 1/p=Varimax, m/(2*p)=Equamax, (m-1)/(p+m-2)=Parsimax, 1=Factor parsimony.
  
  New rotation methods can be programmed with a name "vgQ.newmethod". The 
  inputs are the matrix L, and optionally any additional arguments. The

@@ -47,8 +47,11 @@
  Both algorithms require a loadings matrix \code{A} which fixes the 
  equivalence class over which the optimization is done. It must be 
  the solution to the orthogonal factor analysis problem. 
- \code{A \%*\% t(solve(Tmat))} indicates the starting point for 
- iterative optimization. By default the initial rotation is the 
+ A rotation is defined as code{A \%*\% t(solve(Tmat))}. For the 
+ orthogonal case \code{Tmat} is orthonormal so this simplifies 
+ to code{A \%*\% Tmat}. The starting point for 
+ iterative optimization is given by the \code{Tmat} rotation of \code{A}. 
+ By default the initial rotation is the 
  identity matrix. For some rotation criteria local optima may exist
  and it is recommended to check for this by starting with many different
  initial rotations. The function \code{\link{Random.Start}} will help to do

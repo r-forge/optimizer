@@ -5,8 +5,8 @@
 
 \title{Rotation optimization}
 \usage{
-    GPForth(A, Tmat=diag(ncol(A)), method="varimax", eps=1e-8, ...)
-    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", eps=1e-8, ...)
+    GPForth(A, Tmat=diag(ncol(A)), method="Varimax", eps=1e-8, maxit=500, ...)
+    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", eps=1e-8, maxit=500, ...)
     }
 \arguments{
     \item{A}{initial factor loadings matrix for which the rotation 
@@ -15,6 +15,7 @@
     \item{method}{rotation objective.}
     \item{eps}{convergence is assumed when the norm of the gradient is smaller
          than eps.}
+    \item{maxit}{maximum number of iterations allowed in the main loop.}
     \item{...}{additional arguments passed to the rotation objective}
 }
 
@@ -28,6 +29,7 @@
   \item{Table}{A matrix recording the iterations of the rotation optimization.}
   \item{method}{A string indicating the rotation objective function.}
   \item{orthogonal}{A logical indicating if the rotation is orthogonal.}
+  \item{convergence}{A logical indicating if convergence was obtained.}
   and GPFoblq has the additional element
   \item{Phi}{t(Th) %*% Th  (which will be the identity matrix for orthogonal
   rotations)}
@@ -49,7 +51,7 @@
  The argument \code{method} can be used to specify a string indicating
  the rotation objective. \code{GPFoblq} defaults to \code{"quartimin"} 
  and \code{GPForth}
- defaults to \code{"varimax"}. The string is prefixed with "vgQ." to give the actual
+ defaults to \code{"Varimax"}. The string is prefixed with "vgQ." to give the actual
  function call. 
 
  Some rotation criteria (including \code{simplimax}, \code{pst}, 
@@ -69,7 +71,8 @@
    \code{\link{oblimax}}
    \code{\link{entropy}}
    \code{\link{quartimax}}
-   \code{\link{varimax}}
+   \code{\link{Varimax}}
+   \code{\link[stats]{varimax}}
    \code{\link{simplimax}}
    \code{\link{bentler}}
    \code{\link{tandemI}}
@@ -78,7 +81,6 @@
    \code{\link{cf}}
    \code{\link{infomax}}
    \code{\link{mccammon}}
-   \code{\link[stats]{varimax}}
    \code{\link[stats]{promax}}
 }
 \author{Coen A. Bernaards and Robert I. Jennrich
@@ -145,7 +147,7 @@
 \alias{oblimax}
 \alias{entropy}
 \alias{quartimax}
-\alias{varimax}
+\alias{Varimax}
 \alias{simplimax}
 \alias{bentlerT}
 \alias{bentlerQ}
@@ -178,28 +180,28 @@
 
 \title{Rotations}
 \usage{
-    oblimin(L, Tmat=diag(ncol(L)), gam=0, eps=1e-8)
-    quartimin(L, Tmat=diag(ncol(L)))
-    targetT(L, Tmat=diag(ncol(L)), Target=NULL)
-    targetQ(L, Tmat=diag(ncol(L)), Target=NULL)
-    pstT(L, Tmat=diag(ncol(L)), W, Target=NULL)
-    pstQ(L, Tmat=diag(ncol(L)), W, Target=NULL)
-    oblimax(L, Tmat=diag(ncol(L)))
-    entropy(L, Tmat=diag(ncol(L)))
-    quartimax(L, Tmat=diag(ncol(L)))
-    varimax(L, Tmat=diag(ncol(L)))
-    simplimax(L, Tmat=diag(ncol(L)), k=nrow(L))
-    bentlerT(L, Tmat=diag(ncol(L)))
-    bentlerQ(L, Tmat=diag(ncol(L)))
-    tandemI(L, Tmat=diag(ncol(L)))
-    tandemII(L, Tmat=diag(ncol(L)))
-    geominT(L, Tmat=diag(ncol(L)), delta=.01)
-    geominQ(L, Tmat=diag(ncol(L)), delta=.01)
-    cfT(L, Tmat=diag(ncol(L)), kappa=0)
-    cfQ(L, Tmat=diag(ncol(L)), kappa=0)
-    infomaxT(L, Tmat=diag(ncol(L)))
-    infomaxQ(L, Tmat=diag(ncol(L)))
-    mccammon(L, Tmat=diag(ncol(L)))
+    oblimin(L, Tmat=diag(ncol(L)), gam=0, eps=1e-8, maxit=500)
+    quartimin(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    targetT(L, Tmat=diag(ncol(L)), Target=NULL, eps=1e-8, maxit=500)
+    targetQ(L, Tmat=diag(ncol(L)), Target=NULL, eps=1e-8, maxit=500)
+    pstT(L, Tmat=diag(ncol(L)), W, Target=NULL, eps=1e-8, maxit=500)
+    pstQ(L, Tmat=diag(ncol(L)), W, Target=NULL, eps=1e-8, maxit=500)
+    oblimax(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    entropy(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    quartimax(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    Varimax(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    simplimax(L, Tmat=diag(ncol(L)), k=nrow(L), eps=1e-8, maxit=500)
+    bentlerT(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    bentlerQ(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    tandemI(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    tandemII(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    geominT(L, Tmat=diag(ncol(L)), delta=.01, eps=1e-8, maxit=500)
+    geominQ(L, Tmat=diag(ncol(L)), delta=.01, eps=1e-8, maxit=500)
+    cfT(L, Tmat=diag(ncol(L)), kappa=0, eps=1e-8, maxit=500)
+    cfQ(L, Tmat=diag(ncol(L)), kappa=0, eps=1e-8, maxit=500)
+    infomaxT(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    infomaxQ(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
+    mccammon(L, Tmat=diag(ncol(L)), eps=1e-8, maxit=500)
 
     vgQ.oblimin(L, gam=0)
     vgQ.quartimin(L)
@@ -227,13 +229,15 @@
     \item{k}     {parameters for rotation objective calculation.}
     \item{delta} {parameters for rotation objective calculation.}
     \item{kappa} {parameters for rotation objective calculation.}
-    \item{eps}{parameters passed to optimization routine (GPForth or GPFoblq).}
+    \item{eps}{parameter passed to optimization routine (GPForth or GPFoblq).}
+    \item{maxit}{parameter passed to optimization routine (GPForth or GPFoblq).}
 }
 
 \value{A list as needed by \code{factanal} with elements
    \item{loadings}{Lh from \code{GPForth} or \code{GPFoblq}.} 
    \item{rotmat}{Th from \code{GPForth} or \code{GPFoblq}.}  
    \item{Table}{Table from \code{GPForth} or \code{GPFoblq}.}
+   \item{logical}{Convergence indicator from \code{GPForth} or \code{GPFoblq}.}
    }
 \description{
    A rotation objective value used by \code{factanal}.
@@ -257,7 +261,7 @@
   \item{oblimax  }{oblique						      }
   \item{entropy  }{orthogonal minimum entropy				      }
   \item{quartimax}{orthogonal						      }
-  \item{varimax  }{orthogonal						      }
+  \item{Varimax  }{orthogonal						      }
   \item{simplimax}{oblique						      }
   \item{bentlerT }{orthogonal Bentler's invariant pattern simplicity criterion}
   \item{bentlerQ }{oblique    Bentler's invariant pattern simplicity criterion}
@@ -271,6 +275,10 @@
   \item{infomaxQ }{oblique						      }
   \item{mccammon }{orthogonal McCammon minimum entropy ratio		      }
 
+ Note that \code{Varimax} defined here is different code from \code{varimax}
+ defined in the \code{stats} package, and the default is not to do Kaiser 
+ normalization as is done by \code{varimax}.
+ 
  New rotation methods can be programmed with a name "vgQ.newmethod". The 
  inputs are the matrix L, and optionally any additional arguments. The
  output should be a list with elements 

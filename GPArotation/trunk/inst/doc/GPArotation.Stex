@@ -16,5 +16,12 @@ ls()
  
 \end{Scode}
 
+As of R-2.1.0 the code from the vignette that generates this guide can 
+be loaded into an editor with \emph{edit(vignette("GPArotation"))}.
+This uses the default editor, which can be changed using \emph{options()}.
+Also, it should be possible to view the pdf version of the guide for this 
+package with \emph{print(vignette("GPArotation"))}.
+
+
 Not yet.
 \end{document}

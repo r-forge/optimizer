@@ -192,7 +192,7 @@
    \code{\link{WansbeekMeijer}}
    \code{\link[stats]{factanal}}
    \code{\link[stats]{varimax}}
-   \code{\link[stats]{promax}}
+   \code{\link{promax}}
 }
 \reference{
    source{\url{http://www.stat.ucla.edu/research} or

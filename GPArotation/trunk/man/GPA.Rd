@@ -115,7 +115,7 @@
    \code{\link{infomaxT}}
    \code{\link{infomaxQ}}
    \code{\link{mccammon}}
-   \code{\link[stats]{promax}}
+   \code{\link{promax}}
 }
 \examples{
   data("Harman", package="GPArotation")
@@ -141,7 +141,7 @@
 \reference{
    source{\url{http://www.stat.ucla.edu/research} or
           \url{http://www.stat.ucla.edu/research/gpa}
-   }
+         }
    The software reference is
 
    Bernaards, C.A. and Jennrich, R.I. (in press) Gradient Projection 

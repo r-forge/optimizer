@@ -1,12 +1,14 @@
-RandomStart <- function(k){
+Random.Start <- function(k){
   qr.Q(qr(matrix(rnorm(k*k),k)))
   }
 
 GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax", eps=1e-8, ...){
+ #   previously eps=1e-5
  if(1 >= ncol(A)) stop("rotation does not make sense for single factor models.")
  al <- 1
  L <- A %*% Tmat
- VgQ <- get(paste("vgQ",method,sep="."))(L,...)
+ Method <- get(paste("vgQ",method,sep="."))
+ VgQ <- Method(L,...)
  G <- crossprod(A,VgQ$Gq)
  f <- VgQ$f
  Table <- NULL
@@ -23,55 +25,48 @@ GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax", eps=1e-8, ...){
      UDV <- svd(X)
      Tmatt <- UDV$u %*% t(UDV$v)
      L <- A %*% Tmatt
-     VgQt <- get(paste("vgQ",method,sep="."))(L,...)
+     VgQt <- Method(L,...)
      if (VgQt$f < (f - 0.5*s^2*al)) break
      al <- al/2
-   }
+     }
    Tmat <- Tmatt
    f <- VgQt$f
    G <- crossprod(A,VgQt$Gq)
- }
+   }
  list(Lh=L, Th=Tmat, Table=Table, method=VgQ$Method, orthogonal=TRUE)
 }
 
 GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin", eps=1e-8, ...){
- #   original eps=1e-5
+ #   previously eps=1e-5
  if(1 >= ncol(A)) stop("rotation does not make sense for single factor models.")
  al <- 1
  L <- A %*% t(solve(Tmat))
-# changing above to
-# L <- A 
-# means the pre-iteration function value (recorded in Table) is the function
-# value at A, but this may change the equivalence class over which opt is done?. 
- VgQ <- get(paste("vgQ", method, sep="."))(L, ...)
+ Method <- get(paste("vgQ",method,sep="."))
+ VgQ <- Method(L, ...)
  G <- -t(t(L) %*% VgQ$Gq %*% solve(Tmat))
  f <- VgQ$f
  Table <- NULL
  #Table <- c(-1,f,log10(sqrt(sum(diag(crossprod(G))))),al)
  for (iter in 0:500){
-   #Gp <- G - Tmat %*% diag(apply(Tmat*G,2,sum))
    Gp <- G - Tmat %*% diag(c(rep(1,nrow(G)) %*% (Tmat*G)))
    s <- sqrt(sum(diag(crossprod(Gp))))
    Table <- rbind(Table,c(iter,f,log10(s),al))
    if (s < eps) break
    al <- 2*al
    for (i in 0:10){
-     X <- Tmat-al*Gp
-     #v <- 1/sqrt(apply(X^2,2,sum))
+     X <- Tmat - al*Gp
      v <- 1/sqrt(c(rep(1,nrow(X)) %*% X^2))
      Tmatt <- X %*% diag(v)
      L <- A %*% t(solve(Tmatt))
-     VgQt <- get(paste("vgQ",method,sep="."))(L,...)
+     VgQt <- Method(L,...)
      improvement <- f - VgQt$f 
      if (improvement >  0.5*s^2*al) break
      al <- al/2
-   }
+     }
    Tmat <- Tmatt
    f <- VgQt$f
    G <- -t(t(L) %*% VgQt$Gq %*% solve(Tmatt))
-   #Table <- rbind(Table,c(iter,f,log10(s),al))
-
- }
+   }
  list(Lh=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,
       method=VgQ$Method, orthogonal=FALSE)
 }

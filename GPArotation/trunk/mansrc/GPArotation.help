@@ -107,6 +107,33 @@
 \concept{rotation}
 \keyword{multivariate}
 
+\name{Random.Start}
+\alias{Random.Start}
+
+\title{Generate a Random Orthogonal Rotation}
+\usage{
+    Random.Start(k){
+    }
+\arguments{
+    \item{k}{An integer indicating the dimension of the square matrix.}
+}
+
+\description{
+   Random orthogonal rotation to use as Tmat matrix to start GPForth or GPFoblq.
+   }
+\value{An orthogonal matrix.}
+
+\details{ should add something here, and an example would be nice.
+}
+\seealso{
+   \code{\link{GPA}}
+   \code{\link{rotations}}
+}
+\author{Coen A. Bernaards and Robert I. Jennrich
+        with some R modifications by Paul Gilbert}
+\concept{rotation}
+\keyword{multivariate}
+
 
 \name{rotations}
 \alias{oblimin}

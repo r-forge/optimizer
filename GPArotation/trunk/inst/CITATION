@@ -1,4 +1,4 @@
-citHeader("To cite package 'gpa' in publications use:")
+citHeader("To cite package 'GPArotation' in publications use:")
 
 citEntry(entry="inproceedings",
   author  = personList(as.person("Coen A. Bernaards"),

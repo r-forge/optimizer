@@ -6,5 +6,5 @@ Version: 2005.1-1
 LazyLoad: yes
 License: GPL Version 2. See the LICENCE file for details.
 Author: Coen Bernaards and Robert Jennrich
-Maintainer: Paul Gilbert <pgilbert@bank-banque-canada.ca> and Coen Bernaards
+Maintainer: Paul Gilbert and Coen Bernaards <pgilbert@bank-banque-canada.ca>
 URL: http://www.stat.ucla.edu/research/gpa

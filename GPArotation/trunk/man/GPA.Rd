@@ -23,7 +23,7 @@
    Gradient projection rotation optimization routine used by various rotation
    objective.
    }
-\value{A list with elements 
+\value{A GPArotation object which is a list with elements 
   \item{Lh}{The rotated loadings, one column for each factor.}
   \item{Th}{The rotation matrix,  Lh \%*\% t(Th) = A.}
   \item{Table}{A matrix recording the iterations of the rotation optimization.}
@@ -125,9 +125,13 @@
   fa.unrotated  <- factanal(factors = 2, covmat=NetherlandsTV, 
               normalize=TRUE, rotation="none")
 
-  GPForth(loadings(fa.unrotated), method="varimax", normalize=TRUE, eps=1e-5)$Lh
+  GPForth(loadings(fa.unrotated), method="varimax", normalize=TRUE)$Lh
 
-  GPFoblq(loadings(fa.unrotated), method="oblimin", normalize=TRUE, eps=1e-5)$Lh
+  TV <- GPFoblq(loadings(fa.unrotated), method="oblimin", normalize=TRUE)
+
+  print(TV)
+  print(TV, Table=TRUE)
+  summary(TV)
   }
 \author{Coen A. Bernaards and Robert I. Jennrich
         with some R modifications by Paul Gilbert}
@@ -154,4 +158,3 @@
    }
 \concept{rotation}
 \keyword{multivariate}
-

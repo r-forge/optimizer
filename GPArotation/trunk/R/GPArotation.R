@@ -16,6 +16,46 @@ NormalizingWeight <- function(A, normalize=FALSE){
  stop("normalize argument not recognized in NormalizingWeight")
 }
 
+print.GPArotation <- function (x, digits=3, Table=FALSE, ...){
+   cat(if(x$orthogonal)"Orthogonal" else "Oblique")
+   cat(" rotation method", x$method)
+   cat((if(!x$convergence)" NOT" ), "converged.\n")
+
+   cat("Loadings:\n")
+   print(x$Lh, digits=digits)
+
+   cat("\nTmat:\n")
+   print(x$Th, digits=digits)
+
+   if(!x$orthogonal){
+     cat("\nPhi:\n")
+     print(x$Phi, digits=digits)
+     }
+
+   if(Table){
+     cat("\nIteration table:\n")
+     print(x$Table, digits=digits)
+     }
+   invisible(x, ...)
+   }
+
+summary.GPArotation <- function (object, ...){ 
+   r <- list(Lh=object$Lh, method=object$method, orthogonal=object$orthogonal, 
+          convergence=object$convergence, iters=nrow(object$Table))
+   class(r) <- "summary.GPArotation"
+   r
+   }
+
+print.summary.GPArotation <- function (x, digits=3, ...){
+   cat(if(x$orthogonal)"Orthogonal" else "Oblique")
+   cat(" rotation method", x$method)
+   if(!x$convergence) cat(" NOT" )
+   cat(" converged in ", x$iter, " iterations.\n")
+
+   cat("Loadings:\n")
+   print(x$Lh, digits=digits)
+  }
+
 GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
                     normalize=FALSE, eps=1e-5, maxit=1000, ...){
  if((!is.logical(normalize)) || normalize) {
@@ -57,8 +97,10 @@ GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
      warning("convergence not obtained.", maxit, " iterations used.")
  if(normalize) L <- L * W
  dimnames(L) <- dimnames(A)
- list(Lh=L, Th=Tmat, Table=Table, 
-      method=VgQ$Method, orthogonal=TRUE, convergence=convergence)
+ r <- list(Lh=L, Th=Tmat, Table=Table, 
+        method=VgQ$Method, orthogonal=TRUE, convergence=convergence)
+ class(r) <- "GPArotation"
+ r
 }
 
 GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
@@ -102,8 +144,10 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
      warning("convergence not obtained.", maxit, " iterations used.")
  if(normalize) L <- L * W
  dimnames(L) <- dimnames(A)
- list(Lh=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,
+ r <- list(Lh=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,
       method=VgQ$Method, orthogonal=FALSE, convergence=convergence)
+ class(r) <- "GPArotation"
+ r
 }
 
 #######################

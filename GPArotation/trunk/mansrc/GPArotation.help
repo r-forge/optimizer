@@ -31,9 +31,8 @@
   \item{method}{A string indicating the rotation objective function.}
   \item{orthogonal}{A logical indicating if the rotation is orthogonal.}
   \item{convergence}{A logical indicating if convergence was obtained.}
-  and GPFoblq has the additional element
-  \item{Phi}{t(Th) %*% Th  (which will be the identity matrix for orthogonal
-  rotations)}
+  \item{Phi}{t(Th) \%*\% Th.  This will be the identity matrix for orthogonal
+  rotations so is omitted from the result of GPForth.}
   }
 \details{
  Gradient projection rotation optimization routines developed by
@@ -68,10 +67,10 @@
  If \code{normalize} is \code{FALSE} (the default) no normalization is done.
  If \code{normalize} is \code{TRUE} then Kaiser normalization is done. (So
  squared row entries of normalized \code{A} sum to 1.0.)
- If \code{normalize} is a vector of length equal to the number of factors (=
- number of columns of \code{A}) then the colums are divided by \code{normalize} 
+ If \code{normalize} is a vector of length equal to the number of indicators (=
+ number of rows of \code{A}) then the colums are divided by \code{normalize} 
  before rotation and multiplied by \code{normalize} after rotation. 
- If \code{normalize} is a matarix of the same dimension as \code{A} then \code{A}
+ If \code{normalize} is a matrix of the same dimension as \code{A} then \code{A}
  is divided by \code{normalize} before rotation and multiplied 
  by \code{normalize} after rotation. 
  If \code{normalize} is a function then it should take \code{A} as an argument
@@ -249,12 +248,12 @@
 \arguments{
     \item{L}{a factor loading matrix}
     \item{Tmat}{initial rotation matrix.}
-    \item{gam}   {0=Quartimin, .5=Biquartimin, 1=Covarimin.}
+    \item{gam}{0=Quartimin, .5=Biquartimin, 1=Covarimin.}
     \item{Target}{rotation target for objective calculation.}
-    \item{W}     {weighting of each element in target.}
-    \item{k}     {number of close to zero loadings.}
-    \item{delta} {constant added to L^2 in objective calculation.}
-    \item{kappa} {0=Quartimax, 1/p=Varimax, m/(2*p)=Equamax,
+    \item{W}{weighting of each element in target.}
+    \item{k}{number of close to zero loadings.}
+    \item{delta}{constant added to L\^2 in objective calculation.}
+    \item{kappa}{0=Quartimax, 1/p=Varimax, m/(2*p)=Equamax,
         (m-1)/(p+m-2)=Parsimax, 1=Factor parsimony.}
     \item{normalize}{parameter passed to optimization routine (GPForth or GPFoblq).}
     \item{eps}{parameter passed to optimization routine (GPForth or GPFoblq).}
@@ -268,9 +267,12 @@
    \item{logical}{Convergence indicator from \code{GPForth} or \code{GPFoblq}.}
    }
 \description{
-   A rotation objective value used by \code{factanal}.
+   Optimize factor loading rotation objective.
 }
 \details{
+ These functions optimize a rotation objective. They can be used directly or the
+ function name can be passed to factor analysis functions like \code{factanal}.
+
  The \code{vgQ.*} versions of the code are called by the optimization routine and
  would typically not be used directly, so these methods are not exported
  from the package namespace. (They simply return the function value and gradient
@@ -354,7 +356,7 @@
   }
 
 \author{Coen A. Bernaards and Robert I. Jennrich
-        with some R modifications by Paul Gilbert and Erik Meijer}
+        with some R modifications by Paul Gilbert.}
 \concept{rotation}
 \keyword{multivariate}
 

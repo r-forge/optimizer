@@ -5,14 +5,14 @@
 
 \title{Rotation optimization}
 \usage{
-    GPForth(A, Tmat=diag(ncol(A)), method="Varimax", normalize=FALSE, eps=1e-8, maxit=1000, ...)
+    GPForth(A, Tmat=diag(ncol(A)), method="varimax", normalize=FALSE, eps=1e-8, maxit=1000, ...)
     GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", normalize=FALSE, eps=1e-8, maxit=1000, ...)
     }
 \arguments{
     \item{A}{initial factor loadings matrix for which the rotation 
-             is to be optimized.}
+             criterian is to be optimized.}
     \item{Tmat}{initial rotation matrix.}
-    \item{method}{rotation objective.}
+    \item{method}{rotation objective criterian.}
     \item{normalize}{see details.}
     \item{eps}{convergence is assumed when the norm of the gradient is smaller
          than eps.}
@@ -48,11 +48,19 @@
  an initial rotation matrix \code{Tmat} indicating any rotation that has already
  been performed. (These together fix the equivalence class over which the optimization
  is done.) By default the initial rotation is the identity matrix.
+ 
  The argument \code{method} can be used to specify a string indicating
  the rotation objective. \code{GPFoblq} defaults to \code{"quartimin"} 
- and \code{GPForth}
- defaults to \code{"Varimax"}. The string is prefixed with "vgQ." to give the actual
- function call. 
+ and \code{GPForth} defaults to \code{"varimax"}. Available rotation objectives
+ are "oblimin", "quartimin", "target", "pst", "oblimax", "entropy", 
+ "quartimax", "varimax", "simplimax", "bentler", "tandemI", "tandemII", 
+ "geomin", "cf", "infomax" and "mccammon". The string is prefixed with 
+ "vgQ." to give the actual function call. The \code{vgQ.*} function call
+ would typically not be used directly, so these methods are not exported
+ from the package namespace. You can print these functions to see the code for
+ calculating a criterion, but since they are not exported the package 
+ name needs to be specified. For example, use
+ \code{GPArotation:::vgQ.oblimin} to view the function \code{vgQ.oblimin}.
 
  Some rotation criteria (including \code{simplimax}, \code{pst}, 
  \code{procrustes})
@@ -142,22 +150,45 @@
     }
 \arguments{
     \item{k}{An integer indicating the dimension of the square matrix.}
-}
+    }
 
 \description{
    Random orthogonal rotation to use as Tmat matrix to start GPForth or GPFoblq.
    }
 \value{An orthogonal matrix.}
 
-\details{ should add something here, and an example would be nice.
-}
+\details{
+  The random start function produces an orthogonal matrix with columns
+  of length one based on the QR decompostion.
+  }
 \seealso{
    \code{\link{GPForth}}
    \code{\link{GPFoblq}}
    \code{\link{oblimin}}
-}
+   }
+\example{
+   Global.min <- function(A,method,B=10){
+      fv <- rep(0,B)
+      seeds <- sample(1e+7, B)
+      for(i in 1:B){
+    	cat(i," ")
+    	set.seed(seeds[i])
+    	gpout <- GPFoblq(A=A, Random.Start(ncol(A)), method=method)
+    	dtab <- dim(gpout$Table)
+    	fv[i] <- gpout$Table[dtab[1],2]
+    	cat(fv[i], "\n")
+      }
+      cat("Min is ",min(fv),"\n")
+      set.seed(seeds[order(fv)[1]])
+      ans <- GPFoblq(A=A, Random.Start(ncol(A)), method=method)
+      ans
+      }
+
+   Global.min(box26,"simplimax",10)
+   }
 \author{Coen A. Bernaards and Robert I. Jennrich
-        with some R modifications by Paul Gilbert}
+        with some R modifications by Paul Gilbert
+	}
 \concept{rotation}
 \keyword{multivariate}
 
@@ -272,6 +303,9 @@
 \details{
  These functions optimize a rotation objective. They can be used directly or the
  function name can be passed to factor analysis functions like \code{factanal}.
+ Several of the function names end in T or Q, which indicates if they are
+ orthogonal or oblique rotations (called from \code{GPForth} or \code{GPFoblq}
+ respectively.  
 
  The \code{vgQ.*} versions of the code are called by the optimization routine and
  would typically not be used directly, so these methods are not exported
@@ -279,6 +313,9 @@
  for a given rotation matrix.) You can print these functions but the package 
  name needs to be specified, since they are not exported. For example, use
  \code{GPArotation:::vgQ.oblimin} to view the function \code{vgQ.oblimin}.
+ The T or Q ending on function names should be omitted for the \code{vgQ.*} 
+ versions of the code so, for example, use \code{GPArotation:::vgQ.target} to view the target
+ criterion calculation.
    
  Rotations which are available are 
 
@@ -291,7 +328,7 @@
   \item{oblimax  }{oblique						      }
   \item{entropy  }{orthogonal minimum entropy				      }
   \item{quartimax}{orthogonal						      }
-  \item{Varimax  }{orthogonal						      }
+  \item{varimax  }{orthogonal						      }
   \item{simplimax}{oblique						      }
   \item{bentlerT }{orthogonal Bentler's invariant pattern simplicity criterion}
   \item{bentlerQ }{oblique    Bentler's invariant pattern simplicity criterion}
@@ -305,9 +342,10 @@
   \item{infomaxQ }{oblique						      }
   \item{mccammon }{orthogonal McCammon minimum entropy ratio		      }
 
- Note that \code{Varimax} defined here is different code from \code{varimax}
- defined in the \code{stats} package, and the default is not to do Kaiser 
- normalization as is done by \code{varimax}.
+ Note that \code{Varimax} defined here uses \code{vgQ.varimax} and 
+ is not \code{varimax}
+ defined in the \code{stats} package. The default here is not to do Kaiser 
+ normalization as is done by \code{stats:::varimax}.
  
  New rotation methods can be programmed with a name "vgQ.newmethod". The 
  inputs are the matrix L, and optionally any additional arguments. The
@@ -328,9 +366,8 @@
   unrotated  <- factanal(factors = 2, covmat=NetherlandsTV, rotation="none")
   unrotated
   GPForth(loadings(unrotated), Tmat=diag(2), method="varimax")$Lh
-  GPForth(loadings(unrotated), Tmat=diag(2), method="Varimax")$Lh
-  factanal(factors = 2, covmat=NetherlandsTV, rotation="varimax")
   factanal(factors = 2, covmat=NetherlandsTV, rotation="Varimax")
+  factanal(factors = 2, covmat=NetherlandsTV, rotation="varimax")
   GPFoblq(loadings(unrotated), Tmat=diag(2), method="oblimin")$Lh
   }
 \seealso{

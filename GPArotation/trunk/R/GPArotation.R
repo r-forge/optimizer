@@ -21,7 +21,7 @@ NormalizingWeight <- function(A, normalize=FALSE){
  stop("normalize argument not recognized in NormalizingWeight")
 }
 
-GPForth <- function(A, Tmat=diag(ncol(A)), method="Varimax",
+GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
                     normalize=FALSE, eps=1e-8, maxit=1000, ...){
  #   previously eps=1e-5
  if((!is.logical(normalize)) || normalize) {
@@ -397,11 +397,11 @@ cfQ <- function(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-8, maxit
 vgQ.cf <- function(L, kappa=0){
   k <- ncol(L)
   p <- nrow(L)
-  # kappa <- 0 # Quartimax 
-  # kappa <- 1/p # Varimax
-  # kappa <- m/(2*p) # Equamax
-  # kappa <- (m-1)/(p+m-2) # Parsimax
-  # kappa <- 1 # Factor parsimony
+  # kappa <- 0 # quartimax 
+  # kappa <- 1/p # varimax
+  # kappa <- m/(2*p) # equamax
+  # kappa <- (m-1)/(p+m-2) # parsimax
+  # kappa <- 1 # factor parsimony
   N <- matrix(1,k,k)-diag(k)
   M <- matrix(1,p,p)-diag(p)
   L2 <- L^2

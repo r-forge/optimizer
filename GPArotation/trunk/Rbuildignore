@@ -1,0 +1,16 @@
+^Makefile$
+(^|.*/)core$
+(^|.*/)run$
+(^|.*/)zot$
+CVS
+(^|.*/)/CVS$
+(^|.*/)/(^|.*/)/CVS$
+TMP$
+FLAGS$
+guidesrc$
+zot$
+run$
+inst/doc/(^|.*)\.tex$
+inst/doc/(^|.*)\.R$
+inst/doc/(^|.*)\.log$
+inst/doc/(^|.*)\.stdout$

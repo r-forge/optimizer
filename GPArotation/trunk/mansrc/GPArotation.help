@@ -5,8 +5,8 @@
 
 \title{Rotation optimization}
 \usage{
-    GPForth(A, Tmat=diag(ncol(A)), method="Varimax", normalize=FALSE, eps=1e-8, maxit=500, ...)
-    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", normalize=FALSE, eps=1e-8, maxit=500, ...)
+    GPForth(A, Tmat=diag(ncol(A)), method="Varimax", normalize=FALSE, eps=1e-8, maxit=1000, ...)
+    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", normalize=FALSE, eps=1e-8, maxit=1000, ...)
     }
 \arguments{
     \item{A}{initial factor loadings matrix for which the rotation 
@@ -205,28 +205,28 @@
 
 \title{Rotations}
 \usage{
-    oblimin(L, Tmat=diag(ncol(L)), gam=0, normalize=FALSE, eps=1e-8, maxit=500)
-    quartimin(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    targetT(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-8, maxit=500)
-    targetQ(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-8, maxit=500)
-    pstT(L, Tmat=diag(ncol(L)), W, Target=NULL, normalize=FALSE, eps=1e-8, maxit=500)
-    pstQ(L, Tmat=diag(ncol(L)), W, Target=NULL, normalize=FALSE, eps=1e-8, maxit=500)
-    oblimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    entropy(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    quartimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    Varimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    simplimax(L, Tmat=diag(ncol(L)), k=nrow(L), normalize=FALSE, eps=1e-8, maxit=500)
-    bentlerT(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    bentlerQ(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    tandemI(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    tandemII(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    geominT(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-8, maxit=500)
-    geominQ(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-8, maxit=500)
-    cfT(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-8, maxit=500)
-    cfQ(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-8, maxit=500)
-    infomaxT(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    infomaxQ(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
-    mccammon(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
+    oblimin(L, Tmat=diag(ncol(L)), gam=0, normalize=FALSE, eps=1e-8, maxit=1000)
+    quartimin(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    targetT(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-8, maxit=1000)
+    targetQ(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-8, maxit=1000)
+    pstT(L, Tmat=diag(ncol(L)), W, Target=NULL, normalize=FALSE, eps=1e-8, maxit=1000)
+    pstQ(L, Tmat=diag(ncol(L)), W, Target=NULL, normalize=FALSE, eps=1e-8, maxit=1000)
+    oblimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    entropy(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    quartimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    Varimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    simplimax(L, Tmat=diag(ncol(L)), k=nrow(L), normalize=FALSE, eps=1e-8, maxit=1000)
+    bentlerT(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    bentlerQ(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    tandemI(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    tandemII(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    geominT(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-8, maxit=1000)
+    geominQ(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-8, maxit=1000)
+    cfT(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-8, maxit=1000)
+    cfQ(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-8, maxit=1000)
+    infomaxT(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    infomaxQ(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
+    mccammon(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=1000)
 
     vgQ.oblimin(L, gam=0)
     vgQ.quartimin(L)

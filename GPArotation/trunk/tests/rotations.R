@@ -1,4 +1,4 @@
-#   Tests here only compare against previously computed values with this code
+#   Tests here only compare against values computed previously with this code,
 #   to ensure there was no accidental change. It would be better to have
 #   comparisons with known correct values.
 
@@ -127,7 +127,6 @@ all.ok <- TRUE
           0.71793428958051475064, 0.388556883222951677
       ), 2, 6))
 
- # this still does not converge on all platforms
  # Does not converge even with maxit=10000, but the loadings matrix is not
  #  changing. Possibly the gradient is extremely large even very close to opt.
   v <- pstT(L, W = matrix(c(rep(.4,6),rep(.6,6)), 6,2),
@@ -151,7 +150,6 @@ all.ok <- TRUE
           0.850691132520651205, 0.456859727346562328
       ), 2, 6))
 
- # this still does not converge on all platforms
  # Does not converge even with maxit=10000, but the loadings matrix is not
  #  changing. Possibly the gradient is extremely large even very close to opt.
   v <- pstQ(L, W = matrix(c(rep(.4,6),rep(.6,6)), 6,2),
@@ -165,7 +163,7 @@ all.ok <- TRUE
     all.ok <- FALSE  
     } 
 
-# this was iter=500 test value, but possible a mistake ???
+# this is test value on one computer
 #  tst <- t(matrix(c(
 #	    -8111059.94622692652,  8111060.62253121007,
 #	     1495036.43465861562, -1495035.79614594672,
@@ -175,6 +173,7 @@ all.ok <- TRUE
 #	   -18357040.58573083207, 18357041.05348757654
 #      ), 2, 6))
 
+# this is test value on another computer
   tst <- t(matrix(c(
       2694770.06630349346, -2694769.38999920478,
       -496701.45733913727,   496702.09585180727,
@@ -184,8 +183,8 @@ all.ok <- TRUE
       6098832.71036116872, -6098832.24260441773
       ), 2, 6))
 
-#  this does not converge on all platforms and has large differencespossible a mistake ???
-  v <- oblimax(L, maxit=1000)$loadings  
+#  this does not converge on all platforms and has large differences possible a mistake ???
+  v <- oblimax(L)$loadings  
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
     print(v, digits=18)
@@ -310,7 +309,7 @@ all.ok <- TRUE
     } 
 
 
-# this was iter=500 test value, but possible a mistake ???
+# this is test value on one computer
 #  tst <- t(matrix(c(
 #	   0.842839618436879490, 1.147474221357566826,
 #	   0.966496634451572856, 0.899179738613143820,
@@ -320,6 +319,7 @@ all.ok <- TRUE
 #	   0.345129603963082010, 1.050133434159491896
 #      ), 2, 6))
 
+# this is test value on another computer
   tst <- t(matrix(c(
    -2.412020090290893037,  1.78042342943448961,
    -0.507776871994296775, -0.13486874428921994,
@@ -331,7 +331,7 @@ all.ok <- TRUE
 
  # Does not converge even with maxit=10000, but the loadings matrix is not
  #  changing. Possibly the gradient is extremely large even very close to opt.
-  v <- tandemI(L, maxit=1000, eps=1e-5)$loadings  
+  v <- tandemI(L, eps=1e-5)$loadings  
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
     print(v, digits=18)
@@ -341,7 +341,7 @@ all.ok <- TRUE
     } 
 
 
-# this was iter=500 test value, but possible a mistake ???
+# this is test value on one computer
 #  tst <- t(matrix(c(
 #	   -19.9573339993058916, -19.9414309667870207,
 #	   -15.2547723459692186, -15.5482769465485902,
@@ -351,6 +351,7 @@ all.ok <- TRUE
 #	   -18.7993114151414424, -18.3586393947653654
 #      ), 2, 6))
 
+# this is test value on another computer
   tst <- t(matrix(c(
       3.9329030000992886, 3.95622514761479760,
       3.2060668977597535, 2.91701194947276399,
@@ -363,7 +364,7 @@ all.ok <- TRUE
 
  # Does not converge even with maxit=10000, but the loadings matrix is not
  #  changing. Possibly the gradient is extremely large even very close to opt.
-  v <- tandemII(L, maxit=1000, eps=1e-5)$loadings 
+  v <- tandemII(L, eps=1e-5)$loadings 
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
     print(v, digits=18)
@@ -496,7 +497,7 @@ all.ok <- TRUE
           0.784820467897764273, 0.225234145534117969
       ), 2, 6))
 
-  v <- mccammon(L, maxit=1000, eps=1e-5)$loadings 
+  v <- mccammon(L, eps=1e-5)$loadings 
  # this still does not converge
   if( fuzz < max(abs(v - tst))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")

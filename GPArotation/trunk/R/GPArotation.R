@@ -22,7 +22,7 @@ NormalizingWeight <- function(A, normalize=FALSE){
 }
 
 GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
-                    normalize=FALSE, eps=1e-8, maxit=1000, ...){
+                    normalize=FALSE, eps=1e-5, maxit=1000, ...){
  #   previously eps=1e-5
  if((!is.logical(normalize)) || normalize) {
      W <- NormalizingWeight(A, normalize=normalize)
@@ -68,7 +68,7 @@ GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
 }
 
 GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
-                    normalize=FALSE, eps=1e-8, maxit=1000, ...){
+                    normalize=FALSE, eps=1e-5, maxit=1000, ...){
  #   previously eps=1e-5
  if(1 >= ncol(A)) stop("rotation does not make sense for single factor models.")
  if((!is.logical(normalize)) || normalize) {

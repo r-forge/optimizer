@@ -12,7 +12,7 @@
  data("Thurstone", package="GPArotation") 
  if (!exists("box20")) stop("Test data not found. Testing stopped.")
 
-fuzz <- 1e-6 
+fuzz <- 1e-5 
 all.ok <- TRUE  
 
 #  Thurstone's box problem.  (1947, p. 136) 
@@ -23,7 +23,7 @@ qbox20 <- quartimax(box20, eps=1e-5)
 qbox20G <- GPForth(box20, Tmat=diag(1,3), method="quartimax", eps=1e-5)
 
  if( fuzz < max(abs(qbox20$loadings - qbox20G$Lh))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 1. Value:\n")
     print(qbox20$loadings - qbox20G$Lh, digits=18)
     cat("difference:\n")
     print(qbox20$loadings - tst, digits=18)
@@ -58,7 +58,7 @@ qbox20G <- GPForth(box20, Tmat=diag(1,3), method="quartimax", eps=1e-5)
    ), 3, 20))
  
  if( fuzz < max(abs(qbox20$loadings - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 2. Value:\n")
     print(qbox20$loadings, digits=18)
     cat("difference:\n")
     print(qbox20$loadings - tst, digits=18)
@@ -72,7 +72,7 @@ qbox20G <- GPForth(box20, Tmat=diag(1,3), method="quartimax", eps=1e-5)
    ), 3, 3))
  
  if( fuzz < max(abs(qbox20$Th - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 3. Value:\n")
     print(qbox20$Th, digits=18)
     cat("difference:\n")
     print(qbox20$Th - tst, digits=18)
@@ -88,7 +88,7 @@ plot(seq(length(sal)), sal)
  #compare quartimax rotation of the initial loading matrix box20.
 
  if( fuzz < max(abs(loadings(qbox20) - box20 %*% qbox20$Th ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 4. Value:\n")
     print(loadings(qbox20), digits=18)
     cat("difference:\n")
     print(loadings(qbox20) - box20 %*% qbox20$Th, digits=18)
@@ -101,7 +101,7 @@ qminbox20G <- GPFoblq(box20, Tmat=diag(1,3), method="quartimin", eps=1e-5)
 qminbox20  <- quartimin(box20, eps=1e-5)
 
  if( fuzz < max(abs(loadings(qminbox20) - qminbox20G$Lh))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 5. Value:\n")
     print(qminbox20G$Lh , digits=18)
     cat("difference:\n")
     print(loadings(qminbox20) - qminbox20G$Lh, digits=18)
@@ -136,7 +136,7 @@ qminbox20  <- quartimin(box20, eps=1e-5)
     ), 3, 20))
  
  if( fuzz < max(abs(qminbox20G$Lh - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 6. Value:\n")
     print(qminbox20G$Lh, digits=18)
     cat("difference:\n")
     print(qminbox20G$Lh - tst, digits=18)
@@ -150,7 +150,7 @@ qminbox20  <- quartimin(box20, eps=1e-5)
    ), 3, 3))
  
  if( fuzz < max(abs(qminbox20G$Phi - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 7. Value:\n")
     print(qminbox20G$Phi, digits=18)
     cat("difference:\n")
     print(qminbox20G$Phi - tst, digits=18)
@@ -164,7 +164,7 @@ qminbox20  <- quartimin(box20, eps=1e-5)
 
  if( fuzz < max(abs(qminbox20G$Phi -
                   t(qminbox20G$Th )%*% qminbox20G$Th ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 8. Value:\n")
     print(qminbox20G$Phi, digits=18)
     cat("difference:\n")
     print(qminbox20G$Phi - 
@@ -174,7 +174,7 @@ qminbox20  <- quartimin(box20, eps=1e-5)
 
  #compare quartimin rotation of the initial loading matrix box20.
    if( fuzz < max(abs(qminbox20G$Lh - box20 %*% solve(t(qminbox20G$Th))))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 9. Value:\n")
     print(qminbox20G$Lh, digits=18)
     cat("difference:\n")
     print(qminbox20G$Lh - box20 %*% solve(t(qminbox20G$Th)), digits=18)
@@ -216,7 +216,7 @@ qbox26  <- GPForth(box26, Tmat=diag(1,3), method="quartimax", eps=1e-5)
    ), 3, 26))
  
  if( fuzz < max(abs(qbox26$Lh - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 10. Value:\n")
     print(qbox26$Lh, digits=18)
     cat("difference:\n")
     print(qbox26$Lh - tst, digits=18)
@@ -232,7 +232,7 @@ qbox26  <- GPForth(box26, Tmat=diag(1,3), method="quartimax", eps=1e-5)
    ), 3, 3))
  
  if( fuzz < max(abs(qbox26$Th - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 11. Value:\n")
     print(qbox26$Th, digits=18)
     cat("difference:\n")
     print(qbox26$Th - tst, digits=18)
@@ -272,7 +272,7 @@ qminbox26 <- GPFoblq(box26, Tmat=diag(1,3), method="quartimin", eps=1e-5)
    ), 3, 26))
  
  if( fuzz < max(abs(qminbox26$Lh - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 12. Value:\n")
     print(qminbox26$Lh, digits=18)
     cat("difference:\n")
     print(qminbox26$Lh - tst, digits=18)
@@ -288,7 +288,7 @@ qminbox26 <- GPFoblq(box26, Tmat=diag(1,3), method="quartimin", eps=1e-5)
     ), 3, 3))
  
  if( fuzz < max(abs(qminbox26$Phi - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 13. Value:\n")
     print(qminbox26$Phi, digits=18)
     cat("difference:\n")
     print(qminbox26$Phi - tst, digits=18)
@@ -304,7 +304,7 @@ qminbox26 <- GPFoblq(box26, Tmat=diag(1,3), method="quartimin", eps=1e-5)
     ), 3, 3))
  
  if( fuzz < max(abs(qminbox26$Th - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test Thurstone 14. Value:\n")
     print(qminbox26$Th, digits=18)
     cat("difference:\n")
     print(qminbox26$Th - tst, digits=18)

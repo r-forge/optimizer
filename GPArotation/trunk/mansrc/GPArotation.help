@@ -5,8 +5,8 @@
 
 \title{Rotation optimization}
 \usage{
-    GPForth(A, Tmat=diag(ncol(A)), method="varimax", normalize=FALSE, eps=1e-8, maxit=1000, ...)
-    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", normalize=FALSE, eps=1e-8, maxit=1000, ...)
+    GPForth(A, Tmat=diag(ncol(A)), method="varimax", normalize=FALSE, eps=1e-5, maxit=1000, ...)
+    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", normalize=FALSE, eps=1e-5, maxit=1000, ...)
     }
 \arguments{
     \item{A}{initial factor loadings matrix for which the rotation 

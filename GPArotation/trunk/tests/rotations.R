@@ -54,7 +54,7 @@ all.ok <- TRUE
 
   v <- oblimin(L)$loadings 
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 1. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -73,7 +73,7 @@ all.ok <- TRUE
 
   v <- quartimin(L)$loadings
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 2. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -93,7 +93,7 @@ all.ok <- TRUE
   v <- targetT(L, Target=matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
                eps=1e-5)$loadings 
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 3. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -113,7 +113,7 @@ all.ok <- TRUE
   v <- targetQ(L, Target=matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
                eps=1e-5)$loadings  
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 4. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -136,7 +136,7 @@ all.ok <- TRUE
            Target= matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
                maxit=1000, eps=1e-5)$loadings     
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 5. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -159,7 +159,7 @@ all.ok <- TRUE
            Target= matrix(c(rep(1,3),rep(0,6),rep(1,3)), 6,2),
                maxit=1000, eps=1e-5)$loadings     
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 6. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -190,7 +190,7 @@ all.ok <- TRUE
 #  this does not converge on all platforms and has large differences possible a mistake ???
 #  v <- oblimax(L)$loadings  
 #  if( fuzz < max(abs(v - tst))) {
-#    cat("Calculated value is not the same as test value in test x. Value:\n")
+#    cat("Calculated value is not the same as test value in test rotations 7. Value:\n")
 #    print(v, digits=18)
 #    cat("difference:\n")
 #    print(v - tst, digits=18)
@@ -210,7 +210,7 @@ all.ok <- TRUE
   v <- entropy(L, maxit=3000, eps=1e-5)$loadings  
  # this still does not converge and fuzz is relaxed for different platforms
   if( 0.01 < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 8. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -229,7 +229,7 @@ all.ok <- TRUE
 
   v <- quartimax(L, eps=1e-5)$loadings
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 9. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -248,7 +248,7 @@ all.ok <- TRUE
 
   v <- Varimax(L)$loadings  
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 10. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -267,7 +267,7 @@ all.ok <- TRUE
 
   v <- simplimax(L, eps=1e-5)$loadings
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 11. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -286,7 +286,7 @@ all.ok <- TRUE
 
   v <- bentlerT(L)$loadings 
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 12. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -305,7 +305,7 @@ all.ok <- TRUE
 
   v <- bentlerQ(L)$loadings 
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 13. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -339,7 +339,7 @@ all.ok <- TRUE
 # #  changing. Possibly the gradient is extremely large even very close to opt.
 #  v <- tandemI(L, eps=1e-5)$loadings  
 #  if( fuzz < max(abs(v - tst))) {
-#    cat("Calculated value is not the same as test value in test x. Value:\n")
+#    cat("Calculated value is not the same as test value in test rotations 14. Value:\n")
 #    print(v, digits=18)
 #    cat("difference:\n")
 #    print(v - tst, digits=18)
@@ -375,7 +375,7 @@ all.ok <- TRUE
 # #  changing. Possibly the gradient is extremely large even very close to opt.
 #  v <- tandemII(L, eps=1e-5)$loadings 
 #  if( fuzz < max(abs(v - tst))) {
-#    cat("Calculated value is not the same as test value in test x. Value:\n")
+#    cat("Calculated value is not the same as test value in test rotations 15. Value:\n")
 #    print(v, digits=18)
 #    cat("difference:\n")
 #    print(v - tst, digits=18)
@@ -394,7 +394,7 @@ all.ok <- TRUE
 
   v <- geominT(L, eps=1e-5)$loadings  
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 16. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -413,7 +413,7 @@ all.ok <- TRUE
 
   v <- geominQ(L, eps=1e-5)$loadings  
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 17. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -432,7 +432,7 @@ all.ok <- TRUE
 
   v <- cfT(L)$loadings	
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 18. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -451,7 +451,7 @@ all.ok <- TRUE
 
   v <- cfQ(L)$loadings	
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 19. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -470,7 +470,7 @@ all.ok <- TRUE
 
   v <- infomaxT(L, eps=1e-5)$loadings 
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 20. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -489,7 +489,7 @@ all.ok <- TRUE
 
   v <- infomaxQ(L, eps=1e-5)$loadings 
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 21. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)
@@ -509,7 +509,7 @@ all.ok <- TRUE
   v <- mccammon(L, eps=1e-5)$loadings 
  # this still does not converge
   if( fuzz < max(abs(v - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test rotations 22. Value:\n")
     print(v, digits=18)
     cat("difference:\n")
     print(v - tst, digits=18)

@@ -24,8 +24,8 @@ print.GPArotation <- function (x, digits=3, Table=FALSE, ...){
    cat("Loadings:\n")
    print(x$Lh, digits=digits)
 
-   cat("\nTmat:\n")
-   print(x$Th, digits=digits)
+   cat("\nRotating matrix:\n")
+   print(t(solve(x$Th)), digits=digits)
 
    if(!x$orthogonal){
      cat("\nPhi:\n")

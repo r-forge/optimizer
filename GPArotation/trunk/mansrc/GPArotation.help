@@ -311,7 +311,7 @@
 
 \value{A list as needed by \code{factanal} with elements
    \item{loadings}{Lh from \code{GPForth} or \code{GPFoblq}.} 
-   \item{rotmat}{Th from \code{GPForth} or \code{GPFoblq}.}  
+   \item{Th}{Th from \code{GPForth} or \code{GPFoblq}.}  
    \item{Table}{Table from \code{GPForth} or \code{GPFoblq}.}
    \item{logical}{Convergence indicator from \code{GPForth} or \code{GPFoblq}.}
    }

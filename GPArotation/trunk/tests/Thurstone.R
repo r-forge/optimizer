@@ -30,7 +30,7 @@ qbox20G <- GPForth(box20, Tmat=diag(1,3), method="quartimax", eps=1e-5)
     all.ok <- FALSE  
     } 
 
-#qbox20$rotmat - qbox20G$Th 
+#qbox20$Th - qbox20G$Th 
 
 # These values compare with those in:
 #    http://www.stat.ucla.edu/research/web.pdf
@@ -71,11 +71,11 @@ qbox20G <- GPForth(box20, Tmat=diag(1,3), method="quartimax", eps=1e-5)
    0.55627880770383020, -0.20587018726291534,  0.80509089803322043
    ), 3, 3))
  
- if( fuzz < max(abs(qbox20$rotmat - tst ))) {
+ if( fuzz < max(abs(qbox20$Th - tst ))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
-    print(qbox20$rotmat, digits=18)
+    print(qbox20$Th, digits=18)
     cat("difference:\n")
-    print(qbox20$rotmat - tst, digits=18)
+    print(qbox20$Th - tst, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -87,11 +87,11 @@ plot(seq(length(sal)), sal)
 
  #compare quartimax rotation of the initial loading matrix box20.
 
- if( fuzz < max(abs(loadings(qbox20) - box20 %*% qbox20$rotmat ))) {
+ if( fuzz < max(abs(loadings(qbox20) - box20 %*% qbox20$Th ))) {
     cat("Calculated value is not the same as test value in test x. Value:\n")
     print(loadings(qbox20), digits=18)
     cat("difference:\n")
-    print(loadings(qbox20) - box20 %*% qbox20$rotmat, digits=18)
+    print(loadings(qbox20) - box20 %*% qbox20$Th, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -108,7 +108,7 @@ qminbox20  <- quartimin(box20, eps=1e-5)
     all.ok <- FALSE  
     } 
 
-#qminbox20$Th - quartimin(box20)$rotmat 
+#qminbox20$Th - quartimin(box20)$Th 
 
 # These values compare with those in:
 #    http://www.stat.ucla.edu/research/web.pdf

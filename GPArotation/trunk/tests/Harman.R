@@ -28,7 +28,7 @@ qHarman2 <- quartimax(Harman8)
     all.ok <- FALSE  
     } 
 
-#qHarman$Th - qHarman2$rotmat
+#qHarman$Th - qHarman2$Th
 
  tst <- t(matrix(c(
   0.898754567491920398, 0.194823580226859222,

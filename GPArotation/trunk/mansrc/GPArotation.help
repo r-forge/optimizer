@@ -84,12 +84,8 @@
  If \code{normalize} is a vector of length equal to the number of indicators (=
  number of rows of \code{A}) then the colums are divided by \code{normalize} 
  before rotation and multiplied by \code{normalize} after rotation. 
- If \code{normalize} is a matrix of the same dimension as \code{A} then each
- element of \code{A} is divided by the corresponding element 
- of \code{normalize} before rotation and multiplied 
- by the corresponding element of \code{normalize} after rotation. 
  If \code{normalize} is a function then it should take \code{A} as an argument
- and return a matrix which is used like the matrix above. 
+ and return a vector which is used like the vector above. 
 }
 \seealso{
    \code{\link{Random.Start}}

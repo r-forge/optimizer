@@ -4,12 +4,7 @@ Random.Start <- function(k){
 
 NormalizingWeight <- function(A, normalize=FALSE){
  if ("function" == mode(normalize)) normalize <- normalize(A)
- if (is.matrix(normalize)) 
-    {if(! all(dim(A) == dim(normalize)))
-        stop("normalize dimension wrong in NormalizingWeight")
-     return(normalize)
-    }
- else if (is.logical(normalize)){
+ if (is.logical(normalize)){
     if (normalize) normalize <- sqrt(apply(A^2,1,sum))
     else return(array(1, dim(A)))
     }

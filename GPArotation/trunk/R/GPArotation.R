@@ -228,6 +228,14 @@ oblimax <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
    list(loadings=z$Lh, rotmat=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
+#vgQ.oblimax <- function(L){
+#  Method <- "Oblimax"
+#  f <- -(log(sum(L^4))-2*log(sum(L^2)))
+#  Gq <- -(4*L^3/(sum(L^4))-4*L/(sum(L^2)))
+#  return(list(Gq=Gq,f=f,Method=Method))
+#}
+
+
 vgQ.oblimax <- function(L){
   list(Gq= -(4*L^3/(sum(L^4))-4*L/(sum(L^2))),
        f= -(log(sum(L^4))-2*log(sum(L^2))),
@@ -305,6 +313,17 @@ tandemI <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500)
    list(loadings=z$Lh, rotmat=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
+#vgQ.tandemI <- function(L){  # Tandem Criterion, Comrey, 1967.
+#  Method <- "Tandem I"
+#  LL <- (L %*% t(L))
+#  LL2 <- LL^2
+#  f <- -sum(diag(crossprod(L^2, LL2 %*% L^2)))
+#  Gq1 <- 4 * L *(LL2 %*% L^2)
+#  Gq2 <- 4 * (LL * (L^2 %*% t(L^2))) %*% L
+#  Gq <- -Gq1 - Gq2 
+#  return(list(Gq=Gq,f=f,Method=Method))
+#}
+
 vgQ.tandemI <- function(L){  # Tandem Criterion, Comrey, 1967.
   LL <- (L %*% t(L))
   LL2 <- LL^2
@@ -320,6 +339,18 @@ tandemII <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-8, maxit=500
    z <- GPFoblq(L, Tmat=Tmat, method="tandemII", normalize=normalize, eps=eps, maxit=maxit)
    list(loadings=z$Lh, rotmat=z$Th,  Table=z$Table, convergence=z$convergence)
    }
+
+#vgQ.tandemII <- function(L){  # Tandem Criterion, Comrey, 1967.
+#  Method <- "Tandem II"
+#  LL <- (L %*% t(L))
+#  LL2 <- LL^2
+#  f <- sum(diag(crossprod(L^2, (1-LL2) %*% L^2)))
+#  Gq1 <- 4 * L *((1-LL2) %*% L^2)
+#  Gq2 <- 4 * (LL * (L^2 %*% t(L^2))) %*% L
+#  Gq <- Gq1 - Gq2 
+#  return(list(Gq=Gq,f=f,Method=Method))
+#}
+
 
 vgQ.tandemII <- function(L){  # Tandem Criterion, Comrey, 1967.
   LL <- (L %*% t(L))

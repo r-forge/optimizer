@@ -7,11 +7,11 @@
  options(continue="  ")
 \end{Scode}
 
-\section{gpa Functions}
+\section{GPArotation Functions}
 In R, the functions in this package are made available with
 
 \begin{Scode}
-library("gpa") 
+library("GPArotation") 
 ls()
  
 \end{Scode}

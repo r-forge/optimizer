@@ -37,7 +37,7 @@ all.ok <- TRUE
  
 
  if( fuzz < max(abs(loadings(ability.FA) - tst))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test 1. Value:\n")
     #print(loadings(ability.FA), digits=18) this truncates
     print(unclass(ability.FA$loadings), digits=18)
     cat("difference:\n")
@@ -59,16 +59,16 @@ all.ok <- TRUE
 
 
  tst <- t(matrix(c(
-     0.386361590474061101,  0.474512774149631611,
-    -0.011005941876921766,  0.645872076963384889,
-    -0.026292627235061605,  0.896114110568434263,
-    -0.018020052681093589,  0.488292828169565873,
-     0.990094493910239404, -0.037071828254432074,
-     0.790565727426538301,  0.052610955005508719,
+       0.3863637969729337152,  0.4745113977203344047,
+      -0.0110032278171669998,  0.6458708261423832253,
+      -0.0262888675561207576,  0.8961123879025085781,
+      -0.0180180060207963122,  0.4882918937716873575,
+       0.9900948712271664398, -0.0370729040114848238,
+       0.7905663749272058283,  0.0526099352008769991
     ), 2, 6))
  
  if( fuzz < max(abs(loadings(oblirot) - tst ))) {
-    cat("Calculated value is not the same as test value in test x. Value:\n")
+    cat("Calculated value is not the same as test value in test 2. Value:\n")
     print(loadings(oblirot), digits=18)
     cat("difference:\n")
     print(loadings(oblirot) - tst, digits=18)

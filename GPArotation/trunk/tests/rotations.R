@@ -41,7 +41,7 @@ all.ok <- TRUE
     } 
 
 
-  v <- oblimin(L)$loadings 
+  v <- oblimin(L, eps=1e-8)$loadings 
   tst <- t(matrix(c(
            0.3863615904740822504,  0.4745127741495974161,
           -0.0110059418769087539,  0.6458720769633764514,
@@ -60,7 +60,7 @@ all.ok <- TRUE
     } 
 
 
-  v <- quartimin(L)$loadings
+  v <- quartimin(L, eps=1e-8)$loadings
   tst <- t(matrix(c(
            0.3863615904740822504,  0.4745127741495974161,
           -0.0110059418769087539,  0.6458720769633764514,
@@ -186,7 +186,7 @@ all.ok <- TRUE
 #      ), 2, 6))
 #
 #  this does not converge on all platforms and has large differences possible a mistake ???
-#  v <- oblimax(L)$loadings  
+#  v <- oblimax(L, eps=1e-5)$loadings  
 #  if( fuzz < max(abs(v - tst))) {
 #    cat("Calculated value is not the same as test value in test rotations 7. Value:\n")
 #    print(v, digits=18)
@@ -234,7 +234,7 @@ all.ok <- TRUE
     } 
 
 
-  v <- Varimax(L)$loadings  
+  v <- Varimax(L, eps=1e-8)$loadings  
   tst <- t(matrix(c(
           0.515866523962843160, 0.527879475961036904,
           0.175054634278874244, 0.616460231981747930,
@@ -272,7 +272,7 @@ all.ok <- TRUE
     } 
 
 
-  v <- bentlerT(L)$loadings 
+  v <- bentlerT(L, eps=1e-8)$loadings 
   tst <- t(matrix(c(
           0.523583611303327312, 0.520226117818945788,
           0.184113022124463677, 0.613815719643687197,
@@ -291,7 +291,7 @@ all.ok <- TRUE
     } 
 
 
-  v <- bentlerQ(L)$loadings 
+  v <- bentlerQ(L, eps=1e-8)$loadings 
   tst <- t(matrix(c(
            0.3801726240258240241,  0.4741208368044214638,
           -0.0223632969057368826,  0.6514196922540864687,
@@ -387,7 +387,7 @@ all.ok <- TRUE
     } 
 
 
-  v <- cfT(L)$loadings	
+  v <- cfT(L, eps=1e-8)$loadings	
   tst <- t(matrix(c(
           0.534721263659975854, 0.508771247100584523,
           0.197355957387199576, 0.609686779159006154,
@@ -406,7 +406,7 @@ all.ok <- TRUE
     } 
 
 
-  v <- cfQ(L)$loadings	
+  v <- cfQ(L, eps=1e-8)$loadings	
   tst <- t(matrix(c(
            0.3863615904740822504,  0.4745127741495974161,
           -0.0110059418769087539,  0.6458720769633764514,

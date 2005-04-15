@@ -56,8 +56,8 @@ print.summary.GPArotation <- function (x, digits=3, ...){
    print(x$Lh, digits=digits)
   }
 
-GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
-                    normalize=FALSE, eps=1e-5, maxit=1000, ...){
+GPForth <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000, 
+		    method="varimax", methodArgs=NULL){
  if((!is.logical(normalize)) || normalize) {
      W <- NormalizingWeight(A, normalize=normalize)
      normalize <- TRUE
@@ -66,8 +66,10 @@ GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
  if(1 >= ncol(A)) stop("rotation does not make sense for single factor models.")
  al <- 1
  L <- A %*% Tmat
- Method <- get(paste("vgQ",method,sep="."))
- VgQ <- Method(L,...)
+ #Method <- get(paste("vgQ",method,sep="."))
+ #VgQ <- Method(L, ...)
+ Method <- paste("vgQ",method,sep=".")
+ VgQ <- do.call(Method, append(list(L), methodArgs))
  G <- crossprod(A,VgQ$Gq)
  f <- VgQ$f
  Table <- NULL
@@ -84,7 +86,8 @@ GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
      UDV <- svd(X)
      Tmatt <- UDV$u %*% t(UDV$v)
      L <- A %*% Tmatt
-     VgQt <- Method(L,...)
+     #VgQt <- Method(L, ...)
+     VgQt <- do.call(Method, append(list(L), methodArgs))
      if (VgQt$f < (f - 0.5*s^2*al)) break
      al <- al/2
      }
@@ -103,8 +106,8 @@ GPForth <- function(A, Tmat=diag(ncol(A)), method="varimax",
  r
 }
 
-GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
-                    normalize=FALSE, eps=1e-5, maxit=1000, ...){
+GPFoblq <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000, 
+		    method="quartimin", methodArgs=NULL){
  if(1 >= ncol(A)) stop("rotation does not make sense for single factor models.")
  if((!is.logical(normalize)) || normalize) {
      W <- NormalizingWeight(A, normalize=normalize)
@@ -113,8 +116,10 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
      }
  al <- 1
  L <- A %*% t(solve(Tmat))
- Method <- get(paste("vgQ",method,sep="."))
- VgQ <- Method(L, ...)
+ #Method <- get(paste("vgQ",method,sep="."))
+ #VgQ <- Method(L, ...)
+ Method <- paste("vgQ",method,sep=".")
+ VgQ <- do.call(Method, append(list(L), methodArgs))
  G <- -t(t(L) %*% VgQ$Gq %*% solve(Tmat))
  f <- VgQ$f
  Table <- NULL
@@ -130,7 +135,8 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
      v <- 1/sqrt(c(rep(1,nrow(X)) %*% X^2))
      Tmatt <- X %*% diag(v)
      L <- A %*% t(solve(Tmatt))
-     VgQt <- Method(L,...)
+     #VgQt <- Method(L, ...)
+     VgQt <- do.call(Method, append(list(L), methodArgs))
      improvement <- f - VgQt$f 
      if (improvement >  0.5*s^2*al) break
      al <- al/2
@@ -154,7 +160,8 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), method="quartimin",
 
 
 oblimin <- function(L, Tmat=diag(ncol(L)), gam=0, normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPFoblq(L, Tmat=Tmat, method="oblimin", gam=gam, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+                method="oblimin",  methodArgs=list(gam=gam))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -216,13 +223,15 @@ vgQ.quartimin <- function(L){
 
 targetT <- function(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPForth(L, Tmat=Tmat, method="target",Target=Target, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+           method="target", methodArgs=list(Target=Target))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
 targetQ <- function(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPFoblq(L, Tmat=Tmat, method="target",Target=Target, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+           method="target", methodArgs=list(Target=Target))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -237,14 +246,16 @@ vgQ.target <- function(L, Target=NULL){
 pstT <- function(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(W))      stop("argument W must be specified.")
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPForth(L, Tmat=Tmat, method="pst", W=W, Target=Target, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+	    method="pst", methodArgs=list(W=W, Target=Target))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
 pstQ <- function(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(W))      stop("argument W must be specified.")
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPFoblq(L, Tmat=Tmat, method="pst", W=W, Target=Target, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+	  method="pst", methodArgs=list(W=W, Target=Target))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -263,7 +274,8 @@ vgQ.pst <- function(L, W=NULL, Target=NULL){
 }
 
 oblimax <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPFoblq(L, Tmat=Tmat, method="oblimax", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+            method="oblimax")
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -316,7 +328,8 @@ vgQ.varimax <- function(L){
 }
 
 simplimax <- function(L, Tmat=diag(ncol(L)), k=nrow(L), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="simplimax", k=k, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+         method="simplimax", methodArgs=list(k=k))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -329,12 +342,14 @@ vgQ.simplimax <- function(L, k=nrow(L)){
 }
 
 bentlerT <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="bentler", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+	     method="bentler")
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
 bentlerQ <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="bentler", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+           method="bentler")
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -348,7 +363,8 @@ vgQ.bentler <- function(L){
 }
 
 tandemI <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="tandemI", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+            method="tandemI")
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -404,12 +420,14 @@ vgQ.tandemII <- function(L){  # Tandem Criterion, Comrey, 1967.
   }
 
 geominT <- function(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPForth(L, Tmat=Tmat, method="geomin", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+           method="geomin", methodArgs=list(delta=delta))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
 geominQ <- function(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPFoblq(L, Tmat=Tmat, method="geomin", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+            method="geomin", methodArgs=list(delta=delta))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -424,12 +442,14 @@ vgQ.geomin <- function(L, delta=.01){
   }
 
 cfT <- function(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="cf", kappa=kappa, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+             method="cf", methodArgs=list(kappa=kappa))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
 cfQ <- function(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="cf", kappa=kappa, normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+             method="cf", methodArgs=list(kappa=kappa))
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
@@ -452,12 +472,14 @@ vgQ.cf <- function(L, kappa=0){
 }
 
 infomaxT <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="infomax", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+            method="infomax")
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 
 infomaxQ <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, method="infomax", normalize=normalize, eps=eps, maxit=maxit)
+   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+            method="infomax")
    list(loadings=z$Lh, Th=z$Th,  Table=z$Table, convergence=z$convergence)
    }
 

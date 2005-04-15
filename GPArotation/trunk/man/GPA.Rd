@@ -4,8 +4,10 @@
 
 \title{Rotation optimization}
 \usage{
-    GPForth(A, Tmat=diag(ncol(A)), method="varimax", normalize=FALSE, eps=1e-5, maxit=1000, ...)
-    GPFoblq(A, Tmat=diag(ncol(A)), method="quartimin", normalize=FALSE, eps=1e-5, maxit=1000, ...)
+    GPForth(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000, 
+       method="varimax", methodArgs=NULL)
+    GPFoblq(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000, 
+       method="quartimin", methodArgs=NULL)
     }
 \arguments{
     \item{A}{initial factor loadings matrix for which the rotation 
@@ -16,7 +18,7 @@
     \item{eps}{convergence is assumed when the norm of the gradient is smaller
          than eps.}
     \item{maxit}{maximum number of iterations allowed in the main loop.}
-    \item{...}{additional arguments passed to the rotation objective}
+    \item{methodArgs}{a list ofmethodArgs arguments passed to the rotation objective}
 }
 
 \description{

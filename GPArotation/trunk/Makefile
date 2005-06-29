@@ -4,7 +4,7 @@ include ../Makevars
 
 default:	$(DEFAULT)
 
-$(CODETEST): $(PREREQS:%=../%) $(PARTS) $(CODESCAN) 
-	${codetestMacro}
+$(TESTLIB): $(PREREQS:%=../%) $(PARTS) $(CODESCAN) 
+	${testLibMacro}
 
 include ../Makerules

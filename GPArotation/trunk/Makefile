@@ -1,10 +1,9 @@
-PREREQS=
+PREREQ_PACS=
 
 include ../Makevars
 
 default:	$(DEFAULT)
 
-$(TESTLIB): $(PREREQS:%=../%) $(PARTS) $(CODESCAN) 
-	${testLibMacro}
+PRETESTLIB=$(PREREQ_PACS:%=../%) $(CODE_PREREQS) $(CODESCAN)
 
 include ../Makerules

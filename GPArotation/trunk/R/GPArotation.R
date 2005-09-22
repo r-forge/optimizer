@@ -97,7 +97,7 @@ GPForth <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
    }
  convergence <- (s < eps)
  if ((iter == maxit) & !convergence)
-     warning("convergence not obtained.", maxit, " iterations used.")
+     warning("convergence not obtained in GPForth. ", maxit, " iterations used.")
  if(normalize) L <- L * W
  dimnames(L) <- dimnames(A)
  r <- list(Lh=L, Th=Tmat, Table=Table, 
@@ -147,7 +147,7 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
    }
  convergence <- (s < eps)
  if ((iter == maxit) & !convergence)
-     warning("convergence not obtained.", maxit, " iterations used.")
+     warning("convergence not obtained in GPFoblq. ", maxit, " iterations used.")
  if(normalize) L <- L * W
  dimnames(L) <- dimnames(A)
  r <- list(Lh=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,

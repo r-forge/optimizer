@@ -4,6 +4,6 @@ include ../Makevars
 
 default:	$(DEFAULT)
 
-PRETESTLIB=$(PREREQ_PACS:%=../%) $(CODE_PREREQS) $(CODESCAN)
+PRETESTLIB=$(CODE_PREREQS) $(CODESCAN)
 
 include ../Makerules

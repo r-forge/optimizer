@@ -194,7 +194,7 @@
    \code{\link[stats]{varimax}}
    \code{\link[stats:varimax]{promax}}
 }
-\reference{
+\references{
    source{\url{http://www.stat.ucla.edu/research} or
           \url{http://www.stat.ucla.edu/research/gpa}
    }

@@ -140,7 +140,7 @@
 \source{code is modified from original source splusfunctions.net available at 
   \url{http://www.stat.ucla.edu/research/gpa}.
 }
-\reference{
+\references{
    source{\url{http://www.stat.ucla.edu/research} or
           \url{http://www.stat.ucla.edu/research/gpa}
          }

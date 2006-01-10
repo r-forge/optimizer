@@ -24,3 +24,6 @@ exec/getpwuid
 exec/x11arima
 exec/(^|.*)server.log.(^|.*) 
 data/create
+simple.server.log.(^|.*)
+zot123456b.db$
+.Rd2dvi(^|.*)

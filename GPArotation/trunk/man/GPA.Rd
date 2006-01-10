@@ -146,17 +146,17 @@
          }
    The software reference is
 
-   Bernaards, C.A. and Jennrich, R.I. (in press) Gradient Projection 
-     Algorithms and Software for Arbitrary Rotation Criteria in Factor
-     Analysis. Educational and Psychological Measurement.
+   Bernaards, C.A. and Jennrich, R.I. (2005) Gradient Projection Algorithms 
+     and Software for Arbitrary Rotation Criteria in Factor Analysis. 
+     \emph{Educational and Psychological Measurement}, \bold{65}, 676--696.
 
    Theory of gradient projection algorithms may be found in:
 
    Jennrich, R.I. (2001). A simple general procedure for orthogonal rotation.
-       Psychometrika, 66, 289-306.
+       \emph{Psychometrika}, \bold{66}, 289--306.
 
    Jennrich, R.I. (2002). A simple general method for oblique rotation. 
-       Psychometrika, 67, 7-19.
+       \emph{Psychometrika}, \bold{67}, 7--19.
    }
 \concept{rotation}
 \keyword{multivariate}

@@ -196,17 +196,19 @@
 }
 \references{
    source{\url{http://www.stat.ucla.edu/research} or
-          \url{http://www.stat.ucla.edu/research/gpa}
-   }
+          \url{http://www.stat.ucla.edu/research/gpa}}
+ 
    The software reference is
 
-   Bernaards, C.A. and Jennrich, R.I. (in press) Gradient Projection 
-     Algorithms and Software for Arbitrary Rotation Criteria in Factor
-     Analysis. Educational and Psychological Measurement.
+  Bernaards, C.A. and Jennrich, R.I. (2005) Gradient Projection Algorithms 
+     and Software for Arbitrary Rotation Criteria in Factor Analysis. 
+     \emph{Educational and Psychological Measurement}, \bold{65}, 676--696.
 
    A discussion of rotation objectives can be found in many references,
-   for example, Tom Wansbeek and Erik Meijer (2000) Measurement 
-   Error and Latent Variables in Econometrics, North-Holland: Amsterdam
+   for example, 
+   
+   Tom Wansbeek and Erik Meijer (2000) \emph{Measurement Error and 
+   Latent Variables in Econometrics}, Amsterdam: North-Holland.
   }
 
 \author{Coen A. Bernaards and Robert I. Jennrich

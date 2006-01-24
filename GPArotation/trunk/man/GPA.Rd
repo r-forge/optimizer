@@ -2,7 +2,7 @@
 \alias{GPForth}
 \alias{GPFoblq}
 
-\title{Rotation optimization}
+\title{Rotation Optimization}
 \usage{
     GPForth(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000, 
        method="varimax", methodArgs=NULL)
@@ -44,8 +44,8 @@
  For examples of the indirect use see the documention for 
  rotations (such as \code{\link{oblimin}}).
 
- GPForth is the main GP algorithm for orthogonal rotation.
- GPFoblq is the main GP algorithm for oblique rotation.
+ \code{GPForth} is the main GP algorithm for orthogonal rotation.
+ \code{GPFoblq} is the main GP algorithm for oblique rotation.
  Both algorithms require a loadings matrix \code{A} which fixes the 
  equivalence class over which the optimization is done. It must be 
  the solution to the orthogonal factor analysis problem. 
@@ -62,9 +62,12 @@
  The argument \code{method} can be used to specify a string indicating
  the rotation objective. \code{GPFoblq} defaults to \code{"quartimin"} 
  and \code{GPForth} defaults to \code{"varimax"}. Available rotation objectives
- are "oblimin", "quartimin", "target", "pst", "oblimax", "entropy", 
- "quartimax", "varimax", "simplimax", "bentler", "tandemI", "tandemII", 
- "geomin", "cf", "infomax" and "mccammon". The string is prefixed with 
+ are \code{"oblimin"}, \code{"quartimin"}, \code{"target"}, \code{"pst"},
+  \code{"oblimax"}, \code{"entropy"}, 
+ \code{"quartimax"}, \code{"varimax"}, \code{"simplimax"}, \code{"bentler"}, 
+ \code{"tandemI"}, \code{"tandemII"}, 
+\code{ "geomin"}, \code{"cf"}, \code{"infomax"} and \code{"mccammon"}. 
+The string is prefixed with 
  "vgQ." to give the actual function call. The \code{vgQ.*} function call
  would typically not be used directly, so these methods are not exported
  from the package namespace. You can print these functions to see the code for
@@ -72,9 +75,9 @@
  name needs to be specified. For example, use
  \code{GPArotation:::vgQ.oblimin} to view the function \code{vgQ.oblimin}.
 
- Some rotation criteria (including \code{simplimax}, \code{pst}, 
- \code{procrustes})
- require one or more additional arguments. For example, \code{simplimax}
+ Some rotation criteria (including \code{"simplimax"}, \code{"pst"}, 
+ \code{"procrustes"})
+ require one or more additional arguments. For example, \code{"simplimax"}
  needs the number of 'close to zero loadings' which is given  as
  the extra argument \code{k}. Check the rotation methods for details. 
  (If a new rotation method is implemented and needs additional
@@ -92,31 +95,31 @@
  and return a vector which is used like the vector above. 
 }
 \seealso{
-   \code{\link{Random.Start}}
-   \code{\link[stats]{factanal}}
-   \code{\link{oblimin}}
-   \code{\link{quartimin}}
-   \code{\link{targetT}}
-   \code{\link{targetQ}}
-   \code{\link{pstT}}
-   \code{\link{pstQ}}
-   \code{\link{oblimax}}
-   \code{\link{entropy}}
-   \code{\link{quartimax}}
-   \code{\link{Varimax}}
-   \code{\link[stats]{varimax}}
-   \code{\link{simplimax}}
-   \code{\link{bentlerT}}
-   \code{\link{bentlerQ}}
-   \code{\link{tandemI}}
-   \code{\link{tandemII}}
-   \code{\link{geominT}}
-   \code{\link{geominQ}}
-   \code{\link{cfT}}
-   \code{\link{cfQ}}
-   \code{\link{infomaxT}}
-   \code{\link{infomaxQ}}
-   \code{\link{mccammon}}
+   \code{\link{Random.Start}},
+   \code{\link[stats]{factanal}},
+   \code{\link{oblimin}},
+   \code{\link{quartimin}},
+   \code{\link{targetT}},
+   \code{\link{targetQ}},
+   \code{\link{pstT}},
+   \code{\link{pstQ}},
+   \code{\link{oblimax}},
+   \code{\link{entropy}},
+   \code{\link{quartimax}},
+   \code{\link{Varimax}},
+   \code{\link[stats]{varimax}},
+   \code{\link{simplimax}},
+   \code{\link{bentlerT}},
+   \code{\link{bentlerQ}},
+   \code{\link{tandemI}},
+   \code{\link{tandemII}},
+   \code{\link{geominT}},
+   \code{\link{geominQ}},
+   \code{\link{cfT}},
+   \code{\link{cfQ}},
+   \code{\link{infomaxT}},
+   \code{\link{infomaxQ}},
+   \code{\link{mccammon}},
    \code{\link{promax}}
 }
 \examples{
@@ -137,13 +140,11 @@
   }
 \author{Coen A. Bernaards and Robert I. Jennrich
         with some R modifications by Paul Gilbert}
-\source{code is modified from original source splusfunctions.net available at 
-  \url{http://www.stat.ucla.edu/research/gpa}.
 }
 \references{
-   source{\url{http://www.stat.ucla.edu/research} or
+   Additional information is available at 
+   \url{http://www.stat.ucla.edu/research} or
           \url{http://www.stat.ucla.edu/research/gpa}
-         }
    The software reference is
 
    Bernaards, C.A. and Jennrich, R.I. (2005) Gradient Projection Algorithms 

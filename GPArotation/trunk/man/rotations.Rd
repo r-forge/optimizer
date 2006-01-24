@@ -187,19 +187,14 @@
 
   }
 \seealso{
-   \code{\link{GPForth}}
-   \code{\link{GPFoblq}}
-   \code{\link{WansbeekMeijer}}
-   \code{\link[stats]{factanal}}
-   \code{\link[stats]{varimax}}
+   \code{\link{GPForth}}, 
+   \code{\link{GPFoblq}}, 
+   \code{\link{WansbeekMeijer}}, 
+   \code{\link[stats]{factanal}}, 
+   \code{\link[stats]{varimax}}, 
    \code{\link[stats:varimax]{promax}}
 }
 \references{
-   source{\url{http://www.stat.ucla.edu/research} or
-          \url{http://www.stat.ucla.edu/research/gpa}}
- 
-   The software reference is
-
   Bernaards, C.A. and Jennrich, R.I. (2005) Gradient Projection Algorithms 
      and Software for Arbitrary Rotation Criteria in Factor Analysis. 
      \emph{Educational and Psychological Measurement}, \bold{65}, 676--696.

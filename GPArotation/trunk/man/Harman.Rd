@@ -26,8 +26,8 @@
 }
 
 \seealso{
-	\code{\link{GPForth}}
-	\code{\link{Thurstone}}
+	\code{\link{GPForth}},
+	\code{\link{Thurstone}}, 
 	\code{\link{WansbeekMeijer}}
 }
 \keyword{datasets}

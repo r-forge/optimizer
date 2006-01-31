@@ -22,7 +22,7 @@
    or \code{GPFoblq}.
 }
 \seealso{
-   \code{\link{GPForth}}
+   \code{\link{GPForth}}, 
    \code{\link[base]{summary}}
 }
 

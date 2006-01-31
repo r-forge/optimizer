@@ -22,8 +22,8 @@
    Error and Latent Variables in Econometrics}, Amsterdam: North-Holland.
 }
 \seealso{
-	\code{\link{GPForth}}
-	\code{\link{Thurstone}}
+	\code{\link{GPForth}},
+	\code{\link{Thurstone}},
 	\code{\link{Harman}}
 }
 \keyword{datasets}

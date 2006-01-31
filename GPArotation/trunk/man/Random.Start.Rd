@@ -19,8 +19,8 @@
   of length one based on the QR decompostion.
   }
 \seealso{
-   \code{\link{GPForth}}
-   \code{\link{GPFoblq}}
+   \code{\link{GPForth}}, 
+   \code{\link{GPFoblq}},
    \code{\link{oblimin}}
    }
 \examples{

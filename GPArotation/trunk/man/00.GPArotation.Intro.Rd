@@ -1,6 +1,6 @@
-\name{GPArotation-package}
-\alias{GPArotation-package}
-\alias{GPArotation}
+\name{00.GPArotation.Intro}
+\alias{00.GPArotation.Intro}
+\alias{GPArotation.Intro}
 \docType{package}
 
 \title{GPA Rotation for Factor Analysis}

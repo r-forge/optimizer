@@ -36,7 +36,7 @@ print.GPArotation <- function (x, digits=3, Table=FALSE, ...){
      cat("\nIteration table:\n")
      print(x$Table, digits=digits)
      }
-   invisible(x, ...)
+   invisible(x)
    }
 
 summary.GPArotation <- function (object, ...){ 

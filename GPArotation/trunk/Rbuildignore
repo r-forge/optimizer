@@ -27,3 +27,4 @@ data/create
 simple.server.log.(^|.*)
 zot123456b.db$
 .Rd2dvi(^|.*)
+Rplots.ps$

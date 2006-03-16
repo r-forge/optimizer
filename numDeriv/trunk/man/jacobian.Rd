@@ -1,0 +1,49 @@
+\name{jacobian}
+\alias{jacobian}
+\alias{jacobian.default}
+\title{Gradient of a Vector Valued Function}
+\description{
+Calculate the m by n numerical approximation of the gradient of a real
+m-valued function with n-valued argument.
+}
+\usage{
+    jacobian(func, x, method="Richardson", method.args=list(), ...) 
+
+    \method{jacobian}{default}(func, x, method="Richardson",
+       method.args=list(eps=.Machine$double.eps^(1/3),
+                         d=.Machine$double.eps^(1/3)* abs(x), r=6, v=2), ...)
+}
+\arguments{
+    \item{func}{a function with a real result.}
+    \item{x}{a real or real vector argument to func, indicating the point 
+       at which the gradient is to be calculated.}
+    \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
+    the method to use for the aproximation.}
+    \item{method.args}{arguments passed to method.}
+    \item{...}{an additional arguments passed to \code{func}.}
+}
+\value{A real m by n matrix.}
+\details{
+   For f:R^n -> R^m calculate the (m x n) Jacobian (dy/dx).
+   The function \code{jacobian} calculates a numerical approximation of the 
+   first derivative of \code{func} at the point \code{x}. Any additional 
+   arguments in \dots are also passed to \code{func}, but the gradient is not
+   calculated with respect to these additional arguments.
+   
+   If method is "simple", the calculation is done using a simple epsilon
+   difference. For this case only the \code{methods.args} element \code{eps}
+   is used. If method is "Richardson", the calculation is done by 
+   Richardson's extrapolation. See \code{link{grad}} for more details.
+}
+
+\seealso{
+  \code{\link{grad}}
+  \code{\link{hessian}}
+  \code{\link[stats]{numericalDeriv}}
+  }
+\examples{
+   func2 <- function(x) c(sin(x), cos(x))
+   x <- (0:1)*2*pi
+   jacobian(func2, x)
+}
+\keyword{multivariate}

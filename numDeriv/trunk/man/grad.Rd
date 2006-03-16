@@ -1,0 +1,102 @@
+\name{grad}
+\alias{grad}
+\alias{grad.default}
+\title{Numerical Gradient of a Function}
+\description{Calculate the gradient of a function by Richardson improvement.}
+\usage{
+     grad(func, x, method="Richardson", method.args=list(), ...) 
+
+    \method{grad}{default}(func, x, method="Richardson",
+      method.args=list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE), ...)
+ }
+\arguments{
+    \item{func}{a function with a scalar real result (see details).}
+    \item{x}{a real scalar or vector argument to func, indicating the 
+      point(s) at which the gradient is to be calculated.}
+    \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
+    the method to use for the aproximation.}
+    \item{method.args}{arguments passed to method.}
+    \item{...}{an additional arguments passed to \code{func}.}
+}
+\value{A real scalar or vector of the approximated gradient(s).}
+
+\details{
+   The function \code{grad} calculates a numerical approximation of the 
+   first derivative of \code{func} at the point \code{x}. Any additional 
+   arguments in \dots are also passed to \code{func}, but the gradient is not
+   calculated with respect to these additional arguments.
+   It is assumed \code{func}  is a scalar value function. If a vector \code{x} 
+   produces a scalar
+   result then \code{grad} returns the numerical approximation of the gradient
+   at the point \code{x} (which has the same length as \code{x}).
+   If a vector \code{x} produces a vector result then the result must have the
+   same length as \code{x}, and it is assumed that this corresponds to applying
+   the function to each of its arguments (for example, \code{sin(x)}). 
+   In this case \code{grad} returns the
+   gradient at each of the points in \code{x} (which also has the same length 
+   as \code{x} - so be careful). An alternative for vector valued functions is
+   provided by \code{\link{jacobian}}.
+  
+   If method is "simple", the calculation is done using a simple epsilon
+   difference. For this case only the \code{methods.args} element \code{eps}
+   is used.
+
+   If method is "Richardson", the calculation
+   is done by Richardson's extrapolation (see e.g. Linfield and Penny, 1989,
+   or Fornberg and Sloan, 1994.)
+   This method should be used if accuracy, as opposed to speed, is important.
+   For this case all 
+   \code{methods.args=list(eps=1e-4, d=0.01, r=6, show.details=FALSE)} 
+   are used.
+    \code{d} gives the fraction of x to use for the initial numerical approximation.
+        The default is set to 0.01*x or eps if x is 0.0.
+    \code{eps} is used instead of d for elements of x which are zero.
+    \code{r} gives the number of Richardson improvement iterations (repetitions
+       with successly smaller d).
+    \code{v} gives the reduction factor.
+    \code{show.details} is a logical indicating if detailed calculations should 
+        be shown.
+   
+  The general approach in the Richardson method is to iterate for \code{r} iterations from initial 
+  values for interval value \code{d},  using reduced factor \code{v}.
+  The the first order approximation to the derivative with respect to x_{i} is
+
+  f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) - f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)
+       
+  This is repeated \code{r} times  with successively smaller \code{d}  and 
+	  then apply Richardson extraplolation
+
+}
+\references{ 
+   Linfield, G. R. and Penny, J. E. T. (1989) \emph{Microcomputers in Numerical 
+   Analysis}. New York: Halsted Press.
+
+  Fornberg and Sloan (Acta Numerica, 1994, p. 203-267)
+}
+\seealso{
+  \code{\link{jacobian}}
+  \code{\link{hessian}}
+  \code{\link[stats]{numericalDeriv}}
+   }
+\examples{
+  grad(sin, pi)
+  grad(sin, (0:10)*2*pi/10)
+  func0 <- function(x){ sum(sin(x))  }
+  grad(func0 , (0:10)*2*pi/10)
+
+  func1 <- function(x){ sin(10*x) - exp(-x) }
+
+  curve(func1,from=0,to=5)
+
+  x <- 2.04
+  numd1 <- grad(func1, x)
+  exact <- 10*cos(10*x) + exp(-x)
+  c(numd1, exact, (numd1 - exact)/exact)
+
+
+  x <- c(1:10)
+  numd1 <- grad(func1, x)
+  exact <- 10*cos(10*x) + exp(-x)
+  cbind(numd1, exact, (numd1 - exact)/exact)
+}
+\keyword{multivariate}

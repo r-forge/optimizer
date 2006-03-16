@@ -21,14 +21,15 @@
 }
 \value{
 A list with elements as follows:
-   D is a matrix of first(gradients) and second order partial
+   \code{D} is a matrix of first and second order partial
       derivatives organized in the same manner as Bates and 
       Watts. (The first p columns are the gradients and the 
       next p(p-1)/2 columns are the lower triangle of the Hessian).
-   p is the dimension of the parameter space=dim of the tangent space.
-   f0 is the function value at the point where the matrix D 
+   \code{p} is the dimension of the parameter space=dim of the tangent space.
+   \code{f0} is the function value at the point where the matrix \code{D} 
         was calculated. 
-   Also the arguments func, x, d, eps, r are returned in the list.
+   Also the arguments \code{func}, \code{x}, \code{d}, \code{eps}, \code{r} 
+   are returned in the list.
 }
 \details{
    The derivatives are calculated numerically using Richardson improvement.
@@ -37,27 +38,35 @@ A list with elements as follows:
    For a scalar valued function these are the gradient vector and 
    Hessian matrix. (See \code{\link{grad}} and \code{\link{hessian}}.)
    For a vector valued function the first derivative is the Jacobian matrix 
-   (see \code{\link{jacobian}}).
-   
-   The calculation is done by Richardson's extrapolation. (See \code{\link{grad}}
-   for more details.) The the first order derivative with respect to x_{i} is 
+   (see \code{\link{jacobian}}). See \code{\link{grad}}
+   for more details on the Richardson's extrapolation parameters. 
 
-FIX THIS UP
+   The the first order derivative with respect to \eqn{x_i}{x_i} is 
 
-  f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
-               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)
- 	   
-   The second order derivative with respect to xi is 
+   \deqn{f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
+               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}{%
+ 	 f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
+               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}
 
-      f''_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) - 2 *f(x_{1},\dots,x_{n})+
-                    f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)
- 	    
-   The second order derivative with respect to x_{i}, x_{j} is 
+   The second order derivative with respect to \eqn{x_i}{x_i} is 
 
-      f''_{i,j}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{j}+d,\dots,x_{n}) -
-                    2 *f(x_{1},\dots,x_{n})+
-                      f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
-		      (f''_{i}(x) + f''_{j}(x))/2
+  \deqn{f''_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
+                   2 *f(x_{1},\dots,x_{n}) +
+                    f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d) }{%
+	f''_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
+                   2 *f(x_{1},\dots,x_{n}) +
+                    f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d) }	    
+
+   The second order derivative with respect to \eqn{x_i, x_j}{x_i, x_j} is 
+
+  \deqn{f''_{i,j}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{j}+d,\dots,x_{n}) -
+                    2 *f(x_{1},\dots,x_{n}) +
+                  f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
+		      (f''_{i}(x) + f''_{j}(x))/2 }{%
+        f''_{i,j}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{j}+d,\dots,x_{n}) -
+                    2 *f(x_{1},\dots,x_{n}) +
+                  f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
+		      (f''_{i}(x) + f''_{j}(x))/2 }
 
 }
 

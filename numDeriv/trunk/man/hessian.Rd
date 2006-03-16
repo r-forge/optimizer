@@ -1,5 +1,4 @@
 \name{hessian}
-\alias{jac}
 \alias{hessian}
 \alias{hessian.default}
 
@@ -21,11 +20,11 @@
     \item{...}{an additional arguments passed to \code{func}.}
 }
 \value{An n by n matrix of the Hessian of the function calculated at the 
-       point x.}
+       point \code{x}.}
 \details{
   The function \code{hessian} calculates an numerical aproximation to 
   the n x n second derivative of a scalar real valued function with n-vector
-  aregument. It uses genD and extracts the second derivative.
+  argument. It uses \code{\link{genD}} and extracts the second derivative.
   MORE HERE
 }
 \seealso{

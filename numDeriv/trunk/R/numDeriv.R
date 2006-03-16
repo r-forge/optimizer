@@ -13,13 +13,13 @@ grad.default <- function(func, x, method="Richardson",
   # case 1/ scalar arg, scalar result (case 2/ or 3/ code should work)
   # case 2/ vector arg, scalar result (same as jacobian)
   # case 3/ vector arg, vector result (of same length, really 1/ applied multiple times))
-  case1or3 <- length(x) == length(func(x, ...))
-  if((1 != length(func(x))) & !case1or3)
+  f <-func(x, ...)
+  case1or3 <- length(x) == length(f)
+  if((1 != length(f)) & !case1or3)
   	 stop("grad assumes a scalar real valued function.")
   if(method=="simple"){
     #  very simple (crude) numerical approximation
     eps <- method.args$eps
-    f <-func(x)
     if(case1or3) return((func(x+eps)-f)/eps) 
     # now case 2
     df <-1:length(x)
@@ -131,7 +131,7 @@ hessian.default <- function(func, x, method="Richardson",
       method.args=list(eps=1e-4, d=0.01, r=6, v=2), ...){  
 
    if(method != "Richardson")  stop("method not implemented.")
-   if(1!=length(func(x)))
+   if(1!=length(func(x, ...)))
        stop("hessian.default assumes a scalar real valued function.")
    D <- genD(func, x, method=method, method.args=method.args, ...)$D
    if(1!=nrow(D)) stop("BUG! should not get here.")

@@ -24,7 +24,8 @@ m-valued function with n-valued argument.
 }
 \value{A real m by n matrix.}
 \details{
-   For f:R^n -> R^m calculate the (m x n) Jacobian (dy/dx).
+   For \eqn{f:R^n -> R^m}{f:R^n -> R^m} calculate the \eqn{m x n}{m x n} 
+   Jacobian \eqn{dy/dx}{dy/dx}.
    The function \code{jacobian} calculates a numerical approximation of the 
    first derivative of \code{func} at the point \code{x}. Any additional 
    arguments in \dots are also passed to \code{func}, but the gradient is not

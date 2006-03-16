@@ -2,7 +2,7 @@
 \alias{grad}
 \alias{grad.default}
 \title{Numerical Gradient of a Function}
-\description{Calculate the gradient of a function by Richardson improvement.}
+\description{Calculate the gradient of a function by numerical approximation.}
 \usage{
      grad(func, x, method="Richardson", method.args=list(), ...) 
 
@@ -38,7 +38,7 @@
    provided by \code{\link{jacobian}}.
   
    If method is "simple", the calculation is done using a simple epsilon
-   difference. For this case only the \code{methods.args} element \code{eps}
+   difference. For this case only the element \code{eps} of \code{methods.args}
    is used.
 
    If method is "Richardson", the calculation
@@ -48,20 +48,27 @@
    For this case all 
    \code{methods.args=list(eps=1e-4, d=0.01, r=6, show.details=FALSE)} 
    are used.
-    \code{d} gives the fraction of x to use for the initial numerical approximation.
-        The default is set to 0.01*x or eps if x is 0.0.
-    \code{eps} is used instead of d for elements of x which are zero.
+    \code{d} gives the fraction of \code{x} to use for the initial numerical 
+      approximation. The default is set to \code{0.01 * x} or \code{eps} 
+      if \code{x} is \code{0.0}.
+    \code{eps} is used instead of \code{d} for elements of \code{x} which are 
+       zero.
     \code{r} gives the number of Richardson improvement iterations (repetitions
-       with successly smaller d).
+       with successly smaller \code{d}.
     \code{v} gives the reduction factor.
     \code{show.details} is a logical indicating if detailed calculations should 
         be shown.
    
-  The general approach in the Richardson method is to iterate for \code{r} iterations from initial 
+  The general approach in the Richardson method is to iterate for \code{r} 
+  iterations from initial 
   values for interval value \code{d},  using reduced factor \code{v}.
-  The the first order approximation to the derivative with respect to x_{i} is
+  The the first order approximation to the derivative with respect 
+  to \eqn{x_{i}}{x_{i}} is
 
-  f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) - f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)
+      \deqn{f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
+               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}{%
+	    f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
+               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}
        
   This is repeated \code{r} times  with successively smaller \code{d}  and 
 	  then apply Richardson extraplolation

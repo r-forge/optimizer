@@ -14,7 +14,8 @@ Depends: \tab R (>= 2.2.1)\cr
 License: \tab GPL Version 2.\cr
 }
 The main functions are
-\code{\link{grad}}, \code{\link{jacobian}}, and \code{\link{hessian}}. 
+\code{\link{grad}}, \code{\link{jacobian}}, \code{\link{hessian}}
+and \code{\link{genD}}. 
 
 \author{Paul Gilbert, others}
 

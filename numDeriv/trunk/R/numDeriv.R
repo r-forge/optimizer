@@ -136,7 +136,7 @@ hessian.default <- function(func, x, method="Richardson",
    D <- genD(func, x, method=method, method.args=method.args, ...)$D
    if(1!=nrow(D)) stop("BUG! should not get here.")
    H <- diag(NA,length(x))
-   u <- 0
+   u <- length(x)
    for(i in 1:length(x))
      {for(j in 1:i) 
         {u <- u + 1

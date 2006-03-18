@@ -59,8 +59,6 @@ if(max(abs(g.calcS - g.anal)) > 1e-4)
 x <- (0:10)*2*pi/10
 g.anal <-  cos(x)
 
-# THIS DOES NOT WORK FOR A FUNCTION WITH A VECTOR RESULT
-
 g.calcR <-  grad(sin, x, method="Richardson")
 
 cat("max. abs. diff. between analtic and Richardson grad:")

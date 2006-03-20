@@ -23,7 +23,7 @@ x <- (0:2)*2*pi/2
 print(anal.h <-  matrix(0, length(x), length(x)))
 print(calc.h <- hessian(func1, x) )
 cat("error: ", err <- max(abs(anal.h - calc.h)),"\n")
-if( err > 1e-12) stop("hessian test 2 FAILED")
+if( err > 1e-10) stop("hessian test 2 FAILED")
 
 funcD1 <- function(x) grad(sin,x)
 print(calc.j <- jacobian(funcD1, x) )

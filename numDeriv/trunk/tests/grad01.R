@@ -4,25 +4,15 @@ if(!require("numDeriv"))stop("this test requires numDeriv.")
 #  sin test. scalar valued function with scalar arg
 ###################################################################
 
-g.anal  <-  cos(pi)
+print(g.anal  <-  cos(pi))
 
-g.calcR <-  grad(sin, pi, method="Richardson")
+print(g.calcR <-  grad(sin, pi, method="Richardson"))
+cat("error: ", err <- max(abs(g.calcR - g.anal)),"\n")
+if(err > 1e-13) stop("grad01 test 1 FAILED")
 
-cat("max. abs. diff. between analytic and Richardson grad:")
-print( max(abs(g.calcR - g.anal)), digits=16)
-
-if(max(abs(g.calcR - g.anal)) > 1e-12)
-    stop("Richardson grad scalar test FAILED")
-
-
-
-g.calcS <-   grad(sin, pi, method="simple")
-
-cat("max. abs. diff. between analytic and simple grad:")
-print( max(abs(g.calcS - g.anal)), digits=16)
-
-if(max(abs(g.calcS - g.anal)) > 1e-4)
-     stop("simple grad scalar test FAILED")
+print(g.calcS <-   grad(sin, pi, method="simple"))
+cat("error: ", err <- max(abs(g.calcS - g.anal)),"\n")
+if(err > 1e-8) stop("grad01 test 2 FAILED")
 
 
 ###################################################################
@@ -32,24 +22,15 @@ if(max(abs(g.calcS - g.anal)) > 1e-4)
 func2a <- function(x) sum(sin(x))
 
 x <- (0:10)*2*pi/10
-g.anal  <- cos(x)
+print(g.anal  <- cos(x))
 
-g.calcR <- grad(func2a, x, method="Richardson")
+print(g.calcR <- grad(func2a, x, method="Richardson"))
+cat("error: ", err <- max(abs(g.calcR - g.anal)),"\n")
+if(err > 1e-10) stop("grad01 test 3 FAILED")
 
-cat("max. abs. diff. between analytic and Richardson grad:")
-print( max(abs(g.calcR - g.anal)), digits=16)
-
-if(max(abs(g.calcR - g.anal)) > 1e-10)
-   stop("Richardson grad scalar function vector argument test FAILED")
-
-
-g.calcS <- grad(func2a, x, method="simple")
-
-cat("max. abs. diff. between analytic and simple grad:")
-print( max(abs(g.calcS - g.anal)), digits=16)
-
-if(max(abs(g.calcS - g.anal)) > 1e-4)
-    stop("simple grad scalar function vector argument test FAILED")
+print(g.calcS <- grad(func2a, x, method="simple"))
+cat("error: ", err <- max(abs(g.calcS - g.anal)),"\n")
+if(err > 1e-4) stop("grad01 test 4 FAILED")
 
 
 ###################################################################
@@ -57,21 +38,14 @@ if(max(abs(g.calcS - g.anal)) > 1e-4)
 ###################################################################
 
 x <- (0:10)*2*pi/10
-g.anal <-  cos(x)
+print(g.anal <-  cos(x))
 
-g.calcR <-  grad(sin, x, method="Richardson")
+print(g.calcR <-  grad(sin, x, method="Richardson"))
+cat("error: ", err <- max(abs(g.calcR - g.anal)),"\n")
+if(err > 1e-12) stop("grad01 test 5 FAILED")
 
-cat("max. abs. diff. between analtic and Richardson grad:")
-print( max(abs(g.calcR - g.anal)), digits=16)
-if(max(abs(g.calcR - g.anal)) > 1e-12)
-   stop("Richardson grad vector argument, vector result test FAILED")
-
-g.calcS <-   grad(sin, x, method="simple")
-
-cat("max. abs. diff. between analtic and simple grad:")
-print( max(abs(g.calcS - g.anal)), digits=16)
-
-if(max(abs(g.calcS - g.anal)) > 1e-4)
-    stop("simple grad vector argument, vector result test FAILED")
+print(g.calcS <-   grad(sin, x, method="simple"))
+cat("error: ", err <- max(abs(g.calcS - g.anal)),"\n")
+if(err > 1e-4) stop("grad01 test 6 FAILED")
 
 

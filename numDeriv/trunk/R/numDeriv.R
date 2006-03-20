@@ -11,18 +11,18 @@ grad.default <- function(func, x, method="Richardson",
       method.args=list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE), ...){
   # modified by Paul Gilbert from code by Xingqiao Liu.
   # case 1/ scalar arg, scalar result (case 2/ or 3/ code should work)
-  # case 2/ vector arg, scalar result (same as jacobian)
+  # case 2/ vector arg, scalar result (same as special case jacobian)
   # case 3/ vector arg, vector result (of same length, really 1/ applied multiple times))
   f <-func(x, ...)
   case1or3 <- length(x) == length(f)
   if((1 != length(f)) & !case1or3)
   	 stop("grad assumes a scalar real valued function.")
   if(method=="simple"){
-    #  very simple (crude) numerical approximation
+    #  very simple numerical approximation
     eps <- method.args$eps
     if(case1or3) return((func(x+eps)-f)/eps) 
     # now case 2
-    df <-1:length(x)
+    df <- rep(NA,length(x))
     for (i in 1:length(x)) {
       dx <- x
       dx[i] <- dx[i] +eps 
@@ -38,7 +38,7 @@ grad.default <- function(func, x, method="Richardson",
     show.details <- method.args$show.details
     n <- length(x)	 #number of variables.
     a <- matrix(NA, r, n) 
-    b <- matrix(NA, (r - 1), n)
+    #b <- matrix(NA, (r - 1), n)
   
     #  first order derivatives are stored in the matrix a[k,i], 
     #  where the indexing variables k for rows(1 to r), i for columns (1 to n),
@@ -97,31 +97,43 @@ jacobian <- function (func, x, method="Richardson",
                               method.args=list(), ...) UseMethod("jacobian")
 
 jacobian.default <- function(func, x, method="Richardson",
-      method.args=list(eps=.Machine$double.eps^(1/3),
-                         d=.Machine$double.eps^(1/3)* abs(x), r=6, v=2), ...){  
-   if(method != "Richardson")  stop("method not implemented.")
-   h <- method.args$d
-   h[h==0] <- method.args$eps
-   n <- length(x)
-   m <- length(func(x,...))
-   jac <- matrix(NA,nrow=m,ncol=n)
-   f <- matrix(NA,nrow=m,ncol=4)
-   w <- c(1/12,-2/3, 2/3,-1/12)
-   unit <- rep(0,n)
-   
-   for (i in 1:n) {
-	unit[i] <- 1
-	f[,1] <- func(x - 2*h*unit, ...)
-	f[,2] <- func(x - h*unit, ...)
-	f[,3] <- func(x + h*unit, ...)
-	f[,4] <- func(x + 2*h*unit, ...)
-
-	jac[,i] <- apply(f,1,function(x,y=w)sum(y*x))/h #FAILS FOR M=1
-	unit[i] <- 0
-	}
-   jac
- }
-
+      method.args=list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE), ...){
+  f <-func(x, ...)
+  n <- length(x)	 #number of variables.
+  if(method=="simple"){
+    #  very simple numerical approximation
+    eps <- method.args$eps
+    df <-matrix(NA, length(f), n)
+    for (i in 1:n) {
+      dx <- x
+      dx[i] <- dx[i] +eps 
+      df[,i] <- (func(dx)-f)/eps
+     }
+    return(df)
+    } else
+  if(method=="Richardson"){
+    eps <- method.args$eps
+    d <- method.args$d
+    r <- method.args$r
+    v <- method.args$v		 
+    a <- array(NA, c(length(f),r, n) )
+  
+    h <- abs(d*x)+eps*(x==0.0)
+    for(k in 1:r)  { # successively reduce h		    
+       for(i in 1:n)  {
+         a[,k,i] <- (func(x + h*(i==seq(n))) -  
+	             func(x - h*(i==seq(n))))/(2*h[i])
+         #if((k != 1)) a[,(abs(a[,(k-1),i]) < 1e-20)] <- 0 #some func are unstable near zero
+         }
+       h <- h/v     # Reduced h by 1/v.
+       }	
+   for(m in 1:(r - 1)) {	  
+       a <- (a[,2:(r+1-m),,drop=FALSE]*(4^m)-a[,1:(r-m),,drop=FALSE])/(4^m-1)
+     }
+  # drop second dim of a, which is now 1 (but not other dim's even if they are 1
+  return(array(a, dim(a)[c(1,3)]))  
+  } else stop("indicated method ", method, "not supported.")
+}
 
 
 hessian <- function (func, x, method="Richardson",

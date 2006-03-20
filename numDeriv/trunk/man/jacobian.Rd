@@ -10,8 +10,7 @@ m-valued function with n-valued argument.
     jacobian(func, x, method="Richardson", method.args=list(), ...) 
 
     \method{jacobian}{default}(func, x, method="Richardson",
-       method.args=list(eps=.Machine$double.eps^(1/3),
-                         d=.Machine$double.eps^(1/3)* abs(x), r=6, v=2), ...)
+       method.args=list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE), ...)
 }
 \arguments{
     \item{func}{a function with a real result.}

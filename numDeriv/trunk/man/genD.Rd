@@ -17,23 +17,26 @@
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
     the method to use for the aproximation.}
     \item{method.args}{arguments passed to method.}
-    \item{...}{an additional arguments passed to \code{func}.}
+    \item{...}{any additional arguments passed to \code{func}.}
 }
 \value{
 A list with elements as follows:
    \code{D} is a matrix of first and second order partial
       derivatives organized in the same manner as Bates and 
-      Watts. (The first p columns are the gradients and the 
-      next p(p-1)/2 columns are the lower triangle of the Hessian).
-   \code{p} is the dimension of the parameter space=dim of the tangent space.
+      Watts, the number of rows is equal to the length of the result of
+      \code{func}, the first p columns are the Jacobian, and the 
+      next p(p-1)/2 columns are the lower triangle of the second derivative
+      (which is the Hessian for a scalar valued \code{func}).
+   \code{p} is the length of \code{x} (dimension of the parameter space).
    \code{f0} is the function value at the point where the matrix \code{D} 
         was calculated. 
-   Also the arguments \code{func}, \code{x}, \code{d}, \code{eps}, \code{r} 
-   are returned in the list.
+   The  \code{genD} arguments \code{func}, \code{x}, \code{d}, \code{method},
+   and  \code{method.args} also are returned in the list.
 }
 \details{
    The derivatives are calculated numerically using Richardson improvement.
-   The default method calculates a numerical approximation of the first 
+   The method "simple" is not supported in this function.)
+   The "Richardson" method calculates a numerical approximation of the first 
    and second derivatives of \code{func} at the point \code{x}. 
    For a scalar valued function these are the gradient vector and 
    Hessian matrix. (See \code{\link{grad}} and \code{\link{hessian}}.)
@@ -60,12 +63,13 @@ A list with elements as follows:
    The second order derivative with respect to \eqn{x_i, x_j}{x_i, x_j} is 
 
   \deqn{f''_{i,j}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{j}+d,\dots,x_{n}) -
-                    2 *f(x_{1},\dots,x_{n}) +
-                  f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
-		      (f''_{i}(x) + f''_{j}(x))/2 }{%
+                    2 *f(x_{1},\dots,x_{n}) + }{%
         f''_{i,j}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{j}+d,\dots,x_{n}) -
-                    2 *f(x_{1},\dots,x_{n}) +
-                  f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
+                    2 *f(x_{1},\dots,x_{n}) + }
+
+  \deqn{f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
+		      (f''_{i}(x) + f''_{j}(x))/2 }{%
+        f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
 		      (f''_{i}(x) + f''_{j}(x))/2 }
 
 }
@@ -82,7 +86,7 @@ A list with elements as follows:
 }
 
 \seealso{
-   \code{\link{hessian}}
+   \code{\link{hessian}}, 
    \code{\link{grad}}
 }
 \examples{

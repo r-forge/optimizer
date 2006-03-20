@@ -4,7 +4,7 @@
 \title{Gradient of a Vector Valued Function}
 \description{
 Calculate the m by n numerical approximation of the gradient of a real
-m-valued function with n-valued argument.
+m-vector valued function with n-vector argument.
 }
 \usage{
     jacobian(func, x, method="Richardson", method.args=list(), ...) 
@@ -13,13 +13,13 @@ m-valued function with n-valued argument.
        method.args=list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE), ...)
 }
 \arguments{
-    \item{func}{a function with a real result.}
+    \item{func}{a function with a real (vector) result.}
     \item{x}{a real or real vector argument to func, indicating the point 
        at which the gradient is to be calculated.}
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
     the method to use for the aproximation.}
     \item{method.args}{arguments passed to method.}
-    \item{...}{an additional arguments passed to \code{func}.}
+    \item{...}{any additional arguments passed to \code{func}.}
 }
 \value{A real m by n matrix.}
 \details{
@@ -31,7 +31,7 @@ m-valued function with n-valued argument.
    calculated with respect to these additional arguments.
    
    If method is "simple", the calculation is done using a simple epsilon
-   difference. For this case only the \code{methods.args} element \code{eps}
+   difference. For this case, only the \code{methods.args} element \code{eps}
    is used. If method is "Richardson", the calculation is done by 
    Richardson's extrapolation. See \code{link{grad}} for more details.
 }

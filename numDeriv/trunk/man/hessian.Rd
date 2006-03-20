@@ -3,7 +3,8 @@
 \alias{hessian.default}
 
 \title{Calculate Hessian Matrix}
-\description{Calculate a numerical approximation to the Hessian matrix of a function at a parameter value.}
+\description{Calculate a numerical approximation to the Hessian matrix of a 
+function at a parameter value.}
 \usage{
     hessian(func, x, method="Richardson", method.args=list(), ...)
 
@@ -25,7 +26,6 @@
   The function \code{hessian} calculates an numerical aproximation to 
   the n x n second derivative of a scalar real valued function with n-vector
   argument. It uses \code{\link{genD}} and extracts the second derivative.
-  MORE HERE
 }
 \seealso{
     \code{\link{jacobian}},

@@ -256,7 +256,8 @@ genD.default <- function(func, x, method="Richardson",
   	       }
   	    }  
   	 }
-  D <- list(D=D, p=length(x),f0=f0,func=func, x=x, d=d, eps=eps, r=r)# Darray constructor (genD.default)
+  D <- list(D=D, p=length(x), f0=f0, func=func, x=x, d=d,
+            method=method, method.args=method.args)# Darray constructor (genD.default)
   class(D) <- "Darray"
   invisible(D)
   }

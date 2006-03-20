@@ -14,7 +14,7 @@
     \item{x}{a real scalar or vector argument to func, indicating the 
       point(s) at which the gradient is to be calculated.}
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
-    the method to use for the aproximation.}
+    the method to use for the approximation.}
     \item{method.args}{arguments passed to method.}
     \item{...}{an additional arguments passed to \code{func}.}
 }
@@ -38,19 +38,18 @@
    provided by \code{\link{jacobian}}.
   
    If method is "simple", the calculation is done using a simple epsilon
-   difference. For this case only the element \code{eps} of \code{methods.args}
+   difference. For this case, only the element \code{eps} of \code{methods.args}
    is used.
 
    If method is "Richardson", the calculation
    is done by Richardson's extrapolation (see e.g. Linfield and Penny, 1989,
    or Fornberg and Sloan, 1994.)
    This method should be used if accuracy, as opposed to speed, is important.
-   For this case all 
+   For this case, 
    \code{methods.args=list(eps=1e-4, d=0.01, r=6, show.details=FALSE)} 
    are used.
     \code{d} gives the fraction of \code{x} to use for the initial numerical 
-      approximation. The default is set to \code{0.01 * x} or \code{eps} 
-      if \code{x} is \code{0.0}.
+      approximation. The default is set to \code{0.01 * x}.
     \code{eps} is used instead of \code{d} for elements of \code{x} which are 
        zero.
     \code{r} gives the number of Richardson improvement iterations (repetitions
@@ -71,7 +70,7 @@
                f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}
        
   This is repeated \code{r} times  with successively smaller \code{d}  and 
-	  then apply Richardson extraplolation
+	  then Richardson extraplolation. is applied.
 
 }
 \references{ 

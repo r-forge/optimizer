@@ -15,7 +15,8 @@
       point(s) at which the gradient is to be calculated.}
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
     the method to use for the approximation.}
-    \item{method.args}{arguments passed to method.}
+    \item{method.args}{arguments passed to method. (Arguments not specified 
+       remain with their default values.)}
     \item{...}{an additional arguments passed to \code{func}.}
 }
 \value{A real scalar or vector of the approximated gradient(s).}

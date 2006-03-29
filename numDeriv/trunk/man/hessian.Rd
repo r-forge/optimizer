@@ -17,7 +17,8 @@ function at a parameter value.}
     \item{x}{the parameter vector first argument to func.}
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
     the method to use for the aproximation.}
-    \item{method.args}{arguments passed to method.}
+    \item{method.args}{arguments passed to method. (Arguments not specified 
+       remain with their default values.)}
     \item{...}{an additional arguments passed to \code{func}.}
 }
 \value{An n by n matrix of the Hessian of the function calculated at the 

@@ -18,7 +18,8 @@ m-vector valued function with n-vector argument.
        at which the gradient is to be calculated.}
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
     the method to use for the aproximation.}
-    \item{method.args}{arguments passed to method.}
+    \item{method.args}{arguments passed to method. (Arguments not specified 
+       remain with their default values.)}
     \item{...}{any additional arguments passed to \code{func}.}
 }
 \value{A real m by n matrix.}

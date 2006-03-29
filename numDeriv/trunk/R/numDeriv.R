@@ -13,13 +13,15 @@ grad.default <- function(func, x, method="Richardson",
   # case 1/ scalar arg, scalar result (case 2/ or 3/ code should work)
   # case 2/ vector arg, scalar result (same as special case jacobian)
   # case 3/ vector arg, vector result (of same length, really 1/ applied multiple times))
-  f <-func(x, ...)
+  f <- func(x, ...)
   case1or3 <- length(x) == length(f)
   if((1 != length(f)) & !case1or3)
   	 stop("grad assumes a scalar real valued function.")
   if(method=="simple"){
     #  very simple numerical approximation
-    eps <- method.args$eps
+    args <- list(eps=1e-4) # default
+    args[names(method.args)] <- method.args
+    eps <- args$eps
     if(case1or3) return((func(x+eps)-f)/eps) 
     # now case 2
     df <- rep(NA,length(x))
@@ -31,11 +33,13 @@ grad.default <- function(func, x, method="Richardson",
     return(df)
     } else
   if(method=="Richardson"){
-    eps <- method.args$eps
-    d <- method.args$d
-    r <- method.args$r
-    v <- method.args$v		 
-    show.details <- method.args$show.details
+    args <- list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE) # default
+    args[names(method.args)] <- method.args
+    eps <- args$eps
+    d <- args$d
+    r <- args$r
+    v <- args$v		 
+    show.details <- args$show.details
     n <- length(x)	 #number of variables.
     a <- matrix(NA, r, n) 
     #b <- matrix(NA, (r - 1), n)
@@ -88,7 +92,7 @@ grad.default <- function(func, x, method="Richardson",
   	  print(a[1:(r-m),,drop=FALSE], 12)
   	}
      }
-  return(a)
+  return(c(a))
   } else stop("indicated method ", method, "not supported.")
 }
   
@@ -98,11 +102,13 @@ jacobian <- function (func, x, method="Richardson",
 
 jacobian.default <- function(func, x, method="Richardson",
       method.args=list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE), ...){
-  f <-func(x, ...)
+  f <- func(x, ...)
   n <- length(x)	 #number of variables.
   if(method=="simple"){
     #  very simple numerical approximation
-    eps <- method.args$eps
+    args <- list(eps=1e-4) # default
+    args[names(method.args)] <- method.args
+    eps <- args$eps
     df <-matrix(NA, length(f), n)
     for (i in 1:n) {
       dx <- x
@@ -112,10 +118,12 @@ jacobian.default <- function(func, x, method="Richardson",
     return(df)
     } else
   if(method=="Richardson"){
-    eps <- method.args$eps
-    d <- method.args$d
-    r <- method.args$r
-    v <- method.args$v		 
+    args <- list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE) # default
+    args[names(method.args)] <- method.args
+    eps <- args$eps
+    d <- args$d
+    r <- args$r
+    v <- args$v 	  
     a <- array(NA, c(length(f),r, n) )
   
     h <- abs(d*x)+eps*(x==0.0)
@@ -143,9 +151,11 @@ hessian.default <- function(func, x, method="Richardson",
       method.args=list(eps=1e-4, d=0.01, r=6, v=2), ...){  
 
    if(method != "Richardson")  stop("method not implemented.")
+   args <- list(eps=1e-4, d=0.01, r=6, v=2) # default
+   args[names(method.args)] <- method.args
    if(1!=length(func(x, ...)))
        stop("hessian.default assumes a scalar real valued function.")
-   D <- genD(func, x, method=method, method.args=method.args, ...)$D
+   D <- genD(func, x, method=method, method.args=args, ...)$D
    if(1!=nrow(D)) stop("BUG! should not get here.")
    H <- diag(NA,length(x))
    u <- length(x)
@@ -164,11 +174,6 @@ hessian.default <- function(func, x, method="Richardson",
 
 #               Bates & Watts   D matrix calculation
 
-#   Generating the D matrix can be computationally demanding. 
-#   The S version is slow and suffers from memory problems 
-#   due to the way S allocates memory in loops (but is not so bad in R).
-#   The C version is a bit faster but suffers (even worse) from memory problems.
-#   It has been moved to defunct.
 #######################################################################
 
 genD <- function(func, x, method="Richardson",
@@ -187,10 +192,12 @@ genD.default <- function(func, x, method="Richardson",
   #	 be a parameter but the way the formula is coded it is assumed to be 2.
  
     if(method != "Richardson")  stop("method not implemented.")
-    eps <- method.args$eps
-    d <- method.args$d
-    r <- method.args$r
-    v <- method.args$v
+    args <- list(eps=1e-4, d=0.01, r=6, v=2) # default
+    args[names(method.args)] <- method.args
+    eps <- args$eps
+    d <- args$d
+    r <- args$r
+    v <- args$v
     if (v!=2) stop("The current code assumes v is 2 (the default).")	 
     func.args <- list(...)
      
@@ -257,7 +264,7 @@ genD.default <- function(func, x, method="Richardson",
   	    }  
   	 }
   D <- list(D=D, p=length(x), f0=f0, func=func, x=x, d=d,
-            method=method, method.args=method.args)# Darray constructor (genD.default)
+            method=method, method.args=args)# Darray constructor (genD.default)
   class(D) <- "Darray"
   invisible(D)
   }

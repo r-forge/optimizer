@@ -8,7 +8,7 @@
     genD(func, x, method="Richardson",
                    method.args=list(), ...)
     \method{genD}{default}(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.01, r=6, v=2), ...)
+      method.args=list(eps=1e-4, d=0.0001, r=6, v=2), ...)
 }
 \arguments{
     \item{func}{a function for which the first (vector) argument 

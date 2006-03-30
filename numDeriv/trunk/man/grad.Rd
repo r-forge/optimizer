@@ -7,7 +7,7 @@
      grad(func, x, method="Richardson", method.args=list(), ...) 
 
     \method{grad}{default}(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.01, r=6, v=2, show.details=FALSE), ...)
+      method.args=list(eps=1e-4, d=0.0001, r=6, v=2, show.details=FALSE), ...)
  }
 \arguments{
     \item{func}{a function with a scalar real result (see details).}

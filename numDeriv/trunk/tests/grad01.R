@@ -8,7 +8,7 @@ print(g.anal  <-  cos(pi))
 
 print(g.calcR <-  grad(sin, pi, method="Richardson"))
 cat("error: ", err <- max(abs(g.calcR - g.anal)),"\n")
-if(err > 1e-13) stop("grad01 test 1 FAILED")
+if(err > 1e-11) stop("grad01 test 1 FAILED") # 1e-13 with d=0.01
 
 print(g.calcS <-   grad(sin, pi, method="simple"))
 cat("error: ", err <- max(abs(g.calcS - g.anal)),"\n")
@@ -42,7 +42,7 @@ print(g.anal <-  cos(x))
 
 print(g.calcR <-  grad(sin, x, method="Richardson"))
 cat("error: ", err <- max(abs(g.calcR - g.anal)),"\n")
-if(err > 1e-12) stop("grad01 test 5 FAILED")
+if(err > 1e-10) stop("grad01 test 5 FAILED")# 1e-12 with d=0.01
 
 print(g.calcS <-   grad(sin, x, method="simple"))
 cat("error: ", err <- max(abs(g.calcS - g.anal)),"\n")

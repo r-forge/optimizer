@@ -46,29 +46,37 @@ D.BW <- t(matrix(c(
 0.944936, -172.655, 0, -0.81173,  296.6,
 0.944936, -172.655, 0, -0.81173,  296.6),   5,12))
 
-D.anal <- D.anal(c(212.7000, 0.0641))
+cat("\nanalytic D:\n")
+print( D.anal <- D.anal(c(212.7000, 0.0641)), digits=16)
 
-D.calc <- genD(puromycin,c(212.7000, 0.0641)) # compares to 1e-4 below
+
+cat("\n********** note the results here are better with d=0.01 ********\n")
+cat("\n**********    in both relative and absolute terms.      ********\n")
+
+cat("\nnumerical D:\n")
+print( D.calc <- genD(puromycin,c(212.7000, 0.0641), method.args=list(d=0.01)),
+      digits=16) 
+
 # increasing r does not always help
 #D.calc <- genD(puromycin,c(212.7000, 0.0641), r=10)#compares to 0.01 below
 #D.calc <- genD(puromycin,c(212.7000, 0.0641), d=0.001)
 
-cat("numerical D:")
-print( D.calc$D, digits=16)
 
-cat("diff. between analytic and numerical D:")
+cat("\ndiff. between analytic and numerical D:\n")
 print( D.calc$D - D.anal, digits=16)
 
-cat("max. abs. diff. between analtic and numerical D:")
-print( max(abs(D.calc$D-D.anal)), digits=16)
+cat("\nmax. abs. diff. between analtic and numerical D:\n")
+print( max(abs(D.calc$D - D.anal)), digits=16)
 
-# These would be interesting except for 0 column
-#cat("% diff. between analtic and numerical D:")
-#z <- 100 * (D.calc$D - D.anal) / D.anal
-#print( z, digits=16)
+# These are better tests except for 0 column, so add an epsilon
+cat("\nrelative diff. between numerical D and analytic D (plus epsilon):\n")
+print(z <- (D.calc$D - D.anal) / (D.anal + 1e-4), digits=16)
+#  d=0.0001 [12,] 1.184044172787111e-04 7.451545953037876e-03
+#  d=0.01   [12,] 1.593395089728741e-08  2.814629092064831e-07
 
-#cat("max. abs. % diff. between analtic and numerical D:")
-#print( max(abs(z)), digits=16)
 
-if(max(abs(D.calc$D - D.anal)) < 1e-4) invisible(T) else stop("BW test FAILED")
+cat("\nmax. abs. relative diff. between analtic and numerical D:")
+print( max(abs(z)), digits=16)
+
+if(max(abs(z)) > 1e-6)  stop("BW test FAILED")
 

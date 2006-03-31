@@ -81,8 +81,8 @@
   Fornberg and Sloan (Acta Numerica, 1994, p. 203-267)
 }
 \seealso{
-  \code{\link{jacobian}}
-  \code{\link{hessian}}
+  \code{\link{jacobian}},
+  \code{\link{hessian}},
   \code{\link[stats]{numericalDeriv}}
    }
 \examples{

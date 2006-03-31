@@ -38,8 +38,8 @@ m-vector valued function with n-vector argument.
 }
 
 \seealso{
-  \code{\link{grad}}
-  \code{\link{hessian}}
+  \code{\link{grad}},
+  \code{\link{hessian}},
   \code{\link[stats]{numericalDeriv}}
   }
 \examples{

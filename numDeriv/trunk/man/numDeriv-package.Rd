@@ -25,14 +25,15 @@ jacobian  to calculate the gradient of a real m-vector valued
 hessian   to calculate the Hessian (second derivative) of a scalar 
   	  real valued function with real n-vector argument.
 
-genD	  to calculate the gradient and second derivative of a real
-  	  m-vector valued function with real n-vector argument.
+genD	  to calculate the gradient and second derivative of a
+  	  real m-vector valued function with real n-vector 
+	  argument.
 }
-\author{Paul Gilbert, based on work by Xingqiao Liu}
 
 Maintainer: Paul Gilbert <pgilbert@bank-banque-canada.ca> and 
  Ravi Varadhan <rvaradhan@jhmi.edu>
 }
+\author{Paul Gilbert, based on work by Xingqiao Liu}
 \references{
   Linfield, G. R. and Penny, J. E. T. (1989) \emph{Microcomputers in Numerical 
   Analysis}. New York: Halsted Press.

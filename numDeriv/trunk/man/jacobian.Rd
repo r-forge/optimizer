@@ -10,7 +10,7 @@ m-vector valued function with n-vector argument.
     jacobian(func, x, method="Richardson", method.args=list(), ...) 
 
     \method{jacobian}{default}(func, x, method="Richardson",
-       method.args=list(eps=1e-4, d=0.0001, r=6, v=2, show.details=FALSE), ...)
+       method.args=list(eps=1e-4, d=0.0001, r=4, v=2, show.details=FALSE), ...)
 }
 \arguments{
     \item{func}{a function with a real (vector) result.}

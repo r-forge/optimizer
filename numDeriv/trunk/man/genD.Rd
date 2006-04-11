@@ -8,7 +8,7 @@
     genD(func, x, method="Richardson",
                    method.args=list(), ...)
     \method{genD}{default}(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, r=6, v=2), ...)
+      method.args=list(eps=1e-4, d=0.1, r=4, v=2), ...)
 }
 \arguments{
     \item{func}{a function for which the first (vector) argument 
@@ -26,7 +26,7 @@ A list with elements as follows:
       derivatives organized in the same manner as Bates and 
       Watts, the number of rows is equal to the length of the result of
       \code{func}, the first p columns are the Jacobian, and the 
-      next p(p-1)/2 columns are the lower triangle of the second derivative
+      next p(p+1)/2 columns are the lower triangle of the second derivative
       (which is the Hessian for a scalar valued \code{func}).
    \code{p} is the length of \code{x} (dimension of the parameter space).
    \code{f0} is the function value at the point where the matrix \code{D} 

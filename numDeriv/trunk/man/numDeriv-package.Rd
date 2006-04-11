@@ -10,7 +10,7 @@
 \details{
 \tabular{ll}{
 Package: \tab numDeriv\cr
-Depends: \tab R (>= 2.2.1)\cr
+Depends: \tab R (>= 1.8.1)\cr
 License: \tab GPL Version 2. (See LICENSE file.)\cr
 }
 The main functions are

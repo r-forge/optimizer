@@ -8,7 +8,7 @@ grad <- function (func, x, method="Richardson", method.args=list(), ...)
    UseMethod("grad")
 
 grad.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, r=6, v=2, show.details=FALSE), ...){
+      method.args=list(eps=1e-4, d=0.0001, r=4, v=2, show.details=FALSE), ...){
   # modified by Paul Gilbert from code by Xingqiao Liu.
   # case 1/ scalar arg, scalar result (case 2/ or 3/ code should work)
   # case 2/ vector arg, scalar result (same as special case jacobian)
@@ -22,18 +22,18 @@ grad.default <- function(func, x, method="Richardson",
     args <- list(eps=1e-4) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
-    if(case1or3) return((func(x+eps)-f)/eps) 
+    if(case1or3) return((func(x+eps, ...)-f)/eps) 
     # now case 2
     df <- rep(NA,length(x))
     for (i in 1:length(x)) {
       dx <- x
       dx[i] <- dx[i] +eps 
-      df[i] <- (func(dx)-f)/eps
+      df[i] <- (func(dx, ...)-f)/eps
      }
     return(df)
     } else
   if(method=="Richardson"){
-    args <- list(eps=1e-4, d=0.0001, r=6, v=2, show.details=FALSE) # default
+    args <- list(eps=1e-4, d=0.0001, r=4, v=2, show.details=FALSE) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d
@@ -50,11 +50,11 @@ grad.default <- function(func, x, method="Richardson",
   
     h <- abs(d*x)+eps*(x==0.0)
     for(k in 1:r)  { # successively reduce h		    
-       if(case1or3)  a[k,] <- (func(x + h) -  func(x - h))/(2*h)
+       if(case1or3)  a[k,] <- (func(x + h, ...) -  func(x - h, ...))/(2*h)
        else for(i in 1:n)  {
          if((k != 1) && (abs(a[(k-1),i]) < 1e-20)) a[k,i] <- 0 #some func are unstable near zero
-	 else  a[k,i] <- (func(x + h*(i==seq(n))) - 
-	                  func(x - h*(i==seq(n))))/(2*h[i])
+	 else  a[k,i] <- (func(x + h*(i==seq(n)), ...) - 
+	                  func(x - h*(i==seq(n)), ...))/(2*h[i])
          }
        h <- h/v     # Reduced h by 1/v.
        }	
@@ -101,7 +101,7 @@ jacobian <- function (func, x, method="Richardson",
                               method.args=list(), ...) UseMethod("jacobian")
 
 jacobian.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, r=6, v=2, show.details=FALSE), ...){
+      method.args=list(eps=1e-4, d=0.0001, r=4, v=2, show.details=FALSE), ...){
   f <- func(x, ...)
   n <- length(x)	 #number of variables.
   if(method=="simple"){
@@ -113,12 +113,12 @@ jacobian.default <- function(func, x, method="Richardson",
     for (i in 1:n) {
       dx <- x
       dx[i] <- dx[i] +eps 
-      df[,i] <- (func(dx)-f)/eps
+      df[,i] <- (func(dx, ...)-f)/eps
      }
     return(df)
     } else
   if(method=="Richardson"){
-    args <- list(eps=1e-4, d=0.0001, r=6, v=2, show.details=FALSE) # default
+    args <- list(eps=1e-4, d=0.0001, r=4, v=2, show.details=FALSE) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d
@@ -129,8 +129,8 @@ jacobian.default <- function(func, x, method="Richardson",
     h <- abs(d*x)+eps*(x==0.0)
     for(k in 1:r)  { # successively reduce h		    
        for(i in 1:n)  {
-         a[,k,i] <- (func(x + h*(i==seq(n))) -  
-	             func(x - h*(i==seq(n))))/(2*h[i])
+         a[,k,i] <- (func(x + h*(i==seq(n)), ...) -  
+	             func(x - h*(i==seq(n)), ...))/(2*h[i])
          #if((k != 1)) a[,(abs(a[,(k-1),i]) < 1e-20)] <- 0 #some func are unstable near zero
          }
        h <- h/v     # Reduced h by 1/v.
@@ -148,10 +148,10 @@ hessian <- function (func, x, method="Richardson",
                               method.args=list(), ...) UseMethod("hessian")
 
 hessian.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, r=6, v=2), ...){  
+      method.args=list(eps=1e-4, d=0.1, r=4, v=2), ...){  
 
    if(method != "Richardson")  stop("method not implemented.")
-   args <- list(eps=1e-4, d=0.0001, r=6, v=2) # default
+   args <- list(eps=1e-4, d=0.0001, r=4, v=2) # default
    args[names(method.args)] <- method.args
    if(1!=length(func(x, ...)))
        stop("hessian.default assumes a scalar real valued function.")
@@ -180,7 +180,7 @@ genD <- function(func, x, method="Richardson",
                    method.args=list(), ...)UseMethod("genD")
 
 genD.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, r=6, v=2), ...){
+      method.args=list(eps=1e-4, d=0.1, r=4, v=2), ...){
   #   additional cleanup by Paul Gilbert (March, 2006)
   #   modified substantially by Paul Gilbert (May, 1992)
   #    from original code by Xingqiao Liu,   May, 1991.
@@ -192,16 +192,17 @@ genD.default <- function(func, x, method="Richardson",
   #	 be a parameter but the way the formula is coded it is assumed to be 2.
  
     if(method != "Richardson")  stop("method not implemented.")
-    args <- list(eps=1e-4, d=0.0001, r=6, v=2) # default
+    args <- list(eps=1e-4, d=0.0001, r=4, v=2) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d
     r <- args$r
     v <- args$v
     if (v!=2) stop("The current code assumes v is 2 (the default).")	 
-    func.args <- list(...)
+    #func.args <- list(...)
      
-     f0 <- do.call("func",append(list(x), func.args))
+     #f0 <- do.call("func",append(list(x), func.args))
+     f0 <- func(x, ...)
      #  f0 is the value of the function at x.
 
      p <- length(x)  #  number of parameters (theta)
@@ -216,10 +217,10 @@ genD.default <- function(func, x, method="Richardson",
      for(i in 1:p)    # each parameter  - first deriv. & hessian diagonal
   	  {h <-h0
   	   for(k in 1:r)  # successively reduce h 
-  	     {#f1 <- func(x+(i==(1:p))*h)
-  	      #f2 <- func(x-(i==(1:p))*h) 
-  	      f1 <- do.call("func",append(list(x+(i==(1:p))*h), func.args))
-  	      f2 <- do.call("func",append(list(x-(i==(1:p))*h), func.args))
+  	     {f1 <- func(x+(i==(1:p))*h, ...)
+  	      f2 <- func(x-(i==(1:p))*h, ...) 
+  	      #f1 <- do.call("func",append(list(x+(i==(1:p))*h), func.args))
+  	      #f2 <- do.call("func",append(list(x-(i==(1:p))*h), func.args))
   	      Daprox[,k] <- (f1 - f2)  / (2*h[i])    # F'(i) 
   	      Haprox[,k] <- (f1-2*f0+f2)/ h[i]^2     # F''(i,i) hessian diagonal
   	      h <- h/v     # Reduced h by 1/v.
@@ -244,12 +245,12 @@ genD.default <- function(func, x, method="Richardson",
   	      else 
   	       {h <-h0
   		for(k in 1:r)  # successively reduce h 
-  		  {#f1 <- func(x+(i==(1:p))*h + (j==(1:p))*h)
-  		   #f2 <- func(x-(i==(1:p))*h - (j==(1:p))*h)
-  		   f1 <- do.call("func", append(
-  			  list(x+(i==(1:p))*h + (j==(1:p))*h), func.args))
-  		   f2 <- do.call("func",append(
-  			  list(x-(i==(1:p))*h - (j==(1:p))*h), func.args))  
+  		  {f1 <- func(x+(i==(1:p))*h + (j==(1:p))*h, ...)
+  		   f2 <- func(x-(i==(1:p))*h - (j==(1:p))*h, ...)
+  		   #f1 <- do.call("func", append(
+  		   #	  list(x+(i==(1:p))*h + (j==(1:p))*h), func.args))
+  		   #f2 <- do.call("func",append(
+  		   #	  list(x-(i==(1:p))*h - (j==(1:p))*h), func.args))  
   		   Daprox[,k]<- (f1 - 2*f0 + f2 -
   				    Hdiag[,i]*h[i]^2 - 
   				    Hdiag[,j]*h[j]^2)/(2*h[i]*h[j])  # F''(i,j)  

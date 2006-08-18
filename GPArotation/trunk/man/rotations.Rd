@@ -1,4 +1,5 @@
 \name{rotations}
+\alias{rotations}
 \alias{oblimin}
 \alias{quartimin}
 \alias{targetT}

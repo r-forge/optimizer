@@ -48,6 +48,7 @@ Maintainer: Paul Gilbert <pgilbert@bank-banque-canada.ca>
 \keyword{ package }
 
 \seealso{
+   \code{\link{rotations}},
    \code{\link{GPForth}},
    \code{\link{GPFoblq}},
    \code{\link[stats]{factanal}} 

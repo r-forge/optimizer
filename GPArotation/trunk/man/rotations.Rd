@@ -196,6 +196,7 @@
    \code{\link{GPForth}}, 
    \code{\link{GPFoblq}}, 
    \code{\link{WansbeekMeijer}}, 
+   \code{\link{eiv}}, 
    \code{\link[stats]{factanal}}, 
    \code{\link[stats]{varimax}}, 
    \code{\link[stats:varimax]{promax}}

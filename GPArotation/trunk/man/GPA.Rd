@@ -34,7 +34,7 @@
   \item{convergence}{A logical indicating if convergence was obtained.}
   \item{Phi}{t(Th) \%*\% Th.  The covariance matrix of the rotated factors.
   This will be the identity matrix for orthogonal
-  rotations so is omitted from the result of GPForth.}
+  rotations so is omitted (NULL) for the result from GPForth.}
   }
 \details{
  Gradient projection rotation optimization routines developed by

@@ -100,7 +100,12 @@
    \item{loadings}{Lh from \code{GPForth} or \code{GPFoblq}.} 
    \item{Th}{Th from \code{GPForth} or \code{GPFoblq}.}  
    \item{Table}{Table from \code{GPForth} or \code{GPFoblq}.}
-   \item{logical}{Convergence indicator from \code{GPForth} or \code{GPFoblq}.}
+   \item{method}{A string indicating the rotation objective function.}
+   \item{orthogonal}{A logical indicating if the rotation is orthogonal.}
+   \item{convergence}{Convergence indicator from \code{GPForth} or \code{GPFoblq}.}
+   \item{Phi}{t(Th) \%*\% Th.  The covariance matrix of the rotated factors.
+   This will be the identity matrix for orthogonal
+   rotations so is omitted (NULL) for the result from GPForth.}
    }
 \description{
    Optimize factor loading rotation objective.
@@ -109,14 +114,14 @@
  These functions optimize a rotation objective. They can be used directly or the
  function name can be passed to factor analysis functions like \code{factanal}.
  Several of the function names end in T or Q, which indicates if they are
- orthogonal or oblique rotations (called from \code{GPForth} or \code{GPFoblq}
+ orthogonal or oblique rotations (using \code{GPForth} or \code{GPFoblq}
  respectively.  
 
  The \code{vgQ.*} versions of the code are called by the optimization routine and
  would typically not be used directly, so these methods are not exported
  from the package namespace. (They simply return the function value and gradient
- for a given rotation matrix.) You can print these functions but the package 
- name needs to be specified, since they are not exported. For example, use
+ for a given rotation matrix.) You can print these functions, but the package 
+ name needs to be specified since they are not exported. For example, use
  \code{GPArotation:::vgQ.oblimin} to view the function \code{vgQ.oblimin}.
  The T or Q ending on function names should be omitted for the \code{vgQ.*} 
  versions of the code so, for example, use \code{GPArotation:::vgQ.target} to view the target

@@ -7,6 +7,9 @@
 
             Changes in GPArotation version 200x.x-x
 
+  o changed rotation method functions to return all elements of GPFoblq and
+    GFForth.
+
   o fixed the documentation file primary alias for all rotations (which was 
      being called oblimin).
       

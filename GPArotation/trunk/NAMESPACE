@@ -26,6 +26,8 @@ export("infomaxT")
 export("infomaxQ")
 export("mccammon")
 
+export("eiv")
+
 S3method("print", "GPArotation")
 S3method("summary", "GPArotation")
 S3method("print", "summary.GPArotation")

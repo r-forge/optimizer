@@ -96,7 +96,7 @@
     \item{maxit}{parameter passed to optimization routine (GPForth or GPFoblq).}
 }
 
-\value{A list as needed by \code{factanal} with elements
+\value{A list (which includes elements used by \code{factanal}) with:
    \item{loadings}{Lh from \code{GPForth} or \code{GPFoblq}.} 
    \item{Th}{Th from \code{GPForth} or \code{GPFoblq}.}  
    \item{Table}{Table from \code{GPForth} or \code{GPFoblq}.}

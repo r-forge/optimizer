@@ -3,21 +3,20 @@
 
 \title{Errors-in-Variables Rotation}
 \usage{
-    eiv(L, identity=seq(ncol(L)), normalize=FALSE)
+    eiv(L, identity=seq(ncol(L)))
 }
 \arguments{
     \item{L}{a factor loading matrix}
     \item{identity}{indicates rows which should be identity matrix.}
-    \item{normalize}{not sure if this makes sense}
 }
 
-\value{A list as needed by \code{factanal} with elements
-   \item{loadings}{Lh from \code{GPForth} or \code{GPFoblq}.} 
-   \item{Th}{The rotation} 
+\value{A list (which includes elements used by \code{factanal}) with:
+   \item{loadings}{The new loadings matrix.} 
+   \item{Th}{The rotation.} 
    \item{method}{A string indicating the rotation objective function ("eiv").}
    \item{orthogonal}{For consistency with other rotation results. Always FALSE.}
    \item{convergence}{For consistency with other rotation results. Always TRUE.}
-   \item{Phi}{t(Th) \%*\% Th.  The covariance matrix of the rotated factors.}
+   \item{Phi}{The covariance matrix of the rotated factors.}
    }
 \description{
    Rotate to errors-in-variables representation.
@@ -74,8 +73,7 @@
 
   fa.eiv <- eiv(fa.unrotated$loadings)
  
-  fa.eiv2 <- factanal(factors = 2, covmat=NetherlandsTV, 
-                rotation="eiv", control=list(rotate=list(normalize=TRUE)))
+  fa.eiv2 <- factanal(factors = 2, covmat=NetherlandsTV, rotation="eiv")
   
   cbind(loadings(fa.unrotated), loadings(fa.eiv), loadings(fa.eiv2))
 
@@ -89,9 +87,11 @@
    \code{\link{GPFoblq}}
 }
 \references{
-   Yasuo Amemiya and his associates .?
+  G{\"{o}}sta H{\"{a}}gglund. (1982). "Factor Analysis by
+    Instrumental Variables Methods." \emph{Psychometrika}, 47, 209--222.
 
-   Hagglund and others??
+   Sock-Cheng Lewin-Koh and Yasuo Amemiya. (2003). "Heteroscedastic factor
+   analysis." \emph{Biometrika}, 90, 85--97.
 
    Tom Wansbeek and Erik Meijer (2000) \emph{Measurement Error and 
    Latent Variables in Econometrics}, Amsterdam: North-Holland.

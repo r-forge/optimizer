@@ -1,4 +1,4 @@
-eiv <- function(L,  identity=seq(ncol(L))){
+eiv <- function(L,  identity=seq(ncol(L)), ...){
    A1 <- L[ identity, , drop=FALSE]
    g <- solve(A1)
    if(1e-14 < max(abs(diag(1, length(identity)) - A1 %*% g)))

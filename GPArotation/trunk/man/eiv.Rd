@@ -3,11 +3,12 @@
 
 \title{Errors-in-Variables Rotation}
 \usage{
-    eiv(L, identity=seq(ncol(L)))
+    eiv(L, identity=seq(ncol(L)), ...)
 }
 \arguments{
     \item{L}{a factor loading matrix}
     \item{identity}{indicates rows which should be identity matrix.}
+    \item{...}{additional arguments discarded.}
 }
 
 \value{A list (which includes elements used by \code{factanal}) with:

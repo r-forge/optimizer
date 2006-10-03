@@ -87,7 +87,8 @@ The string is prefixed with
  normalization should be done before rotation, and then undone after rotation.
  If \code{normalize} is \code{FALSE} (the default) no normalization is done.
  If \code{normalize} is \code{TRUE} then Kaiser normalization is done. (So
- squared row entries of normalized \code{A} sum to 1.0.)
+ squared row entries of normalized \code{A} sum to 1.0. This is sometimes called
+ Horst normalization.)
  If \code{normalize} is a vector of length equal to the number of indicators (=
  number of rows of \code{A}) then the colums are divided by \code{normalize} 
  before rotation and multiplied by \code{normalize} after rotation. 

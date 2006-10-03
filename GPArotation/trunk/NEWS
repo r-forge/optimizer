@@ -8,7 +8,7 @@
             Changes in GPArotation version 200x.x-x
 
   o renamed $Lh in the result from GPForth and GPFoblq to $loadings. As a
-    result, rotation methods calling these function to no longer need to rename
+    result, rotation methods calling these function no longer need to rename
     this element in order to work with factanal and other programs. (It is a
     good idea to use the extractor function loadings() rather than refer
     directly to object structure.)

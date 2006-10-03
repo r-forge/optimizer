@@ -55,11 +55,11 @@
   0.698885786741510029, -0.199079132641678647
   ), 2, 7))
 
- if( fuzz < max(abs(fa.varimax$Lh - tst))) {
+ if( fuzz < max(abs(fa.varimax$loadings - tst))) {
     cat("Calculated value is not the same as test value in test WansbeekMeijer 2. Value:\n")
-    print(fa.varimax$Lh, digits=18)
+    print(fa.varimax$loadings, digits=18)
     cat("difference:\n")
-    print(fa.varimax$Lh - tst, digits=18)
+    print(fa.varimax$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -89,11 +89,11 @@
    0.7504356301074717184,  0.0408947509009953206
    ), 2, 7))
 
- if( fuzz < max(abs(fa.oblimin$Lh - tst))) {
+ if( fuzz < max(abs(fa.oblimin$loadings - tst))) {
     cat("Calculated value is not the same as test value in test WansbeekMeijer 3. Value:\n")
-    print(fa.oblimin$Lh, digits=18) 
+    print(fa.oblimin$loadings, digits=18) 
     cat("difference:\n")
-    print(fa.oblimin$Lh - tst, digits=18)
+    print(fa.oblimin$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 

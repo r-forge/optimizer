@@ -100,7 +100,7 @@ GPForth <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
      warning("convergence not obtained in GPForth. ", maxit, " iterations used.")
  if(normalize) L <- L * W
  dimnames(L) <- dimnames(A)
- r <- list(Lh=L, Th=Tmat, Table=Table, 
+ r <- list(loadings=L, Th=Tmat, Table=Table, 
         method=VgQ$Method, orthogonal=TRUE, convergence=convergence)
  class(r) <- "GPArotation"
  r
@@ -152,7 +152,7 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
  dimnames(L) <- dimnames(A)
  # N.B. renaming Lh to loadings in specificific rotations 
  #   uses fact that  Lh is first.
- r <- list(Lh=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,
+ r <- list(loadings=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,
       method=VgQ$Method, orthogonal=FALSE, convergence=convergence)
  class(r) <- "GPArotation"
  r
@@ -162,10 +162,8 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
 
 
 oblimin <- function(L, Tmat=diag(ncol(L)), gam=0, normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
                 method="oblimin",  methodArgs=list(gam=gam))
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.oblimin <- function(L, gam=0){
@@ -200,9 +198,7 @@ vgQ.oblimin <- function(L, gam=0){
 
 
 quartimin <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPFoblq(L, Tmat=Tmat, method="quartimin", normalize=normalize, eps=eps, maxit=maxit)
-   names(z)[1] <- "loadings"
-   z
+   GPFoblq(L, Tmat=Tmat, method="quartimin", normalize=normalize, eps=eps, maxit=maxit)
    }
 
 vgQ.quartimin <- function(L){
@@ -226,18 +222,14 @@ vgQ.quartimin <- function(L){
 
 targetT <- function(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
            method="target", methodArgs=list(Target=Target))
-   names(z)[1] <- "loadings"
-   z
    }
 
 targetQ <- function(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
            method="target", methodArgs=list(Target=Target))
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.target <- function(L, Target=NULL){
@@ -251,19 +243,15 @@ vgQ.target <- function(L, Target=NULL){
 pstT <- function(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(W))      stop("argument W must be specified.")
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+   GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
 	    method="pst", methodArgs=list(W=W, Target=Target))
-   names(z)[1] <- "loadings"
-   z
    }
 
 pstQ <- function(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {
    if(is.null(W))      stop("argument W must be specified.")
    if(is.null(Target)) stop("argument Target must be specified.")
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
 	  method="pst", methodArgs=list(W=W, Target=Target))
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.pst <- function(L, W=NULL, Target=NULL){
@@ -281,18 +269,9 @@ vgQ.pst <- function(L, W=NULL, Target=NULL){
 }
 
 oblimax <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
             method="oblimax")
-   names(z)[1] <- "loadings"
-   z
    }
-
-#vgQ.oblimax <- function(L){
-#  Method <- "Oblimax"
-#  f <- -(log(sum(L^4))-2*log(sum(L^2)))
-#  Gq <- -(4*L^3/(sum(L^4))-4*L/(sum(L^2)))
-#  return(list(Gq=Gq,f=f,Method=Method))
-#}
 
 
 vgQ.oblimax <- function(L){
@@ -302,9 +281,7 @@ vgQ.oblimax <- function(L){
 }
 
 entropy <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="entropy", normalize=normalize, eps=eps, maxit=maxit)
-   names(z)[1] <- "loadings"
-   z
+   GPForth(L, Tmat=Tmat, method="entropy", normalize=normalize, eps=eps, maxit=maxit)
    }
 
 vgQ.entropy <- function(L){
@@ -314,9 +291,7 @@ vgQ.entropy <- function(L){
 }
 
 quartimax <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="quartimax", normalize=normalize, eps=eps, maxit=maxit)
-   names(z)[1] <- "loadings"
-   z
+   GPForth(L, Tmat=Tmat, method="quartimax", normalize=normalize, eps=eps, maxit=maxit)
    }
 
 vgQ.quartimax <- function(L){
@@ -326,9 +301,7 @@ vgQ.quartimax <- function(L){
 }
 
 Varimax <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="varimax", normalize=normalize, eps=eps, maxit=maxit)
-   names(z)[1] <- "loadings"
-   z
+   GPForth(L, Tmat=Tmat, method="varimax", normalize=normalize, eps=eps, maxit=maxit)
    }
 
 vgQ.varimax <- function(L){
@@ -339,10 +312,8 @@ vgQ.varimax <- function(L){
 }
 
 simplimax <- function(L, Tmat=diag(ncol(L)), k=nrow(L), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
          method="simplimax", methodArgs=list(k=k))
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.simplimax <- function(L, k=nrow(L)){
@@ -354,17 +325,13 @@ vgQ.simplimax <- function(L, k=nrow(L)){
 }
 
 bentlerT <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
+   GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit, 
 	     method="bentler")
-   names(z)[1] <- "loadings"
-   z
    }
 
 bentlerQ <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
            method="bentler")
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.bentler <- function(L){
@@ -377,10 +344,8 @@ vgQ.bentler <- function(L){
 }
 
 tandemI <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
             method="tandemI")
-   names(z)[1] <- "loadings"
-   z
    }
 
 #vgQ.tandemI <- function(L){  # Tandem Criterion, Comrey, 1967.
@@ -406,21 +371,8 @@ vgQ.tandemI <- function(L){  # Tandem Criterion, Comrey, 1967.
   }
 
 tandemII <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="tandemII", normalize=normalize, eps=eps, maxit=maxit)
-   names(z)[1] <- "loadings"
-   z
+   GPForth(L, Tmat=Tmat, method="tandemII", normalize=normalize, eps=eps, maxit=maxit)
    }
-
-#vgQ.tandemII <- function(L){  # Tandem Criterion, Comrey, 1967.
-#  Method <- "Tandem II"
-#  LL <- (L %*% t(L))
-#  LL2 <- LL^2
-#  f <- sum(diag(crossprod(L^2, (1-LL2) %*% L^2)))
-#  Gq1 <- 4 * L *((1-LL2) %*% L^2)
-#  Gq2 <- 4 * (LL * (L^2 %*% t(L^2))) %*% L
-#  Gq <- Gq1 - Gq2 
-#  return(list(Gq=Gq,f=f,Method=Method))
-#}
 
 
 vgQ.tandemII <- function(L){  # Tandem Criterion, Comrey, 1967.
@@ -436,17 +388,13 @@ vgQ.tandemII <- function(L){  # Tandem Criterion, Comrey, 1967.
   }
 
 geominT <- function(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
            method="geomin", methodArgs=list(delta=delta))
-   names(z)[1] <- "loadings"
-   z
    }
 
 geominQ <- function(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-5, maxit=1000){
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
             method="geomin", methodArgs=list(delta=delta))
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.geomin <- function(L, delta=.01){
@@ -460,17 +408,13 @@ vgQ.geomin <- function(L, delta=.01){
   }
 
 cfT <- function(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
              method="cf", methodArgs=list(kappa=kappa))
-   names(z)[1] <- "loadings"
-   z
    }
 
 cfQ <- function(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
              method="cf", methodArgs=list(kappa=kappa))
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.cf <- function(L, kappa=0){
@@ -492,17 +436,13 @@ vgQ.cf <- function(L, kappa=0){
 }
 
 infomaxT <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
             method="infomax")
-   names(z)[1] <- "loadings"
-   z
    }
 
 infomaxQ <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+   GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
             method="infomax")
-   names(z)[1] <- "loadings"
-   z
    }
 
 vgQ.infomax <- function(L){
@@ -534,9 +474,7 @@ vgQ.infomax <- function(L){
 }
 
 mccammon <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000) {
-   z <- GPForth(L, Tmat=Tmat, method="mccammon", normalize=normalize, eps=eps, maxit=maxit)
-   names(z)[1] <- "loadings"
-   z
+   GPForth(L, Tmat=Tmat, method="mccammon", normalize=normalize, eps=eps, maxit=maxit)
    }
 
 vgQ.mccammon <- function(L){
@@ -574,7 +512,7 @@ vgQ.mccammon <- function(L){
 # Th <- xx$rotmat
 # orthogonal <- F
 # Table <- NULL
-#return(list(Lh=Lh,Th=Th,Table=NULL,method,orthogonal=orthogonal))
+#return(list(loadings=Lh,Th=Th,Table=NULL,method,orthogonal=orthogonal))
 #}
 
 

@@ -22,9 +22,9 @@ all.ok <- TRUE
 qbox20 <- quartimax(box20, eps=1e-5)
 qbox20G <- GPForth(box20, Tmat=diag(1,3), method="quartimax", eps=1e-5)
 
- if( fuzz < max(abs(qbox20$loadings - qbox20G$Lh))) {
+ if( fuzz < max(abs(qbox20$loadings - qbox20G$loadings))) {
     cat("Calculated value is not the same as test value in test Thurstone 1. Value:\n")
-    print(qbox20$loadings - qbox20G$Lh, digits=18)
+    print(qbox20$loadings - qbox20G$loadings, digits=18)
     cat("difference:\n")
     print(qbox20$loadings - tst, digits=18)
     all.ok <- FALSE  
@@ -100,11 +100,11 @@ plot(seq(length(sal)), sal)
 qminbox20G <- GPFoblq(box20, Tmat=diag(1,3), method="quartimin", eps=1e-5)
 qminbox20  <- quartimin(box20, eps=1e-5)
 
- if( fuzz < max(abs(loadings(qminbox20) - qminbox20G$Lh))) {
+ if( fuzz < max(abs(loadings(qminbox20) - qminbox20G$loadings))) {
     cat("Calculated value is not the same as test value in test Thurstone 5. Value:\n")
-    print(qminbox20G$Lh , digits=18)
+    print(qminbox20G$loadings , digits=18)
     cat("difference:\n")
-    print(loadings(qminbox20) - qminbox20G$Lh, digits=18)
+    print(loadings(qminbox20) - qminbox20G$loadings, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -135,11 +135,11 @@ qminbox20  <- quartimin(box20, eps=1e-5)
     1.003360458549731771,  0.0365098037316876067,  0.039427150580815938,
     ), 3, 20))
  
- if( fuzz < max(abs(qminbox20G$Lh - tst ))) {
+ if( fuzz < max(abs(qminbox20G$loadings - tst ))) {
     cat("Calculated value is not the same as test value in test Thurstone 6. Value:\n")
-    print(qminbox20G$Lh, digits=18)
+    print(qminbox20G$loadings, digits=18)
     cat("difference:\n")
-    print(qminbox20G$Lh - tst, digits=18)
+    print(qminbox20G$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -173,11 +173,11 @@ qminbox20  <- quartimin(box20, eps=1e-5)
     } 
 
  #compare quartimin rotation of the initial loading matrix box20.
-   if( fuzz < max(abs(qminbox20G$Lh - box20 %*% solve(t(qminbox20G$Th))))) {
+   if( fuzz < max(abs(qminbox20G$loadings - box20 %*% solve(t(qminbox20G$Th))))) {
     cat("Calculated value is not the same as test value in test Thurstone 9. Value:\n")
-    print(qminbox20G$Lh, digits=18)
+    print(qminbox20G$loadings, digits=18)
     cat("difference:\n")
-    print(qminbox20G$Lh - box20 %*% solve(t(qminbox20G$Th)), digits=18)
+    print(qminbox20G$loadings - box20 %*% solve(t(qminbox20G$Th)), digits=18)
     all.ok <- FALSE  
     } 
 
@@ -215,11 +215,11 @@ qbox26  <- GPForth(box26, Tmat=diag(1,3), method="quartimax", eps=1e-5)
    0.9643516568468981642,  0.0660181478622221818, -0.0304218028637989850
    ), 3, 26))
  
- if( fuzz < max(abs(qbox26$Lh - tst ))) {
+ if( fuzz < max(abs(qbox26$loadings - tst ))) {
     cat("Calculated value is not the same as test value in test Thurstone 10. Value:\n")
-    print(qbox26$Lh, digits=18)
+    print(qbox26$loadings, digits=18)
     cat("difference:\n")
-    print(qbox26$Lh - tst, digits=18)
+    print(qbox26$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -271,11 +271,11 @@ qminbox26 <- GPFoblq(box26, Tmat=diag(1,3), method="quartimin", eps=1e-5)
    0.9640420478016114014,  0.0709475796833391181, -0.0213192081807395371
    ), 3, 26))
  
- if( fuzz < max(abs(qminbox26$Lh - tst ))) {
+ if( fuzz < max(abs(qminbox26$loadings - tst ))) {
     cat("Calculated value is not the same as test value in test Thurstone 12. Value:\n")
-    print(qminbox26$Lh, digits=18)
+    print(qminbox26$loadings, digits=18)
     cat("difference:\n")
-    print(qminbox26$Lh - tst, digits=18)
+    print(qminbox26$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 

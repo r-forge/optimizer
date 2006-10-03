@@ -20,11 +20,11 @@ data("Harman", package="GPArotation")
 qHarman  <- GPForth(Harman8, Tmat=diag(2), method="quartimax")
 qHarman2 <- quartimax(Harman8) 
 
- if( fuzz < max(abs(qHarman$Lh - qHarman2$loadings))) {
+ if( fuzz < max(abs(qHarman$loadings - qHarman2$loadings))) {
     cat("Calculated value is not the same as test value in test Harman 1. Value:\n")
-    print(qHarman$Lh, digits=18)
+    print(qHarman$loadings, digits=18)
     cat("difference:\n")
-    print(qHarman$Lh - qHarman2$loadings, digits=18)
+    print(qHarman$loadings - qHarman2$loadings, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -54,11 +54,11 @@ qHarman2 <- quartimax(Harman8)
   0.307860074444663512, 0.659333128670876345
    ), 2, 8))
 
- if( fuzz < max(abs(qHarman$Lh - tst ))) {
+ if( fuzz < max(abs(qHarman$loadings - tst ))) {
     cat("Calculated value is not the same as test value in test Harman 2. Value:\n")
-    print(qHarman$Lh, digits=18)
+    print(qHarman$loadings, digits=18)
     cat("difference:\n")
-    print(qHarman$Lh - tst, digits=18)
+    print(qHarman$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -91,11 +91,11 @@ qHarman2 <- quartimax(Harman8)
 qminHarman  <- GPFoblq(Harman8, Tmat=diag(2), method="quartimin")
 qminHarman2 <- quartimin(Harman8) 
 
- if( fuzz < max(abs(qminHarman$Lh - qminHarman2$loadings))) {
+ if( fuzz < max(abs(qminHarman$loadings - qminHarman2$loadings))) {
     cat("Calculated value is not the same as test value in test Harman 4. Value:\n")
-    print(qminHarman$Lh, digits=18)
+    print(qminHarman$loadings, digits=18)
     cat("difference:\n")
-    print(qminHarman$Lh - qminHarman2$loadings, digits=18)
+    print(qminHarman$loadings - qminHarman2$loadings, digits=18)
     all.ok <- FALSE  
     } 
 
@@ -124,11 +124,11 @@ qminHarman2 <- quartimin(Harman8)
    0.0858895830186393733,  0.6831153711863455769,
    ),2, 8))				       
 					       
- if( fuzz < max(abs(qminHarman$Lh - tst ))) {
+ if( fuzz < max(abs(qminHarman$loadings - tst ))) {
     cat("Calculated value is not the same as test value in test Harman 5. Value:\n")
-    print(qminHarman$Lh, digits=18)
+    print(qminHarman$loadings, digits=18)
     cat("difference:\n")
-    print(qminHarman$Lh - tst, digits=18)
+    print(qminHarman$loadings - tst, digits=18)
     all.ok <- FALSE  
     } 
 

@@ -86,7 +86,7 @@
 \seealso{
   \code{\link{jacobian}},
   \code{\link{hessian}},
-  \code{\link[stats]{numericalDeriv}}
+  \code{\link[stats]{numericDeriv}}
    }
 \examples{
   grad(sin, pi)

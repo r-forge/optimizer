@@ -18,8 +18,8 @@ m-vector valued function with n-vector argument.
        at which the gradient is to be calculated.}
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
     the method to use for the aproximation.}
-    \item{method.args}{arguments passed to method. (Arguments not specified 
-       remain with their default values.)}
+    \item{method.args}{arguments passed to method. See \code{\link{grad}}. 
+       (Arguments not specified remain with their default values.)}
     \item{...}{any additional arguments passed to \code{func}.}
 }
 \value{A real m by n matrix.}
@@ -40,7 +40,7 @@ m-vector valued function with n-vector argument.
 \seealso{
   \code{\link{grad}},
   \code{\link{hessian}},
-  \code{\link[stats]{numericalDeriv}}
+  \code{\link[stats]{numericDeriv}}
   }
 \examples{
    func2 <- function(x) c(sin(x), cos(x))

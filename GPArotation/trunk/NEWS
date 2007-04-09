@@ -5,8 +5,12 @@
      workaround is to restart with a very slightly perturbed starting point.       
 
 
-            Changes in GPArotation version 200x.x-x
+            Changes in GPArotation version 2007.04-1
 
+  o removed an extra comma in c() that caused a test failure with R-2.5.0
+
+  o added eiv rotation.
+    
   o renamed $Lh in the result from GPForth and GPFoblq to $loadings. As a
     result, rotation methods calling these function no longer need to rename
     this element in order to work with factanal and other programs. (It is a

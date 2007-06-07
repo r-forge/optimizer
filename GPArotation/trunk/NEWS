@@ -4,6 +4,11 @@
      algorithm gets stuck and does not improve (so does not converge). The
      workaround is to restart with a very slightly perturbed starting point.       
 
+            Changes in GPArotation version 2007.06-1
+
+  o fixed a couple of lingering $Lh (in print and summary methods) that should
+    have been changed to $loadings.
+
 
             Changes in GPArotation version 2007.04-1
 

@@ -22,7 +22,7 @@ print.GPArotation <- function (x, digits=3, Table=FALSE, ...){
    cat((if(!x$convergence)" NOT" ), "converged.\n")
 
    cat("Loadings:\n")
-   print(x$Lh, digits=digits)
+   print(x$loadings, digits=digits)
 
    cat("\nRotating matrix:\n")
    print(t(solve(x$Th)), digits=digits)
@@ -40,7 +40,7 @@ print.GPArotation <- function (x, digits=3, Table=FALSE, ...){
    }
 
 summary.GPArotation <- function (object, ...){ 
-   r <- list(Lh=object$Lh, method=object$method, orthogonal=object$orthogonal, 
+   r <- list(loadings=object$loadings, method=object$method, orthogonal=object$orthogonal, 
           convergence=object$convergence, iters=nrow(object$Table))
    class(r) <- "summary.GPArotation"
    r
@@ -53,7 +53,7 @@ print.summary.GPArotation <- function (x, digits=3, ...){
    cat(" converged in ", x$iter, " iterations.\n")
 
    cat("Loadings:\n")
-   print(x$Lh, digits=digits)
+   print(x$loadings, digits=digits)
   }
 
 GPForth <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000, 

@@ -5,7 +5,7 @@ Depends: R (>= 2.0.0)
 Version: 2007.06-1
 Date: 2007-06-07
 LazyLoad: yes
-License: GPL Version 2. See the LICENSE file for details.
+License: GPL-2. See the LICENSE file for details.
 Author: Coen Bernaards and Robert Jennrich
 Maintainer: Paul Gilbert and Coen Bernaards <pgilbert@bank-banque-canada.ca>
 URL: http://www.stat.ucla.edu/research/gpa

@@ -5,7 +5,7 @@ Depends: R (>= 1.8.1)
 Version: 2006.4-1
 Date: 2006-4-1
 LazyLoad: yes
-License: GPL Version 2.
+License: GPL-2
 Author: Paul Gilbert
 Maintainer: Paul Gilbert and Ravi Varadhan <pgilbert@bank-banque-canada.ca>
 URL: http://www.bank-banque-canada.ca/pgilbert

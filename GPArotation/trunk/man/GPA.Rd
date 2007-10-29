@@ -141,7 +141,6 @@ The string is prefixed with
   }
 \author{Coen A. Bernaards and Robert I. Jennrich
         with some R modifications by Paul Gilbert}
-}
 \references{
    Additional information is available at 
    \url{http://www.stat.ucla.edu/research} or

@@ -1,0 +1,12 @@
+Package: BB
+Title: Barzilai-Borwein Optimization
+Description: Large-scale optimization and root-finding.
+Depends: R (>= 2.6.1)
+Suggests: numDeriv
+Version: 2008.3-1
+Date: 2008-3-1
+LazyLoad: yes
+License: GPL-3
+Author: Ravi Varadhan
+Maintainer: Ravi Varadhan and Paul Gilbert <rvaradhan@jhmi.edu>
+URL: http://www.jhsph.edu/agingandhealth/People/Faculty/Varadhan.html

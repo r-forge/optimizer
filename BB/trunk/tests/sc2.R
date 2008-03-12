@@ -22,14 +22,14 @@ vec * (exp(x) - 1) / 10
 }
 
 p0 <- runif(500,min=-1, max=1)
-system.time(ans.spg <- spg(p=p0, func=sc2.f, maxit=2500))[1]
+system.time(ans.spg <- spg(par=p0, fn=sc2.f, maxit=2500))[1]
 
 z <- sum(ans.spg$par)
 good <- -0.02404571778303681
 print(z, digits=16)
 if(any(abs(good - z) > 1e-10)) stop("BB test sc2 a FAILED")
 
-system.time(ans.spg <- spg(p=p0, func=sc2.f, grad=sc2.g, maxit=2500))[1]
+system.time(ans.spg <- spg(par=p0, fn=sc2.f, grad=sc2.g, maxit=2500))[1]
 
 z <- sum(ans.spg$par)
 good <- 0.000849270257616394

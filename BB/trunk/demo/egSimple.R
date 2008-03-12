@@ -13,8 +13,8 @@ f
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=expo1)
-sane(p=p0, func=expo1)
-dfsane(p=p0, func=expo1)
+sane(par=p0, fn=expo1)
+dfsane(par=p0, fn=expo1)
 
 ############
 expo3 <- function(p) {
@@ -31,8 +31,8 @@ n <-100
 p0 <- (1:n)/(4*n^2)
 p0 <- runif(n)
 nlsolve(par=p0, fn=expo3)
-sane(p=p0, func=expo3)
-dfsane(p=p0, func=expo3)
+sane(par=p0, fn=expo3)
+dfsane(par=p0, fn=expo3)
 
 ####################################################
 froth <- function(p){
@@ -45,18 +45,18 @@ f
 
 p0 <- c(3,2)  # this gives the zero of the system
 nlsolve(par=p0, fn=froth)
-sane(p=p0, func=froth)
-dfsane(p=p0, func=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 
 p0 <- c(1,1)  # this gives the local minimum that is not the zero of the system
 nlsolve(par=p0, fn=froth)
-sane(p=p0, func=froth)
-dfsane(p=p0, func=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 
 p0 <- rpois(2,10)  # trying random starts
 nlsolve(par=p0, fn=froth)
-sane(p=p0, func=froth)
-dfsane(p=p0, func=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 
 ###########################################
 trig <- function(x){
@@ -69,8 +69,8 @@ F
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=trig)
-sane(p=p0, func=trig)
-dfsane(p=p0, func=trig)
+sane(par=p0, fn=trig)
+dfsane(par=p0, fn=trig)
 ###########################################
 trigexp <- function(x) {
 n <- length(x)
@@ -85,8 +85,8 @@ F
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=trigexp)
-sane(p=p0, func=trigexp)
-dfsane(p=p0, func=trigexp)
+sane(par=p0, fn=trigexp)
+dfsane(par=p0, fn=trigexp)
 ###########################################
 chen <- function(x) {
 v <- log(x) + exp(x)
@@ -96,8 +96,8 @@ f
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=chen)
-sane(p=p0, func=chen)
-dfsane(p=p0, func=chen)
+sane(par=p0, fn=chen)
+dfsane(par=p0, fn=chen)
 ###########################################
 valley <- function(x) {
 c1 <- 1.003344481605351
@@ -115,8 +115,8 @@ f
  
 p0 <- runif(102)  # Number of variables must be a multiple of 3
 nlsolve(par=p0, fn=valley)
-sane(p=p0, func=valley)
-dfsane(p=p0, func=valley)
+sane(par=p0, fn=valley)
+dfsane(par=p0, fn=valley)
 
 ###########################################
 broydt <- function(x) {
@@ -131,8 +131,8 @@ f
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=broydt)
-sane(p=p0, func=broydt)
-dfsane(p=p0, func=broydt)
+sane(par=p0, fn=broydt)
+dfsane(par=p0, fn=broydt)
 
 ######################################
 	brent <- function(x) {
@@ -150,8 +150,8 @@ dfsane(p=p0, func=broydt)
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=brent)
-sane(p=p0, func=brent)
-dfsane(p=p0, func=brent, M=10)
+sane(par=p0, fn=brent)
+dfsane(par=p0, fn=brent, M=10)
 
 ######################################
 	troesch <- function(x) {
@@ -169,7 +169,7 @@ dfsane(p=p0, func=brent, M=10)
   
 p0 <- runif(100)
 nlsolve(par=p0, fn=troesch)
-sane(p=p0, func=troesch)
-dfsane(p=p0, func=troesch, M=10)
+sane(par=p0, fn=troesch)
+dfsane(par=p0, fn=troesch, M=10)
 ######################################
   

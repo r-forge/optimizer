@@ -19,7 +19,7 @@ sum (f * f)
 }
 
 p0 <- rpois(2,10)
-system.time(ans.spg <- spg(p=p0, func=froth, M=20, maxit=2500))[1]
+system.time(ans.spg <- spg(par=p0, fn=froth, M=20, maxit=2500))[1]
 #ans.spg
 system.time(ans.opt <- optim(par=p0, fn=froth, method="L-BFGS-B"))[1]
 

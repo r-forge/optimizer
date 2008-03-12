@@ -29,8 +29,8 @@ f
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=expo1)
-sane(p=p0, func=expo1)
-dfsane(p=p0, func=expo1)
+sane(par=p0, fn=expo1)
+dfsane(par=p0, fn=expo1)
 
 \end{Scode}
 
@@ -49,8 +49,8 @@ n <-100
 p0 <- (1:n)/(4*n^2)
 p0 <- runif(n)
 nlsolve(par=p0, fn=expo3)
-sane(p=p0, func=expo3)
-dfsane(p=p0, func=expo3)
+sane(par=p0, fn=expo3)
+dfsane(par=p0, fn=expo3)
 
 \end{Scode}
 
@@ -72,8 +72,8 @@ Here p0 gives the zero of the system
 \begin{Scode}
 p0 <- c(3,2) 
 nlsolve(par=p0, fn=froth)
-sane(p=p0, func=froth)
-dfsane(p=p0, func=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 \end{Scode}
 
 Here p0 gives the local minimum that is not the zero of the system.
@@ -82,8 +82,8 @@ Here p0 gives the local minimum that is not the zero of the system.
 
 p0 <- c(1,1)  
 nlsolve(par=p0, fn=froth)
-sane(p=p0, func=froth)
-dfsane(p=p0, func=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 \end{Scode}
 
 Trying random starts
@@ -92,8 +92,8 @@ Trying random starts
 
 p0 <- rpois(2,10) 
 nlsolve(par=p0, fn=froth)
-sane(p=p0, func=froth)
-dfsane(p=p0, func=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 \end{Scode}
 
 This example is from 
@@ -109,8 +109,8 @@ F
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=trig)
-sane(p=p0, func=trig)
-dfsane(p=p0, func=trig)
+sane(par=p0, fn=trig)
+dfsane(par=p0, fn=trig)
 \end{Scode}
 
 This example is from 
@@ -129,8 +129,8 @@ F
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=trigexp)
-sane(p=p0, func=trigexp)
-dfsane(p=p0, func=trigexp)
+sane(par=p0, fn=trigexp)
+dfsane(par=p0, fn=trigexp)
 \end{Scode}
 
 This example is from 
@@ -144,8 +144,8 @@ f
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=chen)
-sane(p=p0, func=chen)
-dfsane(p=p0, func=chen)
+sane(par=p0, fn=chen)
+dfsane(par=p0, fn=chen)
 
 
 valley <- function(x) {
@@ -169,8 +169,8 @@ Here the number of variables must be a multiple of 3
  
 p0 <- runif(102) 
 nlsolve(par=p0, fn=valley)
-sane(p=p0, func=valley)
-dfsane(p=p0, func=valley)
+sane(par=p0, fn=valley)
+dfsane(par=p0, fn=valley)
 
 broydt <- function(x) {
 n <- length(x)
@@ -184,8 +184,8 @@ f
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=broydt)
-sane(p=p0, func=broydt)
-dfsane(p=p0, func=broydt)
+sane(par=p0, fn=broydt)
+dfsane(par=p0, fn=broydt)
 
 
 brent <- function(x) {
@@ -203,8 +203,8 @@ brent <- function(x) {
 
 p0 <- runif(100)
 nlsolve(par=p0, fn=brent)
-sane(p=p0, func=brent)
-dfsane(p=p0, func=brent, M=10)
+sane(par=p0, fn=brent)
+dfsane(par=p0, fn=brent, M=10)
 
 
 troesch <- function(x) {
@@ -222,8 +222,8 @@ troesch <- function(x) {
   
 p0 <- runif(100)
 nlsolve(par=p0, fn=troesch)
-sane(p=p0, func=troesch)
-dfsane(p=p0, func=troesch, M=10)
+sane(par=p0, fn=troesch)
+dfsane(par=p0, fn=troesch, M=10)
 \end{Scode}
 
 

@@ -16,7 +16,7 @@ sum (f * f)
 }
 
 p0 <- rexp(500)
-system.time(ans.spg <- spg(p=p0, func=chen.f, lower=0))[1]
+system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0))[1]
 system.time(ans.opt <- optim(par=p0, fn=chen.f, lower=0, method="L-BFGS-B"))[1]
  
 z <- sum(ans.spg$par)

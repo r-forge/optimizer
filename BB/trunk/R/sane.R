@@ -1,4 +1,4 @@
-  sane <- function(p, func, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, trace=FALSE, ...) {
+sane <- function(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, trace=FALSE, ...) {
 ############################################################
 # Non-monotone spectral method for finding a root of nonlinear systems
 # LaCruz and Raydan M (2003): 
@@ -56,7 +56,7 @@
 ##########################################
 
 #     Initialization
-	n <- length(p)
+	n <- length(par)
 	fcnt <- 0
 	iter <- 0
 	bl <- 0
@@ -66,7 +66,7 @@
 	lastfv <- rep(0, M)
 	stagn <- FALSE
 
-      F <- try (func(p, ...))
+      F <- try (fn(par, ...))
 
 	if (class(F) == "try-error" | any(is.nan(F))) {
 	cat(" Failure: Error in functional evaluation ")
@@ -83,9 +83,9 @@
 	while (normF/sqrt(n) > tol & iter <= maxiter & !stagn) {
 
 # Calculate the gradient of the merit function ||F(X)||
-	xa <- p + h*F
+	xa <- par + h*F
 
-	Fa <- try (func(xa, ...)) 
+	Fa <- try (fn(xa, ...)) 
       fcnt <- fcnt + 1
 		
 	if (class(Fa) == "try-error" | any(is.nan(Fa))) {
@@ -111,7 +111,7 @@
 	lambda <- 1/alfa
 
 #  non-monotone line search of Grippo
-      ls.ret <-  lineSearch(x=p, fn=func, F=F, fval=normF^2, dg=dg, M=M, lastfv=lastfv, sgn, lambda, fcnt, bl, 
+      ls.ret <-  lineSearch(x=par, fn=fn, F=F, fval=normF^2, dg=dg, M=M, lastfv=lastfv, sgn, lambda, fcnt, bl, 
 		lower, upper, ...)
 
 	if(is.null(ls.ret)) {
@@ -140,7 +140,7 @@
 	alfa <- (1 - (alfa/normF^2)) / lambda
 	}
 	
-	p <- pnew
+	par <- pnew
 	F <- Fnew
 	fun <- fune
 	normF <- sqrt(fun)
@@ -153,9 +153,9 @@
 	if (normF/sqrt(n) <= tol) conv <- list(type=0, message="Successful convergence") 
 	if (iter > maxiter) conv <- list(type=1, message="Maximum # iterations exceeded")
 	if (stagn) conv <- list(type=2, message="Anomalous iteration")
-	res <- normF / sqrt(length(p))
+	res <- normF / sqrt(length(par))
 
-	return(list(p = p, resid = res, feval=fcnt, iter=iter, convergence=conv$type, message=conv$message))
+	return(list(par = par, resid = res, feval=fcnt, iter=iter, convergence=conv$type, message=conv$message))
       }
 
 

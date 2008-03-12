@@ -3,12 +3,12 @@
 \title{Spectral-Gradient Solution of Nonlinear System}
 \description{Spectral-gradient based solution of nonlinear systems}
 \usage{
-     sane(p, func, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
+     sane(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
        trace=FALSE, ...)
  }
 \arguments{
-    \item{func}{a function with a scalar real result (see details).}
-    \item{p}{DOCUMENTa real scalar or vector argument to func, indicating the 
+    \item{fn}{a function with a scalar real result (see details).}
+    \item{par}{DOCUMENTa real scalar or vector argument to func, indicating the 
       point(s) at which the dfsaneient is to be calculated.}
     \item{M}{DOCUMENT} 
     \item{maxiter}{DOCUMENT} 
@@ -98,6 +98,6 @@ FOR EXAMPLE
     	f
     	}
 
-   sane(p=runif(100), func=expo1)
+   sane(par=runif(100), fn=expo1)
 }
 \keyword{multivariate}

@@ -18,9 +18,9 @@ expo1 <- function(x) {
     	f
     	}
 
-ans <- sane(p=runif(100), func=expo1)
+ans <- sane(par=runif(100), fn=expo1)
  
-z <- sum(ans$p)
+z <- sum(ans$par)
 good <- 99.995550714
 print(z, digits=16)
 if(any(abs(good - z) > 1e-10)) stop("BB test nlsolve FAILED")

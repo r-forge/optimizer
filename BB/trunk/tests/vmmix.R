@@ -74,7 +74,7 @@ lo <- rep(0.001,5)
 hi <- c(Inf, Inf, Inf, Inf, 0.999)
 
 p <- c(runif(5,c(0,0.1,0,0.1,0.2),c(2*pi,5,2*pi,5,0.8)))
-system.time(ans.spg <- spg(p=p, func=vmmix.loglik, y=y, lower=lo, upper=hi, maxit=2500, gtol=1.e-06, M=20, trace=T))[1]
+system.time(ans.spg <- spg(par=p, fn=vmmix.loglik, y=y, lower=lo, upper=hi, maxit=2500, gtol=1.e-06, M=20, trace=T))[1]
 ans.opt <- optim(par=p, fn=vmmix.loglik, y=y, method="L-BFGS-B", lower=lo, upper=hi)
 
 if(!require("numDeriv"))stop("this test requires numDeriv.")

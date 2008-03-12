@@ -1,4 +1,4 @@
-  dfsane <- function(p, func, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, trace=FALSE, ...) {
+  dfsane <- function(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, trace=FALSE, ...) {
 ############################################################
 # Non-monotone spectral method for finding a root of nonlinear systems
 # LaCruz and Raydan M (2003): 
@@ -82,7 +82,7 @@
 ##########################################
 #
 #     Initialization
-	n <- length(p)
+	n <- length(par)
 	fcnt <- 0
 	iter <- 0
 	bl <- 0
@@ -93,7 +93,7 @@
 	lastfv <- rep(0, M)
 	stagn <- FALSE
 
-  F <- try (func(p, ...))
+  F <- try (fn(par, ...))
 
 	if (class(F) == "try-error" | any(is.nan(F))) {
 	cat(" Failure: Error in functional evaluation ")
@@ -117,7 +117,7 @@
 		}
 
 #  non-monotone line search of Grippo
-      ls.ret <-  lsm(x=p, fn=func, F=F, fval=normF^2, alfa, M=M, lastfv=lastfv, eta, fcnt, bl, 
+      ls.ret <-  lsm(x=par, fn=fn, F=F, fval=normF^2, alfa, M=M, lastfv=lastfv, eta, fcnt, bl, 
 		lower, upper, ...)
 
 	if(is.null(ls.ret)) {
@@ -139,13 +139,13 @@
 	bl <- ls.ret$bl
 
 #     Calculate new steplength: alfa
-	alfa <- sum((pnew - p)^2) / abs(sum((pnew - p) * (Fnew - F)))
+	alfa <- sum((pnew - par)^2) / abs(sum((pnew - par) * (Fnew - F)))
 
 	if (is.nan(alfa)) { 
 		stagn <- TRUE
 		next
 		}
-	p <- pnew
+	par <- pnew
 	F <- Fnew
 	fun <- fune
 	normF <- sqrt(fun)
@@ -159,8 +159,8 @@
 	if (normF/sqrt(n) <= tol) conv <- list(type=0, message="Successful convergence") 
 	if (iter > maxiter) conv <- list(type=1, message="Maximum # iterations exceeded")
 	if (stagn) conv <- list(type=2, message="Anomalous iteration")
-	res <- normF / sqrt(length(p))
+	res <- normF / sqrt(length(par))
 
-	return(list(p = p, resid = res, feval=fcnt, iter=iter, convergence=conv$type, message=conv$message))
+	return(list(par = par, resid = res, feval=fcnt, iter=iter, convergence=conv$type, message=conv$message))
       }
 

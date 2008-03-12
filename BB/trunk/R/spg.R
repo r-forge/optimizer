@@ -1,4 +1,4 @@
-spg <- function(p, func, grad=NULL, lower=-Inf, upper=Inf, M=10, ftol=1.e-08, gtol=1.e-04, maxit=2500, maxfeval=10000, 
+spg <- function(par, fn, grad=NULL, lower=-Inf, upper=Inf, M=10, ftol=1.e-08, gtol=1.e-04, maxit=2500, maxfeval=10000, 
 	trace=TRUE , grad.method="simple", ...) {
 ############################################################
 # Non-monotone spectral projected-gradient method for minimization
@@ -70,7 +70,7 @@ iter <- 0
 feval <- 0
 geval <- 0
 lastfv <- rep(-1.e99, M)
-pbest <- p
+pbest <- par
 fbest <- NA
 stagn <- FALSE
 nsy <- 0
@@ -78,15 +78,15 @@ fchange <- 1
 
 if (is.null(grad)) require(numDeriv)
 
-f <- try(func(p, ...),silent=TRUE)      
+f <- try(fn(par, ...),silent=TRUE)      
 feval <- feval + 1
 if (class(f)=="try-error" | is.nan(f)){
 cat("\n Failure: Error in function evaluation! \n Try another starting value \n")
 return(NULL)
 }
 
-if (is.null(grad)) g <- try(grad(func=func, p, method=grad.method, method.args=list(r=2), ...),silent=TRUE)
-else g <- try(grad(p, ...),silent=TRUE)
+if (is.null(grad)) g <- try(grad(func=fn, par, method=grad.method, method.args=list(r=2), ...),silent=TRUE)
+else g <- try(grad(par, ...),silent=TRUE)
 geval <- geval + 1
 
 if (class(g)=="try-error" | any(is.nan(g))){
@@ -96,9 +96,9 @@ return(NULL)
 
 lastfv[1] <- f
 fbest <- f
-pg <- p - g
+pg <- par - g
 pg <- project(pg, lower, upper)
-pg <- pg - p
+pg <- pg - par
 
 pg2n <- sqrt(sum(pg*pg))
 pginfn <- max(abs(pg))
@@ -111,13 +111,13 @@ if (pginfn != 0) lambda <- min(lmax, max(lmin, 1/pginfn))
 while( (fchange > ftol | pg2n > gtol) & iter <= maxit & !stagn) {
 iter <- iter + 1
 
-d <- p - lambda * g
+d <- par - lambda * g
 d <- project(d, lower, upper)
 
-d <- d - p
+d <- d - par
 gtd <- sum(g * d)
 
-nmls.ans <- nmls(p, f, d, gtd, lastfv, feval , func, maxfeval, ...)
+nmls.ans <- nmls(par, f, d, gtd, lastfv, feval , fn, maxfeval, ...)
 if(is.null(nmls.ans)) {
 cat("\n Failure: Error in line-search! \n Try another starting value \n")
 return(NULL)
@@ -129,7 +129,7 @@ pnew <- nmls.ans$p
 feval <- nmls.ans$feval
 lastfv[(iter %% M) + 1] <- f
 
-if (is.null(grad)) gnew <- try(grad(func=func, pnew, method=grad.method, method.args=list(r=2), ...),silent=TRUE)
+if (is.null(grad)) gnew <- try(grad(func=fn, pnew, method=grad.method, method.args=list(r=2), ...),silent=TRUE)
 else gnew <- try(grad(pnew, ...),silent=TRUE)
 geval <- geval + 1
 
@@ -138,7 +138,7 @@ cat("\n Failure: Error in gradient evaluation! \n Try another starting value \n"
 return(NULL)
 }
 
-s <- pnew - p
+s <- pnew - par
 y <- gnew - g
 sts <- sum(s*s)
 yty <- sum(y*y)
@@ -147,12 +147,12 @@ sty <- sum(s*y)
 if (abs(sty) < 1.e-20) stagn <- TRUE
 lambda <- min(lmax, max(lmin, sts/abs(sty)))
 
-p <- pnew
+par <- pnew
 g <- gnew
-pg <- p - g
+pg <- par - g
 pg <- project(pg, lower, upper)
 
-pg <- pg - p
+pg <- pg - par
 pg2n <- sqrt(sum(pg*pg))
 pginfn <- max(abs(pg))
 

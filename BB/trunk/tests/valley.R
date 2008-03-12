@@ -25,7 +25,7 @@ sum(f*f)
 }
 
 p0 <- rnorm(303, sd=1)
-system.time(ans.spg <- spg(p=p0, func=valley.f))[1]
+system.time(ans.spg <- spg(par=p0, fn=valley.f))[1]
 system.time(ans.opt <- optim(par=p0, fn=valley.f, method="L-BFGS-B"))[1]
  
 z <- sum(ans.spg$par)

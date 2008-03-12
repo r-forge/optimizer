@@ -3,12 +3,12 @@
 \title{Non-Monotone Spectral Method for Nonlinear Systems Roots}
 \description{Non-monotone spectral method for finding a root of nonlinear systems}
 \usage{
-  dfsane(p, func, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
+  dfsane(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
       trace=FALSE, ...) 
  }
 \arguments{
-    \item{func}{a function with a scalar real result (see details).}
-    \item{p}{DOCUMENTa real scalar or vector argument to func, indicating the 
+    \item{fn}{a function with a scalar real result (see details).}
+    \item{par}{DOCUMENTa real scalar or vector argument to func, indicating the 
       point(s) at which the dfsaneient is to be calculated.}
     \item{M}{DOCUMENT} 
     \item{maxiter}{DOCUMENT} 
@@ -101,6 +101,6 @@ R translation (with minor modifications):  Ravi Varadhan, Johns Hopkins Universi
     	f
     	}
 
-   dfsane(p=runif(100), func=expo1)
+   dfsane(par=runif(100), fn=expo1)
 }
 \keyword{multivariate}

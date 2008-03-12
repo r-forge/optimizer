@@ -4,12 +4,12 @@
 \description{Spectral projected gradient method for
   	  box-constrained minimization.}
 \usage{
-     spg(p, func, grad=NULL, lower=-Inf, upper=Inf, M=10, ftol=1.e-08, gtol=1.e-04, maxit=2500, maxfeval=10000, 
+     spg(par, fn, grad=NULL, lower=-Inf, upper=Inf, M=10, ftol=1.e-08, gtol=1.e-04, maxit=2500, maxfeval=10000, 
 	trace=TRUE , grad.method="simple", ...)
  }
 \arguments{
-    \item{func}{a function with a scalar real result (see details).}
-    \item{p}{DOCUMENTa real scalar or vector argument to func, indicating the 
+    \item{fn}{a function with a scalar real result (see details).}
+    \item{par}{DOCUMENTa real scalar or vector argument to func, indicating the 
       point(s) at which the dfsaneient is to be calculated.}
     \item{grad}{DOCUMENT} 
     \item{lower}{DOCUMENT} 
@@ -106,6 +106,6 @@ trig.f <- function(x){
    sum(f*f)
    }
 
-ans.spg <- spg(p=runif(100), func=trig.f, maxit=2500)
+ans.spg <- spg(par=runif(100), fn=trig.f, maxit=2500)
 }
 \keyword{multivariate}

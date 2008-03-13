@@ -4,7 +4,7 @@
 \description{Solve a nonlinear system by converting
   	  into a minimization problem and using optim's L-BFGS-B algorithm}
 \usage{
-     nlsolve(par, fn, lower=-Inf, upper=Inf, nstarts=10, ...)
+     nlsolve(par, fn, lower=-Inf, upper=Inf, control=list(), ...)
  }
 \arguments{
     \item{fn}{a function with a scalar real result (see details).}
@@ -12,8 +12,8 @@
       point(s) at which the dfsaneient is to be calculated.}
     \item{lower}{DOCUMENT} 
     \item{upper}{DOCUMENT} 
-    \item{nstarts}{DOCUMENT} 
-    \item{...}{an additional arguments passed to \code{func}.}
+    \item{control}{A list of control parameters. See *Details*.}
+    \item{...}{an additional arguments passed to \code{fn}.}
 }
 \value{FOR EXAMPLEA real scalar or vector of the approximated nlsolveient(s).}
 
@@ -24,6 +24,10 @@
 
   Author:  Ravi Varadhan, Center on Aging and Health, Johns Hopkins University, rvaradhan@jhmi.edu
   June 21, 2007
+
+Argument \code{control} is list specifing any changes to default values of
+algorithm control parameters. The default values are
+    \code{nstarts=10} DOCUMENT WHAT THESE DO
 
 FOR EXAMPLE
    The function \code{nlsolve} calculates a numerical approximation of the 

@@ -1,5 +1,5 @@
-spg <- function(par, fn, grad=NULL, lower=-Inf, upper=Inf, M=10, ftol=1.e-08, gtol=1.e-04, maxit=2500, maxfeval=10000, 
-	trace=TRUE , grad.method="simple", ...) {
+spg <- function(par, fn, grad=NULL, lower=-Inf, upper=Inf,
+   grad.method="simple", control=list(), ...) {
 ############################################################
 # Non-monotone spectral projected-gradient method for minimization
 # Birgin EG, Martinez JM, and Raydan M (2000): Nonmonotone spectral projected gradient methods on convex sets, 
@@ -10,7 +10,15 @@ spg <- function(par, fn, grad=NULL, lower=-Inf, upper=Inf, M=10, ftol=1.e-08, gt
 # R translation (with minor modifications):  Ravi Varadhan, Johns Hopkins University, February 23, 2008.
 # Incorporates box constraints
 ################################################
- 
+    ctrl <- list(M=10, maxit=2500, tol=1e-08, gtol=1.e-04, maxfeval=10000, trace=FALSE) # defaults
+    ctrl[names(control)] <- control
+    M     <- ctrl$M
+    maxit <- ctrl$maxit
+    ftol  <- ctrl$tol
+    gtol  <- ctrl$gtol
+    maxfeval <- ctrl$maxfeval
+    trace <- ctrl$trace
+
 ###########################################################
 #  local function
 nmls <- function(p, f, d, gtd, lastfv, feval, func, maxfeval, ... ){

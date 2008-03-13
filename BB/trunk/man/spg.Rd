@@ -4,8 +4,8 @@
 \description{Spectral projected gradient method for
   	  box-constrained minimization.}
 \usage{
-     spg(par, fn, grad=NULL, lower=-Inf, upper=Inf, M=10, ftol=1.e-08, gtol=1.e-04, maxit=2500, maxfeval=10000, 
-	trace=TRUE , grad.method="simple", ...)
+     spg(par, fn, grad=NULL, lower=-Inf, upper=Inf,  
+	grad.method="simple", control=list(), ...)
  }
 \arguments{
     \item{fn}{a function with a scalar real result (see details).}
@@ -14,13 +14,8 @@
     \item{grad}{DOCUMENT} 
     \item{lower}{DOCUMENT} 
     \item{upper}{DOCUMENT} 
-    \item{M}{DOCUMENT} 
-    \item{ftol}{DOCUMENT} 
-    \item{gtol}{DOCUMENT} 
-    \item{maxit}{DOCUMENT} 
-    \item{maxfeval}{DOCUMENT} 
-    \item{trace}{DOCUMENT} 
     \item{grad.method}{DOCUMENT} 
+    \item{control}{A list of control parameters. See *Details*.}
     \item{...}{an additional arguments passed to \code{func}.}
 }
 \value{FOR EXAMPLEA real scalar or vector of the approximated spgient(s).}
@@ -28,6 +23,15 @@
 \details{
  R translation (with minor modifications):  Ravi Varadhan, Johns Hopkins University, February 23, 2008.
  Incorporates box constraints
+
+Argument \code{control} is list specifing any changes to default values of
+algorithm control parameters. The default values are
+    \code{M=10},
+    \code{maxit=2500} 
+    \code{tol=1e-08} 
+    \code{gtol=1e-04} 
+    \code{maxfeval=10000} 
+    \code{trace=FALSE} DOCUMENT WHAT THESE DO
 
 FOR EXAMPLE
    The function \code{spg} calculates a numerical approximation of the 

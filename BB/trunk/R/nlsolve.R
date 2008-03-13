@@ -1,5 +1,5 @@
 ##########################################
-nlsolve <- function(par, fn, lower=-Inf, upper=Inf, nstarts=10, ...) {
+nlsolve <- function(par, fn, lower=-Inf, upper=Inf, control=list(), ...) {
 ###########################
 #  A solver for finding a zero of a system of non-linear equations
 #  Actually minimizes the squared-norm of the set of functions by calling optim()
@@ -7,9 +7,11 @@ nlsolve <- function(par, fn, lower=-Inf, upper=Inf, nstarts=10, ...) {
 #  All the control parameters can be passed as in the call to optim()
 #
 #  Author:  Ravi Varadhan, Center on Aging and Health, Johns Hopkins University, #rvaradhan@jhmi.edu
-#
 #  June 21, 2007
-#
+    ctrl <- list(nstarts=10) # defaults
+    ctrl[names(control)] <- control
+    nstarts     <- ctrl$nstarts
+
 func <- function(x, ...) sum(fn(x, ...)^2)
 
 ans <- try(optim(par, fn=func, method="L-BFGS-B", lower=lower, upper=upper,

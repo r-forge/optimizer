@@ -1,10 +1,16 @@
-  dfsane <- function(par, fn, M=5, maxit=1000, lower=-Inf, upper=Inf, tol=1.e-07, trace=FALSE, ...) {
+  dfsane <- function(par, fn, lower=-Inf, upper=Inf, control=list(), ...) {
 ############################################################
 # Non-monotone spectral method for finding a root of nonlinear systems
 # LaCruz and Raydan M (2003): 
 ###############################################
 # R translation (with minor modifications):  Ravi Varadhan, Johns Hopkins University, February 23, 2008.
 ################################################
+    ctrl <- list(M=5, maxit=1000, tol=1e-07, trace=FALSE) # defaults
+    ctrl[names(control)] <- control
+    M     <- ctrl$M
+    maxit <- ctrl$maxit
+    tol   <- ctrl$tol
+    trace <- ctrl$trace
 
 ######################################
 #  local function

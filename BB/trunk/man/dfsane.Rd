@@ -3,19 +3,15 @@
 \title{Non-Monotone Spectral Method for Nonlinear Systems Roots}
 \description{Non-monotone spectral method for finding a root of nonlinear systems}
 \usage{
-  dfsane(par, fn, M=5, maxit=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
-      trace=FALSE, ...) 
+  dfsane(par, fn, lower=-Inf, upper=Inf, control=list(), ...) 
  }
 \arguments{
     \item{fn}{a function with a scalar real result (see details).}
-    \item{par}{DOCUMENTa real scalar or vector argument to func, indicating the 
-      point(s) at which the dfsaneient is to be calculated.}
-    \item{M}{DOCUMENT} 
-    \item{maxit}{DOCUMENT} 
+    \item{par}{DOCUMENT a real vector argument to fn, indicating the 
+      starting parameter values.}
     \item{lower}{DOCUMENT} 
     \item{upper}{DOCUMENT} 
-    \item{tol}{DOCUMENT} 
-    \item{trace}{DOCUMENT} 
+    \item{control}{A list of control parameters. See *Details*.}
     \item{...}{an additional arguments passed to \code{func}.}
 }
 \value{DOCUMENT}
@@ -24,8 +20,15 @@
  Non-monotone spectral method for finding a root of nonlinear systems
 
 R translation (with minor modifications):  Ravi Varadhan, Johns Hopkins University, February 23, 2008.
-   The function \code{dfsane} 
+
+Argument \code{control} is list specifing any changes to default values of
+algorithm control parameters. The default values are
+    \code{M=5},
+    \code{maxit=1000} 
+    \code{tol=1e-07} 
+    \code{trace=FALSE} DOCUMENT WHAT THESE DO
    FOR EXAMPLE
+   The function \code{dfsane} 
    calculates a numerical approximation of the 
    first derivative of \code{func} at the point \code{x}. Any additional 
    arguments in \dots are also passed to \code{func}, but the dfsaneient is not

@@ -1,4 +1,4 @@
-sane <- function(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, trace=FALSE, ...) {
+sane <- function(par, fn, M=5, maxit=1000, lower=-Inf, upper=Inf, tol=1.e-07, trace=FALSE, ...) {
 ############################################################
 # Non-monotone spectral method for finding a root of nonlinear systems
 # LaCruz and Raydan M (2003): 
@@ -80,7 +80,7 @@ sane <- function(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
 ######################################
 #     MAIN LOOP:  Iteration begins
 ######################################
-	while (normF/sqrt(n) > tol & iter <= maxiter & !stagn) {
+	while (normF/sqrt(n) > tol & iter <= maxit & !stagn) {
 
 # Calculate the gradient of the merit function ||F(X)||
 	xa <- par + h*F
@@ -151,7 +151,7 @@ sane <- function(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
       	if (trace) cat("\n iteration: ",iter, " ||F(xn)|| =  ", normF, "\n")
 	}
 	if (normF/sqrt(n) <= tol) conv <- list(type=0, message="Successful convergence") 
-	if (iter > maxiter) conv <- list(type=1, message="Maximum # iterations exceeded")
+	if (iter > maxit) conv <- list(type=1, message="Maximum # iterations exceeded")
 	if (stagn) conv <- list(type=2, message="Anomalous iteration")
 	res <- normF / sqrt(length(par))
 

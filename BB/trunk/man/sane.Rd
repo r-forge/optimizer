@@ -3,7 +3,7 @@
 \title{Spectral-Gradient Solution of Nonlinear System}
 \description{Spectral-gradient based solution of nonlinear systems}
 \usage{
-     sane(par, fn, M=5, maxiter=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
+     sane(par, fn, M=5, maxit=1000, lower=-Inf, upper=Inf, tol=1.e-07, 
        trace=FALSE, ...)
  }
 \arguments{
@@ -11,7 +11,7 @@
     \item{par}{DOCUMENTa real scalar or vector argument to func, indicating the 
       point(s) at which the dfsaneient is to be calculated.}
     \item{M}{DOCUMENT} 
-    \item{maxiter}{DOCUMENT} 
+    \item{maxit}{DOCUMENT} 
     \item{lower}{DOCUMENT} 
     \item{upper}{DOCUMENT} 
     \item{tol}{DOCUMENT} 

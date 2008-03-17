@@ -1,3 +1,4 @@
+fuzz <- 1e-1 #1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -31,9 +32,9 @@ system.time(ans.opt <- optim(par=p0, fn=valley.f, method="L-BFGS-B"))[1]
 z <- sum(ans.spg$par)
 good <- 241.009141443883
 print(z, digits=16)
-#if(any(abs(good - z) > 1e-10)) stop("BB test valley.f b FAILED")
+#if(any(abs(good - z)/1e3 > fuzz)) stop("BB test valley.f b FAILED")
  
 z <- sum(ans.opt$par)
 good <- 241.285235502392
 print(z, digits=16)
-if(any(abs(good - z) > 1e-10)) stop("BB test valley.f b FAILED")
+if(any(abs(good - z)/1e3 > fuzz)) stop("BB test valley.f b FAILED")

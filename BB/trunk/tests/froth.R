@@ -1,3 +1,4 @@
+fuzz <- 1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -26,11 +27,11 @@ system.time(ans.opt <- optim(par=p0, fn=froth, method="L-BFGS-B"))[1]
 z <- sum(ans.spg$par)
 good <- 9.00096629410460
 print(z, digits=16)
-if(any(abs(good - z) > 1e-10)) stop("BB test froth a FAILED")
+if(any(abs(good - z)/10 > fuzz)) stop("BB test froth a FAILED")
  
 z <- sum(ans.opt$par)
 good <-  9.00000701456296
 print(z, digits=16)
-if(any(abs(good - z) > 1e-10)) stop("BB test froth  b FAILED")
+if(any(abs(good - z)/10 > fuzz)) stop("BB test froth  b FAILED")
 
 

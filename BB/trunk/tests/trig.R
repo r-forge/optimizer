@@ -1,3 +1,4 @@
+fuzz <- 1e-1 #1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -24,9 +25,9 @@ system.time(ans.opt <- optim(par=p0, fn=trig.f, method="L-BFGS-B", control=list(
 z <- sum(ans.spg$par)
 good <- 873.9906452742775
 print(z, digits=16)
-if(any(abs(good - z) > 1e-10)) stop("BB test trig.f a FAILED")
+if(any(abs(good - z)/1e3 > fuzz)) stop("BB test trig.f a FAILED")
  
 z <- sum(ans.opt$par)
 good <- 126.6745362827593
 print(z, digits=16)
-if(any(abs(good - z) > 1e-10)) stop("BB test trig.f b FAILED")
+if(any(abs(good - z)/1e3 > fuzz)) stop("BB test trig.f b FAILED")

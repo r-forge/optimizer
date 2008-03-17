@@ -2,11 +2,11 @@ Package: BB
 Title: Barzilai-Borwein Optimization
 Description: Large-scale optimization and root-finding.
 Depends: R (>= 2.6.1)
-Suggests: numDeriv
+Suggests: numDeriv, setRNG
 Version: 2008.3-1
 Date: 2008-3-1
 LazyLoad: yes
 License: GPL-3
 Author: Ravi Varadhan
-Maintainer: Ravi Varadhan and Paul Gilbert <rvaradhan@jhmi.edu>
+Maintainer: Ravi Varadhan and Paul Gilbert <pgilbert@bank-banque-canada.ca>
 URL: http://www.jhsph.edu/agingandhealth/People/Faculty/Varadhan.html

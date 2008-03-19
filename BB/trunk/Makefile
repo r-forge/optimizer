@@ -1,4 +1,4 @@
-PREREQ_PACS=numDeriv
+PREREQ_PACS=numDeriv setRNG
 
 include ../Makevars
 #override ./Makevars to not copy Licence

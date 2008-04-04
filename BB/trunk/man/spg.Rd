@@ -1,115 +1,189 @@
 \name{spg}
 \alias{spg}
 \title{Spectral Projected Gradient}
-\description{Spectral projected gradient method for
-  	  box-constrained minimization.}
+\description{Spectral projected gradient method for large-scale optimization with simple constraints.}
 \usage{
-     spg(par, fn, grad=NULL, lower=-Inf, upper=Inf,  
-	grad.method="simple", control=list(), ...)
+     spg(par, fn, gr=NULL, method=3, project=NULL, lower=-Inf, upper=Inf, control=list(), ...)
  }
 \arguments{
-    \item{fn}{a function with a scalar real result (see details).}
-    \item{par}{DOCUMENTa real scalar or vector argument to func, indicating the 
-      point(s) at which the dfsaneient is to be calculated.}
-    \item{grad}{DOCUMENT} 
-    \item{lower}{DOCUMENT} 
-    \item{upper}{DOCUMENT} 
-    \item{grad.method}{DOCUMENT} 
+    \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
+    objective function \code{fn}.}
+
+    \item{fn}{Nonlinear objective function that is to be optimized.  A scalar function that takes a real vector as argument and 
+    returns a scalar that is the value of the function at that point (see details).}
+
+    \item{gr}{The gradient of the objective function \code{fn} evaluated at the argument.  This is a vector-function that takes a real 
+    vector as argument and returns a real vector of the same length.  It defaults to "NULL". See *Example*.} 
+
+    \item{method}{An integer (1-3) specifying which Barzilai-Borwein steplength to use.  The default is 3.  See *Details*.} 
+
+    \item{project}{The projection function that takes a point in $R^n$ and projects it onto a region that defines the constraints of the problem.  
+    This is a vector-function that takes a real vector as argument and returns a real vector of the same length.  It defaults to "NULL".  See *Details*.} 
+
+    \item{lower}{A vector that defines lower bounds on \code{par}.  Defaults to -Inf} 
+
+    \item{upper}{A vector that defines upper bounds on \code{par}.  Defaults to Inf} 
+
     \item{control}{A list of control parameters. See *Details*.}
-    \item{...}{an additional arguments passed to \code{func}.}
+
+    \item{...}{Additional arguments passed to \code{fn} and/or to \code{project}.}
 }
-\value{FOR EXAMPLEA real scalar or vector of the approximated spgient(s).}
+\value{ A list with the following components:
+\item{par} The best set of parameters that optimizes the nonlinear objective function.
+
+\item{value} The value of the objective function at termination.
+
+\item{abs.reduction} Absolute reduction in the value of the function from its initial value. This is negative in maximization.
+
+\item{rel.reduction} Relative reduction in the value of the function from its initial value.
+
+\item{grad} Infinity-norm of the projected gradient of the objective function at termination. If convergence is successful, this should be close to zero. 
+ 
+\item{iter} Number of iterations taken by the algorithm.
+
+\item{feval} Number of times the objective \code{fn} was evaluated
+
+\item{convergence} An integer code indicating type of convergence.  \code{0} indicates successful convergence, in which case the \code{resid} is smaller than 
+\code{tol}.  Error codes are: \code{1} indicates that the maximum limit for iterations \code{maxit} has been reached.  \code{2} indicates that 
+maximum limit on function evals has been exceeded.  \code{3} indicates convergence w.r.t. projected gradient, possibly due 
+to one or more of parameters lying on the boundary. \code{4} indicates failure due to error in function evaluation. \code{5} indicates 
+failure due to error in gradient evaluation. \code{6} indicates failure due to error in projection.
+   
+\item{message} A text message explaining which termination criterion was used.
+}
 
 \details{
- R translation (with minor modifications):  Ravi Varadhan, Johns Hopkins University, February 23, 2008.
- Incorporates box constraints
+R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins University (March 25, 2008), from the original FORTRAN code of La Cruz, Martinez, and Raydan (2006).  
 
-Argument \code{control} is list specifing any changes to default values of
-algorithm control parameters. The default values are
-    \code{M=10},
-    \code{maxit=2500} 
-    \code{tol=1e-08} 
-    \code{gtol=1e-04} 
-    \code{maxfeval=10000} 
-    \code{trace=FALSE} DOCUMENT WHAT THESE DO
+A major modification in our R adaptation of the original FORTRAN code is the availability of 3 different options for Barzilai-Borwein (BB) steplengths: \code{method = 1} is the BB 
+steplength used in Birgin, Martinez and Raydan (2000);  \code{method = 2} is the other steplength proposed in Barzilai and Borwein's (1988) original paper.  
+Finally, \code{method = 3}, is a new steplength, which was first proposed in Varadhan and Roland (2008) for accelerating the EM algorithm.  
+In fact, Varadhan and Roland (2008) considered 3 similar steplength schemes in their EM acceleration work.  Here, we have chosen \code{method = 3} 
+as the "default" method, since it exhibited more reliable convergence to a better optimum in our experiments.  However, we recommend that the user 
+try the other steplength schemes if the default method does not perform well in their problem.  
 
-FOR EXAMPLE
-   The function \code{spg} calculates a numerical approximation of the 
-   first derivative of \code{func} at the point \code{x}. Any additional 
-   arguments in \dots are also passed to \code{func}, but the spgient is not
-   calculated with respect to these additional arguments.
-   It is assumed \code{func}  is a scalar value function. If a vector \code{x} 
-   produces a scalar
-   result then \code{spg} returns the numerical approximation of the spgient
-   at the point \code{x} (which has the same length as \code{x}).
-   If a vector \code{x} produces a vector result then the result must have the
-   same length as \code{x}, and it is assumed that this corresponds to applying
-   the function to each of its arguments (for example, \code{sin(x)}). 
-   In this case \code{spg} returns the
-   spgient at each of the points in \code{x} (which also has the same length 
-   as \code{x} - so be careful). An alternative for vector valued functions is
-   provided by.
-  
-   If method is "simple", the calculation is done using a simple epsilon
-   difference. For this case, only the element \code{eps} of \code{methods.args}
-   is used.
+Argument \code{project} currently defaults to "NULL".  The user can specify \code{lower} and \code{upper} arguments to enforce 
+box constraints.  The user can also provide his/her own projection function to enforce more complicated linear/nonlinear 
+equality/inequality constraints.
+ 
+Argument \code{control} is a list specifing any changes to default values of algorithm control parameters.  Note that the names of these must be 
+specified completely.  Partial matching will not work.
 
-   If method is "Richardson", the calculation
-   is done by Richardson's extrapolation (see e.g. Linfield and Penny, 1989,
-   or Fornberg and Sloan, 1994.)
-   This method should be used if accuracy, as opposed to speed, is important.
-   For this case, 
-   \code{methods.args=list(eps=1e-4, d=0.01, r=4, show.details=FALSE)} 
-   are used.
-    \code{d} gives the fraction of \code{x} to use for the initial numerical 
-      approximation. The default means the initial approximation uses
-      \code{0.0001 * x}.
-    \code{eps} is used instead of \code{d} for elements of \code{x} which are 
-       zero.
-    \code{r} gives the number of Richardson improvement iterations (repetitions
-       with successly smaller \code{d}. The default \code{4} general provides 
-       good results, but this can be increased to \code{6} for improved
-       accuracy at the cost of more evaluations.
-    \code{v} gives the reduction factor.
-    \code{show.details} is a logical indicating if detailed calculations should 
-        be shown.
-   
-  The general approach in the Richardson method is to iterate for \code{r} 
-  iterations from initial 
-  values for interval value \code{d},  using reduced factor \code{v}.
-  The the first order approximation to the derivative with respect 
-  to \eqn{x_{i}}{x_{i}} is
+\item{M} A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
+in the reduction of $L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
+enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Convergence is relatively insensitive to choices of \code{M} 
+between 5 to 20.  The default is \code{M = 10}.  
 
-      \deqn{f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
-               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}{%
-	    f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
-               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}
-       
-  This is repeated \code{r} times  with successively smaller \code{d}  and 
-	  then Richardson extraplolation. is applied.
+\item{maxit} The maximum number of iterations.  The default is \code{maxit = 1500}.
 
+\item{ftol}  The absolute convergence tolerance on the change in \code{fn}.  Convergence is declared when the absolute change is less than \code{ftol}.  
+Deafult is \code{ftol = 1.e-08}.
+
+\item{gtol}  The absolute convergence tolerance on the infinity-norm of projected gradient \code{gr} evaluated at the current parameter.  
+Convergence is declared when the infinity-norm of projected gradient is less than \code{gtol}.  Deafult is \code{gtol = 1.e-04}.
+
+\item{maxfeval} Maximum limit on the number of function evaluations.  Default is \code{maxfeval = 10000}. 
+
+\item{maximize} A logical variable indicating whether the objective function is to be maximized.  Default is \code{maximize = FALSE} indicating
+minimization.  For likelihood maximization, the user must set this to be "TRUE".
+
+\item{trace} A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  Deafult is \code{trace = TRUE}.
+
+\item{triter} An integer that controls the frequency of tracing when \code{trace=TRUE}. Default is \code{triter=10}, which means that
+the objective \code{fn} and the infinity-norm of its projected gradient are printed at every 10-th iteration.   
+
+\item{grad.method} Method to be used for numerical approximation of the gradient.  This uses the function \code{grad} in the 
+package "numDeriv".  Default method is "simple".  This is generally more than adequate.  The other option is to use "Richardson" 
+extrapolation, which is highly accurate, but very time consuming, and is not recommended for large-scale problems. 
+     
+\item{eps} A small positive increment used in finite-difference approximation of gradient by the method "simple".  Default is 1.e-07.
 }
-\references{ 
-    Non-monotone spectral projected-gradient method for minimization
+
+\references{   
     Birgin EG, Martinez JM, and Raydan M (2000): Nonmonotone spectral projected 
     gradient methods on convex sets, \emph{SIAM J Optimization}, 10, 1196-1211.
     
     Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for 
     convex-constrained optimization, 
     \emph{ACM Transactions on Mathematical Software}.
+    
+   L Grippo, F Lampariello, and S Lucidi (1986),  A nonmonotone line search technique for Newton's method,  \emph{SIAM J on Numerical Analysis}, 23, 707-716. 
+
+   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM 
+   algorithm,  \emph{Scandinavian J Statistics}. 
+
 }
 \seealso{
+  \code{\link{optim}},
   \code{\link{sane}},
   \code{\link{dfsane}},
-  \code{\link{nlsolve}},
-  \code{\link[stats]{numericDeriv}}
+  \code{\link[numDeriv]{grad}}
    }
+   
 \examples{
-trig.f <- function(x){
-   f <- length(x) - sum(cos(x)) + (1:length(x))*(1 - cos(x)) - sin(x) 
-   sum(f*f)
-   }
-
-ans.spg <- spg(par=runif(100), fn=trig.f, maxit=2500)
+sc2.f <- function(x){
+nvec <- 1:length(x)
+sum(nvec * (exp(x) - x)) / 10
 }
+
+sc2.g <- function(x){
+nvec <- 1:length(x)
+nvec * (exp(x) - 1) / 10
+}
+
+p0 <- rnorm(200)
+ans.spg1 <- spg(par=p0, fn=sc2.f)  # Default is method=3
+ans.spg2 <- spg(par=p0, fn=sc2.f, method=1)
+ans.spg3 <- spg(par=p0, fn=sc2.f, method=2)
+ans.cg <- optim(par=p0, fn=sc2.f, method="CG")  #Uses conjugate-gradient method in "optim"
+ans.lbfgs <- optim(par=p0, fn=sc2.f, method="L-BFGS-B")  #Uses low-memory BFGS method in "optim"
+
+#  Now we use exact gradient.  Notice the difference in speed.
+ans.spg1 <- spg(par=p0, fn=sc2.f, gr=sc2.g)
+
+############
+# Another example illustrating use of additional parameters to objective function 
+valley.f <- function(x, cons) {
+n <- length(x)
+f <- rep(NA, n)
+j <- 3 * (1:(n/3))
+jm2 <- j - 2
+jm1 <- j - 1
+f[jm2] <- (cons[2] * x[jm2]^3 + cons[1] * x[jm2]) * exp(-(x[jm2]^2)/100) - 1
+f[jm1] <- 10 * (sin(x[jm2]) - x[jm1])
+f[j] <- 10 * (cos(x[jm2]) - x[j])
+sum(f*f)
+}
+
+k <- c(1.003344481605351, -3.344481605351171e-03)
+p0 <- rnorm(300)  # number of parameters should be a multiple of 3 for this example
+ans.spg2 <- spg(par=p0, fn=valley.f, cons=k, method=2)  
+ans.cg <- optim(par=p0, fn=valley.f, cons=k, method="CG")  
+ans.lbfgs <- optim(par=p0, fn=valley.f, cons=k, method="L-BFGS-B")  
+
+####################################################################
+# Here is a statistical example illustrating log-likelihood maximization.
+
+poissmix.loglik <- function(p,y) {
+# Log-likelihood for a binary Poisson mixture
+i <- 0:(length(y)-1)
+loglik <- y*log(p[1]*exp(-p[2])*p[2]^i/exp(lgamma(i+1)) + 
+        (1 - p[1])*exp(-p[3])*p[3]^i/exp(lgamma(i+1)))
+return (sum(loglik) )
+}
+
+# Data from Hasselblad (JASA 1969)
+poissmix.dat <- data.frame(death=0:9, freq=c(162,267,271,185,111,61,27,8,3,1))
+y <- poissmix.dat$freq
+
+# Lower and upper bounds on parameters
+lo <- c(0.001,0,0)  
+hi <- c(0.999, Inf, Inf)
+
+p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # randomly generated starting values
+
+ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T))
+
+}
+
 \keyword{multivariate}

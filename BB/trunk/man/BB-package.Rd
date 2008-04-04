@@ -3,9 +3,9 @@
 \alias{BB.Intro}
 \docType{package}
 
-\title{Barzilai-Borwein Optimization}
+\title{Solving Large-Scale Nonlinear Problems}
 
-\description{Large-scale optimization and root-finding.}
+\description{Barzilai-Borwein spectral methods for root-finding and optimization in large-scale nonlinear systems.  }
 
 \details{
 \tabular{ll}{
@@ -13,18 +13,15 @@ Package: \tab BB\cr
 Depends: \tab R (>= 2.6.1)\cr
 License: \tab GPL Version 3.\cr
 }
-The main functions are
+The main functions are:
 \preformatted{
-spg	  functions for spectral projected gradient method for
-  	  box-constrained minimization
 
-sane	  functions for spectral-gradient based solution of nonlinear systems
+sane	  function for solving systems of nonlinear equations using spectral approach
 
-dfsane	  functions for spectral-gradient based solution of
-  	  nonlinear systems (derivative-free sane algorithm)
+dfsane  function for solving systems of nonlinear equations using a derivative-free spectral approach 
 
-nlsolve	  function that solves a nonlinear system by converting
-  	  it into a minimization problem and using optim's L-BFGS-B algorithm
+spg	  function for spectral projected gradient method for optimization with simple (e.g. box) constraints
+
 }
 
 Maintainer:Ravi Varadhan <rvaradhan@jhmi.edu> and 
@@ -32,17 +29,26 @@ Maintainer:Ravi Varadhan <rvaradhan@jhmi.edu> and
 }
 \author{Ravi Varadhan}
 \references{
-    Non-monotone spectral projected-gradient method for minimization
+
+   J Barzilai, and JM Borwein  (1988),  Two-point step size gradient methods, \emph{IMA J Numerical Analysis}, 8, 141-148. 
+
     Birgin EG, Martinez JM, and Raydan M (2000): Nonmonotone spectral projected 
     gradient methods on convex sets, \emph{SIAM J Optimization}, 10, 1196-1211.
     
     Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for 
-    convex-constrained optimization, 
-    \emph{ACM Transactions on Mathematical Software}.
+    convex-constrained optimization, \emph{ACM Transactions on Mathematical Software}.
+   
+   L Grippo, F Lampariello, and S Lucidi (1986),  A nonmonotone line search technique for Newton's method,  \emph{SIAM J on Numerical Analysis}, 23, 707-716. 
 
-    LaCruz and Raydan M (2003): 
+   W LaCruz, and M Raydan (2003),  Nonmonotone spectral methods for large-scale nonlinear systems, \emph{Optimization Methods and Software}, 18, 583-599. 
 
-    Freudenstein and Roth function (Broyden, Mathematics of Computation 1965, p. 577-593)
+   W LaCruz, JM Martinez, and M Raydan (2006),  Spectral residual mathod without gradient information for solving large-scale nonlinear systems of equations, \emph{Mathematics of Computation}, 75, 1429-1448. 
+
+   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM 
+   algorithm,  \emph{Scandinavian J Statistics}. 
+
+   R Varadhan and P Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for root-finding and optimization in large-scale nonlinear systems, Unpublished.
+
 }
 \keyword{package}
 

@@ -1,109 +1,112 @@
 \name{dfsane}
 \alias{dfsane}
-\title{Non-Monotone Spectral Method for Nonlinear Systems Roots}
-\description{Non-monotone spectral method for finding a root of nonlinear systems}
+\title{Non-Monotone Spectral Method for Solving Large-Scale Nonlinear Systems of Equations}
+\description{Spectral approach for finding a root of nonlinear systems of equations without gradient information}
 \usage{
-  dfsane(par, fn, lower=-Inf, upper=Inf, control=list(), ...) 
+  dfsane(par, fn, method=2, control=list(), ...) 
  }
 \arguments{
-    \item{fn}{a function with a scalar real result (see details).}
-    \item{par}{DOCUMENT a real vector argument to fn, indicating the 
-      starting parameter values.}
-    \item{lower}{DOCUMENT} 
-    \item{upper}{DOCUMENT} 
+    \item{fn}{a function that takes a real vector as argument and  returns a real vector of same length (see details).}
+ 
+    \item{par}{A real vector argument to \code{fn}, indicating the 
+      initial guess for the root of the nonlinear system.}
+ 
+    \item{method}{An integer (1-3) specifying which Barzilai-Borwein steplength to use.  The default is 2.  See *Details*.} 
+ 
     \item{control}{A list of control parameters. See *Details*.}
-    \item{...}{an additional arguments passed to \code{func}.}
+ 
+    \item{...}{Additional arguments passed to \code{fn}.}
 }
-\value{DOCUMENT}
+\value{ A list with the following components:
+\item{par} The best set of parameters that solves the nonlinear system
+
+\item{resid} L2-norm of the function evaluated at \code{par}, divided by \sqrt(npar), where "npar" is the number of parameters.
+
+\item{abs.reduction} Absolute reduction in the L2-norm of the function from the initial L2-norm
+
+\item{rel.reduction} Relative reduction in the L2-norm of the function from the initial L2-norm.  The closer this is to zero the better the solution is.
+
+\item{feval} Number of times \code{fn} was evaluated
+
+\item{iter} Number of iterations taken by the algorithm.
+
+\item{convergence} An integer code indicating type of convergence.  \code{0} indicates successful convergence, in which case the \code{resid} is smaller than 
+\code{tol}.  Error codes are \code{1} indicates that the iteration limit \code{maxit} has been reached.  \code{2} indicates failure due to an error in function evaluation.  
+\code{3} indicates failure due to exceeding 100 steplength reductions in line-search.   
+
+\item{message} A text message explaining which termination criterion was used.
+
+}
 
 \details{
- Non-monotone spectral method for finding a root of nonlinear systems
+ The function \code{dfsane} is another algorithm for implementing non-monotone spectral residual method for finding a root of nonlinear systems, by working without gradient information.  
+It stands for "derivative-free spectral approach for nonlinear equations". It differs from the function \code{sane} in that \code{sane} requires an approximation 
+of a directional derivative at every iteration of the merit function $F(x)^t F(x)$.
 
-R translation (with minor modifications):  Ravi Varadhan, Johns Hopkins University, February 23, 2008.
+R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins University (March 25, 2008), from the original FORTRAN code of La Cruz, Martinez, and Raydan (2006).  
 
-Argument \code{control} is list specifing any changes to default values of
-algorithm control parameters. The default values are
-    \code{M=5},
-    \code{maxit=1000} 
-    \code{tol=1e-07} 
-    \code{trace=FALSE} DOCUMENT WHAT THESE DO
-   FOR EXAMPLE
-   The function \code{dfsane} 
-   calculates a numerical approximation of the 
-   first derivative of \code{func} at the point \code{x}. Any additional 
-   arguments in \dots are also passed to \code{func}, but the dfsaneient is not
-   calculated with respect to these additional arguments.
-   It is assumed \code{func}  is a scalar value function. If a vector \code{x} 
-   produces a scalar
-   result then \code{dfsane} returns the numerical approximation of the dfsaneient
-   at the point \code{x} (which has the same length as \code{x}).
-   If a vector \code{x} produces a vector result then the result must have the
-   same length as \code{x}, and it is assumed that this corresponds to applying
-   the function to each of its arguments (for example, \code{sin(x)}). 
-   In this case \code{dfsane} returns the
-   dfsaneient at each of the points in \code{x} (which also has the same length 
-   as \code{x} - so be careful). An alternative for vector valued functions is
-   provided by .
-  
-   If method is "simple", the calculation is done using a simple epsilon
-   difference. For this case, only the element \code{eps} of \code{methods.args}
-   is used.
+A major modification in our R adaptation of the original FORTRAN code is the availability of 3 different options for Barzilai-Borwein (BB) steplengths: \code{method = 1} is the BB 
+steplength used in LaCruz, Martinez and Raydan (2006);  \code{method = 2} is equivalent to the other steplength proposed in Barzilai and Borwein's (1988) original paper.  
+Finally, \code{method = 3}, is a new steplength, which is equivalent to that first proposed in Varadhan and Roland (2008) for accelerating the EM algorithm.  
+In fact, Varadhan and Roland (2008) considered 3 similar steplength schemes in their EM acceleration work.  Here, we have chosen \code{method = 2} 
+as the "default" method, since it generally performs better than others.  However, it is not universally better and in some cases, one of the other two 
+steplength schemes perform better.  Therefore, if the default does not perform well in a particular  nonlinear system, we recommend trying the other two steplength schemes. 
 
-   If method is "Richardson", the calculation
-   is done by Richardson's extrapolation (see e.g. Linfield and Penny, 1989,
-   or Fornberg and Sloan, 1994.)
-   This method should be used if accuracy, as opposed to speed, is important.
-   For this case, 
-   \code{methods.args=list(eps=1e-4, d=0.01, r=4, show.details=FALSE)} 
-   are used.
-    \code{d} gives the fraction of \code{x} to use for the initial numerical 
-      approximation. The default means the initial approximation uses
-      \code{0.0001 * x}.
-    \code{eps} is used instead of \code{d} for elements of \code{x} which are 
-       zero.
-    \code{r} gives the number of Richardson improvement iterations (repetitions
-       with successly smaller \code{d}. The default \code{4} general provides 
-       good results, but this can be increased to \code{6} for improved
-       accuracy at the cost of more evaluations.
-    \code{v} gives the reduction factor.
-    \code{show.details} is a logical indicating if detailed calculations should 
-        be shown.
-   
-  The general approach in the Richardson method is to iterate for \code{r} 
-  iterations from initial 
-  values for interval value \code{d},  using reduced factor \code{v}.
-  The the first order approximation to the derivative with respect 
-  to \eqn{x_{i}}{x_{i}} is
+Argument \code{control} is a list specifing any changes to default values of algorithm control parameters.  Note that the names of these must be 
+specified completely.  Partial matching does not work.
 
-      \deqn{f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
-               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}{%
-	    f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
-               f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}
-       
-  This is repeated \code{r} times  with successively smaller \code{d}  and 
-	  then Richardson extraplolation. is applied.
+\item{M} A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
+in the reduction of $L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
+enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Convergence is relatively insensitive to choices of \code{M} 
+between 5 to 20.  The default is \code{M = 10}.  
 
+\item{maxit} The maximum number of iterations.  The default is \code{maxit = 1500}.
+
+\item{tol}  The absolute convergence tolerance on the residual L2-norm of \code{fn}.  Convergence is declared when $\|F(x)\| / \sqrt(npar) < \mbox{tol}$.  
+Deafult is \code{tol = 1.e-07}.
+
+\item{trace} A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  
+Deafult is \code{trace = TRUE}.
+
+\item{triter} An integer that controls the frequency of tracing when \code{trace=TRUE}. Default is \code{triter=10}, which means that
+the L2-norm of \code{fn} is printed at every 10-th iteration.  
 }
+
 \references{ 
-   LaCruz and Raydan M (2003)
-   Grippo? 
+
+   J Barzilai, and JM Borwein  (1988),  Two-point step size gradient methods, \emph{IMA J Numerical Analysis}, 8, 141-148. 
+
+   L Grippo, F Lampariello, and S Lucidi (1986),  A nonmonotone line search technique for Newton's method,  \emph{SIAM J on Numerical Analysis}, 23, 707-716. 
+
+   W LaCruz, JM Martinez, and M Raydan (2006),  Spectral residual mathod without gradient information for solving large-scale nonlinear systems of equations, \emph{Mathematics of Computation}, 75, 1429-1448. 
+
+   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}. 
+
 }
+
 \seealso{
   \code{\link{sane}},
   \code{\link{spg}},
-  \code{\link{nlsolve}},
   \code{\link[numDeriv]{grad}}
-  \code{\link[stats]{numericDeriv}}
    }
-\examples{
-   expo1 <- function(x) {
-    	n <- length(x)
-    	f <- rep(NA, n)
-    	f[1] <- exp(x[1] - 1) - 1
-    	f[2:n] <- (2:n) * (exp(x[2:n] - 1) - x[2:n])
-    	f
-    	}
 
-   dfsane(par=runif(100), fn=expo1)
+\examples{
+  trigexp <- function(x) {
+# Test function No. 12 in the Appendix of LaCruz and Raydan (2003)
+    n <- length(x)
+    F <- rep(NA, n)
+    F[1] <- 3*x[1]^2 + 2*x[2] - 5 + sin(x[1] - x[2]) * sin(x[1] + x[2])
+    tn1 <- 2:(n-1)
+    F[tn1] <- -x[tn1-1] * exp(x[tn1-1] - x[tn1]) + x[tn1] * ( 4 + 3*x[tn1]^2) +
+        2 * x[tn1 + 1] + sin(x[tn1] - x[tn1 + 1]) * sin(x[tn1] + x[tn1 + 1]) - 8 
+    F[n] <- -x[n-1] * exp(x[n-1] - x[n]) + 4*x[n] - 3
+    F
+    }
+
+    p0 <- rnorm(1000)
+    dfsane(par=p0, fn=trigexp)  # default is method=2
+    dfsane(par=p0, fn=trigexp, method=1)
+    dfsane(par=p0, fn=trigexp, method=3)
+    dfsane(par=p0, fn=trigexp, control=list(triter=5, M=5))
 }
 \keyword{multivariate}

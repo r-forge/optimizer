@@ -159,7 +159,6 @@ break
 } 
 
 d <- d - par
-#cat("\n d: ", d, "\n")
 gtd <- sum(g * d)
 
 nmls.ans <- nmls(par, f, d, gtd, lastfv, feval , func, maxfeval, ...)
@@ -224,10 +223,9 @@ pbest <- pnew
 gbest <- pginfn
 }
 
-continue <- (fchange > ftol & fchg.rel > ftol | pginfn > gtol) & iter <= maxit
+continue <- (fchange > ftol) & (fchg.rel > ftol) & (pginfn > gtol) & (iter <= maxit)
 
 }   # while condition loop concludes
-
 
 if (lsflag==0) {
 if (fchange <= ftol | fchg.rel <= ftol) conv <- list(type=0, message="Successful convergence")

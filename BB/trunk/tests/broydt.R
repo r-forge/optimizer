@@ -25,7 +25,7 @@ system.time(ans.spg <- spg(par=p0, fn=broydt.f))[1]
 system.time(ans.opt <- optim(par=p0, fn=broydt.f, method="L-BFGS-B"))[1]
  
 z <- sum(ans.spg$par)
-good <-  137.6240252276294
+good <-  98.55031219348329
 print(z, digits=16)
 if(any(abs(good - z)/1e3 > fuzz)) stop("BB test broydt.f a FAILED")
  

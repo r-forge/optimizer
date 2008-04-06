@@ -244,7 +244,7 @@ if (lsflag==4) conv <- list(type=6, message="Failure:  Error in projection")
 absred <- (-1)^maximize * (f0 - f)
 relred <- 1 - ((f0-f)/f0)
 ginfn <- max(abs(g))
-
+browser()
 return(list(par=par, value=f.rep, abs.reduction=absred, rel.reduction=relred, grad=pginfn, iter=iter, feval=feval,  
     convergence=conv$type, message=conv$message))
 }

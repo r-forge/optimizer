@@ -1,8 +1,5 @@
-setwd("e:/bb/package")
-setwd("i:/bb/package")
-
-source("sane_new.txt")
-source("dfsane_new.txt")
+if(!require("BB"))stop("this test requires package BB.")
+if(!require("setRNG"))stop("this test requires setRNG.")
 
 iseed <- 1236  # this seed was used for tests conducted on March 25, 2008.  
 

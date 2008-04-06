@@ -23,7 +23,7 @@ p0 <- rnorm(500,sd=2)
 system.time(ans.spg <- spg(par=p0, fn=brown.f, control=list(maxit=2500)))[1]
 
 z <- sum(ans.spg $par)
-good <- -0.02486011469681782
+good <- -2.499964717600124e-05
 print(z, digits=16)
 if(any(abs(good - z) > fuzz)) stop("BB test brown.f a FAILED")
 

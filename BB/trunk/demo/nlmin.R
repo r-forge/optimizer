@@ -1,12 +1,6 @@
 ###################################################
-#setwd("h:/bb")
-#setwd("e:/bb")
-setwd("i:/bb/package")
-setwd("e:/bb/package")
-
-#source("spg.r")
-source("spg_new.txt")
-library(numDeriv)
+if(!require("BB"))stop("this test requires package BB.")
+if(!require(numDeriv))stop("this test requires package numDeriv.")
 
  fr <- function(x) {   ## Rosenbrock Banana function
     x1 <- x[1]

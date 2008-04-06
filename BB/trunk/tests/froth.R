@@ -25,7 +25,7 @@ system.time(ans.spg <- spg(par=p0, fn=froth, control=list(M=20, maxit=2500)))[1]
 system.time(ans.opt <- optim(par=p0, fn=froth, method="L-BFGS-B"))[1]
 
 z <- sum(ans.spg$par)
-good <- 9.00096629410460
+good <- 10.51597043896899
 print(z, digits=16)
 if(any(abs(good - z)/10 > fuzz)) stop("BB test froth a FAILED")
  

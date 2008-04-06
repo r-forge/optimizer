@@ -1,102 +1,129 @@
 \name{spg}
 \alias{spg}
 \title{Spectral Projected Gradient}
-\description{Spectral projected gradient method for large-scale optimization with simple constraints.}
+\description{Spectral projected gradient method for large-scale optimization 
+   with simple constraints.}
 \usage{
-     spg(par, fn, gr=NULL, method=3, project=NULL, lower=-Inf, upper=Inf, control=list(), ...)
+     spg(par, fn, gr=NULL, method=3, project=NULL, lower=-Inf, upper=Inf, 
+        control=list(), ...)
  }
 \arguments{
-    \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
-    objective function \code{fn}.}
-
-    \item{fn}{Nonlinear objective function that is to be optimized.  A scalar function that takes a real vector as argument and 
-    returns a scalar that is the value of the function at that point (see details).}
-
-    \item{gr}{The gradient of the objective function \code{fn} evaluated at the argument.  This is a vector-function that takes a real 
-    vector as argument and returns a real vector of the same length.  It defaults to "NULL". See *Example*.} 
-
-    \item{method}{An integer (1-3) specifying which Barzilai-Borwein steplength to use.  The default is 3.  See *Details*.} 
-
-    \item{project}{The projection function that takes a point in $R^n$ and projects it onto a region that defines the constraints of the problem.  
-    This is a vector-function that takes a real vector as argument and returns a real vector of the same length.  It defaults to "NULL".  See *Details*.} 
-
-    \item{lower}{A vector that defines lower bounds on \code{par}.  Defaults to -Inf} 
-
-    \item{upper}{A vector that defines upper bounds on \code{par}.  Defaults to Inf} 
-
+    \item{par}{A real vector argument to \code{fn}, indicating the initial 
+      guess for the optimization of nonlinear objective function \code{fn}.}
+    \item{fn}{Nonlinear objective function that is to be optimized.
+      A scalar function that takes a real vector as argument and 
+     returns a scalar that is the value of the function at that point 
+     (see details).}
+    \item{gr}{The gradient of the objective function \code{fn} evaluated at 
+      the argument.  This is a vector-function that takes a real 
+      vector as argument and returns a real vector of the same length.  
+      It defaults to "NULL". See *Example*.}
+    \item{method}{An integer (1-3) specifying which Barzilai-Borwein steplength 
+      to use.  The default is 3.  See *Details*.}
+    \item{project}{The projection function that takes a point in \eqn{R^n} and 
+      projects it onto a region that defines the constraints of the problem.
+      This is a vector-function that takes a real vector as argument and 
+      returns a real vector of the same length.  It defaults to "NULL". 
+      See *Details*.} 
+    \item{lower}{A vector that defines lower bounds on \code{par}.
+      Defaults to -Inf} 
+    \item{upper}{A vector that defines upper bounds on \code{par}.
+      Defaults to Inf}
     \item{control}{A list of control parameters. See *Details*.}
-
-    \item{...}{Additional arguments passed to \code{fn} and/or to \code{project}.}
+    \item{...}{Additional arguments passed to \code{fn} and/or 
+      to \code{project}.}
 }
-\value{ A list with the following components:
-\item{par} The best set of parameters that optimizes the nonlinear objective function.
-
-\item{value} The value of the objective function at termination.
-
-\item{abs.reduction} Absolute reduction in the value of the function from its initial value. This is negative in maximization.
-
-\item{rel.reduction} Relative reduction in the value of the function from its initial value.
-
-\item{grad} Infinity-norm of the projected gradient of the objective function at termination. If convergence is successful, this should be close to zero. 
- 
-\item{iter} Number of iterations taken by the algorithm.
-
-\item{feval} Number of times the objective \code{fn} was evaluated
-
-\item{convergence} An integer code indicating type of convergence.  \code{0} indicates successful convergence, in which case the \code{resid} is smaller than 
-\code{tol}.  Error codes are: \code{1} indicates that the maximum limit for iterations \code{maxit} has been reached.  \code{2} indicates that 
-maximum limit on function evals has been exceeded.  \code{3} indicates convergence w.r.t. projected gradient, possibly due 
-to one or more of parameters lying on the boundary. \code{4} indicates failure due to error in function evaluation. \code{5} indicates 
-failure due to error in gradient evaluation. \code{6} indicates failure due to error in projection.
-   
-\item{message} A text message explaining which termination criterion was used.
+\value{A list with the following components:
+\item{par}{The best set of parameters that optimizes the nonlinear objective 
+  function.}
+\item{value}{The value of the objective function at termination.}
+\item{abs.reduction}{Absolute reduction in the value of the function from its 
+  initial value. This is negative in maximization.}
+\item{rel.reduction}{Relative reduction in the value of the function from its 
+  initial value.}
+\item{grad}{Infinity-norm of the projected gradient of the objective function 
+  at termination. If convergence is successful, this should be close to zero.} 
+\item{iter}{Number of iterations taken by the algorithm.}
+\item{feval}{Number of times the objective \code{fn} was evaluated.}
+\item{convergence}{An integer code indicating type of convergence.
+  \code{0} indicates successful convergence, in which case the \code{resid} 
+  is smaller than \code{tol}.  Error codes are: \code{1} indicates that the 
+  maximum limit for iterations \code{maxit} has been reached.  \code{2} 
+  indicates that maximum limit on function evals has been exceeded.  
+  \code{3} indicates convergence w.r.t. projected gradient, possibly due 
+  to one or more of parameters lying on the boundary. \code{4} indicates 
+  failure due to error in function evaluation. \code{5} indicates 
+  failure due to error in gradient evaluation. \code{6} indicates failure due 
+  to error in projection.}
+\item{message}{A text message explaining which termination criterion was used.}
 }
 
 \details{
-R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins University (March 25, 2008), from the original FORTRAN code of La Cruz, Martinez, and Raydan (2006).  
+R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins 
+University (March 25, 2008), from the original FORTRAN code of La Cruz, 
+Martinez, and Raydan (2006).  
 
-A major modification in our R adaptation of the original FORTRAN code is the availability of 3 different options for Barzilai-Borwein (BB) steplengths: \code{method = 1} is the BB 
-steplength used in Birgin, Martinez and Raydan (2000);  \code{method = 2} is the other steplength proposed in Barzilai and Borwein's (1988) original paper.  
-Finally, \code{method = 3}, is a new steplength, which was first proposed in Varadhan and Roland (2008) for accelerating the EM algorithm.  
-In fact, Varadhan and Roland (2008) considered 3 similar steplength schemes in their EM acceleration work.  Here, we have chosen \code{method = 3} 
-as the "default" method, since it exhibited more reliable convergence to a better optimum in our experiments.  However, we recommend that the user 
-try the other steplength schemes if the default method does not perform well in their problem.  
+A major modification in our R adaptation of the original FORTRAN code is the 
+availability of 3 different options for Barzilai-Borwein (BB) steplengths: 
+\code{method = 1} is the BB 
+steplength used in Birgin, Martinez and Raydan (2000);  \code{method = 2} is 
+the other steplength proposed in Barzilai and Borwein's (1988) original paper.  
+Finally, \code{method = 3}, is a new steplength, which was first proposed in 
+Varadhan and Roland (2008) for accelerating the EM algorithm.  
+In fact, Varadhan and Roland (2008) considered 3 similar steplength schemes in 
+their EM acceleration work.  Here, we have chosen \code{method = 3} 
+as the "default" method, since it exhibited more reliable convergence to a 
+better optimum in our experiments.  However, we recommend that the user 
+try the other steplength schemes if the default method does not perform well 
+in their problem.  
 
-Argument \code{project} currently defaults to "NULL".  The user can specify \code{lower} and \code{upper} arguments to enforce 
-box constraints.  The user can also provide his/her own projection function to enforce more complicated linear/nonlinear 
+Argument \code{project} currently defaults to "NULL".  The user can specify 
+\code{lower} and \code{upper} arguments to enforce 
+box constraints.  The user can also provide his/her own projection function 
+to enforce more complicated linear/nonlinear 
 equality/inequality constraints.
  
-Argument \code{control} is a list specifing any changes to default values of algorithm control parameters.  Note that the names of these must be 
+Argument \code{control} is a list specifing any changes to default values of 
+algorithm control parameters.  Note that the names of these must be 
 specified completely.  Partial matching will not work.
 
-\item{M} A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
-in the reduction of $L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
-enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Convergence is relatively insensitive to choices of \code{M} 
-between 5 to 20.  The default is \code{M = 10}.  
-
-\item{maxit} The maximum number of iterations.  The default is \code{maxit = 1500}.
-
-\item{ftol}  The absolute convergence tolerance on the change in \code{fn}.  Convergence is declared when the absolute change is less than \code{ftol}.  
-Deafult is \code{ftol = 1.e-08}.
-
-\item{gtol}  The absolute convergence tolerance on the infinity-norm of projected gradient \code{gr} evaluated at the current parameter.  
-Convergence is declared when the infinity-norm of projected gradient is less than \code{gtol}.  Deafult is \code{gtol = 1.e-04}.
-
-\item{maxfeval} Maximum limit on the number of function evaluations.  Default is \code{maxfeval = 10000}. 
-
-\item{maximize} A logical variable indicating whether the objective function is to be maximized.  Default is \code{maximize = FALSE} indicating
-minimization.  For likelihood maximization, the user must set this to be "TRUE".
-
-\item{trace} A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  Deafult is \code{trace = TRUE}.
-
-\item{triter} An integer that controls the frequency of tracing when \code{trace=TRUE}. Default is \code{triter=10}, which means that
-the objective \code{fn} and the infinity-norm of its projected gradient are printed at every 10-th iteration.   
-
-\item{grad.method} Method to be used for numerical approximation of the gradient.  This uses the function \code{grad} in the 
-package "numDeriv".  Default method is "simple".  This is generally more than adequate.  The other option is to use "Richardson" 
-extrapolation, which is highly accurate, but very time consuming, and is not recommended for large-scale problems. 
-     
-\item{eps} A small positive increment used in finite-difference approximation of gradient by the method "simple".  Default is 1.e-07.
+\item{M}{A positive integer, typically between 5-20, that controls the 
+  monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity
+  in the reduction of L2-norm of \code{fn}, whereas larger values allow for 
+  more non-monotonicity.  Global convergence under non-monotonicity is ensured 
+  by enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) 
+  in a non-monotone line-search algorithm.  Convergence is relatively 
+  insensitive to choices of \code{M} between 5 to 20.  
+  The default is \code{M = 10}.}
+\item{maxit}{The maximum number of iterations.
+  The default is \code{maxit = 1500}.}
+\item{ftol}{The absolute convergence tolerance on the change in \code{fn}.  
+  Convergence is declared when the absolute change is less than \code{ftol}.  
+  Deafult is \code{ftol = 1.e-08}.}
+\item{gtol}{The absolute convergence tolerance on the infinity-norm of
+  projected gradient \code{gr} evaluated at the current parameter.  
+  Convergence is declared when the infinity-norm of projected gradient is 
+  less than \code{gtol}.  Deafult is \code{gtol = 1.e-04}.}
+\item{maxfeval}{Maximum limit on the number of function evaluations. 
+  Default is \code{maxfeval = 10000}.}
+\item{maximize}{A logical variable indicating whether the objective function 
+  is to be maximized.  Default is \code{maximize = FALSE} indicating
+  minimization.  For likelihood maximization, the user must set this 
+  to be "TRUE".}
+\item{trace}{A logical variable (TRUE/FALSE). If \code{TRUE}, information on the 
+  progress of solving the system is produced. Default is \code{trace = TRUE}.}
+\item{triter}{An integer that controls the frequency of tracing 
+  when \code{trace=TRUE}. Default is \code{triter=10}, which means that
+  the objective \code{fn} and the infinity-norm of its projected gradient are 
+  printed at every 10-th iteration.}   
+\item{grad.method}{Method to be used for numerical approximation of the 
+  gradient.  This uses the function \code{grad} in the 
+  package "numDeriv".  Default method is "simple".  This is generally more 
+  than adequate.  The other option is to use "Richardson" 
+  extrapolation, which is highly accurate, but very time consuming, and is not 
+  recommended for large-scale problems.}      
+\item{eps}{A small positive increment used in finite-difference approximation 
+  of gradient by the method "simple".  Default is 1.e-07.}
 }
 
 \references{   
@@ -107,11 +134,13 @@ extrapolation, which is highly accurate, but very time consuming, and is not rec
     convex-constrained optimization, 
     \emph{ACM Transactions on Mathematical Software}.
     
-   L Grippo, F Lampariello, and S Lucidi (1986),  A nonmonotone line search technique for Newton's method,  \emph{SIAM J on Numerical Analysis}, 23, 707-716. 
+   L Grippo, F Lampariello, and S Lucidi (1986),  A nonmonotone line search 
+   technique for Newton's method,  \emph{SIAM J on Numerical Analysis}, 
+   23, 707-716. 
 
-   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM 
+   R Varadhan and C Roland (2008),  Simple and globally-convergent methods 
+   for accelerating the convergence of any EM 
    algorithm,  \emph{Scandinavian J Statistics}. 
-
 }
 \seealso{
   \code{\link{optim}},
@@ -182,7 +211,8 @@ hi <- c(0.999, Inf, Inf)
 
 p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # randomly generated starting values
 
-ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T))
+ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, 
+    control=list(maximize=TRUE))
 
 }
 

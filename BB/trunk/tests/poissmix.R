@@ -42,7 +42,7 @@ gs <- grad(ans.spg$par, func=poissmix.loglik, y=y)
 go <- grad(ans.opt$par, func=poissmix.loglik, y=y)
 
 z <- sum(gs)
-good <- -0.04319236474373623
+good <- -8.31481710645436e-05
 print(z, digits=16)
 if(any(abs(good - z) > fuzz)) stop("BB test poissmix.loglik a FAILED")
  

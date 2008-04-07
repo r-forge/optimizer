@@ -1,4 +1,4 @@
-sane <- function(par, fn, method=1, control=list(), ...) {
+ sane <- function(par, fn, method=1, control=list(), ...) {
 ############################################################
 # Non-monotone spectral method for finding a root of nonlinear systems
 # LaCruz and Raydan M (Optimization Methods and Software 2003): 
@@ -47,12 +47,12 @@ sane <- function(par, fn, method=1, control=list(), ...) {
     Fnew <- try(fn(xnew, ...))
         fcnt = fcnt + 1
 
-    if (class(Fnew) == "try-error" | any(is.nan(Fnew)) | any(is.na(Fnew)) | any(is.infinite(Fnew))) return(list(xnew=NA, Fnew=NA, fcnt=fcnt, bl=bl, lsflag=1, fune=NA))
+    if (class(Fnew) == "try-error" | any(is.nan(Fnew)) ) return(list(xnew=NA, Fnew=NA, fcnt=fcnt, bl=bl, lsflag=1, fune=NA))
         else fune <- sum(Fnew * Fnew)
 
       if (fune <= (fmax + lambda*gpd*gamma)) {
         if (cbl >= 1) bl <- bl + 1
-	return(list(xnew=xnew, Fnew=Fnew, fcnt=fcnt, lambda=lambda, bl=bl, lsflag=0, fune=fune))
+    return(list(xnew=xnew, Fnew=Fnew, fcnt=fcnt, lambda=lambda, bl=bl, lsflag=0, fune=fune))
     } else {
 #     Quadratic interpolation
         lamc <- -(gpd*lambda^2) / (2 * (fune - fval - lambda*gpd))
@@ -82,15 +82,15 @@ sane <- function(par, fn, method=1, control=list(), ...) {
 
       F <- try (fn(par, ...))
 
-    if (class(F) == "try-error" | any(is.nan(F)) | any(is.na(F)) ) {
+    if (class(F) == "try-error" | any(is.nan(F)) | any(is.infinite(F)) ) {
     cat(" Failure: Error in initial functional evaluation ")
     return(NULL)
     } else F0 <- normF <- sqrt(sum(F * F))
 
-    if (trace) cat("||F(x0)||: ", normF, "\n")
+    if (trace) cat("Iteration: ", 0, " ||F(x0)||: ", F0, "\n")
 
-	pbest <- par
-	normF.best <- normF
+    pbest <- par
+    normF.best <- normF
       lastfv[1] <- normF^2
             
 ######################################
@@ -104,16 +104,16 @@ sane <- function(par, fn, method=1, control=list(), ...) {
     Fa <- try (fn(xa, ...)) 
       fcnt <- fcnt + 1
         
-    if (class(Fa) == "try-error" | any(is.nan(Fa)) | any(is.na(Fa)) ) {
-		flag <- 1
-		break
+    if (class(Fa) == "try-error" | any(is.nan(Fa)) ) {
+        flag <- 1
+        break
         } 
 
-	dg <- (sum(F * Fa) - normF^2) / h
-     if (abs(dg/normF^2) < eps) {
-	flag <- 3
-	break
-	}
+    dg <- (sum(F * Fa) - normF^2) / h
+     if (abs(dg/normF^2) < eps | is.nan(dg) | is.infinite(dg) ) {
+    flag <- 3
+    break
+    }
 
 # Control of steplength
     if ((alfa <= eps) | (alfa >= 1/eps)) {
@@ -154,10 +154,10 @@ sane <- function(par, fn, method=1, control=list(), ...) {
     fun <- fune
     normF <- sqrt(fun)
 
-	if (normF < normF.best) {
-	pbest <- par
-	normF.best <- normF
-	}
+    if (normF < normF.best) {
+    pbest <- par
+    normF.best <- normF
+    }
 
     iter <- iter + 1
         lastfv[ 1 + iter %% M] <- fun
@@ -166,22 +166,21 @@ sane <- function(par, fn, method=1, control=list(), ...) {
 
     }  # End of main loop
 
-	if (flag==0) {
+    if (flag==0) {
     if (normF/sqrt(n) <= tol) conv <- list(type=0, message="Successful convergence") 
     if (iter > maxit) conv <- list(type=1, message="Maximum number of iterations exceeded")
-	} else {
-	par <- pbest
-	normF <- normF.best
+    } else {
+    par <- pbest
+    normF <- normF.best
     if (flag==1) conv <- list(type=2, message="Failure: Error in function evaluation")
     if (flag==2) conv <- list(type=3, message="Failure: Maximum limit on steplength reductions exceeded")
     if (flag==3) conv <- list(type=4, message="Failure: Anomalous iteration")
-	}
+    }
     res <- normF / sqrt(length(par))
 
-    absred <- abs(normF - F0)
-    relred <- 1 - abs((normF - F0)/F0)
+    fred <- F0 - normF
 
-    return(list(par = par, resid = res, abs.reduction = absred, rel.reduction=relred, feval=fcnt, iter=iter, 
+    return(list(par = par, residual = res, fn.reduction = fred, feval=fcnt, iter=iter, 
     convergence=conv$type, message=conv$message)) 
 
       }

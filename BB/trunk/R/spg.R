@@ -22,12 +22,11 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL, lower=-Inf, upper=Inf,
 # The user can define his/her own projection function "project" to handle more complicated constraints
 #
 ################################################
-    ctrl <- list(M=10, maxit=1500, ftol=1e-08, gtol=1.e-04, maxfeval=10000, maximize=FALSE, trace=TRUE, 
+    ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, trace=TRUE, 
     triter=10, grad.method="simple", eps=1.e-07) # defaults
     ctrl[names(control)] <- control
     M     <- ctrl$M
     maxit <- ctrl$maxit
-    ftol  <- ctrl$ftol
     gtol  <- ctrl$gtol
     maxfeval <- ctrl$maxfeval
     maximize <- ctrl$maximize
@@ -46,7 +45,7 @@ pnew <- p + alpha*d
 fnew <- try(func(pnew , ...),silent=TRUE)
 feval <- feval + 1
 
-if (class(fnew)=="try-error" | is.nan(fnew)) return(list(p=NA, f=NA, feval=NA, lsflag=1))
+if (class(fnew)=="try-error" | is.nan(fnew) ) return(list(p=NA, f=NA, feval=NA, lsflag=1))
 
 while(fnew > fmax + gamma*alpha*gtd) {
 if (alpha <= 0.1) alpha <- alpha/2
@@ -60,8 +59,7 @@ pnew <- p + alpha*d
 fnew <- try(func(pnew, ... ), silent=TRUE)
 feval <- feval + 1
 
-    if (class(fnew)=="try-error" | is.nan(fnew)) return(list(p=NA, f=NA, feval=NA, lsflag=1))
-
+if (class(fnew)=="try-error" | is.nan(fnew) ) return(list(p=NA, f=NA, feval=NA, lsflag=1))
 
     if (feval > maxfeval) return(list(p=NA, f=NA, feval=NA, lsflag=2))
 
@@ -93,7 +91,6 @@ feval <- 0
 geval <- 0
 lastfv <- rep(-1.e99, M)
 fbest <- NA
-fchange <- fchg.rel <- 1
 
 if (maximize) func <- function(x, ...) {-1 * fn(x, ...)} 
 else func <- function(x, ...) fn(x, ...)
@@ -109,12 +106,11 @@ return(NULL)
 
 f <- try(func(par, ...),silent=TRUE)      
 feval <- feval + 1
-if (class(f)=="try-error" | is.nan(f) | is.na(f)){
+if (class(f)=="try-error" | is.nan(f) | is.infinite(f) ){
 cat("\n Failure: Error in initial function evaluation! \n")
 return(NULL)
 }
 f0 <- fbest <- f
-
 
 if (is.null(gr)) require(numDeriv)
 
@@ -122,8 +118,7 @@ if (is.null(gr)) g <- try(grad(func=func, x=par, method=grad.method, method.args
 else g <- try(gr(par, ...),silent=TRUE)
 geval <- geval + 1
 
-
-if (class(g)=="try-error" | any(is.nan(g)) | any(is.na(g)) ){
+if (class(g)=="try-error" | any(is.nan(g))  ) {
 cat("\n Failure: Error in initial gradient evaluation! \n")
 return(NULL)
 }
@@ -134,6 +129,12 @@ pg <- par - g
 
 if (is.null(project)) pg <- project.box(pg, lower, upper)
 else pg <- project(pg, ...)
+
+if (class(pg)=="try-error" | any(is.nan(pg))  ) {
+cat("\n Failure: Error in initial projection! \n")
+return(NULL)
+}
+
 pg <- pg - par
 
 pg2n <- sqrt(sum(pg*pg))
@@ -141,8 +142,9 @@ pginfn <- max(abs(pg))
 gbest <- pg2n
 if (pginfn != 0) lambda <- min(lmax, max(lmin, 1/pginfn))
 
-continue <- TRUE
+if (trace) cat("iter: ",0, " f-value: ", f0, " pgrad: ",pginfn, "\n")
 
+continue <- TRUE
 #######################
 #  Main iterative loop
 #######################
@@ -153,7 +155,7 @@ d <- par - lambda * g
 if (is.null(project)) d <- try(project.box(d, lower, upper), silent=TRUE)
 else d <- try(project(d, ...), silent=TRUE)
 
-if (class(d) == "try-error" | any(is.nan(d)) | any(is.na(d))) {
+if (class(d) == "try-error" | any(is.nan(d))  ) {
 lsflag <- 4
 break
 } 
@@ -161,13 +163,16 @@ break
 d <- d - par
 gtd <- sum(g * d)
 
+if(is.infinite(gtd)){
+lsflag <- 4
+break
+}
+
 nmls.ans <- nmls(par, f, d, gtd, lastfv, feval , func, maxfeval, ...)
 lsflag <- nmls.ans$lsflag
 
 if(lsflag != 0) break
  
-fchange <- abs(f - nmls.ans$f)
-fchg.rel <- fchange / abs(f)
 f <- nmls.ans$f 
 pnew <- nmls.ans$p
 feval <- nmls.ans$feval
@@ -177,7 +182,7 @@ if (is.null(gr)) gnew <- try(grad(func=func, x=pnew, method=grad.method, method.
 else gnew <- try(gr(pnew, ...),silent=TRUE)
 geval <- geval + 1
 
-if (class(gnew)=="try-error" | any(is.nan(gnew))){
+if (class(gnew)=="try-error" | any(is.nan(gnew)) ){
 lsflag <- 3
 break
 }
@@ -196,7 +201,6 @@ if (method==1 & (sts==0 | sty < 0)) lambda <- lmax
 if (method==2 & (sty < 0 | yty == 0)) lambda <- lmax
 if (method==3 & (sts==0 | yty == 0)) lambda <- lmax
 
-
 par <- pnew
 g <- gnew
 pg <- par - g
@@ -204,7 +208,7 @@ pg <- par - g
 if (is.null(project)) pg <- try(project.box(pg, lower, upper), silent=TRUE)
 else pg <- try(project(pg, ...), silent=TRUE)
 
-if (class(pg) == "try-error" | any(is.nan(pg)) | any(is.na(pg))) {
+if (class(pg) == "try-error" | any(is.nan(pg)) ) {
 lsflag <- 4
 break
 } 
@@ -215,7 +219,7 @@ pginfn <- max(abs(pg))
 ginfn <- max(abs(g))
 
 f.rep <- (-1)^maximize * f
-if (trace & (iter%%triter == 0)) cat("iter: ",iter, " f-value: ", f.rep, " grad: ",pginfn, "\n")
+if (trace & (iter%%triter == 0)) cat("iter: ",iter, " f-value: ", f.rep, " pgrad: ",pginfn, "\n")
 
 if (f < fbest) {
 fbest <- f
@@ -223,29 +227,27 @@ pbest <- pnew
 gbest <- pginfn
 }
 
-continue <- (fchange > ftol) & (fchg.rel > ftol) & (pginfn > gtol) & (iter <= maxit)
+continue <- (pginfn > gtol) & (iter <= maxit)
 
 }   # while condition loop concludes
 
 if (lsflag==0) {
-if (fchange <= ftol | fchg.rel <= ftol) conv <- list(type=0, message="Successful convergence")
+if (pginfn <= gtol) conv <- list(type=0, message="Successful convergence")
 if (iter >= maxit) conv <- list(type=1, message="Maximum number of iterations exceeded")
-if (pginfn <= gtol & ginfn > gtol) conv <- list(type=3, message="Only projected gradient convergence")
 } else {
-	par <- pbest
-	f.rep <- f <- (-1)^maximize * fbest
-	pginfn <- gbest
-if (lsflag==1) conv <- list(type=4, message="Failure:  Error in function evaluation")
+    par <- pbest
+    f.rep <- f <- (-1)^maximize * fbest
+    pginfn <- gbest
+if (lsflag==1) conv <- list(type=3, message="Failure:  Error in function evaluation")
 if (lsflag==2) conv <- list(type=2, message="Maximum function evals exceeded")
-if (lsflag==3) conv <- list(type=5, message="Failure:  Error in gradient evaluation")
-if (lsflag==4) conv <- list(type=6, message="Failure:  Error in projection")
+if (lsflag==3) conv <- list(type=4, message="Failure:  Error in gradient evaluation")
+if (lsflag==4) conv <- list(type=5, message="Failure:  Error in projection")
 }
 
-absred <- (-1)^maximize * (f0 - f)
-relred <- 1 - ((f0-f)/f0)
+fred <- (-1)^maximize * (f0 - f)
 ginfn <- max(abs(g))
-browser()
-return(list(par=par, value=f.rep, abs.reduction=absred, rel.reduction=relred, grad=pginfn, iter=iter, feval=feval,  
+
+return(list(par=par, value=f.rep, gradient =pginfn, fn.reduction=fred, iter=iter, feval=feval,  
     convergence=conv$type, message=conv$message))
 }
 

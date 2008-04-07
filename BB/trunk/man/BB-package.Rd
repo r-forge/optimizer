@@ -3,9 +3,9 @@
 \alias{BB.Intro}
 \docType{package}
 
-\title{Solving Large-Scale Nonlinear Problems}
+\title{Solving and Optimizing Large-Scale Nonlinear Problems}
 
-\description{Barzilai-Borwein spectral methods for root-finding and optimization in large-scale nonlinear systems.  }
+\description{Non-monotone Barzilai-Borwein spectral methods for the solution and optimization of large-scale nonlinear systems.  }
 
 \details{
 \tabular{ll}{
@@ -16,11 +16,11 @@ License: \tab GPL Version 3.\cr
 The main functions are:
 \preformatted{
 
-sane	  function for solving systems of nonlinear equations using spectral approach
+dfsane  function for solving large systems of nonlinear equations using a derivative-free spectral approach 
 
-dfsane  function for solving systems of nonlinear equations using a derivative-free spectral approach 
+sane	  function for solving large systems of nonlinear equations using spectral approach
 
-spg	  function for spectral projected gradient method for optimization with simple (e.g. box) constraints
+spg	  function for spectral projected gradient method for large-scale optimization with simple constraints
 
 }
 
@@ -44,10 +44,12 @@ Maintainer:Ravi Varadhan <rvaradhan@jhmi.edu> and
 
    W LaCruz, JM Martinez, and M Raydan (2006),  Spectral residual mathod without gradient information for solving large-scale nonlinear systems of equations, \emph{Mathematics of Computation}, 75, 1429-1448. 
 
+   M Raydan (1997),  Barzilai-Borwein gradient method for large-scale unconstrained minimization problem, \emph{SIAM J of Optimization}, 7, 26-33.
+
    R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM 
    algorithm,  \emph{Scandinavian J Statistics}. 
 
-   R Varadhan and P Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for root-finding and optimization in large-scale nonlinear systems, Unpublished.
+   R Varadhan and P Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
 
 }
 \keyword{package}

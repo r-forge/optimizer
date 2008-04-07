@@ -68,7 +68,7 @@ Argument \code{control} is a list specifing any changes to default values of alg
 specified completely.  Partial matching will not work.
 
 \item{M} A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
-in the reduction of $L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
+in the reduction of L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
 enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Values of \code{M} 
 between 5 to 20 are generally good.  The default is \code{M = 10}.  
 
@@ -84,14 +84,15 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
 
 \item{trace} A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of optimization.  Deafult is \code{trace = TRUE}.
 
-\item{triter} An integer that controls the frequency of tracing when \code{trace=TRUE}. Default is \code{triter=10}, which means that
-the objective \code{fn} and the infinity-norm of its projected gradient are printed at every 10-th iteration.   
-
-\item{grad.method} Method to be used for numerical approximation of the gradient.  This uses the function \code{grad} in the 
-package "numDeriv".  Default method is "simple".  This is generally more than adequate.  The other option is to use "Richardson" 
-extrapolation, which is highly accurate, but very time consuming, and is not recommended for large-scale problems. 
-     
-\item{eps} A small positive increment used in finite-difference approximation of gradient by the method "simple".  Default is 1.e-07.
+\item{triter}{An integer that controls the frequency of tracing 
+  when \code{trace=TRUE}. Default is \code{triter=10}, which means that
+  the objective \code{fn} and the infinity-norm of its projected gradient are
+  printed at every 10-th iteration.}   
+\item{grad.method}{Method to be used for numerical approximation of the gradient.  This uses the function \code{grad} in the 
+  package "numDeriv".  Default method is "simple".  This is generally more than adequate.  The other option is to use "Richardson" 
+  extrapolation, which is highly accurate, but very time consuming, and is not recommended for large-scale problems.}   
+\item{eps}{A small positive increment used in finite-difference 
+  approximation of gradient by the method "simple".  Default is 1.e-07.}
 }
 
 \references{   
@@ -179,7 +180,8 @@ hi <- c(0.999, Inf, Inf)
 
 p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # randomly generated starting values
 
-ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T))
+ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, 
+     control=list(maximize=TRUE))
 
 }
 

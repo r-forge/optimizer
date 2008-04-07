@@ -23,7 +23,7 @@ system.time(ans.spg <- spg(par=p0, fn=trig.f, control=list(maxit=2500)))[1]
 system.time(ans.opt <- optim(par=p0, fn=trig.f, method="L-BFGS-B", control=list(lmm=10)))[1]
  
 z <- sum(ans.spg$par)
-good <- 126.5281939440874
+good <- 126.5285048574777
 print(z, digits=16)
 if(any(abs(good - z)/1e3 > fuzz)) stop("BB test trig.f a FAILED")
  

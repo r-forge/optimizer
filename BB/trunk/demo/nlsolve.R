@@ -1,7 +1,10 @@
-if(!require("BB"))stop("this test requires package BB.")
-if(!require("setRNG"))stop("this test requires setRNG.")
+if(!require("BB"))    stop("this requires package BB.")
+if(!require("setRNG"))stop("this requires setRNG.")
 
-iseed <- 1236  # this seed was used for tests conducted on March 25, 2008.  
+# This was used for tests conducted on March 25, 2008, using setRNG(test.rng).  
+#   iseed <- 1236  
+# Replaced with setRNG to ensure rng and normal generators are set too.
+test.rng <- list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=1236)
 
 #
 # Some examples illustrating the use of SANE & DFSANE
@@ -23,7 +26,7 @@ ans4 <- sane(par=p0, fn=expo1)
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
-set.seed(iseed)
+setRNG(test.rng)
 nsim <- 100
 dfsane1.expo1 <- dfsane2.expo1 <- dfsane3.expo1 <- sane.expo1 <- matrix(NA, nsim, 4)
 for (i in 1:nsim) {
@@ -70,7 +73,7 @@ ans4 <- sane(par=p0, fn=expo3)
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
-set.seed(iseed)
+setRNG(test.rng)
 nsim <- 100
 dfsane1.expo3 <- dfsane2.expo3 <- dfsane3.expo3 <- sane.expo3 <- matrix(NA, nsim, 4)
 for (i in 1:nsim) {
@@ -154,7 +157,7 @@ c(ans1$resid, ans2$resid,ans3$resid, ans4$resid)
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
 
-set.seed(iseed)
+setRNG(test.rng)
 nsim <- 100
 dfsane1.trigexp <- dfsane2.trigexp <- dfsane3.trigexp <- sane.trigexp <- matrix(NA, nsim, 4)
 for (i in 1:nsim) {
@@ -204,7 +207,7 @@ c(ans1$resid, ans2$resid,ans3$resid, ans4$resid)
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
 
-set.seed(iseed)
+setRNG(test.rng)
 nsim <- 100
 dfsane1.valley <- dfsane2.valley <- dfsane3.valley <- sane.valley <- matrix(NA, nsim, 4)
 for (i in 1:nsim) {
@@ -249,7 +252,7 @@ ans4 <- sane(par=p0, fn=broydt)
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
-set.seed(iseed)
+setRNG(test.rng)
 nsim <- 100
 dfsane1.broydt <- dfsane2.broydt <- dfsane3.broydt <- sane.broydt <- matrix(NA, nsim, 4)
 for (i in 1:nsim) {
@@ -295,7 +298,7 @@ c(ans1$resid, ans2$resid,ans3$resid, ans4$resid)
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
 
-set.seed(iseed)
+setRNG(test.rng)
 nsim <- 100
 dfsane1.brent <- dfsane2.brent <- dfsane3.brent <- sane.brent <- matrix(NA, nsim, 4)
 for (i in 1:nsim) {
@@ -343,7 +346,7 @@ c(ans1$resid, ans2$resid,ans3$resid, ans4$resid)
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
 
-set.seed(iseed)
+setRNG(test.rng)
 nsim <- 100
 dfsane1.troesch <- dfsane2.troesch <- dfsane3.troesch <- sane.troesch <- matrix(NA, nsim, 4)
 for (i in 1:nsim) {

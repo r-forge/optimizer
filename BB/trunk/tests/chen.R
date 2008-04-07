@@ -21,7 +21,7 @@ system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0))[1]
 system.time(ans.opt <- optim(par=p0, fn=chen.f, lower=0, method="L-BFGS-B"))[1]
  
 z <- sum(ans.spg$par)
-good <- 1801.831961319466
+good <- 533.51137569165
 print(z, digits=16)
 if(any(abs(good - z)/1e4 > fuzz)) stop("BB test chen.f a FAILED")
  

@@ -1,8 +1,14 @@
 ###################################################
-if(!require("BB"))stop("this test requires package BB.")
-if(!require(numDeriv))stop("this test requires package numDeriv.")
+if(!require("BB"))    stop("this requires package BB.")
+if(!require(numDeriv))stop("this requires package numDeriv.")
+if(!require("setRNG"))stop("this requires setRNG.")
 
- fr <- function(x) {   ## Rosenbrock Banana function
+# This was used for tests conducted on March 25, 2008, using setRNG(test.rng).  
+#   iseed <- 1236  
+# Replaced with setRNG to ensure rng and normal generators are set too.
+test.rng <- list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=1236)
+
+fr <- function(x) {   ## Rosenbrock Banana function
     x1 <- x[1]
     x2 <- x[2]
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
@@ -116,6 +122,7 @@ system.time(ans.spg <- spg(par=p0, fn=trig.f, method=2))[1]
 system.time(ans.opt <- optim(par=p0, fn=trig.f, method="L-BFGS-B"))[1]
 
 ##########
+p0 <- rexp(500) # optim fails on this, so
 p0 <- rexp(500)
 system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0))[1]
 system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0, meth=1))[1]

@@ -52,7 +52,7 @@ Argument \code{control} is a list specifing any changes to default values of alg
 specified completely.  Partial matching will not work.
 
 \item{M} A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
-in the reduction of $L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
+in the reduction of L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
 enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Values of \code{M} between 5 to 20 are generally good.  The default is \code{M = 10}.  
 
 \item{maxit} The maximum number of iterations.  The default is \code{maxit = 1500}.
@@ -63,8 +63,8 @@ Deafult is \code{tol = 1.e-07}.
 \item{trace} A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  
 Deafult is \code{trace = TRUE}.
 
-\item{triter} An integer that controls the frequency of tracing when \code{trace=TRUE}. Default is \code{triter=10}, which means that
-the L2-norm of \code{fn} is printed at every 10-th iteration.  
+\item{triter}{An integer that controls the frequency of tracing when \code{trace=TRUE}. Default is \code{triter=10}, which means that
+the L2-norm of \code{fn} is printed at every 10-th iteration.}  
 }
 
 \references{ 

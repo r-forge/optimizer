@@ -22,6 +22,6 @@ expo1 <- function(x) {
 ans <- dfsane(par=runif(100), fn=expo1)
  
 z <- sum(ans$par)
-good <- 99.9952954193
+good <- 99.9944496188613
 print(z, digits=16)
 if(any(abs(good - z)/1e2 > fuzz)) stop("BB test nlsolve FAILED")

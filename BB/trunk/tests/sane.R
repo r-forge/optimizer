@@ -22,6 +22,6 @@ expo1 <- function(x) {
 ans <- sane(par=runif(100), fn=expo1)
  
 z <- sum(ans$par)
-good <- 99.995550714
+good <- 100.0035727552039
 print(z, digits=16)
 if(any(abs(good - z)/1e3 > fuzz)) stop("BB test nlsolve FAILED")

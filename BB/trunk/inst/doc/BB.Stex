@@ -28,7 +28,6 @@ f
 }
 
 p0 <- runif(100)
-nlsolve(par=p0, fn=expo1)
 sane(par=p0, fn=expo1)
 dfsane(par=p0, fn=expo1)
 
@@ -48,7 +47,6 @@ f
 n <-100
 p0 <- (1:n)/(4*n^2)
 p0 <- runif(n)
-nlsolve(par=p0, fn=expo3)
 sane(par=p0, fn=expo3)
 dfsane(par=p0, fn=expo3)
 
@@ -71,7 +69,6 @@ Here p0 gives the zero of the system
 
 \begin{Scode}
 p0 <- c(3,2) 
-nlsolve(par=p0, fn=froth)
 sane(par=p0, fn=froth)
 dfsane(par=p0, fn=froth)
 \end{Scode}
@@ -81,7 +78,6 @@ Here p0 gives the local minimum that is not the zero of the system.
 \begin{Scode}
 
 p0 <- c(1,1)  
-nlsolve(par=p0, fn=froth)
 sane(par=p0, fn=froth)
 dfsane(par=p0, fn=froth)
 \end{Scode}
@@ -91,7 +87,6 @@ Trying random starts
 \begin{Scode}
 
 p0 <- rpois(2,10) 
-nlsolve(par=p0, fn=froth)
 sane(par=p0, fn=froth)
 dfsane(par=p0, fn=froth)
 \end{Scode}
@@ -108,7 +103,6 @@ F
 }
 
 p0 <- runif(100)
-nlsolve(par=p0, fn=trig)
 sane(par=p0, fn=trig)
 dfsane(par=p0, fn=trig)
 \end{Scode}
@@ -128,7 +122,6 @@ F
 }
 
 p0 <- runif(100)
-nlsolve(par=p0, fn=trigexp)
 sane(par=p0, fn=trigexp)
 dfsane(par=p0, fn=trigexp)
 \end{Scode}
@@ -143,7 +136,6 @@ f
 }
 
 p0 <- runif(100)
-nlsolve(par=p0, fn=chen)
 sane(par=p0, fn=chen)
 dfsane(par=p0, fn=chen)
 
@@ -168,7 +160,6 @@ Here the number of variables must be a multiple of 3
 \begin{Scode}
  
 p0 <- runif(102) 
-nlsolve(par=p0, fn=valley)
 sane(par=p0, fn=valley)
 dfsane(par=p0, fn=valley)
 
@@ -183,7 +174,6 @@ f
 }
 
 p0 <- runif(100)
-nlsolve(par=p0, fn=broydt)
 sane(par=p0, fn=broydt)
 dfsane(par=p0, fn=broydt)
 
@@ -202,7 +192,6 @@ brent <- function(x) {
   }
 
 p0 <- runif(100)
-nlsolve(par=p0, fn=brent)
 sane(par=p0, fn=brent)
 dfsane(par=p0, fn=brent, M=10)
 
@@ -221,7 +210,6 @@ troesch <- function(x) {
   }
   
 p0 <- runif(100)
-nlsolve(par=p0, fn=troesch)
 sane(par=p0, fn=troesch)
 dfsane(par=p0, fn=troesch, M=10)
 \end{Scode}

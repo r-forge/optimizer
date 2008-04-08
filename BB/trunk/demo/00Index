@@ -1,2 +1,2 @@
-nlsolve.R	Simple examples to illustrate sane, dfsane
-nlmin.R  	Examples of spg, sane, dfsane with optim comparisons
+nlsolve 	Simple examples to illustrate sane, dfsane
+nlmin 		Examples of spg, sane, dfsane with optim comparisons

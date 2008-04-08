@@ -3,7 +3,8 @@
 \title{Large-Scale Optimization}
 \description{Spectral projected gradient method for large-scale optimization with simple constraints.}
 \usage{
-     spg(par, fn, gr=NULL, method=3, project=NULL, lower=-Inf, upper=Inf, control=list(), ...)
+     spg(par, fn, gr=NULL, method=3, project=NULL, lower=-Inf, upper=Inf, 
+         control=list(), ...)
  }
 \arguments{
     \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
@@ -29,25 +30,29 @@
 
     \item{...}{Additional arguments passed to \code{fn} and/or to \code{project}.}
 }
-\value{ A list with the following components:
-\item{par} Parameters that optimize the nonlinear objective function, if convergence is successful.
+\value{A list with the following components:
+\item{par}{Parameters that optimize the nonlinear objective function, if convergence is successful.}
 
-\item{value} The value of the objective function at termination.
+\item{value}{The value of the objective function at termination.}
 
-\item{gradient} Infinity-norm of the projected gradient of the objective function at termination. If convergence is successful, this should be less than \code{gtol}. 
+\item{gradient}{Infinity-norm of the projected gradient of the objective function at termination. If convergence is successful, this should be less than \code{gtol}.} 
 
-\item{fn.reduction} Reduction in the value of the function from its initial value. This is negative in maximization.
+\item{fn.reduction}{Reduction in the value of the function from its initial value. This is negative in maximization.}
 
-\item{iter} Number of iterations taken by the algorithm.
+\item{iter}{Number of iterations taken by the algorithm.}
 
-\item{feval} Number of times the objective \code{fn} was evaluated
+\item{feval}{Number of times the objective \code{fn} was evaluated.}
 
-\item{convergence} An integer code indicating type of convergence.  \code{0} indicates successful convergence, in which case the \code{resid} is smaller than 
-\code{tol}.  Error codes are: \code{1} indicates that the maximum limit for iterations \code{maxit} has been reached.  \code{2} indicates that 
-maximum limit on function evals has been exceeded.  \code{3} indicates failure due to error in function evaluation. \code{4} indicates 
-failure due to error in gradient evaluation. \code{5} indicates failure due to error in projection.
+\item{convergence}{An integer code indicating type of convergence.  \code{0} 
+  indicates successful convergence, in which case the \code{resid} is smaller 
+  than \code{tol}.  Error codes are: \code{1} indicates that the maximum limit 
+  for iterations \code{maxit} has been reached.  \code{2} indicates that 
+  maximum limit on function evals has been exceeded.  \code{3} indicates 
+  failure due to error in function evaluation. \code{4} indicates failure due 
+  to error in gradient evaluation. \code{5} indicates failure due to error in 
+  projection.}
    
-\item{message} A text message explaining which termination criterion was used.
+\item{message}{A text message explaining which termination criterion was used.}
 }
 
 \details{
@@ -64,33 +69,39 @@ Argument \code{project} currently defaults to "NULL", which allows the user to s
 box constraints.  The user can also provide his/her own projection function to enforce more complicated linear/nonlinear 
 equality/inequality constraints.
  
-Argument \code{control} is a list specifing any changes to default values of algorithm control parameters.  Note that the names of these must be 
-specified completely.  Partial matching will not work.
+Argument \code{control} is a list specifing any changes to default values of 
+algorithm control parameters.  Note that the names of these must be 
+specified completely.  Partial matching will not work. 
+The list items are as follows:
 
-\item{M} A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
+\item{M}{A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
 in the reduction of L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
 enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Values of \code{M} 
-between 5 to 20 are generally good.  The default is \code{M = 10}.  
+between 5 to 20 are generally good.  The default is \code{M = 10}.} 
 
-\item{maxit} The maximum number of iterations.  The default is \code{maxit = 1500}.
+\item{maxit}{The maximum number of iterations.  The default is \code{maxit = 1500}.}
 
-\item{gtol}  Convergence tolerance on the infinity-norm of projected gradient \code{gr} evaluated at the current parameter.  
-Convergence is declared when the infinity-norm of projected gradient is less than \code{gtol}.  Deafult is \code{gtol = 1.e-05}.
+\item{gtol}{Convergence tolerance on the infinity-norm of projected gradient \code{gr} evaluated at the current parameter.  
+Convergence is declared when the infinity-norm of projected gradient is less
+than \code{gtol}.  Default is \code{gtol = 1.e-05}.}
 
-\item{maxfeval} Maximum limit on the number of function evaluations.  Default is \code{maxfeval = 10000}. 
+\item{maxfeval}{Maximum limit on the number of function evaluations.  Default is \code{maxfeval = 10000}.}
 
-\item{maximize} A logical variable indicating whether the objective function is to be maximized.  Default is \code{maximize = FALSE} indicating
-minimization.  For maximization (e.g. log-likelihood maximization in statistical modeling), this may be set to "TRUE".
+\item{maximize}{A logical variable indicating whether the objective function is to be maximized.  Default is \code{maximize = FALSE} indicating
+minimization.  For maximization (e.g. log-likelihood maximization in statistical modeling), this may be set to \code{TRUE}.}
 
-\item{trace} A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of optimization.  Deafult is \code{trace = TRUE}.
+\item{trace}{A logical variable (TRUE/FALSE). If \code{TRUE}, information on 
+  the progress of optimization.  Default is \code{trace = TRUE}.}
 
 \item{triter}{An integer that controls the frequency of tracing 
   when \code{trace=TRUE}. Default is \code{triter=10}, which means that
   the objective \code{fn} and the infinity-norm of its projected gradient are
   printed at every 10-th iteration.}   
+
 \item{grad.method}{Method to be used for numerical approximation of the gradient.  This uses the function \code{grad} in the 
   package "numDeriv".  Default method is "simple".  This is generally more than adequate.  The other option is to use "Richardson" 
   extrapolation, which is highly accurate, but very time consuming, and is not recommended for large-scale problems.}   
+
 \item{eps}{A small positive increment used in finite-difference 
   approximation of gradient by the method "simple".  Default is 1.e-07.}
 }

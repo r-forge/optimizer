@@ -16,12 +16,14 @@ License: \tab GPL Version 3.\cr
 The main functions are:
 \preformatted{
 
-dfsane  function for solving large systems of nonlinear equations using a derivative-free spectral approach 
+dfsane  function for solving large systems of nonlinear equations using a 
+        derivative-free spectral approach 
 
-sane	  function for solving large systems of nonlinear equations using spectral approach
+sane	function for solving large systems of nonlinear equations using 
+        spectral approach
 
-spg	  function for spectral projected gradient method for large-scale optimization with simple constraints
-
+spg	function for spectral projected gradient method for large-scale 
+        optimization with simple constraints
 }
 
 Maintainer:Ravi Varadhan <rvaradhan@jhmi.edu> and 

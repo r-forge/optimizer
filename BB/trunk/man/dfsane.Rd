@@ -17,29 +17,34 @@
  
     \item{...}{Additional arguments passed to \code{fn}.} 
 }
-\value{ A list with the following components:
-\item{par} The best set of parameters that solves the nonlinear system
+\value{A list with the following components:
+\item{par}{The best set of parameters that solves the nonlinear system.}
 
-\item{residual} L2-norm of the function at convergence, divided by \sqrt(npar), where "npar" is the number of parameters.
+\item{residual}{L2-norm of the function at convergence, divided by sqrt(npar),
+  where "npar" is the number of parameters.}
 
-\item{fn.reduction} Reduction in the L2-norm of the function from the initial L2-norm
+\item{fn.reduction}{Reduction in the L2-norm of the function from the initial
+  L2-norm.}
 
-\item{feval} Number of times \code{fn} was evaluated
+\item{feval}{Number of times \code{fn} was evaluated.}
 
-\item{iter} Number of iterations taken by the algorithm.
+\item{iter}{Number of iterations taken by the algorithm.}
 
-\item{convergence} An integer code indicating type of convergence.  \code{0} indicates successful convergence, in which case the \code{resid} is smaller than 
-\code{tol}.  Error codes are \code{1} indicates that the iteration limit \code{maxit} has been reached.  \code{2} indicates failure due to an error in function evaluation.  
-\code{3} indicates failure due to exceeding 100 steplength reductions in line-search.   
+\item{convergence}{An integer code indicating type of convergence.  \code{0} 
+  indicates successful convergence, in which case the \code{resid} is smaller 
+  than \code{tol}. Error codes are \code{1} indicates that the iteration 
+  limit \code{maxit} has been reached.  \code{2} indicates failure due to an 
+  error in function evaluation.  \code{3} indicates failure due to 
+  exceeding 100 steplength reductions in line-search.}  
 
-\item{message} A text message explaining which termination criterion was used.
-
+\item{message}{A text message explaining which termination criterion was used.}
 }
 
 \details{
- The function \code{dfsane} is another algorithm for implementing non-monotone spectral residual method for finding a root of nonlinear systems, by working without gradient information.  
+The function \code{dfsane} is another algorithm for implementing non-monotone spectral residual method for finding a root of nonlinear systems, by working without gradient information.  
 It stands for "derivative-free spectral approach for nonlinear equations". It differs from the function \code{sane} in that \code{sane} requires an approximation 
-of a directional derivative at every iteration of the merit function $F(x)^t F(x)$.
+of a directional derivative at every iteration of the merit 
+function \eqn{F(x)^t F(x)}, where \eqn{F} is specified by the argument \code{fn}.
 
 R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins University (March 25, 2008), from the original FORTRAN code of La Cruz, Martinez, and Raydan (2006).  
 
@@ -52,19 +57,22 @@ steplength schemes perform better.  Therefore, if the default does not perform w
 
 Argument \code{control} is a list specifing any changes to default values of algorithm control parameters.  Note that the names of these must be 
 specified completely.  Partial matching does not work.
+The list items are as follows:
 
-\item{M} A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
-in the reduction of L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
+\item{M}{A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
+in the reduction of L2-norm of \eqn{F}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
 enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Values of \code{M} 
-between 5 to 20 are generally good.  The default is \code{M = 10}.  
+between 5 to 20 are generally good.  The default is \code{M = 10}.} 
 
-\item{maxit} The maximum number of iterations.  The default is \code{maxit = 1500}.
+\item{maxit}{The maximum number of iterations.  The default is \code{maxit = 1500}.}
 
-\item{tol}  The absolute convergence tolerance on the residual L2-norm of \code{fn}.  Convergence is declared when $\|F(x)\| / \sqrt(npar) < \mbox{tol}$.  
-Deafult is \code{tol = 1.e-07}.
+\item{tol}{The absolute convergence tolerance on the residual L2-norm 
+  of \eqn{F}.  Convergence is declared 
+  when \eqn{\|F(x)\| / \sqrt(npar) < \mbox{tol}}{sum(F(x)^2) / sqrt(npar) < tol}.  
+Default is \code{tol = 1.e-07}.}
 
-\item{trace} A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  
-Deafult is \code{trace = TRUE}.
+\item{trace}{A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  
+Default is \code{trace = TRUE}.}
 
 \item{triter}{An integer that controls the frequency of tracing when \code{trace=TRUE}. Default is \code{triter=10}, which means that
 the L2-norm of \code{fn} is printed at every 10-th iteration.}

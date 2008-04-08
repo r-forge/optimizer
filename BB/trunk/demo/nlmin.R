@@ -3,10 +3,12 @@ if(!require("BB"))    stop("this requires package BB.")
 if(!require(numDeriv))stop("this requires package numDeriv.")
 if(!require("setRNG"))stop("this requires setRNG.")
 
-# This was used for tests conducted on March 25, 2008, using setRNG(test.rng).  
+# This was used for tests conducted on March 25, 2008, using set.seed(test.rng).  
 #   iseed <- 1236  
-# Replaced with setRNG to ensure rng and normal generators are set too.
+# Replaced April 7, 2008, with setRNG to ensure rng and normal generators are set too.
 test.rng <- list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=1236)
+setRNG(test.rng)
+
 
 fr <- function(x) {   ## Rosenbrock Banana function
     x1 <- x[1]
@@ -122,7 +124,6 @@ system.time(ans.spg <- spg(par=p0, fn=trig.f, method=2))[1]
 system.time(ans.opt <- optim(par=p0, fn=trig.f, method="L-BFGS-B"))[1]
 
 ##########
-p0 <- rexp(500) # optim fails on this, so
 p0 <- rexp(500)
 system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0))[1]
 system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0, meth=1))[1]
@@ -179,7 +180,6 @@ t.spg <- system.time(ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, u
 ans.opt <- optim(par=p0, fn=poissmix.loglik, y=y, method="L-BFGS-B", lower=lo, upper=hi, 
 	control=list(fnscale=-1))
 
-library(numDeriv)
 grad(ans.spg$par, func=poissmix.loglik, y=y)
 grad(ans.opt$par, func=poissmix.loglik, y=y)
 
@@ -254,7 +254,6 @@ t.spg <- system.time(ans.spg <- spg(par=p0, fn=vmmix.loglik, y=y, lower=lo, uppe
 ans.opt <- optim(par=p0, fn=vmmix.loglik, y=y, method="L-BFGS-B", lower=lo, upper=hi, 
 control=list(fnscale=-1))
 
-library(numDeriv)
 grad(ans.spg$par, func=vmmix.loglik, y=y)
 grad(ans.opt$par, func=vmmix.loglik, y=y)
 

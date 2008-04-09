@@ -1,6 +1,8 @@
 Package: BB
-Title: Barzilai-Borwein Optimization
-Description: Large-scale optimization and root-finding.
+Title: Barzilai-Borwein Spectral Methods
+Description: Barzilai-Borwein Spectral Methods for solving nonlinear system of 
+ equations, and for optimizing nonlinear objective functions subject to simple 
+ constraints.
 Depends: R (>= 2.6.1)
 Suggests: numDeriv, setRNG
 Version: 2008.4-1

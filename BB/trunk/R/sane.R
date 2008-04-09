@@ -82,8 +82,8 @@
 
       F <- try (fn(par, ...))
 
-    if (class(F) == "try-error" | any(is.nan(F)) | any(is.infinite(F)) ) {
-    cat(" Failure: Error in initial functional evaluation ")
+    if (class(F) == "try-error" | any(is.nan(F)) | any(is.infinite(F)) | any(is.na(F)) ) {
+    cat(" Failure: Error in initial functional evaluation \n Try another initial value \n")
     return(NULL)
     } else F0 <- normF <- sqrt(sum(F * F))
 

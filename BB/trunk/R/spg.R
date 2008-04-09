@@ -99,14 +99,14 @@ else func <- function(x, ...) fn(x, ...)
 if (is.null(project)) par <- try(project.box(par, lower, upper), silent=TRUE) 
 else par <- try(project(par, ...), silent=TRUE)
 
-if (class(par) == "try-error" | any(is.nan(par)) | any(is.na(par))) {
+if (class(par) == "try-error" | any(is.nan(par)) | any(is.na(par)) ) {
 cat("\n Failure: Error in projecting initial guess! \n ")
 return(NULL)
 } else pbest <- par
 
 f <- try(func(par, ...),silent=TRUE)      
 feval <- feval + 1
-if (class(f)=="try-error" | is.nan(f) | is.infinite(f) ){
+if (class(f)=="try-error" | is.nan(f) | is.infinite(f) | is.na(f) ){
 cat("\n Failure: Error in initial function evaluation! \n")
 return(NULL)
 }

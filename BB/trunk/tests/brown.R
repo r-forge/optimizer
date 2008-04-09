@@ -1,5 +1,5 @@
 # test results in these files are indicated for
-# Windows 
+# Windows WP Professional v5.1 SP2
 # Linux32 Ubuntu 7.10 desktop 32 bit kernel 2.6.22-14-generic on Intel Pentium
 # Linux64 Gentoo   64 bit kernel 2.6.17-gentoo-r8 on AMD 64 X2
 

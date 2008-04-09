@@ -31,11 +31,13 @@ system.time(ans.opt <- optim(par=p0, fn=valley.f, method="L-BFGS-B"))[1]
 z <- sum(ans.spg$par)
 good   <-   241.009141443883
 #on Windows 241.2804198777626
+#on Linux64 241.2805099444485
 print(z, digits=16)
 #if(any(abs(good - z) > 1)) stop("BB test valley.f b FAILED")
  
 z <- sum(ans.opt$par)
 good   <-   241.285235502392
 #on Windows 241.2835414743444
+#on Linux64 241.285235502392
 print(z, digits=16)
 if(any(abs(good - z) > 1e-2)) stop("BB test valley.f b FAILED")

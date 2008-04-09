@@ -44,6 +44,7 @@ system.time(ans.opt <- optim(par=p0, fn=sc2.f, method="L-BFGS-B"))[1]
 z <- sum(ans.opt$par)
 good   <-   0.02209066162550582
 #on Windows 0.02209186415471651
+#on Linux64 0.02209066162550582
 print(z, digits=16)
 if(any(abs(good - z) > 1e-4)) stop("BB test sc2 c FAILED")
 
@@ -52,5 +53,6 @@ system.time(ans.opt <- optim(par=p0, fn=sc2.f, gr=sc2.g, method="L-BFGS-B"))[1]
 z <- sum(ans.opt$par)
 good   <-   0.02200130759852783
 #on Windows 0.02200130758634488
+#on Linux64 0.02200130759852783
 print(z, digits=16)
 if(any(abs(good - z) > 1e-9)) stop("BB test sc2 d FAILED")

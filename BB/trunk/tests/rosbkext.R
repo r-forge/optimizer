@@ -23,11 +23,13 @@ system.time(ans.opt <- optim(par=p0, fn=rosbkext.f, method="L-BFGS-B"))[1]
 z <- sum(ans.spg$par)
 good   <-   49.8172654821777
 #on Windows 49.9974818749182
+#on Linux64 49.9899945524414
 print(z, digits=16)
 if(any(abs(good - z) > 1)) stop("BB test rosbkext.f FAILED")
 
 z <- sum(ans.opt$par)
 good   <-   18.30019275224842
 #on Windows 18.37940307100988 
+#on Linux64 18.30019275224842
 print(z, digits=16)
 if(any(abs(good - z) > 1e-1)) stop("BB test rosbkext.f FAILED")

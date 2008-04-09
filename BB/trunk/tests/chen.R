@@ -22,12 +22,14 @@ system.time(ans.opt <- optim(par=p0, fn=chen.f, lower=0, method="L-BFGS-B"))[1]
 z <- sum(ans.spg$par)
 good   <-   533.51137569165
 #on Windows 533.5113756719724
+#on Linux64 533.51137569165
 print(z, digits=16)
 if(any(abs(good - z) > 1e-7)) stop("BB test chen.f a FAILED")
  
 z <- sum(ans.opt$par)
 good   <-   2243.132018091285
 #on Windows 2243.132049338848
+#on Linux64 2243.132018091285
 print(z, digits=16)
 if(any(abs(good - z) > 1e-4)) stop("BB test chen.f b FAILED")
 

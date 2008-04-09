@@ -86,11 +86,13 @@ go <- grad(ans.opt$par, func=vmmix.loglik, y=y)
 z <- sum(gs)
 good   <-   -0.05541208193966243
 #on Windows -0.00016745341957699
+#on Linux64 -0.0001803984142419232
 print(z, digits=16)
 if(any(abs(good - z) > 1e-1)) stop("BB test vmmix.loglik a FAILED")
  
 z <- sum(go )
-good   <-    -0.02992184037618598
-#on Windows  -0.02989100666129558
+good   <-   -0.02992184037618598
+#on Windows -0.02989100666129558
+#on Linux64 -0.02992184037618598
 print(z, digits=16)
 if(any(abs(good - z) > 1e-3)) stop("BB test vmmix.loglik  b FAILED")

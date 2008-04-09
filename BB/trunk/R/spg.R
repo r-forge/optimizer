@@ -100,16 +100,14 @@ if (is.null(project)) par <- try(project.box(par, lower, upper), silent=TRUE)
 else par <- try(project(par, ...), silent=TRUE)
 
 if (class(par) == "try-error" | any(is.nan(par)) | any(is.na(par)) ) {
-cat("\n Failure: Error in projecting initial guess! \n ")
-return(NULL)
+   stop("Failure in projecting initial guess!")
 } else pbest <- par
 
 f <- try(func(par, ...),silent=TRUE)      
 feval <- feval + 1
 if (class(f)=="try-error" | is.nan(f) | is.infinite(f) | is.na(f) ){
-cat("\n Failure: Error in initial function evaluation! \n")
-return(NULL)
-}
+  stop("Failure in initial function evaluation!")
+  }
 f0 <- fbest <- f
 
 if (is.null(gr)) require(numDeriv)
@@ -119,9 +117,8 @@ else g <- try(gr(par, ...),silent=TRUE)
 geval <- geval + 1
 
 if (class(g)=="try-error" | any(is.nan(g))  ) {
-cat("\n Failure: Error in initial gradient evaluation! \n")
-return(NULL)
-}
+  stop("Failure in initial gradient evaluation!")
+  }
 
 lastfv[1] <- f
 fbest <- f
@@ -131,9 +128,8 @@ if (is.null(project)) pg <- project.box(pg, lower, upper)
 else pg <- project(pg, ...)
 
 if (class(pg)=="try-error" | any(is.nan(pg))  ) {
-cat("\n Failure: Error in initial projection! \n")
-return(NULL)
-}
+  stop("Failure in initial projection!")
+  }
 
 pg <- pg - par
 

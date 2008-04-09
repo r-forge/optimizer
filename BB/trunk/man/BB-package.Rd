@@ -51,7 +51,7 @@ Maintainer:Ravi Varadhan <rvaradhan@jhmi.edu> and
    R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM 
    algorithm,  \emph{Scandinavian J Statistics}. 
 
-   R Varadhan and P Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
+   R Varadhan and PD Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
 
 }
 \keyword{package}

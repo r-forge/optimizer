@@ -80,12 +80,12 @@
     lastfv <- rep(0, M)
     stagn <- FALSE
 
-      F <- try (fn(par, ...))
+    F <- try (fn(par, ...))
 
     if (class(F) == "try-error" | any(is.nan(F)) | any(is.infinite(F)) | any(is.na(F)) ) {
-    cat(" Failure: Error in initial functional evaluation \n Try another initial value \n")
-    return(NULL)
-    } else F0 <- normF <- sqrt(sum(F * F))
+      stop(" Failure in initial functional evaluation. Try another initial value.")
+      } 
+    else F0 <- normF <- sqrt(sum(F * F))
 
     if (trace) cat("Iteration: ", 0, " ||F(x0)||: ", F0, "\n")
 

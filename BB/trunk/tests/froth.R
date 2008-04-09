@@ -27,6 +27,7 @@ z <- sum(ans.spg$par)
 good   <-   10.51597043896899
 #on Windows 10.51597043896899
 #on Linux64 10.51597043896899
+#on Linux32 10.51597043896899
 print(z, digits=16)
 if(any(abs(good - z) > 1e-12)) stop("BB test froth a FAILED")
  
@@ -34,5 +35,6 @@ z <- sum(ans.opt$par)
 good    <-  9.00000701456296
 #on Windows 9.00000701456296
 #on Linux64 9.00000701456296
+#on Linux32 9.00000701456296
 print(z, digits=16)
 if(any(abs(good - z) > 1e-12)) stop("BB test froth  b FAILED")

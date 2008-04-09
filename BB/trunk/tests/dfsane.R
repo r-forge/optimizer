@@ -24,5 +24,6 @@ z <- sum(ans$par)
 good   <-   99.9944496188613
 #on Windows 99.9944496188436
 #on Linux64 99.9944496188613
+#on Linux32 99.9944496188436
 print(z, digits=16)
 if(any(abs(good - z) > 1e-10)) stop("BB test dfsane FAILED")

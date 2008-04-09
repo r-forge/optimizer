@@ -28,6 +28,7 @@ z <- sum(ans.spg$par)
 good   <-   98.55031219348329
 #on Windows 98.513096595265
 #on Linux64 98.55031219348329
+#on Linux32 98.6221556927617
 print(z, digits=16)
 if(any(abs(good - z) > 1e-1)) stop("BB test broydt.f a FAILED")
  
@@ -35,5 +36,6 @@ z <- sum(ans.opt$par)
 good   <-   111.5078705487698
 #on Windows 111.5442515847844
 #on Linux64 111.5078705487698
+#on Linux32 111.5128927193081
 print(z, digits=16)
 if(any(abs(good - z) > 1e-1)) stop("BB test broydt.f b FAILED")

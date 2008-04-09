@@ -25,6 +25,7 @@ z <- sum(ans.spg$par)
 good   <-   126.5285048574777
 #on Windows 126.5285707910017
 #on Linux64 126.5285048574777
+#on Linux32 126.5285013419033
 print(z, digits=16)
 if(any(abs(good - z) > 1e-4)) stop("BB test trig.f a FAILED")
  
@@ -32,5 +33,6 @@ z <- sum(ans.opt$par)
 good   <-   126.6745362827593
 #on Windows 126.6745362708396 
 #on Linux64 126.6745362827593
+#on Linux32 126.6745362418508
 print(z, digits=16)
 if(any(abs(good - z) > 1e-7)) stop("BB test trig.f b FAILED")

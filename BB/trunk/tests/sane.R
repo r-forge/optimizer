@@ -24,5 +24,6 @@ z <- sum(ans$par)
 good   <-   100.0035727552039
 #on Windows 100.0004769108742 
 #on Linux64 100.0035727552039
+#on Linux32 100.0002196399214
 print(z, digits=16)
 if(any(abs(good - z) > 1e-2)) stop("BB test sane FAILED")

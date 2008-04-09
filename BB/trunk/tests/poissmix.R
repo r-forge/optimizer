@@ -41,9 +41,10 @@ gs <- grad(ans.spg$par, func=poissmix.loglik, y=y)
 go <- grad(ans.opt$par, func=poissmix.loglik, y=y)
 
 z <- sum(gs)
-good   <-   -8.31481710645436e-05
+good   <-   -5.67754925616287e-05
 #on Windows -4.71930879954166e-05
 #on Linux64 -5.67754925616287e-05
+#on Linux32 -5.977318565483925e-05
 print(z, digits=16)
 if(any(abs(good - z) > 1e-4)) stop("BB test poissmix.loglik a FAILED")
  
@@ -51,5 +52,6 @@ z <- sum(go)
 good   <-   -0.02406681796932953
 #on Windows -0.02406681567531174
 #on Linux64 -0.02406681796932953
+#on Linux32 -0.02406680917045426
 print(z, digits=16)
 if(any(abs(good - z) > 1e-7)) stop("BB test poissmix.loglik  b FAILED")

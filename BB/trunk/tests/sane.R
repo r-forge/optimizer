@@ -1,4 +1,3 @@
-fuzz <- 1e-1 #1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -22,6 +21,7 @@ expo1 <- function(x) {
 ans <- sane(par=runif(100), fn=expo1)
  
 z <- sum(ans$par)
-good <- 100.0035727552039
+good   <-   100.0035727552039
+#on Windows 100.0004769108742 
 print(z, digits=16)
-if(any(abs(good - z)/1e3 > fuzz)) stop("BB test nlsolve FAILED")
+if(any(abs(good - z) > 1e-2)) stop("BB test sane FAILED")

@@ -1,4 +1,3 @@
-fuzz <- 1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -21,12 +20,14 @@ system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0))[1]
 system.time(ans.opt <- optim(par=p0, fn=chen.f, lower=0, method="L-BFGS-B"))[1]
  
 z <- sum(ans.spg$par)
-good <- 533.51137569165
+good   <-   533.51137569165
+#on Windows 533.5113756719724
 print(z, digits=16)
-if(any(abs(good - z)/1e4 > fuzz)) stop("BB test chen.f a FAILED")
+if(any(abs(good - z) > 1e-7)) stop("BB test chen.f a FAILED")
  
 z <- sum(ans.opt$par)
-good <- 2243.132018091285
+good   <-   2243.132018091285
+#on Windows 2243.132049338848
 print(z, digits=16)
-if(any(abs(good - z)/1e4 > fuzz)) stop("BB test chen.f b FAILED")
+if(any(abs(good - z) > 1e-4)) stop("BB test chen.f b FAILED")
 

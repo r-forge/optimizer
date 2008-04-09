@@ -1,4 +1,3 @@
-fuzz <- 1e-1 #1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -85,11 +84,13 @@ gs <- grad(ans.spg$par, func=vmmix.loglik, y=y)
 go <- grad(ans.opt$par, func=vmmix.loglik, y=y)
 
 z <- sum(gs)
-good <- -0.05541208193966243
+good   <-   -0.05541208193966243
+#on Windows -0.00016745341957699
 print(z, digits=16)
-#if(any(abs(good - z) > fuzz)) stop("BB test vmmix.loglik a FAILED")
+if(any(abs(good - z) > 1e-1)) stop("BB test vmmix.loglik a FAILED")
  
 z <- sum(go )
-good <- -0.02992184037618598
+good   <-    -0.02992184037618598
+#on Windows  -0.02989100666129558
 print(z, digits=16)
-if(any(abs(good - z) > fuzz)) stop("BB test vmmix.loglik  b FAILED")
+if(any(abs(good - z) > 1e-3)) stop("BB test vmmix.loglik  b FAILED")

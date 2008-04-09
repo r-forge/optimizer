@@ -1,4 +1,3 @@
-fuzz <- 1e-2 #1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -42,11 +41,13 @@ gs <- grad(ans.spg$par, func=poissmix.loglik, y=y)
 go <- grad(ans.opt$par, func=poissmix.loglik, y=y)
 
 z <- sum(gs)
-good <- -8.31481710645436e-05
+good   <-   -8.31481710645436e-05
+#on Windows -4.71930879954166e-05
 print(z, digits=16)
-if(any(abs(good - z) > fuzz)) stop("BB test poissmix.loglik a FAILED")
+if(any(abs(good - z) > 1e-4)) stop("BB test poissmix.loglik a FAILED")
  
 z <- sum(go)
-good <- -0.02406681796932953
+good   <-   -0.02406681796932953
+#on Windows -0.02406681567531174
 print(z, digits=16)
-if(any(abs(good - z) > fuzz)) stop("BB test poissmix.loglik  b FAILED")
+if(any(abs(good - z) > 1e-7)) stop("BB test poissmix.loglik  b FAILED")

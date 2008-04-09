@@ -1,4 +1,3 @@
-fuzz <- 1e-3 # 1e-10
 options(digits=12)
 if(!require("BB"))stop("this test requires package BB.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -23,14 +22,16 @@ p0 <- rnorm(500,sd=2)
 system.time(ans.spg <- spg(par=p0, fn=brown.f, control=list(maxit=2500)))[1]
 
 z <- sum(ans.spg $par)
-good <- -2.499964717600124e-05
+good  <-     -2.499964717600124e-05 
+# on Windows -3.337359033283664e-05
+
 print(z, digits=16)
-if(any(abs(good - z) > fuzz)) stop("BB test brown.f a FAILED")
+if(any(abs(good - z) > 1e-4)) stop("BB test brown.f a FAILED")
 
 system.time(ans.opt <- optim(par=p0, fn=brown.f, method="L-BFGS-B"))[1]
 
 z <- sum(ans.opt $par)
-good <- 0.00898911426823444
+good   <-     0.00898911426823444
+# on Windows  0.00898911689533186
 print(z, digits=16)
-if(any(abs(good - z) > fuzz)) stop("BB test brown.f b FAILED")
-
+if(any(abs(good - z) > 1e-7)) stop("BB test brown.f b FAILED")

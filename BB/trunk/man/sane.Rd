@@ -21,7 +21,7 @@
 \item{par}{The best set of parameters that solves the nonlinear system.}
 
 \item{residual}{L2-norm of the function evaluated at \code{par}, divided
-  by s\code{qrt(npar)}, where \code{npar} is the number of parameters.}
+  by \code{sqrt(npar)}, where \code{npar} is the number of parameters.}
 
 \item{fn.reduction}{Reduction in the L2-norm of the function from the initial
   L2-norm.}
@@ -65,7 +65,7 @@ enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-
 
 \item{tol}{The absolute convergence tolerance on the residual L2-norm 
   of \code{fn}. Convergence is declared when 
-  \eqn{\|F(x)\| / \sqrt(npar) < \mbox{tol}}{abs(F(x)) * sqrt(npar) < tol}.  
+  \eqn{\|F(x)\| / \sqrt(npar) < \mbox{tol}}{abs(F(x)) / sqrt(npar) < tol}.  
 Default is \code{tol = 1.e-07}.}
 
 \item{trace}{A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  
@@ -83,9 +83,9 @@ the L2-norm of \code{fn} is printed at every 10-th iteration.}
 
    W LaCruz, and M Raydan (2003),  Nonmonotone spectral methods for large-scale nonlinear systems, \emph{Optimization Methods and Software}, 18, 583-599. 
 
-   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}. 
+   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}, doi: 10.1111/j.1467-9469.2007.00585.x.  
 
-   R Varadhan and P Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
+   R Varadhan and P Gilbert (2008),  BB: An R package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
 
 }
 

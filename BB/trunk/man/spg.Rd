@@ -62,8 +62,8 @@ A major modification in our R adaptation of the original FORTRAN code is the ava
 steplength used in Birgin, Martinez and Raydan (2000);  \code{method = 2} is the other steplength proposed in Barzilai and Borwein's (1988) original paper.  
 Finally, \code{method = 3}, is a new steplength, which was first proposed in Varadhan and Roland (2008) for accelerating the EM algorithm.  
 In fact, Varadhan and Roland (2008) considered 3 similar steplength schemes in their EM acceleration work.  Here, we have chosen \code{method = 3} 
-as the "default" method, since it exhibited more reliable convergence to a better optimum in our experiments.  However, we recommend that the user 
-try the other steplength schemes if the default method does not perform well in their problem.  
+as the "default" method.  This method may be slightly slower than the other 2 BB steplength schemes, but it generally exhibited more reliable convergence to a better optimum in our experiments.  
+We recommend that the user try the other steplength schemes if the default method does not perform well in their problem.  
 
 Argument \code{project} currently defaults to "NULL", which allows the user to specify \code{lower} and \code{upper} arguments to enforce 
 box constraints.  The user can also provide his/her own projection function to enforce more complicated linear/nonlinear 
@@ -90,8 +90,7 @@ than \code{gtol}.  Default is \code{gtol = 1.e-05}.}
 \item{maximize}{A logical variable indicating whether the objective function is to be maximized.  Default is \code{maximize = FALSE} indicating
 minimization.  For maximization (e.g. log-likelihood maximization in statistical modeling), this may be set to \code{TRUE}.}
 
-\item{trace}{A logical variable (TRUE/FALSE). If \code{TRUE}, information on 
-  the progress of optimization.  Default is \code{trace = TRUE}.}
+\item{trace}{A logical variable (TRUE/FALSE). If \code{TRUE}, information on the progress of optimization is printed.  Default is \code{trace = TRUE}.}
 
 \item{triter}{An integer that controls the frequency of tracing 
   when \code{trace=TRUE}. Default is \code{triter=10}, which means that
@@ -115,9 +114,9 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
 
    M Raydan (1997),  Barzilai-Borwein gradient method for large-scale unconstrained minimization problem, \emph{SIAM J of Optimization}, 7, 26-33.
 
-   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}. 
+   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}, doi: 10.1111/j.1467-9469.2007.00585.x.  
 
-   R Varadhan and P Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
+   R Varadhan and P Gilbert (2008),  BB: An R package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
 
 }
 \seealso{

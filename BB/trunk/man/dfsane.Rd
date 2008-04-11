@@ -68,7 +68,7 @@ between 5 to 20 are generally good.  The default is \code{M = 10}.}
 
 \item{tol}{The absolute convergence tolerance on the residual L2-norm 
   of \eqn{F}.  Convergence is declared 
-  when \eqn{\|F(x)\| / \sqrt(npar) < \mbox{tol}}{sum(F(x)^2) / sqrt(npar) < tol}.  
+  when \eqn{\|F(x)\| / \sqrt(npar) < \mbox{tol}}{sum(F(x)^2) / npar < tol^2}.  
 Default is \code{tol = 1.e-07}.}
 
 \item{trace}{A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  
@@ -84,11 +84,11 @@ the L2-norm of \code{fn} is printed at every 10-th iteration.}
 
    L Grippo, F Lampariello, and S Lucidi (1986),  A nonmonotone line search technique for Newton's method,  \emph{SIAM J on Numerical Analysis}, 23, 707-716. 
 
-   W LaCruz, JM Martinez, and M Raydan (2006),  Spectral residual mathod without gradient information for solving large-scale nonlinear systems of equations, \emph{Mathematics of Computation}, 75, 1429-1448. 
+   W LaCruz, JM Martinez, and M Raydan (2006),  Spectral residual method without gradient information for solving large-scale nonlinear systems of equations, \emph{Mathematics of Computation}, 75, 1429-1448. 
 
-   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}. 
+   R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}, doi: 10.1111/j.1467-9469.2007.00585.x. 
 
-   R Varadhan and P Gilbert (2008),  BB: A package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems,  \emph{Unpublished}. 
+   R Varadhan and P Gilbert (2008),  BB: An R package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems,  \emph{Unpublished}. 
 
 }
 

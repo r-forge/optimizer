@@ -140,11 +140,10 @@ if (pginfn != 0) lambda <- min(lmax, max(lmin, 1/pginfn))
 
 if (trace) cat("iter: ",0, " f-value: ", f0, " pgrad: ",pginfn, "\n")
 
-continue <- TRUE
 #######################
 #  Main iterative loop
 #######################
-while(continue) {
+while( pginfn > gtol & iter <= maxit ) {
 iter <- iter + 1
 d <- par - lambda * g
 
@@ -212,7 +211,6 @@ break
 pg <- pg - par
 pg2n <- sqrt(sum(pg*pg))
 pginfn <- max(abs(pg))
-ginfn <- max(abs(g))
 
 f.rep <- (-1)^maximize * f
 if (trace & (iter%%triter == 0)) cat("iter: ",iter, " f-value: ", f.rep, " pgrad: ",pginfn, "\n")
@@ -222,8 +220,6 @@ fbest <- f
 pbest <- pnew
 gbest <- pginfn
 }
-
-continue <- (pginfn > gtol) & (iter <= maxit)
 
 }   # while condition loop concludes
 
@@ -241,7 +237,6 @@ if (lsflag==4) conv <- list(type=5, message="Failure:  Error in projection")
 }
 
 fred <- (-1)^maximize * (f0 - f)
-ginfn <- max(abs(g))
 
 return(list(par=par, value=f.rep, gradient =pginfn, fn.reduction=fred, iter=iter, feval=feval,  
     convergence=conv$type, message=conv$message))

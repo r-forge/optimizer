@@ -1,60 +1,49 @@
  sane <- function(par, fn, method=1, control=list(), ...) {
-############################################################
-# Non-monotone spectral method for finding a root of nonlinear systems
-# LaCruz and Raydan M (Optimization Methods and Software 2003): 
-###############################################
-#
-# R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins University, March 25, 2008.
-#
-#   Most important modification is the availability of different options for Barzilai-Borwein steplengths
-#   Three different Barzilai-Borwein steplength options can be chosen.
-#   method = 1 is the steplength used in LaCruz, Martinez, and Raydan (2006)  
-#   method = 2 is another BB steplength proposed in Barzilai and Borwein's (1988) original paper 
-#   method = 3, is a new steplength, first proposed in Varadhan and Roland (2008).
-#
-#   Note that method = 1 is the "default" ; however, there doesn't seem to be much difference between 3 schemes
-#
-# Please refer to Varadhan and Gilbert (2008, unpublished) for details
-#
-################################################
-    ctrl <- list(M=10, maxit=1500, tol=1e-07, trace=TRUE, triter=10) # defaults
-    ctrl[names(control)] <- control
-    M     <- ctrl$M
-    maxit <- ctrl$maxit
-    tol   <- ctrl$tol
-    trace <- ctrl$trace
-    triter <- ctrl$triter
+
+  # control defaults
+  ctrl <- list(M=10, maxit=1500, tol=1e-07, trace=TRUE, triter=10) 
+  namc <- names(control)
+  if (! all(namc %in% names(ctrl)) )
+     stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
+
+  ctrl[namc ] <- control
+  M	 <- ctrl$M
+  maxit  <- ctrl$maxit
+  tol	 <- ctrl$tol
+  trace  <- ctrl$trace
+  triter <- ctrl$triter
 
 ######################################
 #  local function
 #  non-monotone line search of Grippo
-     lineSearch <- function(x, fn, F, fval, dg, M, lastfv, sgn, lambda, 
+lineSearch <- function(x, fn, F, fval, dg, M, lastfv, sgn, lambda, 
                      fcnt, bl, ...) {
-######################################
-    maxbl <- 100
-    gamma <- 1.e-04
-    sigma1 <- 0.1
-    sigma2 <- 0.5
-    cbl <- 0
-    fmax <- max(lastfv)
-    gpd <- -2 * abs(dg)
-    
-#     Main loop
-    while (cbl < maxbl) {
+  maxbl <- 100
+  gamma <- 1.e-04
+  sigma1 <- 0.1
+  sigma2 <- 0.5
+  cbl <- 0
+  fmax <- max(lastfv)
+  gpd <- -2 * abs(dg)
+  
+  #    line search Main loop
+  while (cbl < maxbl) {
 
     xnew <-  x + lambda* sgn * F
 
     Fnew <- try(fn(xnew, ...))
-        fcnt = fcnt + 1
+    fcnt = fcnt + 1
 
-    if (class(Fnew) == "try-error" | any(is.nan(Fnew)) ) return(list(xnew=NA, Fnew=NA, fcnt=fcnt, bl=bl, lsflag=1, fune=NA))
+    if (class(Fnew) == "try-error" | any(is.nan(Fnew)) )
+         return(list(xnew=NA, Fnew=NA, fcnt=fcnt, bl=bl, lsflag=1, fune=NA))
         else fune <- sum(Fnew * Fnew)
 
-      if (fune <= (fmax + lambda*gpd*gamma)) {
-        if (cbl >= 1) bl <- bl + 1
-    return(list(xnew=xnew, Fnew=Fnew, fcnt=fcnt, lambda=lambda, bl=bl, lsflag=0, fune=fune))
-    } else {
-#     Quadratic interpolation
+    if (fune <= (fmax + lambda*gpd*gamma)) {
+      if (cbl >= 1) bl <- bl + 1
+           return(list(xnew=xnew, Fnew=Fnew, fcnt=fcnt, lambda=lambda, bl=bl, 
+	               lsflag=0, fune=fune))
+      } else {
+        #     Quadratic interpolation
         lamc <- -(gpd*lambda^2) / (2 * (fune - fval - lambda*gpd))
         c1 <- sigma1 * lambda
         c2 <- sigma2 * lambda
@@ -64,8 +53,8 @@
         cbl <- cbl + 1
         }
     }
-    return(list(xnew=NA, Fnew=NA, fcnt=fcnt, lambda=NA, bl=bl, lsflag=2, fune=NA))
-    }
+ return(list(xnew=NA, Fnew=NA, fcnt=fcnt, lambda=NA, bl=bl, lsflag=2, fune=NA))
+ }
 
 ##########################################
 

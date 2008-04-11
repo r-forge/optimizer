@@ -28,14 +28,16 @@
 
     \item{control}{A list of control parameters. See *Details*.}
 
-    \item{...}{Additional arguments passed to \code{fn} and/or to \code{project}.}
+  \item{...}{Additional arguments passed to \code{fn}, \code{gr}  and
+          \code{project}. (All must accept any specified arguments, but
+           they do not need to use them all.)} 
 }
 \value{A list with the following components:
 \item{par}{Parameters that optimize the nonlinear objective function, if convergence is successful.}
 
 \item{value}{The value of the objective function at termination.}
 
-\item{gradient}{Infinity-norm of the projected gradient of the objective function at termination. If convergence is successful, this should be less than \code{gtol}.} 
+\item{gradient}{L-infinity norm of the projected gradient of the objective function at termination. If convergence is successful, this should be less than \code{gtol}.} 
 
 \item{fn.reduction}{Reduction in the value of the function from its initial value. This is negative in maximization.}
 
@@ -116,7 +118,7 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
 
    R Varadhan and C Roland (2008),  Simple and globally-convergent methods for accelerating the convergence of any EM algorithm,  \emph{Scandinavian J Statistics}, doi: 10.1111/j.1467-9469.2007.00585.x.  
 
-   R Varadhan and P Gilbert (2008),  BB: An R package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
+   R Varadhan and PD Gilbert (2008),  BB: An R package of Barzilai-Borwein spectral methods for solving and optimizing large-scale nonlinear systems, Unpublished.
 
 }
 \seealso{
@@ -128,15 +130,9 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
    }
    
 \examples{
-sc2.f <- function(x){
-nvec <- 1:length(x)
-sum(nvec * (exp(x) - x)) / 10
-}
+sc2.f <- function(x){ sum((1:length(x)) * (exp(x) - x)) / 10}
 
-sc2.g <- function(x){
-nvec <- 1:length(x)
-nvec * (exp(x) - 1) / 10
-}
+sc2.g <- function(x){ (1:length(x)) * (exp(x) - 1) / 10}
 
 p0 <- rnorm(200)
 ans.spg1 <- spg(par=p0, fn=sc2.f)  # Default is method=3

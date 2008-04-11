@@ -1,40 +1,24 @@
-spg <- function(par, fn, gr=NULL, method=3, project=NULL, lower=-Inf, upper=Inf,  control=list(),  ... ) {
-############################################################
-# Non-monotone spectral projected-gradient method for minimization
-# Birgin EG, Martinez JM, and Raydan M (2000): Nonmonotone spectral projected gradient methods on convex sets, 
-# SIAM J Optimization, 10, 1196-1211.
-# Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for convex-constrained optimization, 
-# ACM Transactions on Mathematical Software.
-###############################################
-# R adaptation, with significant modifications, by  Ravi Varadhan, Johns Hopkins University, March 25, 2008.
-#
-#   Most important modification is the availability of different options for Barzilai-Borwein steplengths
-#   Three different Barzilai-Borwein steplength options can be chosen.
-#   Method = 1 is the steplength used in Birgin EG, Martinez JM, and Raydan M (2000)  
-#   Method = 2 is another BB steplength proposed in Barzilai and Borwein's (1988) original paper 
-#   Method = 3, is a new steplength, first proposed in Varadhan and Roland (2008).
-#
-#   Method = 3 is the "default" since it performed slightly better than others in our numerical experiments in terms of convergence to better optimum.
-#
-# Please refer to Varadhan and Gilbert (2008, unpublished) for details
-#
-# Incorporates box constraints
-# The user can define his/her own projection function "project" to handle more complicated constraints
-#
-################################################
-    ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, trace=TRUE, 
-    triter=10, grad.method="simple", eps=1.e-07) # defaults
-    ctrl[names(control)] <- control
-    M     <- ctrl$M
-    maxit <- ctrl$maxit
-    gtol  <- ctrl$gtol
-    maxfeval <- ctrl$maxfeval
-    maximize <- ctrl$maximize
-    trace <- ctrl$trace
-    triter <- ctrl$triter
-    grad.method <- ctrl$grad.method
-    eps <- ctrl$eps
-###########################################################
+spg <- function(par, fn, gr=NULL, method=3, project=NULL, 
+           lower=-Inf, upper=Inf,  control=list(),  ... ) {
+
+  # control defaults
+  ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, 
+        trace=TRUE, triter=10, grad.method="simple", eps=1.e-07) 
+  namc <- names(control)
+  if (! all(namc %in% names(ctrl)) )
+     stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
+
+  ctrl[namc ] <- control
+  M	<- ctrl$M
+  maxit <- ctrl$maxit
+  gtol  <- ctrl$gtol
+  maxfeval <- ctrl$maxfeval
+  maximize <- ctrl$maximize
+  trace <- ctrl$trace
+  triter <- ctrl$triter
+  grad.method <- ctrl$grad.method
+  eps <- ctrl$eps
+################ local function
 nmls <- function(p, f, d, gtd, lastfv, feval, func, maxfeval, ... ){
 #  local function
 # Non-monotone line search of Grippo with safe-guarded quadratic interpolation

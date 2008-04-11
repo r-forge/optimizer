@@ -1,30 +1,17 @@
-  dfsane <- function(par, fn, method=2, control=list(), ...) {
-############################################################
-# Non-monotone spectral method for solving large-scale nonlinear systems of equations
-# Without gradient information
-# W LaCruz, JM Martinez, and M Raydan (2006): 
-###############################################
-#
-# R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins University, March 25, 2008.
-#
-#   Most important modification is the availability of different options for Barzilai-Borwein steplengths
-#   Three different Barzilai-Borwein steplength options can be chosen.
-#   method = 1 is the steplength used in LaCruz, Martinez, and Raydan (2006)  
-#   method = 2 is another BB steplength proposed in Barzilai and Borwein's (1988) original paper 
-#   method = 3, is a new steplength, first proposed in Varadhan and Roland (2008).
-#
-#   Note that method = 2 is the "default" since it performed better than others in our numerical experiments on a variety of problems
-#
-# Please refer to Varadhan and Gilbert (2008, unpublished) for details
-#
-################################################
-    ctrl <- list(M=10, maxit=1500, tol=1e-07, trace=TRUE, triter=10) # defaults
-    ctrl[names(control)] <- control
-    M     <- ctrl$M
-    maxit <- ctrl$maxit
-    tol   <- ctrl$tol
-    trace <- ctrl$trace
-    triter <- ctrl$triter
+dfsane <- function(par, fn, method=2, control=list(), ...) {
+
+  # control defaults
+  ctrl <- list(M=10, maxit=1500, tol=1e-07, trace=TRUE, triter=10) 
+  namc <- names(control)
+  if (! all(namc %in% names(ctrl)) )
+     stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
+
+  ctrl[namc ] <- control
+  M	<- ctrl$M
+  maxit <- ctrl$maxit
+  tol	<- ctrl$tol
+  trace <- ctrl$trace
+  triter <- ctrl$triter
 
 ######################################
 #  local function

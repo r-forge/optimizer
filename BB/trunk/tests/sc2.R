@@ -30,14 +30,14 @@ good   <-    2.862543216705235e-05
 print(z, digits=16)
 if(any(abs(good - z) > 1e-3)) stop("BB test sc2 a FAILED")
 
-#  this gives Failure in initial function evaluation!
-#system.time(ans.spg <- spg(par=p0, fn=sc2.f, grad=sc2.g,
-#   control=list(maxit=2500)))[1]
+system.time(ans.spg <- spg(par=p0, fn=sc2.f, gr=sc2.g,
+   control=list(maxit=2500)))[1]
 
-#z <- sum(ans.spg$par)
-#good <- 
-#print(z, digits=16)
-#if(any(abs(good - z) > fuzz)) stop("BB test sc2 b FAILED")
+z <- sum(ans.spg$par)
+good <- 2.565413040899874e-06
+#on Linux64 2.565413040899874e-06 (mfacl2)
+print(z, digits=16)
+if(any(abs(good - z) >  1e-10)) stop("BB test sc2 b FAILED")
 
 system.time(ans.opt <- optim(par=p0, fn=sc2.f, method="L-BFGS-B"))[1]
 

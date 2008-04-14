@@ -90,7 +90,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     
   f0 <- fbest <- f
  
-  if (is.null(gr)) require(numDeriv)
+  if (is.null(gr)) if(! require(numDeriv)) 
+    stop("gr must be supplied or package numDeriv must be available!")
  
   g <- if (is.null(gr)) try(grad(func=func, x=par, method=grad.method, method.args=list(eps=eps, r=2), ...),silent=TRUE)
              else       try(gr(par, ...),silent=TRUE)

@@ -64,8 +64,8 @@ enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-
 \item{maxit}{The maximum number of iterations.  The default is \code{maxit = 1500}.}
 
 \item{tol}{The absolute convergence tolerance on the residual L2-norm 
-  of \code{fn}. Convergence is declared when 
-  \eqn{\|F(x)\| / \sqrt(npar) < \mbox{tol}}{abs(F(x)) / sqrt(npar) < tol}.  
+  of \eqn{F}. Convergence is declared  
+  when \eqn{\|F(x)\| / \sqrt(npar) < \mbox{tol}}{sum(F(x)^2) / npar < tol^2}.  
 Default is \code{tol = 1.e-07}.}
 
 \item{trace}{A logical variable (TRUE/FALSE).  If \code{TRUE}, information on the progress of solving the system is produced.  

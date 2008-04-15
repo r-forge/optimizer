@@ -35,6 +35,7 @@
   \item{Phi}{t(Th) \%*\% Th.  The covariance matrix of the rotated factors.
   This will be the identity matrix for orthogonal
   rotations so is omitted (NULL) for the result from GPForth.}
+  \item{Gq}{The gradient of the objective function at the rotated loadings.}
   }
 \details{
  Gradient projection rotation optimization routines developed by

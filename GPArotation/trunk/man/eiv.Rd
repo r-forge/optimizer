@@ -83,8 +83,9 @@
 
   }
 \seealso{
+   \code{\link{cholesky}}, 
    \code{\link{rotations}}, 
-   \code{\link{GPForth}}, 
+  \code{\link{GPForth}}, 
    \code{\link{GPFoblq}}
 }
 \references{

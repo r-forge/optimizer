@@ -6,6 +6,10 @@
 
             Changes in GPArotation version 2008.0x-1
 
+  o added cholesky rotation.
+
+  o added gradient Gq to result list from  GPForth and GPFoblq.
+
   o change license from "GPL-2" to "GPL-2 or later".
 
  

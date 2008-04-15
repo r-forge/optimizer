@@ -101,7 +101,7 @@ GPForth <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
  if(normalize) L <- L * W
  dimnames(L) <- dimnames(A)
  r <- list(loadings=L, Th=Tmat, Table=Table, 
-        method=VgQ$Method, orthogonal=TRUE, convergence=convergence)
+        method=VgQ$Method, orthogonal=TRUE, convergence=convergence, Gq=VgQt$Gq)
  class(r) <- "GPArotation"
  r
 }
@@ -153,7 +153,7 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
  # N.B. renaming Lh to loadings in specificific rotations 
  #   uses fact that  Lh is first.
  r <- list(loadings=L, Phi=t(Tmat) %*% Tmat, Th=Tmat, Table=Table,
-      method=VgQ$Method, orthogonal=FALSE, convergence=convergence)
+      method=VgQ$Method, orthogonal=FALSE, convergence=convergence, Gq=VgQt$Gq)
  class(r) <- "GPArotation"
  r
 }

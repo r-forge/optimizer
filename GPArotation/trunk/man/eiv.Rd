@@ -3,7 +3,7 @@
 
 \title{Errors-in-Variables Rotation}
 \usage{
-    eiv(L, identity=seq(ncol(L)), ...)
+    eiv(L, identity=seq(NCOL(L)), ...)
 }
 \arguments{
     \item{L}{a factor loading matrix}

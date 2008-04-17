@@ -4,9 +4,9 @@ Description: Barzilai-Borwein Spectral Methods for solving nonlinear system of
  equations, and for optimizing nonlinear objective functions subject to simple 
  constraints.
 Depends: R (>= 2.6.1)
-Suggests: numDeriv, setRNG
+Suggests: setRNG
 Version: 2008.4-1
-Date: 2008-4-7
+Date: 2008-4-16
 LazyLoad: yes
 License: GPL-3
 Author: Ravi Varadhan

@@ -19,8 +19,11 @@
 
     \item{method}{An integer (1, 2, or 3) specifying which Barzilai-Borwein steplength to use.  The default is 3.  See *Details*.} 
 
-    \item{project}{The projection function that takes a point in $R^n$ and projects it onto a region that defines the constraints of the problem.  
-    This is a vector-function that takes a real vector as argument and returns a real vector of the same length.  It defaults to "NULL".  See *Details*.} 
+    \item{project}{The projection function that takes a point in $R^n$ and 
+      projects it onto a region that defines the constraints of the problem.  
+      This is a vector-function that takes a real vector as argument and 
+      returns a real vector of the same length.  
+      It defaults to "NULL".  See *Details*.} 
 
     \item{lower}{A vector that defines lower bounds on \code{par}.  Defaults to -Inf} 
 
@@ -98,10 +101,6 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
   when \code{trace=TRUE}. Default is \code{triter=10}, which means that
   the objective \code{fn} and the infinity-norm of its projected gradient are
   printed at every 10-th iteration.}   
-
-\item{grad.method}{Method to be used for numerical approximation of the gradient.  This uses the function \code{grad} in the 
-  package "numDeriv".  Default method is "simple".  This is generally more than adequate.  The other option is to use "Richardson" 
-  extrapolation, which is highly accurate, but very time consuming, and is not recommended for large-scale problems.}   
 
 \item{eps}{A small positive increment used in finite-difference 
   approximation of gradient by the method "simple".  Default is 1.e-07.}

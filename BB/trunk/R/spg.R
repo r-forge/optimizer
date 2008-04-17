@@ -3,21 +3,20 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
 
   # control defaults
   ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, 
-        trace=TRUE, triter=10, grad.method="simple", eps=1.e-07) 
+        trace=TRUE, triter=10, eps=1e-7) 
   namc <- names(control)
   if (! all(namc %in% names(ctrl)) )
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
 
   ctrl[namc ] <- control
-  M	<- ctrl$M
-  maxit <- ctrl$maxit
-  gtol  <- ctrl$gtol
+  M	   <- ctrl$M
+  maxit    <- ctrl$maxit
+  gtol     <- ctrl$gtol
   maxfeval <- ctrl$maxfeval
   maximize <- ctrl$maximize
-  trace <- ctrl$trace
-  triter <- ctrl$triter
-  grad.method <- ctrl$grad.method
-  eps <- ctrl$eps
+  trace    <- ctrl$trace
+  triter   <- ctrl$triter
+  eps      <- ctrl$eps
   ################ local function
   nmls <- function(p, f, d, gtd, lastfv, feval, func, maxfeval, ... ){
     # Non-monotone line search of Grippo with safe-guarded quadratic interpolation
@@ -54,9 +53,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     }
  
   #############################################
-  if (is.null(project)) project.box <- function(x, lower, upper) {
-       # local function
-       # Defined only when user-doesn't specify his/her own projection algorithm
+  # local function defined only when user-doesn't specify an algorithm
+  if (is.null(project)) project <- function(x, lower, upper, ...) {
        # Projecting to ensure that box-constraints are satisfied
        x[x < lower] <- lower[x < lower]
        x[x > upper] <- upper[x > upper]
@@ -71,16 +69,15 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   lastfv <- rep(-1.e99, M)
   fbest <- NA
  
-  func <- if (maximize) function(x, ...) {-1 * fn(x, ...)}
-                   else function(x, ...) fn(x, ...)
+  func <- if (maximize) function(x, ...) -fn(x, ...)
+                   else function(x, ...)  fn(x, ...)
 
   # Project initial guess
-  par <- if (is.null(project)) try(project.box(par, lower, upper), silent=TRUE)
-                   else        try(project(par, ...), silent=TRUE)
+  par <- try(project(par, lower, upper, ...), silent=TRUE)
  
-  if (class(par) == "try-error" | any(is.nan(par)) | any(is.na(par)) ) {
+  if (class(par) == "try-error" | any(is.nan(par)) | any(is.na(par)) ) 
      stop("Failure in projecting initial guess!")
-  } else pbest <- par
+  else pbest <- par
  
   f <- try(func(par, ...),silent=TRUE)
   feval <- feval + 1
@@ -90,25 +87,31 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     
   f0 <- fbest <- f
  
-  if (is.null(gr)) if(! require(numDeriv)) 
-    stop("gr must be supplied or package numDeriv must be available!")
- 
-  g <- if (is.null(gr)) try(grad(func=func, x=par, method=grad.method, method.args=list(eps=eps, r=2), ...),silent=TRUE)
-             else       try(gr(par, ...),silent=TRUE)
+  #if gr is not supplied, simple numerical approximation. Using 
+  #  func, f and eps  defined in calling env  	
+  if (is.null(gr)) gr <- function(x, ...) {
+    	df <- rep(NA,length(x))
+    	for (i in 1:length(x)) {
+    	  dx <- x
+    	  dx[i] <- dx[i] + eps 
+    	  df[i] <- (func(dx, ...) - f)/eps
+    	 }
+    	df
+	}
+
+
+  g <- try(gr(par, ...),silent=TRUE)
   
   geval <- geval + 1
  
   if (class(g)=="try-error" | any(is.nan(g))  ) 
     stop("Failure in initial gradient evaluation!")
  
-  lastfv[1] <- f
-  fbest     <- f
-  pg   <- par - g
+  lastfv[1] <- fbest <- f
  
-  pg <- if (is.null(project)) project.box(pg, lower, upper)
-                   else       project(pg, ...)
+  pg <- project(par - g, lower, upper, ...)
  
-  if (class(pg)=="try-error" | any(is.nan(pg))  ) 
+  if (class(pg)=="try-error" | any(is.nan(pg))) 
     stop("Failure in initial projection!")
  
   pg <- pg - par
@@ -125,10 +128,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   #######################
   while( pginfn > gtol & iter <= maxit ) {
       iter <- iter + 1
-      d <- par - lambda * g
  
-      d <- if (is.null(project)) try(project.box(d, lower, upper), silent=TRUE)
-                          else   try(project(d, ...), silent=TRUE)
+      d <- try(project(par - lambda * g, lower, upper, ...), silent=TRUE)
  
       if (class(d) == "try-error" | any(is.nan(d))  ) {
         lsflag <- 4
@@ -148,14 +149,12 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
  
       if(lsflag != 0) break
  
-      f <- nmls.ans$f
-      pnew <- nmls.ans$p
+      f     <- nmls.ans$f
+      pnew  <- nmls.ans$p
       feval <- nmls.ans$feval
       lastfv[(iter %% M) + 1] <- f
  
-      gnew <- if (is.null(gr)) try(grad(func=func, x=pnew, method=grad.method, method.args=list(eps=eps, r=2), ...),silent=TRUE)
-                         else  try(gr(pnew, ...),silent=TRUE)
-      
+      gnew <- try(gr(pnew, ...),silent=TRUE)     
       geval <- geval + 1
  
       if (class(gnew)=="try-error" | any(is.nan(gnew)) ){
@@ -173,16 +172,14 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
       if (method==2) lambda <- min(lmax, max(lmin, sty/yty))
       if (method==3) lambda <- min(lmax, max(lmin, sqrt(sts/yty)))
  
-      if (method==1 & (sts==0 | sty < 0)) lambda <- lmax
+      if (method==1 & (sts==0  | sty < 0))  lambda <- lmax
       if (method==2 & (sty < 0 | yty == 0)) lambda <- lmax
-      if (method==3 & (sts==0 | yty == 0)) lambda <- lmax
+      if (method==3 & (sts==0  | yty == 0)) lambda <- lmax
  
       par <- pnew
       g   <- gnew
-      pg  <- par - g
  
-      pg <- if (is.null(project)) try(project.box(pg, lower, upper), silent=TRUE)
-  			   else   try(project(pg, ...), silent=TRUE)
+      pg <- try(project(par - g, lower, upper, ...), silent=TRUE)
  
       if (class(pg) == "try-error" | any(is.nan(pg)) ) {
   	lsflag <- 4

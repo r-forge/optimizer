@@ -152,8 +152,8 @@ dfsane <- function(par, fn, method=2, control=list(), ...) {
     	lastfv[ 1 + iter %% M] <- fun
     	eta <- F0 / (iter + 1)^2
  
-    	if (trace & (iter%%triter == 0))
-    	    cat("\n iteration: ",iter, " ||F(xn)|| =  ", normF, "\n")
+    	if (trace && (iter%%triter == 0))
+    	    cat("iteration: ",iter, " ||F(xn)|| =  ", normF, "\n")
 
     	}   # End of main loop
 

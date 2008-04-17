@@ -10,33 +10,42 @@
     \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
     objective function \code{fn}.}
 
-    \item{fn}{Nonlinear objective function that is to be optimized.  A scalar function that takes a real vector as argument and 
-    returns a scalar that is the value of the function at that point (see details).}
+    \item{fn}{Nonlinear objective function that is to be optimized. 
+      A scalar function that takes a real vector as argument and 
+      returns a scalar that is the value of the function at that point 
+      (see details).}
 
-    \item{gr}{The gradient of the objective function \code{fn} evaluated at the argument.  This is a vector-function that takes a real 
-    vector as argument and returns a real vector of the same length.  It defaults to "NULL", which means that gradient is evaluated numerically.  
-	Computations are dramatically faster in high-dimensional problems when the exact gradient is provided.  See *Example*.} 
+    \item{gr}{The gradient of the objective function \code{fn} evaluated at the 
+      argument.  This is a vector-function that takes a real 
+      vector as argument and returns a real vector of the same length.  
+      It defaults to "NULL", which means that gradient is evaluated numerically.  
+      Computations are dramatically faster in high-dimensional problems when 
+      the exact gradient is provided.  See *Example*.} 
 
-    \item{method}{An integer (1, 2, or 3) specifying which Barzilai-Borwein steplength to use.  The default is 3.  See *Details*.} 
+    \item{method}{An integer (1, 2, or 3) specifying which Barzilai-Borwein 
+      steplength to use.  The default is 3.  See *Details*.} 
 
     \item{project}{The projection function that takes a point in $R^n$ and 
       projects it onto a region that defines the constraints of the problem.  
       This is a vector-function that takes a real vector as argument and 
-      returns a real vector of the same length.  
-      It defaults to "NULL".  See *Details*.} 
+      returns a real vector of the same length. See *Details*. 
+      It defaults to "NULL" which implies a box constraint defined by 
+      \code{lower} and \code{upper}.} 
 
-    \item{lower}{A vector that defines lower bounds on \code{par}.  Defaults to -Inf} 
+    \item{lower}{A vector that defines lower bounds on \code{par}. Defaults to -Inf} 
 
-    \item{upper}{A vector that defines upper bounds on \code{par}.  Defaults to Inf} 
+    \item{upper}{A vector that defines upper bounds on \code{par}. Defaults to Inf} 
 
     \item{control}{A list of control parameters. See *Details*.}
 
-  \item{...}{Additional arguments passed to \code{fn}, \code{gr}  and
-          \code{project}. (All must accept any specified arguments, but
-           they do not need to use them all.)} 
+    \item{...}{Additional arguments passed to \code{fn}, \code{gr}  and
+      \code{project}. (All must accept any specified arguments, either 
+      explicitly or by having a \dots argument, but
+      they do not need to use them all.)} 
 }
 \value{A list with the following components:
-\item{par}{Parameters that optimize the nonlinear objective function, if convergence is successful.}
+\item{par}{Parameters that optimize the nonlinear objective function, 
+      if convergence is successful.}
 
 \item{value}{The value of the objective function at termination.}
 
@@ -70,9 +79,15 @@ In fact, Varadhan and Roland (2008) considered 3 similar steplength schemes in t
 as the "default" method.  This method may be slightly slower than the other 2 BB steplength schemes, but it generally exhibited more reliable convergence to a better optimum in our experiments.  
 We recommend that the user try the other steplength schemes if the default method does not perform well in their problem.  
 
-Argument \code{project} currently defaults to "NULL", which allows the user to specify \code{lower} and \code{upper} arguments to enforce 
-box constraints.  The user can also provide his/her own projection function to enforce more complicated linear/nonlinear 
-equality/inequality constraints.
+Argument \code{project} defaults to "NULL", which results in a default box
+projection using constraints defined by vectors \code{lower} and \code{upper}. 
+These default to \code{-Inf} and \code{+Inf} respectively, but the user 
+can specify \code{lower} and \code{upper} arguments to enforce box constraints.  
+The user can also provide a \code{project} function to enforce more 
+complicated linear/nonlinear equality/inequality constraints. 
+The arguments \code{lower}, \code{upper}, and \dots are passed to \code{project}
+so they must all be accepted by it either explicitly or by having a \dots 
+argument, but it does not need to use them all.
  
 Argument \code{control} is a list specifing any changes to default values of 
 algorithm control parameters.  Note that the names of these must be 
@@ -102,8 +117,8 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
   the objective \code{fn} and the infinity-norm of its projected gradient are
   printed at every 10-th iteration.}   
 
-\item{eps}{A small positive increment used in finite-difference 
-  approximation of gradient by the method "simple".  Default is 1.e-07.}
+\item{eps}{A small positive increment used in the finite-difference 
+  approximation of gradient.  Default is 1.e-07.}
 }
 
 \references{   

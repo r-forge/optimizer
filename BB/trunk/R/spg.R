@@ -53,7 +53,19 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     }
  
   #############################################
-  # local function defined only when user-doesn't specify an algorithm
+  # local functions defined only when user does not specify a gr or project.
+  # Simple gr numerical approximation. Using func, f and eps from calling env.  	
+  if (is.null(gr)) gr <- function(x, ...) {
+    	df <- rep(NA,length(x))
+    	for (i in 1:length(x)) {
+    	  dx <- x
+    	  dx[i] <- dx[i] + eps 
+    	  df[i] <- (func(dx, ...) - f)/eps
+    	 }
+    	df
+	}
+
+  # This provides box constraints defined by upper and lower
   if (is.null(project)) project <- function(x, lower, upper, ...) {
        # Projecting to ensure that box-constraints are satisfied
        x[x < lower] <- lower[x < lower]
@@ -77,7 +89,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
  
   if (class(par) == "try-error" | any(is.nan(par)) | any(is.na(par)) ) 
      stop("Failure in projecting initial guess!")
-  else pbest <- par
+  
+  pbest <- par
  
   f <- try(func(par, ...),silent=TRUE)
   feval <- feval + 1
@@ -87,19 +100,6 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     
   f0 <- fbest <- f
  
-  #if gr is not supplied, simple numerical approximation. Using 
-  #  func, f and eps  defined in calling env  	
-  if (is.null(gr)) gr <- function(x, ...) {
-    	df <- rep(NA,length(x))
-    	for (i in 1:length(x)) {
-    	  dx <- x
-    	  dx[i] <- dx[i] + eps 
-    	  df[i] <- (func(dx, ...) - f)/eps
-    	 }
-    	df
-	}
-
-
   g <- try(gr(par, ...),silent=TRUE)
   
   geval <- geval + 1
@@ -168,13 +168,15 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
       yty <- sum(y*y)
       sty <- sum(s*y)
  
-      if (method==1) lambda <- min(lmax, max(lmin, sts/sty))
-      if (method==2) lambda <- min(lmax, max(lmin, sty/yty))
-      if (method==3) lambda <- min(lmax, max(lmin, sqrt(sts/yty)))
+      if (method==1) lambda <- 
+	   if (sts==0  | sty < 0)  lmax else min(lmax, max(lmin, sts/sty))
+      else 
+      if (method==2) lambda <- 
+           if (sty < 0 | yty == 0) lmax else min(lmax, max(lmin, sty/yty))
+      else 
+      if (method==3) lambda <-
+           if (sts==0  | yty == 0) lmax else min(lmax, max(lmin, sqrt(sts/yty)))
  
-      if (method==1 & (sts==0  | sty < 0))  lambda <- lmax
-      if (method==2 & (sty < 0 | yty == 0)) lambda <- lmax
-      if (method==3 & (sts==0  | yty == 0)) lambda <- lmax
  
       par <- pnew
       g   <- gnew
@@ -191,7 +193,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
       pginfn <- max(abs(pg))
  
       f.rep <- (-1)^maximize * f
-      if (trace & (iter%%triter == 0))
+      if (trace && (iter%%triter == 0))
            cat("iter: ",iter, " f-value: ", f.rep, " pgrad: ",pginfn, "\n")
  
       if (f < fbest) {

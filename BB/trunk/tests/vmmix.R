@@ -6,8 +6,6 @@ if(!require("setRNG"))stop("this test requires setRNG.")
 test.rng <- list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=c(979,1479,1542))
 old.seed <- setRNG(test.rng)
 
-if(!require("numDeriv"))stop("this test requires numDeriv.")
-
 ###############################################################
 cat("BB test vmmix ...\n")
 
@@ -78,23 +76,55 @@ system.time(ans.spg <- spg(par=p, fn=vmmix.loglik, y=y, lower=lo, upper=hi,
    control=list(maxit=2500, gtol=1.e-06, M=20, trace=T)))[1]
 ans.opt <- optim(par=p, fn=vmmix.loglik, y=y, method="L-BFGS-B", lower=lo, upper=hi)
 
-if(!require("numDeriv"))stop("this test requires numDeriv.")
+# this should give the same reult. It just tests passing project arg
+Userproject <- function(x, lower, upper, ...) {
+       x[x < lower] <- lower[x < lower]
+       x[x > upper] <- upper[x > upper]
+       return(x)
+       }
 
-gs <- grad(ans.spg$par, func=vmmix.loglik, y=y)
-go <- grad(ans.opt$par, func=vmmix.loglik, y=y)
+ans.spg2 <- spg(par=p, fn=vmmix.loglik, y=y, lower=lo, upper=hi,
+   project=Userproject,
+   control=list(maxit=2500, gtol=1.e-06, M=20, trace=T))[1]
 
-z <- sum(gs)
-good   <-   -0.0001803984142419232
-#on Windows -0.00016745341957699
-#on Linux64 -0.0001803984142419232
-#on Linux32 -0.000008890766665183735
+
+z <- sum(ans.spg$par)
+good   <-   11.28094286243805
+#on Windows 11.28096954777041
+#on Linux64 11.28094286243805
+#on Linux32 
 print(z, digits=16)
-if(any(abs(good - z) > 1e-3)) stop("BB test vmmix.loglik a FAILED")
+if(any(abs(good - z) > 1e-4)) stop("BB test vmmix.loglik a1 FAILED")
+
+
+z <- sum(ans.spg2$par)
+print(z, digits=16)
+if(any(abs(good - z) > 1e-4)) stop("BB test vmmix.loglik a2 FAILED")
  
-z <- sum(go )
-good   <-   -0.02992184037618598
-#on Windows -0.02989100666129558
-#on Linux64 -0.02992184037618598
-#on Linux32 -0.029891113567616
+z <- sum(ans.opt$par)
+good   <-   11.28032840876373
+#on Windows 11.28032868302692
+#on Linux64 11.28032840876373
+#on Linux32 
 print(z, digits=16)
-if(any(abs(good - z) > 1e-3)) stop("BB test vmmix.loglik  b FAILED")
+if(any(abs(good - z) > 1e-4)) stop("BB test vmmix.loglik  b FAILED")
+
+# previously had this, but it requires numDeriv
+#gs <- grad(ans.spg$par, func=vmmix.loglik, y=y)
+#go <- grad(ans.opt$par, func=vmmix.loglik, y=y)
+#
+#z <- sum(gs)
+#good	<-   -0.0001803984142419232
+##on Windows -0.00016745341957699
+##on Linux64 -0.0001803984142419232
+##on Linux32 -0.000008890766665183735
+#print(z, digits=16)
+#if(any(abs(good - z) > 1e-3)) stop("BB test vmmix.loglik a FAILED")
+#
+#z <- sum(go )
+#good	<-   -0.02992184037618598
+##on Windows -0.02989100666129558
+##on Linux64 -0.02992184037618598
+##on Linux32 -0.029891113567616
+#print(z, digits=16)
+#if(any(abs(good - z) > 1e-3)) stop("BB test vmmix.loglik  b FAILED")

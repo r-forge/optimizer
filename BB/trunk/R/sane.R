@@ -148,7 +148,7 @@
     iter <- iter + 1
     lastfv[ 1 + iter %% M] <- fun
     
-    if (trace & (iter%%triter == 0))
+    if (trace && (iter%%triter == 0))
        cat("\n iteration: ",iter, " ||F(xn)|| =  ", normF, "\n")
 
     }  # End of main loop

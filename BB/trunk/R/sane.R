@@ -13,10 +13,11 @@
   trace  <- ctrl$trace
   triter <- ctrl$triter
 
+  fargs <- list(...)
   #######################  local function
   #  non-monotone line search of Grippo
   lineSearch <- function(x, fn, F, fval, dg, M, lastfv, sgn, lambda, 
-                     fcnt, bl, ...) {
+                     fcnt, bl, fargs) {
   maxbl  <- 100
   gamma  <- 1.e-04
   sigma1 <- 0.1
@@ -30,7 +31,7 @@
 
     xnew <-  x + lambda* sgn * F
 
-    Fnew <- try(fn(xnew, ...))
+    Fnew <- try(do.call("fn", append(list(xnew) , fargs )))
     fcnt = fcnt + 1
 
     if (class(Fnew) == "try-error" | any(is.nan(Fnew)) )
@@ -68,10 +69,12 @@
 
   F <- try (fn(par, ...))
 
-  if (class(F) == "try-error" | any(is.nan(F))
-        | any(is.infinite(F)) | any(is.na(F)) )
+  if (class(F) == "try-error" )
+     stop(" Failure in initial functional evaluation.", F) 
+  else if (any(is.nan(F), is.infinite(F), is.na(F)) )
      stop(" Failure in initial functional evaluation. Try another initial value.") 
-  else F0 <- normF <- sqrt(sum(F * F))
+  
+  F0 <- normF <- sqrt(sum(F * F))
 
   if (trace) cat("Iteration: ", 0, " ||F(x0)||: ", F0, "\n")
 
@@ -85,9 +88,8 @@
   while (normF/sqrt(n) > tol & iter <= maxit & !stagn) {
 
     # Calculate the gradient of the merit function ||F(X)||
-    xa <- par + h*F
 
-    Fa <- try (fn(xa, ...)) 
+    Fa <- try (fn(par + h*F, ...)) 
     fcnt <- fcnt + 1
         
     if (class(Fa) == "try-error" | any(is.nan(Fa)) ) {
@@ -113,7 +115,7 @@
 
     #  non-monotone line search of Grippo
     ls.ret <-  lineSearch(x=par, fn=fn, F=F, fval=normF^2, dg=dg, M=M, 
-                lastfv=lastfv, sgn, lambda, fcnt, bl, ...)
+                lastfv=lastfv, sgn, lambda, fcnt, bl, fargs)
 
     fcnt <- ls.ret$fcnt
     bl <- ls.ret$bl

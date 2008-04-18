@@ -13,8 +13,9 @@ dfsane <- function(par, fn, method=2, control=list(), ...) {
   trace <- ctrl$trace
   triter <- ctrl$triter
 
+  fargs <- list(...)
   ############   local function
-  lsm <- function(x, fn, F, fval, alfa, M, lastfv, eta, fcnt, bl, ...) {
+  lsm <- function(x, fn, F, fval, alfa, M, lastfv, eta, fcnt, bl, fargs) {
     #  non-monotone line search of Grippo
   
     maxbl <- 100
@@ -31,7 +32,7 @@ dfsane <- function(par, fn, method=2, control=list(), ...) {
     	d <- - alfa * F
     	xnew <-  x + lam1 * d
 
-    	Fnew <- try(fn(xnew, ...))
+    	Fnew <- try(do.call("fn", append(list(xnew) , fargs )))
     	fcnt = fcnt + 1
 
     	if (class(Fnew) == "try-error" | any(is.nan(Fnew)) )
@@ -45,7 +46,7 @@ dfsane <- function(par, fn, method=2, control=list(), ...) {
 
     xnew <- x - lam2 * d
 
-    Fnew <- try(fn(xnew, ...))
+    Fnew  <- try(do.call("fn", append(list(xnew) , fargs )))
     fcnt = fcnt + 1
 
     if (class(Fnew) == "try-error" | any(is.nan(Fnew)) )
@@ -85,10 +86,12 @@ dfsane <- function(par, fn, method=2, control=list(), ...) {
       
     F <- try (fn(par, ...))
 
-    if (class(F) == "try-error" | any(is.nan(F))
-          | any(is.infinite(F)) | any(is.na(F)) ) 
+    if (class(F) == "try-error" ) 
+      stop("Failure in initial functional evaluation.", F)
+    else if (any(is.nan(F), is.infinite(F), is.na(F)) ) 
       stop("Failure in initial functional evaluation. Try another starting value.")
-    else F0 <- normF <- sqrt(sum(F * F))
+    
+    F0 <- normF <- sqrt(sum(F * F))
 
     if (trace) cat("Iteration: ", 0, " ||F(x0)||: ", F0, "\n")
     pbest <- par
@@ -109,7 +112,7 @@ dfsane <- function(par, fn, method=2, control=list(), ...) {
 
     	#  non-monotone line search of Grippo
     	ls.ret <-  lsm(x=par, fn=fn, F=F, fval=normF^2, alfa, M=M,
-    		       lastfv=lastfv, eta, fcnt, bl, ...)
+    		       lastfv=lastfv, eta, fcnt, bl, fargs)
  
     	fcnt <- ls.ret$fcnt
     	bl   <- ls.ret$bl

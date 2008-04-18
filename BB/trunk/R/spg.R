@@ -17,14 +17,16 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   trace    <- ctrl$trace
   triter   <- ctrl$triter
   eps      <- ctrl$eps
+  
+  fargs <- list(...)
   ################ local function
-  nmls <- function(p, f, d, gtd, lastfv, feval, func, maxfeval, ... ){
+  nmls <- function(p, f, d, gtd, lastfv, feval, func, maxfeval, fargs ){
     # Non-monotone line search of Grippo with safe-guarded quadratic interpolation
     gamma <- 1.e-04
     fmax <- max(lastfv)
     alpha <- 1
     pnew <- p + alpha*d
-    fnew <- try(func(pnew , ...),silent=TRUE)
+    fnew <- try(do.call("func", append(list(pnew) , fargs )),silent=TRUE)
     feval <- feval + 1
  
     if (class(fnew)=="try-error" | is.nan(fnew) )
@@ -39,7 +41,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     	    }
 
     	pnew <- p + alpha*d
-    	fnew <- try(func(pnew, ... ), silent=TRUE)
+    	fnew <- try(do.call("func", append(list(pnew), fargs )), silent=TRUE)
     	feval <- feval + 1
  
     	if (class(fnew)=="try-error" | is.nan(fnew) )
@@ -55,10 +57,10 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   #############################################
   # local functions defined only when user does not specify a gr or project.
   # Simple gr numerical approximation. Using func, f and eps from calling env.  	
-  if (is.null(gr)) gr <- function(x, ...) {
-    	df <- rep(NA,length(x))
-    	for (i in 1:length(x)) {
-    	  dx <- x
+  if (is.null(gr)) gr <- function(par, ...) {
+    	df <- rep(NA,length(par))
+    	for (i in 1:length(par)) {
+    	  dx <- par
     	  dx[i] <- dx[i] + eps 
     	  df[i] <- (func(dx, ...) - f)/eps
     	 }
@@ -66,11 +68,11 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
 	}
 
   # This provides box constraints defined by upper and lower
-  if (is.null(project)) project <- function(x, lower, upper, ...) {
+  if (is.null(project)) project <- function(par, lower, upper, ...) {
        # Projecting to ensure that box-constraints are satisfied
-       x[x < lower] <- lower[x < lower]
-       x[x > upper] <- upper[x > upper]
-       return(x)
+       par[par < lower] <- lower[par < lower]
+       par[par > upper] <- upper[par > upper]
+       return(par)
        }
   #############################################
 
@@ -81,22 +83,26 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   lastfv <- rep(-1.e99, M)
   fbest <- NA
  
-  func <- if (maximize) function(x, ...) -fn(x, ...)
-                   else function(x, ...)  fn(x, ...)
+  func <- if (maximize) function(par, ...) -fn(par, ...)
+                   else function(par, ...)  fn(par, ...)
 
   # Project initial guess
   par <- try(project(par, lower, upper, ...), silent=TRUE)
  
-  if (class(par) == "try-error" | any(is.nan(par)) | any(is.na(par)) ) 
-     stop("Failure in projecting initial guess!")
+  if (class(par) == "try-error") 
+        stop("Failure in projecting initial guess!", par)
+  else if (any(is.nan(par), is.na(par)) ) 
+        stop("Failure in projecting initial guess!")
   
   pbest <- par
  
   f <- try(func(par, ...),silent=TRUE)
   feval <- feval + 1
 
-  if (class(f)=="try-error" | is.nan(f) | is.infinite(f) | is.na(f) )
-    stop("Failure in initial function evaluation!")
+  if (class(f)=="try-error" )
+        stop("Failure in initial function evaluation!", f)
+  else if (is.nan(f) | is.infinite(f) | is.na(f) )
+        stop("Failure in initial function evaluation!")
     
   f0 <- fbest <- f
  
@@ -104,15 +110,19 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   
   geval <- geval + 1
  
-  if (class(g)=="try-error" | any(is.nan(g))  ) 
-    stop("Failure in initial gradient evaluation!")
+  if (class(g)=="try-error" ) 
+        stop("Failure in initial gradient evaluation!", g)
+  else if (any(is.nan(g)) ) 
+        stop("Failure in initial gradient evaluation!")
  
   lastfv[1] <- fbest <- f
  
-  pg <- project(par - g, lower, upper, ...)
+  pg <- try(project(par - g, lower, upper, ...),silent=TRUE)
  
-  if (class(pg)=="try-error" | any(is.nan(pg))) 
-    stop("Failure in initial projection!")
+  if (class(pg)=="try-error" ) 
+        stop("Failure in initial projection!", pg)
+  else if (any(is.nan(pg))) 
+        stop("Failure in initial projection!")
  
   pg <- pg - par
 
@@ -144,7 +154,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
         break
         }
  
-      nmls.ans <- nmls(par, f, d, gtd, lastfv, feval , func, maxfeval, ...)
+      nmls.ans <- nmls(par, f, d, gtd, lastfv, feval , func, maxfeval, fargs)
       lsflag <- nmls.ans$lsflag
  
       if(lsflag != 0) break

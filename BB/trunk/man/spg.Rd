@@ -86,8 +86,11 @@ can specify \code{lower} and \code{upper} arguments to enforce box constraints.
 The user can also provide a \code{project} function to enforce more 
 complicated linear/nonlinear equality/inequality constraints. 
 The arguments \code{lower}, \code{upper}, and \dots are passed to \code{project}
-so they must all be accepted by it either explicitly or by having a \dots 
-argument, but it does not need to use them all.
+so they must all be accepted by it, either explicitly or by having a \dots 
+argument, but it does not need to use them all. So, for example, 
+\code{proj.good <- function(x, lower, upper){whatever}} or
+\code{proj.good <- function(x, ...){whatever}}, but not
+\code{proj.bad <- function(x) {whatever}}
  
 Argument \code{control} is a list specifing any changes to default values of 
 algorithm control parameters.  Note that the names of these must be 

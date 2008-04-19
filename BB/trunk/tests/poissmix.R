@@ -40,7 +40,7 @@ z <- sum(ans.spg$par)
 good   <-   4.55961554279947
 #on Windows 
 #on Linux64 4.55961554279947
-#on Linux32 
+#on Linux32 4.559616090962986
 print(z, digits=16)
 if(any(abs(good - z) > 1e-4)) stop("BB test poissmix.loglik a FAILED")
  
@@ -48,7 +48,7 @@ z <- sum(ans.opt$par)
 good   <-   4.559591104801197
 #on Windows 
 #on Linux64 4.559591104801197
-#on Linux32 
+#on Linux32 4.559591104765728
 print(z, digits=16)
 if(any(abs(good - z) > 1e-7)) stop("BB test poissmix.loglik  b FAILED")
 

@@ -89,10 +89,10 @@ ans.spg2 <- spg(par=p, fn=vmmix.loglik, y=y, lower=lo, upper=hi,
 
 
 z <- sum(ans.spg$par)
-good   <-   11.28094286243805
+good   <-   11.28100000000000
 #on Windows 11.28096954777041
 #on Linux64 11.28094286243805
-#on Linux32 
+#on Linux32 11.28105871638063
 print(z, digits=16)
 if(any(abs(good - z) > 1e-4)) stop("BB test vmmix.loglik a1 FAILED")
 
@@ -105,7 +105,7 @@ z <- sum(ans.opt$par)
 good   <-   11.28032840876373
 #on Windows 11.28032868302692
 #on Linux64 11.28032840876373
-#on Linux32 
+#on Linux32 11.28032868197765
 print(z, digits=16)
 if(any(abs(good - z) > 1e-4)) stop("BB test vmmix.loglik  b FAILED")
 

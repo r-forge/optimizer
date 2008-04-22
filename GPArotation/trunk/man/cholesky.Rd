@@ -27,7 +27,7 @@
    Rotate using cholesky parameterization.
 }
 \details{
- This function rotates to an Cholesky representation. The
+ This function rotates to a Cholesky representation. The
  optimization is not iterative and does not use the GPA algorithm.  
  The function can be used directly or the
  function name can be passed to factor analysis functions like \code{factanal}.
@@ -36,8 +36,12 @@
  indicated by \code{reference} have a Cholesky factorization, and the remaining 
  \eqn{M-k}{M-k} rows are rotated as necessary to give a loadings matrix 
  equivalent to \code{L}.
+
  If the argument \eqn{\Phi}{Phi} is absent or null, it is assumed that it
- is the identity (orthogonal solution). 
+ is the identity (orthogonal solution). In this case the flag \code{orthogonal}
+ in the result is set to \code{TRUE} and otherwise it is set to \code{FALSE}
+ however, IS THE NEXT CORRECT? strictly speaking, the result is orthogonal if
+ the original is, and not if the original is not.
 
  The default uses the first \eqn{k}{k} rows 
  the as the reference. If the Cholesky decomposition for the matrix
@@ -45,7 +49,7 @@
  user needs to supply a different choice of rows.
 
  One use of this parameterization is
- for obtaining good starting values (so it looks a little strange
+ for obtaining good starting values (so it may appear strange
  to rotate towards this solution afterwards). It has a few other purposes: 
  (1) It can be useful for comparison with
  published results in this parameterization; 

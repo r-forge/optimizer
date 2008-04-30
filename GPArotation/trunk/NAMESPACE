@@ -29,7 +29,7 @@ export("mccammon")
 
 export(
     "eiv",
-    "cholesky")
+    "echelon")
 
 S3method("print", "GPArotation")
 S3method("summary", "GPArotation")

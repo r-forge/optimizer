@@ -4,9 +4,9 @@
      algorithm gets stuck and does not improve (so does not converge). The
      workaround is to restart with a very slightly perturbed starting point.       
 
-            Changes in GPArotation version 2008.0x-1
+            Changes in GPArotation version 2008.05-1
 
-  o added cholesky rotation.
+  o added echelon rotation.
 
   o added gradient Gq to result list from  GPForth and GPFoblq.
 

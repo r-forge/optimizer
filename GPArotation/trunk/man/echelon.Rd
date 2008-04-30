@@ -16,7 +16,7 @@
    \item{loadings}{The new loadings matrix.} 
    \item{Th}{The rotation.} 
    \item{method}{A string indicating the rotation objective function ("echelon").}
-   \item{orthogonal}{TRUE}
+   \item{orthogonal}{For consistency with other rotation results. Always FALSE.}
    \item{convergence}{For consistency with other rotation results. Always TRUE.}
    }
 \description{
@@ -94,7 +94,7 @@
 }
 \references{
    Roderick P. McDonald (1999)
-     \emph{Test Theory: A Unified Treatment}, Mahwah, NJ: Erlbaum
+     \emph{Test Theory: A Unified Treatment}, Mahwah, NJ: Erlbaum.
 
    Tom Wansbeek and Erik Meijer (2000) \emph{Measurement Error and 
    Latent Variables in Econometrics}, Amsterdam: North-Holland.

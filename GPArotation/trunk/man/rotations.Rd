@@ -153,6 +153,8 @@
  infomaxQ  \tab oblique	   \tab         			   \cr
  mccammon  \tab orthogonal \tab  McCammon minimum entropy ratio    \cr
 }
+ Also included for convenience are two analytic rotations \code{eiv} 
+ and \code{echelon} which do not require \code{GPForth} or \code{GPFoblq}.
 
  Note that \code{Varimax} defined here uses \code{vgQ.varimax} and 
  is not \code{varimax}
@@ -197,6 +199,7 @@
    \code{\link{GPFoblq}}, 
    \code{\link{WansbeekMeijer}}, 
    \code{\link{eiv}}, 
+   \code{\link{echelon}}, 
    \code{\link[stats]{factanal}}, 
    \code{\link[stats]{varimax}}, 
    \code{\link[stats:varimax]{promax}}

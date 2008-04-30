@@ -83,7 +83,7 @@
 
   }
 \seealso{
-   \code{\link{cholesky}}, 
+   \code{\link{echelon}}, 
    \code{\link{rotations}}, 
   \code{\link{GPForth}}, 
    \code{\link{GPFoblq}}

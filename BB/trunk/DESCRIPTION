@@ -6,7 +6,7 @@ Description: Barzilai-Borwein Spectral Methods for solving nonlinear system of
 Depends: R (>= 2.6.1)
 Suggests: numDeriv, setRNG
 Version: 2008.5-1
-Date: 2008-4-25
+Date: 2008-4-29
 LazyLoad: yes
 License: GPL-3
 Author: Ravi Varadhan

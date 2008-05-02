@@ -18,6 +18,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   triter   <- ctrl$triter
   eps      <- ctrl$eps
   
+  grNULL <- is.null(gr)  
   fargs <- list(...)
   ################ local function
   nmls <- function(p, f, d, gtd, lastfv, feval, func, maxfeval, fargs ){
@@ -86,8 +87,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   func <- if (maximize) function(par, ...) -fn(par, ...)
                    else function(par, ...)  fn(par, ...)
 
-  grad <- if (maximize) function(par, ...) -gr(par, ...)
-                   else function(par, ...)  gr(par, ...)
+  grad <- if (maximize & !grNULL) function(par, ...) -gr(par, ...)
+                    else          function(par, ...)  gr(par, ...)
 
 
   # Project initial guess

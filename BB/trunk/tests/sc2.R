@@ -42,6 +42,14 @@ good   <-    2.862543216705235e-05
 print(z, digits=16)
 if(any(abs(good - z) > 1e-3)) stop("BB test sc2 a FAILED")
 
+system.time(neg.ans.spg <- spg(par=p0, fn=neg.sc2.f, 
+              control=list(maxit=2500, maximize=TRUE)))[1]
+
+z <- sum(neg.ans.spg$par)
+good   <-    2.862543216705235e-05
+print(z, digits=16)
+if(any(abs(good - z) > 1e-3)) stop("BB test neg sc2 a FAILED")
+
 system.time(ans.spg <- spg(par=p0, fn=sc2.f, gr=sc2.g,
    control=list(maxit=2500)))[1]
 

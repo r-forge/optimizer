@@ -25,7 +25,7 @@
 \details{
  The loadings matrix is rotated so the \eqn{k}{k} rows of the loading matrix 
  indicated by \code{reference} are the Cholesky factorization given by 
- \code{t(chol(L[reference,] %*% t(L[reference,])))}.
+ \code{t(chol(L[reference,] \%*\% t(L[reference,])))}.
  This defines the
  rotation transformation, which is then also applied to other rows to 
  give the new loadings matrix.

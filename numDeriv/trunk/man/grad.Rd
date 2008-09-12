@@ -7,7 +7,8 @@
      grad(func, x, method="Richardson", method.args=list(), ...) 
 
     \method{grad}{default}(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, r=4, v=2, show.details=FALSE), ...)
+      method.args=list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, 
+                       r=4, v=2, show.details=FALSE), ...)
  }
 \arguments{
     \item{func}{a function with a scalar real result (see details).}
@@ -47,12 +48,15 @@
    or Fornberg and Sloan, 1994.)
    This method should be used if accuracy, as opposed to speed, is important.
    For this case, 
-   \code{methods.args=list(eps=1e-4, d=0.01, r=4, show.details=FALSE)} 
+   \code{methods.args=list(eps=1e-4, d=0.01, zero.tol=100*.Machine$double.eps, 
+   r=4, show.details=FALSE)} 
    are used.
     \code{d} gives the fraction of \code{x} to use for the initial numerical 
       approximation. The default means the initial approximation uses
       \code{0.0001 * x}.
     \code{eps} is used instead of \code{d} for elements of \code{x} which are 
+       zero (absolute value less than zero.tol).
+    \code{zero.tol} tolerance used for deciding which elements of \code{x} are 
        zero.
     \code{r} gives the number of Richardson improvement iterations (repetitions
        with successly smaller \code{d}. The default \code{4} general provides 

@@ -1,4 +1,8 @@
-            Changes in numDeriv version 200x.x-x
+            Changes in numDeriv version 2008.9-1
+
+  o argument zero.tol was added to gad, jacobian and genD, and is used to test
+    if parameters are zero in order to determine if eps should be used in place
+    of d.  Previous tests using == did not work for very small values.
 
   o Some documentation links to [stats]numericDeriv mistakenly called 
      numericalDeriv were fixed.  

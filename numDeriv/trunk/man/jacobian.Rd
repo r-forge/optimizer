@@ -10,14 +10,14 @@ m-vector valued function with n-vector argument.
     jacobian(func, x, method="Richardson", method.args=list(), ...) 
 
     \method{jacobian}{default}(func, x, method="Richardson",
-       method.args=list(eps=1e-4, d=0.0001, r=4, v=2, show.details=FALSE), ...)
+       method.args=list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, r=4, v=2, show.details=FALSE), ...)
 }
 \arguments{
     \item{func}{a function with a real (vector) result.}
     \item{x}{a real or real vector argument to func, indicating the point 
        at which the gradient is to be calculated.}
     \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
-    the method to use for the aproximation.}
+    the method to use for the approximation.}
     \item{method.args}{arguments passed to method. See \code{\link{grad}}. 
        (Arguments not specified remain with their default values.)}
     \item{...}{any additional arguments passed to \code{func}.}

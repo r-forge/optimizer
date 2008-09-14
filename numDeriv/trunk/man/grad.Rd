@@ -7,8 +7,8 @@
      grad(func, x, method="Richardson", method.args=list(), ...) 
 
     \method{grad}{default}(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, 
-                       r=4, v=2, show.details=FALSE), ...)
+      method.args=list(eps=1e-4, d=0.0001,
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE), ...)
  }
 \arguments{
     \item{func}{a function with a scalar real result (see details).}
@@ -78,8 +78,18 @@
                f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}
        
   This is repeated \code{r} times  with successively smaller \code{d}  and 
-	  then Richardson extraplolation. is applied.
-
+  then Richardson extraplolation is applied.
+  
+  If elements of \code{x} are near zero the multiplicative interval calculation
+  using \code{d} does not work, and for these elements an additive calculation
+  using \code{eps} is done instead. The argument \code{zero.tol} is used
+  determine if an element should be considered too close to zero. 
+  In the iterations, interval is successively reduced to eventual 
+  be \code{d/v^r} and the square of this value is used in second derivative 
+  calculations (see \code{\link{genD}}) so the 
+  default \code{zero.tol=sqrt(.Machine$double.eps/7e-7)} is set to ensure the
+  interval is bigger than \code{.Machine$double.eps} with the default \code{d},
+  \code{r}, and \code{v}.
 }
 \references{ 
    Linfield, G. R. and Penny, J. E. T. (1989) \emph{Microcomputers in Numerical 
@@ -90,6 +100,7 @@
 \seealso{
   \code{\link{jacobian}},
   \code{\link{hessian}},
+  \code{\link{genD}},
   \code{\link[stats]{numericDeriv}}
    }
 \examples{

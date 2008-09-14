@@ -9,7 +9,8 @@ function at a parameter value.}
     hessian(func, x, method="Richardson", method.args=list(), ...)
 
     \method{hessian}{default}(func, x, method="Richardson",
-        method.args=list(eps=1e-4, d=0.1, r=4, v=2), ...)
+        method.args=list(eps=1e-4, d=0.1,
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2), ...)
 }
 \arguments{
     \item{func}{a function for which the first (vector) argument 

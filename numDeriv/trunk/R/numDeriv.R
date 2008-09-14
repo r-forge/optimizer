@@ -8,8 +8,8 @@ grad <- function (func, x, method="Richardson", method.args=list(), ...)
    UseMethod("grad")
 
 grad.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, 
-                       r=4, v=2, show.details=FALSE), ...){
+      method.args=list(eps=1e-4, d=0.0001,
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE), ...){
   # modified by Paul Gilbert from code by Xingqiao Liu.
   # case 1/ scalar arg, scalar result (case 2/ or 3/ code should work)
   # case 2/ vector arg, scalar result (same as special case jacobian)
@@ -34,7 +34,7 @@ grad.default <- function(func, x, method="Richardson",
     return(df)
     } else
   if(method=="Richardson"){
-    args <- list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, r=4, v=2, show.details=FALSE) # default
+    args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d
@@ -102,8 +102,8 @@ jacobian <- function (func, x, method="Richardson",
                               method.args=list(), ...) UseMethod("jacobian")
 
 jacobian.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, 
-                       r=4, v=2, show.details=FALSE), ...){
+      method.args=list(eps=1e-4, d=0.0001, 
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE), ...){
   f <- func(x, ...)
   n <- length(x)	 #number of variables.
   if(method=="simple"){
@@ -120,7 +120,7 @@ jacobian.default <- function(func, x, method="Richardson",
     return(df)
     } else
   if(method=="Richardson"){
-    args <- list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, r=4, v=2, show.details=FALSE) # default
+    args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d
@@ -150,14 +150,13 @@ hessian <- function (func, x, method="Richardson",
                               method.args=list(), ...) UseMethod("hessian")
 
 hessian.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.1, r=4, v=2), ...){  
+      method.args=list(eps=1e-4, d=0.1, 
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2), ...){  
 
    if(method != "Richardson")  stop("method not implemented.")
-   args <- list(eps=1e-4, d=0.0001, r=4, v=2) # default
-   args[names(method.args)] <- method.args
    if(1!=length(func(x, ...)))
        stop("hessian.default assumes a scalar real valued function.")
-   D <- genD(func, x, method=method, method.args=args, ...)$D
+   D <- genD(func, x, method=method, method.args=method.args, ...)$D
    if(1!=nrow(D)) stop("BUG! should not get here.")
    H <- diag(NA,length(x))
    u <- length(x)
@@ -182,8 +181,8 @@ genD <- function(func, x, method="Richardson",
                    method.args=list(), ...)UseMethod("genD")
 
 genD.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.1, zero.tol=100*.Machine$double.eps, 
-                       r=4, v=2), ...){
+      method.args=list(eps=1e-4, d=0.0001, 
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2), ...){
   #   additional cleanup by Paul Gilbert (March, 2006)
   #   modified substantially by Paul Gilbert (May, 1992)
   #    from original code by Xingqiao Liu,   May, 1991.
@@ -195,7 +194,7 @@ genD.default <- function(func, x, method="Richardson",
   #	 be a parameter but the way the formula is coded it is assumed to be 2.
  
     if(method != "Richardson")  stop("method not implemented.")
-    args <- list(eps=1e-4, d=0.0001, zero.tol=100*.Machine$double.eps, r=4, v=2) # default
+    args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d

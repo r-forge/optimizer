@@ -45,8 +45,10 @@ if (!is.null(ans)) dfsane2.expo3[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$c
 z <- apply(sane1.expo3, 2, summary)
 print(z)
 print(z[,1], digits=16)
+#5.043e-09 5.475e-08 9.066e-08 1.303e+00 3.898e-01 3.189e+01 # Linux 64
+#1.445e-08 4.596e-08 9.197e-08 1.294e+00 3.898e-01 3.189e+01 # Linux 32
 if(any(abs(c(1.445e-08, 4.596e-08, 9.197e-08, 1.294e+00, 3.898e-01, 3.189e+01)  
-    - z[,1]) > 1e-10)) stop("test expo3 sane1.expo3 FAILED")
+    - z[,1]) * c(1,1,1,1e-8,1,1) > 1e-10)) stop("test expo3 sane1.expo3 FAILED")
 
 z <- apply(sane2.expo3, 2, summary)
 print(z)

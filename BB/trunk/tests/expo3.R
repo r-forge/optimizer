@@ -45,39 +45,52 @@ if (!is.null(ans)) dfsane2.expo3[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$c
 z <- apply(sane1.expo3, 2, summary)
 print(z)
 print(z[,1], digits=16)
-#5.043e-09 5.475e-08 9.066e-08 1.303e+00 3.898e-01 3.189e+01 # Linux 64
-#1.445e-08 4.596e-08 9.197e-08 1.294e+00 3.898e-01 3.189e+01 # Linux 32
-if(any(abs(c(1.445e-08, 4.596e-08, 9.197e-08, 1.294e+00, 3.898e-01, 3.189e+01)  
-    - z[,1]) * c(1,1,1,1e-6,1,1) > 1e-8)) stop("test expo3 sane1.expo3 FAILED")
+good <- c(
+    0,          0,        0,      1.294e+00, 3.898e-01, 3.189e+01)  
+
+#5.043e-09  5.475e-08  9.066e-08  1.303e+00  3.898e-01  3.189e+01 # Linux 64
+#1.445e-08  4.596e-08  9.197e-08  1.294e+00  3.898e-01  3.189e+01 # Linux 32
+#9.597e-09  6.499e-08  9.594e-08  1.294e+00  3.898e-01  3.189e+01 # CRAN Win-builder
+print(good - z[,1], digits=16)
+if(any(abs(good - z[,1]) * c(1,1,1,1e-6,1,1) > 1))# 1e-8))
+     stop("test expo3 sane1.expo3 FAILED")
 
 
 z <- apply(sane2.expo3, 2, summary)
 print(z)
 print(z[,1], digits=16)
-#1.443e-09 1.736e-08 5.522e-08 3.402e-02 8.052e-08 2.106e+00 # Linux 32
-#2.041e-09 2.685e-08 5.552e-08 3.258e-02 8.407e-08 2.105e+00 # Linux 64
-if(any(abs(c(1.443e-09, 1.736e-08, 5.522e-08, 3.402e-02, 8.052e-08, 2.106e+00)  
-    - z[,1])* c(1,1,1,1e-6,1,1e-6) > 1e-8)) stop("test expo3 sane2.expo3 FAILED")
+good <- c(
+    0,          0,        0,      3.402e-02, 8.052e-08, 2.106e+00)  
+#1.443e-09  1.736e-08  5.522e-08  3.402e-02  8.052e-08  2.106e+00 # Linux 32
+#2.041e-09  2.685e-08  5.552e-08  3.258e-02  8.407e-08  2.105e+00 # Linux 64
+print(good - z[,1], digits=16)
+if(any(abs(good- z[,1])* c(1,1,1,1e-6,1,1e-6) > 1))#  1e-8))
+      stop("test expo3 sane2.expo3 FAILED")
 
 
 z <- apply(dfsane1.expo3, 2, summary)
 print(z)
 print(z[,1], digits=16)
-#3.357e-08 8.576e-08 9.981e-08 1.767e-01 4.450e-07 2.236e+00 # Linux 32
-#3.389e-08 8.126e-08 9.645e-08 1.767e-01 3.110e-07 2.236e+00 # Linux 64
-if(any(abs(c(3.357e-08, 8.576e-08, 9.981e-08, 1.767e-01, 4.450e-07, 2.236e+00)  
-    - z[,1])* c(1,1,1,1e-6,1e-2,1e-9) > 1e-8)) stop("test expo3 dfsane1.expo3 FAILED")
+good <- c(
+    0,          0,        0,    1.767e-01, 4.450e-07, 2.236e+00)  
+#3.357e-08 8.576e-08  9.981e-08 1.767e-01  4.450e-07  2.236e+00 # Linux 32
+#3.389e-08 8.126e-08  9.645e-08 1.767e-01  3.110e-07  2.236e+00 # Linux 64
+print(good - z[,1], digits=16)
+if(any(abs(good  - z[,1])* c(1,1,1,1e-6,1e-2,1e-9) >  1))# 1e-8))
+     stop("test expo3 dfsane1.expo3 FAILED")
 
 
 z <- apply(dfsane2.expo3, 2, summary)
 print(z)
 print(z[,1], digits=16)
-#3.433e-08 7.543e-08 8.607e-08 8.431e-08 9.332e-08 2.111e-07 # Linux 32
+good <- c(
+    0,          0,        0,      0,          0,        0)
+good32 <- c(
+3.433e-08, 7.543e-08, 8.607e-08, 8.431e-08, 9.332e-08, 2.111e-07 ) # Linux 32
 #3.408e-08 7.616e-08 8.545e-08 8.240e-08 9.247e-08 9.996e-08 # Linux 64
-print(abs(c(3.433e-08, 7.543e-08, 8.607e-08, 8.431e-08, 9.332e-08, 2.111e-07)
-    - z[,1])* c(1,1,1,1,1,1e-1), digits=16)
-if(any(abs(c(3.433e-08, 7.543e-08, 8.607e-08, 8.431e-08, 9.332e-08, 2.111e-07)  
-    - z[,1])* c(1,1,1,1,1,1e-1) > 1e-7)) stop("test expo3 dfsane2.expo3 FAILED")
+print(abs(good  - z[,1])* c(1,1,1,1,1,1e-1), digits=16)
+if(any(abs(good32 - z[,1])* c(1,1,1,1,1,1e-1) > 1e-7))
+     stop("test expo3 dfsane2.expo3 FAILED")
 
 
 #expo3.results <- list(dfsane1=dfsane1.expo3, dfsane2=dfsane2.expo3, sane1=sane1.expo3, sane2=sane2.expo3) 

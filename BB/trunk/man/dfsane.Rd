@@ -49,7 +49,7 @@ without gradient information.
 It stands for "derivative-free spectral approach for nonlinear equations". 
 It differs from the function \code{sane} in that \code{sane} requires an 
 approximation of a directional derivative at every iteration of the merit 
-function $F(x)^t F(x)$.
+function \eqn{F(x)^t F(x)}{F(x)^t F(x)}.
 
 R adaptation, with significant modifications, by Ravi Varadhan, Johns Hopkins University (March 25, 2008), from the original FORTRAN code of La Cruz, Martinez, and Raydan (2006).  
 

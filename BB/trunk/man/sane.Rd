@@ -53,7 +53,7 @@ for finding a root of nonlinear systems.  It stands for "spectral approach
 for nonlinear equations".  
 It differs from the function \code{dfsane} in that it requires an 
 approximation of a directional derivative at every iteration of the merit 
-function $F(x)^t F(x)$.
+function \eqn{F(x)^t F(x)}{F(x)^t F(x)}.
 
 R adaptation, with significant modifications, by Ravi Varadhan, 
 Johns Hopkins University (March 25, 2008), from the original FORTRAN code 

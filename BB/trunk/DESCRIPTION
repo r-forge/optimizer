@@ -5,8 +5,8 @@ Description: Barzilai-Borwein Spectral Methods for solving nonlinear system of
  constraints.
 Depends: R (>= 2.6.1)
 Suggests: numDeriv, setRNG
-Version: 2008.8-1
-Date: 2008-8-04
+Version: 2008.11-1
+Date: 2008-11-24
 LazyLoad: yes
 License: GPL-3
 Author: Ravi Varadhan

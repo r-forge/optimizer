@@ -34,12 +34,15 @@ initial L2-norm.}
 indicates successful convergence, in which case the \code{resid} is smaller 
 than \code{tol}.  Error codes are 
 \code{1} indicates that the iteration limit \code{maxit} has been reached.  
-\code{2} indicates failure due to an error in function evaluation.  
-\code{3} indicates failure due to exceeding 100 steplength reductions in 
-line-search.}
+\code{2} is failure due to stagnation;   
+\code{3} indicates error in function evaluation; 
+\code{4} is failure due to exceeding 100 steplength reductions in 
+ line-search; and 
+\code{5} indicates lack of improvement in objective function 
+ over \code{noimp} consecutive iterations.
+}
 
 \item{message}{A text message explaining which termination criterion was used.}
-
 }
 
 \details{

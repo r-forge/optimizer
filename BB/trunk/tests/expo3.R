@@ -64,7 +64,7 @@ good <- c(
 #1.443e-09  1.736e-08  5.522e-08  3.402e-02  8.052e-08  2.106e+00 # Linux 32
 #2.041e-09  2.685e-08  5.552e-08  3.258e-02  8.407e-08  2.105e+00 # Linux 64
 print(good - z[,1], digits=16)
-if(any(abs(good- z[,1])* c(1,1,1,1e-6,1,1e-6) > 1))#  1e-8))
+if(any(abs(good- z[,1])* c(1,1,1,1e-7,1,1e-6) > 1e-7))
       stop("test expo3 sane2.expo3 FAILED")
 
 
@@ -76,7 +76,7 @@ good <- c(
 #3.357e-08 8.576e-08  9.981e-08 1.767e-01  4.450e-07  2.236e+00 # Linux 32
 #3.389e-08 8.126e-08  9.645e-08 1.767e-01  3.110e-07  2.236e+00 # Linux 64
 print(good - z[,1], digits=16)
-if(any(abs(good  - z[,1])* c(1,1,1,1e-6,1e-2,1e-9) >  1))# 1e-8))
+if(any(abs(good  - z[,1])* c(1,1,1,1e-5,1e-2,1e-5) >  1e-7))
      stop("test expo3 dfsane1.expo3 FAILED")
 
 
@@ -85,11 +85,11 @@ print(z)
 print(z[,1], digits=16)
 good <- c(
     0,          0,        0,      0,          0,        0)
-good32 <- c(
-3.433e-08, 7.543e-08, 8.607e-08, 8.431e-08, 9.332e-08, 2.111e-07 ) # Linux 32
-#3.408e-08 7.616e-08 8.545e-08 8.240e-08 9.247e-08 9.996e-08 # Linux 64
+#3.433e-08, 7.543e-08, 8.607e-08, 8.431e-08, 9.332e-08, 2.111e-07 ) # Linux 32
+#3.408e-08, 7.616e-08, 8.545e-08, 8.240e-08, 9.247e-08, 9.996e-08 ) # Linux 64
+#3.242e-08, 7.543e-08, 8.449e-08, 8.175e-08, 9.261e-08, 1.396e-08   # CRAN Win-builder
 print(abs(good  - z[,1])* c(1,1,1,1,1,1e-1), digits=16)
-if(any(abs(good32 - z[,1])* c(1,1,1,1,1,1e-1) > 1e-7))
+if(any(abs(good - z[,1])* c(1,1,1,1,1,1e-1) > 1e-7))
      stop("test expo3 dfsane2.expo3 FAILED")
 
 

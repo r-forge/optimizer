@@ -89,7 +89,7 @@ convergence to a better optimum in our experiments.
 We recommend that the user try the other steplength schemes if the default 
 method does not perform well in their problem.  
 
-Argument \code{project} defaults to "NULL", which results in a default box
+Argument \code{project} defaults to \code{NULL}, which results in a default box
 projection using constraints defined by vectors \code{lower} and \code{upper}. 
 These default to \code{-Inf} and \code{+Inf} respectively, but the user 
 can specify \code{lower} and \code{upper} arguments to enforce box constraints.  
@@ -106,7 +106,7 @@ Argument \code{control} is a list specifing any changes to default values of
 algorithm control parameters.  Note that the names of these must be 
 specified completely.  Partial matching will not work. 
 The list items are as follows:
-
+\itemize{
 \item{M}{A positive integer, typically between 5-20, that controls the monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
 in the reduction of L2-norm of \code{fn}, whereas larger values allow for more non-monotonicity.  Global convergence under non-monotonicity is ensured by 
 enforcing the Grippo-Lampariello-Lucidi condition (Grippo et al. 1986) in a non-monotone line-search algorithm.  Values of \code{M} 
@@ -132,7 +132,7 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
 
 \item{eps}{A small positive increment used in the finite-difference 
   approximation of gradient.  Default is 1.e-07.}
-}
+}}
 
 \references{   
     Birgin EG, Martinez JM, and Raydan M (2000): Nonmonotone spectral projected gradient methods on convex sets, \emph{SIAM J Optimization}, 10, 1196-1211.

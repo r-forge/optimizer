@@ -89,7 +89,7 @@
    \code{\link{GPFoblq}}
 }
 \references{
-  G{\"{o}}sta H{\"{a}}gglund. (1982). "Factor Analysis by
+  \enc{Gösta}{Gosta} \enc{Hägglund}{Hagglund}. (1982). "Factor Analysis by
     Instrumental Variables Methods." \emph{Psychometrika}, 47, 209--222.
 
    Sock-Cheng Lewin-Koh and Yasuo Amemiya. (2003). "Heteroscedastic factor

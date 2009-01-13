@@ -4,6 +4,12 @@
      algorithm gets stuck and does not improve (so does not converge). The
      workaround is to restart with a very slightly perturbed starting point.       
 
+
+            Changes in GPArotation version 200x.xx-x
+
+  o minor documentation corrections as found by a new R-devel.
+
+
             Changes in GPArotation version 2008.05-1
 
   o added echelon rotation.

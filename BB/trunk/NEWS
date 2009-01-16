@@ -1,5 +1,9 @@
            Changes in BB version 2009.x-x
   
+  o in demo nlsolve nsim was reduced from 100 to 20 because of testing 
+      time constraints on CRAN.
+ 
+
   o added BBsolve wrapper function.  
 
   o minor documentation fixes found by the new parser in R-devel.

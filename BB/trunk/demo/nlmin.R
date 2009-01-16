@@ -6,8 +6,11 @@ if(!require("setRNG"))stop("this requires setRNG.")
 # This was used for tests conducted on March 25, 2008, using set.seed(test.rng).  
 #   iseed <- 1236  
 # Replaced April 7, 2008, with setRNG to ensure rng and normal generators are set too.
-test.rng <- list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=1236)
-setRNG(test.rng)
+# Changed from kind="Wichmann-Hill", normal.kind="Box-Muller", 
+#  (back) to "Mersenne-Twister", normal.kind="Inversion", Jan 15, 2009
+
+test.rng <- list(kind="Mersenne-Twister", normal.kind="Inversion", seed=1236)
+old.seed <- setRNG(test.rng)
 
 
 fr <- function(x) {   ## Rosenbrock Banana function

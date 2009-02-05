@@ -1,4 +1,4 @@
-            Changes in numDeriv version 2008.9-1
+            Changes in numDeriv version 2009.2-1
 
   o argument zero.tol was added to grad, jacobian and genD, and is used to test
     if parameters are zero in order to determine if eps should be used in place

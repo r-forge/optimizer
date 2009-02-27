@@ -1,9 +1,11 @@
-           Changes in BB version 2009.x-x
+           Changes in BB version 2008.11-2xx
   
+  o added check in spg for an objective function returning a non-scalar result,
+     with an automatic fix if the result is length 1.  
+
   o in nlsolve demo nsim was reduced from 100 to 20 and in nlmin demo the optim
       examples were commented out because of testing time constraints on CRAN.
  
-
   o added BBsolve wrapper function.  
 
   o minor documentation fixes found by the new parser in R-devel.

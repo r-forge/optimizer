@@ -84,8 +84,9 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   lastfv <- rep(-1.e99, M)
   fbest <- NA
  
-  func <- if (maximize) function(par, ...) -fn(par, ...)
-                   else function(par, ...)  fn(par, ...)
+  # c() in next is for case of a 1x1 matrix value
+  func <- if (maximize) function(par, ...) c(-fn(par, ...))
+                   else function(par, ...) c( fn(par, ...))
 
   grad <- if (maximize & !grNULL) function(par, ...) -gr(par, ...)
                     else          function(par, ...)  gr(par, ...)
@@ -108,6 +109,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
         stop("Failure in initial function evaluation!", f)
   else if (is.nan(f) | is.infinite(f) | is.na(f) )
         stop("Failure in initial function evaluation!")
+  else if ( 1 < length(f) )
+        stop("function must return a scalar value!")
     
   f0 <- fbest <- f
  

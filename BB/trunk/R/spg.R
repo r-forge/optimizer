@@ -3,7 +3,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
 
   # control defaults
   ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, 
-        trace=TRUE, triter=10, eps=1e-7) 
+        trace=TRUE, triter=10, eps=1e-7, checkGrad.tol=1.e-06) 
   namc <- names(control)
   if (! all(namc %in% names(ctrl)) )
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
@@ -17,7 +17,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   trace    <- ctrl$trace
   triter   <- ctrl$triter
   eps      <- ctrl$eps
-  
+  checkGrad.tol <- ctrl$checkGrad.tol  
+
   grNULL <- is.null(gr)  
   fargs <- list(...)
   ################ local function
@@ -54,11 +55,26 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
  
     return(list(p=pnew, f=fnew, feval=feval, lsflag=0))
     }
- 
   #############################################
-  # local functions defined only when user does not specify a gr or project.
+  if (!grNULL) {
+    require("numDeriv")
+    grad.num <- grad(x=par, func=fn, ...) 
+    grad.analytic <- gr(par, ...)
+    max.diff <- max(abs((grad.analytic - grad.num) / (1 + abs(fn(par, ...)))))
+    if(!max.diff < checkGrad.tol) {
+      cat("Gradient check details:  max. relative difference in gradients= ",
+	         max.diff,
+	   "\n\n  analytic gradient:",  grad.analytic,
+	   "\n\n  numerical gradient:", grad.num
+	   )
+      stop("Analytic gradient does not seem correct! See comparison above. ",
+           "Fix it, remove it, or increase checkGrad.tol." )
+      }
+    }
+  ################ local function 
   # Simple gr numerical approximation. Using func, f and eps from calling env.  	
-  if (is.null(gr)) gr <- function(par, ...) {
+  # used when user does not specify gr.
+  if (grNULL) gr  <-function(par, ...) {
     	df <- rep(NA,length(par))
     	for (i in 1:length(par)) {
     	  dx <- par
@@ -68,7 +84,9 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     	df
 	}
 
+
   # This provides box constraints defined by upper and lower
+  # local functions defined only when user does not specify project.
   if (is.null(project)) project <- function(par, lower, upper, ...) {
        # Projecting to ensure that box-constraints are satisfied
        par[par < lower] <- lower[par < lower]
@@ -88,6 +106,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   func <- if (maximize) function(par, ...) c(-fn(par, ...))
                    else function(par, ...) c( fn(par, ...))
 
+  # this switch is not needed for the numerical grad because the
+  #  sign of func is switched.
   grad <- if (maximize & !grNULL) function(par, ...) -gr(par, ...)
                     else          function(par, ...)  gr(par, ...)
 

@@ -132,6 +132,14 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
 
 \item{eps}{A small positive increment used in the finite-difference 
   approximation of gradient.  Default is 1.e-07.}
+
+\item{checkGrad.tol}{A small positive value use to compare the maximum relative
+  difference between a user supplied gradient gr and the numerical approximation
+  calculated by grad from package \pkg{numDeriv}. The default is 1.e-06.
+  If this value is exceeded then an error message is issued, as it is a 
+  reasonable indication of a problem with the user supplied gr. The user can
+  either fix the gr function, remove it so the finite-difference 
+  approximation is used, or increase the tolerance so the check passes.}
 }}
 
 \references{   

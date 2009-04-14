@@ -43,9 +43,18 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> No content added. </p>
-
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+
+<p><p> BB -  Solving and optimizing large-scale nonlinear systems
+<p> Barzilai-Borwein Spectral Methods for solving nonlinear system of 
+ equations, and for optimizing nonlinear objective functions subject to simple 
+ constraints.
+
+<p><p>GPArotation - GPA Factor Rotation
+<p><p>Gradient Projection Algorithm Rotation for Factor Analysis. 
+
+<p><p>numDeriv - Accurate Numerical Derivatives
+<p>Accurate Numerical Derivatives. See ?numDeriv.Intro for more details.
 
 </body>
 </html>

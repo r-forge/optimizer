@@ -3,8 +3,10 @@
 \title{Optimization Wrapper}
 \description{A strategy to try different methods to obtain successful optimization.}
 \usage{
-  BBsolve(par, fn, algorithm = "dfsane", methods = c(2,1), 
-     M = c(10, 100), NM = c(FALSE, TRUE))  }
+  BBsolve(par, fn, algorithm = c("dfsane", "sane"), 
+	method=c(2,1,3), M = c(10, 100), NM=c(TRUE, FALSE), ... , 
+	tol=1.e-07, maxit=1500) 
+  }
 \arguments{
     \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
     objective function \code{fn}.}
@@ -13,11 +15,14 @@
       A scalar function that takes a real vector as argument and 
       returns a scalar that is the value of the function at that point.}
     \item{algorithm}{character string indicating "sane" or "dfsane".} 
-    \item{methods}{A vector of integers specifying } 
+    \item{method}{A vector of integers specifying WHAT} 
     \item{M}{to add} 
     \item{NM}{to add}
+    \item{tol}{to add}
+    \item{maxit}{to add}
+    \item{...}{arguments passed fn (via the optimization algorithm).}
 }
-\value{A list with elements as returned by \code{sane} or \code{dfsane}.}
+\value{NOT A list with elements as returned by \code{sane} or \code{dfsane}.}
 
 \details{
 Algorithm (\code{sane} or \code{dfsane}) is said to have failed when a 

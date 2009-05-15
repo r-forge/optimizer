@@ -15,10 +15,11 @@ nrc <- function(x) {
 }
 
 p0 <- matrix(rnorm(500), 50, 10)  # 100 starting values, each of length 5
-ans1 <- dfsane(par=p0[1,], fn=nrc)
-ans <- BBsolve(par=p0, fn=nrc)
-pmat <- ans$par
-pc <- princomp(pmat) 
+#ans1 <- dfsane(par=p0[1,], fn=nrc)
+#ans <- BBsolve(par=p0, fn=nrc)
+ans <- gridStart(par=p0, fn=nrc)
+
+#pc <- princomp(ans$par) 
 #plot(pc$scores[,1])  # plot shows distinct solutions
 
 

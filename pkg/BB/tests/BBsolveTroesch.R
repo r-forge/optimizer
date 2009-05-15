@@ -20,7 +20,8 @@ troesch <- function(x) {
   
 
 p0 <- matrix(runif(50), 5, 10)  # 5 starting values, each of length 10
-ans <- BBsolve(par=p0, fn=troesch)
+#ans <- BBsolve(par=p0, fn=troesch)
+ans <- gridStart(par=p0, fn=troesch)
 ans$par
 ans$info
 

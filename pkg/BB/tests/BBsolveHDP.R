@@ -18,19 +18,17 @@ f
 }
 
 p0 <- matrix(runif(600), 200, 3)  # 200 starting values, each of length 3
-ans <- BBsolve(par=p0, fn=hdp)
-pmat <- ans$par
-pc <- princomp(pmat)
+#ans <- BBsolve(par=p0, fn=hdp)
+ans <- gridStart(par=p0, fn=hdp)
+
+#pc <- princomp(ans$par)
 #plot(pc$scores[,1])  # you can see all 12 solutions
-
-
-
-# ans$convergence
  
-z <- sum(ans$par)
+z <- sum(ans$par[ans$converged,])
 good   <-    68.4364913774026
 #on Windows 
 #on Linux64  68.6429426963639
 #on Linux32  68.4364913774026
+
 print(z, digits=16)
 if(any(abs(good - z) > 5e-1)) stop("BB test BBsolve HDP FAILED")

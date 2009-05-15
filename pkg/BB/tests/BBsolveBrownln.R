@@ -20,11 +20,13 @@ brownlin <- function(x) {
 
 p0 <- matrix(rnorm(200), 20, 10)  # 20 starting values, each of length 10
 #p0 <- matrix(rnorm(550), 50, 11)  # 20 starting values, each of length 10
-ans1 <- dfsane(par=p0[1,], fn=brownlin)
-ans <- BBsolve(par=p0, fn=brownlin)
-ans$par
-pmat <- ans$par
-pc <- princomp(pmat) 
+#ans1 <- dfsane(par=p0[1,], fn=brownlin)
+#ans <- BBsolve(par=p0, fn=brownlin)
+ans <- gridStart(par=p0, fn=brownlin)
+
+#ans$par
+
+#pc <- princomp(ans$par) 
 #plot(pc$scores[,1])  # plot shows two/three distinct solutions depending on n is even/odd
 
 

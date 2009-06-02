@@ -22,7 +22,7 @@ p0 <- matrix(rnorm(200), 20, 10)  # 20 starting values, each of length 10
 #p0 <- matrix(rnorm(550), 50, 11)  # 20 starting values, each of length 10
 #ans1 <- dfsane(par=p0[1,], fn=brownlin)
 #ans <- BBsolve(par=p0, fn=brownlin)
-ans <- gridStart(par=p0, fn=brownlin)
+ans <- multiStart(par=p0, fn=brownlin)
 
 #ans$par
 

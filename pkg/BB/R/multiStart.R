@@ -1,8 +1,8 @@
-gridStart <- function(par, fn, algorithm = c("dfsane", "sane"), 
-	method=c(2,1,3), M = c(10, 100), NM=c(TRUE, FALSE), ... , 
-	tol=1.e-07, maxit=1500) 
+multiStart <- function(par, fn, algorithm = c("dfsane", "sane"), 
+	method=c(2,3,1), M = c(10, 50), NM=c(TRUE, FALSE), ... , 
+	tol=1.e-07, maxit=1500, details=FALSE) 
     {
-    par <- as.matrix(par)
+     if (is.null(dim(par))) par <- matrix(par, nrow=1, ncol=length(par))
     if (ncol(par) > 20) NM <- FALSE   
     
     ans <- vector("list",    length=nrow(par))
@@ -13,7 +13,7 @@ gridStart <- function(par, fn, algorithm = c("dfsane", "sane"),
     pmat <- matrix(NA, nrow(par) ,ncol(par))
     
     for (k in 1:nrow(par)){
-       cat("Parameter set : ", k, "... ")
+       cat("Parameter set : ", k, "... \n")
     
        ans[[k]] <- BBsolve(par[k,], fn, algorithm = algorithm, 
  	    method=method, M = M, NM=NM, ... , tol=tol, maxit=maxit) 
@@ -28,17 +28,7 @@ gridStart <- function(par, fn, algorithm = c("dfsane", "sane"),
     #     around ans[[which.min(values)]]
     #  if (!any(cvg)) ans[[1]] <- ans.best
     
-    #success <- !is.na(pmat[,1])  # this was indicating convergence (cvg)
-      
-    #  #  I don't understand k==1 here (from old code).  I think
-    #  #  this condition may only happen when there was a single par setting
-    #  #  which would now be done with a direct call to BBsolve, not gridStart.
-    #  if (k ==1 | !any(cvg)) ans[[1]] 
-    #  else list(par = pmat[success, ], info=ans[success])
-    
-    # # if (!any(cvg))  ans.best else
-    #list(par=pmat[cvg,], info=ans[cvg]) #think I want failures too
-
     #   some duplication here (everything is in info=ans)
-    list(par=pmat, values=values, converged=cvg, info=ans)
+    if (details) list(par=pmat, values=values, converged=cvg, info=ans)
+    else list(par=pmat, values=values, converged=cvg)
     }

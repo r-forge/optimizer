@@ -4,7 +4,7 @@
 \description{A strategy to try different methods to obtain successful optimization.}
 \usage{
   BBsolve(par, fn, algorithm = c("dfsane", "sane"), 
-	method=c(2,1,3), M = c(10, 100), NM=c(TRUE, FALSE), ... , 
+        method=c(2,3,1), M = c(10, 50), NM=c(TRUE, FALSE), ... , 
 	tol=1.e-07, maxit=1500) 
   }
 \arguments{

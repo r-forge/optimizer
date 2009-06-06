@@ -1,4 +1,12 @@
-           Changes in BB version 2008.11-2xx
+           Changes in BB version 2009.06-1 
+  
+  o Added function multiStart to start BBoptim or BBsolve from multiple
+     initial points.  
+
+  o Stopped exporting spg, sane, and dfsane from the namespace. The wrapper
+     functions BBoptim and BBsolve are the preferred user interface.  
+  
+  o Added BBoptim wrapper function.  
   
   o Added a check to spg() that a user supplied gradient gives a result close
       to grad from numDeriv (which means numDeriv is now required).  

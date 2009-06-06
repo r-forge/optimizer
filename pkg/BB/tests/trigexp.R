@@ -19,10 +19,10 @@ F
 }
 
 p0 <- rnorm(500, sd=2)
-ans1 <- dfsane(par=p0, fn=trigexp, method=1)
-ans2 <- dfsane(par=p0, fn=trigexp, method=2)
-ans3 <- sane(par=p0, fn=trigexp, method=2)
-ans4 <- sane(par=p0, fn=trigexp, method=3)
+ans1 <- BB:::dfsane(par=p0, fn=trigexp, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=trigexp, method=2)
+ans3 <- BB:::sane(par=p0, fn=trigexp, method=2)
+ans4 <- BB:::sane(par=p0, fn=trigexp, method=3)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -33,13 +33,13 @@ dfsane1.trigexp <- dfsane2.trigexp <- sane1.trigexp <- sane2.trigexp <- matrix(N
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- rnorm(500)
-t1 <- system.time(ans <- sane(par=p0, fn=trigexp, method=1, control=list(BFGS=TRUE, trace=F)))[1]
+t1 <- system.time(ans <- BB:::sane(par=p0, fn=trigexp, method=1, control=list(BFGS=TRUE, trace=F)))[1]
 if (!is.null(ans))sane1.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t1)
-t2 <- system.time(ans <- sane(par=p0, fn=trigexp, method=2, control=list(BFGS=TRUE, trace=F)))[1]
+t2 <- system.time(ans <- BB:::sane(par=p0, fn=trigexp, method=2, control=list(BFGS=TRUE, trace=F)))[1]
 if (!is.null(ans))sane2.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t2)
-t3 <- system.time(ans <- dfsane(par=p0, fn=trigexp, method=1, control=list(BFGS=TRUE, trace=F)))[1]
+t3 <- system.time(ans <- BB:::dfsane(par=p0, fn=trigexp, method=1, control=list(BFGS=TRUE, trace=F)))[1]
 if (!is.null(ans))dfsane1.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t3)
-t4 <- system.time(ans <- dfsane(par=p0, fn=trigexp, method=2, control=list(BFGS=TRUE, trace=F)))[1]
+t4 <- system.time(ans <- BB:::dfsane(par=p0, fn=trigexp, method=2, control=list(BFGS=TRUE, trace=F)))[1]
 if (!is.null(ans)) dfsane2.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t4)
 }
 

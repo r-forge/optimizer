@@ -92,68 +92,68 @@ sum(f*f)
 
 #########################################################################################
 p0 <- rnorm(2,sd=2)
-system.time(ans.spg <- spg(par=p0, fn=fr))[1]
-system.time(ans.spg <- spg(par=p0, fn=fr, method=1))[1]
-system.time(ans.spg <- spg(par=p0, fn=fr, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=fr))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=fr, method=1))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=fr, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=fr, method="L-BFGS-B"))[1]
 #########################################################################################
 p0 <- rnorm(200,sd=2)
-system.time(ans.spg <- spg(par=p0, fn=sc2.f))[1]
-system.time(ans.spg <- spg(par=p0, fn=sc2.f, method=1))[1]
-system.time(ans.spg <- spg(par=p0, fn=sc2.f, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=sc2.f))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=sc2.f, method=1))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=sc2.f, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=sc2.f, method="L-BFGS-B"))[1]
 
 # This demonstrates the value of providing "exact" gradient information
 # Much faster computation, as well as better convergence
-system.time(ans.spg <- spg(par=p0, fn=sc2.f, gr=sc2.g))[1]  
+system.time(ans.spg <- BB:::spg(par=p0, fn=sc2.f, gr=sc2.g))[1]  
 
 ##########
 p0 <- rnorm(200,sd=2)
-system.time(ans.spg <- spg(par=p0, fn=brown.f))[1]
-system.time(ans.spg <- spg(par=p0, fn=brown.f, meth=1))[1]
-system.time(ans.spg <- spg(par=p0, fn=brown.f, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=brown.f))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=brown.f, meth=1))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=brown.f, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=brown.f, method="L-BFGS-B"))[1]
 
 ##########
 p0 <- rnorm(200,sd=2)
-system.time(ans.spg <- spg(par=p0, fn=rosbkext.f))[1]
-#system.time(ans.spg <- spg(par=p0, fn=rosbkext.f, meth=1))[1]
-#system.time(ans.spg <- spg(par=p0, fn=rosbkext.f, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=rosbkext.f))[1]
+#system.time(ans.spg <- BB:::spg(par=p0, fn=rosbkext.f, meth=1))[1]
+#system.time(ans.spg <- BB:::spg(par=p0, fn=rosbkext.f, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=rosbkext.f, method="L-BFGS-B"))[1]
  
 ##########
 p0 <- rnorm(200,sd=5)
-system.time(ans.spg <- spg(par=p0, fn=trig.f))[1]
-system.time(ans.spg <- spg(par=p0, fn=trig.f, meth=1))[1]
-system.time(ans.spg <- spg(par=p0, fn=trig.f, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=trig.f))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=trig.f, meth=1))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=trig.f, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=trig.f, method="L-BFGS-B"))[1]
 
 ##########
 p0 <- rexp(500)
-system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0))[1]
-system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0, meth=1))[1]
-system.time(ans.spg <- spg(par=p0, fn=chen.f, lower=0, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=chen.f, lower=0))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=chen.f, lower=0, meth=1))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=chen.f, lower=0, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=chen.f, lower=0, method="L-BFGS-B"))[1]
 ##########
 p0 <- rnorm(99, sd=2)
-system.time(ans.spg <- spg(par=p0, fn=valley.f))[1]
-system.time(ans.spg <- spg(par=p0, fn=valley.f, meth=1))[1]
-system.time(ans.spg <- spg(par=p0, fn=valley.f, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=valley.f))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=valley.f, meth=1))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=valley.f, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=valley.f, method="L-BFGS-B"))[1]
 
 ##########
 p0 <- rnorm(500, sd=2)
-system.time(ans.spg <- spg(par=p0, fn=broydt.f))[1]
-system.time(ans.spg <- spg(par=p0, fn=broydt.f, meth=1))[1]
-system.time(ans.spg <- spg(par=p0, fn=broydt.f, method=2))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=broydt.f))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=broydt.f, meth=1))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=broydt.f, method=2))[1]
 #system.time(ans.opt <- optim(par=p0, fn=broydt.f, method="L-BFGS-B"))[1]
 #########################################
 p0 <- rpois(2,10)
-ans.spg <- spg(par=p0, fn=froth)
+ans.spg <- BB:::spg(par=p0, fn=froth)
 ans.spg
-ans.spg <- spg(par=p0, fn=froth, meth=1)
+ans.spg <- BB:::spg(par=p0, fn=froth, meth=1)
 ans.spg
-ans.spg <- spg(par=p0, fn=froth, method=2)
+ans.spg <- BB:::spg(par=p0, fn=froth, method=2)
 ans.spg
 #optim(par=p0, fn=froth, method="L-BFGS-B")
 
@@ -175,12 +175,12 @@ hi <- c(0.999, Inf, Inf)
 y <- poissmix.dat$freq
 
 p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # randomly generated starting values
-t.spg <- system.time(ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, 
+t.spg <- system.time(ans.spg <- BB:::spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, 
 control=list(maximize=T)))[1]
 
-t.spg <- system.time(ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T), meth=1))[1]
+t.spg <- system.time(ans.spg <- BB:::spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T), meth=1))[1]
 
-t.spg <- system.time(ans.spg <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T), meth=2))[1]
+t.spg <- system.time(ans.spg <- BB:::spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T), meth=2))[1]
 
 #ans.opt <- optim(par=p0, fn=poissmix.loglik, y=y, method="L-BFGS-B", lower=lo, upper=hi, 
 #	control=list(fnscale=-1))
@@ -250,11 +250,11 @@ hi <- c(Inf, Inf, Inf, Inf, 0.999)
 
 p0 <- c(runif(5,c(0,0.1,0,0.1,0.2),c(2*pi,5,2*pi,5,0.8)))
 
-t.spg <- system.time(ans.spg <- spg(par=p0, fn=vmmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T, M=20)))[1]
+t.spg <- system.time(ans.spg <- BB:::spg(par=p0, fn=vmmix.loglik, y=y, lower=lo, upper=hi, control=list(maximize=T, M=20)))[1]
 
-t.spg <- system.time(ans.spg <- spg(par=p0, fn=vmmix.loglik, y=y, lower=lo, upper=hi, method=1, control=list(maximize=T, M=20)))[1]
+t.spg <- system.time(ans.spg <- BB:::spg(par=p0, fn=vmmix.loglik, y=y, lower=lo, upper=hi, method=1, control=list(maximize=T, M=20)))[1]
 
-t.spg <- system.time(ans.spg <- spg(par=p0, fn=vmmix.loglik, y=y, lower=lo, upper=hi, method=2, control=list(maximize=T, M=20)))[1]
+t.spg <- system.time(ans.spg <- BB:::spg(par=p0, fn=vmmix.loglik, y=y, lower=lo, upper=hi, method=2, control=list(maximize=T, M=20)))[1]
 
 #ans.opt <- optim(par=p0, fn=vmmix.loglik, y=y, method="L-BFGS-B", lower=lo, upper=hi, 
 #  control=list(fnscale=-1))

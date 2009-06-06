@@ -18,7 +18,7 @@ expo1 <- function(x) {
     	f
     	}
 
-ans <- dfsane(par=runif(100), fn=expo1)
+ans <- BB:::dfsane(par=runif(100), fn=expo1)
  
 z <- sum(ans$par)
 #good   <-  99.9944496188613 #pre 2008-11.1

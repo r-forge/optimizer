@@ -18,10 +18,10 @@ f
 }
 
 p0 <- -sort(runif(500))
-ans1 <- dfsane(par=p0, fn=broyds, method=1)
-ans2 <- dfsane(par=p0, fn=broyds, method=2)
-ans3 <- sane(par=p0, fn=broyds, method=1)
-ans4 <- sane(par=p0, fn=broyds, method=2)
+ans1 <- BB:::dfsane(par=p0, fn=broyds, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=broyds, method=2)
+ans3 <- BB:::sane(par=p0, fn=broyds, method=1)
+ans4 <- BB:::sane(par=p0, fn=broyds, method=2)
 #ans <- nlsolve(p0, fn=broyds, method="L-BFGS-B")
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) #, ans$val) 
@@ -33,13 +33,13 @@ dfsane1.broyds <- dfsane2.broyds <- sane1.broyds <- sane2.broyds <- matrix(NA, n
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- -sort(runif(500))
-t1 <- system.time(ans <- sane(par=p0, fn=broyds, method=1, control=list(BFGS=FALSE, trace=F)))[1]
+t1 <- system.time(ans <- BB:::sane(par=p0, fn=broyds, method=1, control=list(BFGS=FALSE, trace=F)))[1]
 if (!is.null(ans))sane1.broyds[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t1)
-t2 <- system.time(ans <- sane(par=p0, fn=broyds, method=2, control=list(BFGS=FALSE, trace=F)))[1]
+t2 <- system.time(ans <- BB:::sane(par=p0, fn=broyds, method=2, control=list(BFGS=FALSE, trace=F)))[1]
 if (!is.null(ans))sane2.broyds[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t2)
-t3 <- system.time(ans <- dfsane(par=p0, fn=broyds, method=1, control=list(BFGS=FALSE, trace=F)))[1]
+t3 <- system.time(ans <- BB:::dfsane(par=p0, fn=broyds, method=1, control=list(BFGS=FALSE, trace=F)))[1]
 if (!is.null(ans))dfsane1.broyds[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t3)
-t4 <- system.time(ans <- dfsane(par=p0, fn=broyds, method=2, control=list(BFGS=FALSE, trace=F)))[1]
+t4 <- system.time(ans <- BB:::dfsane(par=p0, fn=broyds, method=2, control=list(BFGS=FALSE, trace=F)))[1]
 if (!is.null(ans)) dfsane2.broyds[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv, t4)
 }
 

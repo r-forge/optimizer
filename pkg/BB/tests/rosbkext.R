@@ -17,7 +17,7 @@ sum (100*(p[1:(n-1)]^2 - p[2:n])^2 + (p[1:(n-1)] - 1)^2)
 }
 
 p0 <- rnorm(50,sd=2)
-system.time(ans.spg <- spg(par=p0, fn=rosbkext.f, control=list(maxit=2500)))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=rosbkext.f, control=list(maxit=2500)))[1]
 system.time(ans.opt <- optim(par=p0, fn=rosbkext.f, method="L-BFGS-B"))[1]
  
 z <- sum(ans.spg$par)

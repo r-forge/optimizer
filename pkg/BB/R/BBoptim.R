@@ -1,29 +1,28 @@
-BBsolve <- function(par, fn, method=c(2,3,1), control=list(), ...) 
+BBoptim <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, method=c(2,3,1), control=list(), ...) 
     {
-    ctrl <- list(maxit = 1500, M = c(10, 50), tol = 1e-07, trace = FALSE, 
-        triter = 10, noimp = 100, NM = c(TRUE, FALSE))
+    ctrl <- list(M = c(10, 50), maxit = 1500, gtol = 1e-05, maxfeval = 10000, 
+        maximize = FALSE, trace = FALSE, triter = 10, eps = 1e-07)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
     M <- ctrl$M
     maxit <- ctrl$maxit
-    tol <- ctrl$tol
+    gtol <- ctrl$gtol
+    maxfeval <- ctrl$maxfeval
+    maximize <- ctrl$maximize
     trace <- ctrl$trace
     triter <- ctrl$triter
-    noimp <- ctrl$noimp
-    if (length(par) <= 20) NM <- ctrl$NM else NM <- FALSE
+    eps <- ctrl$eps
+    control.pars <- expand.grid(method=method, M=M)
 
-    control.pars <- expand.grid(method=method, M=M, NM=NM)
-	
     feval <- iter <-  0
     ans.best.value <- Inf
     for (i in 1: nrow(control.pars) ) {
       cpars <- unlist(control.pars[i, ])
-      #cat("Try : ", i, "Method = ", cpars[1], "M = ", cpars[2], "Nelder-Mead = ", cpars[3], "\n")
-
-     	temp <- dfsane(par=par, fn, method=cpars[1], control=list(M=as.numeric(cpars[2]), 
- 	   NM=cpars[3], maxit=maxit, tol=tol, trace=trace, triter=triter, noimp=min(100, 5*cpars[2])), ...)
+ 	temp <- spg(par=par, fn=fn, gr=gr, method=cpars[1], lower=lower, upper=upper, 
+	control=list(M=as.numeric(cpars[2]), maxit=maxit, maximize=maximize, trace=trace, 
+	triter=triter, maxfeval=maxfeval, eps=eps), ...)
 
       feval <- feval + temp$feval
       iter <- iter + temp$iter
@@ -35,9 +34,9 @@ BBsolve <- function(par, fn, method=c(2,3,1), control=list(), ...)
  	   ans.best$cpar <- cpars
  	   break
  	   } 
-      else if (temp$residual < ans.best.value) {
+      else if (temp$value < ans.best.value) {
  	   ans.best <- temp
- 	   ans.best.value <- ans.best$residual
+ 	   ans.best.value <- ans.best$value
  	   ans.best$feval <- feval
  	   ans.best$iter <- iter
  	   ans.best$cpar <- cpars

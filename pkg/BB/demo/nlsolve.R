@@ -25,10 +25,10 @@ f[2:n] <- (2:n) * (exp(x[2:n] - 1) - x[2:n])
 f
 }
 p0 <- rnorm(100)
-ans1 <- dfsane(par=p0, fn=expo1, method=1)
-ans2 <- dfsane(par=p0, fn=expo1, method=2)
-ans3 <- dfsane(par=p0, fn=expo1, method=3)
-ans4 <- sane(par=p0, fn=expo1)
+ans1 <- BB:::dfsane(par=p0, fn=expo1, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=expo1, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=expo1, method=3)
+ans4 <- BB:::sane(par=p0, fn=expo1)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -38,13 +38,13 @@ dfsane1.expo1 <- dfsane2.expo1 <- dfsane3.expo1 <- sane.expo1 <- matrix(NA, nsim
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- rnorm(100)
-ans <- sane(par=p0, fn=expo1, control=list(trace=F))
+ans <- BB:::sane(par=p0, fn=expo1, control=list(trace=F))
 if (!is.null(ans)) sane.expo1[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=expo1, method=1, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=expo1, method=1, control=list(trace=F))
 if (!is.null(ans)) dfsane1.expo1[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=expo1, method=2, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=expo1, method=2, control=list(trace=F))
 if (!is.null(ans)) dfsane2.expo1[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=expo1, method=3, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=expo1, method=3, control=list(trace=F))
 if (!is.null(ans)) dfsane3.expo1[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
 }
 
@@ -71,10 +71,10 @@ f
 n <- 100
 p0 <- (1:n)/(4*n^2)
 p0 <- rnorm(n, sd=4)
-ans1 <- dfsane(par=p0, fn=expo3, method=1)
-ans2 <- dfsane(par=p0, fn=expo3, method=2)
-ans3 <- dfsane(par=p0, fn=expo3, method=3)
-ans4 <- sane(par=p0, fn=expo3)
+ans1 <- BB:::dfsane(par=p0, fn=expo3, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=expo3, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=expo3, method=3)
+ans4 <- BB:::sane(par=p0, fn=expo3)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -85,13 +85,13 @@ dfsane1.expo3 <- dfsane2.expo3 <- dfsane3.expo3 <- sane.expo3 <- matrix(NA, nsim
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- rnorm(100)
-ans <- sane(par=p0, fn=expo3, control=list(trace=F))
+ans <- BB:::sane(par=p0, fn=expo3, control=list(trace=F))
 if (!is.null(ans)) sane.expo3[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=expo3, method=1, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=expo3, method=1, control=list(trace=F))
 if (!is.null(ans)) dfsane1.expo3[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=expo3, method=2, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=expo3, method=2, control=list(trace=F))
 if (!is.null(ans)) dfsane2.expo3[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=expo3, method=3, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=expo3, method=3, control=list(trace=F))
 if (!is.null(ans)) dfsane3.expo3[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
 }
 
@@ -113,30 +113,30 @@ f
 }
 
 p0 <- c(3,2)  # this gives the zero of the system
-ans1 <- dfsane(par=p0, fn=froth, method=1)
-ans2 <- dfsane(par=p0, fn=froth, method=2)
-ans3 <- dfsane(par=p0, fn=froth, method=3)
-ans4 <- sane(par=p0, fn=froth)
+ans1 <- BB:::dfsane(par=p0, fn=froth, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=froth, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=froth, method=3)
+ans4 <- BB:::sane(par=p0, fn=froth)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
 
 p0 <- c(1,1)  # this gives the local minimum that is not the zero of the system
-ans1 <- dfsane(par=p0, fn=froth, method=1)
-ans2 <- dfsane(par=p0, fn=froth, method=2)
-ans3 <- dfsane(par=p0, fn=froth, method=3)
-ans4 <- sane(par=p0, fn=froth)
+ans1 <- BB:::dfsane(par=p0, fn=froth, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=froth, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=froth, method=3)
+ans4 <- BB:::sane(par=p0, fn=froth)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
 
 
 p0 <- rpois(2,10)  # trying random starts
-ans1 <- dfsane(par=p0, fn=froth, method=1)
-ans2 <- dfsane(par=p0, fn=froth, method=2)
-ans3 <- dfsane(par=p0, fn=froth, method=3)
-ans4 <- sane(par=p0, fn=froth)
+ans1 <- BB:::dfsane(par=p0, fn=froth, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=froth, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=froth, method=3)
+ans4 <- BB:::sane(par=p0, fn=froth)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -154,10 +154,10 @@ F
 }
 
 p0 <- rnorm(100, sd=3)
-ans1 <- dfsane(par=p0, fn=trigexp, method=1)
-ans2 <- dfsane(par=p0, fn=trigexp, method=2)
-ans3 <- dfsane(par=p0, fn=trigexp, method=3)
-ans4 <- sane(par=p0, fn=trigexp)
+ans1 <- BB:::dfsane(par=p0, fn=trigexp, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=trigexp, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=trigexp, method=3)
+ans4 <- BB:::sane(par=p0, fn=trigexp)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -169,13 +169,13 @@ dfsane1.trigexp <- dfsane2.trigexp <- dfsane3.trigexp <- sane.trigexp <- matrix(
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- rnorm(100)
-ans <- sane(par=p0, fn=trigexp)
+ans <- BB:::sane(par=p0, fn=trigexp)
 if (!is.null(ans)) sane.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=trigexp, method=1)
+ans <- BB:::dfsane(par=p0, fn=trigexp, method=1)
 if (!is.null(ans)) dfsane1.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=trigexp, method=2)
+ans <- BB:::dfsane(par=p0, fn=trigexp, method=2)
 if (!is.null(ans)) dfsane2.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=trigexp, method=3)
+ans <- BB:::dfsane(par=p0, fn=trigexp, method=3)
 if (!is.null(ans)) dfsane3.trigexp[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
 }
 
@@ -204,10 +204,10 @@ f
 }
  
 p0 <- rnorm(102, sd=3)  # number of unknowns must be a multiple of 3
-ans1 <- dfsane(par=p0, fn=valley, method=1)
-ans2 <- dfsane(par=p0, fn=valley, method=2)
-ans3 <- dfsane(par=p0, fn=valley, method=3)
-ans4 <- sane(par=p0, fn=valley)
+ans1 <- BB:::dfsane(par=p0, fn=valley, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=valley, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=valley, method=3)
+ans4 <- BB:::sane(par=p0, fn=valley)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -219,13 +219,13 @@ dfsane1.valley <- dfsane2.valley <- dfsane3.valley <- sane.valley <- matrix(NA, 
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- rnorm(102)
-ans <- sane(par=p0, fn=valley, control=list(trace=F))
+ans <- BB:::sane(par=p0, fn=valley, control=list(trace=F))
 if (!is.null(ans)) sane.valley[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=valley, method=1, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=valley, method=1, control=list(trace=F))
 if (!is.null(ans)) dfsane1.valley[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=valley, method=2, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=valley, method=2, control=list(trace=F))
 if (!is.null(ans)) dfsane2.valley[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=valley, method=3, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=valley, method=3, control=list(trace=F))
 if (!is.null(ans)) dfsane3.valley[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
 }
 
@@ -250,10 +250,10 @@ f
 }
 
 p0 <- rnorm(500, sd=5)
-ans1 <- dfsane(par=p0, fn=broydt, method=1)
-ans2 <- dfsane(par=p0, fn=broydt, method=2)
-ans3 <- dfsane(par=p0, fn=broydt, method=3)
-ans4 <- sane(par=p0, fn=broydt)
+ans1 <- BB:::dfsane(par=p0, fn=broydt, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=broydt, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=broydt, method=3)
+ans4 <- BB:::sane(par=p0, fn=broydt)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -264,13 +264,13 @@ dfsane1.broydt <- dfsane2.broydt <- dfsane3.broydt <- sane.broydt <- matrix(NA, 
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- rnorm(100)
-ans <- sane(par=p0, fn=broydt, control=list(trace=F))
+ans <- BB:::sane(par=p0, fn=broydt, control=list(trace=F))
 if (!is.null(ans)) sane.broydt[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=broydt, method=1, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=broydt, method=1, control=list(trace=F))
 if (!is.null(ans)) dfsane1.broydt[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=broydt, method=2, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=broydt, method=2, control=list(trace=F))
 if (!is.null(ans)) dfsane2.broydt[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=broydt, method=3, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=broydt, method=3, control=list(trace=F))
 if (!is.null(ans)) dfsane3.broydt[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
 }
 
@@ -295,10 +295,10 @@ brent <- function(x) {
   }
 
 p0 <- rnorm(100)
-ans1 <- dfsane(par=p0, fn=brent, method=1)
-ans2 <- dfsane(par=p0, fn=brent, method=2)
-ans3 <- dfsane(par=p0, fn=brent, method=3)
-ans4 <- sane(par=p0, fn=brent)
+ans1 <- BB:::dfsane(par=p0, fn=brent, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=brent, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=brent, method=3)
+ans4 <- BB:::sane(par=p0, fn=brent)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -310,13 +310,13 @@ dfsane1.brent <- dfsane2.brent <- dfsane3.brent <- sane.brent <- matrix(NA, nsim
 for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 p0 <- rnorm(100)
-ans <- sane(par=p0, fn=brent, control=list(trace=F))
+ans <- BB:::sane(par=p0, fn=brent, control=list(trace=F))
 if (!is.null(ans))sane.brent[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=brent, method=1, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=brent, method=1, control=list(trace=F))
 if (!is.null(ans))dfsane1.brent[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=brent, method=2, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=brent, method=2, control=list(trace=F))
 if (!is.null(ans)) dfsane2.brent[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=brent, method=3, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=brent, method=3, control=list(trace=F))
 if (!is.null(ans)) dfsane3.brent[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
 }
 
@@ -343,10 +343,10 @@ troesch <- function(x) {
   }
   
 p0 <- rnorm(100)
-ans1 <- dfsane(par=p0, fn=troesch, method=1)
-ans2 <- dfsane(par=p0, fn=troesch, method=2)
-ans3 <- dfsane(par=p0, fn=troesch, method=3)
-ans4 <- sane(par=p0, fn=troesch)
+ans1 <- BB:::dfsane(par=p0, fn=troesch, method=1)
+ans2 <- BB:::dfsane(par=p0, fn=troesch, method=2)
+ans3 <- BB:::dfsane(par=p0, fn=troesch, method=3)
+ans4 <- BB:::sane(par=p0, fn=troesch)
 
 c(ans1$resid, ans2$resid,ans3$resid, ans4$resid) 
 c(ans1$feval, ans2$feval,ans3$feval,ans4$feval) 
@@ -358,13 +358,13 @@ for (i in 1:nsim) {
 cat("Simulation" , i, "\n")
 #p0 <- rnorm(100)  # this doesn't work for "sane"; but works well for "dfsane"  
 p0 <- runif(100)  # this works for all schemes
-ans <- sane(par=p0, fn=troesch, control=list(trace=F))
+ans <- BB:::sane(par=p0, fn=troesch, control=list(trace=F))
 if (!is.null(ans)) sane.troesch[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=troesch, method=1, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=troesch, method=1, control=list(trace=F))
 if (!is.null(ans)) dfsane1.troesch[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=troesch, method=2, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=troesch, method=2, control=list(trace=F))
 if (!is.null(ans)) dfsane2.troesch[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
-ans <- dfsane(par=p0, fn=troesch, method=3, control=list(trace=F))
+ans <- BB:::dfsane(par=p0, fn=troesch, method=3, control=list(trace=F))
 if (!is.null(ans)) dfsane3.troesch[i, ] <- c(ans$resid, ans$feval, ans$iter, ans$conv)
 }
 

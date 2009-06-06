@@ -24,7 +24,7 @@ sum((p[odd]^2)^(p[even]^2 + 1) + (p[even]^2)^(p[odd]^2 + 1))
 
 p0 <- rnorm(500,sd=2) # this set fails in optim, so
 p0 <- rnorm(500,sd=2)
-system.time(ans.spg <- spg(par=p0, fn=brown.f, control=list(maxit=2500)))[1]
+system.time(ans.spg <- BB:::spg(par=p0, fn=brown.f, control=list(maxit=2500)))[1]
 
 z <- sum(ans.spg $par)
 good  <-    -3.336592920523865e-05 

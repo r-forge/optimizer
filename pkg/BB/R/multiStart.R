@@ -1,34 +1,32 @@
-multiStart <- function(par, fn, algorithm = c("dfsane", "sane"), 
-	method=c(2,3,1), M = c(10, 50), NM=c(TRUE, FALSE), ... , 
-	tol=1.e-07, maxit=1500, details=FALSE) 
+multiStart <- function(par, fn, gr=NULL, action = c("solve", "optimize"),
+	method=c(2,3,1), control=list(), ... ) 
     {
      if (is.null(dim(par))) par <- matrix(par, nrow=1, ncol=length(par))
-    if (ncol(par) > 20) NM <- FALSE   
     
     ans <- vector("list",    length=nrow(par))
     cvg <- vector("logical", length=nrow(par))
     values <- vector("numeric", length=nrow(par))
     
+    action <- match.arg(action)
+
     feval <- iter <-  0
     pmat <- matrix(NA, nrow(par) ,ncol(par))
     
     for (k in 1:nrow(par)){
        cat("Parameter set : ", k, "... \n")
     
-       ans[[k]] <- BBsolve(par[k,], fn, algorithm = algorithm, 
- 	    method=method, M = M, NM=NM, ... , tol=tol, maxit=maxit) 
+       if (action == "solve") ans[[k]] <- BBsolve(par[k,], fn, method=method, 
+		control=control, ...) 
+       if (action == "optimize") ans[[k]] <- BBoptim(par[k,], fn=fn, gr=gr, method=method, 
+		control=control, ...) 
     
        cvg[k]  <-  (ans[[k]]$convergence  == 0)
-       values[k] <- ans[[k]]$residual
+        values[k] <- if (action == "solve") ans[[k]]$residual
+		                      else  ans[[k]]$value
        pmat[k, ] <- ans[[k]]$par
        }  # "k" loop completed
 
-    #  need to think about what should really be returned here
-    #   possibly some stats about the distribution of solutions
-    #     around ans[[which.min(values)]]
-    #  if (!any(cvg)) ans[[1]] <- ans.best
-    
-    #   some duplication here (everything is in info=ans)
-    if (details) list(par=pmat, values=values, converged=cvg, info=ans)
-    else list(par=pmat, values=values, converged=cvg)
+    ans.ret <- list(par=pmat, fvalue=values, converged=cvg)
+    attr(ans.ret, "details") <- ans
+    ans.ret
     }

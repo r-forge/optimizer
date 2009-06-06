@@ -3,22 +3,18 @@
 \title{Optimization Starting Point Sensitivity Test}
 \description{Start BBsolve from multiple starting points to check sensitivity.}
 \usage{
-  multiStart(par, fn, algorithm = c("dfsane", "sane"), 
-	method=c(2,3,1), M = c(10, 50), NM=c(TRUE, FALSE), ... , 
-	tol=1.e-07, maxit=1500, details=FALSE) 
+  multiStart(par, fn, gr=NULL, action = c("solve", "optimize"),
+	method=c(2,3,1), control=list(), ... ) 
   }
 \arguments{
     \item{par}{A real matrix, each row of which is an argument to \code{fn}, 
        indicating initial guesses for the optimization of the objective 
        function \code{fn}.}
     \item{fn}{see BBsolve.} 
-    \item{algorithm}{see BBsolve.} 
+    \item{gr}{see BBsolve.} 
+    \item{action}{to ADD.} 
     \item{method}{see BBsolve.} 
-    \item{M}{see BBsolve.} 
-    \item{NM}{see BBsolve.}
-    \item{tol}{see BBsolve.}
-    \item{maxit}{see BBsolve.}
-    \item{details}{logical indicating if \code{info} should be returned.}
+    \item{control}{see BBsolve.} 
     \item{...}{arguments passed fn (via the optimization algorithm).}
 }
 \value{list with elements \code{par}, \code{values}, \code{converged}, 

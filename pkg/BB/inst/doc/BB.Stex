@@ -36,8 +36,8 @@ f
 }
 
 p0 <- runif(100)
-BB:::sane(par=p0, fn=expo1)
-BB:::dfsane(par=p0, fn=expo1)
+sane(par=p0, fn=expo1)
+dfsane(par=p0, fn=expo1)
 
 \end{Scode}
 
@@ -55,8 +55,8 @@ f
 n <-100
 p0 <- (1:n)/(4*n^2)
 BBsolve(par=p0, fn=expo3)
-BB:::sane(par=p0, fn=expo3)
-BB:::dfsane(par=p0, fn=expo3)
+sane(par=p0, fn=expo3)
+dfsane(par=p0, fn=expo3)
 
 \end{Scode}
 
@@ -78,8 +78,8 @@ Here p0 gives the zero of the system
 \begin{Scode}
 p0 <- c(3,2) 
 BBsolve(par=p0, fn=froth)
-BB:::sane(par=p0, fn=froth)
-BB:::dfsane(par=p0, fn=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 \end{Scode}
 
 Here p0 gives the local minimum that is not the zero of the system.
@@ -88,8 +88,8 @@ Here p0 gives the local minimum that is not the zero of the system.
 
 p0 <- c(1,1)  
 BBsolve(par=p0, fn=froth)
-BB:::sane(par=p0, fn=froth)
-BB:::dfsane(par=p0, fn=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 \end{Scode}
 
 Trying random starts
@@ -98,8 +98,8 @@ Trying random starts
 
 p0 <- rpois(2,10) 
 BBsolve(par=p0, fn=froth)
-BB:::sane(par=p0, fn=froth)
-BB:::dfsane(par=p0, fn=froth)
+sane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth)
 \end{Scode}
 
 This example is from 
@@ -115,8 +115,8 @@ F
 
 p0 <- runif(100)
 BBsolve(par=p0, fn=trig)
-BB:::sane(par=p0, fn=trig)
-BB:::dfsane(par=p0, fn=trig)
+sane(par=p0, fn=trig)
+dfsane(par=p0, fn=trig)
 \end{Scode}
 
 This example is from 
@@ -134,8 +134,8 @@ F
 }
 
 BBsolve(par=p0, fn=trigexp)
-BB:::sane(par=p0, fn=trigexp)
-BB:::dfsane(par=p0, fn=trigexp)
+sane(par=p0, fn=trigexp)
+dfsane(par=p0, fn=trigexp)
 \end{Scode}
 
 This example is from 
@@ -148,8 +148,8 @@ f
 }
 
 BBsolve(par=p0, fn=chen)
-BB:::sane(par=p0, fn=chen)
-BB:::dfsane(par=p0, fn=chen)
+sane(par=p0, fn=chen)
+dfsane(par=p0, fn=chen)
 
 
 valley <- function(x) {
@@ -173,8 +173,8 @@ Here the number of variables must be a multiple of 3
  
 p102 <- runif(102) 
 BBsolve(par=p102, fn=valley)
-BB:::sane(par=p102, fn=valley)
-BB:::dfsane(par=p102, fn=valley)
+sane(par=p102, fn=valley)
+dfsane(par=p102, fn=valley)
 
 broydt <- function(x) {
 n <- length(x)
@@ -187,8 +187,8 @@ f
 }
 
 BBsolve(par=p0, fn=broydt)
-BB:::sane(par=p0, fn=broydt)
-BB:::dfsane(par=p0, fn=broydt)
+sane(par=p0, fn=broydt)
+dfsane(par=p0, fn=broydt)
 
 \end{Scode}
 

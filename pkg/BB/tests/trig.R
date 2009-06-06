@@ -18,7 +18,7 @@ sum(f*f)
 }
 
 p0 <- rnorm(500,sd=5)
-system.time(ans.spg <- BB:::spg(par=p0, fn=trig.f, control=list(maxit=2500)))[1]
+system.time(ans.spg <- spg(par=p0, fn=trig.f, control=list(maxit=2500)))[1]
 system.time(ans.opt <- optim(par=p0, fn=trig.f, method="L-BFGS-B", control=list(lmm=10)))[1]
  
 z <- sum(ans.spg$par)

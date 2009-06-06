@@ -15,7 +15,7 @@ nrc <- function(x) {
 }
 
 p0 <- matrix(rnorm(500), 50, 10)  # 100 starting values, each of length 5
-#ans1 <- BB:::dfsane(par=p0[1,], fn=nrc)
+#ans1 <- dfsane(par=p0[1,], fn=nrc)
 #ans <- BBsolve(par=p0, fn=nrc)
 ans <- multiStart(par=p0, fn=nrc)
 

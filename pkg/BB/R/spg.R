@@ -123,14 +123,15 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   pbest <- par
  
   f <- try(func(par, ...),silent=TRUE)
+
   feval <- feval + 1
 
   if (class(f)=="try-error" )
         stop("Failure in initial function evaluation!", f)
+  else if ( !is.numeric(f) || 1 != length(f) )
+        stop("function must return a scalar numeric value!")
   else if (is.nan(f) | is.infinite(f) | is.na(f) )
         stop("Failure in initial function evaluation!")
-  else if ( 1 < length(f) )
-        stop("function must return a scalar value!")
     
   f0 <- fbest <- f
  

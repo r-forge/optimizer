@@ -1,4 +1,7 @@
 export(
   "multiStart",
   "BBsolve",
-  "BBoptim")
+  "BBoptim",
+  "sane",
+  "dfsane",
+  "spg" )

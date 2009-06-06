@@ -20,10 +20,10 @@ f
 set.seed(123)
 p0 <- matrix(runif(600), 200, 3)  # 200 starting values, each of length 3
 
-# BB:::dfsane() with default parameters
+# dfsane() with default parameters
 ans.df <- matrix(NA, nrow(p0), ncol(p0))
 for (i in 1:nrow(p0)) {
-tmp <- BB:::dfsane(par=p0[i, ], fn=hdp, control=list(trace=FALSE))
+tmp <- dfsane(par=p0[i, ], fn=hdp, control=list(trace=FALSE))
 if (tmp$conv == 0) ans.df[i, ] <- tmp$par	
 }
 

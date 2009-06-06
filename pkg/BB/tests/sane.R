@@ -18,7 +18,7 @@ expo1 <- function(x) {
     	f
     	}
 
-ans <- BB:::sane(par=runif(100), fn=expo1)
+ans <- sane(par=runif(100), fn=expo1)
  
 z <- sum(ans$par)
 good   <-   100.00  #100.0035727552039

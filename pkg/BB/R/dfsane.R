@@ -106,8 +106,12 @@ dfsane <- function (par, fn, method = 2, control = list(), ...)
 	fcnt <- fcnt + 1
     if (class(F) == "try-error") 
         stop("Failure in initial functional evaluation. \n" )
+    else if (!is.numeric(F) || !is.vector(F)) 
+        stop("Function must return a vector numeric value.")
     else if (any(is.nan(F), is.infinite(F), is.na(F))) 
 		stop ("Failure in initial functional evaluation. \n" )
+    else if (length(F) == 1) 
+        warning("Function returns a scalar. Function BBoptim or spg is better.")
 	
     F0 <- normF <- sqrt(sum(F * F))
 

@@ -3,9 +3,7 @@
 \title{Optimization Wrapper}
 \description{A strategy to try different methods to obtain successful optimization.}
 \usage{
-  BBsolve(par, fn, algorithm = c("dfsane", "sane"), 
-        method=c(2,3,1), M = c(10, 50), NM=c(TRUE, FALSE), ... , 
-	tol=1.e-07, maxit=1500) 
+  BBsolve(par, fn, method=c(2,3,1), control=list(), ...) 
   }
 \arguments{
     \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
@@ -14,12 +12,8 @@
     \item{fn}{Nonlinear objective function that is to be optimized. 
       A scalar function that takes a real vector as argument and 
       returns a scalar that is the value of the function at that point.}
-    \item{algorithm}{character string indicating "sane" or "dfsane".} 
     \item{method}{A vector of integers specifying WHAT} 
-    \item{M}{to add} 
-    \item{NM}{to add}
-    \item{tol}{to add}
-    \item{maxit}{to add}
+    \item{control}{to add} 
     \item{...}{arguments passed fn (via the optimization algorithm).}
 }
 \value{NOT A list with elements as returned by \code{sane} or \code{dfsane}.}

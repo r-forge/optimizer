@@ -20,7 +20,8 @@
       be used in the order specified.}
 
     \item{control}{A list of parameters governing the algorithm behaviour.  
-      This list is the same as that for \code{dfsane} and \code{sane}.  
+      This list is the same as that for \code{dfsane} and \code{sane} (excepting 
+      the default for \code{trace}).  
       See \code{details} for important special features of control parameters.}
 
     \item{...}{arguments passed fn (via the optimization algorithm).}
@@ -46,6 +47,12 @@ tries the following sequential strategy:
 \item Try with Nelder-Mead initialization.  Since the default for 
   \code{dfsane} is \code{NM = FALSE}, BBsolve does \code{NM = c(TRUE, FALSE)}.
 }
+
+The argument \code{control} defaults to a list with values 
+ \code{maxit = 1500, M = c(50, 10), tol = 1e-07, trace = FALSE, 
+        triter = 10, noimp = 100, NM = c(TRUE, FALSE)}. 
+If \code{control} is specified as an argument, only values which are different
+need to be given in the list. See \code{dfsane} for more details.
 }
 \seealso{
   \code{\link{BBsolve}},

@@ -5,7 +5,7 @@
 points to obtain multiple solutions and to test sensitivity to starting values.}
 \usage{
   multiStart(par, fn, gr=NULL, action = c("solve", "optimize"), 
-	method=c(2,3,1), control=list(), ...) 
+	method=c(2,3,1), control=list(), details=FALSE, ...) 
   }
 \arguments{
     \item{par}{A real matrix, each row of which is an argument to \code{fn},
@@ -17,11 +17,13 @@ points to obtain multiple solutions and to test sensitivity to starting values.}
       system or to optimize.  Default is ``solve''.} 
     \item{method}{see \code{BBsolve} or \code{BBoptim}.} 
     \item{control}{See \code{BBsolve} and \code{BBoptim}.}
+    \item{details}{Logical indicating if the result should include the full
+      result from \code{BBsolve} or \code{BBoptim} for each starting value.}
     \item{...}{arguments passed fn (via the optimization algorithm).}
 }
 \value{list with elements \code{par}, \code{values}, and \code{converged}. 
-  It also returns an attribute called ``details'', which is a list as long as 
-  the number of starting values, and it contains the complete object returned 
+  It optionally returns an attribute called ``details'', which is a list as long as 
+  the number of starting values, which contains the complete object returned 
   by \code{dfsane} or \code{spg} for each starting value.}
 
 \details{

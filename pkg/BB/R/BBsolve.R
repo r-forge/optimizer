@@ -1,10 +1,11 @@
 BBsolve <- function(par, fn, method=c(2,3,1), control=list(), ...) 
     {
-    ctrl <- list(maxit = 1500, M = c(10, 50), tol = 1e-07, trace = FALSE, 
+    ctrl <- list(maxit = 1500, M = c(50, 10), tol = 1e-07, trace = FALSE, 
         triter = 10, noimp = 100, NM = c(TRUE, FALSE))
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    if(is.matrix(par)) stop("argument par should not be a matrix in BBsolve.")
     ctrl[namc] <- control
     M <- ctrl$M
     maxit <- ctrl$maxit

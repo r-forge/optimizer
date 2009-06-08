@@ -1,9 +1,9 @@
 multiStart <- function(par, fn, gr=NULL, action = c("solve", "optimize"),
-	method=c(2,3,1), control=list(), ... ) 
+	method=c(2,3,1), control=list(), details=FALSE, ... ) 
     {
-     if (is.null(dim(par))) par <- matrix(par, nrow=1, ncol=length(par))
+    if (is.null(dim(par))) par <- matrix(par, nrow=1, ncol=length(par))
     
-    ans <- vector("list",    length=nrow(par))
+    dtls <- list()
     cvg <- vector("logical", length=nrow(par))
     values <- vector("numeric", length=nrow(par))
     
@@ -15,18 +15,18 @@ multiStart <- function(par, fn, gr=NULL, action = c("solve", "optimize"),
     for (k in 1:nrow(par)){
        cat("Parameter set : ", k, "... \n")
     
-       if (action == "solve") ans[[k]] <- BBsolve(par[k,], fn, method=method, 
+       if (action == "solve")    ans <- BBsolve(par[k,], fn=fn, method=method, 
 		control=control, ...) 
-       if (action == "optimize") ans[[k]] <- BBoptim(par[k,], fn=fn, gr=gr, method=method, 
+       if (action == "optimize") ans <- BBoptim(par[k,], fn=fn, gr=gr, method=method, 
 		control=control, ...) 
     
-       cvg[k]  <-  (ans[[k]]$convergence  == 0)
-        values[k] <- if (action == "solve") ans[[k]]$residual
-		                      else  ans[[k]]$value
-       pmat[k, ] <- ans[[k]]$par
+       cvg[k]  <-  (ans$convergence  == 0)
+       values[k] <- if (action == "solve") ans$residual else ans$value
+       pmat[k, ] <- ans$par
+       if (details) dtls <- append(dtls, ans)
        }  # "k" loop completed
 
     ans.ret <- list(par=pmat, fvalue=values, converged=cvg)
-    attr(ans.ret, "details") <- ans
+    if (details) attr(ans.ret, "details") <- dtls
     ans.ret
     }

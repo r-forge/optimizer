@@ -39,7 +39,8 @@
       Defaults to \code{Inf}.} 
 
     \item{control}{A list of parameters governing the algorithm behaviour.  
-      This list is the same as that for \code{spg}.  See \code{details} for 
+      This list is the same as that for \code{spg} (excepting 
+      the default for \code{trace}).  See \code{details} for 
       important special features of control parameters.}
 
     \item{...}{arguments passed fn (via the optimization algorithm).}
@@ -62,6 +63,12 @@ sequential strategy:
 \item Try a different non-monotonicity parameter \code{M} for each method, 
   i.e. BBoptim wrapper tries \code{M = c(50, 10)} for each BB steplength.
 }
+
+The argument \code{control} defaults to a list with values 
+ \code{maxit = 1500, M = c(50, 10), gtol = 1e-05, maxfeval = 10000, 
+  maximize = FALSE, trace = FALSE, triter = 10, eps = 1e-07}. 
+If \code{control} is specified as an argument, only values which are different
+need to be given in the list. See \code{spg} for more details.
 }
 \seealso{
   \code{\link{BBsolve}},

@@ -25,9 +25,11 @@ ans <- multiStart(par=p0, fn=hdp)
 #plot(pc$scores[,1])  # you can see all 12 solutions
  
 z <- sum(ans$par[ans$converged,])
-good   <-    70.0682292316792 
+good   <-    69.0642609408530
 #on Windows 
-#on Linux64  70.0682292316792   early defaults: 68.6429426963639
+#on Linux64  69.0642609408530
+ # before  M changed from 10,50 to 50,10 default:70.0682292316792  
+ # early defaults: 68.6429426963639
 #on Linux32  # early defaults: 68.4364913774026
 
 print(z, digits=16)

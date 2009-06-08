@@ -1,47 +1,96 @@
 \name{BBoptim}
 \alias{BBoptim}
-\title{Optimization Wrapper}
-\description{A strategy to try different methods to obtain successful optimization.}
+\title{Large=Scale Nonlinear Optimization - A Wrapper for spg()}
+\description{A strategy using different Barzilai-Borwein steplengths to 
+  optimize a nonlinear objective function subject to box constraints.}
 \usage{
-  BBoptim(par, fn, gr=NULL, lower=-Inf, upper=Inf, method=c(2,3,1), 
-        control=list(), ...) 
+  BBoptim(par, fn, gr=NULL, method=c(2,3,1), project=NULL, lower=-Inf, upper=Inf, 
+	control=list(), ...) 
   }
 \arguments{
-    \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
-    objective function \code{fn}.}
+    \item{par}{A real vector argument to \code{fn}, indicating the initial 
+      guess for the root of the nonliinear system of equations \code{fn}.}
 
-    \item{fn}{Nonlinear objective function that is to be optimized. 
-      A scalar function that takes a real vector as argument and 
-      returns a scalar that is the value of the function at that point.}
-    \item{gr}{to add}
-    \item{lower}{to add}
-    \item{upper}{to add}
-    \item{method}{A vector of integers specifying WHAT} 
-    \item{control}{to add}
+    \item{fn}{Nonlinear objective function that is to be optimized.  A scalar 
+      function that takes a real vector as argument and returns a scalar 
+      that is the value of the function at that point (see details).}
+
+    \item{gr}{The gradient of the objective function \code{fn} evaluated at the 
+      argument.  This is a vector-function that takes a real vector as argument 
+      and returns a real vector of the same length.  It defaults to 
+      \code{NULL}, which means that gradient is evaluated numerically.
+      Computations are dramatically faster in high-dimensional problems when 
+      the exact gradient is provided.  See *Example*.} 
+
+    \item{method}{A vector of integers specifying which Barzilai-Borwein 
+      steplengths should be used in a consecutive manner.  The methods will 
+      be used in the order specified.}
+
+    \item{project}{The projection function that takes a point in $R^n$ and 
+      projects it onto a region that defines the constraints of the problem.
+      This is a vector-function that takes a real vector as argument and 
+      returns a real vector of the same length.  It defaults to \code{NULL}.
+      See *Details*.} 
+
+    \item{lower}{A vector that defines lower bounds on \code{par}.  
+      Defaults to \code{-Inf}.}
+
+    \item{upper}{A vector that defines upper bounds on \code{par}.  
+      Defaults to \code{Inf}.} 
+
+    \item{control}{A list of parameters governing the algorithm behaviour.  
+      This list is the same as that for \code{spg}.  See \code{details} for 
+      important special features of control parameters.}
+
     \item{...}{arguments passed fn (via the optimization algorithm).}
 }
-\value{NOT A list with elements as returned by \code{sane} or \code{dfsane}.}
+
+\value{A list with the same elements as returned by \code{spg}.  One additional 
+  element returned is \code{cpar} which contains the control parameter settings
+  used to obtain successful convergence, or to obtain the best solution in 
+  case of failure.}
 
 \details{
-Algorithm (\code{sane} or \code{dfsane}) is said to have failed when a 
-non-zero convergence type is obtained, i.e. when \code{convergence > 0}. A user
-might typically attempt various strategies, some of which are implemented in 
-this wrapper. The function BBoptim tries the following sequential strategy:
+This wrapper is especially useful in problems where (\code{spg} is likely 
+to experience convergence difficulties.  When \code{spg()} fails, i.e. 
+when \code{convergence > 0} is obtained, a user might attempt various strategies
+to find a local optimizer. The function \code{BBoptim} tries the following 
+sequential strategy:
 \enumerate{
-\item Try a different starting value. This should be tried first when sensible 
-   starting values can be generated easily (e.g. randomly perturbing the 
-   original starting value). 
-\item Try a different method.  Since the default is \code{method = 2}, the 
-   user should try methods 1 and/or 3. 
-\item Try a different non-monotonicity parameter \code{M}.  Since the default 
-   is \code{M = 10}, the user may try \code{M=100}. 
-\item Try with Nelder-Mead initialization \code{NM}.  Since the default 
-   is \code{NM = FALSE}, the user should try \code{NM = TRUE}. 
+\item Try a different BB steplength.  Since the default is \code{method = 2} 
+   for \code{dfsane}, BBoptim wrapper tries \code{method = c(2, 3, 1)}.
+\item Try a different non-monotonicity parameter \code{M} for each method, 
+  i.e. BBoptim wrapper tries \code{M = c(50, 10)} for each BB steplength.
 }
 }
 \seealso{
-  \code{\link{sane}},
-  \code{\link{dfsane}}
+  \code{\link{BBsolve}},
+  \code{\link{spg}},
+  \code{\link{multiStart}}
+  \code{\link{optim}}
+  \code{\link[numDeriv]{grad}}
    }
+   
+\examples{
+# Use a preset seed so test values are reproducable. 
+require("setRNG")
+old.seed <- setRNG(list(kind="Mersenne-Twister", normal.kind="Inversion",
+    seed=1234))
+
+rosbkext <- function(x){
+# Extended Rosenbrock function
+n <- length(x)
+j <- 2 * (1:(n/2))
+jm1 <- j - 1
+sum(100 * (x[j] - x[jm1]^2)^2 + (1 - x[jm1])^2)
+}
+
+p0 <- rnorm(500)
+spg(par=p0, fn=rosbkext)
+BBoptim(par=p0, fn=rosbkext)
+BBoptim(par=p0, fn=rosbkext, lower=0) # compare the improvement in convergence when bounds are specified
+BBoptim(par=p0, fn=rosbkext, method=3, control=list(M=10, trace=TRUE))  # identical to spg() with defaults
+}
 
 \keyword{multivariate}
+

@@ -1,4 +1,4 @@
-BBoptim <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, method=c(2,3,1), control=list(), ...) 
+BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project=NULL, lower=-Inf, upper=Inf, control=list(), ...) 
     {
     ctrl <- list(M = c(10, 50), maxit = 1500, gtol = 1e-05, maxfeval = 10000, 
         maximize = FALSE, trace = FALSE, triter = 10, eps = 1e-07)
@@ -20,9 +20,11 @@ BBoptim <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, method=c(2,3,1), co
     ans.best.value <- Inf
     for (i in 1: nrow(control.pars) ) {
       cpars <- unlist(control.pars[i, ])
- 	temp <- spg(par=par, fn=fn, gr=gr, method=cpars[1], lower=lower, upper=upper, 
-	control=list(M=as.numeric(cpars[2]), maxit=maxit, maximize=maximize, trace=trace, 
-	triter=triter, maxfeval=maxfeval, eps=eps), ...)
+ 	temp <- spg(par=par, fn=fn, gr=gr, method=cpars[1], project=project, 
+	            lower=lower, upper=upper, 
+		    control=list(M=as.numeric(cpars[2]), maxit=maxit, 
+		        maximize=maximize, trace=trace, 
+	                triter=triter, maxfeval=maxfeval, eps=eps), ...)
 
       feval <- feval + temp$feval
       iter <- iter + temp$iter

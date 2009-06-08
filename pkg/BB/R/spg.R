@@ -19,6 +19,9 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   eps      <- ctrl$eps
   checkGrad.tol <- ctrl$checkGrad.tol  
 
+  if (any(is.finite(lower)) & length(lower)==1) lower <- rep(lower, length(par))
+  if (any(is.finite(upper)) & length(upper)==1) upper <- rep(upper, length(par))
+  
   grNULL <- is.null(gr)  
   fargs <- list(...)
   ################ local function

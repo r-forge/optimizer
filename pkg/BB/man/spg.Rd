@@ -157,6 +157,7 @@ minimization.  For maximization (e.g. log-likelihood maximization in statistical
 
 }
 \seealso{
+  \code{\link{BBoptim}},
   \code{\link{optim}},
   \code{\link{nlm}},
   \code{\link{sane}},

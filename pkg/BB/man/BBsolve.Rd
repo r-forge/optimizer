@@ -1,43 +1,57 @@
 \name{BBsolve}
 \alias{BBsolve}
-\title{Optimization Wrapper}
-\description{A strategy to try different methods to obtain successful optimization.}
+\title{Solving Nonlinear System of Equations - A Wrapper for dfsane()}
+\description{A strategy using different Barzilai-Borwein steplengths to 
+  solve a nonlinear system of equations.}
 \usage{
-  BBsolve(par, fn, method=c(2,3,1), control=list(), ...) 
+  BBsolve(par, fn, method=c(2,3,1), 
+	control=list(), ...) 
   }
 \arguments{
-    \item{par}{A real vector argument to \code{fn}, indicating the initial guess for the optimization of nonlinear 
-    objective function \code{fn}.}
+    \item{par}{A real vector argument to \code{fn}, indicating the initial guess
+       for the root of the nonliinear system of equations \code{fn}.}
 
-    \item{fn}{Nonlinear objective function that is to be optimized. 
-      A scalar function that takes a real vector as argument and 
-      returns a scalar that is the value of the function at that point.}
-    \item{method}{A vector of integers specifying WHAT} 
-    \item{control}{to add} 
+    \item{fn}{Nonlinear system of equation that is to be solved. 
+      A vector function that takes a real vector as argument and 
+      returns a real vector of the same length.}
+
+    \item{method}{A vector of integers specifying which Barzilai-Borwein 
+      steplengths should be used in a consecutive manner.  The methods will 
+      be used in the order specified.}
+
+    \item{control}{A list of parameters governing the algorithm behaviour.  
+      This list is the same as that for \code{dfsane} and \code{sane}.  
+      See \code{details} for important special features of control parameters.}
+
     \item{...}{arguments passed fn (via the optimization algorithm).}
 }
-\value{NOT A list with elements as returned by \code{sane} or \code{dfsane}.}
+
+\value{A list with the same elements as returned by \code{dfsane} 
+  or \code{sane}.  One additional element returned is \code{cpar} which 
+  contains the control parameter settings used to obtain successful 
+  convergence, or to obtain the best solution in case of failure. }
 
 \details{
-Algorithm (\code{sane} or \code{dfsane}) is said to have failed when a 
-non-zero convergence type is obtained, i.e. when \code{convergence > 0}. A user
-might typically attempt various strategies, some of which are implemented in 
-this wrapper. The function BBsolve tries the following sequential strategy:
+This wrapper is especially useful in problems where the algorithms
+(\code{dfsane} or \code{sane}) are likely to experience difficulties in 
+convergence.  When these algorithms with default parameters fail, i.e. 
+when \code{convergence > 0} is obtained, a user might attempt various 
+strategies to find a root of the nonlinear system. The function \code{BBsolve} 
+tries the following sequential strategy:
 \enumerate{
-\item Try a different starting value. This should be tried first when sensible 
-   starting values can be generated easily (e.g. randomly perturbing the 
-   original starting value). 
-\item Try a different method.  Since the default is \code{method = 2}, the 
-   user should try methods 1 and/or 3. 
-\item Try a different non-monotonicity parameter \code{M}.  Since the default 
-   is \code{M = 10}, the user may try \code{M=100}. 
-\item Try with Nelder-Mead initialization \code{NM}.  Since the default 
-   is \code{NM = FALSE}, the user should try \code{NM = TRUE}. 
+\item Try a different BB steplength.  Since the default is \code{method = 2} 
+  for \code{dfsane}, the BBsolve wrapper tries \code{method = c(2, 1, 3)}. 
+\item Try a different non-monotonicity parameter \code{M} for each method, 
+  i.e. BBsolve wrapper tries \code{M = c(50, 10)} for each BB steplength.
+\item Try with Nelder-Mead initialization.  Since the default for 
+  \code{dfsane} is \code{NM = FALSE}, BBsolve does \code{NM = c(TRUE, FALSE)}.
 }
 }
 \seealso{
-  \code{\link{sane}},
-  \code{\link{dfsane}}
+  \code{\link{BBsolve}},
+  \code{\link{dfsane}},
+  \code{\link{sane}}
+  \code{\link{multiStart}}
    }
    
 \examples{
@@ -57,7 +71,12 @@ f[n] <- ((3 - h*x[n]) * x[n]) - x[n-1] + 1
 f
 }
 
-BBsolve(par=rnorm(500), fn=broydt)  # note that the default doesn't work generally.
+p0 <- rnorm(500)
+BBsolve(par=p0, fn=broydt)  # this works 
+dfsane(par=p0, fn=broydt) # but this is highly unliikely to work.
+BBsolve(par=p0, fn=broydt, control=list(M=50, NM=FALSE))  # this implements the 3 BB steplengths with M = 50, and without Nelder-Mead initialization
+BBsolve(par=p0, fn=broydt, method=1, control=list(M=c(50, 10)))  # this implements BB steplength 1 with M = 50 and 10, and both with and without Nelder-Mead initialization
+BBsolve(par=p0, fn=broydt, method=2, control=list(M=10, NM=FALSE)) # identical to dfsane() with defaults
 }
 
 \keyword{multivariate}

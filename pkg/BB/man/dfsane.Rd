@@ -116,6 +116,7 @@ unsuccessful termination of \code{dfsane}. Default is \code{BFGS=FALSE}.}
 }
 
 \seealso{
+  \code{\link{BBsolve}},
   \code{\link{sane}},
   \code{\link{spg}},
   \code{\link[numDeriv]{grad}}

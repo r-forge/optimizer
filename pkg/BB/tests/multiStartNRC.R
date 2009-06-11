@@ -27,7 +27,7 @@ ans <- multiStart(par=p0, fn=nrc)
  
 z <- sum(ans$par)
 good   <-  267.5   # early defaults: 267.0
-#on Windows 
+#on Windows  266.305047747468 with M 50,10
 #on Linux64  268.6422990718509
 # before  M changed from 10,50 to 50,10 default: 265.9957598676737
 #early defaults: 266.8965710381518

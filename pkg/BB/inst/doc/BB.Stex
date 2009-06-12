@@ -64,22 +64,8 @@ The first two examples are from La Cruz and Raydan, Optim Methods and
 Software 2003, 18 (583-599).
 
 \begin{Scode}
-expo1 <- function(x) {
-n <- length(x)
-f <- rep(NA, n)
-f[1] <- exp(x[1] - 1) - 1
-f[2:n] <- (2:n) * (exp(x[2:n] - 1) - x[2:n])
-f
-}
-
-p0 <- runif(100)
-ans <- dfsane(par=p0, fn=expo1)
-ans
-\end{Scode}
-
-\begin{Scode}
 expo3 <- function(p) {
-
+#  From La Cruz and Raydan, Optim Methods and Software 2003, 18 (583-599)
 n <- length(p)
 f <- rep(NA, n)
 onm1 <- 1:(n-1) 
@@ -88,8 +74,7 @@ f[n] <- n/10 * (1 - exp(-p[n]^2))
 f
 }
 
-n <-100
-p0 <- (1:n)/(4*n^2)
+p0 <- runif(10)
 ans <- dfsane(par=p0, fn=expo3)
 ans
 \end{Scode}
@@ -101,6 +86,28 @@ and ``\emph{convergence}''.  \emph{ans\$par} provides the solution from
 is equal to \emph{0}, 
 i.e. \emph{ans\$message} should say ``Successful convergence''.  Otherwise, the 
 algorithm has failed. 
+
+Now, we show an example demonstrating the ability of BB to solve a large system of equations, N = 10000.
+
+\begin{Scode}
+
+trigexp <- function(x) {
+n <- length(x)
+F <- rep(NA, n)
+F[1] <- 3*x[1]^2 + 2*x[2] - 5 + sin(x[1] - x[2]) * sin(x[1] + x[2])
+tn1 <- 2:(n-1)
+F[tn1] <- -x[tn1-1] * exp(x[tn1-1] - x[tn1]) + x[tn1] * ( 4 + 3*x[tn1]^2) +
+        2 * x[tn1 + 1] + sin(x[tn1] - x[tn1 + 1]) * sin(x[tn1] + x[tn1 + 1]) - 8 
+F[n] <- -x[n-1] * exp(x[n-1] - x[n]) + 4*x[n] - 3
+F
+}
+
+n <- 10000
+p0 <- runif(n)
+ans <- dfsane(par=p0, fn=trigexp, control=list(trace=FALSE))
+ans$message
+ans$resid
+\end{Scode}
 
 The next example is from Freudenstein and Roth function (Broyden, 
 Mathematics of Computation 1965, p. 577-593).
@@ -120,7 +127,7 @@ both \emph{dfsane} and \emph{BBsolve} find the zero of the system.
 \begin{Scode}
 p0 <- c(3,2) 
 BBsolve(par=p0, fn=froth)
-dfsane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth, control=list(trace=FALSE))
 \end{Scode}
 
 For the next starting value, \emph{BBsolve} finds the zero of the system, but 
@@ -130,7 +137,7 @@ For the next starting value, \emph{BBsolve} finds the zero of the system, but
 
 p0 <- c(1,1)  
 BBsolve(par=p0, fn=froth)
-dfsane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth, control=list(trace=FALSE))
 \end{Scode}
 
 Try random starting values.  Run the following set of code many times.  
@@ -141,10 +148,9 @@ have a strategy that has a high likelihood of finding a zero of the
 nonlinear system.
 
 \begin{Scode}
-
 p0 <- rpois(2,10) # two values generated independently from a poisson distribution with mean = 10
 BBsolve(par=p0, fn=froth)
-dfsane(par=p0, fn=froth)
+dfsane(par=p0, fn=froth, control=list(trace=FALSE))
 \end{Scode}
 
 Now, we introduce the function \emph{multiStart}.  This accepts a matrix of 
@@ -172,17 +178,26 @@ hdp <- function(x) {
   f[3] <- x[1]^2 + x[2]^2 - 0.265625
   f
   }
+\end{Scode}
+
+We generate 200 randomly generated starting values, each a vector of length equal to 3.
+
+\begin{Scode}{results=hide}
 set.seed(123)
 p0 <- matrix(runif(600), 200, 3)  # 200 starting values, each of length 3
-
 ans <- multiStart(par=p0, fn=hdp, action="solve")
 sum(ans$conv)  # number of successful runs = 190
 pmat <- ans$par[ans$conv, ] # selecting only converged solutions
-ord1 <- order(pmat[,1])
-round(pmat[ord1, ], 5)
 \end{Scode}
 
-We can visualize all the 12 solutions nicely using a `biplot' based on the 
+Now, we display the 12 unique real solutions.
+\begin{Scode}
+ord1 <- order(pmat[,1])
+ans <- round(pmat[ord1, ], 4)
+ans[!duplicated(ans), ]
+\end{Scode}
+
+We can also visualize these 12 solutions beautifully using a `biplot' based on the 
 first 2 principal components of the converged parameter matrix.
 \begin{Scode}{fig=TRUE}
 pc <- princomp(pmat)
@@ -202,8 +217,8 @@ a binary Poisson mixture distribution.
 poissmix.loglik <- function(p,y) {
 # Log-likelihood for a binary Poisson mixture distribution
 i <- 0:(length(y)-1)
-loglik <- y*log(p[1]*exp(-p[2])*p[2]^i/exp(lgamma(i+1)) + 
-        (1 - p[1])*exp(-p[3])*p[3]^i/exp(lgamma(i+1)))
+loglik <- y * log(p[1] * exp(-p[2]) * p[2]^i / exp(lgamma(i+1)) + 
+        (1 - p[1]) * exp(-p[3]) * p[3]^i / exp(lgamma(i+1)))
 return (sum(loglik) )
 }
 # Data from Hasselblad (JASA 1969)
@@ -219,16 +234,18 @@ hi <- c(1, Inf, Inf) # upper limits for parameters
 \end{Scode}
 
 Now, we maximize the log-likelihood function using both \emph{spg} and 
-\emph{BBoptim}, starting with randomly generated values:
+\emph{BBoptim}, with a randomly generated starting value for the 3 parameters:
 
 \begin{Scode}
-p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # 3 randomly generated starting values
-y <-c(162,267,271,185,111,61,27,8,3,1)
+p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # a randomly generated vector of length 3
+y <- c(162,267,271,185,111,61,27,8,3,1)
 
 ans1 <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi,
-          control=list(maximize=TRUE))
+          control=list(maximize=TRUE, trace=FALSE))
+ans1
 ans2 <- BBoptim(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, 
           control=list(maximize=TRUE))
+ans2
 \end{Scode}
 
 Note that we had to specify the `\emph{maximize}' option inside the \emph{control} list 
@@ -254,18 +271,17 @@ multiple local maxima.  We have to make sure that we
 specify `\emph{action = "optimize"}', because the default option in 
 \emph{multiStart} is \emph{"solve"}.
 
-\begin{Scode}
-p0 <- matrix(runif(300,c(0.1,1,1),c(0.9,8,8)), 100, 3, byrow=TRUE)  # 3 randomly generated starting values
+\begin{Scode}{results=hide}
+p0 <- matrix(runif(300, c(0.2,1,1), c(0.8,8,8)), 100, 3, byrow=TRUE)  # 3 randomly generated starting values
 ans <- multiStart(par=p0, fn=poissmix.loglik, action="optimize",
       y=y, lower=lo, upper=hi, control=list(maximize=TRUE))
 pmat <- ans$par[ans$conv, ] # selecting only converged solutions
-ord1 <- order(pmat[,1])
-round(pmat[ord1, ], 5)
+ans <- round(pmat, 4)
+ans[!duplicated(ans), ]
 \end{Scode}
 
-This identifies 4 solutions, two of which are degenerate (i.e. the mixing 
-proportion, which is the first parameter, is either 0 or 1), and the other 
-two are the same, 
+This seemingly identifies many solutions.  However, except for two solutions, the rest are degenerate (i.e. the mixing 
+proportion, which is the first parameter, is either 0 or 1).  The two non-degenerate solutions are actually the same, 
 except that the labels for the first and second components are switched.  
 
 \end{document}

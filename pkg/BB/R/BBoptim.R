@@ -1,5 +1,5 @@
 BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project=NULL, 
-     lower=-Inf, upper=Inf, control=list(), ...) 
+     lower=-Inf, upper=Inf, control=list(), quiet=FALSE, ...) 
     {
     ctrl <- list(maxit = 1500, M = c(50, 10), gtol = 1e-05, maxfeval = 10000, 
         maximize = FALSE, trace = FALSE, triter = 10, eps = 1e-07)
@@ -49,9 +49,10 @@ BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project=NULL,
          }
       }  # "i" loop completed
 
-    if (ans.best$convergence != 0)
-         cat ("  Unsuccessful convergence.\n")
-    else cat ("  Successful convergence.\n")
+    if(!quiet) {if (ans.best$convergence != 0)
+                     cat ("  Unsuccessful convergence.\n")
+                else cat ("  Successful convergence.\n")
+		}
 
     ans.best
     }

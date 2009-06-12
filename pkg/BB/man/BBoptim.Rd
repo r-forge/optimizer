@@ -5,7 +5,7 @@
   optimize a nonlinear objective function subject to box constraints.}
 \usage{
   BBoptim(par, fn, gr=NULL, method=c(2,3,1), project=NULL, lower=-Inf, upper=Inf, 
-	control=list(), ...) 
+	control=list(), quiet=FALSE, ...) 
   }
 \arguments{
     \item{par}{A real vector argument to \code{fn}, indicating the initial 
@@ -42,6 +42,9 @@
       This list is the same as that for \code{spg} (excepting 
       the default for \code{trace}).  See \code{details} for 
       important special features of control parameters.}
+
+    \item{quiet}{logical indicating if messages about convergence success or
+       failure should be suppressed} 
 
     \item{...}{arguments passed fn (via the optimization algorithm).}
 }

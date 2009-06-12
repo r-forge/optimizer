@@ -5,7 +5,7 @@
   solve a nonlinear system of equations.}
 \usage{
   BBsolve(par, fn, method=c(2,3,1), 
-	control=list(), ...) 
+	control=list(), quiet=FALSE, ...) 
   }
 \arguments{
     \item{par}{A real vector argument to \code{fn}, indicating the initial guess
@@ -23,6 +23,9 @@
       This list is the same as that for \code{dfsane} and \code{sane} (excepting 
       the default for \code{trace}).  
       See \code{details} for important special features of control parameters.}
+
+    \item{quiet}{logical indicating if messages about convergence success or
+       failure should be suppressed} 
 
     \item{...}{arguments passed fn (via the optimization algorithm).}
 }

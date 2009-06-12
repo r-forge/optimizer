@@ -1,4 +1,4 @@
-BBsolve <- function(par, fn, method=c(2,3,1), control=list(), ...) 
+BBsolve <- function(par, fn, method=c(2,3,1), control=list(), quiet=FALSE, ...) 
     {
     ctrl <- list(maxit = 1500, M = c(50, 10), tol = 1e-07, trace = FALSE, 
         triter = 10, noimp = 100, NM = c(TRUE, FALSE))
@@ -48,9 +48,10 @@ BBsolve <- function(par, fn, method=c(2,3,1), control=list(), ...)
          }
       }  # "i" loop completed
 
-    if (ans.best$convergence != 0)
-         cat ("  Unsuccessful convergence.\n")
-    else cat ("  Successful convergence.\n")
+    if(!quiet) {if (ans.best$convergence != 0)
+                     cat ("  Unsuccessful convergence.\n")
+                else cat ("  Successful convergence.\n")
+		}
 
     ans.best
     }

@@ -192,8 +192,7 @@ pmat <- ans$par[ans$conv, ] # selecting only converged solutions
 
 Now, we display the 12 unique real solutions.
 \begin{Scode}
-ord1 <- order(pmat[,1])
-ans <- round(pmat[ord1, ], 4)
+ans <- round(pmat, 4)
 ans[!duplicated(ans), ]
 \end{Scode}
 

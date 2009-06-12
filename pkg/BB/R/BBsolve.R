@@ -23,27 +23,29 @@ BBsolve <- function(par, fn, method=c(2,3,1), control=list(), ...)
       cpars <- unlist(control.pars[i, ])
       #cat("Try : ", i, "Method = ", cpars[1], "M = ", cpars[2], "Nelder-Mead = ", cpars[3], "\n")
 
-     	temp <- dfsane(par=par, fn, method=cpars[1], control=list(M=as.numeric(cpars[2]), 
- 	   NM=cpars[3], maxit=maxit, tol=tol, trace=trace, triter=triter, noimp=min(100, 5*cpars[2])), ...)
+      temp <- try(dfsane(par=par, fn, method=cpars[1], 
+                         control=list(M=as.numeric(cpars[2]), NM=cpars[3], 
+			 maxit=maxit, tol=tol, trace=trace, triter=triter, 
+			 noimp=min(100, 5*cpars[2])), ...), silent=TRUE)
+      if (!inherits(temp, "try-error")) {
+         feval <- feval + temp$feval
+         iter <- iter + temp$iter
 
-      feval <- feval + temp$feval
-      iter <- iter + temp$iter
-
-      if (temp$convergence  == 0) {
- 	   ans.best <- temp
- 	   ans.best$feval <- feval
- 	   ans.best$iter <- iter
- 	   ans.best$cpar <- cpars
- 	   break
- 	   } 
-      else if (temp$residual < ans.best.value) {
- 	   ans.best <- temp
- 	   ans.best.value <- ans.best$residual
- 	   ans.best$feval <- feval
- 	   ans.best$iter <- iter
- 	   ans.best$cpar <- cpars
- 	   }
-
+         if (temp$convergence  == 0) {
+              ans.best <- temp
+              ans.best$feval <- feval
+              ans.best$iter <- iter
+              ans.best$cpar <- cpars
+              break
+              } 
+         else if (temp$residual < ans.best.value) {
+              ans.best <- temp
+              ans.best.value <- ans.best$residual
+              ans.best$feval <- feval
+              ans.best$iter <- iter
+              ans.best$cpar <- cpars
+              }
+         }
       }  # "i" loop completed
 
     if (ans.best$convergence != 0)

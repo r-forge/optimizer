@@ -22,30 +22,31 @@ BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project=NULL,
     ans.best.value <- Inf
     for (i in 1: nrow(control.pars) ) {
       cpars <- unlist(control.pars[i, ])
- 	temp <- spg(par=par, fn=fn, gr=gr, method=cpars[1], project=project, 
+      temp <- try(spg(par=par, fn=fn, gr=gr, method=cpars[1], project=project, 
 	            lower=lower, upper=upper, 
 		    control=list(M=as.numeric(cpars[2]), maxit=maxit, 
-		        maximize=maximize, trace=trace, 
-	                triter=triter, maxfeval=maxfeval, eps=eps), ...)
+		       maximize=maximize, trace=trace, triter=triter, 
+		       maxfeval=maxfeval, eps=eps), ...),    silent=TRUE)
 
-      feval <- feval + temp$feval
-      iter <- iter + temp$iter
+      if (!inherits(temp, "try-error")) {
+   	 feval <- feval + temp$feval
+   	 iter <- iter + temp$iter
 
-      if (temp$convergence  == 0) {
- 	   ans.best <- temp
- 	   ans.best$feval <- feval
- 	   ans.best$iter <- iter
- 	   ans.best$cpar <- cpars
- 	   break
- 	   } 
-      else if (temp$value < ans.best.value) {
- 	   ans.best <- temp
- 	   ans.best.value <- ans.best$value
- 	   ans.best$feval <- feval
- 	   ans.best$iter <- iter
- 	   ans.best$cpar <- cpars
- 	   }
-
+   	 if (temp$convergence  == 0) {
+   	      ans.best <- temp
+   	      ans.best$feval <- feval
+   	      ans.best$iter <- iter
+   	      ans.best$cpar <- cpars
+   	      break
+   	      } 
+   	 else if (temp$value < ans.best.value) {
+   	      ans.best <- temp
+   	      ans.best.value <- ans.best$value
+   	      ans.best$feval <- feval
+   	      ans.best$iter <- iter
+   	      ans.best$cpar <- cpars
+   	      }
+         }
       }  # "i" loop completed
 
     if (ans.best$convergence != 0)

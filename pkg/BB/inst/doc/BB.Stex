@@ -1,7 +1,7 @@
 \documentclass[english]{article}
 \begin{document}
 
-%\VignetteIndexEntry{BB Guide}
+%\VignetteIndexEntry{BB Tutorial}
 \SweaveOpts{eval=TRUE,echo=TRUE,results=verbatim,fig=FALSE,keep.source=TRUE}
 \begin{Scode}{echo=FALSE,results=hide}
  options(continue="  ")

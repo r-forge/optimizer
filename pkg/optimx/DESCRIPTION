@@ -1,0 +1,12 @@
+Package: optimx
+Version: 0.3
+Date: 2009-05-22
+Title: A replacement and extension of the optim() function
+Author: John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Provides a replacement and extension of the optim() function to unify
+	and streamline optimization capabilities in R
+License: GPL version 2
+Lazyload: Yes
+Depends: numDeriv, BB, ucminf
+

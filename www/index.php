@@ -45,16 +45,27 @@ echo $contents; } ?>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
-<p><p> BB -  Solving and optimizing large-scale nonlinear systems
+<p><p> <strong>BB</strong> -  Solving and optimizing large-scale nonlinear systems
 <p> Barzilai-Borwein Spectral Methods for solving nonlinear system of 
  equations, and for optimizing nonlinear objective functions subject to simple 
  constraints.
 
-<p><p>GPArotation - GPA Factor Rotation
+<p><p><strong>GPArotation</strong> - GPA Factor Rotation
 <p><p>Gradient Projection Algorithm Rotation for Factor Analysis. 
 
-<p><p>numDeriv - Accurate Numerical Derivatives
+<p><p><strong>numDeriv</strong> - Accurate Numerical Derivatives
 <p>Accurate Numerical Derivatives. See ?numDeriv.Intro for more details.
+
+<p><p><strong>optimx</strong> - A wrapper to integrate optim() and related optimization functionality
+<p>The package allows users to conduct optimization of smooth, continuous functions 
+using the methods in optim (Nelder-Mead, BFGS, L-BFGS-B, CG, and SANN) as well as
+those from packages nlm, nlminb, and ucminf. A number of convenience features are
+available. At 2009-06-24, this is still a beta level package.</p>
+
+<p><p><strong>funcheck</strong> - Checking functions that are to be optimized
+<p>The package consists of functions funcheck() to verify files containing the function and
+various derivative computations in a standardized naming convention. Function funtest carries
+out the same tests on explicitly named objective and derivative codes.</p>
 
 </body>
 </html>

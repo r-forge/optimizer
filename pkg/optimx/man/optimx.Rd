@@ -65,6 +65,9 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   \code{control$fnscale} to be set negative to accomplish this. DO NOT
   use both methods. 
 
+  Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
+  'CG', 'SANN', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', and 'ucminf'.
+
   The default methods are an implementation of the Nelder and Mead
   (1965) and a Variable Metric method based on the ideas of Fletcher
   (1970) as modified by him in conversation with Nash (1979). Nelder-Mead
@@ -98,21 +101,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   given in Belisle (1992). Simulated-annealing belongs to the class of
   stochastic global optimization methods. It uses only function values
   but is relatively slow. It will also work for non-differentiable
-  functions. This implementation uses the Metropolis function for the
-  acceptance probability. By default the next candidate point is
-  generated from a Gaussian Markov kernel with scale proportional to the
-  actual temperature. If a function to generate a new candidate point is
-  given, method \code{"SANN"} can also be used to solve combinatorial
-  optimization problems. Temperatures are decreased according to the
-  logarithmic cooling schedule as given in Belisle (1992, p. 890);
-  specifically, the temperature is set to
-  \code{temp / log(((t-1) \%/\% tmax)*tmax + exp(1))}, where \code{t} is
-  the current iteration step and \code{temp} and \code{tmax} are
-  specifiable via \code{control}, see below.  Note that the
-  \code{"SANN"} method depends critically on the settings of the control
-  parameters. It is not a general-purpose method but can be very useful
-  in getting to a good value on a very rough surface. (The previous 
-  paragraph is taken from the optim() documentation.)
+  functions. It is not a general-purpose method but can be very useful
+  in getting to a good value on a very rough surface. See optim() for details.
 
   Function \code{fn} can return \code{NA} or \code{Inf} if the function
   cannot be evaluated at the supplied value, but the initial value must
@@ -124,6 +114,26 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   as well as many, this may not be true for \code{optimx}. \code{optim}
   also accepts a zero-length \code{par}, and just evaluates the function 
   with that argument.
+
+  Method \code{"nlm"} is from the package of the same name that implements
+  ideas of Dennis and Schnabel (1983) and Schnabel et al. (1985). See nlm()
+  for more details.
+
+  Method \code{"nlminb"} is the package of the same name that uses the
+  minimization tools of the PORT library.  The PORT documentation is at 
+  <URL: http://netlib.bell-labs.com/cm/cs/cstr/153.pdf>. See nlminb()
+  for details. (Though there is very little information about the methods.)
+
+  Method \code{"spg"} is from package BB implementing a spectral projected 
+  gradient method for large-scale optimization with simple constraints due
+  R adaptation, with significant modifications, by Ravi Varadhan,
+  Johns Hopkins University (March 25, 2008), from the original
+  FORTRAN code of Birgin, Martinez, and Raydan (2001). 
+
+  Method \code{"ucminf"} is from the package of that name. It implements a
+  variable metric algorithm using an inverse Hessian approximation very 
+  similar to the method "BFGS" but details in implementation will result 
+  in different performance characteristics. See ucminf() for details. 
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -274,9 +284,18 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   annealing algorithms on \eqn{R^d}{Rd}. \emph{J Applied Probability},
   \bold{29}, 885--895.
 
+   Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for
+     convex-constrained optimization, \emph{ACM Transactions on Mathematical
+     Software}. ??incomplete reference??
+
+
   Byrd, R. H., Lu, P., Nocedal, J. and Zhu, C.  (1995) A limited
   memory algorithm for bound constrained optimization.
   \emph{SIAM J. Scientific Computing}, \bold{16}, 1190--1208.
+
+  Dennis, J. E. and Schnabel, R. B. (1983) _Numerical Methods for
+     Unconstrained Optimization and Nonlinear Equations._
+     Prentice-Hall, Englewood Cliffs, NJ.
 
   Fletcher, R. and Reeves, C. M. (1964) Function minimization by
   conjugate gradients. \emph{Computer Journal} \bold{7}, 148--154.
@@ -292,6 +311,11 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
   Nocedal, J. and Wright, S. J. (1999) \emph{Numerical Optimization}.
   Springer.
+
+  Schnabel, R. B., Koontz, J. E. and Weiss, B. E. (1985) A modular
+     system of algorithms for unconstrained minimization. _ACM Trans.
+     Math. Software_, *11*, 419-440.
+
 }
 
 \seealso{
@@ -336,58 +360,59 @@ fw <- function (x)
     10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
 
-res <- optim(50, fw, method="SANN",
+ans7 <- optimx(50, fw, method="SANN",
              control=list(maxit=20000, temp=20, parscale=20))
-res
+ans7
 ## Now improve locally {typically only by a small bit}:
-(r2 <- optim(res$par, fw, method="BFGS"))
+newpar<-unlist(ans7$par) # NOTE: you need to unlist the parameters as optimx() has multiple outputs
+(r2 <- optimx(newpar, fw, method="BFGS"))
 points(r2$par, r2$value, pch = 8, col = "red", cex = 2)
 
-## Combinatorial optimization: Traveling salesman problem
-library(stats) # normally loaded
-
-eurodistmat <- as.matrix(eurodist)
-
-distance <- function(sq) {  # Target function
-    sq2 <- embed(sq, 2)
-    return(sum(eurodistmat[cbind(sq2[,2],sq2[,1])]))
+## Show multiple outputs of optimx using all.methods
+# genrose function code
+genrose.f<- function(x, gs=NULL){ # objective function
+## One generalization of the Rosenbrock banana valley function (n parameters)
+	n <- length(x)
+        if(is.null(gs)) { gs=100.0 }
+	fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
+        return(fval)
 }
 
-genseq <- function(sq) {  # Generate new candidate sequence
-    idx <- seq(2, NROW(eurodistmat)-1, by=1)
-    changepoints <- sample(idx, size=2, replace=FALSE)
-    tmp <- sq[changepoints[1]]
-    sq[changepoints[1]] <- sq[changepoints[2]]
-    sq[changepoints[2]] <- tmp
-    return(sq)
+genrose.g <- function(x, gs=NULL){
+# vectorized gradient for genrose.f
+# Ravi Varadhan 2009-04-03
+	n <- length(x)
+        if(is.null(gs)) { gs=100.0 }
+	gg <- as.vector(rep(0, n))
+	tn <- 2:n
+	tn1 <- tn - 1
+	z1 <- x[tn] - x[tn1]^2
+	z2 <- 1 - x[tn]
+	gg[tn] <- 2 * (gs * z1 - z2)
+	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
+	return(gg)
 }
 
-sq <- c(1,2:NROW(eurodistmat),1)  # Initial sequence
-distance(sq)
+genrose.h <- function(x, gs=NULL) { ## compute Hessian
+   if(is.null(gs)) { gs=100.0 }
+	n <- length(x)
+	hh<-matrix(rep(0, n*n),n,n)
+	for (i in 2:n) {
+		z1<-x[i]-x[i-1]*x[i-1]
+		z2<-1.0-x[i]
+                hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
+                hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
+                hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
+                hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
+	}
+        return(hh)
+}
 
-set.seed(123) # chosen to get a good soln relatively quickly
-res <- optim(sq, distance, genseq, method="SANN",
-             control = list(maxit=30000, temp=2000, trace=TRUE, REPORT=500))
-res  # Near optimum distance around 12842
+startx<-seq(1:10)/6.
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE))
+ans8
 
-loc <- cmdscale(eurodist)
-rx <- range(x <- loc[,1])
-ry <- range(y <- -loc[,2])
-tspinit <- loc[sq,]
-tspres <- loc[res$par,]
-s <- seq(NROW(tspres)-1)
 
-plot(x, y, type="n", asp=1, xlab="", ylab="",
-     main="initial solution of traveling salesman problem")
-arrows(tspinit[s,1], -tspinit[s,2], tspinit[s+1,1], -tspinit[s+1,2],
-       angle=10, col="green")
-text(x, y, labels(eurodist), cex=0.8)
-
-plot(x, y, type="n", asp=1, xlab="", ylab="",
-     main="optim() 'solving' traveling salesman problem")
-arrows(tspres[s,1], -tspres[s,2], tspres[s+1,1], -tspres[s+1,2],
-       angle=10, col="red")
-text(x, y, labels(eurodist), cex=0.8)
 }
 \keyword{nonlinear}
 \keyword{optimize}

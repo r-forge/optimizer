@@ -143,8 +143,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        stop("Function provided is not returning a scalar number")
     }
   }
-  if (is.infinite(finit)) {
-     stop("Function returned is infinite (non-computable)")
+  if (is.infinite(finit) || is.na(finit)) {
+     stop("Function returned is infinite or NA (non-computable)")
   }
 
   # Check that we have the functions we need

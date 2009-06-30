@@ -148,7 +148,9 @@ have a strategy that has a high likelihood of finding a zero of the
 nonlinear system.
 
 \begin{Scode}
-p0 <- rpois(2,10) # two values generated independently from a poisson distribution with mean = 10
+# two values generated independently from a poisson distribution with mean = 10
+p0 <- rpois(2,10) 
+
 BBsolve(par=p0, fn=froth)
 dfsane(par=p0, fn=froth, control=list(trace=FALSE))
 \end{Scode}
@@ -209,7 +211,7 @@ biplot(pc)  # you can see all 12 solutions beautifully like on a clock!
 \subsection{Power polynomial method: Fleishman system of equations}
 
 Fleishman (Psychometrika 1978, p.521-532) developed an approach for simulating random numbers from non-normal distrinbutions, with specified values of skewness and kurtosis.  
-This approach involves the solution of a system of polynomial equations.  This sysytem is also discussed in the paper by 
+This approach involves the solution of a system of polynomial equations.  This system is also discussed in the paper by 
 Demirtas and Hedeker (Communications in Statistics 2008, p. 1682-1695;  Equations on p. 1684) and is given as follows:
   
 \begin{Scode}
@@ -220,7 +222,8 @@ d <- x[3]
 f <- rep(NA, 3)
 f[1] <- b^2 + 6 * b * d + 2 * c^2 + 15 * d^2 - 1
 f[2] <- 2*c * (b^2 + 24*b*d + 105*d^2 + 2) - r1 
-f[3] <- b*d + c^2 * (1 + b^2 + 28 * b * d) + d^2 * (12 + 48 * b* d + 141 * c^2 + 225 * d^2) - r2/24
+f[3] <- b*d + c^2 * (1 + b^2 + 28 * b * d) + d^2 * (12 + 48 * b* d +
+              141 * c^2 + 225 * d^2) - r2/24
 f
 }
 \end{Scode}
@@ -323,8 +326,9 @@ This usually finds an accurate root of the Fleishman system successfully in all 
 An interesting aspect of this exercise is the 
 existence of multiple roots to the Fleishman system.  
 There are 4 valid roots for any ''feasible'' combination of skewness and kurtosis.
-These 4 roots can be denoted as:  \emph{(b_1, c_1, -d_1), (-b_1, c_1, d_1), 
-(b_2, c_2, -d_2), (-b_2, c_2, d_2)}, where \emph{b_1, c_1, d_1, b_2, c_2, d_2} are all 
+These 4 roots can be denoted as:  $(b_1, c_1, -d_1)$, 
+$(-b_1, c_1, d_1)$, $(b_2, c_2, -d_2)$, $(-b_2, c_2, d_2)$,
+where $b_1, c_1, d_1, b_2, c_2, d_2$ are all 
 positive (except for the coefficient \emph{c} which is zero when skewness is 
 zero).  Fleishman only reports the first root, whereas we can locate the 
 other roots using BBsolve.
@@ -351,7 +355,8 @@ loglik <- y * log(p[1] * exp(-p[2]) * p[2]^i / exp(lgamma(i+1)) +
 return (sum(loglik) )
 }
 # Data from Hasselblad (JASA 1969)
-poissmix.dat <- data.frame(death=0:9, freq=c(162,267,271,185,111,61,27,8,3,1))
+poissmix.dat <- data.frame(death=0:9,
+          freq=c(162,267,271,185,111,61,27,8,3,1))
 \end{Scode}
 
 There are 3 model parameters, which have restricted domains.  So, we 
@@ -389,7 +394,8 @@ the parameters.  To compute the Hessian we require the package "\emph{numDeriv}.
 
 \begin{Scode}
 require(numDeriv)
-hess <- hessian(x=ans2$par, func=poissmix.loglik, y=y)  # Note that we have to pass data vector `y'
+hess <- hessian(x=ans2$par, func=poissmix.loglik, y=y)  
+# Note that we have to supplied data vector `y'
 hess
 se <- sqrt(diag(solve(-hess)))
 se
@@ -401,7 +407,8 @@ specify `\emph{action = "optimize"}', because the default option in
 \emph{multiStart} is \emph{"solve"}.
 
 \begin{Scode}{results=hide}
-p0 <- matrix(runif(300, c(0.2,1,1), c(0.8,8,8)), 100, 3, byrow=TRUE)  # 3 randomly generated starting values
+# 3 randomly generated starting values
+p0 <- matrix(runif(300, c(0.2,1,1), c(0.8,8,8)), 100, 3, byrow=TRUE)  
 ans <- multiStart(par=p0, fn=poissmix.loglik, action="optimize",
       y=y, lower=lo, upper=hi, control=list(maximize=TRUE))
 pmat <- ans$par[ans$conv, ] # selecting only converged solutions

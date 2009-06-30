@@ -153,11 +153,11 @@ BBsolve(par=p0, fn=froth)
 dfsane(par=p0, fn=froth, control=list(trace=FALSE))
 \end{Scode}
 
+\subsection{Finding multiple roots of a nonlinear system of equations}
 Now, we introduce the function \emph{multiStart}.  This accepts a matrix of 
 starting values, where each row is a single starting value.  
 \emph{multiStart} calls \emph{BBsolve} for each starting value.  
-Here is a system 
-of 3 non-linear equations, where each equation is a high-degree polynomial.  
+Here is a system of 3 non-linear equations, where each equation is a high-degree polynomial.  
 This system has 12 real-valued roots and 126 complex-valued roots. Here we 
 will demonstrate how to identify all the 12 real roots using \emph{multiStart}.  
 Note that we specify the `\emph{action}' argument in 
@@ -206,92 +206,11 @@ pc <- princomp(pmat)
 biplot(pc)  # you can see all 12 solutions beautifully like on a clock!
 \end{Scode}
 
-\section{How to optimize a nonlinear objective function with BB?}
-The basic function for optimization is \emph{spg}.  It can solve smooth, 
-nonlinear optimization problems with box-constraints, and also other types of 
-constraints using projection.  
-We would like to direct the user to the help page for many examples of 
-how to use \emph{spg}.  Here we discuss an example involving estimation of 
-parameters maximizing a log-likelihood function for 
-a binary Poisson mixture distribution.  
+\subsection{Power polynomial method: Fleishman system of equations}
 
-\begin{Scode}
-poissmix.loglik <- function(p,y) {
-# Log-likelihood for a binary Poisson mixture distribution
-i <- 0:(length(y)-1)
-loglik <- y * log(p[1] * exp(-p[2]) * p[2]^i / exp(lgamma(i+1)) + 
-        (1 - p[1]) * exp(-p[3]) * p[3]^i / exp(lgamma(i+1)))
-return (sum(loglik) )
-}
-# Data from Hasselblad (JASA 1969)
-poissmix.dat <- data.frame(death=0:9, freq=c(162,267,271,185,111,61,27,8,3,1))
-\end{Scode}
-
-There are 3 model parameters, which have restricted domains.  So, we 
-define these constraints as follows:
-
-\begin{Scode}
-lo <- c(0,0,0)  # lower limits for parameters
-hi <- c(1, Inf, Inf) # upper limits for parameters
-\end{Scode}
-
-Now, we maximize the log-likelihood function using both \emph{spg} and 
-\emph{BBoptim}, with a randomly generated starting value for the 3 parameters:
-
-\begin{Scode}
-p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # a randomly generated vector of length 3
-y <- c(162,267,271,185,111,61,27,8,3,1)
-
-ans1 <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi,
-          control=list(maximize=TRUE, trace=FALSE))
-ans1
-ans2 <- BBoptim(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, 
-          control=list(maximize=TRUE))
-ans2
-\end{Scode}
-
-Note that we had to specify the `\emph{maximize}' option inside the \emph{control} list 
-to let the algorithm know that we are maximizing the objective function, 
-since the default is to minimize 
-the objective function.  Also note how we pass the data vector `\emph{y}' to 
-the log-likelihood function, \emph{possmix.loglik}.  
-
-Now, we illustrate how to compute the Hessian of the log-likelihood at 
-the MLE, and then how to use the Hessian to compute the standard errors for 
-the parameters.  To compute the Hessian we require the package "\emph{numDeriv}."  
-
-\begin{Scode}
-require(numDeriv)
-hess <- hessian(x=ans2$par, func=poissmix.loglik, y=y)  # Note that we have to pass data vector `y'
-hess
-se <- sqrt(diag(solve(-hess)))
-se
-\end{Scode}
-
-Now, we explore the use of multiple starting values to see if we can identify 
-multiple local maxima.  We have to make sure that we 
-specify `\emph{action = "optimize"}', because the default option in 
-\emph{multiStart} is \emph{"solve"}.
-
-\begin{Scode}{results=hide}
-p0 <- matrix(runif(300, c(0.2,1,1), c(0.8,8,8)), 100, 3, byrow=TRUE)  # 3 randomly generated starting values
-ans <- multiStart(par=p0, fn=poissmix.loglik, action="optimize",
-      y=y, lower=lo, upper=hi, control=list(maximize=TRUE))
-pmat <- ans$par[ans$conv, ] # selecting only converged solutions
-ans <- round(pmat, 4)
-ans[!duplicated(ans), ]
-\end{Scode}
-
-This seemingly identifies many solutions.  However, except for two solutions, the rest are degenerate (i.e. the mixing 
-proportion, which is the first parameter, is either 0 or 1).  The two non-degenerate solutions are actually the same, 
-except that the labels for the first and second components are switched.  
-
-
-\section{Fleishman Example}
-
-An example of a system of equations based on the paper by 
-Demirtas and Hedeker (Communications in Statistics 2008, p. 1682-1695 
-Equations on p. 1684) is defined by
+Fleishman (Psychometrika 1978, p.521-532) developed an approach for simulating random numbers from non-normal distrinbutions, with specified values of skewness and kurtosis.  
+This approach involves the solution of a system of polynomial equations.  This sysytem is also discussed in the paper by 
+Demirtas and Hedeker (Communications in Statistics 2008, p. 1682-1695;  Equations on p. 1684) and is given as follows:
   
 \begin{Scode}
 fleishman <- function(x, r1, r2) {
@@ -309,9 +228,8 @@ f
 We only use 3 equations, since 1st equation is trivially solved 
 by  \emph{a = -c}. 
 
-An experiments based on Fleishman (Psychometrika 1978, p.521-532) is reproduced
-as follows. We randomly picked 10 scenarios (more or less 
-randomly) from Table 1 of Fleishman (1978):
+Here we describe an experiment based on Fleishman (Psychometrika 1978, p.521-532), and is reproduced
+as follows. We randomly picked 10 scenarios (more or less randomly) from Table 1 of Fleishman (1978):
 
 \begin{Scode}
 rmat <- matrix(NA, 10, 2)
@@ -400,15 +318,13 @@ colnames(ans5) <- c("skew", "kurtosis", "B", "C", "D")
 ans5
 \end{Scode}
 
-This usually finds an accurate root of 
-the Fleishman system successfully in all 50 cases (but may occassionaly fail 
-with different seeds). 
+This usually finds an accurate root of the Fleishman system successfully in all 50 cases (but may occassionaly fail with different seeds). 
 
 An interesting aspect of this exercise is the 
 existence of multiple roots to the Fleishman system.  
 There are 4 valid roots for any ''feasible'' combination of skewness and kurtosis.
-These 4 roots can be denoted as:  \emph{(b1, c1, -d1), (-b1, c1, d1), 
-(b2, c2, -d2), (-b2, c2, d2)}, where \emph{b1, c1, d1, b2, c2, d2} are all 
+These 4 roots can be denoted as:  \emph{(b_1, c_1, -d_1), (-b_1, c_1, d_1), 
+(b_2, c_2, -d_2), (-b_2, c_2, d_2)}, where \emph{b_1, c_1, d_1, b_2, c_2, d_2} are all 
 positive (except for the coefficient \emph{c} which is zero when skewness is 
 zero).  Fleishman only reports the first root, whereas we can locate the 
 other roots using BBsolve.
@@ -416,5 +332,87 @@ other roots using BBsolve.
 The experiments demonstrate quite convincingly that the wrapper function 
 \emph{BBsolve} can successfully solve the system of equations associated 
 with the power polynomial method of Fleishman.  
+
+\section{How to optimize a nonlinear objective function with BB?}
+The basic function for optimization is \emph{spg}.  It can solve smooth, 
+nonlinear optimization problems with box-constraints, and also other types of 
+constraints using projection.  
+We would like to direct the user to the help page for many examples of 
+how to use \emph{spg}.  Here we discuss an example involving estimation of 
+parameters maximizing a log-likelihood function for 
+a binary Poisson mixture distribution.  
+
+\begin{Scode}
+poissmix.loglik <- function(p,y) {
+# Log-likelihood for a binary Poisson mixture distribution
+i <- 0:(length(y)-1)
+loglik <- y * log(p[1] * exp(-p[2]) * p[2]^i / exp(lgamma(i+1)) + 
+        (1 - p[1]) * exp(-p[3]) * p[3]^i / exp(lgamma(i+1)))
+return (sum(loglik) )
+}
+# Data from Hasselblad (JASA 1969)
+poissmix.dat <- data.frame(death=0:9, freq=c(162,267,271,185,111,61,27,8,3,1))
+\end{Scode}
+
+There are 3 model parameters, which have restricted domains.  So, we 
+define these constraints as follows:
+
+\begin{Scode}
+lo <- c(0,0,0)  # lower limits for parameters
+hi <- c(1, Inf, Inf) # upper limits for parameters
+\end{Scode}
+
+Now, we maximize the log-likelihood function using both \emph{spg} and 
+\emph{BBoptim}, with a randomly generated starting value for the 3 parameters:
+
+\begin{Scode}
+p0 <- runif(3,c(0.2,1,1),c(0.8,5,8))  # a randomly generated vector of length 3
+y <- c(162,267,271,185,111,61,27,8,3,1)
+
+ans1 <- spg(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi,
+          control=list(maximize=TRUE, trace=FALSE))
+ans1
+ans2 <- BBoptim(par=p0, fn=poissmix.loglik, y=y, lower=lo, upper=hi, 
+          control=list(maximize=TRUE))
+ans2
+\end{Scode}
+
+Note that we had to specify the `\emph{maximize}' option inside the \emph{control} list 
+to let the algorithm know that we are maximizing the objective function, 
+since the default is to minimize 
+the objective function.  Also note how we pass the data vector `\emph{y}' to 
+the log-likelihood function, \emph{possmix.loglik}.  
+
+Now, we illustrate how to compute the Hessian of the log-likelihood at 
+the MLE, and then how to use the Hessian to compute the standard errors for 
+the parameters.  To compute the Hessian we require the package "\emph{numDeriv}."  
+
+\begin{Scode}
+require(numDeriv)
+hess <- hessian(x=ans2$par, func=poissmix.loglik, y=y)  # Note that we have to pass data vector `y'
+hess
+se <- sqrt(diag(solve(-hess)))
+se
+\end{Scode}
+
+Now, we explore the use of multiple starting values to see if we can identify 
+multiple local maxima.  We have to make sure that we 
+specify `\emph{action = "optimize"}', because the default option in 
+\emph{multiStart} is \emph{"solve"}.
+
+\begin{Scode}{results=hide}
+p0 <- matrix(runif(300, c(0.2,1,1), c(0.8,8,8)), 100, 3, byrow=TRUE)  # 3 randomly generated starting values
+ans <- multiStart(par=p0, fn=poissmix.loglik, action="optimize",
+      y=y, lower=lo, upper=hi, control=list(maximize=TRUE))
+pmat <- ans$par[ans$conv, ] # selecting only converged solutions
+ans <- round(pmat, 4)
+ans[!duplicated(ans), ]
+\end{Scode}
+
+This seemingly identifies many solutions.  However, except for two solutions, the rest are degenerate (i.e. the mixing 
+proportion, which is the first parameter, is either 0 or 1).  The two non-degenerate solutions are actually the same, 
+except that the labels for the first and second components are switched.  
+
+
 
 \end{document}

@@ -1,5 +1,7 @@
            Changes in BB version 2009.0x-1 
 
+  o Relaxed multiStartHDP.R test for CRAN Mac testing platform.
+
   o Added Fleishman example to the vignette tutorial.
 
   

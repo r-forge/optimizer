@@ -76,7 +76,7 @@ Argument \code{control} is a list specifing any changes to default values of
 algorithm control parameters.  Note that the names of these must be 
 specified completely.  Partial matching will not work.
 Argument \code{control} has the following components:
-\itemize{
+\describe{
 \item{M}{A positive integer, typically between 5-20, that controls the 
 monotonicity of the algorithm.  \code{M=1} would enforce strict monotonicity 
 in the reduction of L2-norm of \code{fn}, whereas larger values allow for 

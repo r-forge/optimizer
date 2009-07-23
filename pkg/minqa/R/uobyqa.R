@@ -19,7 +19,7 @@ uobyqa <- function(par, fn, control = uobyqa.control(),
       stop("control$parscale must be determined for all values in \"par\"")
   }
   ret <- .Call("R_UObyQA", as.double(par), expr, control, env,
-               PACKAGE = "dfoptim")
+               PACKAGE = "minqa")
   names(ret) <- c("par", "value", "counts", "hessian")
   npar <- length(ret$par)
   ret$hessian <- matrix(ret$hessian, npar, npar)

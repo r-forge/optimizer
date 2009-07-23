@@ -15,7 +15,6 @@ void F77_SUB(resfunbobyqa)(int *n, double *par, double *f) {
   f[0] = NUMERIC_POINTER(ff)[0];
   OS->rss = f[0];
   OS->feval = OS->feval++;
-  Rprintf("here\n\n\n");
   UNPROTECT(1);	
   
 }

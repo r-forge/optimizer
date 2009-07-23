@@ -14,7 +14,7 @@ newuoa <- function(par, fn, control = newuoa.control(), ...)
   }
   if(is.na(ctrl[["npt"]]))
     ctrl[["npt"]] <- length(par) + 2
-  out <- .Call("newuoa_c", par, fn1, ctrl, new.env(), PACKAGE = "dfoptim")
+  out <- .Call("newuoa_c", par, fn1, ctrl, new.env(), PACKAGE = "minqa")
   
   class(out) <- "newuoa"
   out

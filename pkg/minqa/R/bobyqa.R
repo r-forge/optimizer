@@ -15,7 +15,7 @@ bobyqa <- function(par, xl, xu, fn, control = bobyqa.control(), ...)
   if(is.na(ctrl[["npt"]]))
     ctrl[["npt"]] <- length(par) + 2
   out <- .Call("bobyqa_c", par, xl, xu, fn1, ctrl, new.env(),
-               PACKAGE = "dfoptim")
+               PACKAGE = "minqa")
   
   class(out) <- "bobyqa"
   out

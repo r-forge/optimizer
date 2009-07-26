@@ -14,16 +14,24 @@ bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
     ctrl[names(control)] <- control
   }
   if(is.na(ctrl[["npt"]]))
-    ctrl[["npt"]] <- n * 2
+    ctrl[["npt"]] <- min(n * 2, n+1)
   else if((ctrl[["npt"]] < n+2) || (ctrl[["npt"]] > (n+1)*(n+2)/2))
     stop("npt is not in [len(par)+2, (len(par)+1)*(len(par)+2)/2)] ") 
   if(ctrl[["npt"]] > (2*n -1) )
     warning("Setting 'npt' larger than length(par)+1 not recommended.")
-  if(is.na(ctrl[["rhobeg"]]))
-    ctrl[["rhobeg"]] <- abs(max(par) / 2)
-  if(is.na(ctrl[["rhoend"]]))
-    ctrl[["rhoend"]] <- abs(max(par) / 10e5)
-  if(ctrl[["rhobeg"]]<ctrl[["rhoend"]] ||
+  if(is.na(ctrl[["rhobeg"]])) {
+    if(all(is.finite(xu-xu))) 
+      ctrl[["rhobeg"]] <- max(xu-xl)
+    else 
+      ctrl[["rhobeg"]] <- abs(max(par) / 2)
+  }
+  if(is.na(ctrl[["rhoend"]])) {
+    if(all(is.finite(xu-xu))) 
+      ctrl[["rhoend"]] <- max(xu-xl) / 10e5
+    else 
+      ctrl[["rhoend"]] <- abs(max(par) / 10e5) 
+  }
+  if(ctrl[["rhobeg"]] < ctrl[["rhoend"]] ||
      any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) < 0))
     ## may not need this (Inf and -Inf seem to work as bound defaults)
     ##||

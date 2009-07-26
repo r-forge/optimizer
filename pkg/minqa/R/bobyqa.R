@@ -27,10 +27,10 @@ bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
      any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) < 0))
     ## may not need this (Inf and -Inf seem to work as bound defaults)
     ##||
-     ##any(xu-xl < 2 * ctrl[["rhobeg"]]))
+     ##any(xu-xl > 2 * ctrl[["rhobeg"]]))
     stop("rhobeg and rhoend must be positive with rhoend no greater than
        rhobeg.") 
-  if(all(is.finite(xu-xu)) && any(xu-xl < 2 * ctrl[["rhobeg"]]))
+  if(all(is.finite(xu-xu)) && any(xu-xl > 2 * ctrl[["rhobeg"]]))
     stop("All of the differences xu-xl must be less than 2*rhobeg.") 
 
   w <- (ctrl[["npt"]]+5)*(ctrl[["npt"]]+n)+3*n*(n+5)/2

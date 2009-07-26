@@ -48,8 +48,7 @@ SEXP newuoa_c(SEXP par_arg, SEXP fn, SEXP control, SEXP rho)
     maxfun    = NUMERIC_VALUE(getListElement(control, "maxfun"));
     iprint    = NUMERIC_VALUE(getListElement(control, "iprint"));
     wsize    = NUMERIC_VALUE(getListElement(control, "wsize"));
-    Rprintf("w \n",wsize);
-    
+        
     /*size w needs to be >= (((OS->npt+13) * (OS->npt+n) + (3*n*(n+3)/2)))*/
     double w[wsize]; 
 

@@ -56,7 +56,12 @@ uobyqa(par, fn, control = uobyqa.control(), check.hessian = TRUE, \dots)
 }
 \seealso{\code{\link{optim}}}
 \examples{
-# There are no examples yet.
+fr <- function(x) {   ## Rosenbrock Banana function
+    x1 <- x[1]
+    x2 <- x[2]
+    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
+}
+x3 <- uobyqa(fn=fr,par=c(1,2))
 }
 \keyword{nonlinear}
 \keyword{optimize}

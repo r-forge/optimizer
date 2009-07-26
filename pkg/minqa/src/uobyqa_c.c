@@ -47,7 +47,6 @@ SEXP uobyqa_c(SEXP par_arg, SEXP fn, SEXP control, SEXP rho)
     maxfun    = NUMERIC_VALUE(getListElement(control, "maxfun"));
     iprint    = NUMERIC_VALUE(getListElement(control, "iprint"));
     wsize    = NUMERIC_VALUE(getListElement(control, "wsize"));
-    Rprintf("w \n",wsize);
     
     /* must be > ( N**4 + 8*N**3 + 23*N**2 + 42*N + 
        max [ 2*N**2 + 4, 18*N ] ) / 4. */

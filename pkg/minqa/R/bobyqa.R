@@ -1,11 +1,12 @@
-bobyqa.control <- function(npt = NA, rhobeg = 1e-2, rhoend = 1e-4,
-                           iprint = 3, maxfun=10000, wsize=10000)
+bobyqa.control <- function(npt = NA, rhobeg = NA, rhoend = NA,
+                           iprint = 0, maxfun=10000, wsize=NA)
   list(npt = npt, rhobeg=rhobeg, rhoend=rhoend, iprint=iprint, maxfun=maxfun,
        wsize=wsize)
-bobyqa <- function(par, xl, xu, fn, control = bobyqa.control(), ...)
+bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
 {
-  if(length(par) < 2)
-    warning("bobyqa is not for optimization of single parameter.")
+  n <- length(par) 
+  if(n < 2)
+    stop("bobyqa is not for optimization of single parameter.")
   fn1  <- function(par) fn(par, ...)
   ctrl <- bobyqa.control()
   if(!missing(control)) {
@@ -13,8 +14,31 @@ bobyqa <- function(par, xl, xu, fn, control = bobyqa.control(), ...)
     ctrl[names(control)] <- control
   }
   if(is.na(ctrl[["npt"]]))
-    ctrl[["npt"]] <- length(par) + 2
-  out <- .Call("bobyqa_c", par, xl, xu, fn1, ctrl, new.env(),
+    ctrl[["npt"]] <- n * 2
+  else if((ctrl[["npt"]] < n+2) || (ctrl[["npt"]] > (n+1)*(n+2)/2))
+    stop("npt is not in [len(par)+2, (len(par)+1)*(len(par)+2)/2)] ") 
+  if(ctrl[["npt"]] > (2*n -1) )
+    warning("Setting 'npt' larger than length(par)+1 not recommended.")
+  if(is.na(ctrl[["rhobeg"]]))
+    ctrl[["rhobeg"]] <- abs(max(par) / 2)
+  if(is.na(ctrl[["rhoend"]]))
+    ctrl[["rhoend"]] <- abs(max(par) / 10e5)
+  if(ctrl[["rhobeg"]]<ctrl[["rhoend"]] ||
+     any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) < 0))
+    ## may not need this (Inf and -Inf seem to work as bound defaults)
+    ##||
+     ##any(xu-xl < 2 * ctrl[["rhobeg"]]))
+    stop("rhobeg and rhoend must be positive with rhoend no greater than
+       rhobeg.") 
+  if(all(is.finite(xu-xu)) && any(xu-xl < 2 * ctrl[["rhobeg"]]))
+    stop("All of the differences xu-xl must be less than 2*rhobeg.") 
+
+  w <- (ctrl[["npt"]]+5)*(ctrl[["npt"]]+n)+3*n*(n+5)/2
+  if(is.na(ctrl[["wsize"]]))
+    ctrl[["wsize"]] <- w
+  else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
+  
+  out <- .Call("bobyqa_c", unlist(par), xl, xu, fn1, ctrl, new.env(),
                PACKAGE = "minqa")
   
   class(out) <- "bobyqa"

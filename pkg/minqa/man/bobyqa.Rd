@@ -47,7 +47,14 @@ bobyqa(par, xl, xu, fn, control = bobyqa.control(), \dots)
 }
 \seealso{\code{\link{optim}}}
 \examples{
-# There are no examples yet.
+fr <- function(x) {   ## Rosenbrock Banana function
+    x1 <- x[1]
+    x2 <- x[2]
+    if(any(x<0)||any(x>4)) cat("hat")
+    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
+}
+
+x1 <- bobyqa(fn=fr,par=c(1,2), xl=c(0,0),xu=c(4,4))
 }
 \keyword{nonlinear}
 \keyword{optimize}

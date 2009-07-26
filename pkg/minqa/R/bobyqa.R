@@ -14,11 +14,12 @@ bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
     ctrl[names(control)] <- control
   }
   if(is.na(ctrl[["npt"]]))
-    ctrl[["npt"]] <- min(n * 2, n+1)
+    ctrl[["npt"]] <- min(n * 2, n+2)
+# Note: changed from n+1 by JN 090726
   else if((ctrl[["npt"]] < n+2) || (ctrl[["npt"]] > (n+1)*(n+2)/2))
     stop("npt is not in [len(par)+2, (len(par)+1)*(len(par)+2)/2)] ") 
   if(ctrl[["npt"]] > (2*n -1) )
-    warning("Setting 'npt' larger than length(par)+1 not recommended.")
+    warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
   if(is.na(ctrl[["rhobeg"]])) {
     if(all(is.finite(xu-xu))) 
       ctrl[["rhobeg"]] <- max(xu-xl)

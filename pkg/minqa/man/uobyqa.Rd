@@ -11,7 +11,7 @@
   (Description taken from comments in Fortran code of M J D Powell.)
 }
 \usage{
-uobyqa(par, fn, control = uobyqa.control(), check.hessian = TRUE, \dots)
+uobyqa(par, fn, control = uobyqa.control(), \dots)
 }
 \arguments{
  \item{par}{A list or numeric vector of starting estimates. If
@@ -22,9 +22,6 @@ uobyqa(par, fn, control = uobyqa.control(), check.hessian = TRUE, \dots)
  \item{control}{
     An optional list of control settings.  See \code{\link{uobyqa.control}} for
     the names of the settable control values and their effect.
- }
- \item{check.hessian}{Set TRUE to check if Hessian is positive definite. Sundar:
-   Is this an addition you made? It does not appear in the original Fortran.
  }
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }

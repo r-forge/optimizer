@@ -12,7 +12,7 @@
   (Description taken from comments in Fortran code of M J D Powell.)
 }
 \usage{
-bobyqa(par, xl, xu, fn, control = bobyqa.control(), \dots)
+bobyqa(par, fn, xl, xu, control = bobyqa.control(), \dots)
 }
 \arguments{
  \item{par}{A list or numeric vector of starting estimates of the parameters
@@ -43,7 +43,11 @@ bobyqa(par, xl, xu, fn, control = bobyqa.control(), \dots)
   \item{fvalue}{The value of the objective at the best set of parameters found.}
 }
 \references{
--------
+	M.J.D. Powell (2007)
+	"Developments of NEWUOA for unconstrained minimization without derivatives"
+	Cambridge University, Department of Applied Mathematics and Theoretical Physics,
+	Numerical Analysis Group, Report NA2007/05  
+        http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2007_05.pdf
 }
 \seealso{\code{\link{optim}}}
 \examples{
@@ -53,7 +57,6 @@ fr <- function(x) {   ## Rosenbrock Banana function
     if(any(x<0)||any(x>4)) cat("hat")
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
-
 x1 <- bobyqa(fn=fr,par=c(1,2), xl=c(0,0),xu=c(4,4))
 }
 \keyword{nonlinear}

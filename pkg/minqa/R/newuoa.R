@@ -13,9 +13,9 @@ newuoa <- function(par, fn, control = newuoa.control(), ...)
     control <- as.list(control)
     ctrl[names(control)] <- control
   }
-
   if(is.na(ctrl[["npt"]]))
-    ctrl[["npt"]] <- length(par) * 2
+    ctrl[["npt"]] <- min(n * 2, n+2)
+# Note: changed from n+1 by JN 090726
   else if((ctrl[["npt"]] < n+2) || (ctrl[["npt"]] > (n+1)*(n+2)/2))
     stop("npt is not in [len(par)+2, (len(par)+1)*(len(par)+2)/2)] ") 
   if(is.na(ctrl[["rhobeg"]]))

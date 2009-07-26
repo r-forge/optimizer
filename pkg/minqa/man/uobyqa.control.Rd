@@ -10,36 +10,47 @@ Controls for an R interface to the uobyqa implementation of Powell
   the uobyqa Fortran code of M J D Powell. 
 }
 \usage{
-uobyqa.control(trace = 0, rhobeg =  log(100)/10, rhoend = 1e-04, maxit = 1e+05, 
-     fnscale = 1, parscale = 1, ...)
+uobyqa.control(rhobeg = NA, rhoend = NA,
+                           iprint = 0, maxfun=10000, wsize=NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{trace}{
-%%     ~~Describe \code{npt} here~~
-   Output control. Larger numbers give more output. Default is 0. (No output.)
-}
   \item{rhobeg}{
 %%     ~~Describe \code{rhobeg} here~~
+   The quadratic approximations estimate the gradient of the function
+   at the current estimate of the minimum. The approximation needs the
+   estimating points to be "not too close" together. A lower bound to
+   this measure of distance is rho, and this is initially set to 
+   \code{rhobeg}. If the user does not provide a value, this will be set
+   to the maximum box constraint interval (for finite limits), i.e.,
+        max(xu-xl)
+   or to 
+        abs(max(par) / 2)
+   if the bounds are infinite (i.e., no box constraints are specified)
 }
   \item{rhoend}{
 %%     ~~Describe \code{rhoend} here~~
+   The smallest value of rho that is allowed. If not defined, then 
+   1e-6 times the value set for \code{rhobeg} will be used.
+   \code{rhobeg} and \code{rhoend} must be positive with rhoend no 
+   greater than rhobeg. Otherwise bobyqa will stop.
 }
-  \item{maxit}{
+  \item{iprint}{
 %%     ~~Describe \code{iprint} here~~
-  The maximum number of 'iterations'. Do we know what this means?
+  Output control -- integer -- with higher values yielding more output.
+  Default value is 0 (no output).
 }
-  \item{fnscale}{
-%%     ~~Describe \code{maxfun} here~~
-  A multiplicative scaling factor for the objective function. Set this to
-  -1 to maximize a function.}  
-  \item{parscale}{
-%%     ~~Describe \code{parscale} here~~
-  A (vector) parameter scaling to try to render the scale of the parameters
-  within the minimization algorithm approximately similar.}
-  \item{\dots}{
-    Any other controls that might be needed. Why is this here?
-  }
+  \item{maxfun}{
+%%     ~~Describe \code{iprint} here~~
+  The maximum number of function evaluations allowed.
+}
+  \item{wsize}{
+%%     ~~Describe \code{wsize} here~~
+  Allowed number of elements of working storage. It must be at least 
+    ( n**4 + 8*n**3 + 23*n**2 + 42*n + max [ 2*n**2 + 4, 18*n ] ) / 4
+  elements, where n is the number of parameters in the problem (size of
+  \code{par}).
+}
 }
 \details{
   Functions \code{fn} must return a numeric value.\cr

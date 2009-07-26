@@ -10,7 +10,8 @@ Controls for an R interface to the bobyqa implementation of Powell
   the bobyqa Fortran code of M J D Powell. 
 }
 \usage{
-bobyqa.control(npt = NA, rhobeg = 0.01, rhoend = 1e-04, iprint = 3, maxfun = 10000, wsize = 10000)
+%- bobyqa.control(npt = NA, rhobeg = 0.01, rhoend = 1e-04, iprint = 3, maxfun = 10000, wsize = 10000)
+bobyqa.control(npt = NA, rhobeg = 0.01, rhoend = 1e-04, iprint = 3, maxfun = 10000, wsize = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

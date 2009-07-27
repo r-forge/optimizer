@@ -25,7 +25,7 @@ bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
     if(all(is.finite(xu-xu))) 
       ctrl[["rhobeg"]] <- max(xu-xl)
     else 
-      ctrl[["rhobeg"]] <- if(all(par==0)) 1 else max(abs(par) / 2)
+      ctrl[["rhobeg"]] <-  if(all(abs(par)<2)) 1 else max(abs(par) / 2)
   }
   if(is.na(ctrl[["rhoend"]])) {
     if(all(is.finite(xu-xu))) 

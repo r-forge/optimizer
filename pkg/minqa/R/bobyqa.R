@@ -24,13 +24,13 @@ bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
     if(all(is.finite(xu-xu))) 
       ctrl[["rhobeg"]] <- max(xu-xl)
     else 
-      ctrl[["rhobeg"]] <- abs(max(par) / 2)
+      ctrl[["rhobeg"]] <- max(abs(par) / 2)
   }
   if(is.na(ctrl[["rhoend"]])) {
     if(all(is.finite(xu-xu))) 
       ctrl[["rhoend"]] <- max(xu-xl) / 10e5
     else 
-      ctrl[["rhoend"]] <- abs(max(par) / 10e5) 
+      ctrl[["rhoend"]] <- max(abs(par) / 10e5) 
   }
   if(ctrl[["rhobeg"]] < ctrl[["rhoend"]] ||
      any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) < 0))

@@ -27,7 +27,7 @@ newuoa <- function(par, fn, control = newuoa.control(), ...)
     ctrl[["wsize"]] <- w
   else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
   
-  out <- .Call("newuoa_c", unlist(par), fn1, ctrl, new.env(), PACKAGE = "minqa")
+  out <- .Call("newuoa_c", par, fn1, ctrl, new.env(), PACKAGE = "minqa")
   
   class(out) <- "newuoa"
   out

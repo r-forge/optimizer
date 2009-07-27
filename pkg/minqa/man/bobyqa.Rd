@@ -15,9 +15,8 @@
 bobyqa(par, fn, xl, xu, control = bobyqa.control(), \dots)
 }
 \arguments{
- \item{par}{A list or numeric vector of starting estimates of the parameters
-  of the objective function. If \code{par} is a list, then each element 
-  must be of length 1. }
+ \item{par}{A numeric vector of starting estimates of the parameters
+  of the objective function.  }
  \item{xl}{A list or numeric vector of lower bounds on the parameters.}
  \item{xu}{A list or numeric vector of upper bounds on the parameters.}
  \item{fn}{A function that returns the value of the objective at the

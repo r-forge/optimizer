@@ -24,7 +24,7 @@ uobyqa <- function(par, fn, control = uobyqa.control(), ...)
   else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
   if(is.na(ctrl[["wsize"]]))
     ctrl[["wsize"]] <- (ctrl[["npt"]]+5)*(ctrl[["npt"]]+n)+3*n*(n+5)/2
-  out <- .Call("uobyqa_c", unlist(par), fn1, ctrl, new.env(), PACKAGE = "minqa")
+  out <- .Call("uobyqa_c", par, fn1, ctrl, new.env(), PACKAGE = "minqa")
   
   class(out) <- "uobyqa"
   out

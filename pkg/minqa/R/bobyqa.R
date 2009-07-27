@@ -4,6 +4,7 @@ bobyqa.control <- function(npt = NA, rhobeg = NA, rhoend = NA,
        wsize=wsize)
 bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
 {
+
   n <- length(par) 
   if(n < 2)
     stop("bobyqa is not for optimization of single parameter.")
@@ -24,7 +25,7 @@ bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
     if(all(is.finite(xu-xu))) 
       ctrl[["rhobeg"]] <- max(xu-xl)
     else 
-      ctrl[["rhobeg"]] <- max(abs(par) / 2)
+      ctrl[["rhobeg"]] <- if(all(par==0)) 1 else max(abs(par) / 2)
   }
   if(is.na(ctrl[["rhoend"]])) {
     if(all(is.finite(xu-xu))) 
@@ -47,7 +48,7 @@ bobyqa <- function(par, fn, xl, xu, control = bobyqa.control(), ...)
     ctrl[["wsize"]] <- w
   else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
   
-  out <- .Call("bobyqa_c", unlist(par), xl, xu, fn1, ctrl, new.env(),
+  out <- .Call("bobyqa_c", par, xl, xu, fn1, ctrl, new.env(),
                PACKAGE = "minqa")
   
   class(out) <- "bobyqa"

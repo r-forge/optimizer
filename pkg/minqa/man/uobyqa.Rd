@@ -14,8 +14,7 @@
 uobyqa(par, fn, control = uobyqa.control(), \dots)
 }
 \arguments{
- \item{par}{A list or numeric vector of starting estimates. If
-   \code{par} is a list, then each element must be of length 1. }
+ \item{par}{A numeric vector of starting estimates. }
  \item{fn}{A function that returns the value of the objective at the
    supplied set of parameters \code{par} using auxiliary data in \dots.
    The first argument of \code{fn} must be \code{par}. }

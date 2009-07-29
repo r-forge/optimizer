@@ -12,13 +12,15 @@
   (Description taken from comments in Fortran code of M J D Powell.)
 }
 \usage{
-bobyqa(par, fn, xl, xu, control = bobyqa.control(), \dots)
+bobyqa(par, fn, lower, upper, control = bobyqa.control(), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates of the parameters
   of the objective function.  }
- \item{xl}{A list or numeric vector of lower bounds on the parameters.}
- \item{xu}{A list or numeric vector of upper bounds on the parameters.}
+ \item{lower}{A numeric vector of lower bounds on the parameters. If the
+ length is 1 the single lower bound is applied to all parameters. }
+ \item{upper}{A numeric vector of upper bounds on the parameters.  If the
+ length is 1 the single upper bound is applied to all parameters.}
  \item{fn}{A function that returns the value of the objective at the
    supplied set of parameters \code{par} using auxiliary data in \dots.
    The first argument of \code{fn} must be \code{par}. }
@@ -56,7 +58,7 @@ fr <- function(x) {   ## Rosenbrock Banana function
     if(any(x<0)||any(x>4)) cat("hat")
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
-x1 <- bobyqa(fn=fr,par=c(1,2), xl=c(0,0),xu=c(4,4))
+x1 <- bobyqa(fn=fr,par=c(1,2), lower=c(0,0), upper=c(4,4))
 }
 \keyword{nonlinear}
 \keyword{optimize}

@@ -1,8 +1,4 @@
 export(newuoa,newuoa.control)
-S3method("print", "newuoa")
-
 export(bobyqa,bobyqa.control)
-S3method("print", "bobyqa")
-
 export(uobyqa, uobyqa.control)
-S3method("print", "uobyqa")
+

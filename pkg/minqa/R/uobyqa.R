@@ -13,11 +13,10 @@ uobyqa <- function(par, fn, control = uobyqa.control(), ...)
     control <- as.list(control)
     ctrl[names(control)] <- control
   }
-  if(is.na(ctrl[["rhobeg"]]))
-    ctrl[["rhobeg"]] <- abs(max(par) / 2)
+  if (is.na(ctrl[["rhobeg"]]))
+      ctrl[["rhobeg"]] <- max(1, max(abs(par))/2)   
   if (is.na(ctrl[["rhoend"]])) 
       ctrl[["rhoend"]] <- max(1.e-06, max(abs(par))/1e+06)
- 
   w <- ( n**4 + 8*n**3 + 23*n**2 + 42*n + max(2*n**2 + 4, 18*n )) / 4
   if(is.na(ctrl[["wsize"]]))
     ctrl[["wsize"]] <- w

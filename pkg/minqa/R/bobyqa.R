@@ -20,7 +20,7 @@ bobyqa <- function(par, fn, lower=-Inf,
   if (length(xl) == 1) xl <- rep(xl, n)
   if (length(xu) == 1) xu <- rep(xu, n)
   if(length(xl)!=n || length(xu)!=n)
-    stop("Bounds are the wrong length")
+    stop("Bounds are the wrong length.")
   if(is.na(ctrl[["npt"]]))
     ctrl[["npt"]] <- n+2
   else if((ctrl[["npt"]] < n+2) || (ctrl[["npt"]] > (n+1)*(n+2)/2))

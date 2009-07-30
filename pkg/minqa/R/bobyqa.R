@@ -5,7 +5,6 @@ bobyqa.control <- function(npt = NA, rhobeg = NA, rhoend = NA,
 bobyqa <- function(par, fn, lower=-Inf,
                    upper=Inf, control = bobyqa.control(), ...)
 {
-
   n <- length(par) 
   if(n < 2)
     stop("bobyqa is not for optimization of single parameter.")
@@ -29,7 +28,7 @@ bobyqa <- function(par, fn, lower=-Inf,
     warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
   if (is.na(ctrl[["rhobeg"]])) {
         if (all(is.finite(xu - xl))) 
-          ctrl[["rhobeg"]] <- max(xu - xl)/2
+          ctrl[["rhobeg"]] <- min(xu - xl)/2
         else ctrl[["rhobeg"]] <- max(1, max(abs(par))/2)
       }
   if (is.na(ctrl[["rhoend"]])) {
@@ -44,8 +43,8 @@ bobyqa <- function(par, fn, lower=-Inf,
      ##any(xu-xl > 2 * ctrl[["rhobeg"]]))
     stop("rhobeg and rhoend must be positive with rhoend no greater than
        rhobeg.") 
-  if(all(is.finite(xu-xl)) && any(xu-xl > 2 * ctrl[["rhobeg"]]))
-    stop("All of the differences xu-xl must be less than 2*rhobeg.") 
+  if(all(is.finite(xu-xl)) && any(xu-xl < 2 * ctrl[["rhobeg"]]))
+    stop("None of the differences upper-lower can be less than 2*rhobeg.")
 
   w <- (ctrl[["npt"]]+5)*(ctrl[["npt"]]+n)+3*n*(n+5)/2
   if(is.na(ctrl[["wsize"]]))

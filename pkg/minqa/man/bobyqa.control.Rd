@@ -11,7 +11,8 @@ Controls for an R interface to the bobyqa implementation of Powell
 }
 \usage{
 %- bobyqa.control(npt = NA, rhobeg = 0.01, rhoend = 1e-04, iprint = 3, maxfun = 10000, wsize = 10000)
-bobyqa.control(npt = NA, rhobeg = NA, rhoend = NA, iprint = 0, maxfun = 10000, wsize = NA)
+bobyqa.control(npt = NA, rhobeg = NA, rhoend = NA, iprint = 0,
+maxfun = 10000, wsize = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

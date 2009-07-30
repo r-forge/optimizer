@@ -10,7 +10,8 @@ Controls for an R interface to the NEWUOA implementation of Powell
   the NEWUOA Fortran code of M J D Powell. 
 }
 \usage{
-newuoa.control(npt = NA, rhobeg = NA, rhoend = NA, iprint = 0, maxfun = 10000, wsize = NA)
+newuoa.control(npt = NA, rhobeg = NA, rhoend = NA, iprint = 0,
+maxfun = 10000, wsize = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

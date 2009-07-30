@@ -1,8 +1,11 @@
 optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), 
+            method=c("Nelder-Mead","BFGS"), hessian=NULL,
             control=list(),
              ...) {
 ##### OPEN ISSUES: (any date order)
+# 090729 -- ?? add minqa esp. BOBYQA
+# 090729 -- ?? add Rcgminu and Rcgminb for large scale problems
+# 090729 -- ?? simplify structure of answers -- avoid repetition and make easier to access
 # 090531 -- ?? need SNewton back in to keep Ramsay and Co. on side
 # 090531 -- ?? Use function code joint with funtest and funcheck in initial checks
 # 090601 -- ?? Put optimx.dev into package to provide for local source packages etc.
@@ -10,6 +13,9 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 090612 -- ?? There may be better choices for the tolerances in tests of equality for gradient / kkt tests.
 
 ##### IMPLEMENTED: (reverse date order)
+# 090729 -- put hessian argument back as an alternate for kkt
+# 090729 -- should have kkt only carried out for n<50 (no gradient), n<500 (with gradient and Jacobian
+#            of gradient to get Hessian)
 # 090531 -- KKT stuff
 # 090531 -- control for keeping failed runs (save.failures)
 # 090531 Decided to omit 'trust' from package methods for the time being.
@@ -30,7 +36,9 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #  hess = name of a function to compute the (analytic) Hessian of the objective function
 #         Editorial note: Capitalize Hessian after the name of Otto Hesse. JN
 #  method = a character vector denoting all the algorithms to be executed (in the specified order)
-#      Complete names are not needed. A partial matching is attempted. 
+#      Complete names are not needed. A partial matching is attempted.
+#  hessian = logical variable that, if present, is equivalent to control$kkt. If TRUE, it causes
+#      optimx to try to compute an approximation to the Hessian matrix at the final set of parameters.
 #  control = list of control information, in particular
 #      trace = an integer controlling output (note different methods may use logicals
 #         trace = 0 gives no output, positive numbers give more output for greater values
@@ -42,6 +50,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #         090601: Not yet implemented for nlm, nlminb, ucminf. However, there is a check to avoid
 #                 usage of these codes when maximize is TRUE.
 #      all.methods = TRUE if we want to use all available (and suitable) methods
+#
+#
 #
 # Output:
 # ans = an object containing two sets of information:
@@ -56,6 +66,13 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #  Changes: Ravi Varadhan - Date: May 29, 2009
 #
 #################################################################
+## Code more or less common to funtest, funcheck and optimx <<<
+# Check parameters are in right form
+  if(!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
+  if (! is.vector(par) ) {
+	stop("The parameters are NOT in a vector")
+  }
+  npar<-length(par)
 # Set control defaults
     ctrl <- list(
        follow.on=FALSE, 
@@ -66,11 +83,16 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        kkt=TRUE,
        all.methods=FALSE
     ) # for now turn off sorting until we can work out how to do it nicely
+    
 # Note that we do NOT want to check on the names, because we may introduce 
 #    new names in the control lists of added methods
 #    if (!all(namc %in% names(ctrl))) 
 #        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
 # However, we do want to substitute the appropriate information. 
+# hessian control gets copied to kkt control
+    if (!is.null(hessian)){
+	control$kkt<-hessian
+    }
     ncontrol <- names(control)
     nctrl <- names(ctrl)
     for (onename in ncontrol) {
@@ -83,23 +105,28 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            ctrl[onename]<-control[onename]
        }
     }
-    
-## Code more or less common to funtest, funcheck and optimx <<<
-  # Check parameters are in right form
-  if(!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
-  if (! is.vector(par) ) {
-	stop("The parameters are NOT in a vector")
-  }
+    if (!is.null(control$kkt)) { # default is to turn off kkt for large matrices
+      if (is.null(gr)) {
+         if (npar > 50) {
+           ctrl$kkt=FALSE # too much work when large number of parameters
+           if (ctrl$trace) cat("gr NULL, npar > 50, kkt set FALSE\n")
+         }
+      } else {
+         if (npar > 500) {
+            ctrl$kkt=FALSE # too much work when large number of parameters
+                    # even if we have a gradient
+            if (ctrl$trace) cat("gr NULL, npar > 50, kkt set FALSE\n")
+         }
+      }
+    }
 
-  # Restrict list of methods if we have bounds
+# Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) { have.bounds<-TRUE # set this for convenience
   } else { have.bounds <- FALSE }
+  # print(have.bounds)
 
-# print(have.bounds)
-
-  # Check parameters in bounds (090601: As yet not dealing with masks ??)
-#  bdmsk<-as.vector(bdmset[k, ])
-  npar<-length(par)
+# Check parameters in bounds (090601: As yet not dealing with masks ??)
+  #  bdmsk<-as.vector(bdmset[k, ])
 
   infeasible<-FALSE
   if (ctrl$trace > 0) cat("Function has ",npar," arguments\n")
@@ -155,7 +182,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
   if(! is.null(gr)){ # check gradient
     gname <- deparse(substitute(gr))
-    cat("Analytic gradient from function ",gname,"\n\n")
+    if (ctrl$trace) cat("Analytic gradient from function ",gname,"\n\n")
        fval <- fn(par,...) 
        gn <- grad(func=fn, x=par,...) # 
        ga <- gr(par, ...)
@@ -164,18 +191,18 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        teps <- (.Machine$double.eps)^(1/3)
        if (max(abs(gn-ga))/(1 + abs(fval)) >= teps) stop("Gradient function might be wrong - check it! \n", call.=FALSE)
        
-  } else cat("Analytic gradient not made available.\n")
+  } else if (ctrl$trace) cat("Analytic gradient not made available.\n")
 
 
   if(! is.null(hess)){ # check gradient
     hname <- deparse(substitute(hess))
-    cat("Analytic hessian from function ",hname,"\n\n")
+    if (ctrl$trace) cat("Analytic hessian from function ",hname,"\n\n")
     hn <- hessian(func=fn, x=par,...) # ?? should we use dotdat
     ha <- hess(par, ...)
     # Now test for equality
     teps <- (.Machine$double.eps)^(1/3)
     if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) stop("Hessian function might be wrong - check it! \n", call.=FALSE)
-  } else cat("Analytic Hessian not made available.\n")
+  } else if (ctrl$trace) cat("Analytic Hessian not made available.\n")
 
 ## >>> End of code common to funtest, funcheck and optimx
 
@@ -190,15 +217,15 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   pmeth <- c("spg", "ucminf")
 
   allmeth <- c(bmeth, pmeth)
-  cat("start with allmeth=\n")
-  print(allmeth)
+  # cat("start with allmeth=\n")
+  # print(allmeth)
 
   nomaxmeth <- c("nlm", "nlminb", "ucminf") # methods not (yet) allowing maximize
 
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg") 
-  cat("After check limits, allmeth=\n")
-  print(allmeth)
+  # cat("After check limits, allmeth=\n")
+  # print(allmeth)
 
 
   if (ctrl$maximize) {
@@ -209,8 +236,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          }
      }
   }
-  cat("After check maximize, allmeth=\n")
-  print(allmeth)
+  # cat("After check maximize, allmeth=\n")
+  # print(allmeth)
  
   if (ctrl$all.methods) {
 	method<-allmeth
@@ -239,9 +266,10 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      } # otherwise the method is available, and just needs to be loaded
   } # end check methods available
 #  
-  cat("Methods:")
-  print(method)
-	
+  if (ctrl$trace>1) {
+    cat("Methods:")
+    print(method)
+  }	
   if(any(method == "spg")) {
 	if ("BB" %in% ipkgs[,1]) require(BB, quietly=TRUE)
 	else  stop("Package `BB' Not installed", call.=FALSE)
@@ -265,7 +293,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       ## extract the method name
       conv <- -1
       ## indicate that we have not yet converged
-      cat("Method: ", meth, "\n") # display the method being used
+      if (ctrl$trace) cat("Method: ", meth, "\n") # display the method being used
 
       # Extract control information e.g., maxit
       # cat("Str of ctrl$maxit\n")
@@ -400,15 +428,16 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       if ( ctrl$save.failures || (conv == 0) ){  ## We have a convergence, so save the solution
         ## Why do we not want to do anything with failures -- they may use even MORE time, and we may be "close"
         j <- j + 1 ## increment the counter for (successful) method/start case
-        cat("Successful convergence! \n")  ## inform user we've succeeded
+        if (ctrl$trace) cat("Successful convergence! \n")  ## inform user we've succeeded
+
         # Testing final solution? Use numDeriv to get gradient and Hessian; compute Hessian eigenvalues
 	ans$kkt1<-NA
 	ans$kkt2<-NA
+        # cat("Post processing -- ctrl$kkt = ",ctrl$kkt,"\n")
         if(ctrl$kkt) {
           ngatend <- if (is.null(gr)) grad(fn, ans$par) else gr(ans$par) # Gradient at solution
-          nhatend <- hessian(fn, ans$par) # numerical hessian at "solution"
+          nhatend <- if (is.null(gr)) hessian(fn, ans$par) else jacobian(gr,ans$par) # numerical hessian at "solution"
           # For bounds constraints, we need to "project" the gradient and Hessian
-          # 
           bset<-sort(unique(c(which(ans$par<=lower), which(ans$par>=upper))))
           nbds<-length(bset) # number of elements nulled by bounds
   	  # Note: we assume that we are ON, not over boundary, but use <= and >=

@@ -5,6 +5,7 @@
 
 \name{optimx}
 \alias{optimx}
+\encoding{UTF-8}
 \title{General-purpose optimization}
 \concept{minimization}
 \concept{maximization}
@@ -21,7 +22,7 @@
 }
 \usage{
 optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), 
+            method=c("Nelder-Mead","BFGS"), hessian=NULL,
             control=list(),
              ...)
 
@@ -54,6 +55,10 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
  \item{method}{A list of the methods to be used. 
        Note that this is an important change from optim() that allows
        just one method to be specified. See \sQuote{Details}.}
+ \item{hessian}{A logical control that if TRUE forces the computation of an approximation 
+       to the Hessian at the final set of parameters. If FALSE, ensures it is not calculated.
+       This setting is provided for compatibility with optim(). See how to set \code{kkt} in
+       \sQuote{Details}.}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
  \item{\dots}{Further arguments to be passed to \code{fn} and \code{gr}.}
 }
@@ -164,9 +169,6 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       Note, however, that the tests are sensitive to scaling, and users may need
       to perform additional verification. }
   }
-  Note that the argument \code{hessian} has been eliminated and should NOT be used.
-  This was set TRUE if \code{optim} was to return the Hessian matrix, which 
-  \code{optimx} generally computes when checking the KKT conditions.
 
   The following \code{control} elements apply only to some of the methods. The list
   may be incomplete. See individual packages for details. 
@@ -176,14 +178,14 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     \item{\code{fnscale}}{An overall scaling to be applied to the value
       of \code{fn} and \code{gr} during optimization. If negative,
       turns the problem into a maximization problem. Optimization is
-      performed on \code{fn(par)/fnscale}.}
+      performed on \code{fn(par)/fnscale}. For \code{optim}.}
     \item{\code{parscale}}{A vector of scaling values for the parameters.
 	Optimization is performed on \code{par/parscale} and these should be
 	comparable in the sense that a unit change in any element produces
-	about a unit change in the scaled value.}
+	about a unit change in the scaled value.For \code{optim}.}
     \item{\code{ndeps}}{A vector of step sizes for the finite-difference
       approximation to the gradient, on \code{par/parscale}
-      scale. Defaults to \code{1e-3}.}
+      scale. Defaults to \code{1e-3}. For \code{optim}.}
     \item{\code{maxit}}{The maximum number of iterations. Defaults to
       \code{100} for the derivative-based methods, and
       \code{500} for \code{"Nelder-Mead"}. For \code{"SANN"}
@@ -194,7 +196,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     \item{\code{reltol}}{Relative convergence tolerance.  The algorithm
       stops if it is unable to reduce the value by a factor of
       \code{reltol * (abs(val) + reltol)} at a step.  Defaults to
-      \code{sqrt(.Machine$double.eps)}, typically about \code{1e-8}.}
+      \code{sqrt(.Machine$double.eps)}, typically about \code{1e-8}. For \code{optim}.}
     \item{\code{alpha}, \code{beta}, \code{gamma}}{Scaling parameters
       for the \code{"Nelder-Mead"} method. \code{alpha} is the reflection
       factor (default 1.0), \code{beta} the contraction factor (0.5) and
@@ -225,7 +227,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
   Any names given to \code{par} will be copied to the vectors passed to
   \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
-  are copied over.
+  are copied over. (We have not verified this as at 2009-07-29.)
 
 }
 \value{
@@ -255,8 +257,38 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     that this is the Hessian of the unconstrained problem even if the
     box constraints are active.}
 
-  Note that this description is incomplete and possibly in error at 2009-6-12.
-  JN. 
+More detail is provided in the attribute "details" to the returned answer object. 
+If the returned object from optimx() is \code{ans}, this is accessed 
+via the construct
+    \code{attr(ans, "details")}
+This object is a list of lists, one list for each method that has been successful 
+or that has been forced by save.failures=TRUE. To get the details list for the 
+third method, we use
+    \code{attr(ans, "details")[[3]]]]}
+
+Each such list has possible elements:
+  \item{par}{ - the final parameters of the function}
+  \item{value}{ - the final value of the objective function}
+  \item{convergence}{ - a code indicating whether and/or how the method terminated}
+  \item{message}{ - a descriptive message, if one is provided}
+  \item{fevals}{ - the number of times the objective function was evaluated during the run;
+   this item has an attribute "names" that can take on the value "function"}
+  \item{gevals}{ - the number of times the gradient of the objective function was evaluated 
+   during the run; this item has an attribute "names" that can take on the value "gradient"}
+  \item{kkt1}{ - an indicator if the first order Kuhn, Karush, Tucker condition for a 
+  local minimum is satisfied. Note that we must use a tolerance to make this test, and the
+  indicator is NOT definitive.}
+  \item{kkt2}{  - an indicator if the second order Kuhn, Karush, Tucker condition for a 
+  local minimum is satisfied. Note that we must use a tolerance to make this test, and the
+  indicator is NOT definitive.}
+  \item{ngatend}{ - the gradient vector computed or estimated at termination}
+  \item{nhatend}{ - the Hessian matrix computed or estimated at termination}
+  \item{evnhatend}{ - a vector of the eigenvalues of the Hessian at termination}
+  \item{systime}{ - the system time required for execution of the method in question (named
+   in "method" below). This element has the attribute "names".}
+  \item{method}{ - The name of the method used. This has the attribute "CPU times (s)" which 
+  itself has an attribute "names" that corresponds to the "method".}
+
 }
 \note{
   \code{optimx} will work with one-dimensional \code{par}s, but the

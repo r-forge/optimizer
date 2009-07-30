@@ -26,16 +26,20 @@ bobyqa <- function(par, fn, lower=-Inf,
     stop("npt is not in [len(par)+2, (len(par)+1)*(len(par)+2)/2)] ") 
   if(ctrl[["npt"]] > (2*n +1) )
     warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
-  if (is.na(ctrl[["rhobeg"]])) {
-        if (all(is.finite(xu - xl))) 
-          ctrl[["rhobeg"]] <- min(xu - xl)/2
-        else ctrl[["rhobeg"]] <- max(1, max(abs(par))/2)
-      }
+
+   if (is.na(ctrl[["rhobeg"]])) {
+     if(all(is.infinite(xu)) || all(is.infinite(xl))) 
+       ctrl[["rhobeg"]] <- max(1, max(abs(par))/2)
+     else 
+       ctrl[["rhobeg"]] <- min( (xu-xl)[which(is.finite(xu-xl))]) / 2
+   }
   if (is.na(ctrl[["rhoend"]])) {
-    if (all(is.finite(xu - xl))) 
-      ctrl[["rhoend"]] <- max(xu - xl)/1e+06
-    else ctrl[["rhoend"]] <- max(1.e-06, max(abs(par))/1e+06)
-  }
+     if(all(is.infinite(xu)) || all(is.infinite(xl))) 
+       ctrl[["rhoend"]] <-  max(1.e-06, max(abs(par))/1e+06)
+     else 
+       ctrl[["rhoend"]] <- max( (xu-xl)[which(is.finite(xu-xl))]) / 1e+06
+   }
+
   if(ctrl[["rhobeg"]] < ctrl[["rhoend"]] ||
      any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) < 0))
     ## may not need this (Inf and -Inf seem to work as bound defaults)

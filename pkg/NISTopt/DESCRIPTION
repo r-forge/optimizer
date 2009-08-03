@@ -1,0 +1,17 @@
+Package: NISTopt
+Version: 0.5
+Date: 2009-02-10
+Title: Nonlinear least squares examples from NIST in form of functions for optim() and optimx()
+Maintainer: John C. Nash <nashjc@uottawa.ca>
+Author: original from National Institutes for Standards and Technology (NIST)
+  http://www.itl.nist.gov/div898/strd/nls/nls_main.shtml
+  NISTnls nonlinear least squares R port by Douglas Bates <bates@stat.wisc.edu>
+  NISTopt optimization R port by John C. Nash <nashjc@uottawa.ca>
+Description: Datasets for testing nonlinear regression routines.
+Depends: stats, R (>= 2.2.0)
+LazyData: yes
+License: GPL (>= 2)
+LicenseDetails: The original data sets and descriptions are from the
+  NIST web site and were not covered by an explicit copyright.
+  Modifications for R data sets are covered by GPL (>= 2).
+Packaged: 2009-08-03 by John C. Nash

@@ -26,30 +26,22 @@ bobyqa <- function(par, fn, lower=-Inf,
     stop("npt is not in [len(par)+2, (len(par)+1)*(len(par)+2)/2)] ") 
   if(ctrl[["npt"]] > (2*n +1) )
     warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
-
-   if (is.na(ctrl[["rhobeg"]])) {
+  if (is.na(ctrl[["rhobeg"]])) 
      if(all(is.infinite(xu)) || all(is.infinite(xl))) 
        ctrl[["rhobeg"]] <- max(1, max(abs(par))/2)
      else 
-       ctrl[["rhobeg"]] <- min( (xu-xl)[which(is.finite(xu-xl))]) / 2
-   }
-  if (is.na(ctrl[["rhoend"]])) {
+       ctrl[["rhobeg"]] <- min( (xu-xl)[which(is.finite(xu-xl))]) /
+         (2+.Machine$double.eps*3)
+  if (is.na(ctrl[["rhoend"]])) 
      if(all(is.infinite(xu)) || all(is.infinite(xl))) 
        ctrl[["rhoend"]] <-  max(1.e-06, max(abs(par))/1e+06)
      else 
        ctrl[["rhoend"]] <- max( (xu-xl)[which(is.finite(xu-xl))]) / 1e+06
-   }
-
   if(ctrl[["rhobeg"]] < ctrl[["rhoend"]] ||
-     any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) < 0))
-    ## may not need this (Inf and -Inf seem to work as bound defaults)
-    ##||
-     ##any(xu-xl > 2 * ctrl[["rhobeg"]]))
-    stop("rhobeg and rhoend must be positive with rhoend no greater than
-       rhobeg.") 
+     any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) <= 0))
+    stop("rhobeg and rhoend must be positive with rhoend no greater than rhobeg.") 
   if(all(is.finite(xu-xl)) && any(xu-xl < 2 * ctrl[["rhobeg"]]))
     stop("None of the differences upper-lower can be less than 2*rhobeg.")
-
   w <- (ctrl[["npt"]]+5)*(ctrl[["npt"]]+n)+3*n*(n+5)/2
   if(is.na(ctrl[["wsize"]]))
     ctrl[["wsize"]] <- w
@@ -57,7 +49,6 @@ bobyqa <- function(par, fn, lower=-Inf,
   if (ctrl$maxfun < 10 * n^2) ctrl$maxfun = 10 * n^2
   out <- .Call("bobyqa_c", par, xl, xu, fn1, ctrl, new.env(),
                PACKAGE = "minqa")
-  
   class(out) <- "bobyqa"
   out
 }

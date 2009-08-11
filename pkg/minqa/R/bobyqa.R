@@ -46,9 +46,9 @@ bobyqa <- function(par, fn, lower=-Inf,
   if(is.na(ctrl[["wsize"]]))
     ctrl[["wsize"]] <- w
   else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
-  if (ctrl$maxfun < 10 * n^2) ctrl$maxfun = 10 * n^2
-  out <- .Call("bobyqa_c", par, xl, xu, fn1, ctrl, new.env(),
-               PACKAGE = "minqa")
+  if (ctrl$maxfun < 10 * n^2)
+    warning("'maxfun' less than 10*length(par)^2 not recommended.")
+  out <- .Call("bobyqa_c", par, xl, xu, fn1, ctrl, new.env(), PACKAGE = "minqa")
   class(out) <- "bobyqa"
   out
 }

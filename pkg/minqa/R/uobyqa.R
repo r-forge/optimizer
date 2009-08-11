@@ -21,8 +21,9 @@ uobyqa <- function(par, fn, control = uobyqa.control(), ...)
   if(is.na(ctrl[["wsize"]]))
     ctrl[["wsize"]] <- w
   else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
- 
-  if (ctrl$maxfun < 10 * n^2) ctrl$maxfun = 10 * n^2
+  if (ctrl$maxfun < 10 * n^2)
+    warning("'maxfun' less than 10*length(par)^2 not recommended.")
+  
   out <- .Call("uobyqa_c", par, fn1, ctrl, new.env(), PACKAGE = "minqa")
   
   class(out) <- "uobyqa"

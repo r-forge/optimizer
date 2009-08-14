@@ -11,8 +11,8 @@ Controls for an R interface to the bobyqa implementation of Powell
 }
 \usage{
 %- bobyqa.control(npt = NA, rhobeg = 0.01, rhoend = 1e-04, iprint = 3, maxfun = 10000, wsize = 10000)
-bobyqa.control(npt = NA, rhobeg = NA, rhoend = NA, iprint = 0,
-maxfun = 10000, wsize = NA)
+bobyqa.control(npt = NA, rhobeg = NA, rhoend = NA, iprint = 0, maxfun = 10000, wsize = NA,
+          obstop=TRUE, force.start=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -55,7 +55,8 @@ maxfun = 10000, wsize = NA)
 %%     ~~Describe \code{maxfun} here~~
   The maximum allowed number of function evaluations. If this is exceeded, the
   method will terminate.
-}  \item{wsize}{
+}
+  \item{wsize}{
 %%     ~~Describe \code{wsize} here~~
   Allowed number of elements of working storage. If this is undefined (i.e., 
   left at the default NA), then it will be set to 
@@ -63,6 +64,20 @@ maxfun = 10000, wsize = NA)
   Note that npt needs to be set (and will be by default) BEFORE wsize can be
   set to this minimum size.
 }
+  \item{obstop}{
+%%     ~~Describe \code{wsize} here~~
+  Set TRUE if out of bounds parameters force program to stop. Otherwise parameters
+	are reset to nearest bound. 
+}
+  \item{force.start}{
+%%     ~~Describe \code{wsize} here~~
+  Powell tries to move parameters at least rhobeg from the nearest bound. This is 
+	the default action (force.start=FALSE). When TRUE, use user supplied start
+	regardless.
+}
+
+
+
 }
 \details{
   Functions \code{fn} must return a numeric value.\cr

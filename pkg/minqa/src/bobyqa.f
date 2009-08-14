@@ -46,7 +46,9 @@ C     way that satisfies the bounds given in XL and XU.
 C
 C     Return if the value of NPT is unacceptable.
 C
+C  Modified by John Nash to put the setup controls into the R code.
       NP=N+1
+CJ  Comment out to END IF as in R code
       IF (NPT .LT. N+2 .OR. NPT .GT. ((N+2)*NP)/2) THEN
           PRINT 10
    10     FORMAT (/4X,'Return from BOBYQA because NPT is not in',

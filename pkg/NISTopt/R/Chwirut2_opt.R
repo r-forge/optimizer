@@ -64,6 +64,9 @@ Chwirut2.setup<-function() {
 # ?? May want to change structure of starts??
    start1 = c(0.1, 0.01, 0.02)
    start2 = c(0.15, 0.008, 0.01)
+   out<-list(start1=start1, start2=start2)
+   return(out)
+
 }
 
 Chwirut2.test<-function() {

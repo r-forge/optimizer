@@ -69,7 +69,8 @@ Lanczos3.setup<-function() {
    data(Lanczos3) # and load up the data into x and y
    start1<-c(1.2,0.3,5.6,5.5,6.5,7.6)
    start2<-c(0.5,0.7,3.6,4.2,4,6.3)
-
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 Lanczos3.test<-function() {

@@ -81,6 +81,8 @@ Gauss2.setup<-function() {
    data(Gauss2) # and load up the data into x and y
    start1 = c( 96,  0.009, 103, 106, 18, 72, 151, 18)
    start2 = c( 98, 0.0105, 103, 105, 20, 73, 150, 20)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 Gauss2.test<-function() {

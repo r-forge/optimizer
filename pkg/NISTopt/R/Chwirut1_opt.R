@@ -62,6 +62,8 @@ Chwirut1.setup<-function() {
    data(Chwirut1) # and load up the data into x and y
    start1 = c( 0.1, 0.01, 0.02)
    start2 = c( 0.15, 0.008, 0.010)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 Chwirut1.test<-function() {

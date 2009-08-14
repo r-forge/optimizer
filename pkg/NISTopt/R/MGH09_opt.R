@@ -66,6 +66,8 @@ MGH09.setup<-function() {
    data(MGH09) # and load up the data into x and y
    start1 = c(25, 39, 41.5, 39)
    start2 = c(0.25, 0.39, 0.415, 0.39)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 MGH09.test<-function() {

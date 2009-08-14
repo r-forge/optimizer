@@ -87,6 +87,8 @@ ENSO.setup<-function() {
    data(ENSO) # and load up the data into x and y
    start1 = c( 11.0, 3.0, 0.5, 40.0, -0.7, -1.3, 25.0, -0.3, 1.4)
    start2 = c( 10.0, 3.0, 0.5, 44.0, -1.5, 0.5,  26.0, -0.1, 1.5)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 ENSO.test<-function() {

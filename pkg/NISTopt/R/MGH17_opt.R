@@ -67,7 +67,8 @@ MGH17.setup<-function() {
    data(MGH17) # and load up the data into x and y
    start1 = c( 50,  150, -100, 1,  2)
    start2 = c( 0.5, 1.5, -1,  0.01, 0.02)
-
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 MGH17.test<-function() {

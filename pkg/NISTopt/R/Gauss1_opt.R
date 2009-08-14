@@ -81,21 +81,13 @@ Gauss1.setup<-function() {
    data(Gauss1) # and load up the data into x and y
   start1<-c(97.0,  0.009,  100.0,  65.0, 20.0,  70.0, 178.0, 16.5)
   start2<-c(94.0, 0.0105,   99.0,  63.0, 25.0,  71.0, 180.0, 20.0)
-  # ?? need a way to choose between these ??
-  cat("There are two starting choices: \n")
-  cat("start1: ")
-  print(start1)
-  cat("\nstart2: ")
-  print(start2)
-  cat("\n")
-  choice<-readline("Which start should be used (1 or 2):")
-  if (choice == 1) start=start1 else start=start2
-  return(start)
+  out<-list(start1=start1, start2=start2)
+  return(out)
 }
 
 Gauss1.test<-function() {
   start1<-c(97.0,  0.009,  100.0,  65.0, 20.0,  70.0, 178.0, 16.5)
   start2<-c(94.0, 0.0105,   99.0,  63.0, 25.0,  71.0, 180.0, 20.0)
-  # ?? need a way to choose between these ??
+  out<-list(start1=start1, start2=start2)
 }
 

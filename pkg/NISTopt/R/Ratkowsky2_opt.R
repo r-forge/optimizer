@@ -60,7 +60,9 @@ Ratkowsky2.setup<-function() {
    data(Ratkowsky2) # and load up the data into x and y
    start1<-c(100,1,.1)
    start2<-c(75,2.5,0.07)
-   start0<-rep(1,3)
+   start3<-rep(1,3)
+   out<-list(start1=start1, start2=start2, start3=start3 )
+   return(out)
 }
 
 Ratkowsky2.test<-function() {

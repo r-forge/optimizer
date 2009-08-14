@@ -64,9 +64,9 @@ Nelson.setup<-function() {
    data(Nelson) # and load up the data into x and y
    start1<-c(2,0.0001,-0.01)
    start2<-c(2.5, 0.000000005, -0.05)
-   start0<-rep(0,3)
-
-
+   start3<-rep(0,3)
+   out<-list(start1=start1, start2=start2, start3=start3 )
+   return(out)
 }
 
 Nelson.test<-function() {

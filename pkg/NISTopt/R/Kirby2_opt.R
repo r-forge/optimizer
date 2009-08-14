@@ -67,7 +67,10 @@ Kirby2.setup<-function() {
 #   library(NISTnls) # get parent collection
    data(Kirby2) # and load up the data into x and y
   start1<-c(2,-0.1,0.003, -0.001, 0.00001)
-  start2<-c(1.5,-0.15,0.0025, -0.0015, 0.00002)}
+  start2<-c(1.5,-0.15,0.0025, -0.0015, 0.00002)
+  out<-list(start1=start1, start2=start2)
+  return(out)
+}
 
 Kirby2.test<-function() {
   # ?? fixup

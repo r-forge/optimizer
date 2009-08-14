@@ -63,7 +63,9 @@ Roszman1.setup<-function() {
    data(Roszman1) # and load up the data into x and y
   start1<-c(0.1, -0.00001, 1000, -100)
   start2<-c(0.2, -0.000005, 1200, -150)
-  start0<-rep(1,4)
+  start3<-rep(1,4)
+  out<-list(start1=start1, start2=start2, start3=start3 )
+  return(out)
 }
 
 Roszman1.test<-function() {

@@ -64,6 +64,8 @@ Eckerle4.setup<-function() {
    data(Eckerle4) # and load up the data into x and y
    start1 = c( 1, 10, 500)
    start2 = c( 1.5, 5, 450)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 Eckerle4.test<-function() {

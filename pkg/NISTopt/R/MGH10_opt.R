@@ -60,6 +60,8 @@ MGH10.setup<-function() {
    data(MGH10) # and load up the data into x and y
    start1 = c( 2, 400000, 25000)
    start2 = c( 0.02, 4000, 250)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 MGH10.test<-function() {

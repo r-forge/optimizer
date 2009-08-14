@@ -58,7 +58,8 @@ Misra1c.setup<-function() {
    data(Misra1c) # and load up the data into x and y
    start1<-c(500, 0.0001)
    start2<-c(600, 0.0002)
-
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 Misra1c.test<-function() {

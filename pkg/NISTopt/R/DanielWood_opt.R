@@ -57,6 +57,8 @@ DanielWood.setup<-function() {
    data(DanielWood) # and load up the data into x and y
    start1 = c( 1, 5)
    start2 = c( 0.7, 4)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 DanielWood.test<-function() {

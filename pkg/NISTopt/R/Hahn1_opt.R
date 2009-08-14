@@ -75,6 +75,8 @@ Hahn1.setup<-function() {
    data(Hahn1) # and load up the data into x and y
   start1<-c(10, -1, .05, -0.00001, -0.05, 0.001, -0.000001)
   start2<-c(1, -0.1, .005, -0.000001, -0.005, 0.0001, -0.0000001)
+  out<-list(start1=start1, start2=start2)
+  return(out)
 }
 
 Hahn1.test<-function() {

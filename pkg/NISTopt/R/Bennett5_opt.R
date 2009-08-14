@@ -62,6 +62,8 @@ Bennett5.setup<-function() {
    data(Bennett5) # and load up the data into x and y
    start1 = c( -2000, 50, 0.8)
    start2 = c( -1500, 45, 0.85)
+   out<-list(start1=start1, start2=start2)
+   return(out)
 }
 
 Bennett5.test<-function() {

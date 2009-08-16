@@ -1,10 +1,10 @@
-Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=list(), ...) {
+Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=list(), ...) {
 ## An R version of the conjugate gradient minimization
 ## using the Dai-Yuan ideas
 #  This version is for unconstrained functions.
 #
 # Input:
-#  par = a vector containing the starting point
+#  x  = a vector containing the starting point
 #  fn = objective function (assumed to be sufficeintly differentiable)
 #  gr = gradient of objective function
 #  lower = vector of lower bounds on parameters
@@ -46,7 +46,7 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
 #  Date:  April 2, 2009; revised July 28, 2009
 #################################################################
   # control defaults -- idea from spg
-  ctrl<-list(maxfeval=10000, maximize=FALSE, trace=0, eps=1.0e-7)
+  ctrl<-list(maxfeval=10000, maximize=FALSE, trace=0, eps=1.0e-7, usenumDeriv=FALSE)
   namc <- names(control)
   if (! all(namc %in% names(ctrl)) )
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
@@ -57,44 +57,60 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
   if (trace>2) cat("trace = ",trace,"\n")
   eps<-ctrl$eps
   fargs <- list(...)         # the ... arguments that are extra function / gradient data
+  grNULL <- is.null(gr)
 #############################################
 # local function defined only when user does not specify a gr
 # Simple gr numerical approximation. Using fn, fmin and eps from calling env.  	
-  if (is.null(gr)) {
-       warning("WARNING: Numerical gradients are inappropriate for Rcgminu")
-       gr <- function(par, ...) {
+  if (grNULL) {
+       warning("WARNING: Numerical gradients may be inappropriate for Rcgmin")
+       if ( ctrl[["usenumDeriv"]] ) { # external gradient
+         require(numDeriv)
+         gr<-function(par, ...) {
+           gg<-grad(myfn, par, ...)
+           gg
+         }
+       } else { # using local gradient
+        gr <- function(par, ...) {
+        fbase<-myfn(par,...) # ensure we have right value, may not be necessary
     	df <- rep(NA,length(par))
         teps<-eps*(abs(par)+eps)
     	for (i in 1:length(par)) {
     	  dx <- par
     	  dx[i] <- dx[i] + teps[i]
-    	  df[i] <- (fn(dx, ...) - fmin)/teps[i]
+    	  df[i] <- (myfn(dx, ...) - fbase)/teps[i]
     	 }
     	df
 	}
-   }
+       } # end else
+} # grNULL
 ############# end gr ########################
+  myfn <- if (maximize) function(par, ...) -fn(par, ...)
+                   else function(par, ...)  fn(par, ...)
+
+  mygr <- if (maximize && !grNULL) function(par, ...) -gr(par, ...)
+                    else function(par, ...)  gr(par, ...)
+
 ## Set working parameters (See CNM Alg 22)
   if (trace>0) {
 	cat("Rcgmin -- J C Nash 2009 - bounds constraint version of new CG\n")
 	cat("an R implementation of Alg 22 with Yuan/Dai modification\n")
   }
-  bvec <- par # copy the parameter vector
+  bvec <- x # copy the parameter vector
   n <- length(bvec) # number of elements in par vector
   ig <- 0 # count gradient evaluations
   ifn <- 1 # count function evaluations (we always make 1 try below)
   stepredn <- 0.15 # Step reduction in line search
   acctol <- 0.0001 # acceptable point tolerance
   reltest <- 100.0 # relative equality test
+  ceps<-.Machine$double.eps*reltest
   setstep <- 1.75 # step increase factor
   accpoint <- as.logical(FALSE) # so far do not have an acceptable point
   fail <- as.logical(FALSE) # Method hasn't yet failed on us!
   cyclimit <- min(2.5*n,10+sqrt(n)) #!! upper bound on when we restart CG cycle 
 #!! getting rid of limit makes it work on negstart BUT inefficient
   # This does not appear to be in Y H Dai & Y Yuan, Annals of Operations Research 103, 33–47, 2001 aor01.pdf
-  intol <- .Machine$double.eps # machine precision from .Machine variable 
   # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
-  tol <- n*(n*intol) # # for gradient test.  Note -- integer overflow if n*n*intol
+  tol <- n*(n*.Machine$double.eps) # # for gradient test.  Note -- integer overflow if n*n*d.eps
   fargs<-list(...) # function arguments
   if (trace > 2) {
 	cat("Extra function arguments:")
@@ -141,7 +157,7 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
     } # end if bounds
 ############## end bounds check #############
 # Initial function value -- may NOT be at initial point specified by user.
-  f <- try(do.call("fn", append(list(bvec), fargs )), silent=TRUE) # Compute the function at initial point.
+  f <- try(do.call("myfn", append(list(bvec), fargs )), silent=TRUE) # Compute the function at initial point.
   if ( class(f) == "try-error") { 
      msg<-"Initial point is infeasible."
      if(trace > 0) cat(msg,"\n")
@@ -178,7 +194,7 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
       }
       x<-bvec # save best parameters
       ig<-ig+1
-      g<-gr(bvec, ...)
+      g<-mygr(bvec, ...)
       if(bounds) {
         ## Bounds and masks adjustment of gradient ##
         ## first try with looping -- later try to vectorize
@@ -293,7 +309,7 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
           bvec<-x+steplength*t
           changed <- ( !  identical((bvec+reltest), (x+reltest)) )
           if( changed ) { # compute newstep, if possible
-            f <- fn(bvec, ...) # Because we need the value for linesearch, don't use try()
+            f <- myfn(bvec, ...) # Because we need the value for linesearch, don't use try()
             #  instead preferring to fail out, which will hopefully be unlikely.
             ifn<-ifn+1
             if (f < fmin) {
@@ -330,7 +346,7 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
           bvec<-x+newstep*t
           changed <- ( ! identical((bvec+reltest), (x+reltest)) )
           if (changed) {
-              f <- fn(bvec, ...)
+              f <- myfn(bvec, ...)
               ifn<-ifn+1
           }
           if(trace > 2) cat("fmin, f1, f: ",fmin, f1, f,"\n")
@@ -379,13 +395,13 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
         for (i in 1:n) {
           if (bdmsk[i]==1) { # only interested in free parameters
             if(is.finite(lower[i])) {
-              if ( (bvec[i]-lower[i]) < eps*(lower[i]+1.0) ) { # are we near or lower than lower bd
+              if ( (bvec[i]-lower[i]) < ceps*(lower[i]+1.0) ) { # are we near or lower than lower bd
                 if (trace>2) cat("(re)activate lower bd ",i," at ",lower[i],"\n")
                 bdmsk[i] <- -3
               } # end lower bd reactivate
             }
             if(is.finite(upper[i])){
-              if ( (upper[i]-bvec[i]) < eps*(upper[i]+1.0) ) { # are we near or above upper bd
+              if ( (upper[i]-bvec[i]) < ceps*(upper[i]+1.0) ) { # are we near or above upper bd
                 if (trace>2) cat("(re)activate upper bd ",i," at ",upper[i],"\n")
                 bdmsk[i] <- -1
               } # end lower bd reactivate
@@ -399,7 +415,7 @@ Rcgmin <- function( par, fn, gr, lower=NULL, upper=NULL, bdmsk=NULL, control=lis
     if (oldstep > 1.0) { oldstep <- 1.0 }
     if (trace > 1) cat("End inner loop, cycle =",cycle,"\n")
   } # end of outer loop
-  msg<-"Seem to be finished Rcgmin"
+  msg<-"Rcgmin seems to have converged"
   if (trace>0) cat(msg,"\n")
  #  par: The best set of parameters found.
  #  value: The value of 'fn' corresponding to 'par'.

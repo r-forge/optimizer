@@ -6,6 +6,7 @@ Date: 2009-07-30
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Conjugate gradient minimization of nonlinear functions incorporating Dai/Yuan update
+Depends: numDeriv
 License: GPL (>= 2)
 LazyLoad: no
 Packaged: 2009-07-30; nashjc

@@ -1,10 +1,10 @@
-Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=list(), ...) {
+Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=list(), ...) {
 ## An R version of the conjugate gradient minimization
 ## using the Dai-Yuan ideas
 #  This version is for unconstrained functions.
 #
 # Input:
-#  x  = a vector containing the starting point
+#  par  = a vector containing the starting point
 #  fn = objective function (assumed to be sufficeintly differentiable)
 #  gr = gradient of objective function
 #  lower = vector of lower bounds on parameters
@@ -95,7 +95,7 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
 	cat("Rcgmin -- J C Nash 2009 - bounds constraint version of new CG\n")
 	cat("an R implementation of Alg 22 with Yuan/Dai modification\n")
   }
-  bvec <- x # copy the parameter vector
+  bvec <- par # copy the parameter vector
   n <- length(bvec) # number of elements in par vector
   ig <- 0 # count gradient evaluations
   ifn <- 1 # count function evaluations (we always make 1 try below)
@@ -132,19 +132,19 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
      for (i in 1:n) {
        if (bdmsk[i] == 0) { # NOTE: we do not change masked parameters, even if out of bounds
            if(bvec[i]<lower[i]) { 
-              if (trace>0) cat("WARNING: ",bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],"\n")
+              if (trace>0) cat("WARNING: ",bvec[i]," = MASKED par[",i,"] < lower bound = ",lower[i],"\n")
            }
            if(bvec[i]>upper[i]) { 
-              if (trace>0) cat("WARNING: ",bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],"\n")
+              if (trace>0) cat("WARNING: ",bvec[i]," = MASKED par[",i,"] > upper bound = ",upper[i],"\n")
            }
        } else { # not masked
            if(bvec[i]<=lower[i]) { 
-              if (trace>0) cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
+              if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
               bvec[i]<-lower[i]
               bdmsk[i] <- -3 # active lower bound
            }
            if(bvec[i]>=upper[i]) { 
-              if (trace>0) cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
+              if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
               bvec[i]<-upper[i]
               bdmsk[i] <- -1 # active upper bound
            }
@@ -161,7 +161,8 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
   if ( class(f) == "try-error") { 
      msg<-"Initial point is infeasible."
      if(trace > 0) cat(msg,"\n")
-     ans<-list(x, NA, c(ifn, 0), 2, msg)
+     ans<-list(par, NA, c(ifn, 0), 2, msg)
+     names(ans)<-c("par", "value", "counts", "convergence", "message")
      return(ans)
   } 
   fmin<-f
@@ -188,11 +189,11 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
       if (ifn > maxfeval) {
         msg<-paste("Too many function evaluations (> ",maxfeval,") ", sep='')
         if (trace > 0 ) cat(msg,"\n")
-        ans<-list(x, fmin, c(ifn, ig), 1, msg) # 1 indicates not converged in function limit
+        ans<-list(par, fmin, c(ifn, ig), 1, msg) # 1 indicates not converged in function limit
         names(ans)<-c("par", "value", "counts", "convergence", "message")
         return(ans)
       }
-      x<-bvec # save best parameters
+      par<-bvec # save best parameters
       ig<-ig+1
       g<-mygr(bvec, ...)
       if(bounds) {
@@ -295,9 +296,9 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
                if( (bdmsk[i]==1) && (t[i] != 0.0) ) { 
                   # only concerned with free parameters and non-zero search dimension
                   if(t[i] < 0.0) { # going down. Look at lower bound
-                     trystep<-(lower[i]-x[i])/t[i] # t[i] < 0 so this is positive
+                     trystep<-(lower[i]-par[i])/t[i] # t[i] < 0 so this is positive
                   } else { # going up, check upper bound
-                     trystep<-(upper[i]-x[i])/t[i] # t[i] > 0 so this is positive
+                     trystep<-(upper[i]-par[i])/t[i] # t[i] > 0 so this is positive
                   }
                   if (trace>2) cat("steplength, trystep:", steplength, trystep,"\n")
                   steplength<-min(steplength, trystep) # reduce as necessary
@@ -306,8 +307,8 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
             if (trace>1) cat("reset steplegth=",steplength,"\n")
             # end box constraint adjustment of step length
           } # end if bounds
-          bvec<-x+steplength*t
-          changed <- ( !  identical((bvec+reltest), (x+reltest)) )
+          bvec<-par+steplength*t
+          changed <- ( !  identical((bvec+reltest), (par+reltest)) )
           if( changed ) { # compute newstep, if possible
             f <- myfn(bvec, ...) # Because we need the value for linesearch, don't use try()
             #  instead preferring to fail out, which will hopefully be unlikely.
@@ -332,9 +333,9 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
             for (i in 1:n) { # loop on parameters -- vectorize??
                if( (bdmsk[i]==1) && (t[i] != 0.0) ) { # only concerned with free parameters and non-zero search dimension
                   if(t[i] < 0.0) { # going down. Look at lower bound
-                     trystep<-(lower[i]-x[i])/t[i] # t[i] < 0 so this is positive
+                     trystep<-(lower[i]-par[i])/t[i] # t[i] < 0 so this is positive
                   } else { # going up, check upper bound
-                     trystep<-(upper[i]-x[i])/t[i] # t[i] > 0 so this is positive
+                     trystep<-(upper[i]-par[i])/t[i] # t[i] > 0 so this is positive
                   }
                   if (trace>2) cat("newstep, trystep:", newstep, trystep,"\n")
                   newstep<-min(newstep, trystep) # reduce as necessary
@@ -343,8 +344,8 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
             if (trace > 2) cat("reset newstep=",newstep,"\n")
             # end box constraint adjustment of step length
           } # end if bounds
-          bvec<-x+newstep*t
-          changed <- ( ! identical((bvec+reltest), (x+reltest)) )
+          bvec<-par+newstep*t
+          changed <- ( ! identical((bvec+reltest), (par+reltest)) )
           if (changed) {
               f <- myfn(bvec, ...)
               ifn<-ifn+1
@@ -359,7 +360,7 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
              oldstep<-newstep # !! save it
           } else { 
             if (f1 < fmin) {
-                bvec<-x+steplength*t # reset best point
+                bvec<-par+steplength*t # reset best point
                 accpoint <- ( f1 <= fmin + gradproj * steplength * acctol) 
                 OKpoint<-TRUE # Because f1 < fmin
                 fdiff<-(fmin - f1) # check decrease
@@ -422,7 +423,7 @@ Rcgmin <- function( x, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, control=
  #  counts: number of calls to 'fn' and 'gr' (2 elements)
  #  convergence: An integer code. '0' indicates successful convergence.
  #  message: A character string or 'NULL'.
-  ans<-list(x, fmin, c(ifn, ig), 0, msg)
+  ans<-list(par, fmin, c(ifn, ig), 0, msg)
   names(ans)<-c("par", "value", "counts", "convergence", "message")
   return(ans)
 } ## end of Rcgmin

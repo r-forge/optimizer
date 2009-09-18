@@ -9,10 +9,10 @@
   of many parameters by a nonlinear conjugate gradients method. 
 }
 \usage{
-   Rcgmin(x, fn, gr, lower, upper, bdmsk, control = list(), \dots)
+   Rcgmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
 }
 \arguments{
- \item{x}{A numeric vector of starting estimates.}
+ \item{par}{A numeric vector of starting estimates.}
  \item{fn}{A function that returns the value of the objective at the
    supplied set of parameters \code{par} using auxiliary data in \dots.
    The first argument of \code{fn} must be \code{par}. }
@@ -47,7 +47,7 @@
 \value{
   A list with components:
   \item{par}{The best set of parameters found.}
-  \item{fvalue}{The value of the objective at the best set of parameters found.}
+  \item{value}{The value of the objective at the best set of parameters found.}
 }
 \references{
 To be added.
@@ -61,7 +61,7 @@ fr <- function(x) {
     x2 <- x[2]
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
-ansrosenbrock <- Rcgmin(fn=fr,x=c(1,2))
+ansrosenbrock <- Rcgmin(fn=fr,par=c(1,2))
 ansrosenbrock
 #####################
 # Simple bounds and masks test

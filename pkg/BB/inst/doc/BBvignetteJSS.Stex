@@ -1322,7 +1322,7 @@ ans.gh
 \end{Scode}
 
 \emph{The section of code to the estimates by is not executed in the vignette
-because it takes too long. You can chancange this by indicating 
+because it takes too long. You can change this by indicating 
 \code{eval=TRUE} for the Scode section in the vignette.}
 
 \begin{Scode}{eval=FALSE,keep.source=TRUE}
@@ -1387,7 +1387,7 @@ for (i in 1:nboot) {
 cat("\n")
 \end{Scode}
 
-\begin{Scode}{echo=TRUE,results=verbatim,keep.source=TRUE}
+\begin{Scode}{eval=FALSE,echo=TRUE,results=verbatim,keep.source=TRUE}
 time3 <- system.time( ans.jin.boot <-
       aft.fun(x = X.orig, y = Y.orig, delta = delta.orig,
          mcsize = nboot))[1]
@@ -1438,7 +1438,8 @@ sqrt(diag(ans.jin.boot$betacov[,,1]))  # Gehan
 # [1] 0.005659013 0.522871858 0.062670939 0.283731999 0.775959845
 \end{Scode}
 
-\begin{Scode}{echo=FALSE,results=tex}
+\begin{Scode}{eval=FALSE,echo=FALSE,results=tex}
+# This version of the table requires Jin's code results
 
 table3.caption <- paste("Rank-based regression of the accelerated failure time (AFT) model 
 for the primary biliary cirrhosis (PBC) data set.  Point estimates and 
@@ -1452,6 +1453,52 @@ table3.part1 <- cbind(
       colMeans(lr.boot), sd(lr.boot) * (499/500),
          ans.jin.boot$beta[2,], # log-rank
          sqrt(diag(ans.jin.boot$betacov[,,2]))  # log-rank
+      )
+
+dimnames(table3.part1) <- list(
+     c("age", "log(albumin)", "log(bili)", "edema", "log(protime)"), NULL) 
+
+latex(table3.part1,  
+       file="",
+       align  = "c|cccc||cccc",
+       halign = "c|cccc||cccc",
+       colheads=c("", "", "Gehan","", "", "","Log-rank", "", ""),
+       extracolheads=c("Covariate", 
+                 "\\code{dfsane}", "", "\\citet{JinLinWeiYin03}", "",
+                 "\\code{dfsane}", "", "\\citet{JinLinWeiYin03}", ""),
+       dec=3,
+       label="table:pbcGENERATEDp1",
+       landscape=FALSE, size="small", 
+       numeric.dollar=TRUE)
+
+table3.ResidualNorm <- matrix(table3.ResidualNorm, 1,4)
+dimnames(table3.ResidualNorm) <- list(
+   "Residual norm $\\frac{\\|F(x_n)\\|}{\\sqrt{p}}$" , NULL)
+
+latex(table3.ResidualNorm,  
+       file="",
+       caption=table3.caption, caption.loc='bottom',
+       align  = "c|cc||cc",
+       dec=3,
+       label="table:pbcGENERATEDp2",
+       landscape=FALSE, size="small", 
+       numeric.dollar=TRUE)
+
+
+\end{Scode}
+
+\emph{The table is generated here without the results from running Jin's code.}
+
+\begin{Scode}{echo=FALSE,results=tex}
+
+table3.caption <- paste("Rank-based regression of the accelerated failure time (AFT) model 
+for the primary biliary cirrhosis (PBC) data set.  Point estimates and 
+standard errors (in parentheses) are provided. Standard errors 
+for \\code{dfsane} are obtained from", nboot, "bootstrap samples.")
+
+table3.part1 <- cbind(
+      colMeans(gh.boot), sd(gh.boot) * (499/500),
+      colMeans(lr.boot), sd(lr.boot) * (499/500)
       )
 
 dimnames(table3.part1) <- list(

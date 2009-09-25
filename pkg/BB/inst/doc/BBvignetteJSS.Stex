@@ -1,5 +1,5 @@
 \documentclass[nojss]{jss}
-%\VignetteIndexEntry{JSS 2009 paper BB...}
+%\VignetteIndexEntry{JSS 2009 paper BB}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -153,8 +153,8 @@ vignette("BBvignetteJSS", package = "BB")
 This paper was compiled with settings for the number of simulations and bootstrap
 samples as
 \begin{Scode}{echo=TRUE,results=hide}
-nsim  <- 10 # 1000  
-nboot <- 50 # 500
+nsim  <- 5 #10 1000  
+nboot <- 10 #50 500
 \end{Scode}
 but, in order to maintain a reasonable build time for the package, these 
 values are set very much smaller in the vignette (nsim=10, nboot=50).
@@ -505,7 +505,7 @@ control settings to achieve successful convergence.
 \caption{Results of numerical experiments for 6 standard test problems. 1000 randomly 
    generated starting values were used for each problem. Means 
    and inter-quartile ranges (in parentheses) are shown.  Default control 
-   parameters were used in all the algorithms.\label{table:stdexpmtsGENERATED}} 
+   parameters were used in all the algorithms.} 
 
 \end{table}
 
@@ -1475,10 +1475,10 @@ latex(table3.part1,
        file="",
        align  = "c|cc||cc",
        halign = "c|cc||cc",
-       colheads=c("", "", "Gehan","", "", "","Log-rank", "", ""),
+       colheads=c("", "", "Gehan","", "Log-rank"),
        extracolheads=c("Covariate", 
-                 "\\code{dfsane}", "", "\\citet{JinLinWeiYin03}", "",
-                 "\\code{dfsane}", "", "\\citet{JinLinWeiYin03}", ""),
+                 "\\code{dfsane}", "",
+                 "\\code{dfsane}", ""),
        dec=3,
        label="table:pbcGENERATEDp1",
        landscape=FALSE, size="small", 

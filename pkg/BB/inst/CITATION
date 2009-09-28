@@ -4,14 +4,14 @@ citEntry(entry="article",
   author  = personList(as.person("R. Varadhan"),
                        as.person("P. D. Gilbert")),
   year    = 2009,
-  title   = "BB: An \proglang{R} Package for Solving a Large System of 
+  title   = "BB: An R Package for Solving a Large System of 
   Nonlinear Equations and for Optimizing a High-Dimensional Nonlinear 
   Objective Function",
   journal = "J. Statistical Software",
 
   textVersion = 
      paste("R. Varadhan and P. D. Gilbert (2009) ", 
-           "BB: An \proglang{R} Package for Solving a Large System of 
+           "BB: An R Package for Solving a Large System of 
   Nonlinear Equations and for Optimizing a High-Dimensional Nonlinear 
   Objective Function",
            "J. Statistical Software ",

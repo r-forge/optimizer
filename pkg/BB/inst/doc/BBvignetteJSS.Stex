@@ -150,14 +150,14 @@ the vignette is compiled, can be viewed  by typing:
 \begin{Scode}{eval=FALSE}
 vignette("BBvignetteJSS", package = "BB")
 \end{Scode}
-This paper was compiled with settings for the number of simulations and bootstrap
-samples as
+The JSS paper was compiled with settings for the number of simulations and bootstrap
+samples as \code{nsim=1000, nboot=500},
+but, in order to maintain a reasonable build time for the package, these 
+values are set very much smaller in the vignette (nsim=10, nboot=50).
 \begin{Scode}{echo=TRUE,results=hide}
 nsim  <- 10 # 1000  
 nboot <- 50 # 500
 \end{Scode}
-but, in order to maintain a reasonable build time for the package, these 
-values are set very much smaller in the vignette (nsim=10, nboot=50).
 
 \section{Solving nonlinear system of equations}
 We are interested in solving the nonlinear system of equation

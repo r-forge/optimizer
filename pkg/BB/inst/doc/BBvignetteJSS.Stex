@@ -457,7 +457,6 @@ for creating the \code{BBsolve} function that can automatically try different
 control settings to achieve successful convergence.
 
 \begin{table}[!t]
-\label{table:stdexpmts}
 \centering
 \begin{tabular}{lcccc}
 \hline Methods & \# Iters  & \# Fevals & CPU (sec) & \# Failures  \\
@@ -505,8 +504,7 @@ control settings to achieve successful convergence.
 \caption{Results of numerical experiments for 6 standard test problems. 1000 randomly 
    generated starting values were used for each problem. Means 
    and inter-quartile ranges (in parentheses) are shown.  Default control 
-   parameters were used in all the algorithms.} 
-
+   parameters were used in all the algorithms.\label{table:stdexpmts}} 
 \end{table}
 
 \begin{Scode}{echo=FALSE,results=hide}
@@ -1137,7 +1135,6 @@ The results are shown in Table~\ref{table:aft} for both log-rank and
 Gehan estimators.  
 
 \begin{table}[h!]
-\label{table:aft}
 \centering
 \begin{tabular}{cr|rrl||rrl}
 \hline 
@@ -1157,7 +1154,7 @@ $X_8$&$ -0.6 $&$ -0.601 $&$ -0.001 $&$ 0.114 $&$ -0.601 $&$ -0.001 $&$ 0.068 $\\
 
 \caption{Simulation results for the rank-based regression 
 in accelerated failure time model (1000 simulations). Estimates were obtained using 
-the \code{dfsane} algorithm with \code{M=100}.\label{table:aftGENERATED}} 
+the \code{dfsane} algorithm with \code{M=100}.\label{table:aft}} 
 \end{table}
 
 \begin{Scode}{echo=TRUE,results=hide,keep.source=TRUE}
@@ -1249,7 +1246,6 @@ We also estimated standard errors for them using 500 bootstrap samples.
 Results are provided in Table~\ref{table:pbc}.
 
 \begin{table}[h!]
-\label{table:pbc}
 \centering
 \small
 \begin{tabular}{c|r@{}llr@{}ll||r@{}llr@{}ll}
@@ -1277,7 +1273,7 @@ Residual norm&&&&&&&&&&&&\\
 \caption {Rank-based regression of the accelerated failure time (AFT) model 
 for the primary biliary cirrhosis (PBC) data set.  Point estimates and 
 standard errors (in parentheses) are provided. Standard errors 
-for \code{dfsane} are obtained from 500 bootstrap samples.}
+for \code{dfsane} are obtained from 500 bootstrap samples.\label{table:pbc}}
 \end{table}
 
 \begin{Scode}{echo=TRUE,results=hide}

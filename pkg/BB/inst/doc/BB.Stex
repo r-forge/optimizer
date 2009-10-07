@@ -2,6 +2,9 @@
 \begin{document}
 
 %\VignetteIndexEntry{BB Tutorial}
+%\VignetteDepends{numDeriv, setRNG}
+%\VignetteKeywords{accelerate failure time model, Barzilai-Borwein, derivative-free, estimating equations, large-scale optimization, non-monotone line search, non-smooth optimization, rank-based regression}
+%\VignettePackage{BB}
 \SweaveOpts{eval=TRUE,echo=TRUE,results=verbatim,fig=FALSE,keep.source=TRUE}
 \begin{Scode}{echo=FALSE,results=hide}
  options(continue="  ")

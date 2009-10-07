@@ -1,5 +1,8 @@
 \documentclass[nojss]{jss}
-%\VignetteIndexEntry{JSS 2009 paper BB}
+%\VignetteIndexEntry{BB: An R Package for Solving a Large System of Nonlinear Equations and for Optimizing a High-Dimensional Nonlinear Objective Function}
+%\VignetteDepends{numDeriv, setRNG}
+%\VignetteKeywords{accelerate failure time model, Barzilai-Borwein, derivative-free, estimating equations, large-scale optimization, non-monotone line search, non-smooth optimization, rank-based regression}
+%\VignettePackage{BB}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -22,6 +25,10 @@
 
 %% an abstract and keywords
 \Abstract{
+\textit{This introduction to the \proglang{R} package \pkg{BB} is a (slightly) 
+modified version of \citet{VarGil2009}, published in the Journal of 
+Statistical Software.}
+
 We discuss \proglang{R} package \pkg{BB}, in particular, its capabilities 
 for solving a nonlinear system of equations.  The function \code{BBsolve} 
 in \pkg{BB} can be used for this purpose.  
@@ -43,12 +50,9 @@ non-smooth optimization, rank-based regression}
 
 %% publication information
 %% NOTE: Typically, this can be left commented and will be filled out by the technical editor
-%% \Volume{13}
-%% \Issue{9}
-%% \Month{September}
-%% \Year{2004}
-%% \Submitdate{2004-09-29}
-%% \Acceptdate{2004-09-29}
+%% \Volume{32}
+%% \Issue{4}
+%% \Year{2009}
 
 %% The address of (at least) one author should be given
 %% in the following format:
@@ -68,11 +72,6 @@ non-smooth optimization, rank-based regression}
   E-mail: \email{pgilbert@bank-banque-canada.ca}\\
   URL: \url{http://www.bank-banque-canada.ca/pgilbert}
 }
-
-%% It is also possible to add a telephone and fax number
-%% before the e-mail in the following format:
-%% Telephone: +43/1/31336-5053
-%% Fax: +43/1/31336-734
 
 %% for those who use Sweave please include the following line (with % symbols):
 %% need no \usepackage{Sweave.sty}

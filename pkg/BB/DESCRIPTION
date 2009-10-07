@@ -8,9 +8,9 @@ Description: Barzilai-Borwein spectral methods for solving nonlinear system of
 Depends: R (>= 2.6.1), numDeriv
 Suggests: setRNG
 Version: 2009.9-1
-Date: 2009-09-23
+Date: 2009-10-06
 LazyLoad: yes
-License: GPL-3
+License: GPL (>= 2)
 Author: Ravi Varadhan
 Maintainer: Ravi Varadhan and Paul Gilbert <pgilbert@bank-banque-canada.ca>
 URL: http://www.jhsph.edu/agingandhealth/People/Faculty_personal_pages/Varadhan.html

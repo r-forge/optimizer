@@ -1,6 +1,6 @@
 \documentclass[nojss]{jss}
 %\VignetteIndexEntry{BB: An R Package for Solving a Large System of Nonlinear Equations and for Optimizing a High-Dimensional Nonlinear Objective Function}
-%\VignetteDepends{numDeriv, setRNG}
+%\VignetteDepends{BB, numDeriv, setRNG, survival, quantreg, Hmisc}
 %\VignetteKeywords{accelerate failure time model, Barzilai-Borwein, derivative-free, estimating equations, large-scale optimization, non-monotone line search, non-smooth optimization, rank-based regression}
 %\VignettePackage{BB}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -6,7 +6,7 @@ Description: Barzilai-Borwein spectral methods for solving nonlinear system of
  vignette on the CRAN download page or, when the package is loaded in an R 
  session, with vignette("BB").
 Depends: R (>= 2.6.1), numDeriv
-Suggests: setRNG, survival, quantreg, Hmisc
+Suggests: setRNG, survival, Hmisc
 Version: 2009.9-1
 Date: 2009-10-07
 LazyLoad: yes

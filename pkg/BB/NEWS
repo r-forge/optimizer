@@ -1,5 +1,8 @@
-           Changes in BB version 2009.0x-1 
-
+           Changes in BB version 2009.9-1 
+	   
+  o Added BBvignetteJSS of JSS paper, and small related changes, including
+      license to GPL-2 or greater.
+  
   o Relaxed multiStartHDP.R test for CRAN Mac testing platform.
 
   o Added Fleishman example to the vignette tutorial.

@@ -138,12 +138,12 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
               if (trace>0) cat("WARNING: ",bvec[i]," = MASKED par[",i,"] > upper bound = ",upper[i],"\n")
            }
        } else { # not masked
-           if(bvec[i]<=lower[i]) { 
+           if(bvec[i] <= lower[i]) { 
               if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
               bvec[i]<-lower[i]
               bdmsk[i] <- -3 # active lower bound
            }
-           if(bvec[i]>=upper[i]) { 
+           if(bvec[i] >= upper[i]) { 
               if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
               bvec[i]<-upper[i]
               bdmsk[i] <- -1 # active upper bound
@@ -204,14 +204,14 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
            print(bdmsk)
         }
         for (i in 1:n) {
-          if( (bdmsk[i]==0) ) {
+          if( (bdmsk[i]==0) ) { # masked, so gradient component is zero
             g[i]<-0
           } else {
             if (bdmsk[i]==1) {
                if (trace>1) cat("Parameter ",i," is free\n")
             } else {
-               if ( (bdmsk[i]+2)*g[i]<0.0 ) {
-                 g[i] <- 0. # active mask or constraint
+               if ( (bdmsk[i]+2)*g[i]<0.0 ) { # test for -ve gradient at upper bound, +ve at lower bound
+                 g[i] <- 0. # in which case active mask or constraint and zero gradient component
                } else {
                  bdmsk[i] <- 1 # freeing parameter i
                  if (trace>1) cat("freeing parameter ",i,"\n")
@@ -395,14 +395,14 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
         ## Reactivate constraints?? -- should check for infinite bounds
         for (i in 1:n) {
           if (bdmsk[i]==1) { # only interested in free parameters
-            if(is.finite(lower[i])) {
-              if ( (bvec[i]-lower[i]) < ceps*(lower[i]+1.0) ) { # are we near or lower than lower bd
+            if(is.finite(lower[i])) {# JN091020 -- need to use abs in case bounds negative
+              if ( (bvec[i]-lower[i]) < ceps*(abs(lower[i])+1.0) ) { # are we near or lower than lower bd
                 if (trace>2) cat("(re)activate lower bd ",i," at ",lower[i],"\n")
                 bdmsk[i] <- -3
               } # end lower bd reactivate
             }
-            if(is.finite(upper[i])){
-              if ( (upper[i]-bvec[i]) < ceps*(upper[i]+1.0) ) { # are we near or above upper bd
+            if(is.finite(upper[i])){ # JN091020 -- need to use abs in case bounds negative
+              if ( (upper[i]-bvec[i]) < ceps*(abs(upper[i])+1.0) ) { # are we near or above upper bd
                 if (trace>2) cat("(re)activate upper bd ",i," at ",upper[i],"\n")
                 bdmsk[i] <- -1
               } # end lower bd reactivate

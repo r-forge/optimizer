@@ -48,6 +48,15 @@
   A list with components:
   \item{par}{The best set of parameters found.}
   \item{value}{The value of the objective at the best set of parameters found.}
+  \item{counts}{A two-element integer vector giving the number of calls to
+          'fn' and 'gr' respectively. This excludes those calls needed
+          to compute the Hessian, if requested, and any calls to 'fn'
+          to compute a finite-difference approximation to the gradient.}
+  \item{convergence}{An integer code. '0' indicates successful convergence.
+         '1' indicates that the function evaluation count 'maxfeval' was reached.
+          '2' indicates initial point is infeasible.}
+  \item{message}{A character string giving any additional information returned
+          by the optimizer, or 'NULL'.}
 }
 \references{
 To be added.

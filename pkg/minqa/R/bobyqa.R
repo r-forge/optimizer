@@ -27,14 +27,17 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
   if(ctrl[["npt"]] > (2*n + 1) )
     warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
   if (ctrl[["iprint"]]>1) cat("npt is set at ",ctrl[["npt"]]," and n=",n,"\n")
+# rhobeg
   if(is.na(ctrl[["rhobeg"]])) {
     if(all(is.finite(upper-lower))) {
       if ( any(upper <= lower) ) stop("Overlapping bounds")
       ctrl[["rhobeg"]] <- 0.2*mean(upper-lower)
-    }
-    else 
+    } else {
       ctrl[["rhobeg"]] <- 0.2*max(abs(par))
+    }
+    ctrl[["rhobeg"]]<-max(0.95, ctrl[["rhobeg"]]) # JN 090915??    
   }
+# rhoend
   if(is.na(ctrl[["rhoend"]])) {
       ctrl[["rhoend"]]<-1.0e-6*ctrl[["rhobeg"]] # may want to change this.
   }

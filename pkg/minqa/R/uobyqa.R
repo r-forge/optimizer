@@ -13,17 +13,29 @@ uobyqa <- function(par, fn, control = uobyqa.control(), ...)
     control <- as.list(control)
     ctrl[names(control)] <- control
   }
-  if (is.na(ctrl[["rhobeg"]]))
-      ctrl[["rhobeg"]] <- max(1, max(abs(par))/2)   
-  if (is.na(ctrl[["rhoend"]])) 
-      ctrl[["rhoend"]] <- max(1.e-06, max(abs(par))/1e+06)
+
+# rhobeg
+  if(is.na(ctrl[["rhobeg"]])) {
+      ctrl[["rhobeg"]] <- 0.2*max(abs(par))
+      ctrl[["rhobeg"]]<-max(0.95, ctrl[["rhobeg"]]) # JN 090915??    
+  }
+# rhoend
+  if(is.na(ctrl[["rhoend"]])) {
+      ctrl[["rhoend"]]<-1.0e-6*ctrl[["rhobeg"]] # may want to change this.
+  }
+
+
+# Old settings (Failed on Bennett5.f with start1 090915)
+#  if (is.na(ctrl[["rhobeg"]]))
+#      ctrl[["rhobeg"]] <- max(1, max(abs(par))/2)   
+#  if (is.na(ctrl[["rhoend"]])) 
+#      ctrl[["rhoend"]] <- max(1.e-06, max(abs(par))/1e+06)
   w <- ( n**4 + 8*n**3 + 23*n**2 + 42*n + max(2*n**2 + 4, 18*n )) / 4
   if(is.na(ctrl[["wsize"]]))
     ctrl[["wsize"]] <- w
   else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
-  if (ctrl$maxfun < 10 * n^2)
-    warning("'maxfun' less than 10*length(par)^2 not recommended.")
-  
+ 
+  if (ctrl$maxfun < 10 * n^2) ctrl$maxfun = 10 * n^2
   out <- .Call("uobyqa_c", par, fn1, ctrl, new.env(), PACKAGE = "minqa")
   
   class(out) <- "uobyqa"

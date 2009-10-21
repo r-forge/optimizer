@@ -117,54 +117,32 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
        bdmsk<-rep(1,n)
   }
 # check if there are bounds
-  if(is.null(lower) || ! is.finite(lower)) havelower=FALSE else havelower=TRUE
-  if(is.null(upper) || ! is.finite(upper)) haveupper=FALSE else haveupper=TRUE
-  if(! havelower && ! haveupper && all(bdmsk == 1)) bounds=FALSE else bounds=TRUE
-  if(havelower && (length(lower) = 1)) lower<-rep(lower,n)
-  if(haveupper && (length(upper) = 1)) upper<-rep(upper,n)
-  if (trace > 2) {
-	cat("Bounds: havelower = ",havelower,"  haveupper  ",haveupper," bounds = ",bounds,"\n")
-	if(havelower){
-		cat("lower:")
-	        print(lower)
-	}
-	if(haveupper){
-		cat("upper:")
-	        print(upper)
-	}
-  }
+  if(is.null(lower) || ! is.finite(lower)) nolower=TRUE else nolower=FALSE
+  if(is.null(upper) || ! is.finite(upper)) noupper=TRUE else noupper=FALSE
+  if(nolower && noupper && all(bdmsk == 1)) bounds=FALSE else bounds=TRUE
+  if (trace > 2) cat("Bounds: nolower = ",nolower,"  noupper  ",noupper," bounds = ",bounds,"\n")
 ######## check bounds and masks #############
 ## NOTE: do this inline to avoid call (??should we change this?)
   if (bounds) {
 # This implementation as a loop, but try later to vectorize
-   cat("n = ",n,"\n")
    for (i in 1:n) {
        if (bdmsk[i] == 0) { # NOTE: we do not change masked parameters, even if out of bounds
-           if (havelower) {
-             if(bvec[i] < lower[i]) { 
-                cat("WARNING: ",bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],"\n")
-             }
+           if(bvec[i]<lower[i]) { 
+              cat("WARNING: ",bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],"\n")
            }
-           if (haveupper) {
-             if(bvec[i] > upper[i]) { 
-                cat("WARNING: ",bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],"\n")
-             }
+           if(bvec[i]>upper[i]) { 
+              cat("WARNING: ",bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],"\n")
            }
        } else { # not masked, so must be free or active constraint
-           if(havelower) {
-              cat("at check\n")
-              if(bvec[i] <= lower[i]) { # changed 090814 to ensure bdmsk is set
-                cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
-                bvec[i]<-lower[i]
-                bdmsk[i] <- -3 # active lower bound
-              }
+           if(bvec[i]<=lower[i]) { # changed 090814 to ensure bdmsk is set
+              cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
+              bvec[i]<-lower[i]
+              bdmsk[i] <- -3 # active lower bound
            }
-           if (haveupper) {
-             if(bvec[i] >= upper[i]) { # changed 090814 to ensure bdmsk is set 
-                cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
-                bvec[i]<-upper[i]
-                bdmsk[i] <- -1 # active upper bound
-             }
+           if(bvec[i]>=upper[i]) { # changed 090814 to ensure bdmsk is set 
+              cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
+              bvec[i]<-upper[i]
+              bdmsk[i] <- -1 # active upper bound
            }
        } # end not masked
     } # end loop for bound/mask check
@@ -197,7 +175,6 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
     } 
     fmin<-f
     if (trace>0) cat(" ",ifn," ",ig," ",fmin,"\n")
-#    tmp<-readline("continue?")
     par<-bvec # save parameters
     c<-g # save gradient
     ## Bounds and masks adjustment of gradient ##
@@ -247,10 +224,6 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
     if (gradproj < 0) { # Must be going downhill
       ########################################################
       ####      Backtrack only Line search                ####
-      if (trace > 1) {
-          relg<- -gradproj/crossprod(g)
-          cat("relative gradproj size=",relg,"  oldstep=",oldstep,"\n")
-      }
       changed<-TRUE # Need to set so loop will start
       steplength <- oldstep
       while ((f >= fmin) && changed && (! accpoint)) {
@@ -258,13 +231,12 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
           if (bounds) {
             # Box constraint -- adjust step length for free parameters
             for (i in 1:n) { # loop on parameters -- vectorize??
-               trystep<-steplength # ensure defined
                if( (bdmsk[i]==1) && (t[i] != 0.0) ) { 
                   # only concerned with free parameters and non-zero search dimension
                   if(t[i] < 0.0) { # going down. Look at lower bound
-                     if(havelower) trystep<-(lower[i]-par[i])/t[i] # t[i] < 0 so this is positive
+                     trystep<-(lower[i]-par[i])/t[i] # t[i] < 0 so this is positive
                   } else { # going up, check upper bound
-                     if(haveupper) trystep<-(upper[i]-par[i])/t[i] # t[i] > 0 so this is positive
+                     trystep<-(upper[i]-par[i])/t[i] # t[i] > 0 so this is positive
                   }
                   if (trace>2) cat("steplength, trystep:", steplength, trystep,"\n")
                   steplength<-min(steplength, trystep) # reduce as necessary
@@ -292,21 +264,8 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
                keepgoing<-FALSE
                break
             }
-            if (is.nan(f)) f<-fmin+abs(fmin)+1.
-            if (trace>2) cat("f and fmin:",f, fmin,"\n")
             if (f < fmin) { # We have a lower point. Is it "low enough" i.e., acceptable
-              if (trace>2) {
-                  want<- fmin+gradproj * steplength * acctol
-                  cat("want and have and diff:",want,f,(want-f),"\n")
-                  if (f <= want) cat ("f < want \n") 
-                  accpoint <- ( f <= fmin + gradproj * steplength * acctol) 
-                  cat("accpoint is ",accpoint,"\n")
-              }
-              accpoint <- ( f <= fmin + gradproj * steplength * acctol) 
-              if (! accpoint ) {
-                   if (trace > 0) cat("Lower function but point not acceptable\n")
-                   if (trace > 1) cat(" fmin, f:",fmin, f, "\n")
-              }
+              accpoint <- ( f <= fmin + gradproj * steplength * acctol)
             } else {
               steplength<-steplength*stepredn
               if (trace > 0) cat("*")
@@ -322,18 +281,14 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
         for (i in 1:n) {
           if (bdmsk[i]==1) { # only interested in free parameters
             # make sure < not <= below to avoid Inf comparisons
-            if (havelower) {
-              if ( (bvec[i]-lower[i]) < ceps*(lower[i]+1.0) ) { # are we near or lower than lower bd
-                cat("(re)activate lower bd ",i," at ",lower[i],"\n")
-                bdmsk[i] <- -3
-              }
+            if ( (bvec[i]-lower[i]) < ceps*(abs(lower[i])+1.0) ) { # are we near or lower than lower bd
+                if (trace > 2) cat("(re)activate lower bd ",i," at ",lower[i],"\n")
+              bdmsk[i] <- -3
             } # end lower bd reactivate
-            if (haveupper) {
-              if ( (upper[i]-bvec[i]) < ceps*(upper[i]+1.0) ) { # are we near or above upper bd
-                cat("(re)activate upper bd ",i," at ",upper[i],"\n")
-                bdmsk[i] <- -1
-              }
-            } # end upper bd reactivate
+            if ( (upper[i]-bvec[i]) < ceps*(abs(upper[i])+1.0) ) { # are we near or above upper bd
+                if (trace > 2) cat("(re)activate upper bd ",i," at ",upper[i],"\n")
+              bdmsk[i] <- -1
+            } # end lower bd reactivate
           } # end test on free params
         } # end reactivate constraints
       } # if bounds
@@ -362,22 +317,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
     } else { # no acceptable point
       if (trace > 0) cat("No acceptable point\n")
       if(ig == ilast) { # we reset to gradient and did new linesearch
-        if ( (fmin-f)/(abs(fmin)+abs(f)) < acctol) {
-              # Note Thurber failed this one
-              keepgoing<-FALSE # no progress possible
-        } else { # need to reevaluate gradient
-          g<-mygr(bvec, ...) # ?? use try()
-          ig<-ig+1
-          ilast=ig # and force to steepest descent in this extreme case
-          if (ig > maxit) {
-             keepgoing=FALSE
-             msg="Too many gradient evaluations"
-             warning(msg)
-             conv<-1
-             break
-          }
-#          tmp<-readline("continue?")
-        } # end accpoint bad, but f<fmin
+        keepgoing<-FALSE # no progress possible
         if( conv < 0) {
            conv <- 0
            msg<-"Converged"

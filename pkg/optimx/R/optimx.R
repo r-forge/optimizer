@@ -217,7 +217,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
           if (max(abs(gn-ga))/(1 + abs(fval)) >= teps) stop("Gradient function might be wrong - check it! \n", call.=FALSE)
        } else if (ctrl$trace) cat("Analytic gradient not made available.\n")
 
-       if(! is.null(hess)){ # check gradient
+       if(! is.null(hess)){ # check Hessian
           hname <- deparse(substitute(hess))
           if (ctrl$trace) cat("Analytic hessian from function ",hname,"\n\n")
           hn <- hessian(func=fn, x=par,...) # ?? should we use dotdat

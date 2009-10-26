@@ -135,10 +135,15 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   Johns Hopkins University (March 25, 2008), from the original
   FORTRAN code of Birgin, Martinez, and Raydan (2001). 
 
-  Method \code{"ucminf"} is from the package of that name. It implements a
-  variable metric algorithm using an inverse Hessian approximation very 
-  similar to the method "BFGS" but details in implementation will result 
-  in different performance characteristics. See ucminf() for details. 
+  Method \code{"Rcgmin"} is from the package of that name. It implements a
+  conjugate gradient algorithm with the Yuan/Dai update (ref??) and also 
+  allows bounds constraints on the parameters. (Rcgmin also allows mask 
+  constraints -- fixing individual parameters -- but there is no interface
+  from \code{"optimx"}.) 
+
+  Method \code{"bobyqa"} is from the package \code{"minqa"} and implements
+  the box constrained optimization by quadratic approximation of that name
+  due to M J D Powell (2009). See package minqa for details. 
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -371,34 +376,49 @@ grr <- function(x) { ## Gradient of 'fr'
     c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1),
        200 *      (x2 - x1 * x1))
 }
-ans1<-optimx(c(-1.2,1), fr)
+ans1<-optimx(c(-1.2,1), fr, control=list(trace=1))
+cat("ans1\n")
 print(ans1)
 print(attr(ans1,"details"))
 ans2<-optimx(c(-1.2,1), fr, grr, method = "BFGS")
+cat("ans2\n")
+print(ans2)
+
+
 ## The next line will fail if executed because 'hessian = TRUE' no longer allowed
-# ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
-ans4<-optimx(c(-1.2,1), fr, grr, method = "CG")
-ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
-ans6<-optimx(c(-1.2,1), fr, grr, method = "L-BFGS-B")
+# ans3a<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
+
+ans3<-optimx(c(-1.2,1), fr, grr, method = "CG")
+cat("ans3\n")
+print(ans3)
+ans4<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
+cat("ans4\n")
+print(ans4)
+ans5<-optimx(c(-1.2,1), fr, grr, method = "L-BFGS-B")
+cat("ans5\n")
+print(ans5)
 
 flb <- function(x)
     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
 ## 25-dimensional box constrained
-optimx(rep(3, 25), flb, NULL, method = "L-BFGS-B",
+ans6<-optimx(rep(3, 25), flb, NULL, method = "L-BFGS-B",
       lower=rep(2, 25), upper=rep(4, 25)) # par[24] is *not* at boundary
-
+cat("ans6\n")
+print(ans6)
 ## "wild" function , global minimum at about -15.81515
 fw <- function (x)
     10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
+# plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
 
-ans7 <- optimx(50, fw, method="SANN",
-             control=list(maxit=20000, temp=20, parscale=20))
-ans7
+ans7 <- optimx(50, fw, method="BFGS", control=list())
+cat("ans7\n")
+print(ans7)
 ## Now improve locally {typically only by a small bit}:
 newpar<-unlist(ans7$par) # NOTE: you need to unlist the parameters as optimx() has multiple outputs
-(r2 <- optimx(newpar, fw, method="BFGS"))
-points(r2$par, r2$value, pch = 8, col = "red", cex = 2)
+ (ans7a <- optimx(newpar, fw, method="BFGS"))
+# points(r2$par, r2$value, pch = 8, col = "red", cex = 2)
+cat("ans7a\n")
+print(ans7a)
 
 ## Show multiple outputs of optimx using all.methods
 # genrose function code
@@ -441,8 +461,15 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 }
 
 startx<-seq(1:10)/6.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE))
-ans8
+ans8a<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method='nlm',control=list(trace=1, save.failures=TRUE))
+cat("ans8a\n")
+print(ans8a)
+
+
+startx<-seq(1:10)/6.
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(trace=1,all.methods=TRUE, save.failures=TRUE))
+cat("ans8\n")
+print(ans8)
 
 
 }

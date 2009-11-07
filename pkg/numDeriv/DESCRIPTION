@@ -2,7 +2,7 @@ Package: numDeriv
 Title: Accurate Numerical Derivatives
 Description: Accurate Numerical Derivatives. See ?numDeriv.Intro for more details.
 Depends: R (>= 1.8.1)
-Version: 2009.2-1
+Version: 2009.2-2
 Date: 2009-2-05
 LazyLoad: yes
 License: GPL-2

@@ -13,7 +13,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 090612 -- ?? There may be better choices for the tolerances in tests of equality for gradient / kkt tests.
 
 ##### IMPLEMENTED: (reverse date order)
-# 091018- 090531 Use function code joint with funtest and funcheck in initial checks -- not fully possible
+# 091026 -- Remove SANN because no real conv indicator
+# 091018 - 090531 Use function code joint with funtest and funcheck in initial checks -- not fully possible
 # 091018 -- decided not to Put optimx.dev into package to provide for local source packages etc.
 # 090923 -- add bobyqa (from minqa)
 # 090923 -- add Rcgmin for large scale problems
@@ -341,7 +342,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }
 # Methods from optim()
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
-        if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now
+#        if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, SANN and CG
         time <- system.time(ans <- try(optim(par=par, fn=fn, gr=gr, lower=lower, upper=upper, 
                 method=meth, control=mcontrol, ...), silent=TRUE))[1]
@@ -354,11 +355,11 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	        ans$gevals<-ans$counts[2]
         	ans$counts<-NULL # and erase the counts element now data is saved
         	ans$niter<-NULL # not used, so delete
-                if ((meth=="SANN") && (ans$fevals>=mcontrol$maxit)) {
-			if(ctrl$trace) cat("SANN at limit!")
-			# SANN uses rather different conventions to other optim() tools.
-                        ans$conv<-1
-		}
+#                if ((meth=="SANN") && (ans$fevals>=mcontrol$maxit)) {
+#			if(ctrl$trace) cat("SANN at limit!")
+#			# SANN uses rather different conventions to other optim() tools.
+#                        ans$conv<-1
+#		}
 	} else { # bad result -- what to do
 		ans$fefals<-NA
                 ans$conv<-9999 # failed in run
@@ -407,6 +408,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         	ans$iterations<-NULL
 	} else {
 		if (ctrl$trace > 0) cat("nlm failed for this problem\n")
+		ans$value<-Inf # 091209 to fix sorting
         	ans$conv<-9999
         	ans$fevals<-NA
         	ans$gevals<-NA 
@@ -552,6 +554,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 ## Post-processing -- Kuhn Karush Tucker conditions
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
       times[i] <- times[i] + time # Accumulate time for a single method (in case called multiple times)
+      if (ctrl$trace) { cat("Post processing for method ",meth,"\n") }
       if ( ctrl$save.failures || (ans$conv == 0) ){  # Save the solution if converged or directed to save
          j <- j + 1 ## increment the counter for (successful) method/start case
          if (ctrl$trace) cat("Successful convergence! \n")  ## inform user we've succeeded
@@ -585,30 +588,47 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         } # end kkt test
         ans$systime <- time
         # Do we want more information saved?
+        if (ctrl$trace) { cat("Save results from method ",meth,"\n") }
         ans.ret[[j]] <- ans  ## save the answer. [[]] indexes the CONTENTS of the list
         ans.ret[[j]]$method <- method[i] # and we tag on the method with the $ linker
       }  ## end post-processing of successful solution
+      if (ctrl$trace) { cat("Check if follow.on from method ",meth,"\n") }
       if (ctrl$follow.on) par <- ans$par # save parameters for next method
     } ## end loop over method (index i)
+    if (ctrl$trace) { cat("Assemble the answers\n") }
     attr(ans.ret, "CPU times (s)") <- times ## save the accumulated times 
+    if (ctrl$trace) { cat("Done CPU times\n") }
     pars <- lapply(ans.ret, function(x) x$par)
+    if (ctrl$trace) { cat("Done parameters\n") }
     vals <- lapply(ans.ret, function(x) x$value)
+    if (ctrl$trace) { cat("Done value\n") }
     meths <- lapply(ans.ret, function(x) x$method)
+    if (ctrl$trace) { cat("Done method\n") }
     fevals<- lapply(ans.ret, function(x) x$fevals)
+    if (ctrl$trace) { cat("Done fevals\n") }
     gevals<- lapply(ans.ret, function(x) x$gevals)
+    if (ctrl$trace) { cat("Done gevals\n") }
     nitns <-  lapply(ans.ret, function(x) x$niter)
+    if (ctrl$trace) { cat("Done niter\n") }
     convcode<- lapply(ans.ret, function(x) x$conv)
+    if (ctrl$trace) { cat("Done conv\n") }
     kkt1<- lapply(ans.ret, function(x) x$kkt1)
+    if (ctrl$trace) { cat("Done kkt1\n") }
     kkt2<- lapply(ans.ret, function(x) x$kkt2)
-
+    if (ctrl$trace) { cat("Done kkt2\n") }
+    if (ctrl$trace) { cat("Consolidate ans\n") }
     ans <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
 	itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2))
+    if (ctrl$trace) { cat("Add details\n") }
     attr(ans, "details") <- ans.ret
-
+    # print(ans)
     # sort by function value (DECREASING so best is last and follow.on gives natural ordering)
+    if (ctrl$trace) { cat("Sort results\n") }
     if (ctrl$sort.result) { # sort by fvalues decreasing
 	ord <- rev(order(as.numeric(ans$fvalues)))
 	ans <- ans[ord, ]
     }
+    if (ctrl$trace) { cat("DONE!\n") }
+
     return(ans)
 } ## end of optimx

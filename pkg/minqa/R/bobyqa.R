@@ -19,6 +19,8 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
     control <- as.list(control)
     ctrl[names(control)] <- control
   }
+  cat("rhobeg = ",ctrl[["rhobeg"]],"\n")
+
   if(is.na(ctrl[["npt"]]))
     ctrl[["npt"]] <- min(n+6, 2*n+1) # Follow Powell's lead
 # Note: changed from n+1 by JN 090726
@@ -29,13 +31,16 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
   if (ctrl[["iprint"]]>1) cat("npt is set at ",ctrl[["npt"]]," and n=",n,"\n")
 # rhobeg
   if(is.na(ctrl[["rhobeg"]])) {
-    if(all(is.finite(upper-lower))) {
+    if(any(is.finite(upper-lower))) { # change all to any 091216
       if ( any(upper <= lower) ) stop("Overlapping bounds")
-      ctrl[["rhobeg"]] <- 0.2*mean(upper-lower)
+      ctrl[["rhobeg"]] <- 0.2*min(upper-lower) # JN901216 use min not mean
+  cat(" after finite upper/lower check, rhobeg = ",ctrl[["rhobeg"]],"\n")
+
     } else {
       ctrl[["rhobeg"]] <- 0.2*max(abs(par))
+  cat(" after non finite upper/lower check, rhobeg = ",ctrl[["rhobeg"]],"\n")
     }
-    ctrl[["rhobeg"]]<-max(0.95, ctrl[["rhobeg"]]) # JN 090915??    
+    ctrl[["rhobeg"]]<-min(0.95, ctrl[["rhobeg"]]) # JN 090915??   Change max to min 091216
   }
 # rhoend
   if(is.na(ctrl[["rhoend"]])) {
@@ -49,7 +54,8 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
      ##any(upper-lower > 2 * ctrl[["rhobeg"]]))
     stop("rhobeg and rhoend must be positive with rhoend no greater than rhobeg.") 
   if(all(is.finite(upper-lower)) && any(upper-lower < 2 * ctrl[["rhobeg"]])) {
-    stop("All of the differences upper-lower must be >= 2*rhobeg.") 
+    warning("All of the differences upper-lower must be >= 2*rhobeg. Changing rhobeg") 
+    rhobeg <- 0.2*min(upper-lower)
   }
   w <- (ctrl[["npt"]]+5)*(ctrl[["npt"]]+n)+3*n*(n+5)/2
   if(is.na(ctrl[["wsize"]]))
@@ -96,6 +102,13 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
         }
      }
   }
+  cat("Temp print of inputs\n")
+  cat("lower\n")
+  print(lower)
+  cat("upper\n")
+  print(upper)
+
+  cat("rhobeg = ",ctrl[["rhobeg"]],"\n")
 
   if (ctrl$maxfun < 10 * n^2)
      warning("'maxfun' less than 10*length(par)^2 not recommended.")

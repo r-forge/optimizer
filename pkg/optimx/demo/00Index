@@ -1,0 +1,11 @@
+optxbrown 		Brown function example of optimx
+optxbroydt		Broyden function example of optimx
+optxchen			Chen function example of optimx
+optxfroth			Freudenstein & Roth function example of optimx
+optxfr			Rosenbrock 2 parameter function example of optimx
+optxpoissmix		Poisson Mixture Maximum Likelihood function example of optimx
+optxrosbkext		Extended Rosenbrock function example of optimx
+optxsc2			SC2 function example of optimx
+optxtrig			Trigonometric function example of optimx
+optxvalley		Valley function example of optimx
+optxvmmix		Maxlik function example of optimx -- ?? needs fixing

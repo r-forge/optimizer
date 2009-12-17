@@ -13,6 +13,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 090612 -- ?? There may be better choices for the tolerances in tests of equality for gradient / kkt tests.
 
 ##### IMPLEMENTED: (reverse date order)
+# 091215 -- mcontrol omission in nlm() call fixed
 # 091026 -- Remove SANN because no real conv indicator
 # 091018 - 090531 Use function code joint with funtest and funcheck in initial checks -- not fully possible
 # 091018 -- decided not to Put optimx.dev into package to provide for local source packages etc.
@@ -81,6 +82,29 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	tmp<-readline("Continue?")
   }
 
+# 091216 for maximization
+  negfn <- function (par, ...) { # negate the function for maximizing
+	val<-(-1.)*fn(par,...)
+	return(val)
+  } # end of negfn
+  if (! is.null(gr) ) {
+    neggr <- function (par, ...) { # negate the function for maximizing
+	ngr<-(-1.)*gr(par,...)
+	return(ngr)
+    } # end of neggr
+  } else { neggr<-NULL }
+  ufn<-fn
+  ugr<-gr
+# reset the function if we are maximizing
+  if ((! is.null(control$maximize)) && control$maximize ) { 
+        cat("Maximizing -- use negfn and neggr\n")
+	ufn <- negfn 
+	ugr <- neggr
+        if (! is.null(control$fnscale)) { 
+ 		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
+        } # moved up 091216
+  }
+
 ## Code more or less common to funtest, funcheck and optimx <<<
 # Check parameters are in right form
   if(!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
@@ -88,12 +112,11 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	stop("The parameters are NOT in a vector")
   }
   npar<-length(par)
-# Set control defaults
+# Set control defaults -- note that maximize dealt with separately
     ctrl <- list(
        follow.on=FALSE, 
        save.failures=FALSE, 
        trace=0, 
-       maximize=FALSE,
        sort.result=TRUE,
        kkt=TRUE,
        all.methods=FALSE,
@@ -118,6 +141,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            ctrl[onename]<-control[onename]
        }
     }
+    ctrl$maximize<-NULL # force NULL to avoid problems in methods
     if (is.null(control$kkt)) { # default is to turn off kkt for large matrices
       if (is.null(gr)) { # no analytic gradient
          if (npar > 50) {
@@ -176,7 +200,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	  } 
   	} # end have.bounds
         # Check if function can be computed
-        firsttry<-try(finit<-fn(par, ...) ) 
+        firsttry<-try(finit<-ufn(par, ...) ) 
         # Note: This incurs one EXTRA function evaluation because optimx is a wrapper for other methods
         if (class(firsttry) == "try-error") {
     	   infeasible <- TRUE
@@ -210,9 +234,9 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      if(! is.null(gr)){ # check gradient
        gname <- deparse(substitute(gr))
        if (ctrl$trace) cat("Analytic gradient from function ",gname,"\n\n")
-          fval <- fn(par,...) 
-          gn <- grad(func=fn, x=par,...) # 
-          ga <- gr(par, ...)
+          fval <- ufn(par,...) 
+          gn <- grad(func=ufn, x=par,...) # 
+          ga <- ugr(par, ...)
           # Now test for equality (090612: ?? There may be better choices for the tolerances.
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(gn-ga))/(1 + abs(fval)) >= teps) stop("Gradient function might be wrong - check it! \n", call.=FALSE)
@@ -221,7 +245,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        if(! is.null(hess)){ # check Hessian
           hname <- deparse(substitute(hess))
           if (ctrl$trace) cat("Analytic hessian from function ",hname,"\n\n")
-          hn <- hessian(func=fn, x=par,...) # ?? should we use dotdat
+          hn <- hessian(func=ufn, x=par,...) # ?? should we use dotdat
           ha <- hess(par, ...)
           # Now test for equality
           teps <- (.Machine$double.eps)^(1/3)
@@ -243,17 +267,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   # List of methods in packages. 
   pmeth <- c("spg", "ucminf", "Rcgmin", "bobyqa")
   allmeth <- c(bmeth, pmeth)
-  nomaxmeth <- c("nlm", "nlminb", "ucminf") # methods not (yet) allowing maximize
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "bobyqa") 
-  if (ctrl$maximize) {
-     for (meth in allmeth) {
-         if (meth %in% nomaxmeth) { 
-             if(ctrl$trace>0) cat("Method ",meth," cannot maximize -- dropping\n")
-             allmeth<-allmeth[! (meth == allmeth)]
-         }
-     }
-  }
   if (ctrl$all.methods) {
 	method<-allmeth
 	if (ctrl$trace>0) {
@@ -330,21 +345,11 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       mcontrol$kkt<-NULL
       mcontrol$starttests<-NULL
       mcontrol$all.methods<-NULL
-# Handle maximization if necessary
-      if (meth != 'spg') mcontrol$maximize<-NULL # only spg has explicit maximize
-      if (ctrl$maximize) { # Try to sort out "maximize" control
-         if (any(meth == nomaxmeth)) {
-		stop("At the moment you must explicitly set up maximization in your function for ", meth)
-         }
-         if (! is.null(ctrl$fnscale)) { 
- 		stop("Mixing maximize and fnscale is dangerous. Please correct.")
-         } 
-      }
 # Methods from optim()
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
 #        if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, SANN and CG
-        time <- system.time(ans <- try(optim(par=par, fn=fn, gr=gr, lower=lower, upper=upper, 
+        time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
                 method=meth, control=mcontrol, ...), silent=TRUE))[1]
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
@@ -371,8 +376,14 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         # Here we use portLib routine nlminb rather than optim as our minimizer
         mcontrol$iter.max<-mcontrol$maxit # different name for iteration limit in this routine
         mcontrol$maxit<-NULL
-        time <- system.time(ans <- try(nlminb(start=par, objective=fn, gradient=gr, lower=lower, 
+	if( is.null(mcontrol$trace) || is.na(mcontrol$trace) || mcontrol$trace == 0) { 
+		mcontrol$trace = 0
+	} else { 
+		mcontrol$trace = 1 # this is EVERY iteration. nlminb trace is freq of reporting.
+	}
+        time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=ugr, lower=lower, 
 		upper=upper, control=mcontrol,  ...), silent=TRUE))[1]
+	str(ans)
         if (class(ans) != "try-error") ans$conv <- ans$convergence
         # Translate output to common format and names
         ans$value<-ans$objective
@@ -387,21 +398,33 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       else if (meth == "nlm") { # Use stats package nlm routine
         ufn <- fn # we don't want to change the user function object, so create a copy
         if (!is.null(gr)) {
-	   attr(ufn, "gradient") <- gr(par, ...) 
+	   attr(ufn, "gradient") <- ugr(par, ...) 
            if (!is.null(hess)) attr(ufn, "hessian") <- hess(par, ...) # Only change attibute if gr defined too
         }
-        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., print.level=ctrl$trace), silent=TRUE))[1]
+	## 091215 added control for iteration limit
+	if (! is.null(mcontrol$maxit)) { iterlim<-mcontrol$maxit } 
+	else { 
+		iterlim = 100 
+		mcontrol$maxit<-NULL # and remove it for this method
+	}
+	if (! is.null(mcontrol$trace)) { print.level<-0 }
+	else {
+		print.level<-mcontrol$trace
+		mcontrol$trace<-NULL
+	}
+        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
         # print(ans)
         if (class(ans) != "try-error") {
 		ans$conv <- ans$code
 		if (ans$conv == 1 | ans$conv == 2 | ans$conv == 3) ans$conv <- 0
+		if (ans$conv == 4) ans$conv <- 1
         	# Translate output to common format
-  	        if (ans$conv == 0) {
+#  	        if (ans$conv == 0) {
 			ans$value<-ans$minimum
                         ans$par<-ans$estimate
 			ans$estimate<-NULL
 			ans$minimum<-NULL
-                }
+#                }
         	ans$fevals<-NA
         	ans$gevals<-NA # ?? need to fix this somehow in nlm code
         	ans$niter<-ans$iterations
@@ -417,7 +440,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       } # end if using nlm
 ## --------------------------------------------
       else if (meth == "spg") { # Use BB package routine spg as minimizer
-        time <- system.time(ans <- try(spg(par=par, fn=fn, gr=gr, lower=lower, upper=upper,  
+        time <- system.time(ans <- try(spg(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper,  
 		control=list(maxit=1500, trace=FALSE), ...), silent=TRUE))[1]
         if (class(ans) != "try-error") { 
    	   ans$conv <- ans$convergence
@@ -439,8 +462,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ## Use ucminf routine
         mcontrol$meval<-mcontrol$maxit # different name in this routine
         mcontrol$maxit<-NULL
-#        time <- system.time(ans <- try(ucminf(par=par, fn=fn, gr=gr,  control=mcontrol, ...), silent=TRUE))[1]
-        time <- system.time(ans <- try(ucminf(par=par, fn=fn, gr=gr,  ...), silent=TRUE))[1]
+        time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
+#        time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  ...), silent=TRUE))[1]
         if (class(ans) != "try-error") {
 		ans$conv <- ans$convergence
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
@@ -476,13 +499,13 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 ###### progress point #########
       else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
 	bdmsk<-rep(1,npar)
-        time <- system.time(ans <- try(Rcgmin(par=par, fn=fn, gr=gr, lower=lower, upper=upper, bdmsk=bdmsk,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(Rcgmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans) != "try-error") {
 		ans$conv <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
 		ans$value<-ans$value 
-		cat("Rcgmin fval=",ans$value,"\n")
+		# cat("Rcgmin fval=",ans$value,"\n")
         } else {
 		if (ctrl$trace>0) cat("Rcgmin failed for current problem \n")
        		ans$conv<-9999
@@ -500,7 +523,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 		mcontrol$maxfun<-500000 # ?? default at 091018, but should it be changed?!!
 	}
         mcontrol$iprint<-mcontrol$trace
-        time <- system.time(ans <- try(bobyqa(par=par, fn=fn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans) != "try-error") {
 		ans$conv <- 0
                 if (ans$feval > mcontrol$maxfun) {
@@ -519,32 +542,32 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ans$niter<-NULL
       }  ## end if using bobyqa
 ## --------------------------------------------
-      else if (meth == "DEoptim") {# Use DEoptim package
-        stop("This code for DEoptim has not been verified")
-        if (! is.null(mcontrol$maxit)) { 
-		mcontrol$maxfun<-mcontrol$maxit
-	} else {
-		mcontrol$maxfun<-500000 # ?? default at 091018, but should it be changed?!!
-	}
-        mcontrol$iprint<-mcontrol$trace
+##      else if (meth == "DEoptim") {# Use DEoptim package
+##        stop("This code for DEoptim has not been verified")
+##        if (! is.null(mcontrol$maxit)) { 
+##		mcontrol$maxfun<-mcontrol$maxit
+##	} else {
+##		mcontrol$maxfun<-500000 # ?? default at 091018, but should it be changed?!!
+##	}
+##        mcontrol$iprint<-mcontrol$trace
 #        time <- system.time(ans <- try(DEoptim(fn=fn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
-        if (class(ans) != "try-error") {
-		ans$conv <- 0
-                if (ans$feval > mcontrol$maxfun) {
-			ans$conv <- 1 # too many evaluations
-                }
-	        ans$fevals<-ans$feval
-	        ans$gevals<-NA
-		ans$value<-ans$fval 
-        } else {
-		if (ctrl$trace>0) cat("bobyqa failed for current problem \n")
-       		ans$conv<-9999
-	        ans$fevals<-NA
-	        ans$gevals<-NA
-		ans$value<-NA
-        }
-        ans$niter<-NULL
-      }  ## end if using DEoptim
+##        if (class(ans) != "try-error") {
+##		ans$conv <- 0
+##                if (ans$feval > mcontrol$maxfun) {
+##			ans$conv <- 1 # too many evaluations
+##                }
+##	        ans$fevals<-ans$feval
+##	        ans$gevals<-NA
+##		ans$value<-ans$fval 
+##        } else {
+##		if (ctrl$trace>0) cat("bobyqa failed for current problem \n")
+##       		ans$conv<-9999
+##	        ans$fevals<-NA
+##	        ans$gevals<-NA
+##		ans$value<-NA
+##        }
+##        ans$niter<-NULL
+##      }  ## end if using DEoptim
 ## --------------------------------------------
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD: ", meth, sep='')
@@ -559,12 +582,16 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          j <- j + 1 ## increment the counter for (successful) method/start case
          if (ctrl$trace) cat("Successful convergence! \n")  ## inform user we've succeeded
          # Testing final solution. Use numDeriv to get gradient and Hessian; compute Hessian eigenvalues
+         ## temp output
+##	cat("print the answer\n")
+##	 print(ans)
          ans$kkt1<-NA
 	 ans$kkt2<-NA
          # cat("Post processing -- ctrl$kkt = ",ctrl$kkt," ans$conv=",ans$conv,"\n")
          if(ctrl$kkt && (ans$conv != 9999)) { # need to avoid test when method failed
-           ngatend <- if (is.null(gr)) grad(fn, ans$par) else gr(ans$par) # Gradient at solution
-           nhatend <- if (is.null(gr)) hessian(fn, ans$par) else jacobian(gr,ans$par) # numerical hessian at "solution"
+	   ## 091215 add dots here!
+           ngatend <- if (is.null(gr)) grad(ufn, ans$par, ...) else ugr(ans$par, ...) # Gradient at solution
+           nhatend <- if (is.null(gr)) hessian(ufn, ans$par, ...) else jacobian(ugr,ans$par, ...) # numerical hessian at "solution"
            # For bounds constraints, we need to "project" the gradient and Hessian
            bset<-sort(unique(c(which(ans$par<=lower), which(ans$par>=upper))))
            nbds<-length(bset) # number of elements nulled by bounds
@@ -574,8 +601,14 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            nhatend[, bset] <-0 # and the Hessian
            ans$ngatend <- ngatend
            ans$nhatend <- nhatend
-           ans$evnhatend <- eigen(nhatend)$values
-	   # test results
+            hev<- try(eigen(nhatend)$values) # 091215 use try in case of trouble
+	   if (class(hev) != "try-error") {
+		ans$evnhatend <- hev # answers are OK
+	   } else {
+		cat("Eigenvalue failure!\n")
+		print(nhatend)
+           }  
+	 # test results
 	   teps <- (.Machine$double.eps)^(1/3) # What tolerance should be used?
            ans$kkt1<-(max(abs(ngatend)) <= teps*(1.0+abs(ans$value)) ) # ?? Is this sensible?
            # now look at Hessian
@@ -596,7 +629,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       if (ctrl$follow.on) par <- ans$par # save parameters for next method
     } ## end loop over method (index i)
     if (ctrl$trace) { cat("Assemble the answers\n") }
-    attr(ans.ret, "CPU times (s)") <- times ## save the accumulated times 
+#    attr(ans.ret, "CPU times (s)") <- times ## save the accumulated times 
     if (ctrl$trace) { cat("Done CPU times\n") }
     pars <- lapply(ans.ret, function(x) x$par)
     if (ctrl$trace) { cat("Done parameters\n") }
@@ -618,7 +651,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     if (ctrl$trace) { cat("Done kkt2\n") }
     if (ctrl$trace) { cat("Consolidate ans\n") }
     ans <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
-	itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2))
+	itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=times))
     if (ctrl$trace) { cat("Add details\n") }
     attr(ans, "details") <- ans.ret
     # print(ans)

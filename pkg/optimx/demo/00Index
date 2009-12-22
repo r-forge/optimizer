@@ -1,3 +1,4 @@
+badeval                   Examples of function call with inadmissible parameters
 optxbrown 		Brown function example of optimx
 optxbroydt		Broyden function example of optimx
 optxchen			Chen function example of optimx

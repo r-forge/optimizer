@@ -425,8 +425,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
         if (class(ans) != "try-error") { 
-		cat("optim result:\n")
-		print(ans)
 		ans$conv <- ans$convergence
 		#      convergence: An integer code. '0' indicates successful convergence.
 	        ans$fevals<-ans$counts[1] # save function and gradient count information
@@ -666,7 +664,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
           ## temp output
           ans$kkt1<-NA
           ans$kkt2<-NA
-	  cat("Before kkt tests\n")
           if(ctrl$kkt && (ans$conv != 9999)) { # need to avoid test when method failed
               ## 091215 add dots here!
               if (ctrl$trace) cat("Compute gradient approximation at finish of ",method[i],"\n")
@@ -726,7 +723,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                   if (ctrl$trace) cat(warnstr,"\n") 
               }
           } # end kkt test
-	  cat("After kkt test\n")
           ans$systime <- time
           # Do we want more information saved?
           if (ctrl$trace) { 

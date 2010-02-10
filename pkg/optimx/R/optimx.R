@@ -58,7 +58,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #         090601: Not yet implemented for nlm, nlminb, ucminf. However, there is a check to avoid
 #                 usage of these codes when maximize is TRUE.
 #      all.methods = TRUE if we want to use all available (and suitable) methods
-#      sort.result=TRUE,
+#      sort.result=TRUE, that is, we sort the results in decreasing order of the final function value
 #      kkt=TRUE to run Kuhn, Karush, Tucker tests of results unless problem large
 #      kkttol=.Machine$double.eps^(1/3) Default value to check for small gradient and negative
 #               Hessian eigenvalues
@@ -126,7 +126,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	ratios<-list(lpratio=lpratio,lbratio=lbratio)
 	return(ratios)
 }
-# -------------- end saclecheck ----------------- #
+# -------------- end scalecheck ----------------- #
 
 # Get real name of function to be minimized
   fname<-deparse(substitute(fn))
@@ -764,12 +764,18 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                         itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
     	if (ctrl$trace) { cat("Add details\n") }
     	attr(ansout, "details") <- ans.ret
+	# save to file
+	# save("ansout",file="unsortedans")
+
     	# sort by function value (DECREASING so best is last and follow.on gives natural ordering)
     	if (ctrl$trace) { cat("Sort results\n") }
     	if (ctrl$sort.result) { # sort by fvalues decreasing
         	ord <- rev(order(as.numeric(ansout$fvalues)))
         	ansout <- ansout[ord, ]
     	}
+	# save to file
+	# save("ansout",file="sortedans")
+
     } else {
 	ansout<-NULL # no answer if no parameters
     } 

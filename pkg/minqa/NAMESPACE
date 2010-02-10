@@ -1,4 +1,8 @@
-export(newuoa,newuoa.control)
-export(bobyqa,bobyqa.control)
-export(uobyqa, uobyqa.control)
+export(
+   "newuoa",
+   "newuoa.control",
+   "bobyqa",
+   "bobyqa.control",
+   "uobyqa",
+   "uobyqa.control")
 

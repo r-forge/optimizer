@@ -6,6 +6,8 @@ bobyqa.control <- function(npt = NA, rhobeg = NA, rhoend = NA,
 ########################################################################
 bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), ...)
 {
+  # 20100121 -- implemented Jens' suggestion that par - lower test was NOT correct.
+  # also Rd file now mentions fval not fvalue and feval is included
   n <- length(par) 
   if(n < 2)
     stop("bobyqa is not for optimization of single parameter.")
@@ -19,7 +21,7 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
     control <- as.list(control)
     ctrl[names(control)] <- control
   }
-  cat("rhobeg = ",ctrl[["rhobeg"]],"\n")
+#  cat("rhobeg = ",ctrl[["rhobeg"]],"\n")
 
   if(is.na(ctrl[["npt"]]))
     ctrl[["npt"]] <- min(n+6, 2*n+1) # Follow Powell's lead
@@ -34,11 +36,11 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
     if(any(is.finite(upper-lower))) { # change all to any 091216
       if ( any(upper <= lower) ) stop("Overlapping bounds")
       ctrl[["rhobeg"]] <- 0.2*min(upper-lower) # JN901216 use min not mean
-  cat(" after finite upper/lower check, rhobeg = ",ctrl[["rhobeg"]],"\n")
+#  cat(" after finite upper/lower check, rhobeg = ",ctrl[["rhobeg"]],"\n")
 
     } else {
       ctrl[["rhobeg"]] <- 0.2*max(abs(par))
-  cat(" after non finite upper/lower check, rhobeg = ",ctrl[["rhobeg"]],"\n")
+#  cat(" after non finite upper/lower check, rhobeg = ",ctrl[["rhobeg"]],"\n")
     }
     ctrl[["rhobeg"]]<-min(0.95, ctrl[["rhobeg"]]) # JN 090915??   Change max to min 091216
   }
@@ -69,7 +71,7 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
           if (ctrl[["obstop"]]) {
              stop(msg)
           } else {
-             warning(msg)
+             warning(msg)  
              par[which(par < lower)] <- lower
              warning("Some parameters adjusted to the nearest bound")
 	  }
@@ -92,24 +94,18 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf, control = bobyqa.control(), .
      # everything in bounds. Decide if we move parameters.
      if (ctrl[["iprint"]]>1) cat("ctrl[[force.start]] = ", ctrl[["force.start"]],"\n")
      if (! ctrl[["force.start"]] ) {
-        if (any( (par - lower) < ctrl[["rhobeg"]]) ){
-           par[which( (par - lower) < ctrl[["rhobeg"]] )] <- lower + ctrl[["rhobeg"]]
+        i <- (par - lower) < ctrl[["rhobeg"]] # Jens modification
+        if (any(i)) {
+           par[i] <- lower[i] + ctrl[["rhobeg"]]
            warning("Some parameters adjusted away from lower bound")
         }
-        if (any( (upper - par) < ctrl[["rhobeg"]]) ) {
-           par[which( (upper - par) < ctrl[["rhobeg"]] )] <- upper - ctrl[["rhobeg"]]
+        i <- (upper - par) < ctrl[["rhobeg"]]  # Jens modification
+        if (any(i)) {
+           par[i] <- upper[i] - ctrl[["rhobeg"]]
            warning("Some parameters adjusted away from upper bound")
         }
      }
   }
-  cat("Temp print of inputs\n")
-  cat("lower\n")
-  print(lower)
-  cat("upper\n")
-  print(upper)
-
-  cat("rhobeg = ",ctrl[["rhobeg"]],"\n")
-
   if (ctrl$maxfun < 10 * n^2)
      warning("'maxfun' less than 10*length(par)^2 not recommended.")
 

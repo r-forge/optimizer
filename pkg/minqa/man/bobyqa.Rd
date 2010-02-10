@@ -41,7 +41,8 @@ bobyqa(par, fn, lower, upper, control = bobyqa.control(), \dots)
 \value{
   A list with components:
   \item{par}{The best set of parameters found.}
-  \item{fvalue}{The value of the objective at the best set of parameters found.}
+  \item{fval}{The value of the objective at the best set of parameters found.}
+  \item{feval}{The number of function evaluations used.}
 }
 \references{
 	M.J.D. Powell (2007)

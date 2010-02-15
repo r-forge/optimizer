@@ -13,6 +13,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 090612 -- ?? There may be better choices for the tolerances in tests of equality for gradient / kkt tests.
 
 ##### IMPLEMENTED: (reverse date order)
+# 100215 -- Add newuoa and uobyqa to test minqa
 # 100212 -- ?? setting scaletol in controls ??
 # 091018 -- new control "starttest" so we can skip them DONE 091220
 # 091218 -- scaling checks (before computing rhobeg) and warning
@@ -61,9 +62,9 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #      all.methods = TRUE if we want to use all available (and suitable) methods
 #      sort.result=TRUE, that is, we sort the results in decreasing order of the final function value
 #      kkt=TRUE to run Kuhn, Karush, Tucker tests of results unless problem large
-#      kkttol=.Machine$double.eps^(1/3) Default value to check for small gradient and negative
+#      kkttol=.Machine$double.eps^(1/4) Default value to check for small gradient and negative
 #               Hessian eigenvalues
-#      kkt2tol (default = default for kkttol) Tolerance for eigenvalue ratio in KKT test of 
+#      kkt2tol (default = 10* default for kkttol) Tolerance for eigenvalue ratio in KKT test of 
 #               positive definite Hessian
 #      all.methods=FALSE By default we do NOT run all methods
 #      starttests=TRUE  By default we run tests of the function and parameters: feasibility relative to
@@ -155,11 +156,12 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	starttests=TRUE,
 	maximize=FALSE,
 	dowarn=TRUE, 
-	kkttol=.Machine$double.eps^(1/3),
-	kkt2tol=.Machine$double.eps^(1/3),
+	kkttol=.Machine$double.eps^(1/4),
+	kkt2tol=10* (.Machine$double.eps^(1/4)),
 	badval=(0.5)*.Machine$double.xmax,
 	scaletol=3
     ) # for now turn off sorting until we can work out how to do it nicely
+# Note choice of maxit, which may be a poor one.
     
 # Note that we do NOT want to check on the names, because we may introduce 
 #    new names in the control lists of added methods
@@ -320,7 +322,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #    for smooth functions. Code left in for those who may need it.
   bmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb")
   # List of methods in packages. 
-  pmeth <- c("spg", "ucminf", "Rcgmin", "bobyqa")
+  pmeth <- c("spg", "ucminf", "Rcgmin", "bobyqa", "uobyqa", "newuoa")
   allmeth <- c(bmeth, pmeth)
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "bobyqa") 
@@ -366,6 +368,18 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
 	else  stop("Package `minqa' (for bobyqa) Not installed", call.=FALSE)
 	}
+  if(any(method == "bobyqa")) { 
+	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
+	else  stop("Package `minqa' (for bobyqa) Not installed", call.=FALSE)
+	}
+  if(any(method == "uobyqa")) { 
+	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
+	else  stop("Package `minqa' (for uobyqa) Not installed", call.=FALSE)
+	}
+  if(any(method == "newuoa")) { 
+	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
+	else  stop("Package `minqa' (for newuoa) Not installed", call.=FALSE)
+	}
 #  if(any(method == "DEoptim")) { # Code removed as DEoptim not part of current set of methods
 #	if ("DEoptim" %in% ipkgs[,1]) require(DEoptim, quietly=TRUE)
 #	else  stop("Package `DEoptim' Not installed", call.=FALSE)
@@ -376,7 +390,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	srat<-scalecheck(par, lower, upper,ctrl$dowarn)
 	sratv<-c(srat$lpratio, srat$lbratio)
 	if(max(sratv,na.rm=TRUE) > ctrl$scaletol) { 
-		warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA."
+		warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
 		if (ctrl$dowarn) warning(warnstr)
 	}
         if(ctrl$trace) {
@@ -394,19 +408,9 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
       conv <- -1 # indicate that we have not yet converged
       if (ctrl$trace) cat("Method: ", meth, "\n") # display the method being used
       # Extract control information e.g., maxit
-      if (! is.null(ctrl$maxit) ) {
-        if (length(ctrl$maxit) == 1 ) {
-          if(ctrl$trace>0) cat("setting meth.maxit to common value ",ctrl$maxit,"\n")
-          meth.maxit <- ctrl$maxit # We use a single value for all tries
-        } else {
-          if (length(ctrl$maxit) != nmeth) stop("ctrl$maxit has wrong number of elements", call.=FALSE)
-          if(ctrl$trace>0) cat("setting meth.maxit for choice ",i," = ",ctrl$maxit[i],"\n")
-          meth.maxit <- ctrl$maxit[i] # for the case with separate methods
-        }
-      } else { meth.maxit<-NULL }
+      # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
       # create local control list for a single method -- this is one of the key issues for optimx
       mcontrol<-ctrl
-      mcontrol[which(names(mcontrol) == "maxit")] <- meth.maxit
       mcontrol$follow.on<-NULL # And make sure that controls NOT in method are deleted (nulled)
       mcontrol$save.failures<-NULL
       mcontrol$sort.result<-NULL
@@ -418,9 +422,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
       mcontrol$kkt2tol<-NULL
       mcontrol$maximize<-NULL # Even if method DOES have it
       mcontrol$badval<-NULL
+      mcontrol$scaletol<-NULL # not used in any methods -- it is here for the scale check of parameters and bounds above
+
 # Methods from optim()
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
-#        if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now
+#        if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now 
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, SANN and CG
         time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
                 method=meth, control=mcontrol, ...), silent=TRUE))[1]
@@ -470,7 +476,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	} else { # bad result -- What to do?
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
                 ans$conv<-9999 # failed in run
-		if (ctrl$trace) cat("ucminf function evaluation failure\n")
+		if (ctrl$trace) cat("nlminb function evaluation failure\n")
 		if (ctrl$maximize) {
 			ans$value= -ctrl$badval
 		} else {
@@ -553,10 +559,10 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 ## --------------------------------------------
       else if (meth == "ucminf") {
         ## Use ucminf routine
-        mcontrol$meval<-round(sqrt(npar+1)*control$maxit) # different name in this routine -- change value
+        if (is.null(ctrl$maxit)) ctrl$maxit<-500 # ensure there is a default value
+        mcontrol$maxeval<-round(sqrt(npar+1)*ctrl$maxit) # different name in this routine -- change value
         mcontrol$maxit<-NULL
         time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
-#        time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  ...), silent=TRUE))[1]
         if (class(ans) != "try-error") {
 		ans$conv <- ans$convergence
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
@@ -624,7 +630,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfun<-mcontrol$maxit
 	} else {
-		mcontrol$maxfun<-500000 # ?? default at 091018, but should it be changed?!!
+		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
 	}
         mcontrol$iprint<-mcontrol$trace
         time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
@@ -650,6 +656,68 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         	ans$niter<-NA
         }
       }  ## end if using bobyqa
+## --------------------------------------------
+      else if (meth == "uobyqa") {# Use uobyqa routine from minqa package
+        if (! is.null(mcontrol$maxit)) { 
+		mcontrol$maxfun<-mcontrol$maxit
+	} else {
+		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+	}
+        mcontrol$iprint<-mcontrol$trace
+        time <- system.time(ans <- try(uobyqa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
+        if (class(ans) != "try-error") {
+		ans$conv <- 0
+                if (ans$feval > mcontrol$maxfun) {
+			ans$conv <- 1 # too many evaluations
+                }
+	        ans$fevals<-ans$feval
+	        ans$gevals<-NA
+		ans$value<-ans$fval 
+        } else {
+		if (ctrl$trace>0) cat("uobyqa failed for current problem \n")
+		ans<-list(fevals=NA) # ans not yet defined, so set as list
+		if (ctrl$maximize) {
+			ans$value= -ctrl$badval
+		} else {
+			ans$value= ctrl$badval
+		}
+		ans$par<-rep(NA,npar)
+                ans$conv<-9999 # failed in run
+        	ans$gevals<-NA 
+        	ans$niter<-NA
+        }
+      }  ## end if using uobyqa
+## --------------------------------------------
+      else if (meth == "newuoa") {# Use newuoa routine from minqa package
+        if (! is.null(mcontrol$maxit)) { 
+		mcontrol$maxfun<-mcontrol$maxit
+	} else {
+		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+	}
+        mcontrol$iprint<-mcontrol$trace
+        time <- system.time(ans <- try(newuoa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
+        if (class(ans) != "try-error") {
+		ans$conv <- 0
+                if (ans$feval > mcontrol$maxfun) {
+			ans$conv <- 1 # too many evaluations
+                }
+	        ans$fevals<-ans$feval
+	        ans$gevals<-NA
+		ans$value<-ans$fval 
+        } else {
+		if (ctrl$trace>0) cat("newuoa failed for current problem \n")
+		ans<-list(fevals=NA) # ans not yet defined, so set as list
+		if (ctrl$maximize) {
+			ans$value= -ctrl$badval
+		} else {
+			ans$value= ctrl$badval
+		}
+		ans$par<-rep(NA,npar)
+                ans$conv<-9999 # failed in run
+        	ans$gevals<-NA 
+        	ans$niter<-NA
+        }
+      }  ## end if using newuoa
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD: ", meth, sep='')
              stop(errmsg, call.=FALSE)
@@ -675,9 +743,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
               } else {
                   ngatend<-try(ugr(ans$par, ...)) # Gradient at solution
               }
-              if (class(ngatend) == "try-error") gradOK<-TRUE
+              if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
               if ( (! gradOK) & ctrl$trace) cat("Gradient computations failure!\n") # ???? remove
               if (gradOK) {
+                  # test gradient
+                  ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
                   if (ctrl$trace) cat("Compute Hessian approximation at finish of ",method[i],"\n")
                   if (is.null(gr)) {
                       nhatend<-try(hessian(ufn, ans$par, ...))
@@ -697,8 +767,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                       hev<- try(eigen(nhatend)$values) # 091215 use try in case of trouble
                       if (class(hev) != "try-error") {
                           ans$evnhatend <- hev # answers are OK
-                          # test results
-                          ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
                           # now look at Hessian
                           negeig<-(ans$evnhatend[npar] <= (-1)*ctrl$kkttol*(1.0+abs(ans$value)))
                           evratio<-ans$evnhatend[npar-nbds]/ans$evnhatend[1]

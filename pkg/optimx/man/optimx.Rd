@@ -132,9 +132,12 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   constraints -- fixing individual parameters -- but there is no interface
   from \code{"optimx"}.) 
 
-  Method \code{"bobyqa"} is from the package \code{"minqa"} and implements
-  the box constrained optimization by quadratic approximation of that name
-  due to M J D Powell (2009). See package minqa for details. 
+  Methods \code{"bobyqa"}, \code{"uobyqa"} and \code{"newuoa"} are from the 
+  package \code{"minqa"} which implement optimization by quadratic approximation
+  routines of the similar names due to M J D Powell (2009). See package minqa 
+  for details. Note that \code{"uobyqa"} and \code{"newuoa"} are for 
+  unconstrained minimization, while \code{"bobyqa"} is for box constrained
+  problems.
 
   The \code{control} argument is a list that can supply any of the
   following components:

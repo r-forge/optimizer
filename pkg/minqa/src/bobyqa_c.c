@@ -13,7 +13,7 @@ SEXP bobyqa_c(SEXP par_arg, SEXP xl_arg, SEXP xu_arg, SEXP fn, SEXP control,
 
     double  *par, *xl, *xu;
     
-    SEXP    sexp_rss, sexp_feval;
+    SEXP    sexp_rss, sexp_feval, sexp_fval;
     SEXP    out, out_names;
     SEXP env;
 
@@ -80,34 +80,41 @@ SEXP bobyqa_c(SEXP par_arg, SEXP xl_arg, SEXP xu_arg, SEXP fn, SEXP control,
     
     /*size w needs to be >= (NPT+5)*(NPT+N)+3*N*(N+5)/2. */
     double w[wsize]; 
-
+    double fval[npt]; 
+    
 /*========================================================================*/
     
     F77_CALL(bobyqa)(&n, &npt, par, xl, xu, &rhobeg, &rhoend, 
-		     &iprint, &maxfun, w);
+		     &iprint, &maxfun, w, fval);
     
 /*========================================================================*/
-    
-    
+
+ 
+    PROTECT(sexp_fval = NEW_NUMERIC(npt));
+    for (i = 0; i < npt; i++)
+      NUMERIC_POINTER(sexp_fval)[i] = fval[i];
+ 
     PROTECT(sexp_rss = NEW_NUMERIC(1));
     NUMERIC_POINTER(sexp_rss)[0] = OS->rss;
     
     PROTECT(sexp_feval = NEW_NUMERIC(1));
     NUMERIC_POINTER(sexp_feval)[0] = OS->feval;
 
-    PROTECT(out = NEW_LIST(3));
+    PROTECT(out = NEW_LIST(4));
     SET_VECTOR_ELT(out, 0, OS->par);
     SET_VECTOR_ELT(out, 1, sexp_rss);
     SET_VECTOR_ELT(out, 2, sexp_feval);
+    SET_VECTOR_ELT(out, 3, sexp_fval);
 
-    PROTECT(out_names = NEW_STRING(3));
+    PROTECT(out_names = NEW_STRING(4));
     SET_STRING_ELT(out_names, 0, mkChar("par"));
     SET_STRING_ELT(out_names, 1, mkChar("fval"));
     SET_STRING_ELT(out_names, 2, mkChar("feval"));
-    
+    SET_STRING_ELT(out_names, 3, mkChar("intpval"));
+
     SET_NAMES(out, out_names);
 
-    UNPROTECT(6);
+    UNPROTECT(7);
 
     return out;
 }

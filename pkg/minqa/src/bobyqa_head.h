@@ -17,7 +17,7 @@ double resfunbobyqa(int n, double *par, double *f);
 void F77_NAME(bobyqa)(int *N, int *NPT, double *X, double *XL, 
 		      double *XU, double *RHOBEG, 
 		      double *RHOEND, int *IPRINT, 
-		      int *MAXFUN, double *W);
+		      int *MAXFUN, double *W, double *FVAL);
 		     
 void F77_SUB(resfunbobyqa)(int *n, double *par, double *f); 
 					   

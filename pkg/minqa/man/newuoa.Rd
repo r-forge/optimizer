@@ -5,10 +5,7 @@
 \description{
   The purpose of \code{newuoa} is to minimize a function of many variables 
   by a trust region method that forms quadratic models by interpolation.
-  There can be some freedom in the interpolation conditions, which is
-  taken up by minimizing the Frobenius norm of the change to the second
-  derivative of the quadratic model, beginning with a zero matrix.
-  (Description taken from comments in Fortran code of M J D Powell.)
+ 
 }
 \usage{
 newuoa(par, fn, control = newuoa.control(), \dots)
@@ -28,13 +25,6 @@ newuoa(par, fn, control = newuoa.control(), \dots)
   Functions \code{fn} must return a numeric value.
   The \code{control} argument is a list;  see \code{\link{newuoa.control}} for
     details.
-    Successful completion.
-    \code{newuoa} for R is still a work in progress, so users should watch
-    the console output.
-    Unsuccessful completion.
-    Unsuccessful termination of \code{nls.lm} can be due to improper
-    input parameters, arithmetic interrupts, an excessive number of
-    function evaluations, or an excessive number of iterations. 
   }
 \value{
   A list with components:
@@ -42,15 +32,28 @@ newuoa(par, fn, control = newuoa.control(), \dots)
   \item{fvalue}{The value of the objective at the best set of parameters found.}
 }
 \references{
-     M.J.D. Powell, "The NEWUOA software for unconstrained optimization without derivatives",
-     in \bold{Large-Scale Nonlinear Optimization}, Series: Nonconvex Optimization and 
-     Its Applications , Vol. 83, Di Pillo, Gianni; Roma, Massimo (Eds.)
-     2006, New York: Springer US
+  M. J. D. Powell, "The NEWUOA software for unconstrained optimization
+  without derivatives",
+  in \bold{Large-Scale Nonlinear Optimization}, Series: Nonconvex
+  Optimization and Its Applications , Vol. 83, Di Pillo, Gianni;
+  Roma, Massimo (Eds.) 2006, New York: Springer US.
 
-     M.J.D. Powell, "Developments of NEWUOA for minimization without derivatives"
-     IMA J Numer Anal.2008; 28: 649-664 
+  M. J. D. Powell,
+  "Developments of NEWUOA for minimization without derivatives"
+  IMA Journal of Numerical Analysis, 2008; 28: 649-664. 
+  
+  M. J. D. Powell (2007)
+  "Developments of NEWUOA for unconstrained minimization without
+  derivatives"
+  Cambridge University, Department of Applied Mathematics and
+  Theoretical Physics,
+  Numerical Analysis Group, Report NA2007/05,
+  \url{http://www.damtp.cam.ac.uk/user/na/NA_papers/NA2007_05.pdf}.
+
+  Description was taken from comments in the Fortran code of
+  M. J. D. Powell on which \pkg{minqa} is based.
 }
-\seealso{\code{\link{optim}}}
+\seealso{\code{\link{optim}}, \code{\link{nlminb}}}
 \examples{
 fr <- function(x) {   ## Rosenbrock Banana function
     x1 <- x[1]

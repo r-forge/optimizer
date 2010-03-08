@@ -1,7 +1,6 @@
 newuoa.control <- function(npt = NA, rhobeg = NA, rhoend = NA,
-                           iprint = 0, maxfun=10000, wsize=NA)
-  list(npt = npt, rhobeg=rhobeg, rhoend=rhoend, iprint=iprint, maxfun=maxfun,
-       wsize=wsize)
+                           iprint = 0, maxfun=10000)
+  list(npt = npt, rhobeg=rhobeg, rhoend=rhoend, iprint=iprint, maxfun=maxfun)
 newuoa <- function(par, fn, control = newuoa.control(), ...)
 {
   n <- length(par) 
@@ -34,9 +33,8 @@ newuoa <- function(par, fn, control = newuoa.control(), ...)
 
 
   w <- ( ctrl[["npt"]]+13)*( ctrl[["npt"]]+n)+3*n*(n+3)/2
-  if(is.na(ctrl[["wsize"]]))
-    ctrl[["wsize"]] <- w
-  else if(ctrl[["wsize"]] < w) stop("wsize is not large enough.")
+  ctrl[["wsize"]] <- w
+  
   if (ctrl$maxfun < 10 * n^2) ctrl$maxfun = 10 * n^2
   out <- .Call("newuoa_c", par, fn1, ctrl, new.env(), PACKAGE = "minqa")
   

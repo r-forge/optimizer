@@ -2,6 +2,19 @@
 #include <Rdefines.h>
 #include "bobyqa_head.h"
 
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("minqa", String)
+#else
+#define _(String) (String)
+#endif
+
+#ifdef HAVE_VISIBILITY_ATTRIBUTE
+# define attribute_hidden __attribute__ ((visibility ("hidden")))
+#else
+# define attribute_hidden
+#endif
+
 OptStruct OS;
 
 SEXP bobyqa_c(SEXP par_arg, SEXP xl_arg, SEXP xu_arg, SEXP fn, SEXP control, 
@@ -119,3 +132,79 @@ SEXP bobyqa_c(SEXP par_arg, SEXP xl_arg, SEXP xu_arg, SEXP fn, SEXP control,
     return out;
 }
  
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("minqa", String)
+#else
+#define _(String) (String)
+#endif
+
+#ifdef HAVE_VISIBILITY_ATTRIBUTE
+# define attribute_hidden __attribute__ ((visibility ("hidden")))
+#else
+# define attribute_hidden
+#endif
+
+void attribute_hidden F77_NAME(minqer)(const int *msgno)
+{
+    char *msg;
+    switch(*msgno) {
+    case 10:
+	msg = _("NPT is not in the required interval");
+	break;
+    case 20:
+	msg = _("one of the differences XU(I)-XL(I) is less than 2*RHOBEG");
+	break;
+    case 320:
+	msg = _("bobyqa detected too much cancellation in denominator");
+	break;
+    case 390:
+	msg = _("bobyqa exceeded maximum number of function evaluations");
+	break;
+    case 430:
+	msg = _("a trust region step in bobyqa failed to reduce q");
+	break;
+    default:
+	error(_("Unknown message number %d in f77err"), *msgno);
+    }
+    error(msg);
+}
+
+void attribute_hidden
+F77_NAME(minqit)(const int *iprint, const double *rho, const int *nf,
+		 const double *fopt, const int *n, const double xbase[],
+		 const double xopt[])
+{
+    int i, ip = *iprint, nn = *n, nnf = *nf;
+    if (ip >= 2) {
+	Rprintf(_("Rho = %g, # of func. evals = %d\n"), *rho, *nf);
+	Rprintf(_("Current min. f = %g at x of\n"), *fopt);
+	for(i = 0; i < nn; i++) Rprintf("%g ", xbase[i] + xopt[i]);
+	Rprintf("\n");
+    }
+}
+
+void attribute_hidden
+F77_NAME(minqi3)(const int *iprint, const double *f, const int *nf,
+		 const int *n, const double x[])
+{
+    if (*iprint == 3) {
+	int i, nn = *n;
+	Rprintf("%3d:%#14.8g:", *nf, *f);
+	for (i = 0; i < nn; i++) Rprintf(" %#8g", x[i]);
+	Rprintf("\n");
+    }
+}
+
+void attribute_hidden
+F77_NAME(minqir)(const int *iprint, const double *f, const int *nf,
+		 const int *n, const double x[])
+{
+    if (*iprint > 0) {
+	int i, nn = *n;
+	Rprintf(_("At return from bobyqa\n"));
+	Rprintf("%3d:%#14.8g:", *nf, *f);
+	for (i = 0; i < nn; i++) Rprintf(" %#8g", x[i]);
+	Rprintf("\n");
+    }
+}

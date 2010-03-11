@@ -65,8 +65,9 @@ C
    10 XOPTSQ=XOPTSQ+XOPT(I)**2
       FSAVE=FVAL(1)
       IF (NF .LT. NPT) THEN
-          IF (IPRINT .GT. 0) PRINT 390
-          GOTO 720
+         CALL minqer(390)
+c$$$          IF (IPRINT .GT. 0) PRINT 390
+c$$$          GOTO 720
       END IF
       KBASE=1
 C
@@ -240,8 +241,9 @@ C
       END IF
       IF (NF .LT. 0) THEN
           NF=MAXFUN
-          IF (IPRINT .GT. 0) PRINT 390
-          GOTO 720
+          CALL minqer(390)
+c$$$          IF (IPRINT .GT. 0) PRINT 390
+c$$$          GOTO 720
       END IF
       NRESC=NF
       IF (NFSAV .LT. NF) THEN
@@ -322,10 +324,11 @@ C
           END IF
           IF (DENOM .LE. HALF*VLAG(KNEW)**2) THEN
               IF (NF .GT. NRESC) GOTO 190
-              IF (IPRINT .GT. 0) PRINT 320
-  320         FORMAT (/5X,'Return from BOBYQA because of much',
-     1          ' cancellation in a denominator.')
-              GOTO 720
+              IF (IPRINT .GT. 0) CALL minqer(320)
+c$$$              PRINT 320
+c$$$  320         FORMAT (/5X,'Return from BOBYQA because of much',
+c$$$     1          ' cancellation in a denominator.')
+c$$$              GOTO 720
           END IF
 C
 C     Alternatively, if NTRITS is positive, then set KNEW to the index of
@@ -358,8 +361,9 @@ C
   350     CONTINUE
           IF (SCADEN .LE. HALF*BIGLSQ) THEN
               IF (NF .GT. NRESC) GOTO 190
-              IF (IPRINT .GT. 0) PRINT 320
-              GOTO 720
+              IF (IPRINT .GT. 0) CALL minqer(320)
+c$$$              PRINT 320
+c$$$              GOTO 720
           END IF
       END IF
 C
@@ -376,18 +380,20 @@ C
       IF (XNEW(I) .EQ. SU(I)) X(I)=XU(I)
   380 CONTINUE
       IF (NF .GE. MAXFUN) THEN
-          IF (IPRINT .GT. 0) PRINT 390
-  390     FORMAT (/4X,'Return from BOBYQA because CALFUN has been',
-     1      ' called MAXFUN times.')
-          GOTO 720
+          IF (IPRINT .GT. 0) CALL minqer(390)
+c$$$          PRINT 390
+c$$$  390     FORMAT (/4X,'Return from BOBYQA because CALFUN has been',
+c$$$     1      ' called MAXFUN times.')
+c$$$          GOTO 720
       END IF
       NF=NF+1
       CALL CALFUNBOBYQA (N,X,F)
-      IF (IPRINT .EQ. 3) THEN
-          PRINT 400, NF,F,(X(I),I=1,N)
-  400      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
-     1       '    The corresponding X is:'/(2X,5D15.6))
-      END IF
+      CALL minqi3(IPRINT, F, NF, N, X)
+c$$$      IF (IPRINT .EQ. 3) THEN
+c$$$          PRINT 400, NF,F,(X(I),I=1,N)
+c$$$  400      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
+c$$$     1       '    The corresponding X is:'/(2X,5D15.6))
+c$$$      END IF
       IF (NTRITS .EQ. -1) THEN
           FSAVE=F
           GOTO 720
@@ -418,10 +424,11 @@ C     Pick the next value of DELTA after a trust region step.
 C
       IF (NTRITS .GT. 0) THEN
           IF (VQUAD .GE. ZERO) THEN
-              IF (IPRINT .GT. 0) PRINT 430
-  430         FORMAT (/4X,'Return from BOBYQA because a trust',
-     1          ' region step has failed to reduce Q.')
-              GOTO 720
+              IF (IPRINT .GT. 0) CALL minqer(430)
+c$$$              PRINT 430
+c$$$  430         FORMAT (/4X,'Return from BOBYQA because a trust',
+c$$$     1          ' region step has failed to reduce Q.')
+c$$$              GOTO 720
           END IF
           RATIO=(F-FOPT)/VQUAD
           IF (RATIO .LE. TENTH) THEN
@@ -633,16 +640,17 @@ C
               RHO=TENTH*RHO
           END IF
           DELTA=DMAX1(DELTA,RHO)
-          IF (IPRINT .GE. 2) THEN
-              IF (IPRINT .GE. 3) PRINT 690
-  690         FORMAT (5X)
-              PRINT 700, RHO,NF
-  700         FORMAT (/4X,'New RHO =',1PD11.4,5X,'Number of',
-     1          ' function values =',I6)
-              PRINT 710, FVAL(KOPT),(XBASE(I)+XOPT(I),I=1,N)
-  710         FORMAT (4X,'Least value of F =',1PD23.15,9X,
-     1          'The corresponding X is:'/(2X,5D15.6))
-          END IF
+          CALL minqit(IPRINT, RHO, NF, FOPT, N, XBASE, XOPT)
+c$$$          IF (IPRINT .GE. 2) THEN
+c$$$              IF (IPRINT .GE. 3) PRINT 690
+c$$$  690         FORMAT (5X)
+c$$$              PRINT 700, RHO,NF
+c$$$  700         FORMAT (/4X,'New RHO =',1PD11.4,5X,'Number of',
+c$$$     1          ' function values =',I6)
+c$$$              PRINT 710, FVAL(KOPT),(XBASE(I)+XOPT(I),I=1,N)
+c$$$  710         FORMAT (4X,'Least value of F =',1PD23.15,9X,
+c$$$     1          'The corresponding X is:'/(2X,5D15.6))
+c$$$          END IF
           NTRITS=0
           NFSAV=NF
           GOTO 60
@@ -660,12 +668,13 @@ C
   730     CONTINUE
           F=FVAL(KOPT)
       END IF
-      IF (IPRINT .GE. 1) THEN
-          PRINT 740, NF
-  740     FORMAT (/4X,'At the return from BOBYQA',5X,
-     1      'Number of function values =',I6)
-          PRINT 710, F,(X(I),I=1,N)
-      END IF
+      CALL minqir(IPRINT, F, NF, N, X)
+c$$$      IF (IPRINT .GE. 1) THEN
+c$$$          PRINT 740, NF
+c$$$  740     FORMAT (/4X,'At the return from BOBYQA',5X,
+c$$$     1      'Number of function values =',I6)
+c$$$          PRINT 710, F,(X(I),I=1,N)
+c$$$      END IF
       DO 750 K=1,NPT
       FX(K)=FVAL(K)
   750     CONTINUE

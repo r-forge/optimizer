@@ -1,8 +1,5 @@
-export(
-   "newuoa",
-   "newuoa.control",
-   "bobyqa",
-   "bobyqa.control",
-   "uobyqa",
-   "uobyqa.control")
-
+#useDynLib(lme4a, .registration=TRUE)
+export(newuoa, bobyqa, uobyqa)
+#S3method(print, newuoa)
+S3method(print, bobyqa)
+#S3method(print, uobyqa)

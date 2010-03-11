@@ -1,0 +1,10 @@
+2010-03-11  Douglas Bates  <bates@stat.wisc.edu>
+
+	* R/bobyqa.R, src/bobyqa_c.c: Change default argument
+	handling and interface between R and C code.  Remove
+	bobyqa.control R function.
+
+	* man/bobyqa.Rd: Update to new organization.  Fix R CMD check
+	problems.
+
+

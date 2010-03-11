@@ -1,107 +1,105 @@
-bobyqa.control <- function(npt = NA, rhobeg = NA, rhoend = NA,
-                           iprint = 0, maxfun=10000,
-                           obstop=TRUE, force.start=FALSE)
-  list(npt = npt, rhobeg=rhobeg, rhoend=rhoend, iprint=iprint, maxfun=maxfun,
-       obstop=obstop, force.start=force.start)
-
 bobyqa <- function(par, fn, lower=-Inf, upper=Inf,
-                   control = bobyqa.control(), ...)
+                   control = list(), ...)
 {
-  n <- length(par) 
-  if(n < 2)
-    stop("bobyqa is not for optimization of single parameter.")
-  if (length(lower) == 1) lower <- rep(lower, n)
-  if (length(upper) == 1) upper <- rep(upper, n)
-  if(length(lower)!=n || length(upper)!=n)
-      stop("Bounds are the wrong length.")
-  fn1  <- function(par) fn(par, ...)
-  ctrl <- bobyqa.control()
-  if(!missing(control)) {
-    control <- as.list(control)
-    ctrl[names(control)] <- control
-  }
-  if(is.na(ctrl[["npt"]]))
-    ctrl[["npt"]] <- min(n+6, 2*n+1) 
-  else if((ctrl[["npt"]] < n+2) || (ctrl[["npt"]] > (n+1)*(n+2)/2))
-    stop("npt is not in [len(par)+2, (len(par)+1)*(len(par)+2)/2)] ") 
-  if(ctrl[["npt"]] > (2*n + 1) )
-    warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
-  if (ctrl[["iprint"]]>1) cat("npt is set at ",ctrl[["npt"]]," and n=",n,"\n")
+    n <- length(par <- as.double(par))
+    if (n < 2)
+        stop("bobyqa is not for optimization of single parameter.")
 
-  if(is.na(ctrl[["rhobeg"]])) {
-    if(any(is.finite(upper-lower))) { 
-      if ( any(upper <= lower) ) stop("Overlapping bounds")
-      ctrl[["rhobeg"]] <- 0.2*min(upper-lower) 
-    } else {
-      ctrl[["rhobeg"]] <- 0.2*max(abs(par))
+    ## initialize the control list
+    ctrl <- list(npt = min(n+6, 2*n+1), rhobeg = NA, rhoend = NA,
+                 iprint = 0L, maxfun=10000L, obstop=TRUE,
+                 force.start=FALSE)
+    ## incorporate any control arguments using partial matches on names
+    if (!missing(control)) {
+        control <- as.list(control)
+        mnms <- pmatch(names(control), names(ctrl)) # matched names
+        if (any(is.na(mnms))) {
+            warning("Unmatched names:", names(control)[is.na(mnms)],
+                    " dropped from control list")
+            control <- control[!is.na(mnms)]
+            mnms <- mnms[!is.na(mnms)]
+            names(control) <- names(ctrl)[mnms]
+        }
+        ctrl[names(control)] <- control
     }
-    ctrl[["rhobeg"]]<-min(0.95, ctrl[["rhobeg"]]) 
-  }
-# rhoend
-  if(is.na(ctrl[["rhoend"]])) {
-      ctrl[["rhoend"]]<-1.0e-6*ctrl[["rhobeg"]] 
-  }
-  if (ctrl[["iprint"]]>1) cat("RHOBEG =",ctrl[["rhobeg"]],"  RHOEND=",ctrl[["rhoend"]],"\n")
-  if(ctrl[["rhobeg"]] < ctrl[["rhoend"]] ||
-     any(c(ctrl[["rhobeg"]],ctrl[["rhoend"]]) < 0))
-   
-    stop("rhobeg and rhoend must be positive with rhoend no greater than rhobeg.") 
-  if(all(is.finite(upper-lower)) && any(upper-lower < 2 * ctrl[["rhobeg"]])) {
-    warning("All of the differences upper-lower must be >= 2*rhobeg. Changing rhobeg") 
-    rhobeg <- 0.2*min(upper-lower)
-  }
-  w <- (ctrl[["npt"]]+5)*(ctrl[["npt"]]+n)+3*n*(n+5)/2
-  ctrl[["wsize"]] <- w
-  
-  if (all(is.finite(lower)) ) {
-      if (any(par < lower) ) {
-          msg<-"Some parameters out of bounds LOW"
-          if (ctrl[["obstop"]]) {
-             stop(msg)
-          } else {
-             warning(msg)  
-             par[which(par < lower)] <- lower
-             warning("Some parameters adjusted to the nearest bound")
-	  }
-      }          
+
+    ## check the upper and lower arguments, adjusting if necessary
+    lower <- as.double(lower); upper <- as.double(upper)
+    if (length(lower) == 1) lower <- rep(lower, n)
+    if (length(upper) == 1) upper <- rep(upper, n)
+    if (length(lower) != n || length(upper) != n)
+        stop("Bounds are the wrong length.")
+    if (any(upper <= lower)) stop("Overlapping bounds")
+
+    if (any(par < lower | par > upper)) {
+        if (ctrl$obstop)
+            stop("Starting values violate bounds")
+        else {
+            par <- pmax(lower, pmax(par, upper))
+            warning("Some parameters adjusted to nearest bound")
+        }
     }
-  if (all(is.finite(upper)) ) {
-    if (any(par > upper) ) {
-      msg<-"Some parameters out of bounds HIGH"
-      if (ctrl[["obstop"]]) {
-        stop(msg)
-      } else {
-        warning(msg)
-            par[which(par > upper)] <- upper
-        warning("Some parameters adjusted to the nearest bound")
-      }
-    }          
-  }
+    rng <- upper - lower
+    
+    ## Adjust and check npt
+    ctrl$npt <- max(n+2, min(as.integer(ctrl$npt), (n+1)*(n+2)/2))
+    if (ctrl$npt > (2*n + 1))
+        warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
+    verb <- 1 < (ctrl$iprint <- as.integer(ctrl$iprint))
+    if (verb)
+        cat("npt is set at ", ctrl$npt, " and n = ",n,"\n")
+
+    ## Check and adjust rhobeg and rhoend
+    if (is.na(ctrl$rhobeg))
+        ctrl$rhobeg <-
+            min(0.95,
+                0.2 * ifelse(any(is.finite(rng)), min(rng), max(abs(par))))
+    if (is.na(ctrl$rhoend)) {
+        ctrl$rhoend <- 1.0e-6 * ctrl$rhobeg
+    }
+    stopifnot(0 < ctrl$rhoend, ctrl$rhoend <= ctrl$rhobeg)
+    if (verb)
+        cat("RHOBEG = ", ctrl$rhobeg,", RHOEND = ", ctrl$rhoend, "\n")
+
+    ## I think this check should now be unnecessary but I'm not sure. DMB
+    if (any(rng < 2 * ctrl$rhobeg)) {
+        warning("All upper - lower must be >= 2*rhobeg. Changing rhobeg") 
+        rhobeg <- 0.2 * min(upper-lower)
+    }
+
+    ctrl$wsize <- (ctrl$npt + 5L) * (ctrl$npt + n) + 3L * (n * (n + 5L))/2L
   
-  if (all(is.finite(upper)) && all(is.finite(lower)) && all(par >= lower) && all(par <= upper) ) {
-    if (ctrl[["iprint"]]>1) cat("ctrl[[force.start]] = ", ctrl[["force.start"]],"\n")
-     if (! ctrl[["force.start"]] ) {
-       i <- (par - lower) < ctrl[["rhobeg"]] # Jens modification
-       if (any(i)) {
-           par[i] <- lower[i] + ctrl[["rhobeg"]]
-                    warning("Some parameters adjusted away from lower bound")
-                  }
-       i <- (upper - par) < ctrl[["rhobeg"]]  # Jens modification
-       if (any(i)) {
-           par[i] <- upper[i] - ctrl[["rhobeg"]]
-                    warning("Some parameters adjusted away from upper bound")
-                  }
-     }
-  }
-  if (ctrl$maxfun < 10 * n^2)
-    warning("'maxfun' less than 10*length(par)^2 not recommended.")
-  
-  out <- .Call("bobyqa_c", unlist(par), lower, upper, fn1, ctrl, new.env(),
+    if (all(is.finite(upper)) && all(is.finite(lower)) &&
+        all(par >= lower) && all(par <= upper) ) {
+        if (verb) cat("ctrl$force.start = ", ctrl$force.start,"\n")
+        if (!ctrl$force.start) {
+            i <- rng < ctrl$rhobeg # Jens modification
+            if (any(i)) {
+                par[i] <- lower[i] + ctrl$rhobeg
+                warning("Some parameters adjusted away from lower bound")
+            }
+            i <- rng < ctrl$rhobeg      # Jens modification
+            if (any(i)) {
+                par[i] <- upper[i] - ctrl$rhobeg
+                warning("Some parameters adjusted away from upper bound")
+            }
+        }
+    }
+    if (ctrl$maxfun < 10 * n^2)
+        warning("'maxfun' less than 10*length(par)^2 not recommended.")
+
+    ## Pass control as an environment with easier access to name/value pairs
+    ctl <- new.env(parent = emptyenv())
+    lapply(names(ctrl), function(nm) assign(nm, ctrl[[nm]], envir = ctl))
+
+    out <- .Call("bobyqa_c", par, lower, upper,
+               function(par) fn(par, ...), ctl, new.env(),
                PACKAGE = "minqa")
   
-  class(out) <- "bobyqa"
-  out
+    class(out) <- "bobyqa"
+    out
 }
+
 print.bobyqa <- function(x, digits = max(3, getOption("digits") - 3), ...)
 {
   cat("bobyqa results\n")

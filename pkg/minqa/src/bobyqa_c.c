@@ -2,6 +2,7 @@
 #include <Rdefines.h>
 #include "bobyqa_head.h"
 
+/* Added 1 by D Bates to move output from Powell Fortran codes */
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #define _(String) dgettext ("minqa", String)
@@ -14,6 +15,7 @@
 #else
 # define attribute_hidden
 #endif
+/* End 1 D Bates */
 
 OptStruct OS;
 
@@ -131,6 +133,8 @@ SEXP bobyqa_c(SEXP par_arg, SEXP xl_arg, SEXP xu_arg, SEXP fn, SEXP control,
 
     return out;
 }
+
+/* Added 2 by D Bates to move output from Powell Fortran codes */
  
 #ifdef ENABLE_NLS
 #include <libintl.h>
@@ -150,10 +154,13 @@ void attribute_hidden F77_NAME(minqer)(const int *msgno)
     char *msg;
     switch(*msgno) {
     case 10:
-	msg = _("NPT is not in the required interval");
+	msg = _("bobyqa: NPT is not in the required interval");
+	break;
+    case 101:
+	msg = _("newuoa: NPT is not in the required interval");
 	break;
     case 20:
-	msg = _("one of the differences XU(I)-XL(I) is less than 2*RHOBEG");
+	msg = _("bobyqa: one of the differences XU(I)-XL(I) is less than 2*RHOBEG");
 	break;
     case 320:
 	msg = _("bobyqa detected too much cancellation in denominator");
@@ -163,6 +170,12 @@ void attribute_hidden F77_NAME(minqer)(const int *msgno)
 	break;
     case 430:
 	msg = _("a trust region step in bobyqa failed to reduce q");
+	break;
+    case 3701:
+	msg = _("a trust region step in newuoa failed to reduce q");
+	break;
+    case 2101:
+	msg = _("a trust region step in uobyqa failed to reduce q");
 	break;
     default:
 	error(_("Unknown message number %d in f77err"), *msgno);
@@ -208,3 +221,5 @@ F77_NAME(minqir)(const int *iprint, const double *f, const int *nf,
 	Rprintf("\n");
     }
 }
+/* End 2 D Bates */
+

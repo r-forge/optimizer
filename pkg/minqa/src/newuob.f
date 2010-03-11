@@ -314,16 +314,17 @@ C
       NF=NF+1
   310 IF (NF .GT. NFTEST) THEN
           NF=NF-1
-          IF (IPRINT .GT. 0) PRINT 320
-  320     FORMAT (/4X,'Return from NEWUOA because CALFUN has been',
-     1      ' called MAXFUN times.')
-          GOTO 530
+
+C$$$          IF (IPRINT .GT. 0) PRINT 320
+C$$$  320     FORMAT (/4X,'Return from NEWUOA because CALFUN has been',
+C$$$     1      ' called MAXFUN times.')
+C$$$          GOTO 530
       END IF
       CALL CALFUN (N,X,F)
       IF (IPRINT .EQ. 3) THEN
-          PRINT 330, NF,F,(X(I),I=1,N)
-  330      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
-     1       '    The corresponding X is:'/(2X,5D15.6))
+C$$$          PRINT 330, NF,F,(X(I),I=1,N)
+C$$$  330      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
+C$$$     1       '    The corresponding X is:'/(2X,5D15.6))
       END IF
       IF (NF .LE. NPT) GOTO 70
       IF (KNEW .EQ. -1) GOTO 530
@@ -366,9 +367,10 @@ C
 C     Pick the next value of DELTA after a trust region step.
 C
       IF (VQUAD .GE. ZERO) THEN
-          IF (IPRINT .GT. 0) PRINT 370
-  370     FORMAT (/4X,'Return from NEWUOA because a trust',
-     1      ' region step has failed to reduce Q.')
+              IF (IPRINT .GT. 0) CALL minqer(3701)
+C$$$          IF (IPRINT .GT. 0) PRINT 370
+C$$$  370     FORMAT (/4X,'Return from NEWUOA because a trust',
+C$$$     1      ' region step has failed to reduce Q.')
           GOTO 530
       END IF
       RATIO=(F-FSAVE)/VQUAD
@@ -527,14 +529,15 @@ C
           END IF
           DELTA=DMAX1(DELTA,RHO)
           IF (IPRINT .GE. 2) THEN
-              IF (IPRINT .GE. 3) PRINT 500
-  500         FORMAT (5X)
-              PRINT 510, RHO,NF
-  510         FORMAT (/4X,'New RHO =',1PD11.4,5X,'Number of',
-     1          ' function values =',I6)
-              PRINT 520, FOPT,(XBASE(I)+XOPT(I),I=1,N)
-  520         FORMAT (4X,'Least value of F =',1PD23.15,9X,
-     1          'The corresponding X is:'/(2X,5D15.6))
+               CALL minqit(IPRINT, RHO, NF, FOPT, N, XBASE, XOPT)
+C$$$              IF (IPRINT .GE. 3) PRINT 500
+C$$$  500         FORMAT (5X)
+C$$$              PRINT 510, RHO,NF
+C$$$  510         FORMAT (/4X,'New RHO =',1PD11.4,5X,'Number of',
+C$$$     1          ' function values =',I6)
+C$$$              PRINT 520, FOPT,(XBASE(I)+XOPT(I),I=1,N)
+C$$$  520         FORMAT (4X,'Least value of F =',1PD23.15,9X,
+C$$$     1          'The corresponding X is:'/(2X,5D15.6))
           END IF
           GOTO 90
       END IF
@@ -549,10 +552,11 @@ C
           F=FOPT
       END IF
       IF (IPRINT .GE. 1) THEN
-          PRINT 550, NF
-  550     FORMAT (/4X,'At the return from NEWUOA',5X,
-     1      'Number of function values =',I6)
-          PRINT 520, F,(X(I),I=1,N)
+         CALL minqirn(IPRINT, F, NF, N, X)
+C$$$          PRINT 550, NF
+C$$$  550     FORMAT (/4X,'At the return from NEWUOA',5X,
+C$$$     1      'Number of function values =',I6)
+C$$$          PRINT 520, F,(X(I),I=1,N)
       END IF
       RETURN
       END

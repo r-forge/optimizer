@@ -25,6 +25,10 @@ newuoa(par, fn, control = newuoa.control(), \dots)
   Functions \code{fn} must return a numeric value.
   The \code{control} argument is a list;  see \code{\link{newuoa.control}} for
     details.
+
+  Powell's Fortran code has been slightly modified (thanks to Doug Bates for 
+  help on this) to avoid use of PRINT statements. Output is now via calls to
+  C routines set up to work with the routines BOBYQA, NEWUOA and UOBYQA.
   }
 \value{
   A list with components:

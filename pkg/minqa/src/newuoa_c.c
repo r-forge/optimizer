@@ -2,6 +2,22 @@
 #include <Rdefines.h>
 #include "newuoa_head.h"
 
+/* Added 1 by JN following D Bates to move output from Powell Fortran codes */
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("minqa", String)
+#else
+#define _(String) (String)
+#endif
+
+#ifdef HAVE_VISIBILITY_ATTRIBUTE
+# define attribute_hidden __attribute__ ((visibility ("hidden")))
+#else
+# define attribute_hidden
+#endif
+/* End 1  JN following D Bates */
+
+
 OptStruct OS;
 
 SEXP newuoa_c(SEXP par_arg, SEXP fn, SEXP control, SEXP rho)
@@ -83,3 +99,40 @@ SEXP newuoa_c(SEXP par_arg, SEXP fn, SEXP control, SEXP rho)
     return out;
 }
  
+/* Added 2 by JN following D Bates to move output from Powell Fortran codes
+
+   The routines minqer, minquit, minqi3 and minqir already defined in bobyqa_c.c
+
+ */
+/* End JN following 2 D Bates */
+
+/* Added J Nash */
+ 
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("minqa", String)
+#else
+#define _(String) (String)
+#endif
+
+#ifdef HAVE_VISIBILITY_ATTRIBUTE
+# define attribute_hidden __attribute__ ((visibility ("hidden")))
+#else
+# define attribute_hidden
+#endif
+
+void attribute_hidden
+F77_NAME(minqirn)(const int *iprint, const double *f, const int *nf,
+		 const int *n, const double x[])
+{
+    if (*iprint > 0) {
+	int i, nn = *n;
+	Rprintf(_("At return from newuoa\n"));
+	Rprintf("%3d:%#14.8g:", *nf, *f);
+	for (i = 0; i < nn; i++) Rprintf(" %#8g", x[i]);
+	Rprintf("\n");
+    }
+}
+/* End JN */
+
+

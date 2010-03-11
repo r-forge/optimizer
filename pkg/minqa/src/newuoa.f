@@ -38,10 +38,11 @@ C
       NP=N+1
       NPTM=NPT-NP
       IF (NPT .LT. N+2 .OR. NPT .GT. ((N+2)*NP)/2) THEN
-          PRINT 10
-   10     FORMAT (/4X,'Return from NEWUOA because NPT is not in',
-     1      ' the required interval')
-          GO TO 20
+         CALL minqer(101)
+c$$$          PRINT 10
+c$$$   10     FORMAT (/4X,'Return from NEWUOA because NPT is not in',
+c$$$     1      ' the required interval')
+c$$$          GO TO 20
       END IF
       NDIM=NPT+N
       IXB=1

@@ -18,8 +18,8 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf,
                     " dropped from control list")
             control <- control[!is.na(mnms)]
             mnms <- mnms[!is.na(mnms)]
-            names(control) <- names(ctrl)[mnms]
         }
+        names(control) <- names(ctrl)[mnms]
         ctrl[names(control)] <- control
     }
 
@@ -61,7 +61,8 @@ bobyqa <- function(par, fn, lower=-Inf, upper=Inf,
     if (verb)
         cat("RHOBEG = ", ctrl$rhobeg,", RHOEND = ", ctrl$rhoend, "\n")
 
-    ## I think this check should now be unnecessary but I'm not sure. DMB
+    ## I think this check should now be unnecessary
+    ## but I'm not sure. DMB
     if (any(rng < 2 * ctrl$rhobeg)) {
         warning("All upper - lower must be >= 2*rhobeg. Changing rhobeg") 
         rhobeg <- 0.2 * min(upper-lower)

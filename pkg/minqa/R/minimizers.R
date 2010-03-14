@@ -176,13 +176,12 @@ uobyqa <- function(par, fn, control = list(), ...)
 ##' @param x an object of class bobyqa
 ##' @param digits number of significant digits - doesn't seem to be used
 ##' @param ... optional arguments.  None are used.
-print.bobyqa <- function(x, digits = max(3, getOption("digits") - 3), ...)
+print.newuoa <- print.uobyqa <- print.bobyqa <-
+    function(x, digits = max(3, getOption("digits") - 3), ...)
 {
-  cat("bobyqa results\n")
-
   cat("parameter estimates:", toString(x$par), "\n")
-  cat("function evaluations:", toString(x$feval), "\n")
-  cat("objective function value:", toString(x$fval), "\n")
+  cat("objective:", toString(x$fval), "\n")
+  cat("number of function evaluations:", toString(x$feval), "\n")
   
   invisible(x)
 }

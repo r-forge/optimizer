@@ -32,7 +32,8 @@ newuoa(par, fn, control = list(), \dots)
 \value{
   A list with components:
   \item{par}{The best set of parameters found.}
-  \item{fvalue}{The value of the objective at the best set of parameters found.}
+  \item{fval}{The value of the objective at the best set of parameters found.}
+  \item{feval}{Number of function evaluations to determine the optimum}
 }
 \references{
   M. J. D. Powell, "The NEWUOA software for unconstrained optimization
@@ -59,11 +60,10 @@ newuoa(par, fn, control = list(), \dots)
 \seealso{\code{\link{optim}}, \code{\link{nlminb}}}
 \examples{
 fr <- function(x) {   ## Rosenbrock Banana function
-    x1 <- x[1]
-    x2 <- x[2]
-    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
+    100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2
 }
-x2 <- newuoa(fn=fr,par=c(1,2))
+(x2 <- newuoa(c(1, 2), fr))
+## => optimum at c(1, 1) with fval = 0
 }
 \keyword{nonlinear}
 \keyword{optimize}

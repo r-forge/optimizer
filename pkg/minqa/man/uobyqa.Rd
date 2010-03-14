@@ -23,7 +23,36 @@ uobyqa(par, fn, control = list(), \dots)
 }
 \details{
   Functions \code{fn} must return a numeric value.
-  The \code{control} argument is a list; 
+
+  The \code{control} argument is a list.  Possible named values in the
+  list and their defaults are:
+  \describe{
+    \item{rhobeg}{
+      \code{rhobeg} and \code{rhoend} must be set to the initial and final
+      values of a trust region radius, so both must be positive with
+      \code{0 < rhoend < rhobeg}. Typically \code{rhobeg} should be about
+      one tenth of the greatest expected change to a variable.
+    }
+    \item{rhoend}{
+      The smallest value of the trust region radius that is allowed. If
+      not defined, then 1e-6 times the value set for \code{rhobeg} will be
+      used.
+    }
+    \item{iprint}{
+      The value of \code{iprint} should be set to \code{0, 1, 2 or 3},
+      which controls the amount of printing. Specifically, there is no
+      output if \code{iprint=0} and there is output only at the return if
+      \code{iprint=1}. Otherwise, each new value of \code{rho} is printed,
+      with the best vector of variables so far and the corresponding value
+      of the objective function. Further, each new value of the objective
+      function with its variables are output if \code{iprint=3}.  Default
+      value is \code{0}.
+    }
+    \item{maxfun}{
+      The maximum allowed number of function evaluations. If this is
+      exceeded, the method will terminate.
+    } 
+  }
 
   Powell's Fortran code has been slightly modified (thanks to Doug Bates for 
   help on this) to avoid use of PRINT statements. Output is now via calls to
@@ -54,11 +83,10 @@ uobyqa(par, fn, control = list(), \dots)
 \seealso{\code{\link{optim}}, \code{\link{nlminb}}}
 \examples{
 fr <- function(x) {   ## Rosenbrock Banana function
-    x1 <- x[1]
-    x2 <- x[2]
-    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
+    100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2
 }
-x3 <- uobyqa(fn=fr,par=c(1,2))
+(x3 <- uobyqa(c(1, 2), fr))
+## => optimum at c(1, 1) with fval = 0
 }
 \keyword{nonlinear}
 \keyword{optimize}

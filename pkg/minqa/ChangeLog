@@ -1,10 +1,16 @@
 2010-03-14  Douglas Bates  <bates@stat.wisc.edu>
 
-	* src/*.f: Cleaned up more PRINT statements
+	* src/*.f: Cleaned up more PRINT statements.  Changed CALL CALFUN
+	to F = CALFUN().
 
 	* src/minqa.cpp: Moved the C++ code to this file name (previously
 	was bobyqa_cpp.cpp).  Re-arranged order of functions and added
-	documentation.
+	documentation.  Changed CALFUN to a function incorporating the
+	minqi3 output.
+
+	* man/*.Rd: Updates and modifications to examples
+
+	* R/minimizers.R: Added print methods for each of the class
 
 2010-03-13  Douglas Bates  <bates@stat.wisc.edu>
 

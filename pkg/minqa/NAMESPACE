@@ -1,5 +1,7 @@
 useDynLib(minqa, bobyqa_cpp, newuoa_cpp, uobyqa_cpp)
 
-export(newuoa, bobyqa, uobyqa)
+export(bobyqa, newuoa, uobyqa)
 S3method(print, bobyqa)
+S3method(print, newuoa)
+S3method(print, uobyqa)
 

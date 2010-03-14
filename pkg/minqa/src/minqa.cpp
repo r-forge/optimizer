@@ -180,18 +180,6 @@ F77_NAME(minqit)(const int *iprint, const double *rho, const int *nf,
     }
 }
 
-/// Function evaluation trace output for iprint == 3
-extern "C" void
-F77_NAME(minqi3)(const int *iprint, const double *f, const int *nf,
-		 const int *n, const double x[])
-{
-    if (*iprint == 3) {
-	Rprintf("%3d:%#14.8g:", *nf, *f);
-	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
-	Rprintf("\n");
-    }
-}
-
 /// Output at return (do we really need this - why not use the print method?)
 extern "C" void
 F77_NAME(minqir)(const int *iprint, const double *f, const int *nf,

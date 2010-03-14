@@ -448,7 +448,7 @@ C
           F=FOPT
       END IF
       IF (IPRINT .GE. 1) THEN
-         CALL minqiru(IPRINT, F, NF, N, X)
+         CALL minqir(IPRINT, F, NF, N, X)
 C$$$          PRINT 440, NF
 C$$$  440     FORMAT (/4X,'At the return from UOBYQA',5X,
 C$$$     1      'Number of function values =',I6)

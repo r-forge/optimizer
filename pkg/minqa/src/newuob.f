@@ -552,7 +552,7 @@ C
           F=FOPT
       END IF
       IF (IPRINT .GE. 1) THEN
-         CALL minqirn(IPRINT, F, NF, N, X)
+         CALL minqir(IPRINT, F, NF, N, X)
 C$$$          PRINT 550, NF
 C$$$  550     FORMAT (/4X,'At the return from NEWUOA',5X,
 C$$$     1      'Number of function values =',I6)

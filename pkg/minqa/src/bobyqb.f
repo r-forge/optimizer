@@ -387,8 +387,8 @@ c$$$     1      ' called MAXFUN times.')
 c$$$          GOTO 720
       END IF
       NF=NF+1
-      CALL CALFUN (N,X,F)
-      CALL minqi3(IPRINT, F, NF, N, X)
+      F = CALFUN (N,X,IPRINT)
+c$$$      CALL minqi3(IPRINT, F, NF, N, X)
 c$$$      IF (IPRINT .EQ. 3) THEN
 c$$$          PRINT 400, NF,F,(X(I),I=1,N)
 c$$$  400      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,

@@ -39,10 +39,11 @@ C     MAXFUN must be set to an upper bound on the number of calls of CALFUN.
 C     The array W will be used for working space. Its length must be at least
 C       (NPT+5)*(NPT+N)+3*N*(N+5)/2.
 C
-C     SUBROUTINE CALFUN (N,X,F) has to be provided by the user. It must set
-C     F to the value of the objective function for the current values of the
-C     variables X(1),X(2),...,X(N), which are generated automatically in a
-C     way that satisfies the bounds given in XL and XU.
+C     DOUBLE PRECISION FUNCTION CALFUN (N,X,IP) has to be provided by
+C     the user. It returns the value of the objective function for
+C     the current values of the variables X(1),X(2),...,X(N), which are
+C     generated automatically in a way that satisfies the bounds given
+C     in XL and XU.
 C
 C     Return if the value of NPT is unacceptable.
 C

@@ -6,7 +6,7 @@ Rcpp::Function cf("c");
 
 /// Fortran callable objective subroutine.  Why is this not a function?
 extern "C"
-void F77_NAME(calfun)(const int *n, const double x[], double *f)
+double F77_NAME(calfun)(const int *n, const double x[], const int *ip)
 {
     Rcpp::Environment rho(cf.environment());
     Rcpp::IntegerVector cc(rho.get(".feval."));
@@ -21,7 +21,13 @@ void F77_NAME(calfun)(const int *n, const double x[], double *f)
 	    Rf_error("non-finite parameter to user function");
 	p[i] = x[i];
     }
-    *f = Rcpp::NumericVector(cf()).begin()[0];
+    double f = Rcpp::as<double>(cf());
+    if (*ip == 3) {
+	Rprintf("%3d:%#14.8g:", cc.begin()[0], f);
+	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
+	Rprintf("\n");
+    }
+    return f;
 }
 
 /// Declaration of Powell's bobyqa
@@ -37,20 +43,20 @@ RcppExport SEXP bobyqa_cpp(SEXP ppar, SEXP pxl, SEXP pxu,
 			   SEXP ctrl, SEXP fn, SEXP work)
 {
     Rcpp::Environment cc(ctrl); 
-    Rcpp::NumericVector par(ppar), xl(pxl), xu(pxu), wrk(work),
-	rb(cc.get("rhobeg")), re(cc.get("rhoend"));
-    int n = par.size();
-    if (xl.size() != n || xu.size() != n) // check sizes (lengths)
-	Rf_error("sizes of par, xl and xu don't match");
+    Rcpp::NumericVector par(ppar), rb(cc.get("rhobeg")),
+	re(cc.get("rhoend")), xl(pxl), xu(pxu), wrk(work);
     Rcpp::IntegerVector npt(cc.get("npt")), mxf(cc.get("maxfun")),
 	ip(cc.get("iprint"));
-
     cf = Rcpp::Function(fn);	// install the objective function
     Rcpp::Environment rho(cf.environment());
 
     // Ensure that all the control settings contain at least one element
     if (!(rb.size() && re.size() && npt.size() && mxf.size() && ip.size()))
 	Rf_error("Incomplete control parameter list");
+
+    int n = par.size();
+    if (xl.size() != n || xu.size() != n) // check sizes (lengths)
+	Rf_error("sizes of par, xl and xu don't match");
 
     // Allocate memory for function values used for approximation.  Is
     // this used at all? It looks like it was added after the fact.
@@ -60,12 +66,11 @@ RcppExport SEXP bobyqa_cpp(SEXP ppar, SEXP pxl, SEXP pxu,
 		     xu.begin(), rb.begin(), re.begin(), ip.begin(),
 		     mxf.begin(), wrk.begin(), fval.begin());
 
-    // For some bizarre reason the minimum function value is not returned
-    Rcpp::NumericVector ff(1);
-    F77_NAME(calfun)(&n, par.begin(), ff.begin());
-
     Rcpp::List rr(Rcpp::Pairlist(Rcpp::Named("par", par),
-				 Rcpp::Named("fval", ff),
+				 Rcpp::Named("fval",
+					     F77_NAME(calfun)(&n,
+							      par.begin(),
+							      ip.begin())),
 				 Rcpp::Named("feval", rho.get(".feval.")),
 				 Rcpp::Named("intpval", fval)));
     rr.attr("class") = "bobyqa";
@@ -79,26 +84,25 @@ void F77_NAME(uobyqa)(const int *n, double X[],
 
 RcppExport SEXP uobyqa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn, SEXP work)
 {
-    Rcpp::NumericVector par(ppar), wrk(work), ff(1);
     Rcpp::Environment cc(pctrl); 
-    Rcpp::NumericVector rhobeg(cc.get("rhobeg")), rhoend(cc.get("rhoend"));
-    Rcpp::IntegerVector maxfun(cc.get("maxfun")), iprint(cc.get("iprint"));
+    Rcpp::NumericVector par(ppar), rb(cc.get("rhobeg")), re(cc.get("rhoend")),
+	wrk(work);
+    Rcpp::IntegerVector mxf(cc.get("maxfun")), ip(cc.get("iprint"));
     cf = Rcpp::Function(pfn);
+    Rcpp::Environment rho(cf.environment());
     int n = par.size();
 
-    if (!(rhobeg.size() && rhoend.size() && maxfun.size() && iprint.size()))
+    if (!(rb.size() && re.size() && mxf.size() && ip.size()))
 	Rf_error("Incomplete control parameter list");
 
-    F77_NAME(uobyqa)(&n, par.begin(), rhobeg.begin(), rhoend.begin(),
-		     iprint.begin(), maxfun.begin(), wrk.begin());
-    // For some bizarre reason the minimum function value is not returned
-    F77_NAME(calfun)(&n, par.begin(), ff.begin());
+    F77_NAME(uobyqa)(&n, par.begin(), rb.begin(), re.begin(),
+		     ip.begin(), mxf.begin(), wrk.begin());
 
-    Rcpp::Environment rho(cf.environment());
-    Rcpp::IntegerVector feval(rho.get(".feval."));
     Rcpp::List rr(Rcpp::Pairlist(Rcpp::Named("par", par),
-				 Rcpp::Named("fval", ff),
-				 Rcpp::Named("feval", feval)));
+				 Rcpp::Named("fval",
+					     F77_NAME(calfun)(&n, par.begin(),
+							      ip.begin())),
+				 Rcpp::Named("feval", rho.get(".feval."))));
     rr.attr("class") = "uobyqa";
     return rr;
 }
@@ -110,29 +114,26 @@ void F77_NAME(newuoa)(const int *n, const int *npt, double X[],
 
 RcppExport SEXP newuoa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn, SEXP work)
 {
-    Rcpp::NumericVector par(ppar), wrk(work), ff(1);
     Rcpp::Environment cc(pctrl); 
-    Rcpp::NumericVector rhobeg(cc.get("rhobeg")), rhoend(cc.get("rhoend"));
-    Rcpp::IntegerVector maxfun(cc.get("maxfun")), iprint(cc.get("iprint")),
-	npt(cc.get("npt"));
+    Rcpp::NumericVector par(ppar), rb(cc.get("rhobeg")),
+	re(cc.get("rhoend")), wrk(work);
+    Rcpp::IntegerVector mxf(cc.get("maxfun")), npt(cc.get("npt")),
+	ip(cc.get("iprint"));
+    int n = par.size();
     cf = Rcpp::Function(pfn);
+    Rcpp::Environment rho(cf.environment());
 
-    if (!(rhobeg.size() && npt.size() && rhoend.size() &&
-	  maxfun.size() && iprint.size()))
+    if (!(rb.size() && npt.size() && re.size() && mxf.size() && ip.size()))
 	Rf_error("Incomplete control parameter list");
 
-    int n = par.size();
-    F77_NAME(newuoa)(&n, npt.begin(), par.begin(), rhobeg.begin(),
-		     rhoend.begin(), iprint.begin(), maxfun.begin(),
-		     wrk.begin());
-    // For some bizarre reason the minimum function value is not returned
-    F77_NAME(calfun)(&n, par.begin(), ff.begin());
+    F77_NAME(newuoa)(&n, npt.begin(), par.begin(), rb.begin(), re.begin(),
+		     ip.begin(), mxf.begin(), wrk.begin());
 
-    Rcpp::Environment rho(cf.environment());
-    Rcpp::IntegerVector feval(rho.get(".feval."));
     Rcpp::List rr(Rcpp::Pairlist(Rcpp::Named("par", par),
-				 Rcpp::Named("fval", ff),
-				 Rcpp::Named("feval", feval)));
+				 Rcpp::Named("fval",
+					     F77_NAME(calfun)(&n, par.begin(),
+							      ip.begin())),
+				 Rcpp::Named("feval", rho.get(".feval."))));
     rr.attr("class") = "uobyqa";
     return rr;
 }

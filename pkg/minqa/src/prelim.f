@@ -87,7 +87,7 @@ C
       IF (XPT(NF,J) .EQ. SL(J)) X(J)=XL(J)
       IF (XPT(NF,J) .EQ. SU(J)) X(J)=XU(J)
    60 CONTINUE
-      CALL CALFUN (N,X,F)
+      F = CALFUN (N,X,IPRINT)
 c$$$      IF (IPRINT .EQ. 3) THEN
 c$$$          PRINT 70, NF,F,(X(I),I=1,N)
 c$$$   70      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,

@@ -1,7 +1,7 @@
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% lagmax.f %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
       SUBROUTINE LAGMAX (N,G,H,RHO,D,V,VMAX)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION G(*),H(N,*),D(*),V(*)
 C
 C     N is the number of variables of a quadratic objective function, Q say.

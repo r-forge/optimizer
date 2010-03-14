@@ -2,7 +2,7 @@ C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uobyqb.f %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
       SUBROUTINE UOBYQB (N,X,RHOBEG,RHOEND,IPRINT,MAXFUN,NPT,XBASE,
      1  XOPT,XNEW,XPT,PQ,PL,H,G,D,VLAG,W)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),XBASE(*),XOPT(*),XNEW(*),XPT(NPT,*),PQ(*),
      1  PL(NPT,*),H(N,*),G(*),D(*),VLAG(*),W(*)
 C

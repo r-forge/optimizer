@@ -1,5 +1,5 @@
       SUBROUTINE UPDATE (N,NPT,BMAT,ZMAT,IDZ,NDIM,VLAG,BETA,KNEW,W)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION BMAT(NDIM,*),ZMAT(NPT,*),VLAG(*),W(*)
 C
 C     The arrays BMAT and ZMAT with IDZ are updated, in order to shift the

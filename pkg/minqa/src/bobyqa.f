@@ -1,6 +1,6 @@
       SUBROUTINE BOBYQA (N,NPT,X,XL,XU,RHOBEG,RHOEND,IPRINT,
      1  MAXFUN,W,FVAL)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),XL(*),XU(*),W(*),FVAL(*)
 C
 C     This subroutine seeks the least value of a function of many variables,
@@ -129,6 +129,6 @@ C
       CALL BOBYQB (N,NPT,X,XL,XU,RHOBEG,RHOEND,IPRINT,MAXFUN,W(IXB),
      1  W(IXP),W(IFV),W(IXO),W(IGO),W(IHQ),W(IPQ),W(IBMAT),W(IZMAT),
      2  NDIM,W(ISL),W(ISU),W(IXN),W(IXA),W(ID),W(IVL),W(IW),FVAL)
-   40 RETURN
+      RETURN
       END
 

@@ -1,6 +1,6 @@
       SUBROUTINE UPDATEBOBYQA (N,NPT,BMAT,ZMAT,NDIM,VLAG,BETA,DENOM,
      1  KNEW,W)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION BMAT(NDIM,*),ZMAT(NPT,*),VLAG(*),W(*)
 C
 C     The arrays BMAT and ZMAT are updated, as required by the new position

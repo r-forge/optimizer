@@ -1,7 +1,7 @@
       SUBROUTINE RESCUE (N,NPT,XL,XU,IPRINT,MAXFUN,XBASE,XPT,
      1  FVAL,XOPT,GOPT,HQ,PQ,BMAT,ZMAT,NDIM,SL,SU,NF,DELTA,
      2  KOPT,VLAG,PTSAUX,PTSID,W)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION XL(*),XU(*),XBASE(*),XPT(NPT,*),FVAL(*),XOPT(*),
      1  GOPT(*),HQ(*),PQ(*),BMAT(NDIM,*),ZMAT(NPT,*),SL(*),SU(*),
      2  VLAG(*),PTSAUX(2,*),PTSID(*),W(*)
@@ -341,7 +341,7 @@ C
       IF (XPT(KPT,I) .EQ. SU(I)) W(I)=XU(I)
   290 CONTINUE
       NF=NF+1
-      CALL CALFUNBOBYQA (N,W,F)
+      CALL CALFUN (N,W,F)
       IF (IPRINT .EQ. 3) THEN
           PRINT 300, NF,F,(W(I),I=1,N)
   300     FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,

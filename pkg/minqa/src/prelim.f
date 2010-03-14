@@ -1,6 +1,6 @@
       SUBROUTINE PRELIM (N,NPT,X,XL,XU,RHOBEG,IPRINT,MAXFUN,XBASE,
      1  XPT,FVAL,GOPT,HQ,PQ,BMAT,ZMAT,NDIM,SL,SU,NF,KOPT)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),XL(*),XU(*),XBASE(*),XPT(NPT,*),FVAL(*),GOPT(*),
      1  HQ(*),PQ(*),BMAT(NDIM,*),ZMAT(NPT,*),SL(*),SU(*)
 C
@@ -87,7 +87,7 @@ C
       IF (XPT(NF,J) .EQ. SL(J)) X(J)=XL(J)
       IF (XPT(NF,J) .EQ. SU(J)) X(J)=XU(J)
    60 CONTINUE
-      CALL CALFUNBOBYQA (N,X,F)
+      CALL CALFUN (N,X,F)
       IF (IPRINT .EQ. 3) THEN
           PRINT 70, NF,F,(X(I),I=1,N)
    70      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,

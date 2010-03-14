@@ -1,7 +1,7 @@
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% trstep.f %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
       SUBROUTINE TRSTEP (N,G,H,DELTA,TOL,D,GG,TD,TN,W,PIV,Z,EVALUE)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION G(*),H(N,*),D(*),GG(*),TD(*),TN(*),W(*),PIV(*),Z(*)
 C
 C     N is the number of variables of a quadratic objective function, Q say.

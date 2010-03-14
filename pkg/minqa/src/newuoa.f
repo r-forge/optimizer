@@ -1,5 +1,5 @@
       SUBROUTINE NEWUOA (N,NPT,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),W(*)
 C
 C     This subroutine seeks the least value of a function of many variables,
@@ -66,6 +66,6 @@ C
       CALL NEWUOB (N,NPT,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W(IXB),
      1  W(IXO),W(IXN),W(IXP),W(IFV),W(IGQ),W(IHQ),W(IPQ),W(IBMAT),
      2  W(IZMAT),NDIM,W(ID),W(IVL),W(IW))
-   20 RETURN
+      RETURN
       END
 

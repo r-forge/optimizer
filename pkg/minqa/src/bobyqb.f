@@ -1,7 +1,7 @@
       SUBROUTINE BOBYQB (N,NPT,X,XL,XU,RHOBEG,RHOEND,IPRINT,
      1  MAXFUN,XBASE,XPT,FVAL,XOPT,GOPT,HQ,PQ,BMAT,ZMAT,NDIM,
      2  SL,SU,XNEW,XALT,D,VLAG,W,FX)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),XL(*),XU(*),XBASE(*),XPT(NPT,*),FVAL(*),
      1  XOPT(*),GOPT(*),HQ(*),PQ(*),BMAT(NDIM,*),ZMAT(NPT,*),
      2  SL(*),SU(*),XNEW(*),XALT(*),D(*),VLAG(*),W(*),FX(*)
@@ -387,7 +387,7 @@ c$$$     1      ' called MAXFUN times.')
 c$$$          GOTO 720
       END IF
       NF=NF+1
-      CALL CALFUNBOBYQA (N,X,F)
+      CALL CALFUN (N,X,F)
       CALL minqi3(IPRINT, F, NF, N, X)
 c$$$      IF (IPRINT .EQ. 3) THEN
 c$$$          PRINT 400, NF,F,(X(I),I=1,N)

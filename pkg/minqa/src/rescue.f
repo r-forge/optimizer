@@ -347,7 +347,7 @@ c$$$          PRINT 70, NF,F,(X(I),I=1,N)
 c$$$   70      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
 c$$$     1       '    The corresponding X is:'/(2X,5D15.6))
 c$$$      END IF
-      CALL minqi3 (IPRINT, F, NF, N, X)
+c$$$      CALL minqi3 (IPRINT, F, NF, N, X)
       FVAL(KPT)=F
       IF (F .LT. FVAL(KOPT)) KOPT=KPT
       DIFF=F-VQUAD

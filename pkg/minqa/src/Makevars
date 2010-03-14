@@ -1,0 +1,2 @@
+PKG_CXXFLAGS=$(shell Rscript -e "Rcpp:::CxxFlags()"|sed /^WARNING/d)
+PKG_LIBS=$(shell Rscript -e "Rcpp:::LdFlags()"|sed /^WARNING/d)

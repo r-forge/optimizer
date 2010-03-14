@@ -1,3 +1,11 @@
+2010-03-14  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/*.f: Cleaned up more PRINT statements
+
+	* src/minqa.cpp: Moved the C++ code to this file name (previously
+	was bobyqa_cpp.cpp).  Re-arranged order of functions and added
+	documentation.
+
 2010-03-13  Douglas Bates  <bates@stat.wisc.edu>
 
 	* src/main.f: removed - R packages should not contain a main
@@ -14,7 +22,7 @@
 	* DESCRIPTION: New version
 
 	* NAMESPACE: UseDynLibs to access names of functions for .Call
-	
+
 2010-03-11  Douglas Bates  <bates@stat.wisc.edu>
 
 	* R/bobyqa.R, src/bobyqa_c.c: Change default argument

@@ -1,107 +1,12 @@
 #include <Rcpp.h>
 #include <R_ext/RS.h>
 
-extern "C" void F77_NAME(minqer)(const int *msgno)
-{
-    const char *msg;
-    switch(*msgno) {
-    case 10:
-	msg = "bobyqa: NPT is not in the required interval";
-	break;
-    case 101:
-	msg = "newuoa: NPT is not in the required interval";
-	break;
-    case 20:
-	msg = "bobyqa: one of the differences XU(I)-XL(I) is less than 2*RHOBEG";
-	break;
-    case 320:
-	msg = "bobyqa detected too much cancellation in denominator";
-	break;
-    case 390:
-	msg = "bobyqa exceeded maximum number of function evaluations";
-	break;
-    case 430:
-	msg = "a trust region step in bobyqa failed to reduce q";
-	break;
-    case 3701:
-	msg = "a trust region step in newuoa failed to reduce q";
-	break;
-    case 2101:
-	msg = "a trust region step in uobyqa failed to reduce q";
-	break;
-    default:
-	Rf_error("Unknown message number %d in f77err", *msgno);
-    }
-    Rf_error(msg);
-}
-
-extern "C" void
-F77_NAME(minqit)(const int *iprint, const double *rho, const int *nf,
-		 const double *fopt, const int *n, const double xbase[],
-		 const double xopt[])
-{
-    int i, ip = *iprint, nn = *n;
-    if (ip >= 2) {
-	Rprintf("%#8.2g; %3d: %#14.8g,", *rho, *nf, *fopt);
-	for(i = 0; i < nn; i++) Rprintf("%#8g ", xbase[i] + xopt[i]);
-	Rprintf("\n");
-    }
-}
-
-extern "C" void
-F77_NAME(minqi3)(const int *iprint, const double *f, const int *nf,
-		 const int *n, const double x[])
-{
-    if (*iprint == 3) {
-	int i, nn = *n;
-	Rprintf("%3d:%#14.8g:", *nf, *f);
-	for (i = 0; i < nn; i++) Rprintf(" %#8g", x[i]);
-	Rprintf("\n");
-    }
-}
-
-extern "C" void
-F77_NAME(minqir)(const int *iprint, const double *f, const int *nf,
-		 const int *n, const double x[])
-{
-    if (*iprint > 0) {
-	int i, nn = *n;
-	Rprintf("At return from bobyqa\n");
-	Rprintf("%3d:%#14.8g:", *nf, *f);
-	for (i = 0; i < nn; i++) Rprintf(" %#8g", x[i]);
-	Rprintf("\n");
-    }
-}
-
-extern "C" void
-F77_NAME(minqirn)(const int *iprint, const double *f, const int *nf,
-		 const int *n, const double x[])
-{
-    if (*iprint > 0) {
-	int i, nn = *n;
-	Rprintf("At return from newuoa\n");
-	Rprintf("%3d:%#14.8g:", *nf, *f);
-	for (i = 0; i < nn; i++) Rprintf(" %#8g", x[i]);
-	Rprintf("\n");
-    }
-}
-
-extern "C" void
-F77_NAME(minqiru)(const int *iprint, const double *f, const int *nf,
-		 const int *n, const double x[])
-{
-    if (*iprint > 0) {
-	int i, nn = *n;
-	Rprintf("At return from uobyqa\n");
-	Rprintf("%3d:%#14.8g:", *nf, *f);
-	for (i = 0; i < nn; i++) Rprintf(" %#8g", x[i]);
-	Rprintf("\n");
-    }
-}
-
+/// Wrapper for the objective function.  It is initialized to R's "c" function
 Rcpp::Function cf("c");
 
-extern "C" void F77_NAME(calfun)(const int *n, const double x[], double *f)
+/// Fortran callable objective subroutine.  Why is this not a function?
+extern "C"
+void F77_NAME(calfun)(const int *n, const double x[], double *f)
 {
     Rcpp::Environment rho(cf.environment());
     Rcpp::IntegerVector cc(rho.get(".feval."));
@@ -119,6 +24,7 @@ extern "C" void F77_NAME(calfun)(const int *n, const double x[], double *f)
     *f = Rcpp::NumericVector(cf()).begin()[0];
 }
 
+/// Declaration of Powell's bobyqa
 extern "C" 
 void F77_NAME(bobyqa)(const int *n, const int *npt, double X[],
 		      const double xl[], const double xu[],
@@ -126,35 +32,41 @@ void F77_NAME(bobyqa)(const int *n, const int *npt, double X[],
 		      const int *iprint, const int *maxfun, double w[],
 		      double fval[]);
 
-RcppExport SEXP bobyqa_cpp(SEXP par_arg, SEXP xl_arg, SEXP xu_arg, 
-			   SEXP control, SEXP fn, SEXP work)
+/// Interface for bobyqa
+RcppExport SEXP bobyqa_cpp(SEXP ppar, SEXP pxl, SEXP pxu, 
+			   SEXP ctrl, SEXP fn, SEXP work)
 {
-    Rcpp::NumericVector par(par_arg), xl(xl_arg), xu(xu_arg), wrk(work);
-    Rcpp::Environment cc(control); 
-    Rcpp::NumericVector rhobeg(cc.get("rhobeg")), rhoend(cc.get("rhoend"));
-    Rcpp::IntegerVector npt(cc.get("npt")), maxfun(cc.get("maxfun")),
-	iprint(cc.get("iprint"));
+    Rcpp::Environment cc(ctrl); 
+    Rcpp::NumericVector par(ppar), xl(pxl), xu(pxu), wrk(work),
+	rb(cc.get("rhobeg")), re(cc.get("rhoend"));
     int n = par.size();
-    cf = Rcpp::Function(fn);
-
-    if (!(rhobeg.size() && rhoend.size() && npt.size() && maxfun.size() &&
-	  iprint.size())) Rf_error("Incomplete control parameter list");
-    Rcpp::NumericVector fval(*(npt.begin()));
-    Rcpp::NumericVector ff(1);
-
-    if (xl.size() != n || xu.size() != n)
+    if (xl.size() != n || xu.size() != n) // check sizes (lengths)
 	Rf_error("sizes of par, xl and xu don't match");
-    F77_NAME(bobyqa)(&n, npt.begin(), par.begin(), xl.begin(), xu.begin(),
-		     rhobeg.begin(), rhoend.begin(), iprint.begin(),
-		     maxfun.begin(), wrk.begin(), fval.begin());
+    Rcpp::IntegerVector npt(cc.get("npt")), mxf(cc.get("maxfun")),
+	ip(cc.get("iprint"));
+
+    cf = Rcpp::Function(fn);	// install the objective function
+    Rcpp::Environment rho(cf.environment());
+
+    // Ensure that all the control settings contain at least one element
+    if (!(rb.size() && re.size() && npt.size() && mxf.size() && ip.size()))
+	Rf_error("Incomplete control parameter list");
+
+    // Allocate memory for function values used for approximation.  Is
+    // this used at all? It looks like it was added after the fact.
+    Rcpp::NumericVector fval(*(npt.begin())); 
+
+    F77_NAME(bobyqa)(&n, npt.begin(), par.begin(), xl.begin(),
+		     xu.begin(), rb.begin(), re.begin(), ip.begin(),
+		     mxf.begin(), wrk.begin(), fval.begin());
+
     // For some bizarre reason the minimum function value is not returned
+    Rcpp::NumericVector ff(1);
     F77_NAME(calfun)(&n, par.begin(), ff.begin());
 
-    Rcpp::Environment rho(cf.environment());
-    Rcpp::IntegerVector feval(rho.get(".feval."));
     Rcpp::List rr(Rcpp::Pairlist(Rcpp::Named("par", par),
 				 Rcpp::Named("fval", ff),
-				 Rcpp::Named("feval", feval),
+				 Rcpp::Named("feval", rho.get(".feval.")),
 				 Rcpp::Named("intpval", fval)));
     rr.attr("class") = "bobyqa";
     return rr;
@@ -223,4 +135,71 @@ RcppExport SEXP newuoa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn, SEXP work)
 				 Rcpp::Named("feval", feval)));
     rr.attr("class") = "uobyqa";
     return rr;
+}
+
+/// Assorted error messages.
+extern "C" void F77_NAME(minqer)(const int *msgno)
+{
+    const char *msg;
+    switch(*msgno) {
+    case 10:
+    case 101:
+	msg = "NPT is not in the required interval";
+	break;
+    case 20:
+	msg = "one of the differences XU(I)-XL(I) is less than 2*RHOBEG";
+	break;
+    case 320:
+	msg = "bobyqa detected too much cancellation in denominator";
+	break;
+    case 390:
+	msg = "maximum number of function evaluations exceeded";
+	break;
+    case 430:
+    case 3701:
+    case 2101:
+	msg = "a trust region step failed to reduce q";
+	break;
+    default:
+	Rf_error("Unknown message number %d in minqer", *msgno);
+    }
+    Rf_error(msg);
+}
+
+/// Iteration output when rho changes and iprint >= 2
+extern "C" void
+F77_NAME(minqit)(const int *iprint, const double *rho, const int *nf,
+		 const double *fopt, const int *n, const double xbase[],
+		 const double xopt[])
+{
+    if (*iprint >= 2) {
+	Rprintf("%#8.2g; %3d: %#14.8g,", *rho, *nf, *fopt);
+	for(int i = 0; i < *n; i++) Rprintf("%#8g ", xbase[i] + xopt[i]);
+	Rprintf("\n");
+    }
+}
+
+/// Function evaluation trace output for iprint == 3
+extern "C" void
+F77_NAME(minqi3)(const int *iprint, const double *f, const int *nf,
+		 const int *n, const double x[])
+{
+    if (*iprint == 3) {
+	Rprintf("%3d:%#14.8g:", *nf, *f);
+	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
+	Rprintf("\n");
+    }
+}
+
+/// Output at return (do we really need this - why not use the print method?)
+extern "C" void
+F77_NAME(minqir)(const int *iprint, const double *f, const int *nf,
+		 const int *n, const double x[])
+{
+    if (*iprint > 0) {
+	Rprintf("At return\n");
+	Rprintf("%3d:%#14.8g:", *nf, *f);
+	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
+	Rprintf("\n");
+    }
 }

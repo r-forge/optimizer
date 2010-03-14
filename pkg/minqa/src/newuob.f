@@ -314,18 +314,19 @@ C
       NF=NF+1
   310 IF (NF .GT. NFTEST) THEN
           NF=NF-1
-
+          CALL MINQER (390)
 C$$$          IF (IPRINT .GT. 0) PRINT 320
 C$$$  320     FORMAT (/4X,'Return from NEWUOA because CALFUN has been',
 C$$$     1      ' called MAXFUN times.')
 C$$$          GOTO 530
       END IF
       CALL CALFUN (N,X,F)
-      IF (IPRINT .EQ. 3) THEN
-C$$$          PRINT 330, NF,F,(X(I),I=1,N)
-C$$$  330      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
-C$$$     1       '    The corresponding X is:'/(2X,5D15.6))
-      END IF
+c$$$      IF (IPRINT .EQ. 3) THEN
+c$$$          PRINT 70, NF,F,(X(I),I=1,N)
+c$$$   70      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
+c$$$     1       '    The corresponding X is:'/(2X,5D15.6))
+c$$$      END IF
+      CALL minqi3 (IPRINT, F, NF, N, X)
       IF (NF .LE. NPT) GOTO 70
       IF (KNEW .EQ. -1) GOTO 530
 C

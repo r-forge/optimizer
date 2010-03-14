@@ -88,11 +88,12 @@ C
       IF (XPT(NF,J) .EQ. SU(J)) X(J)=XU(J)
    60 CONTINUE
       CALL CALFUN (N,X,F)
-      IF (IPRINT .EQ. 3) THEN
-          PRINT 70, NF,F,(X(I),I=1,N)
-   70      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
-     1       '    The corresponding X is:'/(2X,5D15.6))
-      END IF
+c$$$      IF (IPRINT .EQ. 3) THEN
+c$$$          PRINT 70, NF,F,(X(I),I=1,N)
+c$$$   70      FORMAT (/4X,'Function number',I6,'    F =',1PD18.10,
+c$$$     1       '    The corresponding X is:'/(2X,5D15.6))
+c$$$      END IF
+      CALL minqi3 (IPRINT, F, NF, N, X)
       FVAL(NF)=F
       IF (NF .EQ. 1) THEN
           FBEG=F

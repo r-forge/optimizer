@@ -1,5 +1,5 @@
-#useDynLib(lme4a, .registration=TRUE)
+useDynLib(minqa, bobyqa_cpp, newuoa_cpp, uobyqa_cpp)
+
 export(newuoa, bobyqa, uobyqa)
-#S3method(print, newuoa)
 S3method(print, bobyqa)
-#S3method(print, uobyqa)
+

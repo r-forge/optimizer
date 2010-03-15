@@ -4,26 +4,28 @@
 /// Wrapper for the objective function.  It is initialized to R's "c" function
 Rcpp::Function cf("c");
 
-/// Fortran callable objective subroutine.  Why is this not a function?
+/// Apply is.finite to elements in a transformation
+static inline double check_finite(double x) {
+    if (!R_finite(x)) Rf_error("non-finite parameter to user function");
+    return x;
+}
+
+/// Fortran callable objective function evaluation.
 extern "C"
 double F77_NAME(calfun)(const int *n, const double x[], const int *ip)
 {
     Rcpp::Environment rho(cf.environment());
     Rcpp::IntegerVector cc(rho.get(".feval."));
     Rcpp::NumericVector pp(rho.get(".par."));
-    double *p = pp.begin();
 
-    (*cc.begin())++;		// increment the function evaluation count
+    cc[0]++;			// increment func eval count
     if (*n != pp.size())
 	Rf_error("In calfun: n = %d but length(.par.) = %d", *n, pp.size());
-    for (int i = 0; i < *n; i++) {
-	if (!R_finite(p[i]))
-	    Rf_error("non-finite parameter to user function");
-	p[i] = x[i];
-    }
-    double f = Rcpp::as<double>(cf());
-    if (*ip == 3) {
-	Rprintf("%3d:%#14.8g:", cc.begin()[0], f);
+    std::transform(x, x + *n, pp.begin(), check_finite); //also copies
+
+    double f = Rcpp::as<double>(cf(pp)); // evaluate objective
+    if (*ip == 3) {		// print eval info when very verbose
+	Rprintf("%3d:%#14.8g:", cc[0], f);
 	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
 	Rprintf("\n");
     }

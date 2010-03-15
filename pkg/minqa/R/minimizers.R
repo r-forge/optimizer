@@ -66,7 +66,7 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 {
     ctrl <- commonArgs(par, fn, control, environment())
     n <- length(par)
-    fnl <- function() fn(.par., ...)
+    fn1 <- function(x) fn(x, ...) # fn1 takes exactly 1 argument
     
     ## check the upper and lower arguments, adjusting if necessary
     lower <- as.double(lower); upper <- as.double(upper)
@@ -111,12 +111,12 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
         }
     }
 
-    ## force one evaluation of fnl to check that it works
+    ## force one evaluation of fn1 to check that it works
     .par.[] <- par
-    fnl()
+    fn1(.par.)
 
     w <- numeric((ctrl$npt + 5) * (ctrl$npt + n) + 3 * (n * (n + 5))/2)
-    .Call(bobyqa_cpp, par, lower, upper, ctrl, fnl, w)
+    .Call(bobyqa_cpp, par, lower, upper, ctrl, fn1, w)
 }
 
 ##' An R interface to the NEWUOA implementation of Powell
@@ -135,12 +135,12 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 newuoa <- function(par, fn, control = list(), ...)
 {
     ctrl <- commonArgs(par, fn, control, environment())
-    fn1  <- function() fn(.par., ...)
-    n <- length(par)
+    fn1 <- function(x) fn(x, ...)
     .par.[] <- par            # force an evaluation
-    fn1()
+    fn1(.par.)
 
 
+    n <- length(par)
     w <- numeric((ctrl$npt + 13) * (ctrl$npt + n) + 3 * n * (n + 3)/2)
     .Call(newuoa_cpp, par, ctrl, fn1, w)
 }
@@ -161,11 +161,11 @@ newuoa <- function(par, fn, control = list(), ...)
 uobyqa <- function(par, fn, control = list(), ...)
 {
     ctrl <- commonArgs(par, fn, control, environment())
-    n <- length(par)
+    fn1 <- function(x) fn(x, ...)
     .par.[] <- par            # force an evaluation
-    fn1  <- function() fn(.par., ...)
-    fn1()
+    fn1(.par.)
 
+    n <- length(par)
     w <- numeric((n**4 + 8*n**3 + 23*n**2 + 42*n + max(2*n**2 + 4, 18*n )) / 4)
     .Call(uobyqa_cpp, par, ctrl, fn1, w)
 }

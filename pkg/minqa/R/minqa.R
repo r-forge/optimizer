@@ -115,8 +115,7 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
     .par.[] <- par
     fn1(.par.)
 
-    w <- numeric((ctrl$npt + 5) * (ctrl$npt + n) + 3 * (n * (n + 5))/2)
-    .Call(bobyqa_cpp, par, lower, upper, ctrl, fn1, w)
+    .Call(bobyqa_cpp, par, lower, upper, ctrl, fn1)
 }
 
 ##' An R interface to the NEWUOA implementation of Powell
@@ -131,7 +130,7 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 ##' @param control a list of control settings
 ##' @param ... optional, additional arguments to fn
 ##'
-##' @return a list with S3 class newuoa
+##' @return a list with S3 class c("newuoa", "minqa")
 newuoa <- function(par, fn, control = list(), ...)
 {
     ctrl <- commonArgs(par, fn, control, environment())
@@ -139,10 +138,7 @@ newuoa <- function(par, fn, control = list(), ...)
     .par.[] <- par            # force an evaluation
     fn1(.par.)
 
-
-    n <- length(par)
-    w <- numeric((ctrl$npt + 13) * (ctrl$npt + n) + 3 * n * (n + 3)/2)
-    .Call(newuoa_cpp, par, ctrl, fn1, w)
+    .Call(newuoa_cpp, par, ctrl, fn1)
 }
 
 ##' An R interface to the UOBYQA implementation of Powell
@@ -165,19 +161,17 @@ uobyqa <- function(par, fn, control = list(), ...)
     .par.[] <- par            # force an evaluation
     fn1(.par.)
 
-    n <- length(par)
-    w <- numeric((n**4 + 8*n**3 + 23*n**2 + 42*n + max(2*n**2 + 4, 18*n )) / 4)
-    .Call(uobyqa_cpp, par, ctrl, fn1, w)
+    .Call(uobyqa_cpp, par, ctrl, fn1)
 }
 
-##' Print method for bobyqa objects (S3)
+##' Print method for minqa objects (S3)
 ##'
-##' <details>
-##' @param x an object of class bobyqa
+##' @param x an object of class that inherits from minqa
 ##' @param digits number of significant digits - doesn't seem to be used
 ##' @param ... optional arguments.  None are used.
-print.newuoa <- print.uobyqa <- print.bobyqa <-
-    function(x, digits = max(3, getOption("digits") - 3), ...)
+##' @return invisible(x) - side effect is to print
+##' @author Douglas Bates
+print.minqa <- function(x, digits = max(3, getOption("digits") - 3), ...)
 {
   cat("parameter estimates:", toString(x$par), "\n")
   cat("objective:", toString(x$fval), "\n")

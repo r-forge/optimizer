@@ -33,7 +33,7 @@ double F77_NAME(calfun)(const int *n, const double x[], const int *ip) {
 }
 
 /// Names of returned values
-static Rcpp::Argument parnm("par"), fval("fval"), feval("feval");
+//static Rcpp::Argument parnm("par"), fval("fval"), feval("feval");
 
 /// Return the number of function evaluations as an SEXP
 static SEXP fevalf() {
@@ -43,14 +43,14 @@ static SEXP fevalf() {
 
 /// Construct the classed list to return
 static SEXP rval(Rcpp::NumericVector par, std::string cnm) {
-    Rcpp::StringVector cl(2);
+    Rcpp::StringVector parnm(3), cl(2);
     int ip = 0, n = par.size();
+    parnm = "par", "fval", "feval";
+    cl = cnm, "minqa";
 
-    Rcpp::List rr =
-	make_list(parnm = par, fval = F77_NAME(calfun)(&n, par.begin(), &ip),
-		  feval = fevalf());
-    cl[0] = cnm;
-    cl[1] = "minqa";
+    Rcpp::List rr(3);
+    rr = par, F77_NAME(calfun)(&n, par.begin(), &ip), fevalf();
+    rr.names() = parnm;
     rr.attr("class") = cl;
     return wrap(rr);
 }

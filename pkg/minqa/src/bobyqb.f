@@ -1,10 +1,10 @@
       SUBROUTINE BOBYQB (N,NPT,X,XL,XU,RHOBEG,RHOEND,IPRINT,
      1  MAXFUN,XBASE,XPT,FVAL,XOPT,GOPT,HQ,PQ,BMAT,ZMAT,NDIM,
-     2  SL,SU,XNEW,XALT,D,VLAG,W,FX)
+     2  SL,SU,XNEW,XALT,D,VLAG,W)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),XL(*),XU(*),XBASE(*),XPT(NPT,*),FVAL(*),
      1  XOPT(*),GOPT(*),HQ(*),PQ(*),BMAT(NDIM,*),ZMAT(NPT,*),
-     2  SL(*),SU(*),XNEW(*),XALT(*),D(*),VLAG(*),W(*),FX(*)
+     2  SL(*),SU(*),XNEW(*),XALT(*),D(*),VLAG(*),W(*)
 C
 C     The arguments N, NPT, X, XL, XU, RHOBEG, RHOEND, IPRINT and MAXFUN
 C       are identical to the corresponding arguments in SUBROUTINE BOBYQA.
@@ -675,9 +675,6 @@ c$$$  740     FORMAT (/4X,'At the return from BOBYQA',5X,
 c$$$     1      'Number of function values =',I6)
 c$$$          PRINT 710, F,(X(I),I=1,N)
 c$$$      END IF
-      DO 750 K=1,NPT
-      FX(K)=FVAL(K)
-  750     CONTINUE
       RETURN
       END
 

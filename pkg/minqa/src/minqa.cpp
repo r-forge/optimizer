@@ -122,7 +122,7 @@ RcppExport SEXP newuoa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn) {
 
 /// Assorted error messages.
 extern "C" void F77_NAME(minqer)(const int *msgno) {
-    const char *msg;
+    const char *msg = (char*)NULL;
     switch(*msgno) {
     case 10:
     case 101:

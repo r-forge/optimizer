@@ -2,8 +2,10 @@
 #include <R_ext/RS.h>
 #include <R_ext/Rdynload.h>
 
+using namespace Rcpp;
+
 /// Wrapper for the objective function.  It is initialized to R's "c" function
-static Rcpp::Function cf("c");
+static Function cf("c");
 
 /// Apply is.finite to elements in a transformation
 static inline double check_finite(double x) {
@@ -14,45 +16,38 @@ static inline double check_finite(double x) {
 /// Fortran callable objective function evaluation.
 extern "C"
 double F77_NAME(calfun)(const int *n, const double x[], const int *ip) {
-    Rcpp::Environment rho(cf.environment());
-    Rcpp::IntegerVector cc(rho.get(".feval."));
-    Rcpp::NumericVector pp(rho.get(".par."));
-
+    Environment rho(cf.environment());
+    IntegerVector cc(rho.get(".feval."));
     cc[0]++;			// increment func eval count
+
+    NumericVector pp(rho.get(".par."));
     if (*n != pp.size())
 	Rf_error("In calfun: n = %d but length(.par.) = %d", *n, pp.size());
     std::transform(x, x + *n, pp.begin(), check_finite); //also copies
+    double f = as<double>(cf(pp)); // evaluate objective
 
-    double f = Rcpp::as<double>(cf(pp)); // evaluate objective
     if (*ip == 3) {		// print eval info when very verbose
 	Rprintf("%3d:%#14.8g:", cc[0], f);
 	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
 	Rprintf("\n");
     }
+
     return f;
 }
 
-/// Names of returned values
-//static Rcpp::Argument parnm("par"), fval("fval"), feval("feval");
-
-/// Return the number of function evaluations as an SEXP
-static SEXP fevalf() {
-    Rcpp::Environment rho(cf.environment());
-    return rho.get(".feval.");
-}
-
-/// Construct the classed list to return
-static SEXP rval(Rcpp::NumericVector par, std::string cnm) {
-    Rcpp::StringVector parnm(3), cl(2);
+/// Construct the named and classed list to return
+static SEXP rval(NumericVector par, std::string cnm) {
+    Environment rho(cf.environment());
+    SEXP feval = rho.get(".feval.");
+    StringVector cl(2);
     int ip = 0, n = par.size();
-    parnm = "par", "fval", "feval";
-    cl = cnm, "minqa";
+    double fval = F77_NAME(calfun)(&n, par.begin(), &ip);
+    cl[0] = cnm;
+    cl[1] = "minqa";
 
-    Rcpp::List rr(3);
-    rr = par, F77_NAME(calfun)(&n, par.begin(), &ip), fevalf();
-    rr.names() = parnm;
+    List rr = List::create(_["par"] = par, _["fval"] = fval, _["feval"] = feval);
     rr.attr("class") = cl;
-    return wrap(rr);
+    return rr;
 }
 
 /// Declaration of Powell's bobyqa
@@ -63,15 +58,16 @@ void F77_NAME(bobyqa)(const int *n, const int *npt, double X[],
 		      const int *iprint, const int *maxfun, double w[]);
 
 /// Interface for bobyqa
-RcppExport SEXP bobyqa_cpp(SEXP ppar, SEXP pxl, SEXP pxu, SEXP pcc, SEXP fn) {
-    Rcpp::Environment cc(pcc);
-    Rcpp::NumericVector par(ppar), xl(pxl), xu(pxu);
-    cf = Rcpp::Function(fn);	// install the objective function
-    double rb = Rcpp::as<double>(cc.get("rhobeg")),
-	re = Rcpp::as<double>(cc.get("rhoend"));
-    int ip = Rcpp::as<int>(cc.get("iprint")),
-	mxf = Rcpp::as<int>(cc.get("maxfun")),
-	n = par.size(), np = Rcpp::as<int>(cc.get("npt"));
+extern "C"
+SEXP bobyqa_cpp(SEXP ppar, SEXP pxl, SEXP pxu, SEXP pcc, SEXP fn) {
+    Environment cc(pcc);
+    NumericVector par(ppar), xl(pxl), xu(pxu);
+    cf = Function(fn);	// install the objective function
+    double rb = as<double>(cc.get("rhobeg")),
+	re = as<double>(cc.get("rhoend"));
+    int ip = as<int>(cc.get("iprint")),
+	mxf = as<int>(cc.get("maxfun")),
+	n = par.size(), np = as<int>(cc.get("npt"));
     std::vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
     
     F77_NAME(bobyqa)(&n, &np, par.begin(), xl.begin(), xu.begin(),
@@ -84,15 +80,16 @@ void F77_NAME(uobyqa)(const int *n, double X[],
 		      const double *rhobeg, const double *rhoend,
 		      const int *iprint, const int *maxfun, double w[]);
 
-RcppExport SEXP uobyqa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn) {
-    Rcpp::Environment cc(pctrl); 
-    Rcpp::NumericVector par(ppar);
-    cf = Rcpp::Function(pfn);
-    double rb = Rcpp::as<double>(cc.get("rhobeg")),
-	re = Rcpp::as<double>(cc.get("rhoend"));
-    int ip = Rcpp::as<int>(cc.get("iprint")),
-	mxf = Rcpp::as<int>(cc.get("maxfun")), n = par.size();
-    Rcpp::Environment rho(cf.environment());
+extern "C"
+SEXP uobyqa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn) {
+    Environment cc(pctrl); 
+    NumericVector par(ppar);
+    cf = Function(pfn);
+    double rb = as<double>(cc.get("rhobeg")),
+	re = as<double>(cc.get("rhoend"));
+    int ip = as<int>(cc.get("iprint")),
+	mxf = as<int>(cc.get("maxfun")), n = par.size();
+    Environment rho(cf.environment());
     std::vector<double>
 	w((n*(42+n*(23+n*(8+n))) + std::max(2*n*n + 4, 18*n)) / 4);
 
@@ -105,23 +102,25 @@ void F77_NAME(newuoa)(const int *n, const int *npt, double X[],
 		      const double *rhobeg, const double *rhoend,
 		      const int *iprint, const int *maxfun, double w[]);
 
-RcppExport SEXP newuoa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn) {
-    Rcpp::Environment cc(pctrl); 
-    Rcpp::NumericVector par(ppar);
-    double rb = Rcpp::as<double>(cc.get("rhobeg")),
-	re = Rcpp::as<double>(cc.get("rhoend"));
-    int ip = Rcpp::as<int>(cc.get("iprint")),
-	mxf = Rcpp::as<int>(cc.get("maxfun")),
-	n = par.size(), np = Rcpp::as<int>(cc.get("npt"));
+extern "C"
+SEXP newuoa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn) {
+    Environment cc(pctrl); 
+    NumericVector par(ppar);
+    double rb = as<double>(cc.get("rhobeg")),
+	re = as<double>(cc.get("rhoend"));
+    int ip = as<int>(cc.get("iprint")),
+	mxf = as<int>(cc.get("maxfun")),
+	n = par.size(), np = as<int>(cc.get("npt"));
     std::vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
-    cf = Rcpp::Function(pfn);
+    cf = Function(pfn);
 
     F77_NAME(newuoa)(&n, &np, par.begin(), &rb, &re, &ip, &mxf, &w[0]);
     return rval(par, "newuoa");
 }
 
 /// Assorted error messages.
-extern "C" void F77_NAME(minqer)(const int *msgno) {
+extern "C"
+void F77_NAME(minqer)(const int *msgno) {
     const char *msg = (char*)NULL;
     switch(*msgno) {
     case 10:
@@ -149,12 +148,12 @@ extern "C" void F77_NAME(minqer)(const int *msgno) {
 }
 
 /// Iteration output when rho changes and iprint >= 2
-extern "C" void
-F77_NAME(minqit)(const int *iprint, const double *rho, const int *nf,
-		 const double *fopt, const int *n, const double xbase[],
-		 const double xopt[]) {
+extern "C"
+void F77_NAME(minqit)(const int *iprint, const double *rho, const int *nf,
+		      const double *fopt, const int *n, const double xbase[],
+		      const double xopt[]) {
     if (*iprint >= 2) {
-	Rprintf("%#8.2g; %3d: %#14.8g,", *rho, *nf, *fopt);
+	Rprintf("%#8.2g: %3d: %#12g;", *rho, *nf, *fopt);
 	for(int i = 0; i < *n; i++) Rprintf("%#8g ", xbase[i] + xopt[i]);
 	Rprintf("\n");
     }
@@ -186,6 +185,3 @@ extern "C" void R_init_minqa(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
-
-
-

@@ -10,7 +10,7 @@ old.seed <- setRNG(test.rng)
 #########################################
 cat("optimx test froth-x ...\n")
 
-froth <- function(p){
+froth.f <- function(p){
 # Freudenstein and Roth function (Broyden, Mathematics of Computation 1965, p. 577-593)
 f <- rep(NA,length(p))
 f[1] <- -13 + p[1] + (p[2]*(5 - p[2]) - 2) * p[2]
@@ -19,7 +19,7 @@ sum (f * f)
 }
 
 p0 <- rpois(2,10)
-system.time(ans.optx <- optimx(par=p0, fn=froth, control=list(all.methods=TRUE, maxit=2500)))[1]
+system.time(ans.optx <- optimx(par=p0, fn=froth.f, control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
 
 optansout(ans.optx,filename="./ansfroth.txt")
 

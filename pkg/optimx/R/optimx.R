@@ -3,16 +3,18 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             control=list(),
              ...) {
 ##### OPEN ISSUES: (any date order)
+# 100328 -- ?? check if maximize works for Powell (minqa) routines
+# 100329 -- ?? make sure spg fixed on CRAN
 # 091220 -- ?? kkt1 tolerance. Do we want to let this be an input control?
+# 090612 -- ?? (Similar to above) Better choices for the tolerances in tests of equality for gradient / kkt tests?
 # 091018 -- ?? masks?
-# 091018 -- ?? exit when initial point is infeasible -- now just exit, should move to next problem?
-# 090929 -- ?? control structure is set up badly -- needs simplification 
+# 090929 -- ?? control structure could use simplification 
 # 090729 -- ?? simplify structure of answers -- avoid repetition and make easier to access
-# 090531 -- ?? need SNewton back in to keep Ramsay and Co. on side
+# 090531 -- ?? like SNewton back in to keep Ramsay and Co. on side
 # 090601 -- ?? Do we want hessevals to count Hessian evaluations?
-# 090612 -- ?? There may be better choices for the tolerances in tests of equality for gradient / kkt tests.
 
 ##### IMPLEMENTED: (reverse date order)
+# 100329 -- maximize tested for all but minqa, though spg needs fixup on CRAN.
 # 100215 -- Add newuoa and uobyqa to test minqa
 # 100212 -- ?? setting scaletol in controls ??
 # 091018 -- new control "starttest" so we can skip them DONE 091220
@@ -135,7 +137,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   fname<-deparse(substitute(fn))
   if (!is.null(control$trace) && control$trace>0) {
 	cat("fn is ",fname,"\n")
-	tmp<-readline("Continue?")
+#	tmp<-readline("Continue?")
   }
 
 ## Code more or less common to funtest, funcheck and optimx <<<
@@ -228,9 +230,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         if (! is.null(control$fnscale)) { 
  		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
         } # moved up 091216
+#  tmp<-readline("continue") ## ??
   }
-
-
 
 # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) { have.bounds<-TRUE # set this for convenience
@@ -286,7 +287,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   if ("numDeriv" %in% ipkgs[,1]) require(numDeriv, quietly=TRUE) 
   else stop("Install package `numDeriv'", call.=FALSE)
 
-
   if(ctrl$starttests) {
      if(! is.null(gr)){ # check gradient
        gname <- deparse(substitute(gr))
@@ -316,23 +316,27 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   # mode= is not strictly required. length defaults to 0. This sets up our answer vector.
 
   # List of methods in base or stats, namely those in optim(), nlm(), nlminb()
-#  bmeth <- c("BFGS", "CG", "Nelder-Mead", "SANN", "L-BFGS-B", "nlm", "nlminb", "DEoptim")
-# Remove SANN because it has no termination for optimality, only a maxit count for
+  bmeth <- c("BFGS", "CG", "Nelder-Mead", "SANN", "L-BFGS-B", "nlm", "nlminb", "DEoptim")
+# SANN has no termination for optimality, only a maxit count for
 #    the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #    for smooth functions. Code left in for those who may need it.
-  bmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb")
   # List of methods in packages. 
-  pmeth <- c("spg", "ucminf", "Rcgmin", "bobyqa", "uobyqa", "newuoa")
+#  pmeth <- c("spg", "ucminf", "Rcgmin", "bobyqa", "uobyqa", "newuoa")
+# ?? 20100330 remove minqa routines while Doug Bates sorts out issues of no fval feval
+  pmeth <- c("spg", "ucminf", "Rcgmin")
   allmeth <- c(bmeth, pmeth)
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "bobyqa") 
-  if (ctrl$all.methods) {
-	method<-allmeth
+  if (ctrl$all.methods) { # Changes method vector!
+#	method<-allmeth
+#        method<- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb","spg", "ucminf", "Rcgmin")
+	method<- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb","spg", "ucminf", "Rcgmin","bobyqa","uobyqa","newuoa") # temp 100328 for testing
+## For now leave out Powell methods in all.methods. Note we can call 
 	if (ctrl$trace>0) {
 		cat("all.methods is TRUE -- Using all available methods\n")
 		print(method)
 	}
-  }
+  } 
 
   # Partial matching of method string allowed
   method <- unique(match.arg(method, allmeth, several.ok=TRUE) )
@@ -435,6 +439,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         if (class(ans) != "try-error") { 
 		ans$conv <- ans$convergence
 		#      convergence: An integer code. '0' indicates successful convergence.
+                if (meth=="SANN") ans$conv = 1 # always the case for SANN (but it reports 0!)
 	        ans$fevals<-ans$counts[1] # save function and gradient count information
 	        ans$gevals<-ans$counts[2]
         	ans$counts<-NULL # and erase the counts element now data is saved
@@ -443,13 +448,16 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
                 ans$conv<-9999 # failed in run
 		if (ctrl$trace) cat("optim function evaluation failure\n")
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
         }
+	if (ctrl$maximize) {
+		cat("optim:\n")
+		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       }   # end if using optim() methods
 ## --------------------------------------------
       else if (meth == "nlminb") {
@@ -477,20 +485,26 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
                 ans$conv<-9999 # failed in run
 		if (ctrl$trace) cat("nlminb function evaluation failure\n")
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
         }
+	if (ctrl$maximize) {
+		cat("nlminb:\n")
+		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (meth == "nlm") { # Use stats package nlm routine
-        ufn <- fn # we don't want to change the user function object, so create a copy
-        if (!is.null(gr)) {
-	   attr(ufn, "gradient") <- ugr(par, ...) 
-           if (!is.null(hess)) attr(ufn, "hessian") <- hess(par, ...) # Only change attibute if gr defined too
+        tufn <- ufn # we don't want to change the user function object, so create a copy
+        if (!is.null(ugr)) {
+	   attr(tufn, "gradient") <- ugr(par, ...) 
+           if (!is.null(hess)) {
+		if (ctrl$maximize) attr(tufn, "hessian") <- - hess(par, ...) # Only change attibute if gr defined too
+			else attr(tufn, "hessian") <-  hess(par, ...)
+		}
         }
 	## 091215 added control for iteration limit
 	if (! is.null(mcontrol$maxit)) { iterlim<-mcontrol$maxit } 
@@ -503,6 +517,15 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		print.level<-mcontrol$trace
 		mcontrol$trace<-NULL
 	}
+#	cat("nlm control:\n ") # ?? debug	
+#	print(mcontrol) ## ??
+#	print(par)
+#	print(ufn)
+#	print(ugr)
+#	print(lower)
+#	print(upper)
+#	tmp<-readline("continue") # ??
+        
         time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
         if (class(ans) != "try-error") {
 		ans$conv <- ans$code
@@ -520,21 +543,35 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	} else {
 		if (ctrl$trace > 0) cat("nlm failed for this problem\n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
         	ans$niter<-NA
 	}
+	if (ctrl$maximize) {
+#		cat("nlm:\n")
+#		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       } # end if using nlm
 ## --------------------------------------------
       else if (meth == "spg") { # Use BB package routine spg as minimizer
+#	cat("spg control:\n ") # ?? debug	
+#	print(mcontrol) ## ??
+#	print(par)
+#	print(ufn)
+#	print(ugr)
+#	print(lower)
+#	print(upper)
+#	tmp<-readline("continue") # ??
+        
+##        time <- system.time(ans <- try(spg(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper,  
+##		control=list(maxit=1500, trace=FALSE), ...), silent=TRUE))[1]
         time <- system.time(ans <- try(spg(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper,  
-		control=list(maxit=1500, trace=FALSE), ...), silent=TRUE))[1]
+		control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans) != "try-error") { 
    	   ans$conv <- ans$convergence
            ans$fevals<-ans$feval
@@ -545,16 +582,19 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         } else { # spg failed
 		if (ctrl$trace > 0) cat("spg failed for this problem\n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
         	ans$niter<-NA
         }
+	if (ctrl$maximize) {
+#		cat("spg:\n")
+#		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       }  # end if using spg
 ## --------------------------------------------
       else if (meth == "ucminf") {
@@ -589,21 +629,36 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         } else { # ucminf failed
 		if (ctrl$trace > 0) cat("ucminf failed for this problem\n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
         	ans$niter<-NA
         }
+	if (ctrl$maximize) {
+#		cat("ucminf:\n")
+#		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       }  ## end if using ucminf
 ## --------------------------------------------
 ###### progress point #########
       else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
 	bdmsk<-rep(1,npar)
+	## ?? mcontrol$maxit<-ctrl$maxit
+	mcontrol$maxit<-NULL
+	mcontrol$trace<-NULL
+	if (ctrl$trace) mcontrol$trace<-1
+#	cat("Rcgmin mcontrol:\n ") # ?? debug	
+#	print(mcontrol) ## ??
+#	print(par)
+#	print(ufn)
+#	print(ugr)
+#	print(lower)
+#	print(upper)
+#	tmp<-readline("continue") # ??
         time <- system.time(ans <- try(Rcgmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans) != "try-error") {
 		ans$conv <- ans$convergence
@@ -614,16 +669,20 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         } else {
 		if (ctrl$trace>0) cat("Rcgmin failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
         	ans$niter<-NA
         }
+	if (ctrl$maximize) {
+#		cat("Rcgmin:\n")
+#		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
+#	tmp<-readline("continue") # ??
       }  ## end if using Rcgmin
 ## --------------------------------------------
       else if (meth == "bobyqa") {# Use bobyqa routine from minqa package
@@ -645,16 +704,19 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         } else {
 		if (ctrl$trace>0) cat("bobyqa failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
         	ans$niter<-NA
         }
+	if (ctrl$maximize) {
+#		cat("bobyqa:\n")
+#		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       }  ## end if using bobyqa
 ## --------------------------------------------
       else if (meth == "uobyqa") {# Use uobyqa routine from minqa package
@@ -676,16 +738,19 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         } else {
 		if (ctrl$trace>0) cat("uobyqa failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
         	ans$niter<-NA
         }
+	if (ctrl$maximize) {
+#		cat("uobyqa:\n")
+#		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       }  ## end if using uobyqa
 ## --------------------------------------------
       else if (meth == "newuoa") {# Use newuoa routine from minqa package
@@ -707,17 +772,49 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         } else {
 		if (ctrl$trace>0) cat("newuoa failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		if (ctrl$maximize) {
-			ans$value= -ctrl$badval
-		} else {
-			ans$value= ctrl$badval
-		}
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 
         	ans$niter<-NA
         }
+	if (ctrl$maximize) {
+#		cat("newuoa:\n")
+#		print(ans)
+		ans$value= -ans$value
+#		cat("reversed ans=",ans$value,"\n")
+#		tmp<-readline("continue")
+	}
       }  ## end if using newuoa
+## --------------------------------------------
+##      else if (meth == "DEoptim") {# Use DEoptim package
+##        stop("This code for DEoptim has not been verified")
+##        if (! is.null(mcontrol$maxit)) { 
+##		mcontrol$maxfun<-mcontrol$maxit
+##	} else {
+##		mcontrol$maxfun<-500000 # ?? default at 091018, but should it be changed?!!
+##	}
+##        mcontrol$iprint<-mcontrol$trace
+#        time <- system.time(ans <- try(DEoptim(fn=fn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
+##        if (class(ans) != "try-error") {
+##		ans$conv <- 0
+##                if (ans$feval > mcontrol$maxfun) {
+##			ans$conv <- 1 # too many evaluations
+##                }
+##	        ans$fevals<-ans$feval
+##	        ans$gevals<-NA
+##		ans$value<-ans$fval 
+##        } else {
+##		if (ctrl$trace>0) cat("bobyqa failed for current problem \n")
+##       		ans$conv<-9999
+##	        ans$fevals<-NA
+##	        ans$gevals<-NA
+##		ans$value<-NA
+##        }
+##        ans$niter<-NULL
+##      }  ## end if using DEoptim
+## --------------------------------------------
+
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD: ", meth, sep='')
              stop(errmsg, call.=FALSE)
@@ -765,6 +862,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                       ans$ngatend <- ngatend
                       ans$nhatend <- nhatend
                       hev<- try(eigen(nhatend)$values) # 091215 use try in case of trouble
+		      ## ?? FIXUP FOR maximize
                       if (class(hev) != "try-error") {
                           ans$evnhatend <- hev # answers are OK
                           # now look at Hessian
@@ -825,8 +923,12 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
           xtimes<- lapply(ans.ret, function(x) x$systime)
           if (ctrl$trace) { cat("Done systime\n") }
       }  ## end post-processing of successful solution
-      if (ctrl$trace) { cat("Check if follow.on from method ",meth,"\n") }
-      if (ctrl$follow.on) par <- ans$par # save parameters for next method
+      	if (ctrl$trace) { cat("Check if follow.on from method ",meth,"\n") }
+      	if (ctrl$follow.on) {
+		par <- ans$par # save parameters for next method
+		cat("FOLLOW ON!\n")
+#		tmp<-readline("continue")
+	}
     } ## end loop over method (index i)
     if (ctrl$trace) { cat("Consolidate ans.ret\n") }
     if (length(pars) > 0) { # cannot save if no answers
@@ -838,6 +940,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	# save("ansout",file="unsortedans")
 
     	# sort by function value (DECREASING so best is last and follow.on gives natural ordering)
+	# ?? FIXUP FOR maximize
     	if (ctrl$trace) { cat("Sort results\n") }
     	if (ctrl$sort.result) { # sort by fvalues decreasing
         	ord <- rev(order(as.numeric(ansout$fvalues)))

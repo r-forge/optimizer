@@ -1,6 +1,6 @@
 Package: optimx
-Version: 0.4
-Date: 2010-02-15
+Version: 0.6
+Date: 2010-03-28
 Title: A replacement and extension of the optim() function
 Author: John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
 Maintainer: John C Nash <nashjc@uottawa.ca>

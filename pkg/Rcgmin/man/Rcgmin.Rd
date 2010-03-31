@@ -2,11 +2,14 @@
 \alias{Rcgmin}
 \encoding{UTF-8}
 \title{An R implementation of a nonlinear conjugate gradient algorithm with the Dai / Yuan
-   update and restart. Based on Nash (1979) Algorithm 22 for main structure.}
+   update and restart. Based on Nash (1979) Algorithm 22 for its main structure.}
 \description{
   The purpose of \code{Rcgmin} is to minimize an unconstrained or bounds
   (box) and mask constrained function 
-  of many parameters by a nonlinear conjugate gradients method. 
+  of many parameters by a nonlinear conjugate gradients method. This code is
+  entirely in R to allow users to explore and understand the method. It also
+  allows bounds (or box) constraints and masks (equality constraints) to be
+  imposed on parameters. 
 }
 \usage{
    Rcgmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
@@ -139,30 +142,28 @@ genrosea
 genrosenl
 genrosenx
 
-# How about some maximization tests??
-# maxtest function -- a function to maximize
-# ref??
 
-
-maxtest.f <- function(x) {
- n <- length(x)
- res<-(seq(3,(n+2))+0.25*rep(1,n)-x)
- ff<-exp(-sum(res*res)/25)
- ff
- }
-
-maxtest.g <- function(x) {
- n <- length(x)
- res<-seq(3,(n+2))+0.25*rep(1,n)-x
- g<- 2*res*exp(-sum(res*res)/25)/25
- g
+maxfn<-function(x) {
+      	n<-length(x)
+	ss<-seq(1,n)
+	f<-10-(crossprod(x-ss))^2
+	f<-as.numeric(f)
+	return(f)
 }
+
+
+negmaxfn<-function(x) {
+	f<-(-1)*maxfn(x)
+	return(f)
+}
+
 
 n<-6
 xx<-rep(1,n)
-ansmax<-Rcgmin(xx,maxtest.f, maxtest.g,control=list(maximize=TRUE,trace=1))
-ansmaxn<-Rcgmin(xx,maxtest.f, control=list(maximize=TRUE,trace=1))
-
+ansmax<-Rcgmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
+print(ansmax)
+ansnegmax<-Rcgmin(xx,negmaxfn, control=list(trace=1))
+print(ansnegmax)
 
 }
 

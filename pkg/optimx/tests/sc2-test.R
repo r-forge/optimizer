@@ -34,27 +34,27 @@ vec <- 1:n
 }
 
 p0 <- runif(500,min=-1, max=1)
-system.time(ans.optxf <- optimx(par=p0, fn=sc2.f, control=list(maxit=2500, all.methods=TRUE)))[1]
+system.time(ans.optxf <- optimx(par=p0, fn=sc2.f, control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
 
 optansout(ans.optxf,filename="./anssc2f.txt")
 
 
 
 system.time(neg.ans.optxf <- optimx(par=p0, fn=neg.sc2.f, 
-              control=list(maxit=2500, maximize=TRUE, all.methods=TRUE)))[1]
+              control=list(maxit=2500, maximize=TRUE,save.failures=TRUE, all.methods=TRUE)))[1]
 
 optansout(neg.ans.optxf,filename="./anssc2negf.txt")
 
 
 
 system.time(ans.optxg <- optimx(par=p0, fn=sc2.f, gr=sc2.g,
-   control=list(maxit=2500, all.methods=TRUE)))[1]
+   control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
 
 optansout(ans.optxg,filename="./anssc2g.txt")
 
 
 system.time(neg.ans.optxg <- optimx(par=p0, fn=neg.sc2.f, gr=neg.sc2.g,
-   control=list(maxit=2500, maximize=TRUE, all.methods=TRUE)))[1]
+   control=list(maxit=2500, maximize=TRUE,save.failures=TRUE,all.methods=TRUE)))[1]
 
 optansout(neg.ans.optxg,filename="./anssc2negg.txt")
 

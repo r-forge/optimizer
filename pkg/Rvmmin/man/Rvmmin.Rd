@@ -13,6 +13,11 @@ acceptable point is found, and the matrix B is updated using a BFGS formula. If 
 acceptable point can be found, we reset B to the identity i.e., the search direction
 becomes the negative gradient. If the search along the negative gradient is unsuccessful,
 the method terminates. 
+
+  This code is
+  entirely in R to allow users to explore and understand the method. It also
+  allows bounds (or box) constraints and masks (equality constraints) to be
+  imposed on parameters. 
 }
 \usage{
    Rvmmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
@@ -132,31 +137,28 @@ genrosea
 genrosenl
 genrosenx
 
-# How about some maximization tests??
-# maxtest function -- a function to maximize
-# ref??
 
-
-maxtest.f <- function(x) {
- n <- length(x)
- res<-(seq(3,(n+2))+0.25*rep(1,n)-x)
- ff<-exp(-sum(res*res)/25)
- ff
- }
-
-maxtest.g <- function(x) {
- n <- length(x)
- res<-seq(3,(n+2))+0.25*rep(1,n)-x
- g<- 2*res*exp(-sum(res*res)/25)/25
- g
+maxfn<-function(x) {
+      	n<-length(x)
+	ss<-seq(1,n)
+	f<-10-(crossprod(x-ss))^2
+	f<-as.numeric(f)
+	return(f)
 }
+
+
+negmaxfn<-function(x) {
+	f<-(-1)*maxfn(x)
+	return(f)
+}
+
 
 n<-6
 xx<-rep(1,n)
-ansmax<-Rvmmin(xx,maxtest.f, maxtest.g,control=list(maximize=TRUE,trace=1))
-ansmaxn<-Rvmmin(xx,maxtest.f, control=list(maximize=TRUE,trace=1))
-
-
+ansmax<-Rvmmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
+print(ansmax)
+ansnegmax<-Rvmmin(xx,negmaxfn, control=list(trace=1))
+print(ansnegmax)
 }
 \keyword{nonlinear}
 \keyword{optimize}

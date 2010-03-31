@@ -15,7 +15,7 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 #         For historical reasons, we use the same array as an indicator that a
 #         parameter is at a lower bound (-3) or upper bound (-1)
 #  control = list of control parameters
-#           maxfeval = a limit on the function evaluations (default 10000)
+#           maxit = a limit on the number of iterations (default 500)
 #           maximize = TRUE to maximize the function (default FALSE)
 #           trace = 0 (default) for no output, 
 #                  >0 for output (bigger => more output)
@@ -46,12 +46,12 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 #  Date:  April 2, 2009; revised July 28, 2009
 #################################################################
   # control defaults -- idea from spg
-  ctrl<-list(maxfeval=10000, maximize=FALSE, trace=0, eps=1.0e-7, usenumDeriv=FALSE)
+  ctrl<-list(maxit=500, maximize=FALSE, trace=0, eps=1.0e-7, usenumDeriv=FALSE)
   namc <- names(control)
   if (! all(namc %in% names(ctrl)) )
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
-  ctrl[namc ] <- control
-  maxfeval <- ctrl$maxfeval  # limit on function evaluations
+  ctrl[namc] <- control
+  maxit <- ctrl$maxit  # limit on function evaluations
   maximize <- ctrl$maximize  # TRUE to maximize the function
   trace<- ctrl$trace         # 0 for no output, >0 for output (bigger => more output)
   if (trace>2) cat("trace = ",trace,"\n")
@@ -97,6 +97,7 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   }
   bvec <- par # copy the parameter vector
   n <- length(bvec) # number of elements in par vector
+  maxfeval<-round(sqrt(n+1)*maxit) # change 091219
   ig <- 0 # count gradient evaluations
   ifn <- 1 # count function evaluations (we always make 1 try below)
   stepredn <- 0.15 # Step reduction in line search
@@ -157,7 +158,10 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
     } # end if bounds
 ############## end bounds check #############
 # Initial function value -- may NOT be at initial point specified by user.
+  cat("Try function at initial point:")
+  print(bvec)
   f <- try(do.call("myfn", append(list(bvec), fargs )), silent=TRUE) # Compute the function at initial point.
+  cat("f=",f,"\n")
   if ( class(f) == "try-error") { 
      msg<-"Initial point is infeasible."
      if(trace > 0) cat(msg,"\n")
@@ -195,6 +199,13 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
       }
       par<-bvec # save best parameters
       ig<-ig+1
+      if (ig > maxit) {
+        msg<-paste("Too many gradient evaluations (> ",maxit,") ", sep='')
+        if (trace > 0 ) cat(msg,"\n")
+        ans<-list(par, fmin, c(ifn, ig), 1, msg) # 1 indicates not converged in function or gradient limit
+        names(ans)<-c("par", "value", "counts", "convergence", "message")
+        return(ans)
+      }
       g<-mygr(bvec, ...)
       if(bounds) {
         ## Bounds and masks adjustment of gradient ##
@@ -313,6 +324,10 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
             f <- myfn(bvec, ...) # Because we need the value for linesearch, don't use try()
             #  instead preferring to fail out, which will hopefully be unlikely.
             ifn<-ifn+1
+            if (is.na(f) || (! is.finite(f))) { 
+		warning("Rcgmin - undefined function")
+		f<-.Machine$double.xmax 
+	    }
             if (f < fmin) {
               f1 <- f # Hold onto value 
             } else {

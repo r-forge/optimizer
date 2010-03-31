@@ -38,12 +38,20 @@
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }
 \details{
-  Functions \code{fn} must return a numeric value.
-  The \code{control} argument is a list.
-    Successful completion.
-    The codes \code{Rcgmin} for R are still a work in progress, so users should watch
-    the console output.
+   Functions \code{fn} must return a numeric value.
+
+   The \code{control} argument is a list.
+   \describe{
+   \item{maxit}{A limit on the number of iterations (default 500). Note that this is 
+      used to compute a quantity \code{maxfeval}<-round(sqrt(n+1)*maxit) where n is the
+      number of parameters to be minimized.}
+   \item{maximize}{Set TRUE to maximize the function (default FALSE).}
+   \item{trace}{Set 0 (default) for no output, >0 for trace output
+      (larger values imply more output).}
+    \item{}{The source code \code{Rcgmin} for R is likely to remain a work in progress for some time, 
+    so users should watch the console output.}
   }
+}
 \value{
   A list with components:
   \item{par}{The best set of parameters found.}
@@ -52,9 +60,10 @@
           'fn' and 'gr' respectively. This excludes those calls needed
           to compute the Hessian, if requested, and any calls to 'fn'
           to compute a finite-difference approximation to the gradient.}
-  \item{convergence}{An integer code. '0' indicates successful convergence.
+  \item{convergence}{An integer code. 
+	 '0' indicates successful convergence.
          '1' indicates that the function evaluation count 'maxfeval' was reached.
-          '2' indicates initial point is infeasible.}
+         '2' indicates initial point is infeasible.}
   \item{message}{A character string giving any additional information returned
           by the optimizer, or 'NULL'.}
 }

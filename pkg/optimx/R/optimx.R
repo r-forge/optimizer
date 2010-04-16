@@ -3,8 +3,6 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             control=list(),
              ...) {
 ##### OPEN ISSUES: (any date order)
-# 100328 -- ?? check if maximize works for Powell (minqa) routines
-# 100329 -- ?? make sure spg fixed on CRAN
 # 091220 -- ?? kkt1 tolerance. Do we want to let this be an input control?
 # 090612 -- ?? (Similar to above) Better choices for the tolerances in tests of equality for gradient / kkt tests?
 # 091018 -- ?? masks?
@@ -14,6 +12,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 090601 -- ?? Do we want hessevals to count Hessian evaluations?
 
 ##### IMPLEMENTED: (reverse date order)
+# 100328 -- check if maximize works for Powell (minqa) routines -- 100415
+# 100329 -- make sure spg fixed on CRAN -- 100415
 # 100329 -- maximize tested for all but minqa, though spg needs fixup on CRAN.
 # 100215 -- Add newuoa and uobyqa to test minqa
 # 100212 -- ?? setting scaletol in controls ??

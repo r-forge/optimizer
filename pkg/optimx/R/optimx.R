@@ -185,23 +185,23 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
       if (is.null(gr)) { # no analytic gradient
          if (npar > 50) {
            ctrl$kkt=FALSE # too much work when large number of parameters
-           if (ctrl$trace) cat("gr NULL, npar > 50, kkt set FALSE\n")
+           if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
          }
       } else {
          if (npar > 500) {
             ctrl$kkt=FALSE # too much work when large number of parameters, even with analytic gradient
-            if (ctrl$trace) cat("gr NULL, npar > 50, kkt set FALSE\n")
+            if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
          }
       }
     } else { # kkt is set
       if (control$kkt) {
         if (is.null(gr)) {
            if (npar > 50) {
-             if (ctrl$trace & ctrl$dowarn) warning("Computing hessian for gr NULL, npar > 50, can be slow\n")
+             if ((ctrl$trace>0) & ctrl$dowarn) warning("Computing hessian for gr NULL, npar > 50, can be slow\n")
            }
         } else {
            if (npar > 500) {
-             if (ctrl$trace & ctrl$dowarn) warning("Computing hessian even with gradient code, npar > 500, can be slow\n")
+             if ((ctrl$trace>0) & ctrl$dowarn) warning("Computing hessian even with gradient code, npar > 500, can be slow\n")
            }
         }
       }
@@ -287,24 +287,24 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   if(ctrl$starttests) {
      if(! is.null(gr)){ # check gradient
        gname <- deparse(substitute(gr))
-       if (ctrl$trace) cat("Analytic gradient from function ",gname,"\n\n")
+       if (ctrl$trace>0) cat("Analytic gradient from function ",gname,"\n\n")
           fval <- ufn(par,...) 
           gn <- grad(func=ufn, x=par,...) # 
           ga <- ugr(par, ...)
           # Now test for equality (090612: ?? There may be better choices for the tolerances.
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(gn-ga))/(1 + abs(fval)) >= teps) stop("Gradient function might be wrong - check it! \n", call.=FALSE)
-       } else if (ctrl$trace) cat("Analytic gradient not made available.\n")
+       } else if (ctrl$trace>0) cat("Analytic gradient not made available.\n")
 
        if(! is.null(hess)){ # check Hessian
           hname <- deparse(substitute(hess))
-          if (ctrl$trace) cat("Analytic hessian from function ",hname,"\n\n")
+          if (ctrl$trace>0) cat("Analytic hessian from function ",hname,"\n\n")
           hn <- hessian(func=ufn, x=par,...) # ?? should we use dotdat
           ha <- hess(par, ...)
           # Now test for equality
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) stop("Hessian function might be wrong - check it! \n", call.=FALSE)
-       } else if (ctrl$trace) cat("Analytic Hessian not made available.\n")
+       } else if (ctrl$trace>0) cat("Analytic Hessian not made available.\n")
    }
 ## >>> End of code common to funtest, funcheck and optimx, with mods for local needs
 
@@ -393,7 +393,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
 		if (ctrl$dowarn) warning(warnstr)
 	}
-        if(ctrl$trace) {
+        if(ctrl$trace>0) {
 		cat("Scale check -- log parameter ratio=",srat$lpratio,"  log bounds ratio=",srat$lbratio,"\n")
 	}
     }
@@ -406,7 +406,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   for (i in 1:nmeth) { # loop over the methods
       meth <- method[i] # extract the method name
       conv <- -1 # indicate that we have not yet converged
-      if (ctrl$trace) cat("Method: ", meth, "\n") # display the method being used
+      if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
       # Extract control information e.g., maxit
       # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
       # create local control list for a single method -- this is one of the key issues for optimx
@@ -443,7 +443,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	} else { # bad result -- What to do?
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
                 ans$conv<-9999 # failed in run
-		if (ctrl$trace) cat("optim function evaluation failure\n")
+		if (ctrl$trace>0) cat("optim function evaluation failure\n")
 		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
         }
@@ -479,7 +479,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	} else { # bad result -- What to do?
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
                 ans$conv<-9999 # failed in run
-		if (ctrl$trace) cat("nlminb function evaluation failure\n")
+		if (ctrl$trace>0) cat("nlminb function evaluation failure\n")
 		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
         }
@@ -612,7 +612,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
       else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
 	bdmsk<-rep(1,npar)
 	mcontrol$trace<-NULL
-	if (ctrl$trace) mcontrol$trace<-1
+	if (ctrl$trace>0) mcontrol$trace<-1
         time <- system.time(ans <- try(Rcgmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- ans$convergence
@@ -766,7 +766,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 ## Post-processing -- Kuhn Karush Tucker conditions
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
       times[i] <- times[i] + time # Accumulate time for a single method (in case called multiple times)
-      if (ctrl$trace) { cat("Post processing for method ",meth,"\n") }
+      if (ctrl$trace>0) { cat("Post processing for method ",meth,"\n") }
       if ( ctrl$save.failures || (ans$conv <= 1) ){  # Save the solution if converged or directed to save
           j <- j + 1 ## increment the counter for (successful) method/start case
           if (ctrl$trace & ans$conv==0) cat("Successful convergence! \n")  ## inform user we've succeeded
@@ -776,7 +776,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
           ans$kkt2<-NA
           if(ctrl$kkt && (ans$conv != 9999)) { # need to avoid test when method failed
               ## 091215 add dots here!
-              if (ctrl$trace) cat("Compute gradient approximation at finish of ",method[i],"\n")
+              if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
               gradOK<-FALSE
               if (is.null(gr)) {
                   ngatend<-try(grad(ufn, ans$par, ...))
@@ -784,11 +784,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                   ngatend<-try(ugr(ans$par, ...)) # Gradient at solution
               }
               if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
-              if ( (! gradOK) & ctrl$trace) cat("Gradient computations failure!\n") # ???? remove
+              if ( (! gradOK) & (ctrl$trace>0)) cat("Gradient computations failure!\n") # ???? remove
               if (gradOK) {
                   # test gradient
                   ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
-                  if (ctrl$trace) cat("Compute Hessian approximation at finish of ",method[i],"\n")
+                  if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
                   if (is.null(gr)) {
                       nhatend<-try(hessian(ufn, ans$par, ...))
                   } else {
@@ -818,7 +818,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                       } else {
                           warnstr<-paste("Eigenvalue failure after method ",method[i],sep='')
                           if (ctrl$dowarn) warning(warnstr)
-                          if (ctrl$trace) {
+                          if (ctrl$trace>0) {
                               cat("Eigenvalue failure!\n")
                               print(nhatend)
                           }
@@ -826,64 +826,64 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                   } else { # computing Hessian has failed
                       warnstr<-paste("Hessian not computable after method ",method[i],sep='')
                       if (ctrl$dowarn) warning(warnstr)
-                      if (ctrl$trace) cat(warnstr,"\n") 
+                      if (ctrl$trace>0) cat(warnstr,"\n") 
                   }
               } else { # gradient failure
                   warnstr<-paste("Gradient not computable after method ",method[i],sep='')
                   if (ctrl$dowarn) warning(warnstr)
-                  if (ctrl$trace) cat(warnstr,"\n") 
+                  if (ctrl$trace>0) cat(warnstr,"\n") 
               }
           } # end kkt test
           ans$systime <- time
           # Do we want more information saved?
-          if (ctrl$trace) { 
+          if (ctrl$trace>0) { 
 		cat("Save results from method ",meth,"\n") 
 	  #	print(ans)
 	  }
           ans.ret[[j]] <- ans  ## save the answer. [[]] indexes the CONTENTS of the list
           ans.ret[[j]]$method <- method[i] # and we tag on the method with the $ linker
-          if (ctrl$trace) { cat("Assemble the answers\n") }
+          if (ctrl$trace>0) { cat("Assemble the answers\n") }
           #    attr(ans.ret, "CPU times (s)") <- times ## save the accumulated times 
-          #    if (ctrl$trace) { cat("Done CPU times\n") }
+          #    if (ctrl$trace>0) { cat("Done CPU times\n") }
           pars <- lapply(ans.ret, function(x) x$par)
-#          if (ctrl$trace) { cat("Done parameters\n") }
+#          if (ctrl$trace>0) { cat("Done parameters\n") }
           vals <- lapply(ans.ret, function(x) x$value)
-#          if (ctrl$trace) { cat("Done value\n") }
+#          if (ctrl$trace>0) { cat("Done value\n") }
           meths <- lapply(ans.ret, function(x) x$method)
-#          if (ctrl$trace) { cat("Done method\n") }
+#          if (ctrl$trace>0) { cat("Done method\n") }
           fevals<- lapply(ans.ret, function(x) x$fevals)
-#          if (ctrl$trace) { cat("Done fevals\n") }
+#          if (ctrl$trace>0) { cat("Done fevals\n") }
           gevals<- lapply(ans.ret, function(x) x$gevals)
-#          if (ctrl$trace) { cat("Done gevals\n") }
+#          if (ctrl$trace>0) { cat("Done gevals\n") }
           nitns <-  lapply(ans.ret, function(x) x$niter)
-#          if (ctrl$trace) { cat("Done niter\n") }
+#          if (ctrl$trace>0) { cat("Done niter\n") }
           convcode<- lapply(ans.ret, function(x) x$conv)
-#          if (ctrl$trace) { cat("Done conv\n") }
+#          if (ctrl$trace>0) { cat("Done conv\n") }
           kkt1<- lapply(ans.ret, function(x) x$kkt1)
-#          if (ctrl$trace) { cat("Done kkt1\n") }
+#          if (ctrl$trace>0) { cat("Done kkt1\n") }
           kkt2<- lapply(ans.ret, function(x) x$kkt2)
-#          if (ctrl$trace) { cat("Done kkt2\n") }
+#          if (ctrl$trace>0) { cat("Done kkt2\n") }
           xtimes<- lapply(ans.ret, function(x) x$systime)
-#          if (ctrl$trace) { cat("Done systime\n") }
+#          if (ctrl$trace>0) { cat("Done systime\n") }
       }  ## end post-processing of successful solution
-#      	if (ctrl$trace) { cat("Check if follow.on from method ",meth,"\n") }
+#      	if (ctrl$trace>0) { cat("Check if follow.on from method ",meth,"\n") }
       	if (ctrl$follow.on) {
 		par <- ans$par # save parameters for next method
 		cat("FOLLOW ON!\n")
 	}
     } ## end loop over method (index i)
-#    if (ctrl$trace) { cat("Consolidate ans.ret\n") }
+#    if (ctrl$trace>0) { cat("Consolidate ans.ret\n") }
     if (length(pars) > 0) { # cannot save if no answers
 	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
                         itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
-#    	if (ctrl$trace) { cat("Add details\n") }
+#    	if (ctrl$trace>0) { cat("Add details\n") }
     	attr(ansout, "details") <- ans.ret
 	# save to file
 	# save("ansout",file="unsortedans")
 
     	# sort by function value (DECREASING so best is last and follow.on gives natural ordering)
 	# ?? FIXUP FOR maximize
-    	if (ctrl$trace) { cat("Sort results\n") }
+    	if (ctrl$trace>0) { cat("Sort results\n") }
     	if (ctrl$sort.result) { # sort by fvalues decreasing
         	ord <- rev(order(as.numeric(ansout$fvalues)))
         	ansout <- ansout[ord, ]

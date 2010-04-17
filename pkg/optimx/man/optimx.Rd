@@ -385,7 +385,7 @@ print(ans2)
 ## The next line will fail if executed because 'hessian = TRUE' no longer allowed
 # ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
 cat("\n\n")
-ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=TRUE))
+ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=1))
 print(ans4)
 cat("\n\n")
 ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))

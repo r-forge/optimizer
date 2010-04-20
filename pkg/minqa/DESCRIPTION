@@ -10,3 +10,4 @@ Description: Derivative-free optimization by quadratic approximation based
 License: GPL (>= 2)
 Depends: Rcpp (>= 0.7.12)
 LinkingTo: Rcpp
+SystemRequirements: GNU make

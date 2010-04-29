@@ -1,3 +1,7 @@
+Changes in BB version 2010.4-2 
+	   
+   o	Adjusted test tolerances for 64 bit Windows platform.
+
 Changes in BB version 2010.4-1 
 	   
    o	Added argument quiet=FALSE to several functions, to be able to suppress

@@ -1,5 +1,8 @@
-Changes in BB version 2010.4-2 
+Changes in BB version 2010.5-1 
 	   
+   o	Changed BBsolve to avoid using Nelder-Mead in one dimensional problems
+	(because the warning message is confusing).
+
    o	Adjusted test tolerances for 64 bit Windows platform.
 
 Changes in BB version 2010.4-1 

@@ -32,7 +32,7 @@ times<-matrix(NA,nrow=3,ncol=4)
 
 
 for (ii in ni) {
-   n<-10^ii
+   n<-4^ii # Change from 10^ii 20100525 to reduce testing time
    cat("n=",n,"\n")
    afname<-paste("ansbroydt",n,"UG",sep='')
    x0<-rep(pi,n)
@@ -69,3 +69,4 @@ for (ii in ni) {
 
 cat("Cols are UG, UN, BG, BN times\n")
 print(times)
+

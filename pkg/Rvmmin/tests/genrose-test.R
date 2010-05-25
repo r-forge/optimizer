@@ -61,7 +61,7 @@ genrose.g <- function(x, gs=NULL){
 }
 
 ##  Some timing results
-xx<-rep(2,500)
+## xx<-rep(2,500)
 ##k100v<-system.time(gra<-genrose.g(xx,gs=100.0))
 ##k100v0<-system.time(gra<-genrose.g0(xx,gs=100.0))
 ##  k100v
@@ -72,14 +72,14 @@ xx<-rep(2,500)
 ##    3.188   0.004   3.198 
 ##  
 
-
+xx<-rep(2,50)
 t1k<-system.time(ans<-Rvmmin(xx,genrose.f,genrose.g0,control=list(trace=1),gs=100.0))[1]
 cat("final fn value =",ans$value,"\n")
 cat("time = ",t1k,"\n")
 
 
 cat("\n\n Masked test \n")
-xx<-rep(2,500)
+xx<-rep(2,50) # reduce to 50 from 500 20100525 to reduce testing time
 n<-length(xx)
 bdmsk<-c(rep(0,10),rep(1,(n-10)))
 ll<-rep(-20,n)
@@ -87,3 +87,4 @@ uu<--ll
 t1000m<-system.time(ans<-Rvmmin(xx,genrose.f,genrose.g0,lower=ll, upper=uu,bdmsk=bdmsk,control=list(trace=1),gs=100.0))[1]
 cat("final fn value =",ans$value,"\n")
 cat("time = ",t1000m,"\n")
+

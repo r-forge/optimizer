@@ -1,7 +1,7 @@
 Package: Rvmmin
 Type: Package
 Title: Variable metric nonlinear function minimization with bounds constraints
-Version: 0.91
+Version: 0.92
 Date: 2009-10-21
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>

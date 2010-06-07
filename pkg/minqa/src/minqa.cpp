@@ -1,29 +1,35 @@
 #include <Rcpp.h>
 #include <R_ext/RS.h>
+#include <R_ext/Arith.h>
 #include <R_ext/Rdynload.h>
 
 using namespace Rcpp;
+using namespace std;
 
 /// Wrapper for the objective function.  It is initialized to R's "c" function
 static Function cf("c");
 
-/// Apply is.finite to elements in a transformation
-static inline double check_finite(double x) {
-    if (!R_finite(x)) Rf_error("non-finite parameter to user function");
-    return x;
-}
-
-/// Fortran callable objective function evaluation.
+/** 
+ * Fortran callable objective function evaluation.
+ * 
+ * @param n size of parameter vector
+ * @param x parameter vector
+ * @param ip print flag
+ * 
+ * @return objective function evaluation 
+ */
 extern "C"
-double F77_NAME(calfun)(const int *n, const double x[], const int *ip) {
+double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
     Environment rho(cf.environment());
     IntegerVector cc(rho.get(".feval."));
+    int nn = *n;
     cc[0]++;			// increment func eval count
 
     NumericVector pp(rho.get(".par."));
-    if (*n != pp.size())
-	Rf_error("In calfun: n = %d but length(.par.) = %d", *n, pp.size());
-    std::transform(x, x + *n, pp.begin(), check_finite); //also copies
+    if (nn != pp.size()) throw range_error("lengths of .par and x");
+    if (count_if(x, x + nn, R_finite) < pp.size())
+	throw range_error("non-finite x values not allowed in calfun");
+    copy(x, x + nn, pp.begin());
     double f = as<double>(cf(pp)); // evaluate objective
 
     if (*ip == 3) {		// print eval info when very verbose
@@ -35,8 +41,15 @@ double F77_NAME(calfun)(const int *n, const double x[], const int *ip) {
     return f;
 }
 
-/// Construct the named and classed list to return
-static SEXP rval(NumericVector par, std::string cnm) {
+/** 
+ * Construct the named and classed list to return from the optimizer
+ * 
+ * @param par parameter vector
+ * @param cnm class name
+ * 
+ * @return an Rcpp::List object
+ */
+static SEXP rval(NumericVector par, string cnm) {
     Environment rho(cf.environment());
     SEXP feval = rho.get(".feval.");
     StringVector cl(2);
@@ -58,17 +71,14 @@ void F77_NAME(bobyqa)(const int *n, const int *npt, double X[],
 		      const int *iprint, const int *maxfun, double w[]);
 
 /// Interface for bobyqa
-extern "C"
-SEXP bobyqa_cpp(SEXP ppar, SEXP pxl, SEXP pxu, SEXP pcc, SEXP fn) {
-    Environment cc(pcc);
-    NumericVector par(ppar), xl(pxl), xu(pxu);
+RCPP_FUNCTION_5(List,bobyqa_cpp,NumericVector par,NumericVector xl,NumericVector xu,Environment cc,SEXP fn) {
     cf = Function(fn);	// install the objective function
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
     int ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")),
 	n = par.size(), np = as<int>(cc.get("npt"));
-    std::vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
+    vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
     
     F77_NAME(bobyqa)(&n, &np, par.begin(), xl.begin(), xu.begin(),
 		     &rb, &re, &ip, &mxf, &w[0]);
@@ -80,18 +90,15 @@ void F77_NAME(uobyqa)(const int *n, double X[],
 		      const double *rhobeg, const double *rhoend,
 		      const int *iprint, const int *maxfun, double w[]);
 
-extern "C"
-SEXP uobyqa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn) {
-    Environment cc(pctrl); 
-    NumericVector par(ppar);
+RCPP_FUNCTION_3(List,uobyqa_cpp,NumericVector par,Environment cc,SEXP pfn) {
     cf = Function(pfn);
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
     int ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")), n = par.size();
     Environment rho(cf.environment());
-    std::vector<double>
-	w((n*(42+n*(23+n*(8+n))) + std::max(2*n*n + 4, 18*n)) / 4);
+    vector<double>
+	w((n*(42+n*(23+n*(8+n))) + max(2*n*n + 4, 18*n)) / 4);
 
     F77_NAME(uobyqa)(&n, par.begin(), &rb, &re, &ip, &mxf, &w[0]);
     return rval(par, "uobyqa");
@@ -102,16 +109,13 @@ void F77_NAME(newuoa)(const int *n, const int *npt, double X[],
 		      const double *rhobeg, const double *rhoend,
 		      const int *iprint, const int *maxfun, double w[]);
 
-extern "C"
-SEXP newuoa_cpp(SEXP ppar, SEXP pctrl, SEXP pfn) {
-    Environment cc(pctrl); 
-    NumericVector par(ppar);
+RCPP_FUNCTION_3(List,newuoa_cpp,NumericVector par,Environment cc,SEXP pfn) {
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
     int ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")),
 	n = par.size(), np = as<int>(cc.get("npt"));
-    std::vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
+    vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
     cf = Function(pfn);
 
     F77_NAME(newuoa)(&n, &np, par.begin(), &rb, &re, &ip, &mxf, &w[0]);
@@ -142,9 +146,9 @@ void F77_NAME(minqer)(const int *msgno) {
 	msg = "a trust region step failed to reduce q";
 	break;
     default:
-	Rf_error("Unknown message number %d in minqer", *msgno);
+	throw range_error("minqer message number");
     }
-    Rf_error(msg);
+    throw runtime_error(msg);
 }
 
 /// Iteration output when rho changes and iprint >= 2

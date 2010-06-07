@@ -65,8 +65,7 @@ uobyqa(par, fn, control = list(), \dots)
 }
 \references{
      M. J. D. Powell, "The uobyqa software for unconstrained
-     optimization 
-     without derivatives",
+     optimization without derivatives",
      in \bold{Large-Scale Nonlinear Optimization},
      Series: Nonconvex Optimization and 
      Its Applications , Vol. 83, Di Pillo, Gianni; Roma, Massimo (Eds.)

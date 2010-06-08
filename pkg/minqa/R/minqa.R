@@ -65,7 +65,8 @@ commonArgs <- function(par, fn, ctrl, rho) {
 ##' 
 bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 {
-    ctrl <- commonArgs(par, fn, control, environment())
+    ## the "+ 0" is to force a copy of par in the environment.
+    ctrl <- commonArgs(par + 0, fn, control, environment())
     n <- length(par)
     fn1 <- function(x) fn(x, ...) # fn1 takes exactly 1 argument
     
@@ -113,7 +114,6 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
     }
 
     ## force one evaluation of fn1 to check that it works
-    .par.[] <- par
     fn1(.par.)
 
     .Call(bobyqa_cpp, par, lower, upper, ctrl, fn1)
@@ -134,9 +134,8 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 ##' @return a list with S3 class c("newuoa", "minqa")
 newuoa <- function(par, fn, control = list(), ...)
 {
-    ctrl <- commonArgs(par, fn, control, environment())
+    ctrl <- commonArgs(par + 0, fn, control, environment())
     fn1 <- function(x) fn(x, ...)
-    .par.[] <- par            # force an evaluation
     fn1(.par.)
 
     .Call(newuoa_cpp, par, ctrl, fn1)
@@ -157,9 +156,8 @@ newuoa <- function(par, fn, control = list(), ...)
 ##' @return a list with S3 class uobyqa
 uobyqa <- function(par, fn, control = list(), ...)
 {
-    ctrl <- commonArgs(par, fn, control, environment())
+    ctrl <- commonArgs(par + 0, fn, control, environment())
     fn1 <- function(x) fn(x, ...)
-    .par.[] <- par            # force an evaluation
     fn1(.par.)
 
     .Call(uobyqa_cpp, par, ctrl, fn1)

@@ -25,8 +25,7 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
     int nn = *n;
     cc[0]++;			// increment func eval count
 
-    NumericVector pp(rho.get(".par."));
-    if (nn != pp.size()) throw range_error("lengths of .par and x");
+    NumericVector pp(nn);
     if (count_if(x, x + nn, R_finite) < pp.size())
 	throw range_error("non-finite x values not allowed in calfun");
     copy(x, x + nn, pp.begin());

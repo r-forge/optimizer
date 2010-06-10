@@ -1,5 +1,5 @@
 optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), hessian=NULL,
+            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=NULL,
             control=list(),
              ...) {
 ##### OPEN ISSUES: (any date order)
@@ -35,8 +35,6 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # 090511 What should be default method(s)? 
 #         090601: to provide compatibility with optim(), Nelder-Mead is put first. 
 #                 The choice of BFGS second is open to discussion. JN
-
-
 #  A wrapper function to integrate major optimization packages in R
 #  For now, we only consider algorithms for unconstrained and box-constrained optimization
 #  This function can implement "multiple" algorithms
@@ -92,7 +90,6 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #  Changes: Ravi Varadhan - Date: May 29, 2009, John Nash - Latest: Oct 18, 2009
 #
 #################################################################
-
 scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	# a function to check the initial parameters and bounds for inputs to optimization codes
 	# Arguments:
@@ -111,7 +108,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	}
 	if (is.null(upper)) { 
 		if (dowarn) warning("Null upper bounds vector")
-		if (dowarn) upper<-rep(Inf,npar)
+		upper<-rep(Inf,npar)
 	}
 	newpar<-abs(par[which(is.finite(par))])
 	logpar<-log(newpar[which(newpar>0)])
@@ -237,12 +234,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   if (ctrl$starttests) {
 	# Check parameters in bounds (090601: As yet not dealing with masks ??)
 	#  bdmsk<-as.vector(bdmset[k, ])
-
 	infeasible<-FALSE
 	if (ctrl$trace > 0) cat("Function has ",npar," arguments\n")
- 
 	if (have.bounds) {
     	  # Expand bounds to vectors if needed
+          # Note 20100610: we do not check if there is a vector of wrong length.??
     	  if (length(lower)==1 ) lower <- rep(lower, npar)
     	  if (length(upper)==1 ) upper <- rep(upper, npar)
     	  bstate<-vector(mode="character", length=npar)
@@ -313,28 +309,25 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   # mode= is not strictly required. length defaults to 0. This sets up our answer vector.
 
   # List of methods in base or stats, namely those in optim(), nlm(), nlminb()
-  bmeth <- c("BFGS", "CG", "Nelder-Mead", "SANN", "L-BFGS-B", "nlm", "nlminb", "DEoptim")
+  bmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb")
 # SANN has no termination for optimality, only a maxit count for
 #    the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #    for smooth functions. Code left in for those who may need it.
   # List of methods in packages. 
-  pmeth <- c("spg", "ucminf", "Rcgmin", "bobyqa", "uobyqa", "newuoa")
-# ?? 20100330 remove minqa routines while Doug Bates sorts out issues of no fval feval
-#  pmeth <- c("spg", "ucminf", "Rcgmin")
+  pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "uobyqa", "newuoa")
   allmeth <- c(bmeth, pmeth)
   # Restrict list of methods if we have bounds
-  if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "bobyqa") 
+  if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa") 
   if (ctrl$all.methods) { # Changes method vector!
-#	method<-allmeth
-#        method<- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb","spg", "ucminf", "Rcgmin")
-	method<- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb","spg", "ucminf", "Rcgmin","bobyqa","uobyqa","newuoa") # temp 100328 for testing
-	if (ctrl$trace>0) {
+	method<-allmeth
+#??        if (ctrl$trace>0) {
 		cat("all.methods is TRUE -- Using all available methods\n")
 		print(method)
-	}
+#??	}
   } 
 
   # Partial matching of method string allowed
+  # avoid duplicates here
   method <- unique(match.arg(method, allmeth, several.ok=TRUE) )
   nmeth <- length(method) # number of methods requested
 
@@ -363,6 +356,10 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   if(any(method == "Rcgmin")) { 
 	if ("Rcgmin" %in% ipkgs[,1]) require(Rcgmin, quietly=TRUE)
 	else  stop("Package `Rcgmin' Not installed", call.=FALSE)
+	}
+  if(any(method == "Rvmmin")) { 
+	if ("Rvmmin" %in% ipkgs[,1]) require(Rvmmin, quietly=TRUE)
+	else  stop("Package `Rvmmin' Not installed", call.=FALSE)
 	}
   if(any(method == "bobyqa")) { 
 	if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=TRUE)
@@ -406,8 +403,17 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   for (i in 1:nmeth) { # loop over the methods
       meth <- method[i] # extract the method name
       conv <- -1 # indicate that we have not yet converged
+      # 20100608 - take care of polyalgorithms
+      if (! is.null(itnmax) ) {
+	if (length(itnmax) == 1) {ctrl$maxit <- itnmax} # Note we will execute this FIRST
+        else {if (length(itnmax) != nmeth) { 
+		stop("Length of itnmax =",length(itnmax)," but should be ",nmeth) }
+              else { ctrl$maxit<-itnmax[i] }
+        }
+        if (ctrl$follow.on) cat("Do ",ctrl$maxit," steps of ",meth,"\n")
+      }
       if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
-      # Extract control information e.g., maxit
+      # Extract control information e.g., trace
       # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
       # create local control list for a single method -- this is one of the key issues for optimx
       mcontrol<-ctrl
@@ -427,7 +433,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 # Methods from optim()
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
 #        if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now 
-        # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, SANN and CG
+        # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
         time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
                 method=meth, control=mcontrol, ...), silent=TRUE))[1]
         # The time is the index=1 element of the system.time for the process, 
@@ -435,7 +441,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         if (class(ans)[1] != "try-error") { 
 		ans$conv <- ans$convergence
 		#      convergence: An integer code. '0' indicates successful convergence.
-                if (meth=="SANN") ans$conv = 1 # always the case for SANN (but it reports 0!)
+#                if (meth=="SANN") ans$conv = 1 # always the case for SANN (but it reports 0!)
 	        ans$fevals<-ans$counts[1] # save function and gradient count information
 	        ans$gevals<-ans$counts[2]
         	ans$counts<-NULL # and erase the counts element now data is saved
@@ -568,7 +574,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         ## Use ucminf routine
         if (is.null(ctrl$maxit)) mcontrol$maxit<-500 # ensure there is a default value
 # Change 20100415 to avoid setting ctrl values when all.methods
-        mcontrol$maxeval<-round(sqrt(npar+1)*mcontrol$maxit) # different name in this routine -- change value
+        mcontrol$maxeval<-mcontrol$maxit # Note it is just function evals for ucminf
         mcontrol$maxit<-NULL
         time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
@@ -632,6 +638,31 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		ans$value= -ans$value
 	}
       }  ## end if using Rcgmin
+## --------------------------------------------
+###### progress point #########
+      else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
+	bdmsk<-rep(1,npar)
+	mcontrol$trace<-NULL
+	if (ctrl$trace>0) mcontrol$trace<-1
+        time <- system.time(ans <- try(Rvmmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+        if (class(ans)[1] != "try-error") {
+		ans$conv <- ans$convergence
+	        ans$fevals<-ans$counts[1]
+	        ans$gevals<-ans$counts[2]
+		ans$value<-ans$value 
+        } else {
+		if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
+		ans<-list(fevals=NA) # ans not yet defined, so set as list
+		ans$value= ctrl$badval
+		ans$par<-rep(NA,npar)
+                ans$conv<-9999 # failed in run
+        	ans$gevals<-NA 
+        	ans$niter<-NA
+        }
+	if (ctrl$maximize) {
+		ans$value= -ans$value
+	}
+      }  ## end if using Rvmmin
 ## --------------------------------------------
       else if (meth == "bobyqa") {# Use bobyqa routine from minqa package
         if (! is.null(mcontrol$maxit)) { 
@@ -805,7 +836,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                       ans$ngatend <- ngatend
                       ans$nhatend <- nhatend
                       hev<- try(eigen(nhatend)$values) # 091215 use try in case of trouble
-		      ## ?? FIXUP FOR maximize
                       if (class(hev) != "try-error") {
                           ans$evnhatend <- hev # answers are OK
                           # now look at Hessian
@@ -869,7 +899,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #      	if (ctrl$trace>0) { cat("Check if follow.on from method ",meth,"\n") }
       	if (ctrl$follow.on) {
 		par <- ans$par # save parameters for next method
-		cat("FOLLOW ON!\n")
+		if (i < nmeth & ctrl$dowarn) cat("FOLLOW ON!\n")
 	}
     } ## end loop over method (index i)
 #    if (ctrl$trace>0) { cat("Consolidate ans.ret\n") }

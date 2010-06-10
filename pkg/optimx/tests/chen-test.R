@@ -16,7 +16,7 @@ sum (f * f)
 }
 
 p0 <- rexp(50)
-system.time(ans.optx <- optimx(par=p0, fn=chen.f, lower=0,control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
+system.time(ans.optx <- optimx(par=p0, fn=chen.f, lower=0, control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
 
 optansout(ans.optx,filename="./anschen.txt")
 

@@ -23,7 +23,7 @@
 }
 \usage{
 optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), hessian=NULL,
+            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=NULL,
             control=list(),
              ...)
 
@@ -53,6 +53,11 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
  \item{method}{A list of the methods to be used. 
        Note that this is an important change from optim() that allows
        just one method to be specified. See \sQuote{Details}.}
+ \item{itnmax}{If provided as a vector of the same length as the list of methods \code{method}, 
+	gives the maximum number of iterations or function values for the corresponding 
+	method. If a single number is provided, this will be used for all methods. Note that
+	there may be control list elements with similar functions, but this should be the
+	preferred approach when using \code{optimx}.}
  \item{hessian}{A logical control that if TRUE forces the computation of an approximation 
        to the Hessian at the final set of parameters. If FALSE, ensures it is not calculated.
        This setting is provided for compatibility with optim(). See how to set \code{kkt} in
@@ -385,7 +390,7 @@ print(ans2)
 ## The next line will fail if executed because 'hessian = TRUE' no longer allowed
 # ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
 cat("\n\n")
-ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=1))
+ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=TRUE))
 print(ans4)
 cat("\n\n")
 ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
@@ -454,9 +459,14 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
         return(hh)
 }
 
-startx<-seq(1:10)/6.
+startx<-seq(1:10)/3.
 ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE))
 print(ans8)
+
+cat("Polyalgorithm with 100 steps NM followed by up to 75 of ucminf\n")
+ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
+             itnmax=c(100,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=TRUE))
+print(ans9)
 
 
 }

@@ -78,10 +78,10 @@ RCPP_FUNCTION_5(List,bobyqa_cpp,NumericVector par,NumericVector xl,NumericVector
 	mxf = as<int>(cc.get("maxfun")),
 	n = par.size(), np = as<int>(cc.get("npt"));
     vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
-    
-    F77_NAME(bobyqa)(&n, &np, par.begin(), xl.begin(), xu.begin(),
+    NumericVector pp = clone(par); // ensure that bobyqa doesn't modify the R object
+    F77_NAME(bobyqa)(&n, &np, pp.begin(), xl.begin(), xu.begin(),
 		     &rb, &re, &ip, &mxf, &w[0]);
-    return rval(par, "bobyqa");
+    return rval(pp, "bobyqa");
 }
 
 extern "C" 
@@ -98,9 +98,10 @@ RCPP_FUNCTION_3(List,uobyqa_cpp,NumericVector par,Environment cc,SEXP pfn) {
     Environment rho(cf.environment());
     vector<double>
 	w((n*(42+n*(23+n*(8+n))) + max(2*n*n + 4, 18*n)) / 4);
+    NumericVector pp = clone(par); // ensure that uobyqa doesn't modify the R object
 
-    F77_NAME(uobyqa)(&n, par.begin(), &rb, &re, &ip, &mxf, &w[0]);
-    return rval(par, "uobyqa");
+    F77_NAME(uobyqa)(&n, pp.begin(), &rb, &re, &ip, &mxf, &w[0]);
+    return rval(pp, "uobyqa");
 }
 
 extern "C" 
@@ -116,9 +117,10 @@ RCPP_FUNCTION_3(List,newuoa_cpp,NumericVector par,Environment cc,SEXP pfn) {
 	n = par.size(), np = as<int>(cc.get("npt"));
     vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
     cf = Function(pfn);
+    NumericVector pp = clone(par); // ensure that newuoa doesn't modify the R object
 
-    F77_NAME(newuoa)(&n, &np, par.begin(), &rb, &re, &ip, &mxf, &w[0]);
-    return rval(par, "newuoa");
+    F77_NAME(newuoa)(&n, &np, pp.begin(), &rb, &re, &ip, &mxf, &w[0]);
+    return rval(pp, "newuoa");
 }
 
 /// Assorted error messages.

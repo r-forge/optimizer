@@ -10,7 +10,7 @@
 ##' @return an environment containing the control settings
 commonArgs <- function(par, fn, ctrl, rho) {
     rho$n <- n <- length(rho$par <- as.double(par))
-    stopifnot(all(is.finite(par)),# n > 1,
+    stopifnot(all(is.finite(par)),
               is.function(fn),
               length(formals(fn)) >= 1)
     rho$.feval. <- integer(1)           # function evaluation counter

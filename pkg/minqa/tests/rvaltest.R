@@ -9,7 +9,7 @@ reschk <- function(res) {
               inherits(res, "minqa"),
               names(res) == c("par", "fval", "feval"),
               is.numeric(res$par),
-              all.equal(res$par, 1:4, tol = 1e-4),
+              all.equal(res$par, 1:4, tol = 2e-4),
               is.numeric(res$fval),
               all.equal(res$fval, -10, tol = 1e-4),
               is.integer(res$feval),

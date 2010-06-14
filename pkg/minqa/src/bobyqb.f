@@ -640,7 +640,7 @@ C
               RHO=TENTH*RHO
           END IF
           DELTA=DMAX1(DELTA,RHO)
-          CALL minqit(IPRINT, RHO, NF, FOPT, N, XBASE, XOPT)
+          CALL minqit(IPRINT, RHO, NF, FVAL(KOPT), N, XBASE, XOPT)
 c$$$          IF (IPRINT .GE. 2) THEN
 c$$$              IF (IPRINT .GE. 3) PRINT 690
 c$$$  690         FORMAT (5X)

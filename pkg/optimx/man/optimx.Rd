@@ -459,13 +459,14 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
         return(hh)
 }
 
-startx<-seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE))
+startx<-4*seq(1:10)/3.
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE), gs=10)
 print(ans8)
 
-cat("Polyalgorithm with 100 steps NM followed by up to 75 of ucminf\n")
+startx<-4*seq(1:10)/3.
+cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
 ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
-             itnmax=c(100,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=TRUE))
+             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=TRUE), gs=10)
 print(ans9)
 
 

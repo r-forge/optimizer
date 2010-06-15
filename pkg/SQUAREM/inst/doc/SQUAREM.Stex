@@ -1,0 +1,68 @@
+\documentclass[english]{article}
+\begin{document}
+
+%\VignetteIndexEntry{SQUAREM Tutorial}
+%\VignetteDepends{numDeriv, setRNG}
+%\VignetteKeywords{accelerate failure time model, Barzilai-Borwein, derivative-free, estimating equations, large-scale optimization, non-monotone line search, non-smooth optimization, rank-based regression}
+%\VignettePackage{SQUAREM}
+\SweaveOpts{eval=TRUE,echo=TRUE,results=verbatim,fig=FALSE,keep.source=TRUE}
+\begin{Scode}{echo=FALSE,results=hide}
+ options(continue="  ")
+\end{Scode}
+
+\section{Overview of SQUAREM}
+``SQUAREM'' is a package intended for 
+
+The functions in this package are made 
+available with:
+
+\begin{Scode}
+library("SQUAREM") 
+\end{Scode}
+
+You can look at the basic information on the package, including all the 
+available functions with
+
+\begin{Scode}{eval=FALSE,results=hide}
+help(package=SQUAREM)
+\end{Scode}
+
+
+
+The package \emph{setRNG} is not necessary, but if you want to exactly 
+reproduce the examples in this guide then do this:
+\begin{Scode}
+require("setRNG") 
+setRNG(list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=1236))
+\end{Scode}
+after which the example need to be run in the order here (or at least the parts
+that generate random numbers). For some examples the RNG is reset again
+so they can be reproduced more easily.
+
+\section{How to solve a nonlinear system of equations with SQUAREM?}
+
+
+
+Now, we show an example demonstrating the ability of SQUAREM to solve a large system of equations, N = 10000.
+
+\begin{Scode}
+
+trigexp <- function(x) {
+n <- length(x)
+F <- rep(NA, n)
+F[1] <- 3*x[1]^2 + 2*x[2] - 5 + sin(x[1] - x[2]) * sin(x[1] + x[2])
+tn1 <- 2:(n-1)
+F[tn1] <- -x[tn1-1] * exp(x[tn1-1] - x[tn1]) + x[tn1] * ( 4 + 3*x[tn1]^2) +
+        2 * x[tn1 + 1] + sin(x[tn1] - x[tn1 + 1]) * sin(x[tn1] + x[tn1 + 1]) - 8 
+F[n] <- -x[n-1] * exp(x[n-1] - x[n]) + 4*x[n] - 3
+F
+}
+
+n <- 10000
+p0 <- runif(n)
+ans <- dfsane(par=p0, fn=trigexp, control=list(trace=FALSE))
+ans$message
+ans$resid
+\end{Scode}
+
+\end{document}

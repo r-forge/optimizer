@@ -1,0 +1,630 @@
+squarem <- function(par, fixptfn, objfn, ... , control=list()) {
+#
+# The Master function for SQUAREM acceleration of "ANY" fixed-point iteration
+# A wrapper that calls appropriate function below (squarem1, squarem2, cyclem1, cyclem2)
+#
+# Author:  Ravi Varadhan, Johns Hopkins University
+#
+# See Varadhan and Roland (Scandinavian J Statistics 2008)
+# See Roland, Varadhan and Frangakis (Applied Numerical Mathematics 2007)
+#
+# Last modified: Feb 23 2010
+#######################################################################
+#
+# par = starting value of parameter vector
+# fixptfn = fixed-point iteration F(x)
+# for which the solution: F(x*) = x* is sought
+# objfn = underlying objective function which is minimized at x*
+# method = 1, 2, or 3, indicating the type of steplength to be used
+#
+#
+ctrl <- list(K = 1, method=3, square=TRUE, step.min0=1, step.max0=1, mstep=4, kr=1, objfn.inc=1, noimp.max=20, 
+	tol=1.e-07, maxiter=1500, trace=FALSE)
+
+namc <- names(control)
+if (!all(namc %in% names(ctrl))) 
+    stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+ctrl[namc] <- control
+
+if (ctrl$K > 1 & !(ctrl$method %in% c("rre", "mpe")) ) ctrl$method <- "rre"
+if (ctrl$K == 1 & !(ctrl$method %in% c(1,2,3)) ) ctrl$method <- 3
+
+if (!missing(objfn) ) {
+if (ctrl$K == 1) sqobj <- squarem1(par, fixptfn, objfn, ... , control=ctrl)
+else if (ctrl$K > 1 | ctrl$method %in% c("rre", "mpe")) sqobj <- cyclem1(par, fixptfn, objfn, ... , control=ctrl)
+} else {
+if (ctrl$K == 1) sqobj <- squarem2(par, fixptfn, ... , control=ctrl)
+else if (ctrl$K > 1 | ctrl$method %in% c("rre", "mpe"))  sqobj <- cyclem2(par, fixptfn, ... , control=ctrl)
+}
+return(sqobj)
+}
+
+#######################################################################
+# Partially-monotone, globally-convergent SQUAREM acceleration
+# Can accelerate EM, MM, and other fixed-point iterations
+#  Here we use an adaptive maximum step-size strategy
+#  This strategy is effective and represents a good trade-off between speed and stability
+# See Varadhan and Roland (Scandinavian J Statistics 2008)
+#
+# Date: August 22, 2007
+# Adaptive step-max strategy modified:  May 2008
+# Last modified:  November 2008
+# Last modified: October 2009
+# Last modified: Feb 23 2010
+#######################################################################
+squarem1 <- function(par, fixptfn, objfn, ... , control=list()) {
+# par = starting value of parameter vector
+# fixptfn = fixed-point iteration F(x)
+# for which the solution: F(x*) = x* is sought
+# objfn = underlying objective function which is minimized at x*
+#
+#
+ ctrl <- list(K=1, square=TRUE, method=3, step.min0=1, step.max0=1, mstep=4, kr=1, objfn.inc=1, noimp.max=20, 
+	tol=1.e-07, maxiter=1500, trace=FALSE)
+
+#####
+# method = 1, 2, or 3, indicating the type of steplength to be used
+# A key parameter is `step.min0'. This can be either positive or negative if the eigenvalues of the Jacobian of fixed-point mapping are all positive;
+# We set it to +1 for contraction mappings such as EM and MM algorithms
+# Must be negative, e.g. -1, if the fixed-point mapping can have negative eiegnvalues
+#####
+# parameter "objfn.inc" dictates the amount of non-monotonicity in the objective function 
+# setting objfn.inc=0 would enforce monotonicity, whereas objfn.inc=Inf would be a non-monotonic scheme
+# The defalut objfn.inc=1 would enforce monotonicity far from solution, but allows for non-monotonicity closer to solution
+#
+    namc <- names(control)
+    if (!all(namc %in% names(ctrl))) 
+        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    ctrl[namc] <- control
+
+    method <- ctrl$method
+    maxiter <- ctrl$maxiter
+    tol <- ctrl$tol
+    step.min <- ctrl$step.min0
+    step.max <- ctrl$step.max0
+    mstep <- ctrl$mstep
+    objfn.inc <- ctrl$objfn.inc
+    noimp.max <- ctrl$noimp.max
+    trace <- ctrl$trace
+
+if (missing(objfn)) stop("\n squarem2 should be used if objective function is not available \n\n")
+
+iter <- 1
+objval <- rep(NA,1)
+p <- par
+
+lold <- objfn(p, ...)
+leval <- 1
+if (trace) cat("Objective fn: ", lold, "\n")
+feval <- 0
+noimp <- 0
+lbest <- lold
+conv <- TRUE
+
+while (feval < maxiter) {
+	extrap <- TRUE
+	p1 <- try(fixptfn(p, ...),silent=TRUE)
+	feval <- feval + 1
+	if (class(p1) == "try-error" | any(is.nan(unlist(p1)))) break
+	q1 <- p1 - p
+	sr2 <- crossprod(q1)
+	if (sqrt(sr2) < tol) break
+
+	p2 <- try(fixptfn(p1, ...),silent=TRUE)
+	feval <- feval + 1
+	if (class(p2) == "try-error" | any(is.nan(unlist(p2)))) break
+
+	q2 <- p2 - p1
+	sq2 <- sqrt(crossprod(q2))
+	if (sq2 < tol) break
+	sv2 <- crossprod(q2-q1)
+	srv <- crossprod(q1, q2-q1)
+
+	alpha <- switch(method, -srv/sv2, -sr2/srv, sign(-srv)*sqrt(sr2/sv2)) 
+
+ 	alpha <- max(step.min, min(step.max, alpha))
+	p.new <- p + 2*alpha*q1 + alpha^2*(q2-q1)
+
+	if (is.finite(objfn.inc)) {
+		lnew <- try(objfn(p.new, ...), silent=TRUE)
+		leval <- leval + 1
+		} 
+	else lnew <- lold
+
+	if (class(lnew) == "try-error" | is.nan(lnew) | (lnew > lold + objfn.inc)) {
+	p.new <- p2
+	lnew <- try(objfn(p2, ...), silent=TRUE)
+	leval <- leval + 1
+	alpha <- 1
+	extrap <- FALSE
+	}
+
+	if (abs(alpha) > 1) {
+	p.new <- try(fixptfn(p.new, ...),silent=TRUE)   # stabilization step
+	feval <- feval + 1
+	if (is.finite(objfn.inc)) {
+		lnew <- try(objfn(p.new, ...), silent=TRUE)
+		leval <- leval + 1
+		if (lnew < lbest) {
+			lbest <- lnew
+			pbest <- p.new
+			noimp <- 0
+			} else { 
+			noimp <- noimp + 1
+			}
+			if (noimp > noimp.max) {
+			p <- pbest
+			lold <- lbest
+			conv <- FALSE
+			break
+			}
+		} else lnew <- lold
+
+	if (class(p.new) == "try-error" | class(lnew) == "try-error" | any(is.nan(unlist(p.new))) | is.nan(lnew) ) {
+		alpha <- 1
+		p.new <- p2
+		extrap <- FALSE
+		if (is.finite(objfn.inc)) {
+			lnew <- try(objfn(p.new, ...), silent=TRUE)
+			leval <- leval + 1
+			} else lnew <- lold
+      		} 
+	}
+
+	if (alpha == step.max) step.max <- mstep*step.max
+	if (step.min < 0 & alpha == step.min) step.min <- mstep*step.min
+
+	p <- p.new
+	if (!is.nan(lnew)) lold <- lnew 
+	if (trace) cat("Objective fn: ", lnew, "  Extrapolation: ", extrap, "  Steplength: ", alpha, "\n")
+	iter <- iter+1
+	
+}
+	if (feval > maxiter) conv <- FALSE
+	if (is.infinite(objfn.inc)) lold <- objfn(p, ...)
+
+return(list(par=p, fpevals=feval, objfevals = leval, value.objfn=lold, convergence=conv))
+
+}
+###################################################################
+squarem2 <- function(par, fixptfn, ... , control=list() ) {
+
+# par = starting value of parameter vector
+# fixptfn = fixed-point iteration F(x)
+# for which the solution: F(x*) = x* is sought
+# method = 1, 2, or 3, indicating the type of steplength to be used
+#
+# See Varadhan and Roland (Scandinavian J Statistics 2008)
+#
+ ctrl <- list(K=1, square=TRUE, method=3, step.min0=1, step.max0=1, mstep=4, kr=1, objfn.inc=1, noimp.max=20, 
+	tol=1.e-07, maxiter=1500, trace=FALSE)
+
+#####
+# method = 1, 2, or 3, indicating the type of steplength to be used
+# A key parameter is `step.min0'. This can be either positive or negative if the eigenvalues of the Jacobian of fixed-point mapping are all positive;
+# We set it to +1 for contraction mappings such as EM and MM algorithms
+# Must be negative, e.g. -1, if the fixed-point mapping can have negative eiegnvalues
+#####
+# Parameter "kr" dictates the amount of non-monotonicity in the fixed-point residual 
+# setting kr=0 would try to enforce monotonicity; kres=Inf would be a non-monotonic scheme
+#
+    namc <- names(control)
+    if (!all(namc %in% names(ctrl))) 
+        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    ctrl[namc] <- control
+    method <- ctrl$method
+    maxiter <- ctrl$maxiter
+    tol <- ctrl$tol
+    kr <- ctrl$kr
+    step.min <- ctrl$step.min0
+    step.max <- ctrl$step.max0
+    mstep <- ctrl$mstep
+    noimp.max <- ctrl$noimp.max
+    trace <- ctrl$trace
+
+iter <- 1
+feval <- 0
+kount <- 0
+res.min <- Inf
+noimp <- 0
+conv <- TRUE
+
+while (feval < maxiter) {
+	extrap <- TRUE
+	p1 <- try(fixptfn(par, ...),silent=TRUE)
+	feval <- feval + 1
+	if (class(p1) == "try-error" | any(is.nan(unlist(p1)))) break
+	q1 <- p1 - par
+	sr2 <- crossprod(q1)
+	if (sqrt(sr2) < tol) break
+
+	p2 <- try(fixptfn(p1, ...),silent=TRUE)
+	feval <- feval + 1
+	if (class(p2) == "try-error" | any(is.nan(unlist(p2)))) break
+	q2 <- p2 - p1
+	sq2 <- sqrt(crossprod(q2))
+	res <- sq2
+	if (sq2 < tol) break
+	sv2 <- crossprod(q2-q1)
+	srv <- crossprod(q1, q2-q1)	
+
+	alpha <- switch(method, -srv/sv2, -sr2/srv, sign(-srv)*sqrt(sr2/sv2)) 
+
+	alpha <- max(step.min, min(step.max, alpha))
+	p.new <- par + 2*alpha*q1 + alpha^2*(q2-q1) 
+
+	if (abs(alpha) > 1 ) {
+	ptmp <- try(fixptfn(p.new, ...),silent=TRUE)   # stabilization step
+	feval <- feval + 1
+		if (class(ptmp) == "try-error" | any(is.nan(unlist(ptmp))) ) {
+		p.new <- p2
+		extrap <- FALSE
+		alpha <- 1 
+      		}  else {
+			res <- sqrt(crossprod(ptmp - p.new))
+			if (res < res.min) {
+				pbest <- ptmp
+				res.min <- res
+				noimp <- 0
+				} else {
+				noimp <- noimp + 1
+				} 
+				
+			if (noimp > noimp.max) {
+			par <- pbest
+			conv <- FALSE
+			break
+			}
+			parnorm <- sqrt(crossprod(p.new)/length(p.new))
+			kres <- kr * (1 + parnorm) + sq2 
+			p.new <- if (res <= kres) ptmp else p2
+			if (res > kres) {extrap <- FALSE; alpha <- 1}
+		}
+	}
+
+	if (alpha == step.max) step.max <- mstep*step.max
+	if (step.min < 0 & alpha == step.min) step.min <- mstep*step.min
+
+	if (trace) cat("Residual: ", res, "  Extrapolation: ", extrap, "  Steplength: ", alpha, "\n")
+
+	par <- p.new
+	iter <- iter+1
+}
+	if (feval > maxiter) conv <- FALSE
+
+return(list(par=par, fpevals=feval, objfevals = 0, value.objfn=NA, convergence=conv))
+
+}
+#######################################################################
+# Squared-Cycled vector extrapolation for accelerating vector sequences
+# See Roland, Varadhan and Frangakis (Applie Numerical Mathematics 2007)
+# Author:  Ravi Varadhan, Johns Hopkins University
+# Latest modofications:: Feb 23, 2010
+# 
+###########################
+cyclem1 <- function(par, fixptfn, objfn, control=list(), ...) {
+#
+# par = starting value of parameter vector
+# fixptfn = fixed-point iteration F(x)
+# for which the solution: F(x*) = x* is sought
+# objfn = underlying objective function which is minimized at x*
+# 
+ ctrl <- list(K=2, method="rre", square=TRUE, step.min0=1, step.max0=1, mstep=4, kr=1, objfn.inc=1, noimp.max=20, 
+	tol=1.e-07, maxiter=1500, trace=FALSE)
+
+#
+# method = reduced-rank or minimal-polynomial extrapolation
+# K = order of extrapolation scheme; K=2,3,4 are typical choices
+# square = a logical variable indicating whether or not "squaring" is used
+
+    namc <- names(control)
+    if (!all(namc %in% names(ctrl))) 
+        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    ctrl[namc] <- control
+    method <- ctrl$method
+    K <- ctrl$K
+    square <- ctrl$square
+    tol <- ctrl$tol
+    maxiter <- ctrl$maxiter
+    objfn.inc <- ctrl$objfn.inc
+    noimp.max <- ctrl$noimp.max
+    trace <- ctrl$trace
+ 
+if (missing(objfn)) stop("\n cyclem2 should be used if objective function is not available \n\n")
+
+if ( K > length(par)) {
+cat("K is too large.  Decrease it.  \n")
+return()
+}
+
+iter <- 0
+lold <- objfn(par, ...)
+leval <- 1
+
+ptmp <- fixptfn(par,...)
+res <- sqrt(c(crossprod(ptmp - par)))
+par <- ptmp
+feval <- 1
+noimp <- 0
+lbest <- lold
+conv <- TRUE
+
+while (feval < maxiter & res > tol) {
+	iter <- iter+1
+	extrap <- TRUE
+	p <- matrix(NA, nrow=length(par), ncol=K+2)
+	U <- matrix(NA, nrow=length(par), ncol=K+1)
+	p[,1] <- par
+	for (i in 2:(K+2)){
+	p[,i] <- try(fixptfn(p[,i-1], ...), silent=TRUE)
+	if (class(p[,i]) == "try-error" | any(is.nan(unlist(p[,i]))) | any(!is.numeric(p[,i]))) break
+	U[,i-1] <- p[, i] - p[, i-1]
+	}
+	feval <- feval + K + 1 
+	sqKp1 <- sqrt(c(crossprod(U[, K+1])))
+
+	if (method == "rre"){
+	coef <- try(solve(qr(crossprod(U), LAPACK=TRUE, tol=1.e-14), rep(1,K+1)), silent=TRUE)
+	if (class(coef) == "try-error") stop("Singuar matrix - decrease K \n")
+	if (abs(sum(coef)) < 1.e-07) extrap <- FALSE
+	coef <- coef/sum(coef)
+	}
+	if (method == "mpe"){
+	coef <- try(solve(qr(U[,-(K+1)], LAPACK=TRUE, tol=1.e-14), -U[,K+1]), silent=TRUE)
+	if (class(coef) == "try-error") stop("Singuar matrix - decrease K \n")
+	coef <- c(coef, 1)
+	if (abs(sum(coef)) < 1.e-07) extrap <- FALSE
+	coef <- coef/sum(coef)
+	}
+
+	if (!extrap) {
+		par <- p[, ncol(p)]
+		res <- sqKp1
+		iter <- iter + 1
+ 		if (trace) cat(" objective fn: ", lold, "extrapolation: ", extrap, "\n")
+		next 
+	}
+
+	if (!square) pnew <- c(p[,-(K+2)] %*% coef)
+	if (square) {
+		pnew <- rep(0, length(par))
+		if (K > 1) {
+		for (i in 1:(K-1)) {
+			p <- try(cbind(p, fixptfn(p[,i+K+1],...)), silent=TRUE)
+			if (class(p) == "try-error" | any(is.nan(unlist(p))) | any(!is.numeric(p))) break
+			}
+		feval <- feval + K - 1
+		}
+		for (i in 0:K){
+		for (j in 0:K){
+			pnew <- pnew + coef[i+1]* coef[j+1] * p[,i+j+1]
+		} }
+		sqKp1 <- sqrt(c(crossprod(p[, 2*K] - p[, 2*K-1])))
+	}
+
+	lnew <- try(objfn(pnew, ...), silent=TRUE)
+	leval <- leval + 1
+
+	if (class(lnew) == "try-error" | is.nan(lnew) | (lnew > lold + objfn.inc)) {
+		par <- p[, ncol(p)]
+		lold <- try(objfn(par, ...), silent=TRUE)
+		leval <- leval + 1
+		res <- sqKp1
+		extrap <- FALSE
+ 		if (trace) cat(" objective fn: ", lold, "extrapolation: ", extrap, "\n")
+		next
+	}
+		if (lnew < lbest) {
+			lbest <- lnew
+			pbest <- pnew
+			noimp <- 0
+			} else { 
+			noimp <- noimp + 1
+			}
+			if (noimp > noimp.max) {
+			par <- pbest
+			lold <- lbest
+			conv <- FALSE
+			break
+			}
+
+		res <- sqKp1
+#  Perform one stabilization step between cycles
+		ptemp <- try(fixptfn(pnew, ...), silent=TRUE)
+		feval <- feval + 1
+		ltemp <- try(objfn(pnew, ...), silent=TRUE)
+		leval <- leval + 1
+
+	if (class(ptemp) == "try-error" | class(ltemp) == "try-error" | any(is.nan(unlist(ptemp))) | is.nan(ltemp) ) {
+		par <- p[, ncol(p)]
+		lold <- try(objfn(par, ...), silent=TRUE)
+		leval <- leval + 1
+		res <- sqKp1
+		extrap <- FALSE
+	} else {
+		par <- ptemp
+		lold <- ltemp
+		res <- sqrt(c(crossprod(ptemp - pnew)))
+		extrap <- TRUE
+	}
+ 	if (trace) cat(" objective fn: ", lold, "extrapolation: ", extrap, "\n")
+
+	if (feval > maxiter) conv <- FALSE
+}  # Main loop complete
+
+return(list(par=par, fpevals=feval, objfevals = leval, value.objfn=lold, convergence=conv))
+
+}
+###################################################################
+# Squared-Cycled vector extrapolation for accelerating vector sequences
+# See Roland, Varadhan and Frangakis (Applie Numerical Mathematics 2007)
+# Author:  Ravi Varadhan, Johns Hopkins University
+# Latest modofications:: Feb 23, 2010
+# 
+###########################
+cyclem2 <- function(par, fixptfn, control=list(), ...) {
+# par = starting value of parameter vector
+# fixptfn = fixed-point iteration F(x)
+# for which the solution: F(x*) = x* is sought
+# method = reduced-rank or minimal-polynomial extrapolation
+#
+ ctrl <- list(K=2, method="rre", square=TRUE, step.min0=1, step.max0=1, mstep=4, kr=1, objfn.inc=1, noimp.max=20,
+	tol=1.e-07, maxiter=1500, trace=FALSE)
+#
+# method = reduced-rank ("rre") or minimal-polynomial ("mpe") extrapolation
+# K = order of extrapolation scheme; K=2,3,4 are typical choices
+# square = a logical variable indicating whether or not "squaring" is used
+
+    namc <- names(control)
+    if (!all(namc %in% names(ctrl))) 
+        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    ctrl[namc] <- control
+    method <- ctrl$method
+    K <- ctrl$K
+    square <- ctrl$square
+    tol <- ctrl$tol
+    maxiter <- ctrl$maxiter
+    kr <- ctrl$kr
+    noimp.max <- ctrl$noimp.max
+    trace <- ctrl$trace
+ 
+if ( K > length(par)) {
+cat("K is too large.  Decrease it.  \n")
+return()
+}
+
+iter <- 1
+
+ptmp <- fixptfn(par,...)
+res <- sqrt(c(crossprod(ptmp - par)))
+res.min <- res
+par <- ptmp
+conv <- TRUE
+feval <- 1
+noimp <- 0
+
+while (feval < maxiter & res > tol) {
+	extrap <- TRUE
+	p <- matrix(NA, nrow=length(par), ncol=K+2)
+	U <- matrix(NA, nrow=length(par), ncol=K+1)
+	p[,1] <- par
+	for (i in 2:(K+2)){
+	p[,i] <- try(fixptfn(p[,i-1], ...), silent=TRUE)
+	if (class(p[,i]) == "try-error" | any(is.nan(unlist(p[,i]))) | any(!is.numeric(p[,i]))) break
+	U[,i-1] <- p[, i] - p[, i-1]
+	}
+	feval <- feval + K + 1 
+	sqKp1 <- sqrt(c(crossprod(U[, K+1])))
+
+	if (method == "rre"){
+	coef <- try(solve(qr(crossprod(U), LAPACK=TRUE, tol=1.e-14), rep(1,K+1)), silent=TRUE)
+	if (class(coef) == "try-error") stop("Singuar matrix - decrease K \n")
+	if (abs(sum(coef)) < 1.e-07) extrap <- FALSE
+	coef <- coef/sum(coef)
+	}
+	if (method == "mpe"){
+	coef <- try(solve(qr(U[,-(K+1)], LAPACK=TRUE, tol=1.e-14), -U[,K+1]), silent=TRUE)
+	if (class(coef) == "try-error") stop("Singuar matrix - decrease K \n")
+	coef <- c(coef, 1)
+	if (abs(sum(coef)) < 1.e-07) extrap <- FALSE
+	coef <- coef/sum(coef)
+	}
+
+	if (!extrap) {
+		par <- p[, ncol(p)]
+		res <- sqKp1
+		iter <- iter + 1
+ 		if (trace) cat(" residual: ", res, "extrapolation: ", extrap, "\n")
+		next 
+	}
+
+	if (!square) pnew <- c(p[,-(K+2)] %*% coef)
+	if (square) {
+		pnew <- rep(0, length(par))
+		if (K > 1) {
+		for (i in 1:(K-1)) {
+			p <- try(cbind(p, fixptfn(p[,i+K+1],...)), silent=TRUE)
+			if (class(p) == "try-error" | any(is.nan(unlist(p))) | any(!is.numeric(p))) break
+			}
+		feval <- feval + K - 1
+		}
+		for (i in 0:K){
+		for (j in 0:K){
+			pnew <- pnew + coef[i+1]* coef[j+1] * p[,i+j+1]
+		} }
+		sqKp1 <- sqrt(c(crossprod(p[, 2*K] - p[, 2*K-1])))
+	}
+
+#  Perform one stabilization step between cycles
+		ptemp <- try(fixptfn(pnew, ...), silent=TRUE)
+		
+      feval <- feval + 1
+	if(class(ptemp)=="try-error"){
+		par <- p[, ncol(p)]
+		res <- sqKp1
+		extrap <- FALSE
+	} else {
+		res <- sqrt(c(crossprod(ptemp - pnew)))
+			if (res < res.min) {
+				pbest <- ptemp
+				res.min <- res
+				noimp <- 0
+				} else {
+				noimp <- noimp + 1
+				} 
+				
+			if (noimp > noimp.max) {
+			par <- ptemp
+			conv <- FALSE
+			break
+			}
+		parnorm <- sqrt(crossprod(pnew)/length(pnew))
+		if (res <= (kr * (1 + parnorm) + sqKp1)) {
+			par <- ptemp 
+			extrap <- TRUE
+			} else {
+				par <- p[, ncol(p)]
+				res <- sqKp1
+				extrap <- FALSE
+			}
+	} 	
+
+	iter <- iter+1
+ 	if (trace) cat(" residual: ", res, "extrapolation: ", extrap, "\n")
+
+}  # Main loop complete
+	if (feval > maxiter) conv <- FALSE
+
+return(list(par=par, fpevals=feval, objfevals = 0, value.objfn=NA, convergence=conv))
+
+}
+###################################################################
+
+# The EM algorithm
+#
+emiter <- function(p, fixptfn, objfn, tol=1.e-07, maxiter=5000, trace=FALSE, ...){
+
+iter <- 1
+objfeval <- 0
+loglik <- NULL
+
+while (iter < maxiter) {
+
+p.new <- fixptfn(p, ...)
+
+if (trace) {
+     loglik <- objfn(p, ...)
+     if(!(iter %% 10)) cat("Iter: ", iter, "Objective fn: ",loglik, "\n")
+	objfeval <- objfeval + 1
+	}
+res <- sqrt(crossprod(p.new - p))
+if ( res < tol) break
+p <- p.new
+iter <- iter+1
+}
+
+return(list(par=p, fpevals=iter, objfevals=objfeval, obj.fn=loglik))
+}
+
+###################################################################
+

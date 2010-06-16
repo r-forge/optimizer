@@ -1,0 +1,13 @@
+^Makefile$
+(^|.*/)core$
+(^|.*/)run$
+(^|.*/)zot$
+TMP$
+FLAGS$
+^Rplots.pdf$
+inst/doc/(^|.*)\.tex$
+inst/doc/(^|.*)\.R$
+inst/doc/(^|.*)\.log$
+inst/doc/(^|.*)\.stdout$
+.Rd2dvi(^|.*)
+(^|.*)\.ps$

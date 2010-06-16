@@ -33,7 +33,7 @@ The package \emph{setRNG} is not necessary, but if you want to exactly
 reproduce the examples in this guide then do this:
 \begin{Scode}
 require("setRNG") 
-setRNG(list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=1236))
+setRNG(list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=123))
 \end{Scode}
 after which the example need to be run in the order here (or at least the parts
 that generate random numbers). For some examples the RNG is reset again
@@ -41,28 +41,23 @@ so they can be reproduced more easily.
 
 \section{How to solve a nonlinear system of equations with SQUAREM?}
 
+Now, we show an example demonstrating the ability of SQUAREM to solve ...
 
-
-Now, we show an example demonstrating the ability of SQUAREM to solve a large system of equations, N = 10000.
-
+Generate a random initial guess for 3 parameters
 \begin{Scode}
+data("Hasselblad1969", package="SQUAREM")
+y <- poissmix.dat$freq
+tol <- 1.e-08
 
-trigexp <- function(x) {
-n <- length(x)
-F <- rep(NA, n)
-F[1] <- 3*x[1]^2 + 2*x[2] - 5 + sin(x[1] - x[2]) * sin(x[1] + x[2])
-tn1 <- 2:(n-1)
-F[tn1] <- -x[tn1-1] * exp(x[tn1-1] - x[tn1]) + x[tn1] * ( 4 + 3*x[tn1]^2) +
-        2 * x[tn1 + 1] + sin(x[tn1] - x[tn1 + 1]) * sin(x[tn1] + x[tn1 + 1]) - 8 
-F[n] <- -x[n-1] * exp(x[n-1] - x[n]) + 4*x[n] - 3
-F
-}
+setRNG(list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=123))
+p0 <- c(runif(1),runif(2,0,4))    
+\end{Scode}
 
-n <- 10000
-p0 <- runif(n)
-ans <- dfsane(par=p0, fn=trigexp, control=list(trace=FALSE))
-ans$message
-ans$resid
+
+EM algorithm
+\begin{Scode}
+pf1 <- emiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
+
 \end{Scode}
 
 \end{document}

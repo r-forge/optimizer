@@ -1,14 +1,15 @@
 
-source("squarem.txt")  # Source code for the master funcion and the 4 different SQUAREM algorithms
+require("SQUAREM")  # master funcion and the 4 different SQUAREM algorithms
+require("setRNG")   # only needed to reproduce the same results
 
-# Functions and data for Poisson mixture estimation 
-source("poissmix.txt")
+# data for Poisson mixture estimation 
+data(Hasselblad1969, package="SQUAREM")
 
 y <- poissmix.dat$freq
 tol <- 1.e-08
 
 # generate a random initial guess for 3 parameters
-set.seed(123)
+setRNG(list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=123))
 p0 <- c(runif(1),runif(2,0,4))    
 
 # fixptfn = function that computes a single update of fixed-point iteration

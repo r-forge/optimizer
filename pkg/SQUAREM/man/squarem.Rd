@@ -4,6 +4,7 @@
 \alias{squarem2}
 \alias{poissmix}
 \alias{poissmix.em}
+\alias{poissmix.loglik}
 \alias{cyclem1}
 \alias{cyclem2}
 \alias{emiter}
@@ -12,6 +13,7 @@
 \usage{
   poissmix.loglik(p,y)
   poissmix.em(p,y)
+  poissmix.loglik(p,y)
   squarem(par, fixptfn, objfn, ... , control=list())
   squarem1(par, fixptfn, objfn, ... , control=list())
   squarem2(par, fixptfn, ... , control=list() )
@@ -39,10 +41,10 @@
 The optimization ... .
 }
 \seealso{
-  \code{\link{BBsolve}},
-  \code{\link{BBoptim}},
-  \code{\link{dfsane}},
-  \code{\link{spg}}
+  \code{\link[BB]{BBsolve}},
+  \code{\link[BB]{BBoptim}},
+  \code{\link[BB]{dfsane}},
+  \code{\link[BB]{spg}}
    }
    
 \examples{

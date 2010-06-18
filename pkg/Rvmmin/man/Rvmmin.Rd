@@ -159,6 +159,15 @@ ansmax<-Rvmmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
 print(ansmax)
 ansnegmax<-Rvmmin(xx,negmaxfn, control=list(trace=1))
 print(ansnegmax)
+
+cat("test bounds and masks\n")
+nn<-6
+startx<-rep(pi,nn)
+lo<-rep(2,nn)
+up<-rep(10,nn)
+grbds1<-Rvmmin(startx,genrose.f,lower=lo,upper=up) 
+print(grbds1)
+
 }
 \keyword{nonlinear}
 \keyword{optimize}

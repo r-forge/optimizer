@@ -126,29 +126,53 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   if(is.null(upper) || ! is.finite(upper)) noupper=TRUE else noupper=FALSE
   if(nolower && noupper && all(bdmsk == 1)) bounds=FALSE else bounds=TRUE
   if (trace > 2) cat("Bounds: nolower = ",nolower,"  noupper  ",noupper," bounds = ",bounds,"\n")
+  if(nolower) lower<-rep(-Inf,n)
+  if(noupper) upper<-rep(Inf,n)
 ######## check bounds and masks #############
 ## NOTE: do this inline to avoid call (??should we change this?)
    if (bounds) {
+  ## tmp<-readline("There are bounds ")
+# Make sure to expand lower and upper
+   if(! nolower & (length(lower)<n)) {
+        ## tmp<-readline("Check length lower ")
+        if (length(lower)==1) { lower<-rep(lower,n) } else { stop("1<length(lower)<n") }
+   } # else lower OK
+   if(! noupper & (length(upper)<n)) {
+        ## tmp<-readline("Check length upper ")
+        if (length(upper)==1) { upper<-rep(upper,n) } else { stop("1<length(upper)<n") }
+   } # else upper OK
+# At this point, we have full bounds in play
 # This implementation as a loop, but try later to vectorize
      for (i in 1:n) {
+#       cat("i = ",i,"\n")
        if (bdmsk[i] == 0) { # NOTE: we do not change masked parameters, even if out of bounds
+           ## tmp<-readline("Masked parameter ")
+#           if(! nolower) {
            if(bvec[i]<lower[i]) { 
               if (trace>0) cat("WARNING: ",bvec[i]," = MASKED par[",i,"] < lower bound = ",lower[i],"\n")
            }
+#           }
+#           if(! noupper) {
            if(bvec[i]>upper[i]) { 
               if (trace>0) cat("WARNING: ",bvec[i]," = MASKED par[",i,"] > upper bound = ",upper[i],"\n")
            }
+#           }
        } else { # not masked
+           ## tmp<-readline(" Not masked parameter ")
+#           if(! nolower){
            if(bvec[i] <= lower[i]) { 
               if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
               bvec[i]<-lower[i]
               bdmsk[i] <- -3 # active lower bound
            }
+#           }
+#           if(! noupper) {
            if(bvec[i] >= upper[i]) { 
               if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
               bvec[i]<-upper[i]
               bdmsk[i] <- -1 # active upper bound
            }
+#           }
        } # end not masked
       } # end loop for bound/mask check
       if (trace>0) {

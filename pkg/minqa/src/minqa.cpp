@@ -52,12 +52,10 @@ static SEXP rval(NumericVector par, string cnm) {
     Environment rho(cf.environment());
     SEXP feval = rho.get(".feval.");
     StringVector cl(2);
-    int ip = 0, n = par.size();
-    double fval = F77_NAME(calfun)(&n, par.begin(), &ip);
     cl[0] = cnm;
     cl[1] = "minqa";
 
-    List rr = List::create(_["par"] = par, _["fval"] = fval, _["feval"] = feval);
+    List rr = List::create(_["par"] = par, _["fval"] = cf(par), _["feval"] = feval);
     rr.attr("class") = cl;
     return rr;
 }

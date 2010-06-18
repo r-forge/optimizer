@@ -11,7 +11,7 @@ reschk <- function(res) {
               is.numeric(res$par),
               all.equal(res$par, 1:4, tol = 2e-4),
               is.numeric(res$fval),
-              all.equal(res$fval, -10, tol = 1e-4),
+              all.equal(as.vector(res$fval), -10, check.attributes = FALSE, tol = 1e-4),
               is.integer(res$feval),
               res$feval > 0)
 }

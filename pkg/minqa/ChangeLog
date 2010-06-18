@@ -1,3 +1,14 @@
+2010-06-18  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/minqa.cpp: "fval" component of returned list is now directly
+	the function evaluation and not conversion to double and back to
+	NumericVector.  In particular, attributes are not stripped.
+
+	* tests/rvaltest.R: Modify test to ignore attributes (including
+	the dimensions).
+
+	* DESCRIPTION: New release.
+
 2010-03-14  Douglas Bates  <bates@stat.wisc.edu>
 
 	* src/*.f: Cleaned up more PRINT statements.  Changed CALL CALFUN

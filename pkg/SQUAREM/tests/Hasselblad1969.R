@@ -16,7 +16,7 @@ p0 <- c(runif(1),runif(2,0,4))
 #
 
 # EM algorithm
-  pf1 <- emiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
+  pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
   print(pf1$par, digits=16)
   good <- c(0.6401136228187346, 2.6634055536337877, 1.2560968051580201)
   if (1e-12 < max(abs(good - pf1$par))) stop("error in EM algorithm.")

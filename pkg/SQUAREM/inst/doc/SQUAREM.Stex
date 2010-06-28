@@ -56,7 +56,7 @@ p0 <- c(runif(1),runif(2,0,4))
 
 EM algorithm
 \begin{Scode}
-pf1 <- emiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
+pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
 
 \end{Scode}
 

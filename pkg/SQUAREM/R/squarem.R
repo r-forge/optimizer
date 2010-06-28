@@ -8,7 +8,7 @@ squarem <- function(par, fixptfn, objfn, ... , control=list()) {
 # See Varadhan and Roland (Scandinavian J Statistics 2008)
 # See Roland, Varadhan and Frangakis (Applied Numerical Mathematics 2007)
 #
-# Last modified: Feb 23 2010
+# Last modified: June 25, 2010
 #######################################################################
 #
 # par = starting value of parameter vector
@@ -183,7 +183,7 @@ while (feval < maxiter) {
 	if (feval > maxiter) conv <- FALSE
 	if (is.infinite(objfn.inc)) lold <- objfn(p, ...)
 
-return(list(par=p, fpevals=feval, objfevals = leval, value.objfn=lold, convergence=conv))
+return(list(par=p, value.objfn=lold, fpevals=feval, objfevals = leval, convergence=conv))
 
 }
 ###################################################################
@@ -292,7 +292,7 @@ while (feval < maxiter) {
 }
 	if (feval > maxiter) conv <- FALSE
 
-return(list(par=par, fpevals=feval, objfevals = 0, value.objfn=NA, convergence=conv))
+return(list(par=par, value.objfn=NA, fpevals=feval, objfevals = 0, convergence=conv))
 
 }
 #######################################################################
@@ -452,7 +452,7 @@ while (feval < maxiter & res > tol) {
 	if (feval > maxiter) conv <- FALSE
 }  # Main loop complete
 
-return(list(par=par, fpevals=feval, objfevals = leval, value.objfn=lold, convergence=conv))
+return(list(par=par, value.objfn=lold, fpevals=feval, objfevals = leval, convergence=conv))
 
 }
 ###################################################################
@@ -595,35 +595,38 @@ while (feval < maxiter & res > tol) {
 }  # Main loop complete
 	if (feval > maxiter) conv <- FALSE
 
-return(list(par=par, fpevals=feval, objfevals = 0, value.objfn=NA, convergence=conv))
+return(list(par=par, value.objfn=NA, fpevals=feval, objfevals = 0, convergence=conv))
 
 }
 ###################################################################
 
 # The EM algorithm
 #
-emiter <- function(p, fixptfn, objfn, tol=1.e-07, maxiter=5000, trace=FALSE, ...){
+fpiter <- function(par, fixptfn, objfn=NULL, tol=1.e-07, maxiter=5000, trace=FALSE, ...){
 
 iter <- 1
-objfeval <- 0
-loglik <- NULL
+resid <- rep(NA,1)
+objeval <- 0
+conv <- FALSE
 
 while (iter < maxiter) {
 
-p.new <- fixptfn(p, ...)
+p.new <- fixptfn(par, ...)
+res <- sqrt(crossprod(p.new - par))
+
+if ( res < tol) {conv <- TRUE; break}
 
 if (trace) {
-     loglik <- objfn(p, ...)
-     if(!(iter %% 10)) cat("Iter: ", iter, "Objective fn: ",loglik, "\n")
-	objfeval <- objfeval + 1
+     if (!is.null(objfn)) {cat("Iter: ", iter, "Objective fn: ",objfn(par, ...), "\n"); objeval <- objeval + 1}
+     else cat("Iter: ", iter, "Residual: ",res, "\n")
 	}
-res <- sqrt(crossprod(p.new - p))
-if ( res < tol) break
-p <- p.new
+  par <- p.new
 iter <- iter+1
 }
 
-return(list(par=p, fpevals=iter, objfevals=objfeval, obj.fn=loglik))
+loglik.best <-  if (!is.null(objfn)) objfn(par, ...) else NA
+
+return(list(par=par, value.objfn=loglik.best, fpevals=iter, objfevals = objeval, convergence=conv))
 }
 
 ###################################################################

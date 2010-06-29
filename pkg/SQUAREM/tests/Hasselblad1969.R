@@ -1,8 +1,8 @@
 require("SQUAREM")  # master funcion and the 4 different SQUAREM algorithms
 require("setRNG")   # needed to reproduce the same results
 
-# data for Poisson mixture estimation 
-data(Hasselblad1969, package="SQUAREM")
+# data for Poisson mixture estimation  from Hasselblad (JASA 1969)
+poissmix.dat <- data.frame(death=0:9, freq=c(162,267,271,185,111,61,27,8,3,1))
 
 y <- poissmix.dat$freq
 tol <- 1.e-08

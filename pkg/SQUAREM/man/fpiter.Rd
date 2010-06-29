@@ -126,7 +126,8 @@ f
 # This is a famous matrix for which power method has trouble converging
 # See, for example, Sidi, Ford, and Smith (SIAM Review, 1988) 
 #
-# Note: there are two eigenvalues that are equally dominant, but have opposite signs!!
+# Note: there are two eigenvalues that are equally dominant, 
+#  but have opposite signs.
 # Sometimes the power method finds the eigenvector corresponding to the 
 # large positive eigenvalue, but other times it finds the eigenvector
 # corresponding to the large negative eigenvalue

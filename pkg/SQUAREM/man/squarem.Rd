@@ -179,20 +179,25 @@ p0 <- c(runif(1),runif(2,0,4))  # random starting value
 pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, tol=tol)
 
 # First-order SQUAREM algorithm with SqS3 method
-pf2 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, control=list(tol=tol))
+pf2 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, 
+               control=list(tol=tol))
 
 # First-order SQUAREM algorithm with SqS2 method
-pf3 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, control=list(method=2, tol=tol))
+pf3 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, 
+               control=list(method=2, tol=tol))
 
 # First-order SQUAREM algorithm with SqS3 method; non-monotone 
 # Note: the objective function is not evaluated when objfn.inc = Inf 
-pf4 <- squarem(par=p0,y=y, fixptfn=poissmix.em, control=list(tol=tol, objfn.inc=Inf))
+pf4 <- squarem(par=p0,y=y, fixptfn=poissmix.em,
+               control=list(tol=tol, objfn.inc=Inf))
 
-# First-order SQUAREM algorithm with SqS3 method; objective function is not specified
+# First-order SQUAREM algorithm with SqS3 method; 
+#  objective function is not specified
 pf5 <- squarem(par=p0,y=y, fixptfn=poissmix.em, control=list(tol=tol, kr=0.1))
 
 # Second-order (K=2) SQUAREM algorithm with SqRRE 
-pf6 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, control=list (K=2, tol=tol))
+pf6 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, 
+               control=list (K=2, tol=tol))
 
 # Second-order SQUAREM algorithm with SqRRE; objective function is not specified
 pf7 <- squarem(par=p0, y=y, fixptfn=poissmix.em, control=list(K=2, tol=tol))
@@ -201,14 +206,19 @@ pf7 <- squarem(par=p0, y=y, fixptfn=poissmix.em, control=list(K=2, tol=tol))
 par.mat <- rbind(pf1$par, pf2$par, pf3$par, pf4$par, pf5$par, pf6$par, pf7$par)
 par.mat
 
-# Compare objective function values (note: `NA's indicate that \code{objfn} was not specified)
-c(pf1$value, pf2$value, pf3$value, pf4$value, pf5$value, pf6$value, pf7$value)
+# Compare objective function values 
+# (note: `NA's indicate that \code{objfn} was not specified)
+c(pf1$value, pf2$value, pf3$value, pf4$value, 
+  pf5$value, pf6$value, pf7$value)
 
 # Compare number of fixed-point evaluations
-c(pf1$fpeval, pf2$fpeval, pf3$fpeval, pf4$fpeval, pf5$fpeval, pf6$fpeval, pf7$fpeval)
+c(pf1$fpeval, pf2$fpeval, pf3$fpeval, pf4$fpeval, 
+  pf5$fpeval, pf6$fpeval, pf7$fpeval)
 
-# Compare mumber of objective function evaluations (note: `0' indicate that \code{objfn} was not specified)
-c(pf1$objfeval, pf2$objfeval, pf3$objfeval, pf4$objfeval, pf5$objfeval, pf6$objfeval, pf7$objfeval)
+# Compare mumber of objective function evaluations 
+# (note: `0' indicate that \code{objfn} was not specified)
+c(pf1$objfeval, pf2$objfeval, pf3$objfeval, pf4$objfeval, 
+  pf5$objfeval, pf6$objfeval, pf7$objfeval)
 
 
 ##############################################################################
@@ -219,7 +229,7 @@ power.method <- function(x, A) {
 # Defines one iteration of the power method
 # x = starting guess for dominant eigenvector
 # A = a square matrix
-ax <- c(A %*% x)
+ax <- c(A \%*\% x)
 f <- ax / ax[1]
 f
 }
@@ -247,7 +257,8 @@ ans1$par <- ans1$par / sqrt(sum(ans1$par^2))
 ans1
 
 # First-order SQUAREM with default settings (especially, step.min0 = 1)
-# Note: convergence is not accelerated because `power.method' is NOT a contraction mapping
+# Note: convergence is not accelerated because `
+#  power.method' is NOT a contraction mapping
 ans2 <- squarem(p0, fixptfn=power.method, A=bodewig.mat, control=list(K=1))
 ans2$par <- ans2$par / sqrt(sum(ans2$par^2))
 ans2

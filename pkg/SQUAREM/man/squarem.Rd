@@ -154,7 +154,7 @@ p <- pnew
 return(pnew)
 }
 
-poissmix.mloglik <- function(p,y) {
+poissmix.loglik <- function(p,y) {
 # Objective function whose local minimum is a fixed point 
 # negative log-likelihood of binary poisson mixture
 i <- 0:(length(y)-1)
@@ -176,14 +176,14 @@ old.seed <- setRNG(list(kind="Mersenne-Twister", normal.kind="Inversion",
 p0 <- c(runif(1),runif(2,0,4))  # random starting value
 
 # Basic EM algorithm
-pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, tol=tol)
+pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
 
 # First-order SQUAREM algorithm with SqS3 method
-pf2 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, 
+pf2 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, 
                control=list(tol=tol))
 
 # First-order SQUAREM algorithm with SqS2 method
-pf3 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, 
+pf3 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, 
                control=list(method=2, tol=tol))
 
 # First-order SQUAREM algorithm with SqS3 method; non-monotone 
@@ -196,7 +196,7 @@ pf4 <- squarem(par=p0,y=y, fixptfn=poissmix.em,
 pf5 <- squarem(par=p0,y=y, fixptfn=poissmix.em, control=list(tol=tol, kr=0.1))
 
 # Second-order (K=2) SQUAREM algorithm with SqRRE 
-pf6 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, 
+pf6 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, 
                control=list (K=2, tol=tol))
 
 # Second-order SQUAREM algorithm with SqRRE; objective function is not specified

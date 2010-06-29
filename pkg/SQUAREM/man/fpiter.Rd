@@ -78,7 +78,7 @@ p <- pnew
 return(pnew)
 }
 
-poissmix.mloglik <- function(p,y) {
+poissmix.loglik <- function(p,y) {
 # Objective function whose local minimum is a fixed point \
 # negative log-likelihood of binary poisson mixture
 i <- 0:(length(y)-1)
@@ -100,7 +100,7 @@ old.seed <- setRNG(list(kind="Mersenne-Twister", normal.kind="Inversion",
 p0 <- c(runif(1),runif(2,0,4))  # random starting value
 
 # Basic EM algorithm
-pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.mloglik, tol=tol)
+pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
 
 
 ##############################################################################

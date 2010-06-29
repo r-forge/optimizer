@@ -16,6 +16,30 @@ p0 <- c(runif(1),runif(2,0,4))
 #
 
 # EM algorithm
+
+poissmix.em <- function(p,y) {
+# The fixed point mapping giving a single E and M step of the EM algorithm
+# 
+pnew <- rep(NA,3)
+i <- 0:(length(y)-1)
+zi <- p[1]*exp(-p[2])*p[2]^i / (p[1]*exp(-p[2])*p[2]^i + (1 - p[1])*exp(-p[3])*p[3]^i)
+pnew[1] <- sum(y*zi)/sum(y)
+pnew[2] <- sum(y*i*zi)/sum(y*zi)
+pnew[3] <- sum(y*i*(1-zi))/sum(y*(1-zi))
+p <- pnew
+return(pnew)
+}
+
+poissmix.loglik <- function(p,y) {
+# Objective function whose local minimum is a fixed point \
+# negative log-likelihood of binary poisson mixture
+i <- 0:(length(y)-1)
+loglik <- y*log(p[1]*exp(-p[2])*p[2]^i/exp(lgamma(i+1)) + 
+		(1 - p[1])*exp(-p[3])*p[3]^i/exp(lgamma(i+1)))
+return ( -sum(loglik) )
+}
+
+
   pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
   print(pf1$par, digits=16)
   good <- c(0.6401136228187346, 2.6634055536337877, 1.2560968051580201)

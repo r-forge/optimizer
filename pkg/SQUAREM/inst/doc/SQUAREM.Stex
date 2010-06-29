@@ -11,7 +11,7 @@
 \end{Scode}
 
 \section{Overview of SQUAREM}
-``SQUAREM'' is a package intended for 
+''SQUAREM'' is a package intended for 
 
 The functions in this package are made 
 available with:
@@ -41,11 +41,14 @@ so they can be reproduced more easily.
 
 \section{How to solve a nonlinear system of equations with SQUAREM?}
 
-Now, we show an example demonstrating the ability of SQUAREM to solve ...
+Now, we show an example demonstrating the ability of SQUAREM to solve 
+for Poisson mixture estimation using data from Hasselblad (JASA 1969)
+\begin{Scode}
+poissmix.dat <- data.frame(death=0:9, freq=c(162,267,271,185,111,61,27,8,3,1))
+\end{Scode}
 
 Generate a random initial guess for 3 parameters
 \begin{Scode}
-data("Hasselblad1969", package="SQUAREM")
 y <- poissmix.dat$freq
 tol <- 1.e-08
 

@@ -288,6 +288,11 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
                keepgoing<-FALSE
                break
             }
+            if (is.na(f)) {
+                 cat("Current bvec:")
+                 print(bvec)
+		 stop("f is NA") 
+	    }
             if (f < fmin) { # We have a lower point. Is it "low enough" i.e., acceptable
               accpoint <- ( f <= fmin + gradproj * steplength * acctol)
             } else {

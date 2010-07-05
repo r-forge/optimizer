@@ -153,22 +153,62 @@ negmaxfn<-function(x) {
 }
 
 
-n<-6
-xx<-rep(1,n)
+nn<-6
+xx<-rep(1,nn)
 ansmax<-Rvmmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
 print(ansmax)
 ansnegmax<-Rvmmin(xx,negmaxfn, control=list(trace=1))
 print(ansnegmax)
 
 cat("test bounds and masks\n")
-nn<-6
+nn<-4
 startx<-rep(pi,nn)
 lo<-rep(2,nn)
 up<-rep(10,nn)
 grbds1<-Rvmmin(startx,genrose.f,lower=lo,upper=up) 
 print(grbds1)
 
+cat("test lower bound only\n")
+nn<-4
+startx<-rep(pi,nn)
+lo<-rep(2,nn)
+grbds2<-Rvmmin(startx,genrose.f,lower=lo) 
+print(grbds2)
+
+cat("test lower bound single value only\n")
+nn<-4
+startx<-rep(pi,nn)
+lo<-2
+up<-rep(10,nn)
+grbds3<-Rvmmin(startx,genrose.f,lower=lo) 
+print(grbds3)
+
+cat("test upper bound only\n")
+nn<-4
+startx<-rep(pi,nn)
+lo<-rep(2,nn)
+up<-rep(10,nn)
+grbds4<-Rvmmin(startx,genrose.f,upper=up) 
+print(grbds4)
+
+cat("test upper bound single value only\n")
+nn<-4
+startx<-rep(pi,nn)
+grbds5<-Rvmmin(startx,genrose.f,upper=10) 
+print(grbds5)
+
+
+cat("test masks only\n")
+nn<-6
+bd<-c(1,1,0,0,1,1)
+startx<-rep(pi,nn)
+grbds6<-Rvmmin(startx,genrose.f,bdmsk=bd) 
+print(grbds6)
+
 }
+
+
+
 \keyword{nonlinear}
 \keyword{optimize}
 

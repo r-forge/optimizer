@@ -4,6 +4,11 @@ Known problems
 	algorithm gets stuck and does not improve (so does not converge). The
 	workaround is to restart with a very slightly perturbed starting point.       
 
+Changes in GPArotation version 2010.07-1
+
+   o	Fix an error caused by an exact initial setting (from William Revelle).
+
+
 Changes in GPArotation version 2009.02-2
 
    o	Standardized NEWS format for new function news().

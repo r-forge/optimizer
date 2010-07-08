@@ -73,6 +73,8 @@ GPForth <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
  G <- crossprod(A,VgQ$Gq)
  f <- VgQ$f
  Table <- NULL
+ #set initial value for the unusual case of an exact initial solution 
+ VgQt <- do.call(Method, append(list(L), methodArgs))   
  for (iter in 0:maxit){
    M <- crossprod(Tmat,G)
    S <- (M + t(M))/2
@@ -124,6 +126,8 @@ GPFoblq <- function(A, Tmat=diag(ncol(A)), normalize=FALSE, eps=1e-5, maxit=1000
  f <- VgQ$f
  Table <- NULL
  #Table <- c(-1,f,log10(sqrt(sum(diag(crossprod(G))))),al)
+ #set initial value for the unusual case of an exact initial solution 
+ VgQt <- do.call(Method, append(list(L), methodArgs))   
  for (iter in 0:maxit){
    Gp <- G - Tmat %*% diag(c(rep(1,nrow(G)) %*% (Tmat*G)))
    s <- sqrt(sum(diag(crossprod(Gp))))

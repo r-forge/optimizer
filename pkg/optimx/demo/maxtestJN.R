@@ -19,12 +19,12 @@ negmaxfn<-function(x) {
 }
 
 x0<-rep(pi,4)
-ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=1))
+ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=TRUE))
 optansout(ans.mx, filename="./ansmx.txt")
 
 x00<-c(1,2,3,4)
 # Test if things work when we provide the solution!
-ans.mx0<-optimx(x0,maxfn,control=list(all.methods=TRUE,maximize=TRUE,save.failures=TRUE,trace=1))
+ans.mx0<-optimx(x0,maxfn,control=list(all.methods=TRUE,maximize=TRUE,save.failures=TRUE,trace=TRUE))
 optansout(ans.mx, filename="./ansmx0.txt")
 
 

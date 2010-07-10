@@ -306,6 +306,15 @@ Each such list has possible elements:
   \code{optimx} will work with one-dimensional \code{par}s, but the
   default method does not work well (and will warn).  Use
   \code{\link{optimize}} instead.
+
+  There are a series of demos available. These were set up as tests, but take quite
+  a long time to execute. Once the package is loaded (via \code{require(optimx)} or
+  \code{library(optimx)}, you may see available demos via 
+
+  demo(package="optimx")
+
+  The demo 'brown_test' may be run with the command
+  demo(brown_test, package="optimx")
 }
 \source{
   The code for methods \code{"Nelder-Mead"}, \code{"BFGS"} and
@@ -462,6 +471,10 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 startx<-4*seq(1:10)/3.
 ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE), gs=10)
 print(ans8)
+
+get.result(ans8, attribute="grs")
+get.result(ans8, method="spg")
+
 
 startx<-4*seq(1:10)/3.
 cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")

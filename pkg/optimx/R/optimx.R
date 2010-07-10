@@ -676,6 +676,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- 0
+                # cat("bobyqa - ans$feval = \n")
+                print(ans$feval)
                 if (ans$feval > mcontrol$maxfun) {
 			ans$conv <- 1 # too many evaluations
                 }

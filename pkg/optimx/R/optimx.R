@@ -111,14 +111,14 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		upper<-rep(Inf,npar)
 	}
 	newpar<-abs(par[which(is.finite(par))])
-	logpar<-log(newpar[which(newpar>0)])
+	logpar<-log10(newpar[which(newpar>0)]) # Change 20100711
 	newlower<-abs(lower[which(is.finite(lower))])
-	loglower<-log(newlower[which(newlower>0)])
+	loglower<-log10(newlower[which(newlower>0)]) # Change 20100711
 	newupper<-abs(upper[which(is.finite(upper))])
-	logupper<-log(newupper[which(newupper>0)])
+	logupper<-log10(newupper[which(newupper>0)]) # Change 20100711
 	bddiff<-upper-lower
 	bddiff<-bddiff[which(is.finite(bddiff))]
-	lbd<-log(bddiff[which(bddiff>0)])
+	lbd<-log10(bddiff[which(bddiff>0)]) # Change 20100711
 	lpratio<-max(logpar) - min(logpar)
 	if (length(lbd) > 0) {
 		lbratio<-max(lbd)-min(lbd)
@@ -259,7 +259,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	  } 
   	} # end have.bounds
         # Check if function can be computed
-        firsttry<-try(finit<-ufn(par, ...) ) 
+        firsttry<-try(finit<-ufn(par, ...), silent=TRUE ) # 20100711
         # Note: This incurs one EXTRA function evaluation because optimx is a wrapper for other methods
         if (class(firsttry) == "try-error") {
     	   infeasible <- TRUE
@@ -465,6 +465,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         # Here we use portLib routine nlminb rather than optim as our minimizer
         mcontrol$iter.max<-mcontrol$maxit # different name for iteration limit in this routine
         mcontrol$maxit<-NULL
+        mcontrol$abs.tol<-0 # To fix issues when minimum is less than 0. 20100711
 	if( is.null(mcontrol$trace) || is.na(mcontrol$trace) || mcontrol$trace == 0) { 
 		mcontrol$trace = 0
 	} else { 
@@ -676,8 +677,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- 0
-                # cat("bobyqa - ans$feval = \n")
-                print(ans$feval)
+                # cat("bobyqa - ans$feval = ans$feval\n")
                 if (ans$feval > mcontrol$maxfun) {
 			ans$conv <- 1 # too many evaluations
                 }
@@ -812,9 +812,9 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
               if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
               gradOK<-FALSE
               if (is.null(gr)) {
-                  ngatend<-try(grad(ufn, ans$par, ...))
+                  ngatend<-try(grad(ufn, ans$par, ..., silent=TRUE)) # change 20100711
               } else {
-                  ngatend<-try(ugr(ans$par, ...)) # Gradient at solution
+                  ngatend<-try(ugr(ans$par, ..., silent=TRUE)) # Gradient at solution # change 20100711
               }
               if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
               if ( (! gradOK) & (ctrl$trace>0)) cat("Gradient computations failure!\n") # ???? remove
@@ -823,9 +823,9 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                   ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
                   if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
                   if (is.null(gr)) {
-                      nhatend<-try(hessian(ufn, ans$par, ...))
+                      nhatend<-try(hessian(ufn, ans$par, ..., silent=TRUE)) # change 20100711
                   } else {
-                      nhatend<-try(jacobian(ugr,ans$par, ...))
+                      nhatend<-try(jacobian(ugr,ans$par, ..., silent=TRUE)) # change 20100711
                   } # numerical hessian at "solution"
                   if (class(nhatend) != "try-error") {
                       # For bounds constraints, we need to "project" the gradient and Hessian
@@ -837,11 +837,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                       nhatend[, bset] <-0 # and the Hessian
                       ans$ngatend <- ngatend
                       ans$nhatend <- nhatend
-                      hev<- try(eigen(nhatend)$values) # 091215 use try in case of trouble
+                      hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble, # 20100711 silent
                       if (class(hev) != "try-error") {
                           ans$evnhatend <- hev # answers are OK
                           # now look at Hessian
-                          negeig<-(ans$evnhatend[npar] <= (-1)*ctrl$kkttol*(1.0+abs(ans$value)))
+                          negeig<-(ans$evnhatend[npar] <= (-1)*ctrl$kkt2tol*(1.0+abs(ans$value))) # 20100711 kkt2tol
                           evratio<-ans$evnhatend[npar-nbds]/ans$evnhatend[1]
                           # If non-positive definite, then there will be zero eigenvalues (from the projection)
                           # in the place of the "last" eigenvalue and we'll have singularity.

@@ -256,6 +256,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     if (pginfn <= gtol) conv <- list(type=0, message="Successful convergence")
     if (iter >= maxit)  conv <- list(type=1, message="Maximum number of iterations exceeded")
     f.rep <- (-1)^maximize * fbest  # This bug was fixed by Ravi Varadhan.  March 29, 2010.
+    par <- pbest
     } else {
       par <- pbest
       f.rep <- f <- (-1)^maximize * fbest

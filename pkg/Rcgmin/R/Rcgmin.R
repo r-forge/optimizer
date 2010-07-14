@@ -182,10 +182,12 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
     } # end if bounds
 ############## end bounds check #############
 # Initial function value -- may NOT be at initial point specified by user.
-  cat("Try function at initial point:")
-  print(bvec)
+  if (trace > 2) {
+	cat("Try function at initial point:")
+	print(bvec)
+  }
   f <- try(do.call("myfn", append(list(bvec), fargs )), silent=TRUE) # Compute the function at initial point.
-  cat("f=",f,"\n")
+  if (trace>0) {  cat("Initial function value=",f,"\n")  }
   if ( class(f) == "try-error") { 
      msg<-"Initial point is infeasible."
      if(trace > 0) cat(msg,"\n")

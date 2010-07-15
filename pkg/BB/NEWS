@@ -3,6 +3,9 @@ Changes in BB version 2010.7-1
    o	Added fix to spg for some cases when the best value does not get 
    	properly returned.
 
+   o	Fix sign of printed value (trace=TRUE) on initial iteration of spg 
+   	maximization problem.
+
 Changes in BB version 2010.5-1 
 	   
    o	Changed BBsolve to avoid using Nelder-Mead in one dimensional problems

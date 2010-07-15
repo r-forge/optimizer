@@ -163,7 +163,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   gbest <- pg2n
   if (pginfn != 0) lambda <- min(lmax, max(lmin, 1/pginfn))
  
-  if (trace) cat("iter: ",0, " f-value: ", f0, " pgrad: ",pginfn, "\n")
+  if (trace) cat("iter: ",0, " f-value: ", f0 * (-1)^maximize, " pgrad: ",pginfn, "\n")
 
   #######################
   #  Main iterative loop

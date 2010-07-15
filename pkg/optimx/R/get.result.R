@@ -1,12 +1,11 @@
 ##################################################################
-get.result <- function(optimx.obj, attribute = NULL, 
-    method = NULL) {
+get.result <- function(optimx.obj, method = NULL, attribute = NULL) {
     # optimx.obj = object returned by `optimx'
     # method = method for which all results are desired (e.g. `spg')
     # attribute = type of result desired for all methods (e.g. `fvalues')
     #
     if (!is.null(attribute) & is.null(method)) {
-        allattr <- names(optimx.obj)[!(names(ans8) %in% "method")]
+        allattr <- names(optimx.obj)[!(names(optimx.obj) %in% "method")]
         attrib <- unique(match.arg(attribute, allattr, several.ok = TRUE))
         
         sel.attr <- names(optimx.obj) %in% attrib

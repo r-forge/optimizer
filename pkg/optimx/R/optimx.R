@@ -812,9 +812,9 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
               if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
               gradOK<-FALSE
               if (is.null(gr)) {
-                  ngatend<-try(grad(ufn, ans$par, ..., silent=TRUE)) # change 20100711
+                  ngatend<-try(grad(ufn, ans$par, ...), silent=TRUE) # change 20100711
               } else {
-                  ngatend<-try(ugr(ans$par, ..., silent=TRUE)) # Gradient at solution # change 20100711
+                  ngatend<-try(ugr(ans$par, ...), silent=TRUE) # Gradient at solution # change 20100711
               }
               if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
               if ( (! gradOK) & (ctrl$trace>0)) cat("Gradient computations failure!\n") # ???? remove
@@ -823,9 +823,9 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                   ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
                   if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
                   if (is.null(gr)) {
-                      nhatend<-try(hessian(ufn, ans$par, ..., silent=TRUE)) # change 20100711
+                      nhatend<-try(hessian(ufn, ans$par), ..., silent=TRUE) # change 20100711
                   } else {
-                      nhatend<-try(jacobian(ugr,ans$par, ..., silent=TRUE)) # change 20100711
+                      nhatend<-try(jacobian(ugr,ans$par), ..., silent=TRUE) # change 20100711
                   } # numerical hessian at "solution"
                   if (class(nhatend) != "try-error") {
                       # For bounds constraints, we need to "project" the gradient and Hessian
@@ -928,3 +928,4 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
     } 
     return(ansout)
 } ## end of optimx
+

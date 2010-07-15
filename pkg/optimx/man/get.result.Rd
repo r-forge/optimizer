@@ -21,7 +21,8 @@ get.result(optimx.obj, method, attribute)
 \arguments{
  \item{optimx.obj}{object returned by `optimx'}
  \item{method}{Name of the method for which all results are desired (e.g. `spg')}
- \item{attribute}{type of result desired for all methods (e.g. `fvalues')}
+ \item{attribute}{type of result desired for all methods (e.g. `fvalues').
+      There is partial matching on inputs, so `fval' will recover `fvalues'.}
 }
 \details{
   None

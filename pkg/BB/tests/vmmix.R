@@ -85,8 +85,8 @@ Userproject <- function(x, lower, upper, ...) {
        }
 
 ans.spg2 <- spg(par=p, fn=vmmix.loglik, y=y, 
-   lower=lo, upper=hi,
    project="Userproject",
+   projectArgs=list(lower=lo, upper=hi),
    control=list(maxit=2500, gtol=1.e-06, M=20, trace=T))[1]
 
 

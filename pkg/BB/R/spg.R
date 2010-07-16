@@ -1,6 +1,16 @@
 spg <- function(par, fn, gr=NULL, method=3, project="projectBox", 
-           lower=-Inf, upper=Inf, projectArgs=list(lower=lower, upper=upper), 
+           lower=-Inf, upper=Inf, projectArgs=NULL, 
 	   control=list(), quiet=FALSE,  ... ) {
+
+  # projectBox defaults
+  if ((project=="projectBox") & is.null(projectArgs)){
+      projectArgs <- list(lower=lower, upper=upper)
+      #  expand upper and lower for all par
+      if (length(projectArgs$lower)==1)
+          projectArgs$lower <- rep(projectArgs$lower, length(par))
+      if (length(projectArgs$upper)==1)
+          projectArgs$upper <- rep(projectArgs$upper, length(par))
+      }
 
   # control defaults
   ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, 
@@ -19,12 +29,6 @@ spg <- function(par, fn, gr=NULL, method=3, project="projectBox",
   triter   <- ctrl$triter
   eps      <- ctrl$eps
   checkGrad.tol <- ctrl$checkGrad.tol  
-
-  #  expand upper and lower for all par
-  if (length(projectArgs$lower)==1)
-          projectArgs$lower <- rep(projectArgs$lower, length(par))
-  if (length(projectArgs$upper)==1)
-          projectArgs$upper <- rep(projectArgs$upper, length(par))
     
   grNULL <- is.null(gr)  
   fargs <- list(...)

@@ -4,7 +4,7 @@
 \description{Spectral projected gradient method for large-scale optimization with simple constraints.}
 \usage{
      spg(par, fn, gr=NULL, method=3, project="projectBox", 
-           lower=-Inf, upper=Inf, projectArgs=list(lower=lower, upper=upper), 
+           lower=-Inf, upper=Inf, projectArgs=NULL, 
 	   control=list(), quiet=FALSE, ...)
  }
 \arguments{
@@ -103,13 +103,15 @@ convergence to a better optimum in our experiments.
 We recommend that the user try the other steplength schemes if the default 
 method does not perform well in their problem.  
 
-Argument \code{project} defaults to \code{"projectBox"}, which gives projection using constraints defined by vectors \code{lower} and \code{upper} defined in the \code{projectArgs} list. 
-These default  \code{projectArgs=NULL} is expanded (if project == \code{"projectBox"}) to set \code{lower} to \code{-Inf} and \code{upper} to \code{+Inf}, but the user 
-can specify \code{lower} and \code{upper} in \code{projectArgs} to enforce box constraints. Scalar values for \code{lower} and \code{upper} are expanded by \code{spg} to apply to all parameters.  
+Argument \code{project} defaults to \code{"projectBox"}, which gives projection using constraints defined by vectors \code{lower} and \code{upper} defined in the \code{projectArgs} list. The arguments \code{lower} and \code{upper} provide
+a simplified way to specify these, but \code{projectArgs} will take precedence
+if it is specified.
+The default  \code{projectArgs=NULL} is expanded (if \code{project == "projectBox"}) to use \code{lower} and \code{upper}. The default \code{lower} is \code{-Inf} and \code{upper} is \code{+Inf}, which implies no constraint.
+The user can specify \code{lower} and \code{upper} to enforce box constraints. Scalar values for \code{lower} and \code{upper} are expanded by \code{spg} to apply to all parameters.
+ 
 The user can also provide a \code{project} function to enforce more 
 complicated linear or nonlinear and equality or inequality constraints. 
-
-In all cases other than \code{projectArgs=NULL} the argument \code{projectArgs} is passed to \code{project} without changes.
+In all cases other than \code{project == "projectBox"} with \code{projectArgs=NULL} the argument \code{projectArgs} is passed to \code{project} without changes.
  
 Argument \code{control} is a list specifing any changes to default values of 
 algorithm control parameters.  Note that the names of these must be 

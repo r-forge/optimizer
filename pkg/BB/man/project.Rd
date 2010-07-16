@@ -34,7 +34,7 @@ MORE HERE ?
 
 The user can define other projection functions, which allows for arbitrary nonlinear projections that the user may define. The first argument should be 
 \code{par} and any other arguments should be passed to \code{spg} using its
-argument \code{projectArgs}.
+argument \code{projectArgs}.  
 }
 \seealso{
   \code{\link{spg}}

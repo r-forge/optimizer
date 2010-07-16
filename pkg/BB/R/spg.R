@@ -1,5 +1,6 @@
-spg <- function(par, fn, gr=NULL, method=3, project=NULL, 
-           lower=-Inf, upper=Inf,  control=list(), quiet=FALSE,  ... ) {
+spg <- function(par, fn, gr=NULL, method=3, project="projectBox", 
+           lower=-Inf, upper=Inf, projectArgs=list(lower=lower, upper=upper), 
+	   control=list(), quiet=FALSE,  ... ) {
 
   # control defaults
   ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, 
@@ -19,9 +20,12 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   eps      <- ctrl$eps
   checkGrad.tol <- ctrl$checkGrad.tol  
 
-  if (any(is.finite(lower)) & length(lower)==1) lower <- rep(lower, length(par))
-  if (any(is.finite(upper)) & length(upper)==1) upper <- rep(upper, length(par))
-  
+  #  expand upper and lower for all par
+  if (length(projectArgs$lower)==1)
+          projectArgs$lower <- rep(projectArgs$lower, length(par))
+  if (length(projectArgs$upper)==1)
+          projectArgs$upper <- rep(projectArgs$upper, length(par))
+    
   grNULL <- is.null(gr)  
   fargs <- list(...)
   ################ local function
@@ -87,15 +91,6 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     	df
 	}
 
-
-  # This provides box constraints defined by upper and lower
-  # local functions defined only when user does not specify project.
-  if (is.null(project)) project <- function(par, lower, upper, ...) {
-       # Projecting to ensure that box-constraints are satisfied
-       par[par < lower] <- lower[par < lower]
-       par[par > upper] <- upper[par > upper]
-       return(par)
-       }
   #############################################
 
   #  Initialization
@@ -116,7 +111,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
 
 
   # Project initial guess
-  par <- try(project(par, lower, upper, ...), silent=TRUE)
+  par <- try(do.call(project,  append(list(par), projectArgs)), silent=TRUE)
  
   if (class(par) == "try-error") 
         stop("Failure in projecting initial guess!", par)
@@ -149,7 +144,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
  
   lastfv[1] <- fbest <- f
  
-  pg <- try(project(par - g, lower, upper, ...),silent=TRUE)
+  pg <- try(do.call(project,  append(list(par - g), projectArgs)),silent=TRUE)
  
   if (class(pg)=="try-error" ) 
         stop("Failure in initial projection!", pg)
@@ -172,7 +167,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   while( pginfn > gtol & iter <= maxit ) {
       iter <- iter + 1
  
-      d <- try(project(par - lambda * g, lower, upper, ...), silent=TRUE)
+      d <- try(do.call(project,  append(list(par - lambda * g), projectArgs)), silent=TRUE)
  
       if (class(d) == "try-error" | any(is.nan(d))  ) {
         lsflag <- 4
@@ -224,7 +219,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
       par <- pnew
       g   <- gnew
  
-      pg <- try(project(par - g, lower, upper, ...), silent=TRUE)
+      pg <- try( do.call(project, append(list(par - g), projectArgs)), silent=TRUE)
  
       if (class(pg) == "try-error" | any(is.nan(pg)) ) {
   	lsflag <- 4

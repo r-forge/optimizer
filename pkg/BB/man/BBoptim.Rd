@@ -5,7 +5,7 @@
   optimize a nonlinear objective function subject to box constraints.}
 \usage{
   BBoptim(par, fn, gr=NULL, method=c(2,3,1), project="projectBox", 
-  	lower=-Inf, upper=Inf, projectArgs=list(lower=lower, upper=upper),
+  	lower=-Inf, upper=Inf, projectArgs=NULL,
 	control=list(), quiet=FALSE, ...) 
   }
 \arguments{

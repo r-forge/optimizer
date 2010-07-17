@@ -3,7 +3,7 @@
 \title{Large-Scale Optimization}
 \description{Spectral projected gradient method for large-scale optimization with simple constraints.}
 \usage{
-     spg(par, fn, gr=NULL, method=3, project="projectBox", 
+     spg(par, fn, gr=NULL, method=3, project=NULL, 
            lower=-Inf, upper=Inf, projectArgs=NULL, 
 	   control=list(), quiet=FALSE, ...)
  }
@@ -168,7 +168,6 @@ the progress of optimization is printed.  Default is \code{trace = TRUE}.}
    R Varadhan and PD Gilbert (2009),  BB: An R Package for Solving a Large System of Nonlinear Equations and for Optimizing a High-Dimensional Nonlinear Objective Function, \emph{J. Statistical Software}, 32:4, \url{http://www.jstatsoft.org/v32/i04/}
 }
 \seealso{
-  \code{\link{projectBox}},
   \code{\link{projectLinear}},
   \code{\link{BBoptim}},
   \code{\link{optim}},

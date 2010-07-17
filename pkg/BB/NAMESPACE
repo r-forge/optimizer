@@ -5,6 +5,5 @@ export(
   "sane",
   "dfsane",
   "spg",
-  "projectBox",
   "projectLinear" 
   )

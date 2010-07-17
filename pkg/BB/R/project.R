@@ -1,13 +1,4 @@
 
-# This provides box constraints defined by upper and lower
-projectBox <- function(par, lower, upper) {
-       # Projecting to ensure that box-constraints are satisfied
-       par[par < lower] <- lower[par < lower]
-       par[par > upper] <- upper[par > upper]
-       return(par)
-       }
-
-
 projectLinear <- function(par, A, b, meq) {
 # A projection function to incorporate linear equalities and inequalities in nonlinear optimization using `spg'
 #

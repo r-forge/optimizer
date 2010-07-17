@@ -1,19 +1,13 @@
 \name{project}
-\alias{projectBox}
 \alias{projectLinear}
 \title{spg Projection Functions}
 \description{Projection function implementing contraints for spg parameters.}
 \usage{
-     projectBox(par, lower, upper) 
      projectLinear(par, A, b, meq)
 }
 \arguments{
     \item{par}{A real vector argument (as for \code{fn}), indicating the
       parameter values to which the constraint should be applied.}
-    \item{lower}{A vector that defines lower bounds on \code{par}. 
-      Defaults to \code{-Inf}.} 
-    \item{upper}{A vector that defines upper bounds on \code{par}. 
-      Defaults to \code{Inf}.} 
     \item{A}{A matrix MORE HERE.} 
     \item{b}{A vector MORE HERE.} 
     \item{meq}{MORE HERE.} 

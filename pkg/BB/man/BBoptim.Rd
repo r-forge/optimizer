@@ -4,7 +4,7 @@
 \description{A strategy using different Barzilai-Borwein steplengths to 
   optimize a nonlinear objective function subject to box constraints.}
 \usage{
-  BBoptim(par, fn, gr=NULL, method=c(2,3,1), project="projectBox", 
+  BBoptim(par, fn, gr=NULL, method=c(2,3,1), project=NULL, 
   	lower=-Inf, upper=Inf, projectArgs=NULL,
 	control=list(), quiet=FALSE, ...) 
   }

@@ -1,4 +1,4 @@
-BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project="projectBox", 
+BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project=NULL, 
      lower=-Inf, upper=Inf, projectArgs=NULL,
      control=list(), quiet=FALSE, ...) 
     {

@@ -1,16 +1,31 @@
-spg <- function(par, fn, gr=NULL, method=3, project="projectBox", 
+spg <- function(par, fn, gr=NULL, method=3, project=NULL, 
            lower=-Inf, upper=Inf, projectArgs=NULL, 
 	   control=list(), quiet=FALSE,  ... ) {
 
-  # projectBox defaults
-  if ((project=="projectBox") & is.null(projectArgs)){
-      projectArgs <- list(lower=lower, upper=upper)
-      #  expand upper and lower for all par
-      if (length(projectArgs$lower)==1)
-          projectArgs$lower <- rep(projectArgs$lower, length(par))
-      if (length(projectArgs$upper)==1)
-          projectArgs$upper <- rep(projectArgs$upper, length(par))
-      }
+  prj <- TRUE
+  if (is.null(project)){
+     if (is.null(projectArgs)){
+         projectArgs <- list(lower=lower, upper=upper)
+         #  expand upper and lower for all par
+         if (length(projectArgs$lower)==1)
+             projectArgs$lower <- rep(projectArgs$lower, length(par))
+         if (length(projectArgs$upper)==1)
+             projectArgs$upper <- rep(projectArgs$upper, length(par))
+         }
+     if (any(is.finite(c(projectArgs$upper, projectArgs$lower)))){
+         project <- "projectBox"
+         # projectBox for default 
+         # This provides box constraints defined by upper and lower
+         projectBox <- function(par, lower, upper) {
+           # Projecting to ensure that box-constraints are satisfied
+           par[par < lower] <- lower[par < lower]
+           par[par > upper] <- upper[par > upper]
+           return(par)
+           }
+     
+         } else prj <- FALSE    
+     }
+
 
   # control defaults
   ctrl <- list(M=10, maxit=1500, gtol=1.e-05, maxfeval=10000, maximize=FALSE, 
@@ -115,13 +130,13 @@ spg <- function(par, fn, gr=NULL, method=3, project="projectBox",
 
 
   # Project initial guess
-  par <- try(do.call(project,  append(list(par), projectArgs)), silent=TRUE)
+  if (prj){
+     par <- try(do.call(project,  append(list(par), projectArgs)), silent=TRUE)
  
-  if (class(par) == "try-error") 
-        stop("Failure in projecting initial guess!", par)
-  else if (any(is.nan(par), is.na(par)) ) 
-        stop("Failure in projecting initial guess!")
-  
+     if (class(par) == "try-error") 
+           stop("Failure in projecting initial guess!", par)
+     }
+  if (any(is.nan(par), is.na(par)) ) stop("Failure in initial guess!")
   pbest <- par
  
   f <- try(func(par, ...),silent=TRUE)
@@ -148,12 +163,13 @@ spg <- function(par, fn, gr=NULL, method=3, project="projectBox",
  
   lastfv[1] <- fbest <- f
  
-  pg <- try(do.call(project,  append(list(par - g), projectArgs)),silent=TRUE)
- 
-  if (class(pg)=="try-error" ) 
-        stop("Failure in initial projection!", pg)
-  else if (any(is.nan(pg))) 
-        stop("Failure in initial projection!")
+  pg <- par - g
+  if (prj){
+    pg <- try(do.call(project,  append(list(pg), projectArgs)),silent=TRUE)
+    if (class(pg)=="try-error" ) stop("Failure in initial projection!", pg)
+    } 
+    
+  if (any(is.nan(pg))) stop("Failure in initial projection!")
  
   pg <- pg - par
 
@@ -171,11 +187,13 @@ spg <- function(par, fn, gr=NULL, method=3, project="projectBox",
   while( pginfn > gtol & iter <= maxit ) {
       iter <- iter + 1
  
-      d <- try(do.call(project,  append(list(par - lambda * g), projectArgs)), silent=TRUE)
- 
-      if (class(d) == "try-error" | any(is.nan(d))  ) {
-        lsflag <- 4
-        break
+   d <- par - lambda * g
+   if (prj){
+     d <- try(do.call(project,  append(list(d), projectArgs)), silent=TRUE)
+     if (class(d) == "try-error" | any(is.nan(d))  ) {
+          lsflag <- 4
+          break
+          }
         }
  
       d <- d - par
@@ -223,12 +241,14 @@ spg <- function(par, fn, gr=NULL, method=3, project="projectBox",
       par <- pnew
       g   <- gnew
  
-      pg <- try( do.call(project, append(list(par - g), projectArgs)), silent=TRUE)
- 
-      if (class(pg) == "try-error" | any(is.nan(pg)) ) {
-  	lsflag <- 4
-  	break
-  	}
+      pg <- par - g
+      if (prj){
+        pg <- try(do.call(project, append(list(pg), projectArgs)), silent=TRUE)
+        if (class(pg) == "try-error" | any(is.nan(pg)) ) {
+  	  lsflag <- 4
+  	  break
+  	  }
+	}
 
       pg <- pg - par
       pg2n <- sqrt(sum(pg*pg))

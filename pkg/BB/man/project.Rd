@@ -89,6 +89,34 @@ fr <- function(x) { ## Rosenbrock Banana function
 proj <- function(x){ x / sum(x) }
 
 spg(par=runif(2), fn=fr, project="proj") 
+
+# Illustration of the importance of `projecting' the constraints, rather 
+#   than simply finding a feasible point:
+
+fr <- function(x) { ## Rosenbrock Banana function 
+x1 <- x[1] 
+x2 <- x[2] 
+100 * (x2 - x1 * x1)^2 + (1 - x1)^2 
+} 
+# Impose a constraint that sum(x) = 1 
+
+proj <- function(x){ 
+# Although this function does give a feasible point it is 
+#  not a "projection" in the sense of the nearest feasible point to `x'
+x / sum(x) 
+} 
+
+p0 <- c(2,1)  
+
+# Note, the starting value is infeasible so the next 
+#   result is "Maximum function evals exceeded"
+
+spg(par=p0, fn=fr, project="proj") 
+
+# Correct approach to doing the projection using the `projLinear' function
+
+spg(par=p0, fn=fr, project="projectLinear", projectArgs=list(A=matrix(1, 1, 2), b=1, meq=1)) 
+
 }
 
 \keyword{multivariate}

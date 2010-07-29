@@ -62,9 +62,9 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #      all.methods = TRUE if we want to use all available (and suitable) methods
 #      sort.result=TRUE, that is, we sort the results in decreasing order of the final function value
 #      kkt=TRUE to run Kuhn, Karush, Tucker tests of results unless problem large
-#      kkttol=.Machine$double.eps^(1/4) Default value to check for small gradient and negative
+#      kkttol=0.001 (was .Machine$double.eps^(1/4)) Default value to check for small gradient and negative
 #               Hessian eigenvalues
-#      kkt2tol (default = 10* default for kkttol) Tolerance for eigenvalue ratio in KKT test of 
+#      kkt2tol=1E-6 (default WAS 10* default for kkttol) Tolerance for eigenvalue ratio in KKT test of 
 #               positive definite Hessian
 #      all.methods=FALSE By default we do NOT run all methods
 #      starttests=TRUE  By default we run tests of the function and parameters: feasibility relative to
@@ -154,8 +154,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	starttests=TRUE,
 	maximize=FALSE,
 	dowarn=TRUE, 
-	kkttol=.Machine$double.eps^(1/4),
-	kkt2tol=10* (.Machine$double.eps^(1/4)),
+	kkttol=0.001,
+	kkt2tol=1.0E-6,
 	badval=(0.5)*.Machine$double.xmax,
 	scaletol=3
     ) # for now turn off sorting until we can work out how to do it nicely
@@ -823,9 +823,9 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                   ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? Is this sensible?
                   if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
                   if (is.null(gr)) {
-                      nhatend<-try(hessian(ufn, ans$par), ..., silent=TRUE) # change 20100711
+                      nhatend<-try(hessian(ufn, ans$par, ...), silent=TRUE) # change 20100711
                   } else {
-                      nhatend<-try(jacobian(ugr,ans$par), ..., silent=TRUE) # change 20100711
+                      nhatend<-try(jacobian(ugr,ans$par, ...), silent=TRUE) # change 20100711
                   } # numerical hessian at "solution"
                   if (class(nhatend) != "try-error") {
                       # For bounds constraints, we need to "project" the gradient and Hessian

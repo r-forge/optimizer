@@ -490,10 +490,12 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
         }
-	if (ctrl$trace & ctrl$maximize) {
-		cat("maximize using nlminb:\n")
-		print(ans)
+	if (ctrl$maximize) {
 		ans$value= -ans$value
+	       	if (ctrl$trace) {
+	        	cat("maximize using nlminb:\n")
+		        print(ans)
+                }
 	}
       }  ## end if using nlminb
 ## --------------------------------------------

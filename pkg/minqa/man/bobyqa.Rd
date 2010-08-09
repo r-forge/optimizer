@@ -76,6 +76,8 @@ bobyqa(par, fn, lower = -Inf, upper = Inf, control = list(), \dots)
   \item{par}{The best set of parameters found.}
   \item{fval}{The value of the objective at the best set of parameters found.}
   \item{feval}{The number of function evaluations used.}
+  \item{ierr}{An integer error code.  A value of zero indicates
+    success.} %% FIXME: Add meaning of other values here
 }
 \references{
   M. J. D. Powell (2007)

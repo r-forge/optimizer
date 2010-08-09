@@ -83,7 +83,7 @@ RCPP_FUNCTION_5(List,bobyqa_cpp,NumericVector par,NumericVector xl,NumericVector
     NumericVector pp = clone(par); // ensure that bobyqa doesn't modify the R object
     F77_NAME(bobyqa)(&n, &np, pp.begin(), xl.begin(), xu.begin(),
 		     &rb, &re, &ip, &mxf, &w[0], &ierr);
-    return rval(pp, "bobyqa");
+    return rval(pp, "bobyqa", ierr);
 }
 
 extern "C" 

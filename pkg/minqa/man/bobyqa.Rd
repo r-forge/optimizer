@@ -103,6 +103,11 @@ fr <- function(x) {   ## Rosenbrock Banana function
 }
 (x1 <- bobyqa(c(1, 2), fr, lower = c(0, 0), upper = c(4, 4)))
 ## => optimum at c(1, 1) with fval = 0
+
+str(x1)  # see that the error code is returned
+
+# check the error exits
+str(bobyqa(c(1, 2), fr, lower = c(0, 0), upper = c(4, 4), control = list(maxfun=50)))
 }
 \keyword{nonlinear}
 \keyword{optimize}

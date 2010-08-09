@@ -1,5 +1,12 @@
 2010-08-09  Douglas Bates  <bates@stat.wisc.edu>
 
+	* man/bobyqa.Rd: Add a check on the error code.  (Note: the R code
+	should be modified to look for the error code in the returned
+	value and produce an appropriate error message.)
+
+	* src/minqa.cpp: pass ierr in call to rval from bobyqa.  (Had it
+	defined previously but forgot to pass it.)
+
 	* tests/rvaltest.R,src/bobyq*.f,src/minqa.cpp,man/bobyqa.Rd:
 	Modify Fortran sources to return an error code instead of Fortran
 	I/O (John Nash) and incorporate error code in interface routine.

@@ -48,14 +48,17 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
  * 
  * @return an Rcpp::List object
  */
-static SEXP rval(NumericVector par, string cnm) {
+static SEXP rval(NumericVector par, string cnm, int ierr = 0) {
     Environment rho(cf.environment());
     SEXP feval = rho.get(".feval.");
     StringVector cl(2);
     cl[0] = cnm;
     cl[1] = "minqa";
 
-    List rr = List::create(_["par"] = par, _["fval"] = cf(par), _["feval"] = feval);
+    List rr = List::create(_["par"] = par,
+			   _["fval"] = cf(par),
+			   _["feval"] = feval,
+			   _["ierr"] = ierr);
     rr.attr("class") = cl;
     return rr;
 }
@@ -65,20 +68,21 @@ extern "C"
 void F77_NAME(bobyqa)(const int *n, const int *npt, double X[],
 		      const double xl[], const double xu[],
 		      const double *rhobeg, const double *rhoend,
-		      const int *iprint, const int *maxfun, double w[]);
+		      const int *iprint, const int *maxfun, double w[],
+		      int *ierr);
 
 /// Interface for bobyqa
 RCPP_FUNCTION_5(List,bobyqa_cpp,NumericVector par,NumericVector xl,NumericVector xu,Environment cc,SEXP fn) {
     cf = Function(fn);	// install the objective function
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
-    int ip = as<int>(cc.get("iprint")),
+    int ierr = 0, ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")),
 	n = par.size(), np = as<int>(cc.get("npt"));
     vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
     NumericVector pp = clone(par); // ensure that bobyqa doesn't modify the R object
     F77_NAME(bobyqa)(&n, &np, pp.begin(), xl.begin(), xu.begin(),
-		     &rb, &re, &ip, &mxf, &w[0]);
+		     &rb, &re, &ip, &mxf, &w[0], &ierr);
     return rval(pp, "bobyqa");
 }
 

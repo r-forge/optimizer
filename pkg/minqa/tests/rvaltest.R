@@ -7,7 +7,7 @@ x0 <- rep.int(pi, 4)
 reschk <- function(res) {
     stopifnot(is.list(res),
               inherits(res, "minqa"),
-              names(res) == c("par", "fval", "feval"),
+              names(res) == c("par", "fval", "feval", "ierr"),
               is.numeric(res$par),
               all.equal(res$par, 1:4, tol = 2e-4),
               is.numeric(res$fval),

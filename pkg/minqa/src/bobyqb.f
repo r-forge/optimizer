@@ -1,6 +1,6 @@
       SUBROUTINE BOBYQB (N,NPT,X,XL,XU,RHOBEG,RHOEND,IPRINT,
      1  MAXFUN,XBASE,XPT,FVAL,XOPT,GOPT,HQ,PQ,BMAT,ZMAT,NDIM,
-     2  SL,SU,XNEW,XALT,D,VLAG,W)
+     2  SL,SU,XNEW,XALT,D,VLAG,W,IERR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),XL(*),XU(*),XBASE(*),XPT(NPT,*),FVAL(*),
      1  XOPT(*),GOPT(*),HQ(*),PQ(*),BMAT(NDIM,*),ZMAT(NPT,*),
@@ -37,6 +37,9 @@ C     VLAG contains the values of the Lagrange functions at a new point X.
 C       They are part of a product that requires VLAG to be of length NDIM.
 C     W is a one-dimensional array that is used for working space. Its length
 C       must be at least 3*NDIM = 3*(NPT+N).
+CJN 100807
+C     IERR is an error code to tell calling program WHICH error occurred.
+CJN       Note that it is defined in BOBYQA to 0 initially.
 C
 C     Set some constants.
 C
@@ -65,7 +68,10 @@ C
    10 XOPTSQ=XOPTSQ+XOPT(I)**2
       FSAVE=FVAL(1)
       IF (NF .LT. NPT) THEN
-         CALL minqer(390)
+CJN 100807
+          IERR=390
+          GOTO 720
+CJN         CALL minqer(390)
 c$$$          IF (IPRINT .GT. 0) PRINT 390
 c$$$          GOTO 720
       END IF
@@ -241,9 +247,12 @@ C
       END IF
       IF (NF .LT. 0) THEN
           NF=MAXFUN
-          CALL minqer(390)
+CJN          CALL minqer(390)
 c$$$          IF (IPRINT .GT. 0) PRINT 390
 c$$$          GOTO 720
+CJN 100807
+          IERR=390
+          GOTO 720
       END IF
       NRESC=NF
       IF (NFSAV .LT. NF) THEN
@@ -324,11 +333,14 @@ C
           END IF
           IF (DENOM .LE. HALF*VLAG(KNEW)**2) THEN
               IF (NF .GT. NRESC) GOTO 190
-              IF (IPRINT .GT. 0) CALL minqer(320)
+CJN              IF (IPRINT .GT. 0) CALL minqer(320)
 c$$$              PRINT 320
 c$$$  320         FORMAT (/5X,'Return from BOBYQA because of much',
 c$$$     1          ' cancellation in a denominator.')
 c$$$              GOTO 720
+CJN 100807 
+              IERR=320
+              GOTO 720
           END IF
 C
 C     Alternatively, if NTRITS is positive, then set KNEW to the index of
@@ -361,9 +373,12 @@ C
   350     CONTINUE
           IF (SCADEN .LE. HALF*BIGLSQ) THEN
               IF (NF .GT. NRESC) GOTO 190
-              IF (IPRINT .GT. 0) CALL minqer(320)
+CJN              IF (IPRINT .GT. 0) CALL minqer(320)
 c$$$              PRINT 320
 c$$$              GOTO 720
+CJN 100807 
+              IERR=320
+              GOTO 720
           END IF
       END IF
 C
@@ -380,11 +395,14 @@ C
       IF (XNEW(I) .EQ. SU(I)) X(I)=XU(I)
   380 CONTINUE
       IF (NF .GE. MAXFUN) THEN
-          IF (IPRINT .GT. 0) CALL minqer(390)
+CJN          IF (IPRINT .GT. 0) CALL minqer(390)
 c$$$          PRINT 390
 c$$$  390     FORMAT (/4X,'Return from BOBYQA because CALFUN has been',
 c$$$     1      ' called MAXFUN times.')
 c$$$          GOTO 720
+CJN 100807 
+              IERR=390
+              GOTO 720
       END IF
       NF=NF+1
       F = CALFUN (N,X,IPRINT)
@@ -424,11 +442,14 @@ C     Pick the next value of DELTA after a trust region step.
 C
       IF (NTRITS .GT. 0) THEN
           IF (VQUAD .GE. ZERO) THEN
-              IF (IPRINT .GT. 0) CALL minqer(430)
+CJN              IF (IPRINT .GT. 0) CALL minqer(430)
 c$$$              PRINT 430
 c$$$  430         FORMAT (/4X,'Return from BOBYQA because a trust',
 c$$$     1          ' region step has failed to reduce Q.')
 c$$$              GOTO 720
+CJN 100807 
+              IERR=430
+              GOTO 720
           END IF
           RATIO=(F-FOPT)/VQUAD
           IF (RATIO .LE. TENTH) THEN
@@ -668,6 +689,9 @@ C
   730     CONTINUE
           F=FVAL(KOPT)
       END IF
+CJN 100807 Do we want to add IERR to minqir as a diagnostic. If zero, not print,
+CJN          if not, then use minqer output or similar.
+CJN ??      IF (IERR.NE.0) CALL minqer(IERR)
       CALL minqir(IPRINT, F, NF, N, X)
 c$$$      IF (IPRINT .GE. 1) THEN
 c$$$          PRINT 740, NF

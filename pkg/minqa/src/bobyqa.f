@@ -40,6 +40,7 @@ C     The array W will be used for working space. Its length must be at least
 C       (NPT+5)*(NPT+N)+3*N*(N+5)/2.
 CJN   Add IERR to tell what the error is to minqer.
 C     IERR gives an error code that is interpreted by minqer interface routine.
+C       and passed back to minqa.R
 C
 C     DOUBLE PRECISION FUNCTION CALFUN (N,X,IP) has to be provided by
 C     the user. It returns the value of the objective function for
@@ -99,11 +100,13 @@ C
       DO 30 J=1,N
       TEMP=XU(J)-XL(J)
       IF (TEMP .LT. RHOBEG+RHOBEG) THEN
-         CALL minqer(20)
+CJN         CALL minqer(20)
 c$$$          PRINT 20
 c$$$   20     FORMAT (/4X,'Return from BOBYQA because one of the',
 c$$$     1      ' differences XU(I)-XL(I)'/6X,' is less than 2*RHOBEG.')
 c$$$          GO TO 40
+         IERR = 20
+         GOTO 40
       END IF
       JSL=ISL+J-1
       JSU=JSL+N

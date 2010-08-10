@@ -62,6 +62,14 @@ uobyqa(par, fn, control = list(), \dots)
   A list with components:
   \item{par}{The best set of parameters found.}
   \item{fvalue}{The value of the objective at the best set of parameters found.}
+  \item{ierr}{An integer error code.  A value of zero indicates
+    success. Other values (consistent with BOBYQA values) are
+    \describe{
+       \item{1}{maximum number of function evaluations exceeded}
+       \item{3}{a trust region step failed to reduce q (Consult Powell for explanation.)}
+    }
+  } 
+
 }
 \references{
      M. J. D. Powell, "The uobyqa software for unconstrained
@@ -86,6 +94,15 @@ fr <- function(x) {   ## Rosenbrock Banana function
 }
 (x3 <- uobyqa(c(1, 2), fr))
 ## => optimum at c(1, 1) with fval = 0
+# check the error exits
+# too many iterations
+x3e<-uobyqa(c(1, 2), fr, control = list(maxfun=50))
+str(x3e)
+
+
+# To add if we can find them -- examples of ierr = 3.
+
+
 }
 \keyword{nonlinear}
 \keyword{optimize}

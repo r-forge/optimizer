@@ -1,5 +1,6 @@
       SUBROUTINE NEWUOB (N,NPT,X,RHOBEG,RHOEND,IPRINT,MAXFUN,XBASE,
-     1  XOPT,XNEW,XPT,FVAL,GQ,HQ,PQ,BMAT,ZMAT,NDIM,D,VLAG,W)
+     1  XOPT,XNEW,XPT,FVAL,GQ,HQ,PQ,BMAT,ZMAT,NDIM,D,VLAG,W,IERR)
+CJN Remember IERR here.
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),XBASE(*),XOPT(*),XNEW(*),XPT(NPT,*),FVAL(*),
      1  GQ(*),HQ(*),PQ(*),BMAT(NDIM,*),ZMAT(NPT,*),D(*),VLAG(*),W(*)
@@ -314,11 +315,13 @@ C
       NF=NF+1
   310 IF (NF .GT. NFTEST) THEN
           NF=NF-1
-          CALL MINQER (390)
+CJN          CALL MINQER (390)
 C$$$          IF (IPRINT .GT. 0) PRINT 320
 C$$$  320     FORMAT (/4X,'Return from NEWUOA because CALFUN has been',
 C$$$     1      ' called MAXFUN times.')
 C$$$          GOTO 530
+         IERR = 390
+         GO TO 530
       END IF
       F = CALFUN (N,X,IPRINT)
 c$$$      IF (IPRINT .EQ. 3) THEN
@@ -368,10 +371,11 @@ C
 C     Pick the next value of DELTA after a trust region step.
 C
       IF (VQUAD .GE. ZERO) THEN
-              IF (IPRINT .GT. 0) CALL minqer(3701)
+CJN              IF (IPRINT .GT. 0) CALL minqer(3701)
 C$$$          IF (IPRINT .GT. 0) PRINT 370
 C$$$  370     FORMAT (/4X,'Return from NEWUOA because a trust',
 C$$$     1      ' region step has failed to reduce Q.')
+          IERR = 3701
           GOTO 530
       END IF
       RATIO=(F-FSAVE)/VQUAD

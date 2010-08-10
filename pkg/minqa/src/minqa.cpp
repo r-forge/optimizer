@@ -89,40 +89,40 @@ RCPP_FUNCTION_5(List,bobyqa_cpp,NumericVector par,NumericVector xl,NumericVector
 extern "C" 
 void F77_NAME(uobyqa)(const int *n, double X[],
 		      const double *rhobeg, const double *rhoend,
-		      const int *iprint, const int *maxfun, double w[]);
+		      const int *iprint, const int *maxfun, double w[], int *ierr);
 
 RCPP_FUNCTION_3(List,uobyqa_cpp,NumericVector par,Environment cc,SEXP pfn) {
     cf = Function(pfn);
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
-    int ip = as<int>(cc.get("iprint")),
+    int ierr = 0, ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")), n = par.size();
     Environment rho(cf.environment());
     vector<double>
 	w((n*(42+n*(23+n*(8+n))) + max(2*n*n + 4, 18*n)) / 4);
     NumericVector pp = clone(par); // ensure that uobyqa doesn't modify the R object
 
-    F77_NAME(uobyqa)(&n, pp.begin(), &rb, &re, &ip, &mxf, &w[0]);
-    return rval(pp, "uobyqa");
+    F77_NAME(uobyqa)(&n, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
+    return rval(pp, "uobyqa", ierr);
 }
 
 extern "C" 
 void F77_NAME(newuoa)(const int *n, const int *npt, double X[],
 		      const double *rhobeg, const double *rhoend,
-		      const int *iprint, const int *maxfun, double w[]);
+		      const int *iprint, const int *maxfun, double w[], int *ierr);
 
 RCPP_FUNCTION_3(List,newuoa_cpp,NumericVector par,Environment cc,SEXP pfn) {
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
-    int ip = as<int>(cc.get("iprint")),
+    int ierr = 0, ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")),
 	n = par.size(), np = as<int>(cc.get("npt"));
     vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
     cf = Function(pfn);
     NumericVector pp = clone(par); // ensure that newuoa doesn't modify the R object
 
-    F77_NAME(newuoa)(&n, &np, pp.begin(), &rb, &re, &ip, &mxf, &w[0]);
-    return rval(pp, "newuoa");
+    F77_NAME(newuoa)(&n, &np, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
+    return rval(pp, "newuoa", ierr);
 }
 
 /// Assorted error messages.

@@ -1,3 +1,30 @@
+2010-08-10  John Nash  <nashjc@uottawa.ca>
+        * man/bobyqa.Rd: Added revised codes for error exits and
+	tests for some of these errors. Note that the error for npt
+	(number of interpolation points) out of desired range does not
+	work. It appears the minqa.R code forces a valid setting, and
+	ignores user input.
+
+        * man/newuoa.Rd: Added revised codes for error exits and
+	tests for some of these errors. Note that the error for npt
+	(number of interpolation points) out of desired range does not
+	work. It appears the minqa.R code forces a valid setting, and
+	ignores user input.
+
+        * man/uobyqa.Rd: Added revised codes for error exits and
+	tests for some of these errors. 
+
+        * src/uobyq*.f: Put in IERR exits and suppressed minqer() call.
+	Also put IERR in calling sequence.
+
+        * src/newuo*.f: Put in IERR exits and suppressed minqer() call.
+	Also put IERR in calling sequence.
+
+        * src/minqa.cpp: Put in IERR for newuoa and uobyqa. This involves
+	several changes, including * and & modifiers to variables.
+
+
+
 2010-08-09  Douglas Bates  <bates@stat.wisc.edu>
 
 	* man/bobyqa.Rd: Add a check on the error code.  (Note: the R code

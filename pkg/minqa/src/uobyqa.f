@@ -1,6 +1,8 @@
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uobyqa.f %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      SUBROUTINE UOBYQA (N,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W)
+      SUBROUTINE UOBYQA (N,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W, IERR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+CJN Declare IERR
+      INTEGER IERR
       DIMENSION X(*),W(*)
 C
 C     This subroutine seeks the least value of a function of many variables,
@@ -26,6 +28,9 @@ C       value of F with its variables are output if IPRINT=3.
 C     MAXFUN must be set to an upper bound on the number of calls of CALFUN.
 C     The array W will be used for working space. Its length must be at least
 C       ( N**4 + 8*N**3 + 23*N**2 + 42*N + max [ 2*N**2 + 4, 18*N ] ) / 4.
+CJN   Add IERR to tell what the error is to minqer.
+C     IERR gives an error code that is interpreted by minqer interface routine.
+C       and passed back to minqa.R
 C
 C     SUBROUTINE CALFUN (N,X,F) must be provided by the user. It must set F to
 C     the value of the objective function for the variables X(1),X(2),...,X(N).
@@ -45,8 +50,10 @@ C
       ID=IG+N
       IVL=IH
       IW=ID+N
+CJN Initialize IERR to 0 (normal exit)
+      IERR=0
       CALL UOBYQB (N,X,RHOBEG,RHOEND,IPRINT,MAXFUN,NPT,W(IXB),W(IXO),
-     1  W(IXN),W(IXP),W(IPQ),W(IPL),W(IH),W(IG),W(ID),W(IVL),W(IW))
+     1  W(IXN),W(IXP),W(IPQ),W(IPL),W(IH),W(IG),W(ID),W(IVL),W(IW),IERR)
       RETURN
       END
 

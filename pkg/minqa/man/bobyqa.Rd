@@ -77,7 +77,16 @@ bobyqa(par, fn, lower = -Inf, upper = Inf, control = list(), \dots)
   \item{fval}{The value of the objective at the best set of parameters found.}
   \item{feval}{The number of function evaluations used.}
   \item{ierr}{An integer error code.  A value of zero indicates
-    success.} %% FIXME: Add meaning of other values here
+    success. Other values are
+    \describe{
+       \item{1}{maximum number of function evaluations exceeded}
+       \item{2}{NPT, the number of approximation points, is not in the required interval}
+       \item{3}{a trust region step failed to reduce q (Consult Powell for explanation.)}
+       \item{4}{one of the box constraint ranges is too small (< 2*RHOBEG)}
+       \item{5}{bobyqa detected too much cancellation in denominator (We have not fully
+		understood Powell's code to explain this.)}
+    }
+  } 
 }
 \references{
   M. J. D. Powell (2007)
@@ -104,10 +113,24 @@ fr <- function(x) {   ## Rosenbrock Banana function
 (x1 <- bobyqa(c(1, 2), fr, lower = c(0, 0), upper = c(4, 4)))
 ## => optimum at c(1, 1) with fval = 0
 
-str(x1)  # see that the error code is returned
+str(x1)  # see that the error code and msg are returned
 
 # check the error exits
-str(bobyqa(c(1, 2), fr, lower = c(0, 0), upper = c(4, 4), control = list(maxfun=50)))
+# too many iterations
+x1e<-bobyqa(c(1, 2), fr, lower = c(0, 0), upper = c(4, 4), control = list(maxfun=50))
+str(x1e)
+
+# Throw an error because bounds too tight
+x1b<-bobyqa(c(4,4), fr, lower = c(0, 3.9999999), upper = c(4, 4))
+str(x1b)
+
+# Throw an error because npt is too small -- does NOT work as of 2010-8-10 as 
+#    minqa.R seems to force a reset.
+x1n<-bobyqa(c(2,2), fr, lower = c(0, 0), upper = c(4, 4), control=list(npt=1))
+str(x1n)
+
+# To add if we can find them -- examples of ierr = 3 and ierr = 5.
+
 }
 \keyword{nonlinear}
 \keyword{optimize}

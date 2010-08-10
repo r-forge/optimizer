@@ -1,8 +1,10 @@
 C%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uobyqb.f %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
       SUBROUTINE UOBYQB (N,X,RHOBEG,RHOEND,IPRINT,MAXFUN,NPT,XBASE,
-     1  XOPT,XNEW,XPT,PQ,PL,H,G,D,VLAG,W)
+     1  XOPT,XNEW,XPT,PQ,PL,H,G,D,VLAG,W,IERR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+CJN Declare IERR
+      INTEGER IERR
       DIMENSION X(*),XBASE(*),XOPT(*),XNEW(*),XPT(NPT,*),PQ(*),
      1  PL(NPT,*),H(N,*),G(*),D(*),VLAG(*),W(*)
 C
@@ -198,11 +200,13 @@ C
          XNEW(I)=XOPT(I)+D(I)
  110     X(I)=XBASE(I)+XNEW(I)
   120 IF (NF .GE. NFTEST) THEN
-
 C$$$          IF (IPRINT .GT. 0) PRINT 130
 C$$$  130     FORMAT (/4X,'Return from UOBYQA because CALFUN has been',
 C$$$     1      ' called MAXFUN times')
 C$$$          GOTO 420
+CJN Too many function evaluations
+         IERR=390
+         GOTO 420
       END IF
       NF=NF+1
       F = CALFUN (N,X,IPRINT)
@@ -263,10 +267,11 @@ C
 C     Pick the next value of DELTA after a trust region step.
 C
       IF (VQUAD .GE. ZERO) THEN
-              IF (IPRINT .GT. 0) CALL minqer(2101)
+CJN              IF (IPRINT .GT. 0) CALL minqer(2101)
 C$$$          IF (IPRINT .GT. 0) PRINT 210
 C$$$  210     FORMAT (/4X,'Return from UOBYQA because a trust',
 C$$$     1      ' region step has failed to reduce Q')
+          IERR=2101
           GOTO 420
       END IF
       RATIO=(F-FSAVE)/VQUAD

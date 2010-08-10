@@ -62,6 +62,7 @@ commonArgs <- function(par, fn, ctrl, rho) {
 ##'
 ##' @return a list with S3 class bobyqa
 ##' 
+
 bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 {
     ctrl <- commonArgs(par, fn, control, environment())
@@ -111,7 +112,31 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
         }
     }
 
-    .Call(bobyqa_cpp, par, lower, upper, ctrl, fn1)
+    retlst<- .Call(bobyqa_cpp, par, lower, upper, ctrl, fn1)
+# JN 20100810 
+    if (retlst$ierr > 0){
+##	cat("ierr = ",retlst$ierr,"\n")
+##        newuoa allowed ierr in c(10, 20, 320, 390, 430)
+  	if (retlst$ierr == 10) {
+		retlst$ierr<-2
+		retlst$msg<-"bobyqa -- NPT is not in the required interval"
+	} else if (retlst$ierr == 320) {
+		retlst$ierr<-5
+		retlst$msg<-"bobyqa detected too much cancellation in denominator"
+	} else if (retlst$ierr == 390) {
+		retlst$ierr<-1
+		retlst$msg<-"bobyqa -- maximum number of function evaluations exceeded"
+	} else if (retlst$ierr == 430) {
+		retlst$ierr<-3
+		retlst$msg<-"bobyqa -- a trust region step failed to reduce q"
+	} else if (retlst$ierr == 20) {
+		retlst$ierr<-4
+		retlst$msg<-"bobyqa -- one of the box constraint ranges is too small (< 2*RHOBEG)"
+        }
+    } else { 
+	retlst$msg<-"Normal exit from bobyqa"
+    }
+    return(retlst)
 }
 
 ##' An R interface to the NEWUOA implementation of Powell
@@ -132,8 +157,32 @@ newuoa <- function(par, fn, control = list(), ...)
     ctrl <- commonArgs(par + 0, fn, control, environment())
     fn1 <- function(x) fn(x, ...)
 
-    .Call(newuoa_cpp, par, ctrl, fn1)
+    retlst<-.Call(newuoa_cpp, par, ctrl, fn1)
+# JN 20100810 
+    if (retlst$ierr > 0){
+##	cat("ierr = ",retlst$ierr,"\n")
+##        newuoa allowed ierr in c(10, 320, 390, 3701)
+  	if (retlst$ierr == 10) {
+		retlst$ierr<-2
+		retlst$msg<-"newuoa -- NPT is not in the required interval"
+	} else if (retlst$ierr == 320) {
+		retlst$ierr<-5
+		retlst$msg<-"newuoa detected too much cancellation in denominator"
+	} else if (retlst$ierr == 390) {
+		retlst$ierr<-1
+		retlst$msg<-"newuoa -- maximum number of function evaluations exceeded"
+	} else if (retlst$ierr == 3701) {
+		retlst$ierr<-3
+		retlst$msg<-"newuoa -- a trust region step failed to reduce q"
+        }
+    } else { 
+	retlst$msg<-"Normal exit from newuoa"
+    }
+    return(retlst)
 }
+
+
+
 
 ##' An R interface to the UOBYQA implementation of Powell
 ##'
@@ -153,7 +202,23 @@ uobyqa <- function(par, fn, control = list(), ...)
     ctrl <- commonArgs(par + 0, fn, control, environment())
     fn1 <- function(x) fn(x, ...)
 
-    .Call(uobyqa_cpp, par, ctrl, fn1)
+     retlst<-.Call(uobyqa_cpp, par, ctrl, fn1)
+
+# JN 20100810 
+    if (retlst$ierr > 0){
+##	cat("ierr = ",retlst$ierr,"\n")
+##       uobyqa allowed ierr in c(390, 2101)
+	if (retlst$ierr == 390) {
+		retlst$ierr<-1
+		retlst$msg<-"uobyqa -- maximum number of function evaluations exceeded"
+	} else if (retlst$ierr == 2101) {
+		retlst$ierr<-3
+		retlst$msg<-"uobyqa -- a trust region step failed to reduce q"
+	}
+    } else { 
+	retlst$msg<-"Normal exit from uobyqa"
+    }
+    return(retlst)
 }
 
 ##' Print method for minqa objects (S3)

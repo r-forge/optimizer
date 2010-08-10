@@ -69,6 +69,16 @@ newuoa(par, fn, control = list(), \dots)
   \item{par}{The best set of parameters found.}
   \item{fval}{The value of the objective at the best set of parameters found.}
   \item{feval}{Number of function evaluations to determine the optimum}
+  \item{ierr}{An integer error code.  A value of zero indicates
+    success. Other values (consistent with BOBYQA values) are
+    \describe{
+       \item{1}{maximum number of function evaluations exceeded}
+       \item{2}{NPT, the number of approximation points, is not in the required interval}
+       \item{3}{a trust region step failed to reduce q (Consult Powell for explanation.)}
+       \item{5}{newuoa detected too much cancellation in denominator (We have not fully
+		understood Powell's code to explain this.)}
+    }
+  } 
 }
 \references{
   M. J. D. Powell, "The NEWUOA software for unconstrained optimization
@@ -99,6 +109,21 @@ fr <- function(x) {   ## Rosenbrock Banana function
 }
 (x2 <- newuoa(c(1, 2), fr))
 ## => optimum at c(1, 1) with fval = 0
+
+# check the error exits
+# too many iterations
+x2e<-newuoa(c(1, 2), fr, control = list(maxfun=50))
+str(x2e)
+
+# Throw an error because npt is too small -- does NOT work as of 2010-8-10 as 
+#    minqa.R seems to force a reset.
+x2n<-newuoa(c(2,2), fr, control=list(npt=1))
+str(x2n)
+
+# To add if we can find them -- examples of ierr = 3 and ierr = 5.
+
+
+
 }
 \keyword{nonlinear}
 \keyword{optimize}

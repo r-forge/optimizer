@@ -1,6 +1,8 @@
-      SUBROUTINE NEWUOA (N,NPT,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W)
+      SUBROUTINE NEWUOA (N,NPT,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W,IERR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION X(*),W(*)
+CJN Declare error flag
+      INTEGER IERR
 C
 C     This subroutine seeks the least value of a function of many variables,
 C     by a trust region method that forms quadratic models by interpolation.
@@ -28,6 +30,9 @@ C       value of F with its variables are output if IPRINT=3.
 C     MAXFUN must be set to an upper bound on the number of calls of CALFUN.
 C     The array W will be used for working space. Its length must be at least
 C     (NPT+13)*(NPT+N)+3*N*(N+3)/2.
+CJN   Add IERR to tell what the error is to minqer.
+C     IERR gives an error code that is interpreted by minqer interface routine.
+C       and passed back to minqa.R
 C
 C     SUBROUTINE CALFUN (N,X,F) must be provided by the user. It must set F to
 C     the value of the objective function for the variables X(1),X(2),...,X(N).
@@ -38,11 +43,13 @@ C
       NP=N+1
       NPTM=NPT-NP
       IF (NPT .LT. N+2 .OR. NPT .GT. ((N+2)*NP)/2) THEN
-         CALL minqer(101)
+CJN         CALL minqer(101)
 c$$$          PRINT 10
 c$$$   10     FORMAT (/4X,'Return from NEWUOA because NPT is not in',
 c$$$     1      ' the required interval')
 c$$$          GO TO 20
+         IERR = 10
+         GO TO 20
       END IF
       NDIM=NPT+N
       IXB=1
@@ -65,7 +72,7 @@ C     W plus the space that is needed by the last array of NEWUOB.
 C
       CALL NEWUOB (N,NPT,X,RHOBEG,RHOEND,IPRINT,MAXFUN,W(IXB),
      1  W(IXO),W(IXN),W(IXP),W(IFV),W(IGQ),W(IHQ),W(IPQ),W(IBMAT),
-     2  W(IZMAT),NDIM,W(ID),W(IVL),W(IW))
-      RETURN
+     2  W(IZMAT),NDIM,W(ID),W(IVL),W(IW), IERR)
+ 20   RETURN
       END
 

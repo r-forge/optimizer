@@ -153,7 +153,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       produce more tracing information: for method \code{"L-BFGS-B"}
       there are six levels of tracing. trace = 0 gives no output 
       (To understand exactly what these do see the source code: higher 
-      levels give more detail.)}
+      levels give more detail.) Because there are problems with Fortran
+      output, trace is set to 0 for \code{"ucminf"}.}
     \item{\code{follow.on }}{ = TRUE or FALSE. If TRUE, and there are multiple 
       methods, then the last set of 
       parameters from one method is used as the starting set for the next. }

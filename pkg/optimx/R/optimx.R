@@ -408,7 +408,10 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	if (length(itnmax) == 1) {ctrl$maxit <- itnmax} # Note we will execute this FIRST
         else {if (length(itnmax) != nmeth) { 
 		stop("Length of itnmax =",length(itnmax)," but should be ",nmeth) }
-              else { ctrl$maxit<-itnmax[i] }
+              else { 
+		ctrl$maxit<-itnmax[i] 
+		if (ctrl$trace > 0) cat("itnmax set, so ctrl$maxit=",ctrl$maxit,"\n")
+	      }
         }
         if (ctrl$follow.on) cat("Do ",ctrl$maxit," steps of ",meth,"\n")
       }
@@ -579,6 +582,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 # Change 20100415 to avoid setting ctrl values when all.methods
         mcontrol$maxeval<-mcontrol$maxit # Note it is just function evals for ucminf
         mcontrol$maxit<-NULL
+# 20100813 JN Force trace = 0 to avoid Fortran output problems
+        mcontrol$trace=0        
         time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- ans$convergence
@@ -673,6 +678,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	} else {
 		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
 	}
+        mcontrol$maxit<-NULL # to ensure no conflict 100803 JN
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
@@ -706,6 +712,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	} else {
 		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
 	}
+        mcontrol$maxit<-NULL # to ensure no conflict 100803 JN
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
@@ -739,6 +746,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	} else {
 		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
 	}
+        mcontrol$maxit<-NULL # to ensure no conflict 100803 JN
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL

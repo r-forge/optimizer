@@ -35,7 +35,8 @@ Fixed-Point Iterations}
       especially when its computation is expensive.} 
 
     \item{control}{A list of control parameters specifing any changes to 
-      default values of algorithm control parameters. See *Details*.}
+      default values of algorithm control parameters.  Full names of control list elements must be specified, otherwise, user-specifications are ignored.  
+	See *Details*.}
     \item{...}{Arguments passed to \code{fixptfn} and  \code{objfn}.}
 }
 
@@ -56,7 +57,7 @@ Fixed-Point Iterations}
 
 \details{
  The function \code{squarem} is a general-purpose algorithm for accelerating 
- the convergence of \emph{any} slowly-convergent (smooth) fixed-point iteration.
+ the convergence of \emph{any} slowly-convergent (smooth) fixed-point iteration.  Full names of 
 
 Default values of \code{control} are:
     \code{K=1},
@@ -69,17 +70,16 @@ Default values of \code{control} are:
     \code{kr=1}, 
     \code{tol=1e-07}, 
     \code{maxiter=1500}, 
-    \code{noimp.max=20}, 
     \code{trace=FALSE}.
 
 \describe{
-\item{K}{An integer denoting the order of the SQUAREM scheme.
+\item{\code{K}}{An integer denoting the order of the SQUAREM scheme.
       Default is 1, which is a first-order scheme developed in Varadhan and 
       Roland (2008). Our experience is that first-order schemes are adequate 
       for most problems. \code{K=2,3} may provide greater speed in some 
       problems, although they are less reliable than the first-order schemes.}
 
-\item{method}{Either an integer or a character variable that denotes the 
+\item{\code{method}}{Either an integer or a character variable that denotes the 
       particular SQUAREM scheme to be used.  When \code{K=1}, method should be 
       an integer, either 1, 2, or 3.  These correspond to the 3 schemes 
       discussed in Varadhan and Roland (2008).  Default is \code{method=3}.  
@@ -88,45 +88,40 @@ Default values of \code{control} are:
       or squared minimal=polynomial extrapolation (See Roland, Varadhan, and 
       Frangakis (2007)).  Default is ''RRE''.}
 \describe{
-	\item{square}{A logical variable indicating whether or not a squared 
+	\item{\code{square}}{A logical variable indicating whether or not a squared 
 	  extrapolation scheme should be used.  Our experience is that the 
 	  squared extrapolation schemes are faster and more stable than the 
 	  unsquared schemes. Hence, we have set the default as TRUE.}  
-	\item{step.min0}{A scalar denoting the minimum steplength taken by a
+	\item{\code{step.min0}}{A scalar denoting the minimum steplength taken by a
 	  SQUAREM algorithm.  Default is 1.  For contractive fixed-point 
 	  iterations (e.g. EM and MM), this defualt works well.  In problems 
 	  where an eigenvalue of the Jacobian of $F$ is outside of the 
 	  interval \eqn{(0,1)}{(0,1)}, \code{step.min0} should be less than 1 
 	  or even negative in some cases.}
-	\item{step.max0}{A positive-valued scalar denoting the initial value 
+	\item{\code{step.max0}}{A positive-valued scalar denoting the initial value 
 	  of the maximum steplength taken by a SQUAREM algorithm.  
 	  Default is 1.  When the steplength computed by SQUAREM exceeds  
 	  \code{step.max0}, the steplength is set equal to step.max0, but 
 	  then step.max0 is increased by a factor of mstep.}
-	\item{mstep}{A scalar greater than 1.  When the steplength computed 
+	\item{\code{mstep}}{A scalar greater than 1.  When the steplength computed 
 	  by SQUAREM exceeds  \code{step.max0}, the steplength is set equal 
 	  to  \code{step.max0}, but  \code{step.max0} is increased by a factor 
 	  of  \code{mstep}. Default is 4.}
-	\item{objfn.inc}{A non-negative scalar that dictates the degree of 
+	\item{\code{objfn.inc}}{A non-negative scalar that dictates the degree of 
 	  non-montonicity.  Default is 1.  Set  \code{objfn.inc = 0} to 
 	  obtain monotone convergence. Setting  \code{objfn.inc = Inf} gives a 
 	  non-monotone scheme.  In-between values result in partially-monotone 
 	  convergence.}
-	\item{kr}{A non-negative scalar that dictates the degree of 
+	\item{\code{kr}}{A non-negative scalar that dictates the degree of 
 	  non-montonicity.  Default is 1.  Set  \code{kr = 0} to obtain 
 	  monotone convergence. Setting  \code{kr = Inf} gives a non-monotone 
 	  scheme.  In-between values result in partially-monotone convergence.  This parameter is only used when  \code{objfn} is not specified by user.}
-	\item{tol}{A small, positive scalar that determines when iterations 
+	\item{\code{tol}}{A small, positive scalar that determines when iterations 
 	  should be terminated.  Iteration is terminated when 
 	  \eqn{||x_k - F(x_k)|| \leq tol}{abs(x[k] - F(x[k])) <= tol}.  
 	  Default is \code{1.e-07}.}
-	\item{maxiter}{An integer denoting the maximum limit on the number 
+	\item{\code{maxiter}}{An integer denoting the maximum limit on the number 
 	  of evaluations of  \code{fixptfn}, \eqn{F}{F}.  Default is 1500.}
-	\item{noimp.max}{An integer denoting the maximum limit on the number 
-	  of successive iterations for which either the objective function 
-	  \eqn{L}{L} or the residual 
-	  \eqn{||x_k - F(x_k)||}{abs(x[k] - F(x[k]))} does not decrease.  
-	  Default is \code{20}.}
 	}
 \item{trace}{A logical variable denoting whether some of the intermediate 
       results of iterations should be displayed to the user.  
@@ -138,7 +133,10 @@ Default values of \code{control} are:
    }
    
 \examples{
-##############################################################################
+###########################################################################
+# Also see the vignette by typing:
+#  vignette("SQUAREM", all=FALSE)
+#
 # Example 1:  EM algorithm for Poisson mixture estimation 
 
 poissmix.em <- function(p,y) {
@@ -176,7 +174,7 @@ old.seed <- setRNG(list(kind="Mersenne-Twister", normal.kind="Inversion",
 p0 <- c(runif(1),runif(2,0,4))  # random starting value
 
 # Basic EM algorithm
-pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
+pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, control=list(tol=tol))
 
 # First-order SQUAREM algorithm with SqS3 method
 pf2 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, 
@@ -229,24 +227,15 @@ power.method <- function(x, A) {
 # Defines one iteration of the power method
 # x = starting guess for dominant eigenvector
 # A = a square matrix
-ax <- c(A \%*\% x)
-f <- ax / ax[1]
+ax <- as.numeric(A \%*\% x)
+f <- ax / sqrt(as.numeric(crossprod(ax)))
 f
 }
 
 # Finding the dominant eigenvector of the Bodewig matrix
-# This is a famous matrix for which power method has trouble converging
-# See, for example, Sidi, Ford, and Smith (SIAM Review, 1988) 
-#
-# Note: there are tow eigenvalues that are equally dominant, but have 
-#   opposite signs!!
-# Sometimes the power method finds the eigenvector corresponding to the 
-# large positive eigenvalue, but other times it finds the eigenvector
-#  corresponding to the large negative eigenvalue
 b <- c(2, 1, 3, 4, 1,  -3,   1,   5,  3,   1,   6,  -2,  4,   5,  -2,  -1)
 bodewig.mat <- matrix(b,4,4)
 eigen(bodewig.mat)
-
 
 p0 <- rnorm(4)
 
@@ -256,16 +245,14 @@ ans1 <- fpiter(p0, fixptfn=power.method, A=bodewig.mat)
 ans1$par <- ans1$par / sqrt(sum(ans1$par^2))  
 ans1
 
-# First-order SQUAREM with default settings (especially, step.min0 = 1)
-# Note: convergence is not accelerated because `
-#  power.method' is NOT a contraction mapping
+# First-order SQUAREM with default settings 
 ans2 <- squarem(p0, fixptfn=power.method, A=bodewig.mat, control=list(K=1))
 ans2$par <- ans2$par / sqrt(sum(ans2$par^2))
 ans2
 
-# First-order SQUAREM with a negative step.min0
+# First-order SQUAREM with a smaller step.min0
 # Convergence is dramatically faster now!
-ans3 <- squarem(p0, fixptfn=power.method, A=bodewig.mat, control=list(K=1, step.min0 = 0.5))
+ans3 <- squarem(p0, fixptfn=power.method, A=bodewig.mat, control=list(step.min0 = 0.5))
 ans3$par <- ans3$par / sqrt(sum(ans3$par^2))
 ans3
 

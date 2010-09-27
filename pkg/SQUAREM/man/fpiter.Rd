@@ -3,7 +3,7 @@
 \title{Fixed-Point Iteration Scheme}
 \description{A function to implement the fixed-point iteration algorithm.  This includes monotone, contraction mappings including EM and MM algorithms}
 \usage{
-  fpiter(par, fixptfn, objfn=NULL, tol=1.e-07, maxiter=5000, trace=FALSE, ...)
+  fpiter(par, fixptfn, objfn=NULL, control=list( ), ...)
 }
 \arguments{
     \item{par}{A vector of parameters denoting the initial guess for the
@@ -26,21 +26,10 @@
        even when a natural merit function is available, especially when its 
        computation is expensive.} 
 
-    \item{tol}{A small, positive scalar that determines when iterations 
-       should be terminated.  Iteration is terminated when 
-       \eqn{||x_k - F(x_k)|| \leq tol}{abs(x[k] - F(x[k]) <= tol}.  
-       Default is \code{1.e-07}.}
-
-    \item{maxiter}{An integer denoting the maximum limit on the number of 
-       evaluations of  \code{fixptfn}, \eqn{F}{F}.  Default is \code{1500}.}
-
-    \item{trace}{A logical variable denoting whether some of the intermediate 
-       results of iterations should be displayed to the user.  
-       Default is \code{FALSE}.} 
+    \item{control}{ A list of control parameters to pass on to the algorithm.  Full names of control list elements must be specified, otherwise, user-specifications are ignored.  See *Details* below.}
 
     \item{...}{Arguments passed to \code{fixptfn} and \code{objfn}.}
 }
-
 
 \value{A list with the following components:
 \item{par}{Parameter,\eqn{x*}{x*} that are the fixed-point of \eqn{F}{F} such 
@@ -55,6 +44,26 @@
 \item{convergence}{An integer code indicating type of convergence.  
   \code{0} indicates successful convergence, 
   whereas \code{1} denotes failure to converge.}
+}
+
+\details{
+\code{control} is list of control parameters for the algorithm.  
+
+\describe{
+\code{control = list(tol = 1.e-07, maxiter = 1500, trace = FALSE)}
+
+    \code{tol}{  A small, positive scalar that determines when iterations 
+       should be terminated.  Iteration is terminated when 
+       \eqn{||x_k - F(x_k)|| \leq tol}{abs(x[k] - F(x[k]) <= tol}.  
+       Default is \code{1.e-07}.}
+
+    \code{maxiter}{  An integer denoting the maximum limit on the number of 
+       evaluations of  \code{fixptfn}, \eqn{F}{F}.  Default is \code{1500}.}
+
+    \code{trace}{  A logical variable denoting whether some of the intermediate 
+       results of iterations should be displayed to the user.  
+       Default is \code{FALSE}.} 
+  }
 }
 
 \seealso{
@@ -100,7 +109,7 @@ old.seed <- setRNG(list(kind="Mersenne-Twister", normal.kind="Inversion",
 p0 <- c(runif(1),runif(2,0,4))  # random starting value
 
 # Basic EM algorithm
-pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
+pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, control=list(tol=tol))
 
 
 ##############################################################################
@@ -113,12 +122,8 @@ power.method <- function(x, A) {
 # x = starting guess for dominant eigenvector
 # A = a square matrix
 
-ax <- A \%*\% x
-
-ax <- c(ax)
-
-f <- ax / ax[1]
-
+ax <- as.numeric(A \%*\% x)
+f <- ax / sqrt(as.numeric(crossprod(ax)))
 f
 }
 
@@ -134,7 +139,6 @@ f
 b <- c(2, 1, 3, 4, 1,  -3,   1,   5,  3,   1,   6,  -2,  4,   5,  -2,  -1)
 bodewig.mat <- matrix(b,4,4)
 eigen(bodewig.mat)
-
 
 p0 <- rnorm(4)
 

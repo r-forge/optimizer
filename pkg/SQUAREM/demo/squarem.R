@@ -17,7 +17,7 @@ p0 <- c(runif(1),runif(2,0,4))
 #
 
 # EM algorithm
-pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, tol=tol)
+pf1 <- fpiter(p=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, control=list(tol=tol))
 
 # First-order SQUAREM algorithm with SqS3 method
 pf2 <- squarem(par=p0, y=y, fixptfn=poissmix.em, objfn=poissmix.loglik, control=list(tol=tol))

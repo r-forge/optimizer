@@ -48,17 +48,14 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
  * 
  * @return an Rcpp::List object
  */
-static SEXP rval(NumericVector par, string cnm, int ierr = 0) {
+static SEXP rval(NumericVector par, string cnm) {
     Environment rho(cf.environment());
     SEXP feval = rho.get(".feval.");
     StringVector cl(2);
     cl[0] = cnm;
     cl[1] = "minqa";
 
-    List rr = List::create(_["par"] = par,
-			   _["fval"] = cf(par),
-			   _["feval"] = feval,
-			   _["ierr"] = ierr);
+    List rr = List::create(_["par"] = par, _["fval"] = cf(par), _["feval"] = feval);
     rr.attr("class") = cl;
     return rr;
 }
@@ -68,66 +65,66 @@ extern "C"
 void F77_NAME(bobyqa)(const int *n, const int *npt, double X[],
 		      const double xl[], const double xu[],
 		      const double *rhobeg, const double *rhoend,
-		      const int *iprint, const int *maxfun, double w[],
-		      int *ierr);
+		      const int *iprint, const int *maxfun, double w[]);
 
 /// Interface for bobyqa
 RCPP_FUNCTION_5(List,bobyqa_cpp,NumericVector par,NumericVector xl,NumericVector xu,Environment cc,SEXP fn) {
     cf = Function(fn);	// install the objective function
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
-    int ierr = 0, ip = as<int>(cc.get("iprint")),
+    int ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")),
 	n = par.size(), np = as<int>(cc.get("npt"));
     vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
     NumericVector pp = clone(par); // ensure that bobyqa doesn't modify the R object
     F77_NAME(bobyqa)(&n, &np, pp.begin(), xl.begin(), xu.begin(),
-		     &rb, &re, &ip, &mxf, &w[0], &ierr);
-    return rval(pp, "bobyqa", ierr);
+		     &rb, &re, &ip, &mxf, &w[0]);
+    return rval(pp, "bobyqa");
 }
 
 extern "C" 
 void F77_NAME(uobyqa)(const int *n, double X[],
 		      const double *rhobeg, const double *rhoend,
-		      const int *iprint, const int *maxfun, double w[], int *ierr);
+		      const int *iprint, const int *maxfun, double w[]);
 
 RCPP_FUNCTION_3(List,uobyqa_cpp,NumericVector par,Environment cc,SEXP pfn) {
     cf = Function(pfn);
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
-    int ierr = 0, ip = as<int>(cc.get("iprint")),
+    int ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")), n = par.size();
     Environment rho(cf.environment());
     vector<double>
 	w((n*(42+n*(23+n*(8+n))) + max(2*n*n + 4, 18*n)) / 4);
     NumericVector pp = clone(par); // ensure that uobyqa doesn't modify the R object
 
-    F77_NAME(uobyqa)(&n, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
-    return rval(pp, "uobyqa", ierr);
+    F77_NAME(uobyqa)(&n, pp.begin(), &rb, &re, &ip, &mxf, &w[0]);
+    return rval(pp, "uobyqa");
 }
 
 extern "C" 
 void F77_NAME(newuoa)(const int *n, const int *npt, double X[],
 		      const double *rhobeg, const double *rhoend,
-		      const int *iprint, const int *maxfun, double w[], int *ierr);
+		      const int *iprint, const int *maxfun, double w[]);
 
 RCPP_FUNCTION_3(List,newuoa_cpp,NumericVector par,Environment cc,SEXP pfn) {
     double rb = as<double>(cc.get("rhobeg")),
 	re = as<double>(cc.get("rhoend"));
-    int ierr = 0, ip = as<int>(cc.get("iprint")),
+    int ip = as<int>(cc.get("iprint")),
 	mxf = as<int>(cc.get("maxfun")),
 	n = par.size(), np = as<int>(cc.get("npt"));
     vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
     cf = Function(pfn);
     NumericVector pp = clone(par); // ensure that newuoa doesn't modify the R object
 
-    F77_NAME(newuoa)(&n, &np, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
-    return rval(pp, "newuoa", ierr);
+    F77_NAME(newuoa)(&n, &np, pp.begin(), &rb, &re, &ip, &mxf, &w[0]);
+    return rval(pp, "newuoa");
 }
 
 /// Assorted error messages.
 extern "C"
 void F77_NAME(minqer)(const int *msgno) {
+    BEGIN_RCPP
     const char *msg = (char*)NULL;
     switch(*msgno) {
     case 10:
@@ -152,6 +149,7 @@ void F77_NAME(minqer)(const int *msgno) {
 	throw range_error("minqer message number");
     }
     throw runtime_error(msg);
+    VOID_END_RCPP
 }
 
 /// Iteration output when rho changes and iprint >= 2

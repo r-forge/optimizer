@@ -19,6 +19,10 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 #           maximize = TRUE to maximize the function (default FALSE)
 #           trace = 0 (default) for no output, 
 #                  >0 for output (bigger => more output)
+#           eps=1.0e-7 (default) for use in computing numerical gradient
+#                  approximations.
+#           usenumDeriv=FALSE default. TRUE to use numDeriv for numerical
+#                  gradient approximations.) 
 #
 # Output:
 #    A list with components: 
@@ -117,20 +121,24 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 	cat("Extra function arguments:")
 	print(fargs)
   }
+
+
 # set default masks if not defined
   if (is.null(bdmsk)) {
-       bdmsk<-rep(1,n) # all parameters free initially
+       bdmsk<-rep(1,n)
   }
+  cat("bdmsk:")
+  print(bdmsk)
 # check if there are bounds
-  if(is.null(lower) || ! is.finite(lower)) nolower=TRUE else nolower=FALSE
-  if(is.null(upper) || ! is.finite(upper)) noupper=TRUE else noupper=FALSE
+  if(is.null(lower) || ! any(is.finite(lower))) nolower=TRUE else nolower=FALSE
+  if(is.null(upper) || ! any(is.finite(upper))) noupper=TRUE else noupper=FALSE
   if(nolower && noupper && all(bdmsk == 1)) bounds=FALSE else bounds=TRUE
-  if (trace > 2) cat("Bounds: nolower = ",nolower,"  noupper  ",noupper," bounds = ",bounds,"\n")
+  if (trace > 2) cat("Bounds: nolower = ",nolower,"  noupper = ",noupper," bounds = ",bounds,"\n")
   if(nolower) lower<-rep(-Inf,n)
   if(noupper) upper<-rep(Inf,n)
 ######## check bounds and masks #############
 ## NOTE: do this inline to avoid call (??should we change this?)
-   if (bounds) {
+  if (bounds) {
   ## tmp<-readline("There are bounds ")
 # Make sure to expand lower and upper
    if(! nolower & (length(lower)<n)) {
@@ -143,44 +151,41 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
    } # else upper OK
 # At this point, we have full bounds in play
 # This implementation as a loop, but try later to vectorize
-     for (i in 1:n) {
+   for (i in 1:n) {
 #       cat("i = ",i,"\n")
        if (bdmsk[i] == 0) { # NOTE: we do not change masked parameters, even if out of bounds
            ## tmp<-readline("Masked parameter ")
-#           if(! nolower) {
-           if(bvec[i]<lower[i]) { 
-              if (trace>0) cat("WARNING: ",bvec[i]," = MASKED par[",i,"] < lower bound = ",lower[i],"\n")
+           if(! nolower) {
+              if(bvec[i]<lower[i]) { 
+                cat("WARNING: ",bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],"\n")
+              }
            }
-#           }
-#           if(! noupper) {
-           if(bvec[i]>upper[i]) { 
-              if (trace>0) cat("WARNING: ",bvec[i]," = MASKED par[",i,"] > upper bound = ",upper[i],"\n")
+           if(! noupper) {
+              if (bvec[i]>upper[i]) { 
+                 cat("WARNING: ",bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],"\n")
+              }
            }
-#           }
-       } else { # not masked
+       } else { # not masked, so must be free or active constraint
            ## tmp<-readline(" Not masked parameter ")
-#           if(! nolower){
-           if(bvec[i] <= lower[i]) { 
-              if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
-              bvec[i]<-lower[i]
-              bdmsk[i] <- -3 # active lower bound
+           if(! nolower){
+              if (bvec[i]<=lower[i]) { # changed 090814 to ensure bdmsk is set
+                cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
+                bvec[i]<-lower[i]
+                bdmsk[i] <- -3 # active lower bound
+              }
            }
-#           }
-#           if(! noupper) {
-           if(bvec[i] >= upper[i]) { 
-              if (trace>0) cat("WARNING: par[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
-              bvec[i]<-upper[i]
-              bdmsk[i] <- -1 # active upper bound
+           if(! noupper) {
+              if(bvec[i]>=upper[i]) { # changed 090814 to ensure bdmsk is set 
+                 cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
+                 bvec[i]<-upper[i]
+                 bdmsk[i] <- -1 # active upper bound
+              }
            }
-#           }
        } # end not masked
-      } # end loop for bound/mask check
-      if (trace>0) {
-	cat("adjusted bvec:")
-	print (bvec)
-      }
-    } # end if bounds
+    } # end loop for bound/mask check
+  }
 ############## end bounds check #############
+
 # Initial function value -- may NOT be at initial point specified by user.
   if (trace > 2) {
 	cat("Try function at initial point:")

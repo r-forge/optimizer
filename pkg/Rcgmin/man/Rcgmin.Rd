@@ -28,7 +28,8 @@
    is STRONGLY discouraged, as the CG methods seem to require accurate
    gradients. Furthermore, the computation of numerical gradients is
    many times slower -- of the order of 1000s -- than using an analytic
-   function.
+   function. Note the option of using numerical gradients from package
+   \code{numDeriv}.
 }
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
@@ -51,8 +52,13 @@
    \item{maximize}{Set TRUE to maximize the function (default FALSE).}
    \item{trace}{Set 0 (default) for no output, >0 for trace output
       (larger values imply more output).}
-    \item{}{The source code \code{Rcgmin} for R is likely to remain a work in progress for some time, 
+   \item{eps}{Tolerance used to calculate numerical gradients. Default is 1.0E-7. See 
+      source code for \code{Rcgmin} for details of application.}
+   \item{usenumDeriv}{Default is FALSE. Set TRUE to use numDeriv for numerical gradient
+      approximations.}
+   \item{}{The source code \code{Rcgmin} for R is likely to remain a work in progress for some time, 
     so users should watch the console output.}
+
   }
 }
 \value{
@@ -83,7 +89,8 @@ fr <- function(x) {
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
 ansrosenbrock <- Rcgmin(fn=fr,par=c(1,2))
-ansrosenbrock
+print(ansrosenbrock) # use print to allow copy to separate file that 
+#    can be called using source()
 #####################
 # Simple bounds and masks test
 bt.f<-function(x){
@@ -106,6 +113,8 @@ for (i in 1:n) {
 }
 xx<-0.5*(lower+upper)
 ansbt<-Rcgmin(xx, bt.f, bt.g, lower, upper, bdmsk, control=list(trace=1))
+
+print(ansbt)
 
 #####################
 genrose.f<- function(x, gs=NULL){ # objective function
@@ -138,9 +147,12 @@ bdmsk<-NULL
 genrosea<-Rcgmin(xx,genrose.f, genrose.g)
 genrosenl<-Rcgmin(xx,genrose.f) # use local numerical gradient
 genrosenx<-Rcgmin(xx,genrose.f,control=list(usenumDeriv=TRUE)) # use numDeriv for gradients
-genrosea
-genrosenl
-genrosenx
+cat("genrosea uses analytic gradient\n")
+print(genrosea)
+cat("genrosenl uses standard numerical gradient\n")
+print(genrosenl)
+cat("genrosenx uses numDeriv gradient\n")
+print(genrosenx)
 
 
 maxfn<-function(x) {
@@ -157,13 +169,91 @@ negmaxfn<-function(x) {
 	return(f)
 }
 
+cat("test that maximize=TRUE works correctly\n")
 
 n<-6
 xx<-rep(1,n)
 ansmax<-Rcgmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
 print(ansmax)
+
+cat("using the negmax function should give same parameters\n")
 ansnegmax<-Rcgmin(xx,negmaxfn, control=list(trace=1))
 print(ansnegmax)
+
+
+#####################  From Rvmmin.Rd
+cat("test bounds and masks\n")
+nn<-4
+startx<-rep(pi,nn)
+lo<-rep(2,nn)
+up<-rep(10,nn)
+grbds1<-Rcgmin(startx,genrose.f,lower=lo,upper=up) 
+print(grbds1)
+
+cat("test lower bound only\n")
+nn<-4
+startx<-rep(pi,nn)
+lo<-rep(2,nn)
+grbds2<-Rcgmin(startx,genrose.f,lower=lo) 
+print(grbds2)
+
+cat("test lower bound single value only\n")
+nn<-4
+startx<-rep(pi,nn)
+lo<-2
+up<-rep(10,nn)
+grbds3<-Rcgmin(startx,genrose.f,lower=lo) 
+print(grbds3)
+
+cat("test upper bound only\n")
+nn<-4
+startx<-rep(pi,nn)
+lo<-rep(2,nn)
+up<-rep(10,nn)
+grbds4<-Rcgmin(startx,genrose.f,upper=up) 
+print(grbds4)
+
+cat("test upper bound single value only\n")
+nn<-4
+startx<-rep(pi,nn)
+grbds5<-Rcgmin(startx,genrose.f,upper=10) 
+print(grbds5)
+
+
+
+cat("test masks only\n")
+nn<-6
+bd<-c(1,1,0,0,1,1)
+startx<-rep(pi,nn)
+grbds6<-Rcgmin(startx,genrose.f,bdmsk=bd) 
+print(grbds6)
+
+cat("test upper bound on first two elements only\n")
+nn<-4
+startx<-rep(pi,nn)
+upper<-c(10,8, Inf, Inf)
+grbds7<-Rcgmin(startx,genrose.f,upper=upper) 
+print(grbds7)
+
+
+cat("test lower bound on first two elements only\n")
+nn<-4
+startx<-rep(0,nn)
+lower<-c(0,1.1, -Inf, -Inf)
+grbds8<-Rcgmin(startx,genrose.f,genrose.g,lower=lower, control=list(maxit=2000)) 
+print(grbds8)
+
+cat("test n=1 problem using simple squares of parameter\n")
+
+sqtst<-function(xx) {
+   res<-sum((xx-2)*(xx-2))
+}
+
+nn<-1
+startx<-rep(0,nn)
+onepar<-Rcgmin(startx,sqtst, control=list(trace=1)) 
+print(onepar)
+
 
 }
 

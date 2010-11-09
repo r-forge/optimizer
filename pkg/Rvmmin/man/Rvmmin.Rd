@@ -36,7 +36,8 @@ the method terminates.
    is discouraged, as the method seems to work better with accurate
    gradients. Furthermore, the computation of numerical gradients is
    many times slower -- of the order of 1000s -- than using an analytic
-   function.
+   function. Note the option of using numerical gradients from package
+   \code{numDeriv}.
 }
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
@@ -44,7 +45,7 @@ the method terminates.
      unconstrained, and 0 for any parameter that is fixed or MASKED for the
      duration of the optimization.}
  \item{control}{
-    An optional list of control settings.  
+    An optional list of control settings.
  }
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }
@@ -52,9 +53,24 @@ the method terminates.
   Functions \code{fn} must return a numeric value.
   The \code{control} argument is a list.
     Successful completion.
-    The codes \code{Rvmmin} for R are still a work in progress, so users should watch
+    The source code \code{Rvmmin} for R is still a work in progress, so users should watch
     the console output.
+
+   The \code{control} argument is a list.
+   \describe{
+   \item{maxit}{A limit on the number of iterations (default 500). Note that this is 
+      used to compute a quantity \code{maxfeval}<-round(sqrt(n+1)*maxit) where n is the
+      number of parameters to be minimized.}
+   \item{maximize}{Set TRUE to maximize the function (default FALSE).}
+   \item{trace}{Set 0 (default) for no output, >0 for trace output
+      (larger values imply more output).}
+   \item{eps}{Tolerance used to calculate numerical gradients. Default is 1.0E-7. See 
+      source code for \code{Rvmmin} for details of application.}
+   \item{usenumDeriv}{Default is FALSE. Set TRUE to use numDeriv for numerical gradient
+      approximations.}
   }
+}
+
 \value{
   A list with components:
   \item{par}{The best set of parameters found.}
@@ -78,7 +94,8 @@ fr <- function(x) {
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
 ansrosenbrock <- Rvmmin(fn=fr,par=c(1,2))
-ansrosenbrock
+print(ansrosenbrock) # use print to allow copy to separate file that 
+#    can be called using source()
 #####################
 # Simple bounds and masks test
 bt.f<-function(x){
@@ -101,6 +118,8 @@ for (i in 1:n) {
 }
 xx<-0.5*(lower+upper)
 ansbt<-Rvmmin(xx, bt.f, bt.g, lower, upper, bdmsk, control=list(trace=1))
+
+print(ansbt)
 
 #####################
 genrose.f<- function(x, gs=NULL){ # objective function
@@ -133,9 +152,12 @@ bdmsk<-NULL
 genrosea<-Rvmmin(xx,genrose.f, genrose.g)
 genrosenl<-Rvmmin(xx,genrose.f) # use local numerical gradient
 genrosenx<-Rvmmin(xx,genrose.f,control=list(usenumDeriv=TRUE)) # use numDeriv for gradients
-genrosea
-genrosenl
-genrosenx
+cat("genrosea uses analytic gradient\n")
+print(genrosea)
+cat("genrosenl uses standard numerical gradient\n")
+print(genrosenl)
+cat("genrosenx uses numDeriv gradient\n")
+print(genrosenx)
 
 
 maxfn<-function(x) {
@@ -152,14 +174,19 @@ negmaxfn<-function(x) {
 	return(f)
 }
 
+cat("test that maximize=TRUE works correctly\n")
 
-nn<-6
-xx<-rep(1,nn)
+n<-6
+xx<-rep(1,n)
 ansmax<-Rvmmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
 print(ansmax)
+
+cat("using the negmax function should give same parameters\n")
 ansnegmax<-Rvmmin(xx,negmaxfn, control=list(trace=1))
 print(ansnegmax)
 
+
+#####################
 cat("test bounds and masks\n")
 nn<-4
 startx<-rep(pi,nn)
@@ -198,6 +225,7 @@ grbds5<-Rvmmin(startx,genrose.f,upper=10)
 print(grbds5)
 
 
+
 cat("test masks only\n")
 nn<-6
 bd<-c(1,1,0,0,1,1)
@@ -205,9 +233,35 @@ startx<-rep(pi,nn)
 grbds6<-Rvmmin(startx,genrose.f,bdmsk=bd) 
 print(grbds6)
 
+cat("test upper bound on first two elements only\n")
+nn<-4
+startx<-rep(pi,nn)
+upper<-c(10,8, Inf, Inf)
+grbds7<-Rvmmin(startx,genrose.f,upper=upper) 
+print(grbds7)
+
+
+cat("test lower bound on first two elements only\n")
+nn<-4
+startx<-rep(0,nn)
+lower<-c(0,1.1, -Inf, -Inf)
+grbds8<-Rvmmin(startx,genrose.f,genrose.g,lower=lower, control=list(maxit=2000)) 
+print(grbds8)
+
+cat("test n=1 problem using simple squares of parameter\n")
+
+sqtst<-function(xx) {
+   res<-sum((xx-2)*(xx-2))
 }
 
+nn<-1
+startx<-rep(0,nn)
+onepar<-Rvmmin(startx,sqtst, control=list(trace=1)) 
+print(onepar)
 
+
+
+}
 
 \keyword{nonlinear}
 \keyword{optimize}

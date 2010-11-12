@@ -8,12 +8,19 @@ Known BUGS
 	a central difference approximation, without any extrapolation. 
  
 
+Changes in numDeriv version 2010.11-1
+
+   o	Added warning in the documentation regarding trying to pass arguments
+   	in ... with the same names as numDeriv function arguments.
+
+ 
+
 Changes in numDeriv version 2010.2-1
 
    o	Added more graceful failure in the case of NA returned by a function
 	(thanks to Adam Kramer).
-
-
+	
+	
 Changes in numDeriv version 2009.2-2
 
    o	Standardized NEWS format for new function news().

@@ -1,3 +1,8 @@
+2010-11-14  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/minqa.cpp: reverted the removal of the ierr argument in
+	calls to Fortran code.
+
 2010-08-10  John Nash  <nashjc@uottawa.ca>
         * man/bobyqa.Rd: Added revised codes for error exits and
 	tests for some of these errors. Note that the error for npt

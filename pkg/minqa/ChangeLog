@@ -1,5 +1,8 @@
 2010-11-14  Douglas Bates  <bates@stat.wisc.edu>
 
+	* tests/newuoa.R: added test for newuoa which should signal an
+	error.
+
 	* src/minqa.cpp: reverted the removal of the ierr argument in
 	calls to Fortran code.
 

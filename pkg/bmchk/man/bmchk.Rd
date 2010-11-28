@@ -53,7 +53,9 @@ incorporated within optimization codes.
   \item{admissible}{TRUE if bounds are admissible, FALSE otherwise}
   \item{maskadded}{TRUE when a mask has been added because bounds are very close
         or equal, FALSE otherwise}
-  \item{parchanged}{TRUE if parameters are changed by bounds, FALSE otherswise}
+  \item{parchanged}{TRUE if parameters are changed by bounds, FALSE otherswise.
+        Note that parchanged = TRUE implies the input parameter values were infeasible, 
+        that is, violated the bounds constraints.}
 }
 \examples{
 #####################

@@ -487,6 +487,13 @@ ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-
              itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=FALSE), gs=10)
 print(ans9)
 
+startx<-4*seq(1:10)/3.
+cat("200 steps NM is not enough to terminate\n")
+ans10<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("Nelder-Mead"),
+             itnmax=c(200), control=list(trace=FALSE, save.failures=FALSE), gs=10)
+cat("The answer should be NULL\n")
+print(ans10)
+
 
 }
 \keyword{nonlinear}

@@ -146,7 +146,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 # Set control defaults
     ctrl <- list(
 	follow.on=FALSE, 
-	save.failures=TRUE,
+	save.failures=FALSE,
 	trace=0,
 	sort.result=TRUE,
 	kkt=TRUE,
@@ -802,7 +802,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
       times[i] <- times[i] + time # Accumulate time for a single method (in case called multiple times)
       if (ctrl$trace>0) { cat("Post processing for method ",meth,"\n") }
-      if ( ctrl$save.failures || (ans$conv <= 1) ){  # Save the solution if converged or directed to save
+#      if ( ctrl$save.failures || (ans$conv <= 1) ){  # remove second condition 20101202
+       if ( ctrl$save.failures ){  # Save the solution if converged or directed to save
           j <- j + 1 ## increment the counter for (successful) method/start case
           if (ctrl$trace & ans$conv==0) cat("Successful convergence! \n")  ## inform user we've succeeded
           # Testing final solution. Use numDeriv to get gradient and Hessian; compute Hessian eigenvalues
@@ -874,31 +875,22 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		cat("Save results from method ",meth,"\n") 
 	  #	print(ans)
 	  }
-          ans.ret[[j]] <- ans  ## save the answer. [[]] indexes the CONTENTS of the list
-          ans.ret[[j]]$method <- method[i] # and we tag on the method with the $ linker
-          if (ctrl$trace>0) { cat("Assemble the answers\n") }
-          #    attr(ans.ret, "CPU times (s)") <- times ## save the accumulated times 
-          #    if (ctrl$trace>0) { cat("Done CPU times\n") }
-          pars <- lapply(ans.ret, function(x) x$par)
-#          if (ctrl$trace>0) { cat("Done parameters\n") }
-          vals <- lapply(ans.ret, function(x) x$value)
-#          if (ctrl$trace>0) { cat("Done value\n") }
-          meths <- lapply(ans.ret, function(x) x$method)
-#          if (ctrl$trace>0) { cat("Done method\n") }
-          fevals<- lapply(ans.ret, function(x) x$fevals)
-#          if (ctrl$trace>0) { cat("Done fevals\n") }
-          gevals<- lapply(ans.ret, function(x) x$gevals)
-#          if (ctrl$trace>0) { cat("Done gevals\n") }
-          nitns <-  lapply(ans.ret, function(x) x$niter)
-#          if (ctrl$trace>0) { cat("Done niter\n") }
-          convcode<- lapply(ans.ret, function(x) x$conv)
-#          if (ctrl$trace>0) { cat("Done conv\n") }
-          kkt1<- lapply(ans.ret, function(x) x$kkt1)
-#          if (ctrl$trace>0) { cat("Done kkt1\n") }
-          kkt2<- lapply(ans.ret, function(x) x$kkt2)
-#          if (ctrl$trace>0) { cat("Done kkt2\n") }
-          xtimes<- lapply(ans.ret, function(x) x$systime)
-#          if (ctrl$trace>0) { cat("Done systime\n") }
+          if (j > 0) { # ensure there is information to save
+             ans.ret[[j]] <- ans  ## save the answer. [[]] indexes the CONTENTS of the list
+             ans.ret[[j]]$method <- method[i] # and we tag on the method with the $ linker
+             if (ctrl$trace>0) { cat("Assemble the answers\n") }
+             #    attr(ans.ret, "CPU times (s)") <- times ## save the accumulated times 
+             pars <- lapply(ans.ret, function(x) x$par)
+             vals <- lapply(ans.ret, function(x) x$value)
+             meths <- lapply(ans.ret, function(x) x$method)
+             fevals<- lapply(ans.ret, function(x) x$fevals)
+             gevals<- lapply(ans.ret, function(x) x$gevals)
+             nitns <-  lapply(ans.ret, function(x) x$niter)
+             convcode<- lapply(ans.ret, function(x) x$conv)
+             kkt1<- lapply(ans.ret, function(x) x$kkt1)
+             kkt2<- lapply(ans.ret, function(x) x$kkt2)
+             xtimes<- lapply(ans.ret, function(x) x$systime)
+         } # end if j > 0
       }  ## end post-processing of successful solution
 #      	if (ctrl$trace>0) { cat("Check if follow.on from method ",meth,"\n") }
       	if (ctrl$follow.on) {
@@ -907,7 +899,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	}
     } ## end loop over method (index i)
 #    if (ctrl$trace>0) { cat("Consolidate ans.ret\n") }
-    if (length(pars) > 0) { # cannot save if no answers
+#    if (length(pars) > 0) { # cannot save if no answers
+    if (j > 0) { # cannot save if no answers
 	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
                         itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
 #    	if (ctrl$trace>0) { cat("Add details\n") }

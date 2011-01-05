@@ -25,12 +25,20 @@ bmchk <- function(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0) {
 #     noupper: TRUE if no upper bounds, FALSE otherwise
 #     bounds:  TRUE if any bounds, FALSE otherwise
 #     admissible: TRUE if admissible, FALSE if not
+#         No lower bound exceeds an upper bound. That is the bounds themselves are
+#         sensible. This condition has nothing to do with the starting parameters.
+#     maskadded: TRUE if a mask is added, FALSE if not
+#         This implies very close upper and lower bounds for a parameters. 
+#         See the code for the implementation.
 #     parchanged: TRUE if parameters changed, FALSE if not
+#         parchanged = TRUE means that parameters are INFEASIBLE, or they would 
+#         not be changed.
 #
+########## length of vectors #########
+n<-length(par)
+bvec<-par
 ############# bounds and masks ################
 # set default masks if not defined
-   n<-length(par)
-   bvec<-par # copy parameters (will this impact memory use??)
    if (is.null(bdmsk)) {
       bdmsk<-rep(1,n)
    }
@@ -47,7 +55,9 @@ bmchk <- function(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0) {
   if(noupper) upper<-rep(Inf,n)
 
 ######## check bounds and masks #############
-## NOTE: do this inline to avoid call (??should we change this?)
+  parchanged<-FALSE # # must be set BEFORE if (bounds) ...; equivalent to feasible<-TRUE
+  admissible<-TRUE # similarly must set before we look at bounds
+  maskadded<-FALSE # similarly set here
   if (bounds) {
      # Make sure to expand lower and upper
      if(! nolower & (length(lower)<n)) {
@@ -58,18 +68,18 @@ bmchk <- function(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0) {
         if (length(upper)==1) { upper<-rep(upper,n) } else { stop("1<length(upper)<n") }
      } # else upper OK
      # At this point, we have full bounds in play
+     
      ######## check admissibility ########
-     admissible<-TRUE
-     parchanged<-FALSE
      if (any(lower[which(bdmsk != 0)] > upper[which(bdmsk != 0)])) admissible <- FALSE
+     if (trace > 0) cat("admissible = ",admissible,"\n")
      tol<-.Machine$double.eps*max(abs(upper),abs(lower),1)
-     maskadded<-FALSE
      if (any((upper-lower)<tol)) { # essentially masked
            warning("One or more lower bounds equals an upper bound, imposing mask")
            bdmsk[which(upper-lower < tol)] = 0
            maskadded<-TRUE
      }
-     if (trace > 0) cat("admissible = ",admissible,"\n")
+     if (trace > 0) cat("maskadded = ",maskadded,"\n")
+     ######## check feasibility ########
      if (admissible) {
         # This implementation as a loop, but try later to vectorize
         for (i in 1:n) {
@@ -112,9 +122,9 @@ bmchk <- function(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0) {
         } # end loop for bound/mask check
      }
    }
+   if (trace > 0) cat("parchanged = ",parchanged,"\n")
    ############## end bounds check #############
    bcout<-list(bvec, bdmsk, nolower, noupper, bounds, admissible, maskadded, parchanged)
-   names(bcout)<-c("bvec", "bdmsk", "nolower", "noupper", "bounds", "admissible", 
-        "maskadded", "parchanged")
+   names(bcout)<-c("bvec", "bdmsk", "nolower", "noupper", "bounds", "admissible", "maskadded", "parchanged")
    return(bcout)
 } ## end of bmchk.R

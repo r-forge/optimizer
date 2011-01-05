@@ -1,8 +1,8 @@
 Package: bmchk
 Type: Package
 Title: Check bounds and masks for bounds-constraints used in nonlinear optimization
-Version: 2010.11-28
-Date: 2010-11-28
+Version: 2011.01-04
+Date: 2011-1-4
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Check bounds and masks for bounds-constraints used in nonlinear optimization

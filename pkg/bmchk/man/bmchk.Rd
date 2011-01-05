@@ -8,6 +8,14 @@ called bounds or box constraints. Some of the parameters may be fixed for a give
 or for a temporary trial. These fixed, or masked, paramters are held at one value during 
 a specific 'run' of the optimization.
 
+It is possible that the bounds are inadmissible, that is, that at least one lower bound
+exceeds an upper bound. In this case we set the flag \code{admissible} to FALSE.
+
+Parameters that are outside the bounds are moved to the nearest bound and the flag
+\code{parchanged} is set TRUE. However, we DO NOT change masked parameters, and they
+may be outside the bounds. This is an implementation choice, since it may be useful
+to test objective functions at point outside the bounds.
+
 The package bmchk is essentially a test of the R function bmchk(), which is likely to be 
 incorporated within optimization codes.
 }
@@ -50,9 +58,12 @@ incorporated within optimization codes.
   \item{nolower}{TRUE if no lower bounds, FALSE otherwise}
   \item{noupper}{TRUE if no upper bounds, FALSE otherwise}
   \item{bounds}{TRUE if there are any bounds, FALSE otherwise}
-  \item{admissible}{TRUE if bounds are admissible, FALSE otherwise}
+  \item{admissible}{TRUE if bounds are admissible, FALSE otherwise
+         This means no lower bound exceeds an upper bound. That is the bounds 
+         themselves are sensible. This condition has nothing to do with the 
+         starting parameters.}
   \item{maskadded}{TRUE when a mask has been added because bounds are very close
-        or equal, FALSE otherwise}
+        or equal, FALSE otherwise. See the code for the implementation.}
   \item{parchanged}{TRUE if parameters are changed by bounds, FALSE otherswise.
         Note that parchanged = TRUE implies the input parameter values were infeasible, 
         that is, violated the bounds constraints.}
@@ -134,10 +145,22 @@ up<-rep(5,4)
 bm<-rep(1,4)
 lo[2]=up[2]-0.001*.Machine$double.eps
 
-
 a6<-bmchk(prm, lo, up, bm, trace=1)
 cat("a6\n")
 print(a6)
+cat("\n\n")
+
+# try bounds inadmissible
+prm<-rep(pi,4)
+lo<-rep(2,4)
+up<-rep(3,4)
+bm<-rep(1,4)
+lo[2]<-6
+
+
+a7<-bmchk(prm, lo, up, bm, trace=1)
+cat("a7\n")
+print(a7)
 cat("\n\n")
 
 

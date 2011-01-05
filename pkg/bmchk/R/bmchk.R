@@ -99,7 +99,7 @@ bvec<-par
               }
            } else { # not masked, so must be free or active constraint
               if(! nolower){
-                 if (bvec[i]<=lower[i]) { # changed 090814 to ensure bdmsk is set
+                 if (bvec[i]<lower[i]) { # changed 090814 to ensure bdmsk is set; 110105 < not <=
 		   if (trace > 0) {
                       cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
                    }
@@ -109,7 +109,7 @@ bvec<-par
                  }
               }
               if(! noupper) {
-                 if (bvec[i]>=upper[i]) { # changed 090814 to ensure bdmsk is set 
+                 if (bvec[i]>upper[i]) { # changed 090814 to ensure bdmsk is set; 110105 > not >=
 		   if (trace > 0) {
                       cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
                    }
@@ -124,7 +124,9 @@ bvec<-par
    }
    if (trace > 0) cat("parchanged = ",parchanged,"\n")
    ############## end bounds check #############
-   bcout<-list(bvec, bdmsk, nolower, noupper, bounds, admissible, maskadded, parchanged)
-   names(bcout)<-c("bvec", "bdmsk", "nolower", "noupper", "bounds", "admissible", "maskadded", "parchanged")
+   bcout<-list(bvec, bdmsk, lower, upper, nolower, noupper, bounds, admissible, maskadded, parchanged)
+   names(bcout)<-c("bvec", "bdmsk", "lower", "upper", "nolower", "noupper", "bounds", 
+          "admissible", "maskadded", "parchanged")
+   # Note bdmsk, lower and upper are returned because they are modified (length, etc.)
    return(bcout)
 } ## end of bmchk.R

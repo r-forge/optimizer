@@ -72,7 +72,7 @@ incorporated within optimization codes.
 #####################
 # rm(list=ls())
 cat("Test bmchk() function \n")
-require(bmchk) # load the sub-program
+# require(bmchk) # load the sub-program
 
 # try free parameters and bounds
 prm<-rep(pi,4)

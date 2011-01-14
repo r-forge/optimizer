@@ -314,7 +314,9 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 #    the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #    for smooth functions. Code left in for those who may need it.
   # List of methods in packages. 
-  pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "uobyqa", "newuoa")
+#  pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "uobyqa", "newuoa")
+# JN 2011-1-14 uobyqa crashes in some cases without recovery. Until corrected, remove from pmeth
+  pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa")
   allmeth <- c(bmeth, pmeth)
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa") 

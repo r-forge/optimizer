@@ -330,13 +330,19 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   # Partial matching of method string allowed
   # avoid duplicates here
   # 2011-1-17 JN: to set L-BFGS-B
-  if (is.null(method) & have.bounds) {
+  method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
+  if (class(method)=="try-error") {
+     warning("optimx: No match to available methods")
+     method<-NULL
+     nmeth<-0
+  } else {
+     nmeth <- length(method) # number of methods requested
+  } # JN 2011-1-17 fix for default when there are bounds
+  if ((nmeth==0) & have.bounds) {
       method="L-BFGS-B"
       warning("Default method when bounds specified is L-BFGS-B to match optim()")
+      nmeth<-1
   }
-  method <- unique(match.arg(method, allmeth, several.ok=TRUE) )
-  nmeth <- length(method) # number of methods requested
-
   ## Check that methods are indeed available and loaded
   for (i in 1:nmeth) {
      cmeth <- method[i]

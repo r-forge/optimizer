@@ -76,7 +76,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
   'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', and 'ucminf'.
 
-  The default methods are an implementation of the Nelder and Mead
+  The default methods for unconstrained problems (no \code{lower} or
+  \code{upper} specified) are an implementation of the Nelder and Mead
   (1965) and a Variable Metric method based on the ideas of Fletcher
   (1970) as modified by him in conversation with Nash (1979). Nelder-Mead
   uses only function values and is robust but relatively slow.  It will 
@@ -84,7 +85,11 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   Metric method, \code{"BFGS"} updates an approximation to the inverse
   Hessian using the BFGS update formulas, along with an acceptable point
   line search strategy. This method appears to work best with analytic
-  gradients. As at June 2009, a box-constrained version is being tested.
+  gradients. (\code{"Rvmmmin"} provides a box-constrained version of this
+  algorithm.
+
+  If no \code{method} is given, and there are bounds constraints provided,
+  the method is set to \code{"L-BFGS-B"}.
 
   Method \code{"CG"} is a conjugate gradients method based on that by
   Fletcher and Reeves (1964) (but with the option of Polak--Ribiere or

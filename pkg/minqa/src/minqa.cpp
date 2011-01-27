@@ -72,19 +72,29 @@ void F77_NAME(bobyqa)(const int *n, const int *npt, double X[],
 		      int *ierr);
 
 /// Interface for bobyqa
-RCPP_FUNCTION_5(List,bobyqa_cpp,NumericVector par,NumericVector xl,NumericVector xu,Environment cc,SEXP fn) {
-    cf = Function(fn);	// install the objective function
-    double rb = as<double>(cc.get("rhobeg")),
-	re = as<double>(cc.get("rhoend"));
-    int ierr = 0,
-	ip = as<int>(cc.get("iprint")),
-	mxf = as<int>(cc.get("maxfun")),
-	n = par.size(), np = as<int>(cc.get("npt"));
-    vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
-    NumericVector pp = clone(par); // ensure that bobyqa doesn't modify the R object
-    F77_NAME(bobyqa)(&n, &np, pp.begin(), xl.begin(), xu.begin(),
-		     &rb, &re, &ip, &mxf, &w[0], &ierr);
-    return rval(pp, "bobyqa", ierr);
+extern "C"
+SEXP bobyqa_cpp(SEXP parp, SEXP xlp, SEXP xup, SEXP ccp, SEXP fnp) {
+    try {
+	NumericVector par(parp), xl(xlp), xu(xup);
+	Environment cc(ccp);
+	cf = Function(fnp);	// install the objective function
+	double rb = as<double>(cc.get("rhobeg")),
+	    re = as<double>(cc.get("rhoend"));
+	int ierr = 0,
+	    ip = as<int>(cc.get("iprint")),
+	    mxf = as<int>(cc.get("maxfun")),
+	    n = par.size(), np = as<int>(cc.get("npt"));
+	vector<double> w((np + 5) * (np + n) + (3 * n * (n + 5))/2);
+	NumericVector pp = clone(par); // ensure that bobyqa doesn't modify the R object
+	F77_NAME(bobyqa)(&n, &np, pp.begin(), xl.begin(), xu.begin(),
+			 &rb, &re, &ip, &mxf, &w[0], &ierr);
+	return rval(pp, "bobyqa", ierr);
+    } catch( std::exception& __ex__ ) {
+	forward_exception_to_r( __ex__ );
+    } catch(...) {
+	::Rf_error("c++ exception (unknown reason)");
+    }
+    return R_NilValue;		// -Wall
 }
 
 extern "C" 
@@ -93,39 +103,59 @@ void F77_NAME(uobyqa)(const int *n, double X[],
 		      const int *iprint, const int *maxfun,
 		      double w[], int *ierr);
 
-RCPP_FUNCTION_3(List,uobyqa_cpp,NumericVector par,Environment cc,SEXP pfn) {
-    cf = Function(pfn);
-    double rb = as<double>(cc.get("rhobeg")),
-	re = as<double>(cc.get("rhoend"));
-    int ierr = 0, ip = as<int>(cc.get("iprint")),
-	mxf = as<int>(cc.get("maxfun")), n = par.size();
-    Environment rho(cf.environment());
-    vector<double>
-	w((n*(42+n*(23+n*(8+n))) + max(2*n*n + 4, 18*n)) / 4);
-    NumericVector pp = clone(par); // ensure that uobyqa doesn't modify the R object
-
-    F77_NAME(uobyqa)(&n, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
-    return rval(pp, "uobyqa", ierr);
+extern "C"
+SEXP uobyqa_cpp(SEXP parp, SEXP ccp, SEXP fnp) {
+    try {
+	NumericVector par(parp);
+	Environment cc(ccp);
+	cf = Function(fnp);
+	double rb = as<double>(cc.get("rhobeg")),
+	    re = as<double>(cc.get("rhoend"));
+	int ierr = 0, ip = as<int>(cc.get("iprint")),
+	    mxf = as<int>(cc.get("maxfun")), n = par.size();
+	Environment rho(cf.environment());
+	vector<double>
+	    w((n*(42+n*(23+n*(8+n))) + max(2*n*n + 4, 18*n)) / 4);
+	NumericVector pp = clone(par); // ensure that uobyqa doesn't modify the R object
+	
+	F77_NAME(uobyqa)(&n, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
+	return rval(pp, "uobyqa", ierr);
+    } catch( std::exception& __ex__ ) {
+	forward_exception_to_r( __ex__ );
+    } catch(...) {
+	::Rf_error("c++ exception (unknown reason)");
+    }
+    return R_NilValue;		// -Wall
 }
-
+    
 extern "C" 
 void F77_NAME(newuoa)(const int *n, const int *npt, double X[],
 		      const double *rhobeg, const double *rhoend,
 		      const int *iprint, const int *maxfun,
 		      double w[], int *ierr);
 
-RCPP_FUNCTION_3(List,newuoa_cpp,NumericVector par,Environment cc,SEXP pfn) {
-    double rb = as<double>(cc.get("rhobeg")),
-	re = as<double>(cc.get("rhoend"));
-    int ierr = 0, ip = as<int>(cc.get("iprint")),
-	mxf = as<int>(cc.get("maxfun")),
-	n = par.size(), np = as<int>(cc.get("npt"));
-    vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
-    cf = Function(pfn);
-    NumericVector pp = clone(par); // ensure that newuoa doesn't modify the R object
-
-    F77_NAME(newuoa)(&n, &np, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
-    return rval(pp, "newuoa", ierr);
+extern "C"
+SEXP newuoa_cpp(SEXP parp, SEXP ccp, SEXP fnp) {
+    try {
+	NumericVector par(parp);
+	Environment cc(ccp);
+	cf = Function(fnp);
+	double rb = as<double>(cc.get("rhobeg")),
+	    re = as<double>(cc.get("rhoend"));
+	int ierr = 0, ip = as<int>(cc.get("iprint")),
+	    mxf = as<int>(cc.get("maxfun")),
+	    n = par.size(), np = as<int>(cc.get("npt"));
+	vector<double> w((np+13)*(np+n)+(3*n*(n+3))/2);
+	NumericVector pp = clone(par); // ensure that newuoa doesn't modify the R object
+	
+	F77_NAME(newuoa)(&n, &np, pp.begin(), &rb, &re, &ip, &mxf, &w[0], &ierr);
+	return rval(pp, "newuoa", ierr);
+    } catch( std::exception& __ex__ ) {
+	forward_exception_to_r( __ex__ );
+    } catch(...) {
+	::Rf_error("c++ exception (unknown reason)");
+    }
+    return R_NilValue;		// -Wall
 }
 
 /// Assorted error messages.

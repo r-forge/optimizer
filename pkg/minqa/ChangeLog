@@ -1,6 +1,12 @@
+2011-02-02  Douglas Bates  <bates@stat.wisc.edu>
+
+	* src/minqa.cpp (calfun): check for finite value of objective
+	function.
+
 2011-01-27  Douglas Bates  <bates@stat.wisc.edu>
 
-	* src/minqa.cpp: Expand RCPP_FUNCTION_X macros to make debugging easier.
+	* src/minqa.cpp: Expand RCPP_FUNCTION_X macros to make debugging
+	easier. 
 
 2010-11-19  Douglas Bates  <bates@stat.wisc.edu>
 

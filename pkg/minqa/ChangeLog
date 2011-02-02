@@ -1,5 +1,7 @@
 2011-02-02  Douglas Bates  <bates@stat.wisc.edu>
 
+	* DESCRIPTION (Version): New minor version number
+
 	* src/minqa.cpp (calfun): check for finite value of objective
 	function.
 

@@ -1,8 +1,8 @@
 Package: Rcgmin
 Type: Package
 Title: Conjugate gradient minimization of nonlinear functions with box constraints
-Version: 0.82
-Date: 2010-11-09
+Version: 2011-2.10
+Date: 2011-2-10
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Conjugate gradient minimization of nonlinear functions with box constraints incorporating Dai/Yuan update

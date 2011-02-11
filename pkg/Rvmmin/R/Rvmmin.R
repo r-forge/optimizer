@@ -63,7 +63,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
 
   ctrl[namc ] <- control     # 
-  M           <- ctrl$M         #
+#  M           <- ctrl$M      # not needed
   maxit    <- ctrl$maxit     #
   maxfeval <- ctrl$maxfeval  #
   maximize <- ctrl$maximize  # TRUE to maximize the function
@@ -116,7 +116,8 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   myfn <- if (maximize) function(par, ...) -fn(par, ...)
                    else function(par, ...)  fn(par, ...)
 
-  mygr <- if (maximize && !grNULL) function(par, ...) -gr(par, ...)
+#  mygr <- if (maximize && !grNULL) function(par, ...) -gr(par, ...)
+   mygr <- if (maximize) function(par, ...) -gr(par, ...)
                     else function(par, ...)  gr(par, ...)
 
 
@@ -124,8 +125,10 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   if (is.null(bdmsk)) {
        bdmsk<-rep(1,n)
   }
-  cat("bdmsk:")
-  print(bdmsk)
+  if (trace > 2) {
+     cat("bdmsk:")
+     print(bdmsk)
+  }
 # check if there are bounds
   if(is.null(lower) || ! any(is.finite(lower))) nolower=TRUE else nolower=FALSE
   if(is.null(upper) || ! any(is.finite(upper))) noupper=TRUE else noupper=FALSE

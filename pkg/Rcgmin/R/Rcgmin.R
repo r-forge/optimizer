@@ -127,8 +127,10 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   if (is.null(bdmsk)) {
        bdmsk<-rep(1,n)
   }
-  cat("bdmsk:")
-  print(bdmsk)
+  if(trace > 2) {
+     cat("bdmsk:")
+     print(bdmsk)
+  }
 # check if there are bounds
   if(is.null(lower) || ! any(is.finite(lower))) nolower=TRUE else nolower=FALSE
   if(is.null(upper) || ! any(is.finite(upper))) noupper=TRUE else noupper=FALSE

@@ -75,7 +75,18 @@ the method terminates.
   A list with components:
   \item{par}{The best set of parameters found.}
   \item{fvalue}{The value of the objective at the best set of parameters found.}
-  There are other items to be added.??
+  \item{counts}{A vector of two integers giving the number of function and gradient evaluations.}
+  \item{convergence}{An integer indicating the situation on termination of the function. \code{0}
+   indicates that the method believes it has succeeded. Other values:
+   \describe{
+      \item{\code{1}}{indicates that the iteration limit \code{maxit}
+      had been reached.}
+      \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
+	that the function cannot be computed or returns an infinite, NULL, or NA value.}
+      \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
+   }
+  }
+  \item{message}{A description of the situation on termination of the function.}
 }
 \references{
   Fletcher, R (1970) ...

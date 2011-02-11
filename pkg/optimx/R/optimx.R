@@ -531,8 +531,10 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		print.level<-mcontrol$trace
 		mcontrol$trace<-NULL
 	}
-        
-        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
+
+# 110121 -- need to put tufn NOT ufn in call 
+#        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
+        time <- system.time(ans <- try(nlm(f=tufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- ans$code
 		if (ans$conv == 1 | ans$conv == 2 | ans$conv == 3) ans$conv <- 0
@@ -660,15 +662,16 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
         time <- system.time(ans <- try(Rvmmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if ((class(ans)[1] != "try-error") & (ans$convergence==0)) {
 		ans$conv <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
-		ans$value<-ans$value 
+		ans$value<-ans$fvalue 
         } else {
 		if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		ans$value= ctrl$badval
+		ans$value<-ans$fvalue 
+##		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run
         	ans$gevals<-NA 

@@ -248,18 +248,32 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
 }
 \value{
-  A list with components:
+
+	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
+                        itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
+
+
+  A dataframe with the following columns, each having one element (row) for each
+  each of the methods that has returned an answer. In each row the columne elements
+  give:
   \item{par}{The best set of parameters found.}
-  \item{value}{The value of \code{fn} corresponding to \code{par}.}
-  \item{counts}{A two-element integer vector giving the number of calls
-    to \code{fn} and \code{gr} respectively. This excludes those calls needed
+  \item{fvalues}{The value of \code{fn} corresponding to \code{par}.}
+  \item{method}{The name of the method used for this answer.}
+  \item{fns}{The number of calls to \code{fn}.}
+  \item{grs}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
     compute a finite-difference approximation to the gradient.}
-  \item{convergence}{An integer code. \code{0} indicates successful
-    convergence. Error codes are
+  \item{itns}{For those methods where it is reported, the number of ``iterations''. See
+    the documentation or code for particular methods for the meaning of such counts.}
+  \item{conv}{An integer code. \code{0} indicates successful
+    convergence. Various methods may or may not return sufficient information
+	to allow all the codes to be specified. An incomplete list of codes includes
     \describe{
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
+      \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
+	that the function cannot be computed or returns an infinite, NULL, or NA value.}
+      \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
       \item{\code{10}}{indicates degeneracy of the Nelder--Mead simplex.}
       \item{\code{51}}{indicates a warning from the \code{"L-BFGS-B"}
       method; see component \code{message} for further details.}
@@ -267,12 +281,10 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
     }
   }
-  \item{message}{A character string giving any additional information
-    returned by the optimizer, or \code{NULL}.}
-  \item{hessian}{Only if argument \code{hessian} is true. A symmetric
-    matrix giving an estimate of the Hessian at the solution found. Note
-    that this is the Hessian of the unconstrained problem even if the
-    box constraints are active.}
+  \item{KKT1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
+  \item{KKT2}{A logical value returned TRUE if the solution reported appears to have a 
+  positive-definite Hessian.}
+  \item{xtimes}{The reported execution time of the calculations for the particular method.}
 
 More detail is provided in the attribute "details" to the returned answer object. 
 If the returned object from optimx() is \code{ans}, this is accessed 

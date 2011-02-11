@@ -47,7 +47,8 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 #
 #          '1' indicates that the iteration limit 'maxit' or the function
 #               evaluation limit mafeval have been reached.
-#          '2' indicates inadmissible parameters for function (bounds may be OK)
+#          '20' indicates inadmissible input parameters for function (bounds may be OK)
+#          '21' indicates inadmissible intermediate parameters for function
 #
 # message: A character string giving any additional information returned
 #          by the optimizer, or 'NULL'.
@@ -186,10 +187,12 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   }
 ############## end bounds check #############
   f <- try(do.call("myfn", append(list(bvec), fargs )), silent=TRUE) # Compute the function.
-  if ( class(f) == "try-error") { 
+  if ( (class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) { 
      msg<-"Initial point gives inadmissible function value"
-     cat(msg,"\n")
-     ans<-list(bvec, NA, c(ifn, 0), 0, 2, msg) # fixup message??
+     conv<-20
+     if(trace>0) cat(msg,"\n")
+     ans<-list(bvec, NA, c(ifn, 0), 0, conv, msg) # 
+     names(ans)<-c("par", "fvalue", "counts", "convergence", "message")
      return(ans)
   }
   if (trace>0) cat("Initial fn=",f,"\n")
@@ -301,10 +304,15 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
                keepgoing<-FALSE
                break
             }
-            if (is.na(f)) {
-                 cat("Current bvec:")
+            if (is.na(f) | is.null(f) | is.infinite(f)) {
+               if(trace>0){
+                 cat("Function is not calculable at bvec:")
                  print(bvec)
-		 stop("f is NA") 
+               }
+               msg="Function is not calculable at an intermediate point"
+               #  stop("f is NA") 
+               conv<-21
+               break
 	    }
             if (f < fmin) { # We have a lower point. Is it "low enough" i.e., acceptable
               accpoint <- ( f <= fmin + gradproj * steplength * acctol)
@@ -374,7 +382,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   if (trace > 0) cat("Seem to be done VM\n")
   ans<-list(par, fmin, c(ifn, ig), conv, msg)
 ## ?? need to fix up message
-  names(ans)<-c("par", "value", "counts", "convergence", "message")
+  names(ans)<-c("par", "fvalue", "counts", "convergence", "message")
   return(ans)
 } ## end of Rvmmin
 

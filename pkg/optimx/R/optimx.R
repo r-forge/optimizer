@@ -128,7 +128,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		lbratio<-NA
 	}
 	ratios<-list(lpratio=lpratio,lbratio=lbratio)
-	return(ratios)
+	# return(ratios)
 }
 # -------------- end scalecheck ----------------- #
 
@@ -207,12 +207,12 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 # 091216 for maximization
   negfn <- function (par, ...) { # negate the function for maximizing
 	val<-(-1.)*fn(par,...)
-	return(val)
+	# return(val)
   } # end of negfn
   if (! is.null(gr) ) {
     neggr <- function (par, ...) { # negate the function for maximizing
 	ngr<-(-1.)*gr(par,...)
-	return(ngr)
+	# return(ngr)
     } # end of neggr
   } else { neggr<-NULL }
   ufn<-fn
@@ -958,6 +958,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
     } else {
 	ansout<-NULL # no answer if no parameters
     } 
-    return(ansout)
+    ansout # return(ansout)
 } ## end of optimx
 

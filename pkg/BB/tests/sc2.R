@@ -58,7 +58,8 @@ good <- 2.565413040899874e-06
 #on Linux64 2.565413040899874e-06 (mfacl2)
 #on Linux64 6.677493403589264e-05
 print(z, digits=16)
-if(any(abs(good - z) >  1e-4)) stop("BB test sc2 b FAILED")
+# test tol relaxed from 1e-4 to 1e-3 when ftol arg added to spg  2011.2-1
+if(any(abs(good - z) >  1e-3)) stop("BB test sc2 b FAILED")
 
 system.time(neg.ans.spg <- spg(par=p0, fn=neg.sc2.f, gr=neg.sc2.g,
    control=list(maxit=2500, maximize=TRUE)))[1]
@@ -66,7 +67,8 @@ system.time(neg.ans.spg <- spg(par=p0, fn=neg.sc2.f, gr=neg.sc2.g,
 z <- sum(neg.ans.spg$par)
 good <- 2.565413040899874e-06
 print(z, digits=16)
-if(any(abs(good - z) >  1e-4)) stop("BB test neg.sc2 b FAILED")
+# test tol relaxed from 1e-4 to 1e-3 when ftol arg added to spg  2011.2-1
+if(any(abs(good - z) >  1e-3)) stop("BB test neg.sc2 b FAILED")
 
 system.time(ans.opt <- optim(par=p0, fn=sc2.f, method="L-BFGS-B"))[1]
 

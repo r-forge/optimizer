@@ -192,7 +192,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
      conv<-20
      if(trace>0) cat(msg,"\n")
      ans<-list(bvec, NA, c(ifn, 0), 0, conv, msg) # 
-     names(ans)<-c("par", "fvalue", "counts", "convergence", "message")
+     names(ans)<-c("par", "value", "counts", "convergence", "message")
      return(ans)
   }
   if (trace>0) cat("Initial fn=",f,"\n")
@@ -382,7 +382,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   if (trace > 0) cat("Seem to be done VM\n")
   ans<-list(par, fmin, c(ifn, ig), conv, msg)
 ## ?? need to fix up message
-  names(ans)<-c("par", "fvalue", "counts", "convergence", "message")
+  names(ans)<-c("par", "value", "counts", "convergence", "message")
   return(ans)
 } ## end of Rvmmin
 

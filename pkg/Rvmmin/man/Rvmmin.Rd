@@ -74,7 +74,7 @@ the method terminates.
 \value{
   A list with components:
   \item{par}{The best set of parameters found.}
-  \item{fvalue}{The value of the objective at the best set of parameters found.}
+  \item{value}{The value of the objective at the best set of parameters found.}
   \item{counts}{A vector of two integers giving the number of function and gradient evaluations.}
   \item{convergence}{An integer indicating the situation on termination of the function. \code{0}
    indicates that the method believes it has succeeded. Other values:

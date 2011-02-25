@@ -666,11 +666,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		ans$conv <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
-		ans$value<-ans$fvalue 
+##		ans$value<-ans$fvalue 
         } else {
 		if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
-		ans$value<-ans$fvalue 
+##		ans$value<-ans$fvalue 
 ##		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$conv<-9999 # failed in run

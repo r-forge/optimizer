@@ -1,11 +1,11 @@
 Package: kktc
-Version: 2011-2.22
-Date: 2011-02-22
+Version: 2011-2.27
+Date: 2011-02-27
 Title: Test the Kuhn Karush Tucker conditions for a proposed function minimum
 Author: John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
 Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Test the Kuhn Karush Tucker conditions for a proposed function minimum
-License: GPL version 2
+License: GPL-2
 Lazyload: Yes
 Depends: numDeriv
 

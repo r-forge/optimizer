@@ -824,7 +824,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
           # Testing final solution. Use numDeriv to get gradient and Hessian; compute Hessian eigenvalues
           hessOK<-FALSE # indicator for later
           if ((ctrl$kkt || hessian) && (ans$conv != 9999)) {
-              if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
+              if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
               if (!is.null(hess)){ # check if we have analytic hessian 
                  nhatend<-try(hess(ans$par, ...), silent=TRUE)
                  if (class(nhatend) != "try-error") {
@@ -844,7 +844,8 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
           } # end test if hessian computed
           ans$kkt1<-NA
           ans$kkt2<-NA
-          if((hessian || ctrl$kkt) && (ans$conv != 9999)) { # need to avoid test when method failed
+###          if((hessian || ctrl$kkt) && (ans$conv != 9999)) { # need to avoid test when method failed
+             if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
              gradOK<-FALSE
              if (is.null(gr)) {
                  ngatend<-try(grad(ufn, ans$par, ...), silent=TRUE) # change 20100711
@@ -897,7 +898,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
                 if (ctrl$dowarn) warning(warnstr)
                 if (ctrl$trace>0) cat(warnstr,"\n") 
              }
-          } # end kkt test
+###          } # end kkt test
           ans$systime <- time
           # Do we want more information saved?
           if (ctrl$trace>0) { 

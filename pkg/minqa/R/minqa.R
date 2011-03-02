@@ -17,9 +17,13 @@ commonArgs <- function(par, fn, ctrl, rho) {
 
     ## We use all possible control settings in the default.
     ## Extra control settings are ignored.
-    cc <- do.call(function(npt = min(n+6L, 2L * n + 1L), rhobeg = NA,
+##    cc <- do.call(function(npt = min(n+6L, 2L * n + 1L), rhobeg = NA,
+##                           rhoend = NA, iprint = 0L, maxfun=10000L,
+##                           obstop=TRUE, force.start=FALSE)
+    cc <- do.call(function(npt = min(n+2L, 2L * n), rhobeg = NA,
                            rhoend = NA, iprint = 0L, maxfun=10000L,
                            obstop=TRUE, force.start=FALSE)
+
                   list(npt = npt, rhobeg = rhobeg, rhoend = rhoend,
                        iprint = iprint, maxfun = maxfun, obstop = obstop,
                        force.start = force.start), ctrl)

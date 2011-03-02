@@ -1,3 +1,9 @@
+2011-02-28  John Nash <nashjc@uottawa.ca>
+
+        * DESCRIPTION (Version): New minor version number
+
+	* R/minqa.R fix npt to min(n+2, 2*n) in call
+
 2011-02-02  Douglas Bates  <bates@stat.wisc.edu>
 
 	* DESCRIPTION (Version): New minor version number

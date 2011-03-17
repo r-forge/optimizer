@@ -69,10 +69,13 @@ commonArgs <- function(par, fn, ctrl, rho) {
 
 bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 {
+    nn <- names(par) 
     ctrl <- commonArgs(par, fn, control, environment())
     n <- length(par)
-    fn1 <- function(x) fn(x, ...) # fn1 takes exactly 1 argument
-    
+    fn1 <- function(x) {  # fn1 takes exactly 1 argument
+      names(x) <- nn 
+      fn(x, ...) 
+    }
     ## check the upper and lower arguments, adjusting if necessary
     lower <- as.double(lower); upper <- as.double(upper)
     if (length(lower) == 1) lower <- rep(lower, n)
@@ -158,9 +161,13 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
 ##' @return a list with S3 class c("newuoa", "minqa")
 newuoa <- function(par, fn, control = list(), ...)
 {
+    nn <- names(par) 
     ctrl <- commonArgs(par + 0, fn, control, environment())
-    fn1 <- function(x) fn(x, ...)
-
+    
+    fn1 <- function(x) {  # fn1 takes exactly 1 argument
+      names(x) <- nn 
+      fn(x, ...) 
+    }
     retlst<-.Call(newuoa_cpp, par, ctrl, fn1)
 # JN 20100810 
     if (retlst$ierr > 0){
@@ -202,10 +209,13 @@ newuoa <- function(par, fn, control = list(), ...)
 ##'
 ##' @return a list with S3 class uobyqa
 uobyqa <- function(par, fn, control = list(), ...)
-{
+{   nn <- names(par) 
     ctrl <- commonArgs(par + 0, fn, control, environment())
-    fn1 <- function(x) fn(x, ...)
-
+    
+    fn1 <- function(x) {  # fn1 takes exactly 1 argument
+      names(x) <- nn 
+      fn(x, ...) 
+    }
      retlst<-.Call(uobyqa_cpp, par, ctrl, fn1)
 
 # JN 20100810 

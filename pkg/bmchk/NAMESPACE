@@ -1,3 +1,4 @@
 export(
-  "bmchk"
+  "bmchk",
+  "bmstep"
 )

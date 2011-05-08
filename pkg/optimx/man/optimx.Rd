@@ -551,6 +551,87 @@ ans12<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h,
 print(ans12)
 print(attr(ans12,"details"))
 
+# ======= check names =========
+cyq.f <- function (x) {
+  rv<-cyq.res(x)
+  f<-sum(rv*rv)
+}
+
+cyq.res <- function (x) {
+# Fletcher's chebyquad function m = n -- residuals 
+   n<-length(x)
+   res<-rep(0,n) # initialize
+   for (i in 1:n) { #loop over resids
+     rr<-0.0
+     for (k in 1:n) {
+	z7<-1.0
+	z2<-2.0*x[k]-1.0
+        z8<-z2
+        j<-1
+        while (j<i) {
+            z6<-z7
+            z7<-z8
+            z8<-2*z2*z7-z6 # recurrence to compute Chebyshev polynomial
+            j<-j+1
+        } # end recurrence loop
+        rr<-rr+z8
+      } # end loop on k
+      rr<-rr/n
+      if (2*trunc(i/2) == i) { rr <- rr + 1.0/(i*i - 1) }
+      res[i]<-rr
+    } # end loop on i
+    res
+}
+
+cyq.jac<- function (x) {
+#  Chebyquad Jacobian matrix
+   n<-length(x)
+   cj<-matrix(0.0, n, n)
+   for (i in 1:n) { # loop over rows
+     for (k in 1:n) { # loop over columns (parameters)
+       z5<-0.0
+       cj[i,k]<-2.0
+       z8<-2.0*x[k]-1.0 
+       z2<-z8
+       z7<-1.0
+       j<- 1
+       while (j<i) { # recurrence loop
+         z4<-z5
+         z5<-cj[i,k]
+         cj[i,k]<-4.0*z8+2.0*z2*z5-z4
+         z6<-z7
+         z7<-z8
+         z8<-2.0*z2*z7-z6
+         j<- j+1
+       } # end recurrence loop
+       cj[i,k]<-cj[i,k]/n
+     } # end loop on k
+   } # end loop on i
+   cj
+}
+
+
+cyq.g <- function (x) {
+   cj<-cyq.jac(x)
+   rv<-cyq.res(x)
+   # Need to escape the \% in .Rd file
+   gg<- as.vector(2.0* rv \%*\% cj)
+}
+
+startx<-c(0.2, 0.6)
+names(startx)<-c("First","Second")
+cat("check the names on the parameters\n")
+print(startx)
+ansnames<-optimx(startx, cyq.f, cyq.g, control=list(all.methods=TRUE))
+ansnames
+cat("check the names on the parameters\n")
+print(ansnames$method)
+print(ansnames$par)
+
+
+
+
+
 
 }
 \keyword{nonlinear}

@@ -531,6 +531,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 		print.level<-mcontrol$trace
 		mcontrol$trace<-NULL
 	}
+	nampar<-names(par) # save names 110508
 
 # 110121 -- need to put tufn NOT ufn in call 
 #        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
@@ -548,6 +549,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         	ans$gevals<-NA # ?? need to fix this somehow in nlm code
         	ans$niter<-ans$iterations
         	ans$iterations<-NULL
+		names(ans$par)<-nampar # restore names 110508
 	} else {
 		if (ctrl$trace > 0) cat("nlm failed for this problem\n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -691,6 +693,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
+	nampar<-names(par) # save names 110508
         time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- 0
@@ -701,6 +704,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	        ans$fevals<-ans$feval
 	        ans$gevals<-NA
 		ans$value<-ans$fval 
+		names(ans$par)<-nampar # restore names 110508
         } else {
 		if (ctrl$trace>0) cat("bobyqa failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -724,6 +728,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
+	nampar<-names(par) # save names 110508
 
         time <- system.time(ans <- try(uobyqa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
@@ -734,6 +739,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	        ans$fevals<-ans$feval
 	        ans$gevals<-NA
 		ans$value<-ans$fval 
+		names(ans$par)<-nampar # restore names 110508
         } else {
 		if (ctrl$trace>0) cat("uobyqa failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -757,6 +763,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
+	nampar<-names(par) # save names 110508
         time <- system.time(ans <- try(newuoa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$conv <- 0
@@ -766,6 +773,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	        ans$fevals<-ans$feval
 	        ans$gevals<-NA
 		ans$value<-ans$fval 
+		names(ans$par)<-nampar # restore names 110508
         } else {
 		if (ctrl$trace>0) cat("newuoa failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list

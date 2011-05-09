@@ -28,6 +28,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 #                  approximations.
 #           usenumDeriv=FALSE default. TRUE to use numDeriv for numerical
 #                  gradient approximations.) 
+#           dowarn=TRUE by default. Set FALSE to suppress warnings.
 #
 ##
 # Output:
@@ -53,12 +54,18 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 # message: A character string giving any additional information returned
 #          by the optimizer, or 'NULL'.
 #
+# bdmsk:   Returned index describing the status of bounds and masks at the
+#          proposed solution. Parameters for which bdmsk are 1 are unconstrained
+#          or "free", those with bdmsk 0 are masked i.e., fixed. For historical
+#          reasons, we indicate a parameter is at a lower bound using -3 
+#          or upper bound using -1.
+#
 #  Author:  John C Nash
 #  Date:  April 3, 2009
 #################################################################
   # control defaults -- taken from spg -- need to adjust for Rcgmin and Rvmmin
   ctrl <- list( maxit=500, maxfeval=3000, maximize=FALSE, trace=0, 
-           eps=1.0e-7, usenumDeriv=FALSE) 
+           eps=1.0e-7, usenumDeriv=FALSE, dowarn=TRUE) 
   namc <- names(control)
   if (! all(namc %in% names(ctrl)) )
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
@@ -70,6 +77,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   maximize <- ctrl$maximize  # TRUE to maximize the function
   trace    <- ctrl$trace     #
   eps      <- ctrl$eps       #
+  dowarn   <- ctrl$dowarn    #
   
   grNULL <- is.null(gr)      # if gr function is not provided, we want to use numDeriv
   fargs <- list(...)         # the ... arguments that are extra function / gradient data
@@ -92,7 +100,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 # local function defined only when user does not specify a gr
 # Simple gr numerical approximation. Using fn, fmin and eps from calling env.  	
   if (is.null(gr)) {
-       warning("WARNING: Numerical gradients may be inappropriate for Rvmmin")
+       if (dowarn) warning("Numerical gradients may be inappropriate for Rvmmin")
        if ( ctrl[["usenumDeriv"]] ) { # external gradient
          require(numDeriv)
          gr<-function(par, ...) {
@@ -157,29 +165,33 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
        if (bdmsk[i] == 0) { # NOTE: we do not change masked parameters, even if out of bounds
            ## tmp<-readline("Masked parameter ")
            if(! nolower) {
-              if(bvec[i]<lower[i]) { 
-                cat("WARNING: ",bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],"\n")
+              if(bvec[i]<lower[i]) {
+                wmsg<-paste(bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],sep='') 
+                if (dowarn) warning(wmsg)
               }
            }
            if(! noupper) {
               if (bvec[i]>upper[i]) { 
-                 cat("WARNING: ",bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],"\n")
+                wmsg<-paste(bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],sep='') 
+                if (dowarn) warning(wmsg)
               }
            }
        } else { # not masked, so must be free or active constraint
            ## tmp<-readline(" Not masked parameter ")
            if(! nolower){
               if (bvec[i]<=lower[i]) { # changed 090814 to ensure bdmsk is set
-                cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
+                wmsg<-paste("x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],sep='')
+                if (dowarn) warning(wmsg)
                 bvec[i]<-lower[i]
                 bdmsk[i] <- -3 # active lower bound
               }
            }
            if(! noupper) {
               if(bvec[i]>=upper[i]) { # changed 090814 to ensure bdmsk is set 
-                 cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
-                 bvec[i]<-upper[i]
-                 bdmsk[i] <- -1 # active upper bound
+                wmsg<-paste("x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],sep='')
+                if (dowarn) warning(wmsg)
+                bvec[i]<-upper[i]
+                bdmsk[i] <- -1 # active upper bound
               }
            }
        } # end not masked
@@ -191,8 +203,8 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
      msg<-"Initial point gives inadmissible function value"
      conv<-20
      if(trace>0) cat(msg,"\n")
-     ans<-list(bvec, NA, c(ifn, 0), 0, conv, msg) # 
-     names(ans)<-c("par", "value", "counts", "convergence", "message")
+     ans<-list(bvec, NA, c(ifn, 0), 0, conv, msg, bdmsk) # 
+     names(ans)<-c("par", "value", "counts", "convergence", "message", "bdmsk")
      return(ans)
   }
   if (trace>0) cat("Initial fn=",f,"\n")
@@ -298,7 +310,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
             ifn<-ifn+1
             if (ifn > maxfeval) {
                msg<-"Too many function evaluations"
-               warning(msg)
+               if (dowarn) warning(msg)
                conv<-1
                changed<-FALSE
                keepgoing<-FALSE
@@ -347,7 +359,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
       if (ig > maxit) {
          keepgoing=FALSE
          msg="Too many gradient evaluations"
-         warning(msg)
+         if (dowarn) warning(msg)
          conv<-1
          break
       }
@@ -380,9 +392,9 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
     } # end else no accpoint 
   } # end main loop  (while keepgoing)
   if (trace > 0) cat("Seem to be done VM\n")
-  ans<-list(par, fmin, c(ifn, ig), conv, msg)
+  ans<-list(par, fmin, c(ifn, ig), conv, msg, bdmsk)
 ## ?? need to fix up message
-  names(ans)<-c("par", "value", "counts", "convergence", "message")
+  names(ans)<-c("par", "value", "counts", "convergence", "message", "bdmsk")
   return(ans)
 } ## end of Rvmmin
 

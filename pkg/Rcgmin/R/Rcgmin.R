@@ -22,7 +22,8 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 #           eps=1.0e-7 (default) for use in computing numerical gradient
 #                  approximations.
 #           usenumDeriv=FALSE default. TRUE to use numDeriv for numerical
-#                  gradient approximations.) 
+#                  gradient approximations.)
+#           dowarn=TRUE by default. Set FALSE to suppress warnings.
 #
 # Output:
 #    A list with components: 
@@ -46,11 +47,19 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
 # message: A character string giving any additional information returned
 #          by the optimizer, or 'NULL'.
 #
+# bdmsk:   Returned index describing the status of bounds and masks at the
+#          proposed solution. Parameters for which bdmsk are 1 are unconstrained
+#          or "free", those with bdmsk 0 are masked i.e., fixed. For historical
+#          reasons, we indicate a parameter is at a lower bound using -3 
+#          or upper bound using -1.
+#
+#
 #  Author:  John C Nash
 #  Date:  April 2, 2009; revised July 28, 2009
 #################################################################
   # control defaults -- idea from spg
-  ctrl<-list(maxit=500, maximize=FALSE, trace=0, eps=1.0e-7, usenumDeriv=FALSE)
+  ctrl<-list(maxit=500, maximize=FALSE, trace=0, eps=1.0e-7, usenumDeriv=FALSE,
+       dowarn=TRUE)
   namc <- names(control)
   if (! all(namc %in% names(ctrl)) )
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])     
@@ -62,11 +71,13 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   eps<-ctrl$eps
   fargs <- list(...)         # the ... arguments that are extra function / gradient data
   grNULL <- is.null(gr)
+  dowarn   <- ctrl$dowarn    #
+
 #############################################
 # local function defined only when user does not specify a gr
 # Simple gr numerical approximation. Using fn, fmin and eps from calling env.  	
   if (grNULL) {
-       warning("WARNING: Numerical gradients may be inappropriate for Rcgmin")
+       if (dowarn) warning("Numerical gradients may be inappropriate for Rvmmin")
        if ( ctrl[["usenumDeriv"]] ) { # external gradient
          require(numDeriv)
          gr<-function(par, ...) {
@@ -159,26 +170,30 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
            ## tmp<-readline("Masked parameter ")
            if(! nolower) {
               if(bvec[i]<lower[i]) { 
-                cat("WARNING: ",bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],"\n")
+                wmsg<-paste(bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],sep='') 
+                if (dowarn) warning(wmsg)
               }
            }
            if(! noupper) {
               if (bvec[i]>upper[i]) { 
-                 cat("WARNING: ",bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],"\n")
+                wmsg<-paste(bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],sep='') 
+                if (dowarn) warning(wmsg)
               }
            }
        } else { # not masked, so must be free or active constraint
            ## tmp<-readline(" Not masked parameter ")
            if(! nolower){
               if (bvec[i]<=lower[i]) { # changed 090814 to ensure bdmsk is set
-                cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
+                wmsg<-paste("x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],sep='')
+                if (dowarn) warning(wmsg)
                 bvec[i]<-lower[i]
                 bdmsk[i] <- -3 # active lower bound
               }
            }
            if(! noupper) {
               if(bvec[i]>=upper[i]) { # changed 090814 to ensure bdmsk is set 
-                 cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
+                 wmsg<-paste("x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],sep='')
+                 if (dowarn) warning(wmsg)
                  bvec[i]<-upper[i]
                  bdmsk[i] <- -1 # active upper bound
               }
@@ -226,8 +241,8 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
       if (ifn > maxfeval) {
         msg<-paste("Too many function evaluations (> ",maxfeval,") ", sep='')
         if (trace > 0 ) cat(msg,"\n")
-        ans<-list(par, fmin, c(ifn, ig), 1, msg) # 1 indicates not converged in function limit
-        names(ans)<-c("par", "value", "counts", "convergence", "message")
+        ans<-list(par, fmin, c(ifn, ig), 1, msg, bdmsk) # 1 indicates not converged in function limit
+        names(ans)<-c("par", "value", "counts", "convergence", "message", "bdmsk")
         return(ans)
       }
       par<-bvec # save best parameters
@@ -235,8 +250,8 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
       if (ig > maxit) {
         msg<-paste("Too many gradient evaluations (> ",maxit,") ", sep='')
         if (trace > 0 ) cat(msg,"\n")
-        ans<-list(par, fmin, c(ifn, ig), 1, msg) # 1 indicates not converged in function or gradient limit
-        names(ans)<-c("par", "value", "counts", "convergence", "message")
+        ans<-list(par, fmin, c(ifn, ig), 1, msg, bdmsk) # 1 indicates not converged in function or gradient limit
+        names(ans)<-c("par", "value", "counts", "convergence", "message", "bdmsk")
         return(ans)
       }
       g<-mygr(bvec, ...)
@@ -471,8 +486,8 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
  #  counts: number of calls to 'fn' and 'gr' (2 elements)
  #  convergence: An integer code. '0' indicates successful convergence.
  #  message: A character string or 'NULL'.
-  ans<-list(par, fmin, c(ifn, ig), 0, msg)
-  names(ans)<-c("par", "value", "counts", "convergence", "message")
+  ans<-list(par, fmin, c(ifn, ig), 0, msg, bdmsk)
+  names(ans)<-c("par", "value", "counts", "convergence", "message", "bdmsk")
   return(ans)
 } ## end of Rcgmin
 

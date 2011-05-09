@@ -37,6 +37,8 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
 #                  search for lower point
 #           tryqmin = TRUE (default) if we want to try the quadratic minimization
 #                  after backtrack line search, FALSE to skip this attempt.
+#           dowarn=TRUE by default. Set FALSE to suppress warnings.
+#
 ##
 # Output:
 #    A list with components: 
@@ -76,7 +78,7 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
   # control defaults -- some taken from spg -- ?? need to adjust for Rcgmin and Rvmmin
   ctrl <- list( maxit=50, maxfeval=300, maximize=FALSE, trace=0, 
            eps=1.0e-7, usenumDeriv=FALSE, acctol=0.0001, 
-           reltest=1000.0, stepredn=0.2, gradtol=-1, tryqmin=TRUE)
+           reltest=1000.0, stepredn=0.2, gradtol=-1, tryqmin=TRUE, dowarn=TRUE)
   namc <- names(control)
   if (! all(namc %in% names(ctrl)) )
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -97,6 +99,7 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
   gradtol <- ctrl$gradtol # gradient projection tolerance
   tryqmin <- ctrl$tryqmin # try the quadratic min
   usenumDeriv<-ctrl$usenumDeriv # to force use of numDeriv package
+  dowarn   <- ctrl$dowarn    #
   grNULL <- is.null(gr)      # if gr function is not provided, we want to use numDeriv
   fargs <- list(...)         # the ... arguments that are extra function / gradient data
   msg <- "" # ensure msg is set, even to a null string
@@ -135,7 +138,7 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
    }
 ############# end myfn ##########################
   if (is.null(gr)) {# local function defined only when user does not specify a gr
-       warning("WARNING: Numerical gradients may be inappropriate for Rvmmin")
+       if (dowarn) warning("Numerical gradients may be inappropriate for Rvmmin")
        if ( usenumDeriv ) { # external gradient
          require("numDeriv")
          mygr<-function(par, maximize=FALSE, ...) {
@@ -168,7 +171,7 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
   if (is.null(bdmsk)) {
        bdmsk<-rep(1,n)
   }
-  if (trace > 2) {
+  if (trace > 3) {
      cat("bdmsk:")
      print(bdmsk)
   }
@@ -204,28 +207,32 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
            ## tmp<-readline("Masked parameter ")
            if(! nolower) {
               if(bvec[i]<lower[i]) { 
-                cat("WARNING: ",bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],"\n")
+                wmsg<-paste(bvec[i]," = MASKED x[",i,"] < lower bound = ",lower[i],sep='') 
+                if (dowarn) warning(wmsg)
               }
            }
            if(! noupper) {
               if (bvec[i]>upper[i]) { 
-                 cat("WARNING: ",bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],"\n")
+                wmsg<-paste(bvec[i]," = MASKED x[",i,"] > upper bound = ",upper[i],sep='') 
+                if (dowarn) warning(wmsg)
               }
            }
        } else { # not masked, so must be free or active constraint
            ## tmp<-readline(" Not masked parameter ")
            if(! nolower){
               if (bvec[i]<=lower[i]) { # changed 090814 to ensure bdmsk is set
-                cat("WARNING: x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],"\n")
+                wmsg<-paste("x[",i,"], set ",bvec[i]," to lower bound = ",lower[i],sep='')
+                if (dowarn) warning(wmsg)
                 bvec[i]<-lower[i]
                 bdmsk[i] <- -3 # active lower bound
               }
            }
            if(! noupper) {
               if(bvec[i]>=upper[i]) { # changed 090814 to ensure bdmsk is set 
-                 cat("WARNING: x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],"\n")
-                 bvec[i]<-upper[i]
-                 bdmsk[i] <- -1 # active upper bound
+                wmsg<-paste("x[",i,"], set ",bvec[i]," to upper bound = ",upper[i],sep='')
+                if (dowarn) warning(wmsg)
+                bvec[i]<-upper[i]
+                bdmsk[i] <- -1 # active upper bound
               }
            }
        } # end not masked
@@ -363,7 +370,7 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
             ifn<-ifn+1
             if (ifn > maxfeval) {
                msg<-"Too many function evaluations"
-               warning(msg)
+               if (dowarn) warning(msg)
                termination<-1
                changed<-FALSE
                keepgoing<-FALSE

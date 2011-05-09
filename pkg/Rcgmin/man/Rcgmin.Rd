@@ -249,10 +249,16 @@ sqtst<-function(xx) {
    res<-sum((xx-2)*(xx-2))
 }
 
+######### One dimension test
 nn<-1
 startx<-rep(0,nn)
-onepar<-Rcgmin(startx,sqtst, control=list(trace=1)) 
+onepar<-Rvmmin(startx,sqtst, control=list(trace=1)) 
 print(onepar)
+
+cat("Suppress warnings\n")
+oneparnw<-Rvmmin(startx,sqtst, control=list(dowarn=FALSE,trace=1)) 
+print(oneparnw)
+
 
 
 }

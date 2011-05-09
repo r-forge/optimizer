@@ -1,0 +1,14 @@
+citHeader("To cite NE in publications use:")
+
+
+citEntry(entry="Manual",
+         title = "GNE: computation of Nash Equilibria",
+         author = "Christophe Dutang",
+	 year = 2010,
+         note = "R package version 0.9",
+         textVersion =
+	 paste(	"C. Dutang",
+		"(2010),",
+	       	"GNE: computation of Nash Equilibria")
+)
+

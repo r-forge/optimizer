@@ -1,0 +1,17 @@
+
+
+### Exports of R functions
+export(NewtonKKT, fixedpoint, minGap, eqsolve)
+
+#export(NewtonNext, LevenMarqNext)
+
+export(decrstep, decrstep10, decrstep20, decrstep30, purestep)
+
+export(phiFB, GrAphiFB, GrBphiFB, phiMin, GrAphiMin, GrBphiMin)
+
+export(projector, rejection)
+
+export(Phi, JacPhi, PROBj2k)
+
+### C code
+useDynLib(GNE, .registration = TRUE)

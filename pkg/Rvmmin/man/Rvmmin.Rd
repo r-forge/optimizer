@@ -89,6 +89,11 @@ the method terminates.
    }
   }
   \item{message}{A description of the situation on termination of the function.}
+  \item{bdmsk}{Returned index describing the status of bounds and masks at the
+        proposed solution. Parameters for which bdmsk are 1 are unconstrained
+        or "free", those with bdmsk 0 are masked i.e., fixed. For historical
+        reasons, we indicate a parameter is at a lower bound using -3 
+         or upper bound using -1.}
 }
 \references{
   Fletcher, R (1970) ...

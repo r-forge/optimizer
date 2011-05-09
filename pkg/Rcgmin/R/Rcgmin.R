@@ -213,8 +213,8 @@ Rcgmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   if ( class(f) == "try-error") { 
      msg<-"Initial point is infeasible."
      if(trace > 0) cat(msg,"\n")
-     ans<-list(par, NA, c(ifn, 0), 2, msg)
-     names(ans)<-c("par", "value", "counts", "convergence", "message")
+     ans<-list(par, NA, c(ifn, 0), 2, msg, bdmsk)
+     names(ans)<-c("par", "value", "counts", "convergence", "message", "bdmsk")
      return(ans)
   } 
   fmin<-f

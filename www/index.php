@@ -45,11 +45,6 @@ echo $contents; } ?>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
-<p><p> <strong>BB</strong> -  Solving and optimizing large-scale nonlinear systems
-<p> Barzilai-Borwein Spectral Methods for solving nonlinear system of 
- equations, and for optimizing nonlinear objective functions subject to simple 
- constraints.
- 
 <p><p> Packages for optimization and solution of nonlinear systems of equations include
 <ul>
 <li>- large scale optimization with box constraints</li>

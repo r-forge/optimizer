@@ -49,23 +49,27 @@ echo $contents; } ?>
 <p> Barzilai-Borwein Spectral Methods for solving nonlinear system of 
  equations, and for optimizing nonlinear objective functions subject to simple 
  constraints.
+ 
+<p><p> Packages for optimization and solution of nonlinear systems of equations include
+<ul>
+<li>- large scale optimization with box constraints</li>
+<li>- exterior point method for general constraint optimization</li>
+<li>- sequential quadratic programming with box constraints</li>
+<li>- conjugate gradient optimization with box constraints</li>
+<li>- fixed point methods</li>
+<li>- large scale equation solving via Barzilai-Borwein Spectral Methods for solving nonlinear system of 
+ equations</li>
+<li>- multi-objective optimization for Nash equilibrium</li>
+</ul>
 
-<p><p><strong>GPArotation</strong> - GPA Factor Rotation
-<p><p>Gradient Projection Algorithm Rotation for Factor Analysis. 
 
-<p><p><strong>numDeriv</strong> - Accurate Numerical Derivatives
-<p>Accurate Numerical Derivatives. See ?numDeriv.Intro for more details.
-
-<p><p><strong>optimx</strong> - A wrapper to integrate optim() and related optimization functionality
-<p>The package allows users to conduct optimization of smooth, continuous functions 
-using the methods in optim (Nelder-Mead, BFGS, L-BFGS-B, CG, and SANN) as well as
-those from packages nlm, nlminb, and ucminf. A number of convenience features are
-available. At 2009-06-24, this is still a beta level package.</p>
-
-<p><p><strong>funcheck</strong> - Checking functions that are to be optimized
-<p>The package consists of functions funcheck() to verify files containing the function and
-various derivative computations in a standardized naming convention. Function funtest carries
-out the same tests on explicitly named objective and derivative codes.</p>
+<p><p> Packages for utils functions include
+<ul>
+<li>- KKT condition testing</li>
+<li>- numerical derivative routine</li>
+<li>- a common interface for optimization methods</li>
+</ul> 
+ 
 
 </body>
 </html>

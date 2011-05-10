@@ -280,7 +280,7 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
     ## Bounds and masks adjustment of gradient ##
     ## first try with looping -- later try to vectorize
     if (bounds || masks) {
-      if (trace>2) { 
+      if (trace>3) { 
          cat("bdmsk:")
          print(bdmsk)
       }
@@ -300,7 +300,7 @@ Rvmminstep <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, co
             }
          }
       } # end masking loop on i
-      if (trace > 2) {
+      if (trace > 3) {
          cat("bdmsk adj:")
          print(bdmsk)
          cat("proj-g:")

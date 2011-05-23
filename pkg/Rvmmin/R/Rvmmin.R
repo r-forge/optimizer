@@ -96,6 +96,7 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
   acctol <- 0.0001 # acceptable point tolerance
   reltest <- 100.0 # relative equality test
   ceps<-.Machine$double.eps*reltest
+  dblmax<-.Machine$double.xmax # used to flag bad function
 #############################################
 # local function defined only when user does not specify a gr
 # Simple gr numerical approximation. Using fn, fmin and eps from calling env.  	
@@ -203,7 +204,8 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
      msg<-"Initial point gives inadmissible function value"
      conv<-20
      if(trace>0) cat(msg,"\n")
-     ans<-list(bvec, NA, c(ifn, 0), 0, conv, msg, bdmsk) # 
+     # change NA to dblmax 110524
+     ans<-list(bvec, dblmax, c(ifn, 0), 0, conv, msg, bdmsk) # 
      names(ans)<-c("par", "value", "counts", "convergence", "message", "bdmsk")
      return(ans)
   }
@@ -317,14 +319,15 @@ Rvmmin <- function( par, fn, gr=NULL, lower=NULL, upper=NULL, bdmsk=NULL, contro
                break
             }
             if (is.na(f) | is.null(f) | is.infinite(f)) {
-               if(trace>0){
-                 cat("Function is not calculable at bvec:")
+               if(trace>2){
+                 cat("Function is not calculable at intermediate bvec:")
                  print(bvec)
                }
-               msg="Function is not calculable at an intermediate point"
-               #  stop("f is NA") 
-               conv<-21
-               break
+#               msg="Function is not calculable at an intermediate point"
+#               #  stop("f is NA") 
+#               conv<-21
+#               break
+               f<-dblmax # try big function to escape
 	    }
             if (f < fmin) { # We have a lower point. Is it "low enough" i.e., acceptable
               accpoint <- ( f <= fmin + gradproj * steplength * acctol)

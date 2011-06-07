@@ -1,7 +1,7 @@
 
 
 ### Exports of R functions
-export(NewtonKKT, fixedpoint, minGap, eqsolve)
+export(NewtonKKT, fixedpoint, minGap)
 
 #export(NewtonNext, LevenMarqNext)
 

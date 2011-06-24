@@ -8,13 +8,21 @@
 \encoding{UTF-8}
 \title{Generate gradient and Hessian for a function at given parameters.}
 \description{
-  The optimx general-purpose optimization wrapper function that calls other
-  R tools for optimization, including the existing optim() function creates
-  a data frame of results. \code{gHgens} extracts elements from this 
-  data frame.
+  \code{gHgen} is used to generate the gradient and Hessian of an objective
+  function used for optimization. If a user-provided gradient function 
+  \code{gr} is available it is used to compute the gradient, otherwise 
+  package \code{numDeriv} is used. If a user-provided Hessian function
+  \code{hess} is available, it is used to compute a Hessian. Otherwise, if
+  \code{gr} is available, we use the function \code{jacobian()} from
+  package \code{numDeriv} to compute the Hessian. In both these cases we
+  check for symmetry of the Hessian. Computational Hessians are commonly
+  NOT symmetric. If only the objective function \code{fn} is provided, then
+  the Hessian is approximated with the function \code{hessian} from 
+  package \code{numDeriv} which guarantees a symmetric matrix. 
 }
 \usage{
-  gHgen(par, fn, gr=NULL, hess=NULL, ktrace=FALSE, ...) 
+  gHgen(par, fn, gr=NULL, hess=NULL, ktrace=FALSE,
+      control=list(asymtol=1.0e-7), ...) 
 }
 \arguments{
  \item{par}{Set of parameters, assumed to be at a minimum of the function \code{fn}.}
@@ -25,6 +33,7 @@
  \item{hess}{(Optional) function to compute the Hessian of the objective function. This
      is rarely available, but is included for completeness.}
  \item{ktrace}{A logical flag which, if TRUE, monitors the progress of gHgen. Default FALSE.}
+ \item{control}{A list of controls to the function. Currently only asymptol=1.0e-7.}
  \item{\dots}{Extra data needed to compute the function, gradient and Hessian.}
 }
 

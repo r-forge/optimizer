@@ -1,8 +1,8 @@
 Package: bmchk
 Type: Package
 Title: Check bounds and masks for bounds-constraints used in nonlinear optimization; compute maximum stepsize.
-Version: 2011.04-25
-Date: 2011-4-25
+Version: 2011.06-26
+Date: 2011-6-26
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Check bounds and masks for bounds-constraints used in nonlinear optimization; compute maximum stepsize.

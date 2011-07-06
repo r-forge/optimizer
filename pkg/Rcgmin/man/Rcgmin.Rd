@@ -258,18 +258,14 @@ sqtst<-function(xx) {
 ######### One dimension test
 nn<-1
 startx<-rep(0,nn)
-onepar<-Rvmmin(startx,sqtst, control=list(trace=1)) 
+onepar<-Rcgmin(startx,sqtst, control=list(trace=1)) 
 print(onepar)
 
 cat("Suppress warnings\n")
-oneparnw<-Rvmmin(startx,sqtst, control=list(dowarn=FALSE,trace=1)) 
+oneparnw<-Rcgmin(startx,sqtst, control=list(dowarn=FALSE,trace=1)) 
 print(oneparnw)
 
-
-
 }
-
-
 
 \keyword{nonlinear}
 \keyword{optimize}

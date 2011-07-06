@@ -14,15 +14,15 @@
   already computed. Some of these used only for reporting.
 }
 \usage{
-     kktc(par, fval, ngmax, nHes, 
-             control=list(kkttol=1e-3, kkt2tol=1e-6, ktrace=FALSE) )
+     kktc(par, fval, ngr, nHes, nbm, maxfn=FALSE, control=list() )
 }
 \arguments{
  \item{par}{A vector of values for the parameters which are supposedly optimal.}
  \item{fval}{Function value at parameters \code{par}.}
- \item{ngmax}{Maximum absolute component of the gradient of the function at 
-       \code{par}.}
+ \item{ngr}{Gradient (possibly estimated) of the function at \code{par}.}
  \item{nHes}{Matrix that is supposedly the Hessian at \code{par}.}
+ \item{nbm}{Number of active masks or bounds on \code{par}.}
+ \item{maxfn}{Logical TRUE if function is being maximized. Default FALSE.}
  \item{control}{A list of controls for the function, made up of the following items}
     \itemize{
        \item{kkttol}{A tolerance for the KKT gradient check.}
@@ -32,14 +32,18 @@
     }
 }
 \details{
-  At the moment, kktc does NOT handle box constraints or masks, thought the test built into
-the \code{optimix} package does do this. The present code was developed by lifting it from \code{optimix}
-so KKT checks could be added to other optimization routines.
+  At the moment, kktc does NOT handle box constraints or masks in its
+  tests, except to ignore the dimensions for masks (not active bounds).
+  The present code was developed by lifting it from \code{optimx}
+  so that KKT checks could be added to other optimization routines.
+  Note that we IGNORE the sign of the gradient in the case that the
+  objective is being maximized. We do account for the sign of the
+  Hessian for curvature however.
 }
 
 \value{
   The output is a list consisting of 
-  \item{ngmax}{The absolute value of the largest gradient component in magnitude.}
+  \item{gmax}{The absolute value of the largest gradient component in magnitude.}
   \item{evratio}{The ratio of the smallest to largest Hessian eigenvalue. Note that this
      may be negative.}
   \item{kkt1}{A logical value that is TRUE if we consider the first (i.e., gradient) 
@@ -98,7 +102,8 @@ parx<-rep(1,4)
 fval<-genrose.f(parx)
 gval<-genrose.g(parx)
 Ahess<-genrose.h(parx)
-out<-kktc(parx,fval,max(abs(gval)),Ahess, control=list(ktrace=TRUE))
+nbm<-0
+out<-kktc(parx,fval,gval,Ahess, nbm, control=list(ktrace=TRUE))
 cat("results of kktc for genrose at ")
 print(parx)
 print(out)
@@ -107,7 +112,8 @@ parx<-rep(0.9,4)
 fval<-genrose.f(parx)
 gval<-genrose.g(parx)
 Ahess<-genrose.h(parx)
-out<-kktc(parx,fval,max(abs(gval)),Ahess, control=list(ktrace=TRUE))
+nbm<-0
+out<-kktc(parx,fval,gval,Ahess, nbm, control=list(ktrace=TRUE))
 cat("results of kktc for genrose at ")
 print(parx)
 print(out)
@@ -120,11 +126,21 @@ paro<-ans$par
 fval<-ans$value
 gval<-grad(genrose.f,paro,gs=gst)
 Ahess<-hessian(genrose.f,paro,gs=gst)
-out<-kktc(parx,fval,max(abs(gval)),Ahess, control=list(ktrace=TRUE))
+nbm<-0
+out<-kktc(parx,fval,gval,Ahess, nbm, control=list(ktrace=TRUE))
 cat("results of kktc for genrose at ")
 print(paro)
 print(out)
-
+cat("Try bounds and masks\n")
+lower<-rep(-10,4)
+upper<-rep(10,4)
+bdmsk<-c(1,1,0,1)
+gH<-gHgenb(paro, genrose.f, gr=genrose.g, bdmsk=bdmsk, lower=lower, upper=upper, gs=gst)
+nbm<-gH$nbm
+out<-kktc(paro, fval, gH$ng, gH$nH, gH$nbm, control=list(ktrace=TRUE))
+cat("results of kktc for genrose at ")
+print(paro)
+print(out)
 }
 \keyword{nonlinear}
 \keyword{optimize}

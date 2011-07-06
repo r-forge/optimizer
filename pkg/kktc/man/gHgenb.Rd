@@ -3,12 +3,12 @@
 % Copyright 1995-2007 R Core Development Team
 % Distributed under GPL 2 or later
 
-\name{gHgen}
-\alias{gHgen}
+\name{gHgenb}
+\alias{gHgenb}
 \encoding{UTF-8}
 \title{Generate gradient and Hessian for a function at given parameters.}
 \description{
-  \code{gHgen} is used to generate the gradient and Hessian of an objective
+  \code{gHgenb} is used to generate the gradient and Hessian of an objective
   function used for optimization. If a user-provided gradient function 
   \code{gr} is available it is used to compute the gradient, otherwise 
   package \code{numDeriv} is used. If a user-provided Hessian function
@@ -21,7 +21,7 @@
   package \code{numDeriv} which guarantees a symmetric matrix. 
 }
 \usage{
-  gHgen(par, fn, gr=NULL, hess=NULL,
+  gHgenb(par, fn, gr=NULL, hess=NULL, bdmsk=NULL, lower=NULL, upper=NULL,
       control=list(), ...) 
 }
 \arguments{
@@ -32,11 +32,18 @@
      approximation to the Hessian.} 
  \item{hess}{(Optional) function to compute the Hessian of the objective function. This
      is rarely available, but is included for completeness.}
+ \item{bdmsk}{An integer vector of the same length as \code{par}. When an element
+     of this vector is 0, the corresponding parameter value is fixed (masked) 
+     during an optimization. Non-zero values indicate a parameter is free (1),
+     at a lower bound (-3) or at an upper bound (-1), but this routine only
+     uses 0 values.}
+ \item{lower}{Lower bounds for parameters in \code{par}.}
+ \item{upper}{Upper bounds for parameters in \code{par}.}
  \item{control}{A list of controls to the function. Currently 
                   asymptol (default of 1.0e-7 which tests for asymmetry of Hessian approximation
                   (see code for details of the test); 
                   ktrace, a logical flag which, if TRUE, monitors the progress 
-                  of gHgen (default FALSE), and 
+                  of gHgenb (default FALSE), and 
                   stoponerror, defaulting to FALSE to NOT stop when there is
                   an error or asymmetry of Hessian. Set TRUE to stop.}
  \item{\dots}{Extra data needed to compute the function, gradient and Hessian.}
@@ -53,7 +60,7 @@
       \item{\code{gradOK}}{  TRUE if the gradient has been computed acceptably. FALSE otherwise.}
       \item{\code{hessOK}}{  TRUE if the gradient has been computed acceptably and passes the
              symmetry test. FALSE otherwise.}
-      \item{\code{nbm}}{  Always 0. The number of active bounds and masks.}
+      \item{\code{nbm}}{  The number of active bounds and masks.}
   }
 }
 \examples{
@@ -111,12 +118,16 @@ negmaxfn<-function(x) {
 }
 
 
+
 parx<-rep(1,4)
+lower<-rep(-10,4)
+upper<-rep(10,4)
+bdmsk<-c(1,1,0,1) # masked parameter 3
 fval<-genrose.f(parx)
 gval<-genrose.g(parx)
 Ahess<-genrose.h(parx)
-gennog<-gHgen(parx,genrose.f)
-cat("results of gHgen for genrose without gradient code at ")
+gennog<-gHgenb(parx,genrose.f)
+cat("results of gHgenb for genrose without gradient code at ")
 print(parx)
 print(gennog)
 cat("compare to g =")
@@ -124,8 +135,8 @@ print(gval)
 cat("and Hess\n")
 print(Ahess)
 cat("\n\n")
-geng<-gHgen(parx,genrose.f,genrose.g)
-cat("results of gHgen for genrose at ")
+geng<-gHgenb(parx,genrose.f,genrose.g)
+cat("results of gHgenb for genrose at ")
 print(parx)
 print(gennog)
 cat("compare to g =")
@@ -137,8 +148,8 @@ parx<-rep(0.9,4)
 fval<-genrose.f(parx)
 gval<-genrose.g(parx)
 Ahess<-genrose.h(parx)
-gennog<-gHgen(parx,genrose.f,control=list(ktrace=TRUE), gs=9.4)
-cat("results of gHgen with gs=",9.4," for genrose without gradient code at ")
+gennog<-gHgenb(parx,genrose.f,control=list(ktrace=TRUE), gs=9.4)
+cat("results of gHgenb with gs=",9.4," for genrose without gradient code at ")
 print(parx)
 print(gennog)
 cat("compare to g =")
@@ -146,8 +157,8 @@ print(gval)
 cat("and Hess\n")
 print(Ahess)
 cat("\n\n")
-geng<-gHgen(parx,genrose.f,genrose.g, control=list(ktrace=TRUE))
-cat("results of gHgen for genrose at ")
+geng<-gHgenb(parx,genrose.f,genrose.g, control=list(ktrace=TRUE))
+cat("results of gHgenb for genrose at ")
 print(parx)
 print(gennog)
 cat("compare to g =")
@@ -156,8 +167,9 @@ cat("and Hess\n")
 print(Ahess)
 gst<-5
 cat("\n\nTest with full calling sequence and gs=",gst,"\n")
-gengall<-gHgen(parx,genrose.f,genrose.g,genrose.h, control=list(ktrace=TRUE),gs=gst)
+gengall<-gHgenb(parx,genrose.f,genrose.g,genrose.h, control=list(ktrace=TRUE),gs=gst)
 print(gengall)
+
 
 top<-25
 x0<-rep(2,4)
@@ -177,10 +189,7 @@ Hdiff<-max(abs(Hneg-(-1)*maxt$nH))/max(abs(maxt$nH))
 cat("gdiff = ",gdiff,"  Hdiff=",Hdiff,"\n")
 
 
+
 }
-
-
-
-
 \keyword{nonlinear}
 \keyword{optimize}

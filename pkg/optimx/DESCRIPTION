@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2011-6.15
-Date: 2011-06-15
+Version: 2011-7.6
+Date: 2011-07-06
 Title: A replacement and extension of the optim() function
 Author: John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
 Maintainer: John C Nash <nashjc@uottawa.ca>
@@ -9,5 +9,5 @@ Description: Provides a replacement and extension of the optim() function to uni
 	constrained functions of several or many parameters
 License: GPL-2
 Lazyload: Yes
-Depends: numDeriv, BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG
+Depends: numDeriv, BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, kktc, useroptfn, bmchk
 

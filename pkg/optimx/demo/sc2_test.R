@@ -33,30 +33,34 @@ vec <- 1:n
 -vec * (exp(x) - 1) / 10
 }
 
-p0 <- runif(500,min=-1, max=1)
-system.time(ans.optxf <- optimx(par=p0, fn=sc2.f, control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
+ntpar<-25
 
-optansout(ans.optxf,filename="./anssc2f.txt")
-
-
-
-system.time(neg.ans.optxf <- optimx(par=p0, fn=neg.sc2.f, 
-              control=list(maxit=2500, maximize=TRUE,save.failures=TRUE, all.methods=TRUE)))[1]
-
-optansout(neg.ans.optxf,filename="./anssc2negf.txt")
-
-
-
-system.time(ans.optxg <- optimx(par=p0, fn=sc2.f, gr=sc2.g,
+p0 <- runif(ntpar,min=-1, max=1)
+system.time(anssc2f <- optimx(par=p0, fn=sc2.f, 
    control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
 
-optansout(ans.optxg,filename="./anssc2g.txt")
+optansout(anssc2f,filename="./anssc2f.txt")
+anssc2f
 
 
-system.time(neg.ans.optxg <- optimx(par=p0, fn=neg.sc2.f, gr=neg.sc2.g,
+system.time(anssc2fneg <- optimx(par=p0, fn=neg.sc2.f, 
+   control=list(maxit=2500, maximize=TRUE,save.failures=TRUE, all.methods=TRUE)))[1]
+
+optansout(anssc2fneg,filename="./anssc2negf.txt")
+anssc2fneg
+
+
+system.time(anssc2g <- optimx(par=p0, fn=sc2.f, gr=sc2.g,
+   control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
+
+optansout(anssc2g,filename="./anssc2g.txt")
+anssc2g
+
+system.time(anssc2gneg <- optimx(par=p0, fn=neg.sc2.f, gr=neg.sc2.g,
    control=list(maxit=2500, maximize=TRUE,save.failures=TRUE,all.methods=TRUE)))[1]
 
-optansout(neg.ans.optxg,filename="./anssc2negg.txt")
+optansout(anssc2gneg,filename="./anssc2gneg.txt")
+anssc2gneg
 
-
+cat("================== end sc2_test ===================\n")
 

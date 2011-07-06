@@ -22,7 +22,7 @@
   (conv), optimx() does not call the SANN method.
 }
 \usage{
-optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
+optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL, 
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
@@ -45,11 +45,15 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    If 'gr' is \code{NULL}, a finite-difference approximation will be used.
    An open question concerns whether the SAME approximation code used for all methods, 
    or whether there are differences that could/should be examined? }
-
  \item{hess}{A function to return (as a symmetric matrix) the Hessian of the objective 
    function for those methods that can use this information.}
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can
    handle box (or bounds) constraints.}
+ \item{bdmsk}{Vector of indicators for bounds and masks. Masked are specified on input by
+       entries in \code{bdmsk} that are 0, while free parameters have 1. On termination there
+       may be values -3 for active lower bounds, and -1 for active upper bounds. 
+       However, at 2011-6-28 the \code{bdmsk} vector is NOT returned. (It is returned
+       by packages \code{Rvmmin} }
  \item{method}{A list of the methods to be used. 
        Note that this is an important change from optim() that allows
        just one method to be specified. See \sQuote{Details}.}
@@ -551,6 +555,17 @@ ans12<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h,
 print(ans12)
 print(attr(ans12,"details"))
 
+cat("Example with bounds and masks\n")
+startx<-4*seq(1:10)/7.
+lo<-rep(0.5,10)
+up<-rep(8,10)
+bm<-c(1,1,1,1,1,0,0,1,1,1)
+ans13<-optimx(startx,fn=genrose.f,gr=genrose.g, lower=lo, upper=up, bdmsk=bm, 
+       control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=4)
+print(ans13)
+
+
+
 # ======= check names =========
 cyq.f <- function (x) {
   rv<-cyq.res(x)
@@ -627,11 +642,6 @@ ansnames
 cat("check the names on the parameters\n")
 print(ansnames$method)
 print(ansnames$par)
-
-
-
-
-
 
 }
 \keyword{nonlinear}

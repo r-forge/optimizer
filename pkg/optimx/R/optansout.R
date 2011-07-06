@@ -3,11 +3,13 @@ optansout <- function(ansdf, filename) {
     
     ##### IMPLEMENTED: (reverse date order)
     
-    #  A funtion to display and print to file (if present) the output of optimx
+    # A funtion to display and print to file (if present) the
+    #   output of optimx
     if (!is.null(filename)) {
         sink(filename)
     }
-    #  if (! exists(filename)) { sink(filename) } # may need to check paths
+    # if (! exists(filename)) { sink(filename) } # may need to
+    #   check paths
     tpar <- ansdf$par
     tdf <- ansdf
     ltvec <- length(tpar[[1]])
@@ -38,4 +40,3 @@ optansout <- function(ansdf, filename) {
     rm(tpar)
     return(TRUE)
 }
-

@@ -12,16 +12,16 @@ cat("optimx test froth-x ...\n")
 
 froth.f <- function(p){
 # Freudenstein and Roth function (Broyden, Mathematics of Computation 1965, p. 577-593)
-f <- rep(NA,length(p))
+f <- rep(NA,2) # always length 2
 f[1] <- -13 + p[1] + (p[2]*(5 - p[2]) - 2) * p[2]
 f[2] <- -29 + p[1] + (p[2]*(1 + p[2]) - 14) * p[2]
 sum (f * f)
 }
 
 p0 <- rpois(2,10)
-system.time(ans.optx <- optimx(par=p0, fn=froth.f, control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
+system.time(ansfroth <- optimx(par=p0, fn=froth.f, control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
 
-optansout(ans.optx,filename="./ansfroth.txt")
+optansout(ansfroth,filename="./ansfroth.txt")
 
 
 #allpar<-ans.optx$par # ans.optx is a dataframe!
@@ -40,4 +40,6 @@ optansout(ans.optx,filename="./ansfroth.txt")
 #	if(any(abs(good - z) > 1e-12)) cat("optimx test froth FAILED for method ",curmeth,"\n")
 #}
  
+cat("====================== end froth_test ========================\n")
+
 

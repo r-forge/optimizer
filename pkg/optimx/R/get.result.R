@@ -1,11 +1,15 @@
 ##################################################################
-get.result <- function(optimx.obj, method = NULL, attribute = NULL) {
+get.result <- function(optimx.obj, method = NULL, 
+    attribute = NULL) {
     # optimx.obj = object returned by `optimx'
-    # method = method for which all results are desired (e.g. `spg')
-    # attribute = type of result desired for all methods (e.g. `fvalues')
+    # method = method for which all results are desired (e.g.
+    #   `spg')
+    # attribute = type of result desired for all methods (e.g.
+    #   `fvalues')
     #
     if (!is.null(attribute) & is.null(method)) {
-        allattr <- names(optimx.obj)[!(names(optimx.obj) %in% "method")]
+        allattr <- names(optimx.obj)[!(names(optimx.obj) %in% 
+            "method")]
         attrib <- unique(match.arg(attribute, allattr, several.ok = TRUE))
         
         sel.attr <- names(optimx.obj) %in% attrib
@@ -25,14 +29,13 @@ get.result <- function(optimx.obj, method = NULL, attribute = NULL) {
         warning("You cannot specify both `method' and `attribute' \n")
         ret <- NULL
     }
-
+    
     if (is.null(attribute) & is.null(method)) {
         warning("You must specify one of `method' or `attribute' \n")
         ret <- NULL
     }
- 
+    
     return(ret)
 }
 
 ##################################################################
-

@@ -1,0 +1,21 @@
+############### uhess.R ####################
+uhess <- function(par, fnuser, maximize=FALSE, ...) {
+    #         ihess<-ihess+1 ## possible counter
+    npar <- length(par)
+    th <- try(tryh <- fnuser$hess(par, ...), silent = TRUE)
+    if ((class(th) == "try-error") || any(is.na(tryh)) || any(is.null(tryh)) || 
+        any(is.infinite(tryh))) {
+        tryh <- matrix(.Machine$double.xmax, nrow = npar, ncol = npar)
+        attr(tryh, "inadmissible") <- TRUE
+    }
+    else {
+        attr(tryh, "inadmissible") <- FALSE
+    }
+    if (any(is.null(tryh))) 
+        stop("NULL FUNCTION")
+    #         attr(tryh,'ihess')<-ihess
+    if ((!is.null(maximize)) && maximize) 
+        tryh <- -tryh # handle the maximization
+    tryh 
+}  # end uhess definition
+############# end uhess ##########################

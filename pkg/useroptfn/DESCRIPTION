@@ -1,0 +1,13 @@
+Package: useroptfn
+Version: 2011-7.1
+Date: 2011-07-01
+Title: A set of functions to wrap user objective, gradient and hessian functions
+Author: John C Nash <nashjc@uottawa.ca>
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Provides a wrapper around user functions for nonlinear optimization
+	to try to control for inadmissible arguments to user objective, gradient
+	or hessian functions, as well as provide for maximization.
+License: GPL-2
+Lazyload: Yes
+
+

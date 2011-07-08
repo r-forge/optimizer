@@ -57,9 +57,11 @@ wizardPage$setPageComplete(wizardConfirmPage, TRUE);
 buttonGroup = ggroup(container = hGroup, horizontal = FALSE);
 visible(buttonGroup) = FALSE;
 # Buttons
+addButton = gbutton("Add tab", container = buttonGroup);
+deleteButton = gbutton("Delete tab", container = buttonGroup);
 runButton = gbutton("Run", container = buttonGroup);
-synButton = gbutton("Syntex check", container = buttonGroup);
-anoButton = gbutton("Another", container = buttonGroup);
+# synButton = gbutton("Syntex check", container = buttonGroup);
+# anoButton = gbutton("Another", container = buttonGroup);
 
 # Add events
 # Parameters to be passed to event handlers
@@ -71,6 +73,8 @@ param = list(mainEnvir = mainEnvir, mainWin = mainWin,
              wizardPage = wizardPage, buttonGroup = buttonGroup, mSave = mSave);
 showWelcomePage(editor, param);
 gSignalConnect(wizardPage, "apply", onWizardConfirmed, param);
+addHandlerClicked(addButton, onAddTab, param);
+addHandlerClicked(deleteButton, onDeleteTab, param);
 addHandlerClicked(runButton, onRunCode, param);
 
 # Menu list

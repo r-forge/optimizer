@@ -1,4 +1,17 @@
+# Uncomment this before building package
 optimgui = function(){
+
+# Comment this before building package
+#library(XML);
+#library(RGtk2);
+#library(gWidgets);
+#library(gWidgetsRGtk2);
+#source("aaaWidgets.R");
+#source("editor.R");
+#source("events.R");
+#source("zzz.R");
+
+
 
 # Main Window
 mainWin = gwindow("optimgui", visible = FALSE);
@@ -6,7 +19,7 @@ size(mainWin) = c(800, 600);
 # Horizontal layout box
 hGroup = ggroup(container = mainWin, expand = TRUE);
 # The editor
-editor <<- EditorNew(container = hGroup);
+editor = EditorNew(container = hGroup);
 
 # Wizard page. This part is programmed using RGtk2.
 wizardPage = gtkAssistantNew(show = FALSE);
@@ -41,7 +54,7 @@ wizardPage$setPageType(wizardConfirmPage, GtkAssistantPageType["confirm"]);
 wizardPage$setPageComplete(wizardConfirmPage, TRUE);
 
 # Button box
-buttonGroup <<- ggroup(container = hGroup, horizontal = FALSE);
+buttonGroup = ggroup(container = hGroup, horizontal = FALSE);
 visible(buttonGroup) = FALSE;
 # Buttons
 runButton = gbutton("Run", container = buttonGroup);
@@ -49,16 +62,21 @@ synButton = gbutton("Syntex check", container = buttonGroup);
 anoButton = gbutton("Another", container = buttonGroup);
 
 # Add events
-editor = showWelcomePage.Editor(editor);
-gSignalConnect(wizardPage, "apply", onWizardConfirmed, NULL);
-addHandlerClicked(runButton, onRunCode);
-
+# Parameters to be passed to event handlers
+# "mSave" must be created before "param" is assigned.
+mainEnvir = environment();
+mSave = gaction(label = "Save", handler = onSaveRopFile,
+                action = list(mainEnvir = mainEnvir), icon = "save");
+param = list(mainEnvir = mainEnvir, mainWin = mainWin,
+             wizardPage = wizardPage, buttonGroup = buttonGroup, mSave = mSave);
+showWelcomePage(editor, param);
+gSignalConnect(wizardPage, "apply", onWizardConfirmed, param);
+addHandlerClicked(runButton, onRunCode, param);
 
 # Menu list
-mOpen = gaction(label = "Open", handler = onOpenRopFile, icon = "open");
-mSave <<- gaction(label = "Save", handler = onSaveRopFile, icon = "save");
-mClose = gaction(label = "Close", handler = onCloseRopFile, icon = "close");
-mExit = gaction(label = "Exit", handler = onExit, icon = "quit");
+mOpen = gaction(label = "Open", handler = onOpenRopFile, action = param, icon = "open");
+mClose = gaction(label = "Close", handler = onCloseRopFile, action = param, icon = "close");
+mExit = gaction(label = "Exit", handler = onExit, action = param, icon = "quit");
 mCopy = gaction(label = "Copy", handler = onDefaultEvent);
 mCut = gaction(label = "Cut", handler = onDefaultEvent);
 mTool = gaction(label = "Tool", handler = onDefaultEvent);
@@ -75,4 +93,6 @@ gmenu(menuList, container = mainWin);
 enabled(mSave) = FALSE;
 # Show main window
 visible(mainWin) = TRUE;
+
+# Uncomment this before building package
 }

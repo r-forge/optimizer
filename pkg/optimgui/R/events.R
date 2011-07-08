@@ -87,6 +87,31 @@ onCloseRopFile = function(h, ...)
     enabled(h$action$mSave) = FALSE;
 	return(NULL);
 }
+# Add tab event
+onAddTab = function(h, ...)
+{
+     editor = get("editor", envir = h$action$mainEnvir);
+     currentPos = svalue(editor@noteBook);
+     tabName = ginput("Please input the name of the tab:");
+     if(is.na(tabName)) return(NULL);
+     tab = EditorTabNew(tabName, NULL, NULL, NULL);
+     visible(tab@label) = TRUE;
+     visible(tab@rcode) = TRUE;
+     editor = insertTab(editor, tab, currentPos);
+     svalue(editor@noteBook) = currentPos + 1;
+     assign("editor", editor, envir = h$action$mainEnvir);
+     return(NULL);
+}
+# Delete tab event
+onDeleteTab = function(h, ...)
+{
+    editor = get("editor", envir = h$action$mainEnvir);
+    currentPos = svalue(editor@noteBook);
+    editor@tabsList = editor@tabsList[-currentPos];
+    dispose(editor@noteBook);
+    assign("editor", editor, envir = h$action$mainEnvir);
+    return(NULL);
+}
 # Run code event
 onRunCode = function(h, ...)
 {

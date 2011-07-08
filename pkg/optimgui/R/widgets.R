@@ -1,8 +1,8 @@
-# The built-in widget "gtext" in gWidgets is just too slow,
-# so here we define a new one named "gtextbox", which proves to be faster.
-setClass("myTextBox", representation(textbox = "gGroupRGtk",
-				textbuf = "GtkTextBuffer",
-				textview = "GtkTextView"));
+# The built-in widget "gtext" in "gWidgets" is not enough,
+# so here we define a new one named "gtextbox".
+setClass("gTextBox", representation(textbox = "gGroupRGtk",
+                                    textbuf = "GtkTextBuffer",
+                                    textview = "GtkTextView"));
 # The constructor of "gtextbox"
 gtextbox = function(text = "", wrap = TRUE, font.attr = NULL,
 		            container = NULL, margin = c(10, 10),
@@ -26,31 +26,31 @@ gtextbox = function(text = "", wrap = TRUE, font.attr = NULL,
 		alignBox$add(textView);
 	}
 	textBox = as.gWidgetsRGtk2(hBox);
-	obj = new("myTextBox", textbox = textBox, textview = textView,
+	obj = new("gTextBox", textbox = textBox, textview = textView,
            textbuf = textBuf);
 	
 	if(is.null(font.attr)) font.attr = c(family = "sans", style = "normal",
 				                         weight = "normal", size = 11,
 				                         color = "black");
-	setfont.myTextBox(obj, value = font.attr);
-	setvalue.myTextBox(obj, text);
+	setfont.gTextBox(obj, value = font.attr);
+	setvalue.gTextBox(obj, text);
 	if(!is.null(container)) add(container, textBox);
 	return(obj);
 }
 # Member functions
-getvalue.myTextBox = function(obj)
+getvalue.gTextBox = function(obj)
 {
 	buf = obj@textbuf;
 	startIter = buf$getStartIter()$iter;
 	endIter = buf$getEndIter()$iter;
 	return(buf$getText(startIter, endIter));
 }
-setvalue.myTextBox = function(obj, value)
+setvalue.gTextBox = function(obj, value)
 {
 	obj@textbuf$setText(as.character(value));
 	invisible(obj);
 }
-getfont.myTextBox = function(obj)
+getfont.gTextBox = function(obj)
 {
 	pangoContext = obj@textview$getPangoContext();
 	fontDescrip = pangoContext$getFontDescription();
@@ -60,7 +60,7 @@ getfont.myTextBox = function(obj)
 				  size = fontDescrip$getSize() / PANGO_SCALE);
 	return(font.attr);
 }
-setfont.myTextBox = function(obj, value)
+setfont.gTextBox = function(obj, value)
 {
 	pangoContext = obj@textview$getPangoContext();
 	fontDescrip = pangoContext$getFontDescription();
@@ -88,23 +88,23 @@ setfont.myTextBox = function(obj, value)
 	obj@textview$modifyFont(fontDescrip);
 	invisible(obj);
 }
-setbasecolor.myTextBox = function(obj, r, g, b)
+setbasecolor.gTextBox = function(obj, r, g, b)
 {
 	color = rgb(r / 65536, g / 65536, b / 65536);
 	obj@textview$modifyBase(GtkStateType["normal"],
 			                 gdkColorParse(color)$color);
 }
-setvisible.myTextBox = function(obj, value)
+setvisible.gTextBox = function(obj, value)
 {
     visible(obj@textbox) = as.logical(value);
     invisible(obj);
 }
 # Set methods
-setMethod("svalue", "myTextBox", getvalue.myTextBox);
-setMethod("font", "myTextBox", getfont.myTextBox);
-setReplaceMethod("svalue", "myTextBox", setvalue.myTextBox);
-setReplaceMethod("font", "myTextBox", setfont.myTextBox);
-setReplaceMethod("visible", "myTextBox", setvisible.myTextBox);
+setMethod("svalue", "gTextBox", getvalue.gTextBox);
+setMethod("font", "gTextBox", getfont.gTextBox);
+setReplaceMethod("svalue", "gTextBox", setvalue.gTextBox);
+setReplaceMethod("font", "gTextBox", setfont.gTextBox);
+setReplaceMethod("visible", "gTextBox", setvisible.gTextBox);
 # End of definition of "gtextbox"
 
 

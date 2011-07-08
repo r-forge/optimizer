@@ -15,7 +15,7 @@ EditorTabNew = function(name, title.str, label.str, rcode.str)
     tabBox = ggroup(horizontal = FALSE, spacing = 15);
     # Widget to show title
     title.str = if(is.null(title.str)) "Edit title here" else title.str;
-    titleLabel = glabel(title.str, container = tabBox);
+    titleLabel = glabel(title.str, editable = TRUE, container = tabBox);
     font(titleLabel) = c(size = "xx-large");
     # Widget to show notes
     flag = is.null(label.str) | !length(label.str);
@@ -244,6 +244,17 @@ buildWidgets.Editor = function(obj)
 }
 setGeneric("buildWidgets", function(obj, ...) standardGeneric("buildWidgets"));
 setMethod("buildWidgets", "Editor", buildWidgets.Editor);
+
+# Insert an EditorTab at a given position
+insertTab.Editor = function(obj, tab, pos, ...)
+{
+    notebook = obj@noteBook@widget@widget;
+    notebook$insertPage(tab@box@widget@widget, gtkLabelNew(tab@name), pos);
+    invisible(obj);
+}
+setGeneric("insertTab", function(obj, tab, pos, ...) standardGeneric("insertTab"));
+setMethod("insertTab", signature(obj = "Editor", tab = "EditorTab", pos = "numeric"),
+          insertTab.Editor);
 
 show.Editor = function(object)
 {

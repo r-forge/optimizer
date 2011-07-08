@@ -1,15 +1,12 @@
+# Operator for convenience
 "%+%" = function(x, y) sprintf("%s%s", x, y);
 
-setClass("myTextBox", representation(textbox = "gGroupRGtk",
-				textbuf = "GtkTextBuffer",
-				textview = "GtkTextView"));
-
-# The "EditorTab" class to describe a tab in the editor.
+# The "EditorTab" class to describe a tab in the editor
 setClass("EditorTab", representation(name = "character",
                                      title = "gLabel",
-				                     label = "myTextBox",
-				                     rcode = "myTextBox",
-                                     output = "myTextBox",
+				                     label = "gTextBox",
+				                     rcode = "gTextBox",
+                                     output = "gTextBox",
                                      box = "gGroup"));
 # The "constructors" of "EditorTab"
 EditorTabNew = function(name, title.str, label.str, rcode.str)
@@ -59,6 +56,7 @@ EditorTabNewFromXMLNode = function(tabNode)
     val = EditorTabNew(name, title.content, label.content, rcode.content);
     return(val);
 }
+
 # Member functions
 show.EditorTab = function(object)
 {
@@ -69,11 +67,11 @@ show.EditorTab = function(object)
     cat("@Slot title:\n");
     cat("An object of class \"gLabel\"\n\n");
     cat("@Slot label:\n");
-    cat("An object of class \"myTextBox\"\n\n");
+    cat("An object of class \"gTextBox\"\n\n");
     cat("@Slot rcode:\n");
-    cat("An object of class \"myTextBox\"\n\n");
+    cat("An object of class \"gTextBox\"\n\n");
     cat("@Slot output:\n");
-    cat("An object of class \"myTextBox\"\n");
+    cat("An object of class \"gTextBox\"\n");
 }
 setMethod("show", "EditorTab", show.EditorTab);
 # End of definition of "EditorTab"
@@ -82,12 +80,12 @@ setMethod("show", "EditorTab", show.EditorTab);
 
 
 
-# The "Editor" class to describe the editor.
+# The "Editor" class to describe the editor
 setClass("Editor", representation(noteBook = "gNotebook",
                                   currentFile = "character",
                                   tabsList = "list",
                                   catalog = "data.frame"));
-# The "constructors" of "Editor"
+# The "constructor" of "Editor"
 parseRop = function(filePath)
 {
     RopFile = readLines(filePath);
@@ -123,6 +121,7 @@ EditorNew = function(...)
               catalog = catalog);
     return(val);
 }
+
 # Member functions
 clearAll.Editor = function(obj)
 {
@@ -133,7 +132,10 @@ clearAll.Editor = function(obj)
     obj@tabsList =  list();
     invisible(obj);
 }
-showWelcomePage.Editor = function(obj)
+setGeneric("clearAll", function(obj, ...) standardGeneric("clearAll"));
+setMethod("clearAll", "Editor", clearAll.Editor);
+
+showWelcomePage.Editor = function(obj, param, ...)
 {
     welcomePage = ggroup(horizontal = FALSE, expand = TRUE);
 	welcomeLabel = glabel("Create a new project or open an existing Rop file.",
@@ -153,11 +155,14 @@ showWelcomePage.Editor = function(obj)
 	add(tmpBox3, openLabel);
     val = list(welcomePage = welcomePage, wizardLabel = wizardLabel,
                newLabel = newLabel, openLabel = openLabel);
-	welcomePageAddEvent(val);
+	welcomePageAddEvent(val, param);
     add(obj@noteBook, welcomePage, label = "Welcome");
 	invisible(obj);
 }
-showCatalogPage.Editor = function(obj)
+setGeneric("showWelcomePage", function(obj, ...) standardGeneric("showWelcomePage"));
+setMethod("showWelcomePage", "Editor", showWelcomePage.Editor);
+
+showCatalogPage.Editor = function(obj, param, ...)
 {
     catalogPage = ggroup(horizontal = FALSE, expand = TRUE);
 	RopTable = gtable(obj@catalog, container = catalogPage, expand = TRUE);
@@ -166,11 +171,14 @@ showCatalogPage.Editor = function(obj)
 	openRopButton = gbutton("OK", container = tmpBox4);
 	val = list(catalogPage = catalogPage, RopTable = RopTable,
                openRopButton = openRopButton);
-	catalogPageAddEvent(val);
+	catalogPageAddEvent(val, param);
     add(obj@noteBook, catalogPage, label = "Catalog");
     invisible(obj);
 }
-openRopFile.Editor = function(obj, filePath)
+setGeneric("showCatalogPage", function(obj, ...) standardGeneric("showCatalogPage"));
+setMethod("showCatalogPage", "Editor", showCatalogPage.Editor);
+
+loadRopFile.Editor = function(obj, filePath)
 {
     path = filePath;
 	Encoding(path) = "UTF-8";
@@ -181,6 +189,9 @@ openRopFile.Editor = function(obj, filePath)
 	names(obj@tabsList) = sapply(tabNodes, xmlAttrs);
     invisible(obj);
 }
+setGeneric("loadRopFile", function(obj, filePath, ...) standardGeneric("loadRopFile"));
+setMethod("loadRopFile", "Editor", loadRopFile.Editor);
+
 saveRopFile.Editor = function(obj, filePath)
 {
     Rop = xmlTree("Roptimgui");
@@ -217,6 +228,9 @@ saveRopFile.Editor = function(obj, filePath)
     writeLines(buffer, filePath);
     invisible(NULL);
 }
+setGeneric("saveRopFile", function(obj, filePath, ...) standardGeneric("saveRopFile"));
+setMethod("saveRopFile", "Editor", saveRopFile.Editor);
+
 buildWidgets.Editor = function(obj)
 {
     visible(obj@noteBook) = FALSE;
@@ -228,6 +242,9 @@ buildWidgets.Editor = function(obj)
     visible(obj@noteBook) = TRUE;
     invisible(obj);
 }
+setGeneric("buildWidgets", function(obj, ...) standardGeneric("buildWidgets"));
+setMethod("buildWidgets", "Editor", buildWidgets.Editor);
+
 show.Editor = function(object)
 {
     cat("An object of class \"Editor\":\n\n");

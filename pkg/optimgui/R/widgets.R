@@ -5,8 +5,8 @@ setClass("myTextBox", representation(textbox = "gGroupRGtk",
 				textview = "GtkTextView"));
 # The constructor of "gtextbox"
 gtextbox = function(text = "", wrap = TRUE, font.attr = NULL,
-		             container = NULL, margin = c(10, 10),
-					   frame = FALSE, frameLabel = "Code", ...)
+		            container = NULL, margin = c(10, 10),
+					frame = FALSE, frameLabel = "Code", ...)
 {
 	hBox = gtkHBoxNew();
 	alignBox = gtkAlignmentNew(0.5, 0, 1, 1);
@@ -27,11 +27,11 @@ gtextbox = function(text = "", wrap = TRUE, font.attr = NULL,
 	}
 	textBox = as.gWidgetsRGtk2(hBox);
 	obj = new("myTextBox", textbox = textBox, textview = textView,
-			textbuf = textBuf);
+           textbuf = textBuf);
 	
 	if(is.null(font.attr)) font.attr = c(family = "sans", style = "normal",
-				                          weight = "normal", size = 11,
-				                          color = "black");
+				                         weight = "normal", size = 11,
+				                         color = "black");
 	setfont.myTextBox(obj, value = font.attr);
 	setvalue.myTextBox(obj, text);
 	if(!is.null(container)) add(container, textBox);
@@ -55,9 +55,9 @@ getfont.myTextBox = function(obj)
 	pangoContext = obj@textview$getPangoContext();
 	fontDescrip = pangoContext$getFontDescription();
 	font.attr = c(family = fontDescrip$getFamily(),
-			       style = names(PangoStyle[PangoStyle == as.integer(fontDescrip$getStyle())]),
-				    weight = names(PangoWeight[PangoWeight == as.integer(fontDescrip$getWeight())]),
-					size = fontDescrip$getSize() / PANGO_SCALE);
+			      style = names(PangoStyle[PangoStyle == as.integer(fontDescrip$getStyle())]),
+			      weight = names(PangoWeight[PangoWeight == as.integer(fontDescrip$getWeight())]),
+				  size = fontDescrip$getSize() / PANGO_SCALE);
 	return(font.attr);
 }
 setfont.myTextBox = function(obj, value)
@@ -94,10 +94,17 @@ setbasecolor.myTextBox = function(obj, r, g, b)
 	obj@textview$modifyBase(GtkStateType["normal"],
 			                 gdkColorParse(color)$color);
 }
+setvisible.myTextBox = function(obj, value)
+{
+    visible(obj@textbox) = as.logical(value);
+    invisible(obj);
+}
+# Set methods
 setMethod("svalue", "myTextBox", getvalue.myTextBox);
 setMethod("font", "myTextBox", getfont.myTextBox);
 setReplaceMethod("svalue", "myTextBox", setvalue.myTextBox);
 setReplaceMethod("font", "myTextBox", setfont.myTextBox);
+setReplaceMethod("visible", "myTextBox", setvisible.myTextBox);
 # End of definition of "gtextbox"
 
 

@@ -87,6 +87,19 @@ onCloseRopFile = function(h, ...)
     enabled(h$action$mSave) = FALSE;
 	return(NULL);
 }
+
+# Focus tab event, to set the value of "noteCheckBox" and "codeCheckBox"
+onFocusTab = function(h, ...)
+{
+    editor = get("editor", envir = h$action$mainEnvir);
+    if(!length(editor@tabsList)) return(NULL);
+    currentPos = svalue(editor@noteBook);
+    currentTab = editor@tabsList[[currentPos]];
+    svalue(h$action$noteCheckBox) = visible(currentTab@label);
+    svalue(h$action$codeCheckBox) = visible(currentTab@rcode);
+    return(NULL);
+}
+
 # Add tab event
 onAddTab = function(h, ...)
 {
@@ -107,6 +120,12 @@ onDeleteTab = function(h, ...)
 {
     editor = get("editor", envir = h$action$mainEnvir);
     currentPos = svalue(editor@noteBook);
+    tabname = editor@tabsList[[currentPos]]@name;
+    if(tabname %in% c("Objective", "Run"))
+    {
+        gmessage("This tab could not be closed!");
+        return(NULL);
+    }
     editor@tabsList = editor@tabsList[-currentPos];
     dispose(editor@noteBook);
     assign("editor", editor, envir = h$action$mainEnvir);
@@ -116,19 +135,41 @@ onDeleteTab = function(h, ...)
 onRunCode = function(h, ...)
 {
     editor = get("editor", envir = h$action$mainEnvir);
-	if(length(editor@currentFile))
-	{
-		z = textConnection("output", open = "w");
-		sink(z);
-		source(editor@currentFile, echo = FALSE, print.eval = TRUE);
-		sink();
-		close(z);
-		output = paste(output, collapse = "\n");
-		outputWidget = editor@tabsList[["Run"]]@output;
-        visible(outputWidget) = TRUE;
-		svalue(outputWidget) = output;
-        svalue(editor@noteBook) = which(names(editor@tabsList) == "Run");
-	}
+    tmpfile = tempfile();
+    saveRopFile(editor, tmpfile);
+	z = textConnection("output", open = "w");
+	sink(z);
+	source(tmpfile, local = TRUE, echo = FALSE, print.eval = TRUE);
+	sink();
+	close(z);
+	output = paste(output, collapse = "\n");
+	outputWidget = editor@tabsList[["Run"]]@output;
+    visible(outputWidget) = TRUE;
+	svalue(outputWidget) = output;
+    svalue(editor@noteBook) = which(names(editor@tabsList) == "Run");
+    return(NULL);
+}
+# Show or hide notes
+toggleShowNote = function(h, ...)
+{
+    editor = get("editor", envir = h$action$mainEnvir);
+    currentPos = svalue(editor@noteBook);
+    tab = editor@tabsList[[currentPos]];
+    visible(tab@label) = svalue(h$obj);
+    return(NULL);
+}
+# Show or hide code
+toggleShowCode = function(h, ...)
+{
+    editor = get("editor", envir = h$action$mainEnvir);
+    currentPos = svalue(editor@noteBook);
+    tab = editor@tabsList[[currentPos]];
+    if(tab@name %in% c("Objective", "Run"))
+    {
+        svalue(h$obj) = TRUE;
+        return(NULL);
+    }
+    visible(tab@rcode) = svalue(h$obj);
     return(NULL);
 }
 

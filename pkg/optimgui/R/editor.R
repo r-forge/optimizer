@@ -23,7 +23,6 @@ EditorTabNew = function(name, title.str, label.str, rcode.str)
     docLabel = gtextbox(label.str, container = tabBox,
         			    font.attr = c(family = "sans", size = 11));
     visible(docLabel) = !flag;
-    attr(docLabel, "visible") = !flag;
     # Widget to display R code
     flag = is.null(rcode.str);
     rcode.str = if(flag) "# Edit R code here." else rcode.str;
@@ -31,7 +30,6 @@ EditorTabNew = function(name, title.str, label.str, rcode.str)
         			    font.attr = c(family = "monospace", size = 11),
 						frame = TRUE);
     visible(codeText) = !flag;
-    attr(codeText, "visible") = !flag;
     # Widget to display output
     outputText = gtextbox("", container = tabBox,
         			      font.attr = c(family = "monospace", size = 11),
@@ -199,7 +197,7 @@ saveRopFile.Editor = function(obj, filePath)
 	{
 		Rop$addNode("tab", attrs = c(tabname = tab@name), close = FALSE);
         Rop$addNode("title", svalue(tab@title));
-        if(tab@label@visible)
+        if(visible(tab@label))
         {
             labelText = svalue(tab@label);
             labelText = strwrap(labelText, 70);
@@ -207,7 +205,7 @@ saveRopFile.Editor = function(obj, filePath)
                                        collapse = "\n") %+% "\n    ";
             Rop$addNode("label", labelText);
         }
-        if(tab@rcode@visible)
+        if(visible(tab@rcode))
         {
             codeText = svalue(tab@rcode);
             codeText = gsub("\n", "\n##Rcode##", codeText);
@@ -250,6 +248,7 @@ insertTab.Editor = function(obj, tab, pos, ...)
 {
     notebook = obj@noteBook@widget@widget;
     notebook$insertPage(tab@box@widget@widget, gtkLabelNew(tab@name), pos);
+    obj@tabsList = append(obj@tabsList, tab);
     invisible(obj);
 }
 setGeneric("insertTab", function(obj, tab, pos, ...) standardGeneric("insertTab"));

@@ -12,6 +12,8 @@ gtextbox = function(text = "", wrap = TRUE, font.attr = NULL,
 	hBox = gtkHBoxNew();
 	alignBox = gtkAlignmentNew(0.5, 0, 1, 1);
 	alignBox$setPadding(0, 0, 20, 20);
+scrollWindow=gtkScrolledWindowNew();
+scrollWindow$setPolicy(GtkPolicyType["automatic"], GtkPolicyType["automatic"]);
 	textBuf = gtkTextBufferNew();
 	textView = gtkTextView(buffer = textBuf, show = TRUE);
 	if(wrap) textView$SetWrapMode(GtkWrapMode["word"]);
@@ -90,6 +92,10 @@ setfont.gTextBox = function(obj, value)
 	obj@textview$modifyFont(fontDescrip);
 	invisible(obj);
 }
+getvisible.gTextBox = function(obj)
+{
+    invisible(obj@textbox@widget$getVisible());
+}
 setvisible.gTextBox = function(obj, value)
 {
     visible(obj@textbox) = as.logical(value);
@@ -99,6 +105,7 @@ setvisible.gTextBox = function(obj, value)
 # Register methods
 setMethod("svalue", "gTextBox", getvalue.gTextBox);
 setMethod("font", "gTextBox", getfont.gTextBox);
+setMethod("visible", "gTextBox", getvisible.gTextBox);
 setReplaceMethod("svalue", "gTextBox", setvalue.gTextBox);
 setReplaceMethod("font", "gTextBox", setfont.gTextBox);
 setReplaceMethod("visible", "gTextBox", setvisible.gTextBox);

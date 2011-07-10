@@ -1,27 +1,27 @@
 #@ <?xml version="1.0"?>
 #@ <Roptimgui>
-#@ <catalog>
-#@   <description itemname='Number_of_Parameters' value='3'/>
-#@   <description itemname='Gradient' value='continuous'/>
-#@   <description itemname='Hessian' value='continuous'/>
-#@   <description itemname='Constrain' value='No'/>
-#@ </catalog>
-
-#@ <tab tabname='Description'>
-#@   <title>Scaled Hobbs weeds problem</title>
-#@   <label>
-#@   This is an example of what might be used to define problems in a catalog
-#@   that is presented by the Yixuan Qiu / John Nash optimgui package.
-#@
-#@   This example aims at fitting a nonlinear curve with 3 unknown parameters.
-#@   The objective function is the sum of squared residuals, which has continuous
-#@   first and second derivatives w.r.t. parameters. Parameters have no constraints.
-#@   </label>
-#@ </tab>
-
-#@ <tab tabname='Objective'>
-#@   <title>Objective Function</title>
-#@   <rcode>
+#@   <catalog>
+#@     <description itemname="Number_of_Parameters" value="3"/>
+#@     <description itemname="Gradient" value="continuous"/>
+#@     <description itemname="Hessian" value="continuous"/>
+#@     <description itemname="Constrain" value="No"/>
+#@   </catalog>
+#@   <tab tabname="Description">
+#@     <title>Scaled Hobbs weeds problem</title>
+#@     <label>
+#@     This is an example of what might be used to define problems in a
+#@     catalog that is presented by the Yixuan Qiu / John Nash optimgui
+#@     package.
+#@     
+#@     This example aims at fitting a nonlinear curve with 3 unknown
+#@     parameters. The objective function is the sum of squared residuals,
+#@     which has continuous first and second derivatives w.r.t. parameters.
+#@     Parameters have no constraints.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Objective">
+#@     <title>Objective Function</title>
+#@     <rcode>
 shobbs.f<-function(x){ ## Scaled Hobbs weeds problem -- function 
     if (abs(12*x[3]*0.1) > 500) { # Check computability
        fbad<-.Machine$double.xmax
@@ -30,19 +30,19 @@ shobbs.f<-function(x){ ## Scaled Hobbs weeds problem -- function
     res<-shobbs.res(x)
     f<-sum(res*res)
 }
-#@   </rcode>
-#@ </tab>
-
-#@ <tab tabname='Residuals'>
-#@   <title>Residuals</title>
-#@   <label>
-#@   Residuals are used in nonlinear least squares problems. However the form
-#@   given in the code block below is not the same as used by the nls() function
-#@   in R. It would be very nice to have a mechanism to convert between expressions
-#@   and functions of this type. Note that R has some tools for doing this, but work
-#@   is needed to ensure the results are operational in both optimx() and nls().
-#@   </label>
-#@   <rcode>
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Residuals">
+#@     <title>Residuals</title>
+#@     <label>
+#@     Residuals are used in nonlinear least squares problems. However the
+#@     form given in the code block below is not the same as used by the
+#@     nls() function in R. It would be very nice to have a mechanism to
+#@     convert between expressions and functions of this type. Note that R
+#@     has some tools for doing this, but work is needed to ensure the
+#@     results are operational in both optimx() and nls().
+#@     </label>
+#@     <rcode>
 shobbs.res<-function(x){ ## Scaled Hobbs weeds problem -- residual
 # This variant uses looping
     if(length(x) != 3) stop("shobbs.res -- parameter vector n!=3")
@@ -51,16 +51,16 @@ shobbs.res<-function(x){ ## Scaled Hobbs weeds problem -- residual
     t<-1:12
     res<-100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*t)) - y
 }
-#@   </rcode>
-#@ </tab>
-
-#@ <tab tabname='Jacobian'>
-#@   <title>Jacobian Matrix</title>
-#@   <label>
-#@   The Jacobian matrix is the set of partial derivatives of residuals w.r.t. parameters.
-#@   There is one row for each of m residuals and one column for each of n parameters.
-#@   </label>
-#@   <rcode> 
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Jacobian">
+#@     <title>Jacobian Matrix</title>
+#@     <label>
+#@     The Jacobian matrix is the set of partial derivatives of residuals
+#@     w.r.t. parameters. There is one row for each of m residuals and one
+#@     column for each of n parameters.
+#@     </label>
+#@     <rcode>
 shobbs.jac<-function(x) { ## Scaled Hobbs weeds problem -- Jacobian
     jj<-matrix(0.0, 12, 3)
     t<-1:12
@@ -71,75 +71,70 @@ shobbs.jac<-function(x) { ## Scaled Hobbs weeds problem -- Jacobian
     jj[t,3] <- 0.01*x[1]*zz*zz*yy*x[2]*t
     return(jj)
 }
-#@   </rcode>
-#@ </tab>
-
-#@ <tab tabname='Gradient'>
-#@   <title>Gradient</title>
-#@   <rcode>
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Gradient">
+#@     <title>Gradient</title>
+#@     <rcode>
 shobbs.g <- function(x) { ## Scaled Hobbs weeds problem -- gradient
    shj<-shobbs.jac(x)
    shres<-shobbs.res(x)
    shg<-as.vector(2.0* (shres %*% shj))
    return(shg)
 }
-#@   </rcode>
-#@ </tab>
-
-#@ <tab tabname='Hessian'>
-#@   <title>Hessian Matrix</title>
-#@   <label>
-#@   The matrix of second derivatives of the objective function w.r.t. the parameters.
-#@
-#@   To be added.
-#@   </label>
-#@ </tab>
-
-#@ <tab tabname='RSD'>
-#@   <title>Second Derivatives of the Residuals</title>
-#@   <label>
-#@   The array of second derivatives of the residuals w.r.t. the parameters. This has
-#@   3 dimensions. There is a slice that is n * n symmetric for the partial derivatives
-#@   of r[i] with respect to the parameters e.g., RSD[i, j, k] is the partial derivative
-#@   of r[i] w.r.t. parameters j and k.
-#@   
-#@   Used to generate Hessian as   J' * J + r' RSD  (with proper conformation) for sums of
-#@   squares problems.
-#@
-#@   To be added.
-#@   </label>
-#@ </tab>
-
-#@ <tab tabname='Data'>
-#@   <title>Data</title>
-#@   <label>
-#@   Not strictly needed for this problem.
-#@   </label>
-#@   <rcode>
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Hessian">
+#@     <title>Hessian Matrix</title>
+#@     <label>
+#@     The matrix of second derivatives of the objective function w.r.t. the
+#@     parameters.
+#@     
+#@     To be added.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="RSD">
+#@     <title>Second Derivatives of the Residuals</title>
+#@     <label>
+#@     The array of second derivatives of the residuals w.r.t. the
+#@     parameters. This has 3 dimensions. There is a slice that is n * n
+#@     symmetric for the partial derivatives of r[i] with respect to the
+#@     parameters e.g., RSD[i, j, k] is the partial derivative of r[i]
+#@     w.r.t. parameters j and k.
+#@     
+#@     Used to generate Hessian as J' * J + r' RSD (with proper
+#@     conformation) for sums of squares problems.
+#@     
+#@     To be added.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Data">
+#@     <title>Data</title>
+#@     <label>
+#@     Not strictly needed for this problem.
+#@     </label>
+#@     <rcode>
 shobbs.data<-function(file=NULL){ ## Scaled Hobbs weeds problem -- data
     y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
          75.995, 91.972)
     t<-1:12
     probdata<-data.frame(t,y)
 }
-#@   </rcode>
-#@ </tab>
-
-#@ <tab tabname='Doc'>
-#@   <title>Documentation</title>
-#@   <label>
-#@   We could use the .Rd file structure for this to take advantage of that structure. Or
-#@   something similar.
-#@
-#@   To be added.
-#@   </label>
-#@ </tab>
-
-#@ <tab tabname='Run'>
-#@   <title>The Running Code of Optimization</title>
-#@   <rcode>
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Doc">
+#@     <title>Documentation</title>
+#@     <label>
+#@     We could use the .Rd file structure for this to take advantage of
+#@     that structure. Or something similar.
+#@     
+#@     To be added.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Run">
+#@     <title>The Running Code of Optimization</title>
+#@     <rcode>
 optim(c(1, 1, 1), fn = shobbs.f, gr = shobbs.g, method = "BFGS")
-#@   </rcode>
-#@  </tab>
-
+#@     </rcode>
+#@   </tab>
 #@ </Roptimgui>

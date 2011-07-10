@@ -1,0 +1,94 @@
+#@ <?xml version="1.0"?>
+#@ <Roptimgui>
+#@   <catalog>
+#@     <description itemname="Number_of_Parameters" value="???"/>
+#@     <description itemname="Gradient" value="continuous"/>
+#@     <description itemname="Hessian" value="???"/>
+#@     <description itemname="Constrain" value="???"/>
+#@   </catalog>
+#@   <tab tabname="Description">
+#@     <title>Generalized Rosenbrock optimization test problem</title>
+#@     <label>
+#@     This is a test problem of arbitrary size that extends the Rosenbrock
+#@     banana-shaped valley problem. Note that there are several such
+#@     extensions. Used for Yixuan Qiu / John Nash / Ben Bolker optimgui
+#@     package.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Objective">
+#@     <title>Objective Function</title>
+#@     <rcode>
+genrose.f <- function(x, gs = NULL) { # objective function
+    ## One generalization of the Rosenbrock banana valley function (n parameters)
+    n <- length(x)
+    if (is.null(gs)) {
+        gs = 100
+    }
+    fval <- 1 + sum(gs * (x[1:(n - 1)]^2 - x[2:n])^2 + (x[2:n] - 
+        1)^2)
+    return(fval)
+} 
+
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Gradient">
+#@     <title>Gradient</title>
+#@     <rcode>
+genrose.g <- function(x, gs = NULL) {
+    # vectorized gradient for genrose.f
+    # Ravi Varadhan 2009-04-03
+    n <- length(x)
+    if (is.null(gs)) {
+        gs = 100
+    }
+    gg <- as.vector(rep(0, n))
+    tn <- 2:n
+    tn1 <- tn - 1
+    z1 <- x[tn] - x[tn1]^2
+    z2 <- 1 - x[tn]
+    gg[tn] <- 2 * (gs * z1 - z2)
+    gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
+    gg
+}
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Hessian">
+#@     <title>Hessian Matrix</title>
+#@     <label>
+#@     The matrix of second derivatives of the objective function w.r.t. the
+#@     parameters.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="RSD">
+#@     <title>Second Derivatives of the Residuals</title>
+#@     <label>
+#@     The array of second derivatives of the residuals w.r.t. the
+#@     parameters. This has 3 dimensions. There is a slice that is n * n
+#@     symmetric for the partial derivatives of r[i] with respect to the
+#@     parameters e.g., RSD[i, j, k] is the partial derivative of r[i]
+#@     w.r.t. parameters j and k.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Data">
+#@     <title>Data</title>
+#@     <label>
+#@     Not strictly needed for this problem.
+#@     </label>
+#@     <rcode>
+# none needed!
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Doc">
+#@     <title>Documentation</title>
+#@     <label>
+#@     We could use the .Rd file structure for this to take advantage of
+#@     that structure. Or something similar.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Run">
+#@     <title>The Running Code of Optimization</title>
+#@     <rcode>
+# Edit R code here.
+#@     </rcode>
+#@   </tab>
+#@ </Roptimgui>

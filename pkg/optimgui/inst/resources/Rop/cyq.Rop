@@ -1,0 +1,126 @@
+#@ <?xml version="1.0"?>
+#@ <Roptimgui>
+#@   <catalog>
+#@     <description itemname="Number_of_Parameters" value="???"/>
+#@     <description itemname="Gradient" value="continuous"/>
+#@     <description itemname="Hessian" value="???"/>
+#@     <description itemname="Constrain" value="???"/>
+#@   </catalog>
+#@   <tab tabname="Description">
+#@     <title>Chebyquad test problem</title>
+#@     <label>
+#@     This problem was introduced by Roger Fletcher (1965) "Function
+#@     minimization without derivatives -- a review" Computer Journal, 8,
+#@     33-41.
+#@     
+#@     This problem tries to find the values of x (actually box constrained
+#@     to be on [0,1]) that allow simple addition of the values of a
+#@     polynomial to give the integral of the polynomial over that range.
+#@     
+#@     This particular .Rop file does not have all components here e.g.,
+#@     .jsd, .h
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Objective">
+#@     <title>Objective Function</title>
+#@     <rcode>
+cyq.f <- function (x) {
+    rv <- cyq.res(x)
+    f <- sum(rv * rv)
+}
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Residuals">
+#@     <title>Residuals</title>
+#@     <rcode>
+cyq.res <- function(x) {
+    # Fletcher's chebyquad function m = n -- residuals
+    n <- length(x)
+    res <- rep(0, n)  # initialize
+    for (i in 1:n) { #loop over resids
+        rr <- 0
+        for (k in 1:n) {
+            z7 <- 1
+            z2 <- 2 * x[k] - 1
+            z8 <- z2
+            j <- 1
+            while (j < i) {
+                z6 <- z7
+                z7 <- z8
+                z8 <- 2 * z2 * z7 - z6  # recurrence to compute Chebyshev polynomial
+                j <- j + 1
+            }  # end recurrence loop
+            rr <- rr + z8
+        }  # end loop on k
+        rr <- rr/n
+        if (2 * trunc(i/2) == i) {
+            rr <- rr + 1/(i * i - 1)
+        }
+        res[i] <- rr
+    }  # end loop on i
+    res
+}
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Jacobian">
+#@     <title>Jacobian Matrix</title>
+#@     <label>
+#@     The Jacobian matrix is the set of partial derivatives of residuals
+#@     w.r.t. parameters. There is one row for each of m residuals and one
+#@     column for each of n parameters.
+#@     </label>
+#@     <rcode>
+cyq.jac <- function(x) {
+    #  Chebyquad Jacobian matrix
+    n <- length(x)
+    cj <- matrix(0, n, n)
+    for (i in 1:n) { # loop over rows
+        for (k in 1:n) { # loop over columns (parameters)
+            z5 <- 0
+            cj[i, k] <- 2
+            z8 <- 2 * x[k] - 1
+            z2 <- z8
+            z7 <- 1
+            j <- 1
+            while (j < i) { # recurrence loop
+                z4 <- z5
+                z5 <- cj[i, k]
+                cj[i, k] <- 4 * z8 + 2 * z2 * z5 - z4
+                z6 <- z7
+                z7 <- z8
+                z8 <- 2 * z2 * z7 - z6
+                j <- j + 1
+            }  # end recurrence loop
+            cj[i, k] <- cj[i, k]/n
+        }  # end loop on k
+    }  # end loop on i
+    cj
+}
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Gradient">
+#@     <title>Gradient</title>
+#@     <rcode>
+cyq.g <- function(x) {
+    cj <- cyq.jac(x)
+    rv <- cyq.res(x)
+    gg <- as.vector(2 * rv %*% cj)
+}
+#@     </rcode>
+#@   </tab>
+#@   <tab tabname="Doc">
+#@     <title>Documentation</title>
+#@     <label>
+#@     We could use the .Rd file structure for this to take advantage of
+#@     that structure. Or something similar.
+#@     
+#@     To be added.
+#@     </label>
+#@   </tab>
+#@   <tab tabname="Run">
+#@     <title>The Running Code of Optimization</title>
+#@     <rcode>
+# Edit R code here.
+#@     </rcode>
+#@   </tab>
+#@ </Roptimgui>

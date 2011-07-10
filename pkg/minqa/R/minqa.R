@@ -22,11 +22,13 @@ commonArgs <- function(par, fn, ctrl, rho) {
 ##                           obstop=TRUE, force.start=FALSE)
     cc <- do.call(function(npt = min(n+2L, 2L * n), rhobeg = NA,
                            rhoend = NA, iprint = 0L, maxfun=10000L,
-                           obstop=TRUE, force.start=FALSE)
+                           obstop=TRUE, force.start=FALSE,...) {
 
-                  list(npt = npt, rhobeg = rhobeg, rhoend = rhoend,
-                       iprint = iprint, maxfun = maxfun, obstop = obstop,
-                       force.start = force.start), ctrl)
+      if (length(list(...))>0) warning("unused control arguments ignored")
+      list(npt = npt, rhobeg = rhobeg, rhoend = rhoend,
+           iprint = iprint, maxfun = maxfun, obstop = obstop,
+           force.start = force.start)
+      }, ctrl)
 
     ## Create and populate and environment
     ctrl <- new.env(parent = emptyenv()) # ctrl environment should not chain
@@ -98,7 +100,7 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
     }
     if (any(rng < 2 * ctrl$rhobeg)) {
         warning("All upper - lower must be >= 2*rhobeg. Changing rhobeg") 
-        rhobeg <- 0.2 * min(rng)
+        ctrl$rhobeg <- 0.2 * min(rng)
     }
     
     ## Modifications to par if too close to boundary

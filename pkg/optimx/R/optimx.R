@@ -499,6 +499,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          mcontrol$iter.max<-mcontrol$maxit # different name for iteration limit in this routine
          mcontrol$maxit<-NULL
          mcontrol$usenumDeriv<-NULL
+         mcontrol$parscale<-NULL
          mcontrol$abs.tol<-0 # To fix issues when minimum is less than 0. 20100711
          if( is.null(mcontrol$trace) || is.na(mcontrol$trace) || mcontrol$trace == 0) { 
             mcontrol$trace = 0
@@ -562,6 +563,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
             plevel<-min(2,mcontrol$trace) # 110702 max is 2
             mcontrol$trace<-NULL
          }
+         mcontrol$parscale<-NULL
          nampar<-names(par) # save names 110508
          time <- system.time(ans <- try(nlm(f=tufn, p=par, iterlim=iterlim, 
                      print.level=plevel,...), silent=TRUE))[1]
@@ -596,6 +598,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
 #      else 
       if (meth == "spg") { # Use BB package routine spg as minimizer
          mcontrol$usenumDeriv<-NULL
+         mcontrol$parscale<-NULL
          mcontrol$maximize<-NULL # Use external maximization approach
 #        No! Use original functions and maximize in controls.
 #         time <- system.time(ans <- try(spg(par=par, fn=fn, gr=gr, lower=lower, upper=upper,  
@@ -638,6 +641,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          mcontrol$maxeval<-mcontrol$maxit # Note it is just function evals for ucminf
          mcontrol$maxit<-NULL
          mcontrol$usenumDeriv<-NULL
+         mcontrol$parscale<-NULL
          if (nullgr) {
             myfn<-list(fn=fn, gr=NULL, hess=NULL)
             time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=NULL, 
@@ -692,6 +696,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          bdmsk<-rep(1,npar)
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
+         mcontrol$parscale<-NULL
          if (ctrl$trace>0) mcontrol$trace<-1
 # use original functions -- protected inside (NOT protected inside)
 #         time <- system.time(ans <- try(Rcgmin(par=par, fn=fn, gr=gr, lower=lower, upper=upper, bdmsk=bdmsk,
@@ -730,6 +735,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          bdmsk<-rep(1,npar)
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
+         mcontrol$parscale<-NULL
          if (ctrl$trace>0) mcontrol$trace<-1
          mcontrol$maximize<-NULL # negation built into ufn
 #        Use original functions (ufn ugr uhess inside)
@@ -769,6 +775,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          mcontrol$iprint<-min(mcontrol$trace, 3)
          mcontrol$maxit<-NULL # and null out control that is NOT used
          mcontrol$trace<-NULL
+         mcontrol$parscale<-NULL
          mcontrol$usenumDeriv<-NULL
          nampar<-names(par) # save names 110508
          myfn<-list(fn=fn, gr=NULL, hess=NULL)
@@ -808,6 +815,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          mcontrol$iprint<-min(mcontrol$trace, 3)
          mcontrol$trace<-NULL
          mcontrol$usenumDeriv<-NULL
+         mcontrol$parscale<-NULL
          nampar<-names(par) # save names 110508
          myfn<-list(fn=fn, gr=NULL, hess=NULL)
 #         time <- system.time(ans <- try(uobyqa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
@@ -847,6 +855,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          mcontrol$iprint<-min(mcontrol$trace, 3)
          mcontrol$trace<-NULL
          mcontrol$usenumDeriv<-NULL
+         mcontrol$parscale<-NULL
          nampar<-names(par) # save names 110508
          myfn<-list(fn=fn, gr=NULL, hess=NULL)
          time <- system.time(ans <- try(newuoa(par=par, fn=ufn, 

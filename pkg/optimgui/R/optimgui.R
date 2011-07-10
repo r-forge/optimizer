@@ -15,7 +15,7 @@ optimgui = function(){
 
 # Main Window
 mainWin = gwindow("optimgui", visible = FALSE);
-size(mainWin) = c(800, 600);
+size(mainWin) = c(1000, 600);
 # Horizontal layout box
 hGroup = ggroup(container = mainWin, expand = TRUE);
 # The editor
@@ -60,6 +60,8 @@ visible(buttonGroup) = FALSE;
 addButton = gbutton("Add tab", container = buttonGroup);
 deleteButton = gbutton("Delete tab", container = buttonGroup);
 runButton = gbutton("Run", container = buttonGroup);
+noteCheckBox = gcheckbox("Show note", checked = TRUE, container = buttonGroup);
+codeCheckBox = gcheckbox("Show code", checked = TRUE, container = buttonGroup);
 # synButton = gbutton("Syntex check", container = buttonGroup);
 # anoButton = gbutton("Another", container = buttonGroup);
 
@@ -69,13 +71,17 @@ runButton = gbutton("Run", container = buttonGroup);
 mainEnvir = environment();
 mSave = gaction(label = "Save", handler = onSaveRopFile,
                 action = list(mainEnvir = mainEnvir), icon = "save");
-param = list(mainEnvir = mainEnvir, mainWin = mainWin,
-             wizardPage = wizardPage, buttonGroup = buttonGroup, mSave = mSave);
+param = list(mainEnvir = mainEnvir, mainWin = mainWin, wizardPage = wizardPage,
+             buttonGroup = buttonGroup, mSave = mSave,
+             noteCheckBox = noteCheckBox, codeCheckBox = codeCheckBox);
 showWelcomePage(editor, param);
 gSignalConnect(wizardPage, "apply", onWizardConfirmed, param);
+addHandlerFocus(editor@noteBook, onFocusTab, param);
 addHandlerClicked(addButton, onAddTab, param);
 addHandlerClicked(deleteButton, onDeleteTab, param);
 addHandlerClicked(runButton, onRunCode, param);
+addHandlerChanged(noteCheckBox, toggleShowNote, param);
+addHandlerChanged(codeCheckBox, toggleShowCode, param);
 
 # Menu list
 mOpen = gaction(label = "Open", handler = onOpenRopFile, action = param, icon = "open");

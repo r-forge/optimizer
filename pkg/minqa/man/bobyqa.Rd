@@ -44,11 +44,13 @@ bobyqa(par, fn, lower = -Inf, upper = Inf, control = list(), \dots)
       values of a trust region radius, so both must be positive with
       \code{0 < rhoend < rhobeg}. Typically \code{rhobeg} should be about
       one tenth of the greatest expected change to a variable.  If the
-      user does not provide a value, this will be set to the maximum box
-      constraint interval (for finite limits), i.e., \code{max(xu-xl)} or
-      to \code{max(par) / 2)} if the bounds are infinite (i.e., no box
-      constraints are specified).
-    }
+      user does not provide a value, this will be set to
+      \code{min(0.95, 0.2 * max(abs(par)))}.  Note also that smallest
+      difference \code{abs(upper-lower)} should be greater than or equal
+      to \code{rhobeg*2}.  If this is not the case then \code{rhobeg}
+      will be adjusted.
+      }
+ 
     \item{rhoend}{
       The smallest value of the trust region radius that is allowed. If
       not defined, then 1e-6 times the value set for \code{rhobeg} will be

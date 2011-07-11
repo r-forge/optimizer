@@ -93,16 +93,16 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
     }
     rng <- upper - lower
 
+    
+    if (any(rng < 2 * ctrl$rhobeg)) {
+        warning("All upper - lower must be >= 2*rhobeg. Changing rhobeg") 
+        ctrl$rhobeg <- 0.2 * min(rng)
+    }
     verb <- 1 < (ctrl$iprint <- as.integer(ctrl$iprint))
     if (verb) {
         cat("npt =", ctrl$npt, ", n = ",n,"\n")
         cat("rhobeg = ", ctrl$rhobeg,", rhoend = ", ctrl$rhoend, "\n")
     }
-    if (any(rng < 2 * ctrl$rhobeg)) {
-        warning("All upper - lower must be >= 2*rhobeg. Changing rhobeg") 
-        ctrl$rhobeg <- 0.2 * min(rng)
-    }
-    
     ## Modifications to par if too close to boundary
     if (all(is.finite(upper)) && all(is.finite(lower)) &&
         all(par >= lower) && all(par <= upper) ) {

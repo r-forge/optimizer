@@ -15,7 +15,7 @@ optimgui = function(){
 
 # Main Window
 mainWin = gwindow("optimgui", visible = FALSE);
-size(mainWin) = c(1000, 600);
+size(mainWin) = c(800, 600);
 # Horizontal layout box
 hGroup = ggroup(container = mainWin, expand = TRUE);
 # The editor
@@ -68,15 +68,14 @@ codeCheckBox = gcheckbox("Show code", checked = TRUE, container = buttonGroup);
 # Add events
 # Parameters to be passed to event handlers
 # "mSave" must be created before "param" is assigned.
-mainEnvir = environment();
 mSave = gaction(label = "Save", handler = onSaveRopFile,
-                action = list(mainEnvir = mainEnvir), icon = "save");
-param = list(mainEnvir = mainEnvir, mainWin = mainWin, wizardPage = wizardPage,
+                action = list(editor = editor), icon = "save");
+param = list(mainWin = mainWin, editor = editor, wizardPage = wizardPage,
              buttonGroup = buttonGroup, mSave = mSave,
              noteCheckBox = noteCheckBox, codeCheckBox = codeCheckBox);
-showWelcomePage(editor, param);
+editor$showWelcomePage(param);
 gSignalConnect(wizardPage, "apply", onWizardConfirmed, param);
-addHandlerFocus(editor@noteBook, onFocusTab, param);
+addHandlerFocus(editor$noteBook, onFocusTab, param);
 addHandlerClicked(addButton, onAddTab, param);
 addHandlerClicked(deleteButton, onDeleteTab, param);
 addHandlerClicked(runButton, onRunCode, param);

@@ -1,3 +1,8 @@
+2011-07-11  John Nash <nashjc@uottawa.ca>, Kate Mullen <kmullen@nist.gov>
+	
+	* R/minqa.R:  bobyqa bug fixes thanks to Ben Bolker: fixed rhobeg 
+	intitialization problem and issue with parscale.
+
 2011-02-28  John Nash <nashjc@uottawa.ca>
 
         * DESCRIPTION (Version): New minor version number

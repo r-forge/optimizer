@@ -1,6 +1,58 @@
 # Operator for convenience
 "%+%" = function(x, y) sprintf("%s%s", x, y);
 
+# The "CatalogTab" class
+CatalogTab = setRefClass("CatalogTab", fields = list(name = "character",
+                                                     labels = "list",
+                                                     entries = "list",
+                                                     box = "gGroup"));
+# The "constructor" of "CatalogTab"
+CatalogTabNew = function(name, items, values)
+{
+    # Box to pack widgets
+    tabBox = ggroup(horizontal = FALSE, spacing = 0);
+    # Title
+    addSpace(tabBox, 10, horizontal = FALSE);
+    titleLabel = glabel("Catalog of the optimization problem", container = tabBox);
+    font(titleLabel) = c(size = "xx-large");
+    # Align boxe
+    alignBox = gtkAlignmentNew(0.5, 0, 1, 1);
+    alignBox$setPadding(20, 0, 30, 30);
+    tabBox@widget@widget$packStart(alignBox);  
+    layout = glayout();
+    alignBox$add(layout@widget@widget);
+    if(is.null(values)) values = rep("", length(items));
+    for(i in 1:length(items))
+    {
+        layout[i, 1] = glabel(items[i]);
+        layout[i, 2] = gedit(values[i]);
+    }
+    labels = lapply(1:length(items), function(i) layout[i, 1]);
+    entries = lapply(1:length(items), function(i) layout[i, 2]);
+    val = new("CatalogTab", name = name, labels = labels, entries = entries,
+              box = tabBox);
+    return(val);
+}
+# Member functions
+getItems.CatalogTab = function(...)
+{
+    items = sapply(.self$labels, svalue);
+    items = gsub(" ", "_", items);
+    items = gsub(":", "", items);
+    return(items);
+}
+CatalogTab$methods(getItems = getItems.CatalogTab);
+
+
+getValues.CatalogTab = function(...)
+{
+    values = sapply(.self$entries, svalue);
+    return(values);
+}
+CatalogTab$methods(getValues = getValues.CatalogTab);
+
+
+
 # The "EditorTab" class to describe a tab in the editor
 EditorTab = setRefClass("EditorTab", fields = list(name = "character",
                                                    title = "gLabel",
@@ -15,7 +67,7 @@ EditorTabNew = function(name, title.str, label.str, rcode.str)
     tabBox = ggroup(horizontal = FALSE, spacing = 15);
     # Align box
     alignBox = gtkAlignmentNew(0.5, 0, 1, 1);
-	alignBox$setPadding(0, 0, 0, 2);
+	alignBox$setPadding(10, 20, 0, 2);
     tabBox@widget@widget$packStart(alignBox);
     # Scroll window
     scroll = gtkScrolledWindowNew();
@@ -96,8 +148,9 @@ setMethod("show", "EditorTab", show.EditorTab);
 # The "Editor" class to describe the editor
 Editor = setRefClass("Editor", fields = list(noteBook = "gNotebook",
                                              currentFile = "character",
+                                             catalogTab = "CatalogTab",
                                              tabsList = "list",
-                                             catalog = "data.frame"));
+                                             catalogSet = "data.frame"));
 # The "constructor" of "Editor"
 parseRop = function(filePath)
 {
@@ -127,11 +180,12 @@ EditorNew = function(...)
         names(catalog) = description[1, ];
         return(c(FileName = basename(RopFile), catalog));
     }
-    catalog = t(sapply(RopFiles, getCatalog, simplify = TRUE));
-    rownames(catalog) = NULL;
-    catalog = as.data.frame(catalog);
-    val = new("Editor", noteBook = noteBook, currentFile = "", tabsList = list(),
-              catalog = catalog);
+    catalogSet = t(sapply(RopFiles, getCatalog, simplify = TRUE));
+    rownames(catalogSet) = NULL;
+    catalogSet = as.data.frame(catalogSet);
+    val = new("Editor", noteBook = noteBook, currentFile = "",
+              catalogTab = new("CatalogTab"), tabsList = list(),
+              catalogSet = catalogSet);
     return(val);
 }
 
@@ -142,6 +196,7 @@ clearAll.Editor = function(...)
     while(dispose(.self$noteBook)){}
     visible(.self$noteBook) = TRUE;
     .self$currentFile = character(0);
+    .self$catalogTab = new("CatalogTab");
     .self$tabsList = list();
     invisible(.self);
 }
@@ -161,7 +216,7 @@ showWelcomePage.Editor = function(param, ...)
 	wizardLabel = glinklabel("Create a new project by wizard");
     add(tmpBox1, wizardLabel);
 	gimage(system.file("resources", "images",  "template.png", package = "optimgui"), container = tmpBox2);
-	newLabel = glinklabel("Create a new project with template");
+	newLabel = glinklabel("Catalog of existing problems and templates to create new ones");
 	add(tmpBox2, newLabel);
     gimage(system.file("resources", "images",  "open.png", package = "optimgui"), container = tmpBox3);
 	openLabel = glinklabel("Open an existing Rop file");
@@ -178,7 +233,7 @@ Editor$methods(showWelcomePage = showWelcomePage.Editor);
 showCatalogPage.Editor = function(param, ...)
 {
     catalogPage = ggroup(horizontal = FALSE, expand = TRUE);
-	RopTable = gtable(.self$catalog, container = catalogPage, expand = TRUE);
+	RopTable = gtable(.self$catalogSet, container = catalogPage, expand = TRUE);
 	gseparator(container = catalogPage);
 	tmpBox4 = ggroup(container = catalogPage);
 	openRopButton = gbutton("OK", container = tmpBox4);
@@ -197,9 +252,23 @@ loadRopFile.Editor = function(filePath, ...)
 	Encoding(path) = "UTF-8";
 	RopTree = parseRop(path);
     .self$currentFile = path;
+    catalogNode = xmlElementsByTagName(xmlRoot(RopTree), "catalog");
+    if(length(catalogNode))
+    {
+        catalogNode = catalogNode[[1]];
+        descrip = xmlElementsByTagName(catalogNode, "description");
+        tmp = sapply(descrip, xmlAttrs);
+        items = tmp[1, ];
+        items = paste(gsub("_", " ", items), ":", sep = "");
+        values = tmp[2, ];
+        .self$catalogTab = CatalogTabNew("Catalog", items, values);
+    }
     tabNodes = xmlElementsByTagName(xmlRoot(RopTree), "tab");
-    .self$tabsList = lapply(tabNodes, EditorTabNewFromXMLNode);
-	names(.self$tabsList) = sapply(tabNodes, xmlAttrs);
+    if(length(tabNodes))
+    {
+        .self$tabsList = lapply(tabNodes, EditorTabNewFromXMLNode);
+        names(.self$tabsList) = sapply(tabNodes, xmlAttrs);  
+    }
     invisible(path);
 }
 Editor$methods(loadRopFile = loadRopFile.Editor);
@@ -208,6 +277,18 @@ Editor$methods(loadRopFile = loadRopFile.Editor);
 saveRopFile.Editor = function(filePath, ...)
 {
     Rop = xmlTree("Roptimgui");
+    if(length(.self$catalogTab$labels))
+    {
+        Rop$addNode("catalog", close = FALSE);
+        items = .self$catalogTab$getItems();
+        values = .self$catalogTab$getValues();
+        for(i in 1:length(items))
+        {
+            Rop$addNode("description", attrs = c(itemname = items[i],
+                                                 value = values[i]));
+        }
+        Rop$closeTag();
+    }
 	for(tab in .self$tabsList)
 	{
 		Rop$addNode("tab", attrs = c(tabname = tab$name), close = FALSE);
@@ -244,10 +325,19 @@ saveRopFile.Editor = function(filePath, ...)
 Editor$methods(saveRopFile = saveRopFile.Editor);
 
 
+showCurrentCatalog.Editor = function(...)
+{
+    add(.self$noteBook, .self$catalogTab$box, label = .self$catalogTab$name);
+    invisible(.self);
+}
+Editor$methods(showCurrentCatalog = showCurrentCatalog.Editor);
+
+
 buildWidgets.Editor = function(...)
 {
     visible(.self$noteBook) = FALSE;
     while(dispose(.self$noteBook)){}
+    if(length(.self$catalogSet)) .self$showCurrentCatalog();
     if(length(.self$tabsList))
     {
         for(tab in .self$tabsList) add(.self$noteBook, tab$box, label = tab$name);
@@ -259,11 +349,12 @@ Editor$methods(buildWidgets = buildWidgets.Editor);
 
 
 # Insert an EditorTab at a given position
-insertTab.Editor = function(tab, pos, ...)
+# catalogTab is on position 0
+insertTab.Editor = function(tab, after, ...)
 {
     notebook = .self$noteBook@widget@widget;
-    notebook$insertPage(tab$box@widget@widget, gtkLabelNew(tab$name), pos);
-    .self$tabsList = append(.self$tabsList, tab);
+    notebook$insertPage(tab$box@widget@widget, gtkLabelNew(tab$name), after + 1);
+    .self$tabsList = append(.self$tabsList, tab, after = after);
     invisible(.self);
 }
 Editor$methods(insertTab = insertTab.Editor);

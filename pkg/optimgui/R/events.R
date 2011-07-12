@@ -91,7 +91,8 @@ onFocusTab = function(h, ...)
 {
     editor = h$action$editor;
     if(!length(editor$tabsList)) return(NULL);
-    currentPos = svalue(editor$noteBook);
+    currentPos = svalue(editor$noteBook) - 1;
+    if(currentPos < 1) return(NULL);
     currentTab = editor$tabsList[[currentPos]];
     svalue(h$action$noteCheckBox) = visible(currentTab$label);
     svalue(h$action$codeCheckBox) = visible(currentTab$rcode);
@@ -102,21 +103,26 @@ onFocusTab = function(h, ...)
 onAddTab = function(h, ...)
 {
      editor = h$action$editor;
-     currentPos = svalue(editor$noteBook);
+     currentPos = svalue(editor$noteBook) - 1;
      tabName = ginput("Please input the name of the tab:");
      if(is.na(tabName)) return(NULL);
      tab = EditorTabNew(tabName, NULL, NULL, NULL);
      visible(tab$label) = TRUE;
      visible(tab$rcode) = TRUE;
      editor$insertTab(tab, currentPos);
-     svalue(editor$noteBook) = currentPos + 1;
+     svalue(editor$noteBook) = currentPos + 2;
      return(NULL);
 }
 # Delete tab event
 onDeleteTab = function(h, ...)
 {
     editor = h$action$editor;
-    currentPos = svalue(editor$noteBook);
+    currentPos = svalue(editor$noteBook) - 1;
+    if(currentPos < 1)
+    {
+        gmessage("This tab could not be closed!");
+        return(NULL);
+    }
     tabname = editor$tabsList[[currentPos]]$name;
     if(tabname %in% c("Objective", "Run"))
     {
@@ -142,14 +148,15 @@ onRunCode = function(h, ...)
 	outputWidget = editor$tabsList[["Run"]]$output;
     visible(outputWidget) = TRUE;
 	svalue(outputWidget) = output;
-    svalue(editor$noteBook) = which(names(editor$tabsList) == "Run");
+    svalue(editor$noteBook) = which(names(editor$tabsList) == "Run") + 1;
     return(NULL);
 }
 # Show or hide notes
 toggleShowNote = function(h, ...)
 {
     editor = h$action$editor;
-    currentPos = svalue(editor$noteBook);
+    currentPos = svalue(editor$noteBook) - 1;
+    if(currentPos < 1) return(NULL);
     tab = editor$tabsList[[currentPos]];
     visible(tab$label) = svalue(h$obj);
     return(NULL);
@@ -158,7 +165,8 @@ toggleShowNote = function(h, ...)
 toggleShowCode = function(h, ...)
 {
     editor = h$action$editor;
-    currentPos = svalue(editor$noteBook);
+    currentPos = svalue(editor$noteBook) - 1;
+    if(currentPos < 1) return(NULL);
     tab = editor$tabsList[[currentPos]];
     if(tab$name %in% c("Objective", "Run"))
     {

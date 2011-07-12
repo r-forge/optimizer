@@ -12,8 +12,6 @@ gtextbox = function(text = "", wrap = TRUE, font.attr = NULL,
 	hBox = gtkHBoxNew();
 	alignBox = gtkAlignmentNew(0.5, 0, 1, 1);
 	alignBox$setPadding(0, 0, 20, 20);
-scrollWindow=gtkScrolledWindowNew();
-scrollWindow$setPolicy(GtkPolicyType["automatic"], GtkPolicyType["automatic"]);
 	textBuf = gtkTextBufferNew();
 	textView = gtkTextView(buffer = textBuf, show = TRUE);
 	if(wrap) textView$SetWrapMode(GtkWrapMode["word"]);

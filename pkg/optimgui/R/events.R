@@ -25,8 +25,8 @@ onWizardConfirmed = function(widget, param)
 # Open Catalog Page event
 onOpenCatalog = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
-    showCatalogPage(editor, h$action);
+    editor = h$action$editor;
+    editor$showCatalogPage(h$action);
 	return(NULL);
 }
 # Default event
@@ -34,13 +34,12 @@ onDefaultEvent = function(h, ...) gmessage("Not implemented yet. :(", "Message")
 # Open Rop file
 openRopFile = function(filePath, param)
 {
-    editor = get("editor", envir = param$mainEnvir);
+    editor = param$editor;
     visible(param$buttonGroup) = FALSE;
     path = filePath;
 	Encoding(path) = "UTF-8";
-    editor = loadRopFile(editor, path);
-    buildWidgets(editor);
-    assign("editor", editor, envir = param$mainEnvir);
+    editor$loadRopFile(path);
+    editor$buildWidgets();
 	visible(param$buttonGroup) = TRUE;
     enabled(param$mSave) = TRUE;
 	return(NULL);
@@ -67,23 +66,22 @@ onOpenRopFile = function(h, ...)
 # Save Rop file event
 onSaveRopFile = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
+    editor = h$action$editor;
     filePath = gfile(text = "Save an Rop file...", type = "save",
 			         filter = list("Rop files (*.Rop)" = list(patterns = "*.Rop")),
 			         handler = function(h,...) return(NULL));
 	if(is.na(filePath)) return(NULL);
     Encoding(filePath) = "UTF-8";
-	saveRopFile(editor, filePath %+% ".Rop");
+	editor$saveRopFile(filePath %+% ".Rop");
 	return(NULL);
 }
 # Close Rop file event
 onCloseRopFile = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
+    editor = h$action$editor;
 	visible(h$action$buttonGroup) = FALSE;
-    editor = clearAll(editor);
-    showWelcomePage(editor, h$action);
-    assign("editor", editor, envir = h$action$mainEnvir);
+    editor$clearAll();
+    editor$showWelcomePage(h$action);
     enabled(h$action$mSave) = FALSE;
 	return(NULL);
 }
@@ -91,85 +89,83 @@ onCloseRopFile = function(h, ...)
 # Focus tab event, to set the value of "noteCheckBox" and "codeCheckBox"
 onFocusTab = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
-    if(!length(editor@tabsList)) return(NULL);
-    currentPos = svalue(editor@noteBook);
-    currentTab = editor@tabsList[[currentPos]];
-    svalue(h$action$noteCheckBox) = visible(currentTab@label);
-    svalue(h$action$codeCheckBox) = visible(currentTab@rcode);
+    editor = h$action$editor;
+    if(!length(editor$tabsList)) return(NULL);
+    currentPos = svalue(editor$noteBook);
+    currentTab = editor$tabsList[[currentPos]];
+    svalue(h$action$noteCheckBox) = visible(currentTab$label);
+    svalue(h$action$codeCheckBox) = visible(currentTab$rcode);
     return(NULL);
 }
 
 # Add tab event
 onAddTab = function(h, ...)
 {
-     editor = get("editor", envir = h$action$mainEnvir);
-     currentPos = svalue(editor@noteBook);
+     editor = h$action$editor;
+     currentPos = svalue(editor$noteBook);
      tabName = ginput("Please input the name of the tab:");
      if(is.na(tabName)) return(NULL);
      tab = EditorTabNew(tabName, NULL, NULL, NULL);
-     visible(tab@label) = TRUE;
-     visible(tab@rcode) = TRUE;
-     editor = insertTab(editor, tab, currentPos);
-     svalue(editor@noteBook) = currentPos + 1;
-     assign("editor", editor, envir = h$action$mainEnvir);
+     visible(tab$label) = TRUE;
+     visible(tab$rcode) = TRUE;
+     editor$insertTab(tab, currentPos);
+     svalue(editor$noteBook) = currentPos + 1;
      return(NULL);
 }
 # Delete tab event
 onDeleteTab = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
-    currentPos = svalue(editor@noteBook);
-    tabname = editor@tabsList[[currentPos]]@name;
+    editor = h$action$editor;
+    currentPos = svalue(editor$noteBook);
+    tabname = editor$tabsList[[currentPos]]$name;
     if(tabname %in% c("Objective", "Run"))
     {
         gmessage("This tab could not be closed!");
         return(NULL);
     }
-    editor@tabsList = editor@tabsList[-currentPos];
-    dispose(editor@noteBook);
-    assign("editor", editor, envir = h$action$mainEnvir);
+    editor$tabsList = editor$tabsList[-currentPos];
+    dispose(editor$noteBook);
     return(NULL);
 }
 # Run code event
 onRunCode = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
+    editor = h$action$editor;
     tmpfile = tempfile();
-    saveRopFile(editor, tmpfile);
+    editor$saveRopFile(tmpfile);
 	z = textConnection("output", open = "w");
 	sink(z);
 	source(tmpfile, local = TRUE, echo = FALSE, print.eval = TRUE);
 	sink();
 	close(z);
 	output = paste(output, collapse = "\n");
-	outputWidget = editor@tabsList[["Run"]]@output;
+	outputWidget = editor$tabsList[["Run"]]$output;
     visible(outputWidget) = TRUE;
 	svalue(outputWidget) = output;
-    svalue(editor@noteBook) = which(names(editor@tabsList) == "Run");
+    svalue(editor$noteBook) = which(names(editor$tabsList) == "Run");
     return(NULL);
 }
 # Show or hide notes
 toggleShowNote = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
-    currentPos = svalue(editor@noteBook);
-    tab = editor@tabsList[[currentPos]];
-    visible(tab@label) = svalue(h$obj);
+    editor = h$action$editor;
+    currentPos = svalue(editor$noteBook);
+    tab = editor$tabsList[[currentPos]];
+    visible(tab$label) = svalue(h$obj);
     return(NULL);
 }
 # Show or hide code
 toggleShowCode = function(h, ...)
 {
-    editor = get("editor", envir = h$action$mainEnvir);
-    currentPos = svalue(editor@noteBook);
-    tab = editor@tabsList[[currentPos]];
-    if(tab@name %in% c("Objective", "Run"))
+    editor = h$action$editor;
+    currentPos = svalue(editor$noteBook);
+    tab = editor$tabsList[[currentPos]];
+    if(tab$name %in% c("Objective", "Run"))
     {
         svalue(h$obj) = TRUE;
         return(NULL);
     }
-    visible(tab@rcode) = svalue(h$obj);
+    visible(tab$rcode) = svalue(h$obj);
     return(NULL);
 }
 

@@ -17,7 +17,7 @@ optimgui = function(){
 mainWin = gwindow("optimgui", visible = FALSE);
 size(mainWin) = c(800, 600);
 # Horizontal layout box
-hGroup = ggroup(container = mainWin, expand = TRUE);
+hGroup = ggroup(container = mainWin, expand = TRUE, spacing = 15);
 # The editor
 editor = EditorNew(container = hGroup);
 

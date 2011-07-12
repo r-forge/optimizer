@@ -2,36 +2,51 @@
 "%+%" = function(x, y) sprintf("%s%s", x, y);
 
 # The "EditorTab" class to describe a tab in the editor
-setClass("EditorTab", representation(name = "character",
-                                     title = "gLabel",
-				                     label = "gTextBox",
-				                     rcode = "gTextBox",
-                                     output = "gTextBox",
-                                     box = "gGroup"));
+EditorTab = setRefClass("EditorTab", fields = list(name = "character",
+                                                   title = "gLabel",
+				                                   label = "gTextBox",
+				                                   rcode = "gTextBox",
+                                                   output = "gTextBox",
+                                                   box = "gGroup"));
 # The "constructors" of "EditorTab"
 EditorTabNew = function(name, title.str, label.str, rcode.str)
 {
     # Box to pack widgets
     tabBox = ggroup(horizontal = FALSE, spacing = 15);
+    # Align box
+    alignBox = gtkAlignmentNew(0.5, 0, 1, 1);
+	alignBox$setPadding(0, 0, 0, 2);
+    tabBox@widget@widget$packStart(alignBox);
+    # Scroll window
+    scroll = gtkScrolledWindowNew();
+    scroll$setPolicy(GtkPolicyType["never"], GtkPolicyType["automatic"]);
+    alignBox$add(scroll);
+    # Scroll box
+    scrollBox = ggroup(horizontal = FALSE, spacing = 15);
+    scroll$addWithViewport(scrollBox@widget@widget);
+    viewport = scroll$getChildren()[[1]];
+    viewport$setShadowType(GtkShadowType["none"]);
+    viewport$modifyBg(GtkStateType["normal"],
+                      gdkColorParse("white")$color);
     # Widget to show title
     title.str = if(is.null(title.str)) "Edit title here" else title.str;
-    titleLabel = glabel(title.str, editable = TRUE, container = tabBox);
+    titleLabel = glabel(title.str, editable = TRUE, container = scrollBox);
     font(titleLabel) = c(size = "xx-large");
     # Widget to show notes
     flag = is.null(label.str) | !length(label.str);
     label.str = if(flag) "Edit notes here." else label.str;
-    docLabel = gtextbox(label.str, container = tabBox,
+    docLabel = gtextbox(label.str, container = scrollBox,
         			    font.attr = c(family = "sans", size = 11));
     visible(docLabel) = !flag;
     # Widget to display R code
     flag = is.null(rcode.str);
-    rcode.str = if(flag) "# Edit R code here." else rcode.str;
-    codeText = gtextbox(rcode.str, container = tabBox,
+    rcode.str = if(flag) "# Edit R code here." else rcode.str;    
+    codeText = gtextbox(rcode.str, container = scrollBox,
         			    font.attr = c(family = "monospace", size = 11),
 						frame = TRUE);
     visible(codeText) = !flag;
     # Widget to display output
-    outputText = gtextbox("", container = tabBox,
+    outputText = gtextbox("", container = scrollBox,
         			      font.attr = c(family = "monospace", size = 11),
 						  frame = TRUE, frameLabel = "Output");
     visible(outputText) = FALSE;
@@ -79,10 +94,10 @@ setMethod("show", "EditorTab", show.EditorTab);
 
 
 # The "Editor" class to describe the editor
-setClass("Editor", representation(noteBook = "gNotebook",
-                                  currentFile = "character",
-                                  tabsList = "list",
-                                  catalog = "data.frame"));
+Editor = setRefClass("Editor", fields = list(noteBook = "gNotebook",
+                                             currentFile = "character",
+                                             tabsList = "list",
+                                             catalog = "data.frame"));
 # The "constructor" of "Editor"
 parseRop = function(filePath)
 {
@@ -121,19 +136,19 @@ EditorNew = function(...)
 }
 
 # Member functions
-clearAll.Editor = function(obj)
+clearAll.Editor = function(...)
 {
-    visible(obj@noteBook) = FALSE;
-    while(dispose(obj@noteBook)){}
-    visible(obj@noteBook) = TRUE;
-    obj@currentFile = character(0);
-    obj@tabsList =  list();
-    invisible(obj);
+    visible(.self$noteBook) = FALSE;
+    while(dispose(.self$noteBook)){}
+    visible(.self$noteBook) = TRUE;
+    .self$currentFile = character(0);
+    .self$tabsList = list();
+    invisible(.self);
 }
-setGeneric("clearAll", function(obj, ...) standardGeneric("clearAll"));
-setMethod("clearAll", "Editor", clearAll.Editor);
+Editor$methods(clearAll = clearAll.Editor);
 
-showWelcomePage.Editor = function(obj, param, ...)
+
+showWelcomePage.Editor = function(param, ...)
 {
     welcomePage = ggroup(horizontal = FALSE, expand = TRUE);
 	welcomeLabel = glabel("Create a new project or open an existing Rop file.",
@@ -154,60 +169,60 @@ showWelcomePage.Editor = function(obj, param, ...)
     val = list(welcomePage = welcomePage, wizardLabel = wizardLabel,
                newLabel = newLabel, openLabel = openLabel);
 	welcomePageAddEvent(val, param);
-    add(obj@noteBook, welcomePage, label = "Welcome");
-	invisible(obj);
+    add(.self$noteBook, welcomePage, label = "Welcome");
+	invisible(.self);
 }
-setGeneric("showWelcomePage", function(obj, ...) standardGeneric("showWelcomePage"));
-setMethod("showWelcomePage", "Editor", showWelcomePage.Editor);
+Editor$methods(showWelcomePage = showWelcomePage.Editor);
 
-showCatalogPage.Editor = function(obj, param, ...)
+
+showCatalogPage.Editor = function(param, ...)
 {
     catalogPage = ggroup(horizontal = FALSE, expand = TRUE);
-	RopTable = gtable(obj@catalog, container = catalogPage, expand = TRUE);
+	RopTable = gtable(.self$catalog, container = catalogPage, expand = TRUE);
 	gseparator(container = catalogPage);
 	tmpBox4 = ggroup(container = catalogPage);
 	openRopButton = gbutton("OK", container = tmpBox4);
 	val = list(catalogPage = catalogPage, RopTable = RopTable,
                openRopButton = openRopButton);
 	catalogPageAddEvent(val, param);
-    add(obj@noteBook, catalogPage, label = "Catalog");
-    invisible(obj);
+    add(.self$noteBook, catalogPage, label = "Catalog");
+    invisible(.self);
 }
-setGeneric("showCatalogPage", function(obj, ...) standardGeneric("showCatalogPage"));
-setMethod("showCatalogPage", "Editor", showCatalogPage.Editor);
+Editor$methods(showCatalogPage = showCatalogPage.Editor);
 
-loadRopFile.Editor = function(obj, filePath)
+
+loadRopFile.Editor = function(filePath, ...)
 {
     path = filePath;
 	Encoding(path) = "UTF-8";
 	RopTree = parseRop(path);
-    obj@currentFile = path;
+    .self$currentFile = path;
     tabNodes = xmlElementsByTagName(xmlRoot(RopTree), "tab");
-    obj@tabsList = lapply(tabNodes, EditorTabNewFromXMLNode);
-	names(obj@tabsList) = sapply(tabNodes, xmlAttrs);
-    invisible(obj);
+    .self$tabsList = lapply(tabNodes, EditorTabNewFromXMLNode);
+	names(.self$tabsList) = sapply(tabNodes, xmlAttrs);
+    invisible(path);
 }
-setGeneric("loadRopFile", function(obj, filePath, ...) standardGeneric("loadRopFile"));
-setMethod("loadRopFile", "Editor", loadRopFile.Editor);
+Editor$methods(loadRopFile = loadRopFile.Editor);
 
-saveRopFile.Editor = function(obj, filePath)
+
+saveRopFile.Editor = function(filePath, ...)
 {
     Rop = xmlTree("Roptimgui");
-	for(tab in obj@tabsList)
+	for(tab in .self$tabsList)
 	{
-		Rop$addNode("tab", attrs = c(tabname = tab@name), close = FALSE);
-        Rop$addNode("title", svalue(tab@title));
-        if(visible(tab@label))
+		Rop$addNode("tab", attrs = c(tabname = tab$name), close = FALSE);
+        Rop$addNode("title", svalue(tab$title));
+        if(visible(tab$label))
         {
-            labelText = svalue(tab@label);
+            labelText = svalue(tab$label);
             labelText = strwrap(labelText, 70);
             labelText = "\n" %+% paste("    ", labelText, sep = "",
                                        collapse = "\n") %+% "\n    ";
             Rop$addNode("label", labelText);
         }
-        if(visible(tab@rcode))
+        if(visible(tab$rcode))
         {
-            codeText = svalue(tab@rcode);
+            codeText = svalue(tab$rcode);
             codeText = gsub("\n", "\n##Rcode##", codeText);
             codeText = "\n##Rcode##" %+% codeText %+% "\n    ";
             Rop$addNode("rcode", codeText);
@@ -224,36 +239,35 @@ saveRopFile.Editor = function(obj, filePath)
 	buffer = gsub("&lt;", "<", buffer);
 	buffer = gsub("&gt;", ">", buffer);
     writeLines(buffer, filePath);
-    invisible(NULL);
+    invisible(filePath);
 }
-setGeneric("saveRopFile", function(obj, filePath, ...) standardGeneric("saveRopFile"));
-setMethod("saveRopFile", "Editor", saveRopFile.Editor);
+Editor$methods(saveRopFile = saveRopFile.Editor);
 
-buildWidgets.Editor = function(obj)
+
+buildWidgets.Editor = function(...)
 {
-    visible(obj@noteBook) = FALSE;
-    while(dispose(obj@noteBook)){}
-    if(length(obj@tabsList))
+    visible(.self$noteBook) = FALSE;
+    while(dispose(.self$noteBook)){}
+    if(length(.self$tabsList))
     {
-        for(tab in obj@tabsList) add(obj@noteBook, tab@box, label = tab@name);
+        for(tab in .self$tabsList) add(.self$noteBook, tab$box, label = tab$name);
     }
-    visible(obj@noteBook) = TRUE;
-    invisible(obj);
+    visible(.self$noteBook) = TRUE;
+    invisible(.self);
 }
-setGeneric("buildWidgets", function(obj, ...) standardGeneric("buildWidgets"));
-setMethod("buildWidgets", "Editor", buildWidgets.Editor);
+Editor$methods(buildWidgets = buildWidgets.Editor);
+
 
 # Insert an EditorTab at a given position
-insertTab.Editor = function(obj, tab, pos, ...)
+insertTab.Editor = function(tab, pos, ...)
 {
-    notebook = obj@noteBook@widget@widget;
-    notebook$insertPage(tab@box@widget@widget, gtkLabelNew(tab@name), pos);
-    obj@tabsList = append(obj@tabsList, tab);
-    invisible(obj);
+    notebook = .self$noteBook@widget@widget;
+    notebook$insertPage(tab$box@widget@widget, gtkLabelNew(tab$name), pos);
+    .self$tabsList = append(.self$tabsList, tab);
+    invisible(.self);
 }
-setGeneric("insertTab", function(obj, tab, pos, ...) standardGeneric("insertTab"));
-setMethod("insertTab", signature(obj = "Editor", tab = "EditorTab", pos = "numeric"),
-          insertTab.Editor);
+Editor$methods(insertTab = insertTab.Editor);
+
 
 show.Editor = function(object)
 {

@@ -1,7 +1,7 @@
 #@ <?xml version="1.0"?>
 #@ <Roptimgui>
 #@   <catalog>
-#@     <description itemname="Number_of_Parameters" value="???"/>
+#@     <description itemname="Number_of_Parameters" value="variable"/>
 #@     <description itemname="Gradient" value="continuous"/>
 #@     <description itemname="Hessian" value="???"/>
 #@     <description itemname="Constrain" value="???"/>
@@ -120,7 +120,8 @@ cyq.g <- function(x) {
 #@   <tab tabname="Run">
 #@     <title>The Running Code of Optimization</title>
 #@     <rcode>
-# Edit R code here.
+xx <- rep(pi, 4)
+ans1 <- optim(xx, cyq.f, control = list(trace = 1))
 #@     </rcode>
 #@   </tab>
 #@ </Roptimgui>

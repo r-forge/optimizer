@@ -145,7 +145,7 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
     } else { 
 	retlst$msg<-"Normal exit from bobyqa"
     }
-    return(retlst)
+    retlst # return(retlst)
 }
 
 ##' An R interface to the NEWUOA implementation of Powell
@@ -191,7 +191,7 @@ newuoa <- function(par, fn, control = list(), ...)
     } else { 
 	retlst$msg<-"Normal exit from newuoa"
     }
-    return(retlst)
+    retlst # return(retlst)
 }
 
 
@@ -234,7 +234,7 @@ uobyqa <- function(par, fn, control = list(), ...)
     } else { 
 	retlst$msg<-"Normal exit from uobyqa"
     }
-    return(retlst)
+    retlst # return(retlst)
 }
 
 ##' Print method for minqa objects (S3)

@@ -1,3 +1,9 @@
+2011-07-14  John Nash <nashjc@uottawa.ca>
+    
+        * man/uobyqa.Rd: corrected output names in documentation. Added msg.
+        * man/newuoa.Rd: corrected output names in documentation. Added msg.
+        * man/bobyqa.Rd: corrected output names in documentation. Added msg.
+
 2011-07-11  John Nash <nashjc@uottawa.ca>, Kate Mullen <kmullen@nist.gov>
 	
 	* R/minqa.R:  bobyqa bug fixes thanks to Ben Bolker: fixed rhobeg 

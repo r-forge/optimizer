@@ -89,6 +89,7 @@ bobyqa(par, fn, lower = -Inf, upper = Inf, control = list(), \dots)
 		understood Powell's code to explain this.)}
     }
   } 
+  \item{msg}{A message describing the outcome of UOBYQA}
 }
 \references{
   M. J. D. Powell (2007)

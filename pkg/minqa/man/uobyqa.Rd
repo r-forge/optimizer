@@ -61,7 +61,8 @@ uobyqa(par, fn, control = list(), \dots)
 \value{
   A list with components:
   \item{par}{The best set of parameters found.}
-  \item{fvalue}{The value of the objective at the best set of parameters found.}
+  \item{fval}{The value of the objective at the best set of parameters found.}
+  \item{feval}{The number of function evaluations used.}
   \item{ierr}{An integer error code.  A value of zero indicates
     success. Other values (consistent with BOBYQA values) are
     \describe{
@@ -69,7 +70,7 @@ uobyqa(par, fn, control = list(), \dots)
        \item{3}{a trust region step failed to reduce q (Consult Powell for explanation.)}
     }
   } 
-
+  \item{msg}{A message describing the outcome of UOBYQA}
 }
 \references{
      M. J. D. Powell, "The uobyqa software for unconstrained

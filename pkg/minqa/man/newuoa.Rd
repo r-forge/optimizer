@@ -79,6 +79,7 @@ newuoa(par, fn, control = list(), \dots)
 		understood Powell's code to explain this.)}
     }
   } 
+  \item{msg}{A message describing the outcome of UOBYQA}
 }
 \references{
   M. J. D. Powell, "The NEWUOA software for unconstrained optimization

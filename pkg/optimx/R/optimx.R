@@ -153,7 +153,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
 #    if (!all(namc %in% names(ctrl))) 
 #        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
 # However, we do want to substitute the appropriate information. 
-# removed copy of hessian to control$kkt
    ncontrol <- names(control)
    nctrl <- names(ctrl)
    for (onename in ncontrol) {
@@ -161,6 +160,12 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          if (ctrl$trace>2) cat("control ",onename," is not in default set\n")
       }
       ctrl[onename]<-control[onename]
+   }
+# Set ctrl$kkt using 'hessian' 110718
+   if ((! is.null(hessian)) && (hessian==TRUE)) {
+      control$kkt<-TRUE # make hessian override control$kkt
+   } else {
+      hessian<-FALSE
    }
    if (is.null(control$kkt)) { # turn off kkt for large matrices
       ctrl$kkt<-TRUE # default it to compute KKT tests
@@ -690,7 +695,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          }
       }  ## end if using ucminf
 ## --------------------------------------------
-###### progress point #########
 #      else 
       if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
          bdmsk<-rep(1,npar)
@@ -729,7 +733,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          }
       }  ## end if using Rcgmin
 ## --------------------------------------------
-###### progress point #########
 #      else 
       if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
          bdmsk<-rep(1,npar)
@@ -943,6 +946,10 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
 			control=list(ktrace=ctrl$trace))
                ans$kkt1<-akkt$kkt1
                ans$kkt2<-akkt$kkt2
+               # ?? how to save hessian
+               ans$ngatend<-ngatend
+               ans$nhatend<-nhatend
+               ans$evnhatend<-akkt$hev
                if (ctrl$trace) {
                   cat("KKT results: gmax=",akkt$gmax,"  evratio=",akkt$evratio,
                           "  KKT1 & 2: ",akkt$kkt1,akkt$kkt2,"\n")

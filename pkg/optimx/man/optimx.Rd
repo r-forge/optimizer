@@ -66,7 +66,10 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
        to the Hessian at the final set of parameters. If FALSE (default), the hessian is
        calculated if needed to provide the KKT optimality tests (see \code{kkt} in
        \sQuote{Details} for the \code{control} list).
-       This setting is provided primarily for compatibility with optim().}
+       This setting is provided primarily for compatibility with optim(). Note that 
+       there are extended possibilities in \code{ucminf}, where \code{hessian} is 
+       treated as an integer, but these, as well as the facility in \code{optim} are
+       ignored, and the numerical hessian from the \code{kktc} package are used.}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
  \item{\dots}{Further arguments to be passed to \code{fn} and \code{gr}.}
 }
@@ -642,6 +645,21 @@ ansnames
 cat("check the names on the parameters\n")
 print(ansnames$method)
 print(ansnames$par)
+
+
+startx<-c(0.2, 0.4, 0.6, 0.8)
+cat("check Hessian -- no bounds\n")
+# should check bounds, control.kkt=FALSE, etc.
+anshes<-optimx(startx,cyq.f, cyq.g, hessian=TRUE, control=list(all.methods=TRUE))
+# hesBFGS<-get.result(anshes, attribute="nhatend")
+adet<-attr(anshes,"details")
+nmeth<-length(adet)
+for (i in 1:nmeth){
+   print(adet[[i]]$method)
+   print(adet[[i]]$nhatend)
+   print(adet[[i]]$evnhatend)
+   cat("=======================================\n")
+}
 
 }
 \keyword{nonlinear}

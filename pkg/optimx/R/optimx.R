@@ -917,15 +917,20 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
       times[i] <- times[i] + time # Accumulate time for a single method (in case called multiple times)
       msg<-paste(meth," failed!")
-      if (ans$conv == 9999) stop(msg)
       if (ctrl$trace>0) { cat("Post processing for method ",meth,"\n") }
       pars<-NULL # Unless length(pars)>0 we don't save anything later
       gradOK<-FALSE
       hessOK<-FALSE # to ensure these are set when kkt FALSE
+      ans$kkt1<-NA
+      ans$kkt2<-NA
+      ans$ngatend<-NA
+      ans$nhatend<-NA
+      ans$evnhatend<-NA
       if ( ctrl$save.failures || (ans$conv < 1) ){  # Save the solution if converged or directed to save
          j <- j + 1 ## increment the counter for (successful) method/start case
          if (ctrl$trace && ans$conv==0) cat("Successful convergence! \n")  ## inform user we've succeeded
          # Testing final solution. Use numDeriv to get gradient and Hessian; compute Hessian eigenvalues
+         if (ans$conv != 9999) {
          gH<-NULL
          if ((ctrl$kkt || hessian) && (ans$conv != 9999)) {
             if (ctrl$trace>0) cat("Compute gradient and Hessian approximations at finish of ",method[i],"\n")
@@ -938,8 +943,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
             ngatend<-gH$ng
             nhatend<-gH$nH
          } # end test if hessian computed; note gradient is also computed
-         ans$kkt1<-NA
-         ans$kkt2<-NA
          if (gradOK) { # have gradient
             if (hessOK) { # have hessian
                akkt<- kktc(ans$par, ans$value, ngatend, nhatend, gH$nbm, 
@@ -964,6 +967,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
             if (ctrl$dowarn) warning(warnstr)
             if (ctrl$trace>0) cat(warnstr,"\n") 
          }
+         } # end NOT conv=9999
             ans$systime <- time
             # Do we want more information saved?
             if (ctrl$trace>0) { 

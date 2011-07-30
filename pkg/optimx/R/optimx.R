@@ -758,6 +758,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          } else {
             if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
             ans<-list(fevals=NA) # ans not yet defined, so set as list
+            ans$value= ctrl$badval  # RV 07/29/2011
             ans$par<-rep(NA,npar)
             ans$conv<-9999 # failed in run
             ans$gevals<-NA 

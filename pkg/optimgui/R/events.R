@@ -1,37 +1,77 @@
-# Passing parameters
-# h$action = param = list(mainEnvir = environment(), mainWin = mainWin,
-#                         wizardPage = wizardPage, buttonGroup = buttonGroup,
-#                         mSave = mSave);
+#################################
+#                               #
+#   Events for "CatalogEntry"   #
+#                               #
+#################################
 
-# Events
-# Exit
+# Add entry -- click the button to add a new entry
+# h$action = list(model) for onAddEntry(), onDeleteEntry() and onSelectAll()
+onAddEntry = function(h, ...)
+{
+    newEntry = data.frame(delete = FALSE,
+                          itemname = "Click here to edit",
+                          value = "",
+                          stringsAsFactors = FALSE);
+    h$action$model$appendRows(newEntry);
+    return(NULL);
+}
+# Delete entries -- click the button to delete selected entries
+onDeleteEntry = function(h, ...)
+{
+    newDat = as.data.frame(h$action$model);
+    if(!nrow(newDat)) return(NULL);
+    newDat = newDat[!newDat[, 1], ];
+    h$action$model$setFrame(newDat);
+    return(NULL);
+}
+# Select all -- select/deselect all entries
+onSelectAll = function(h, ...)
+{
+    model = h$action$model;
+    if(!nrow(model)) return(NULL);
+    model[, 1] = svalue(h$obj);
+    return(NULL);
+}
+
+# Toggle checkbox -- Edit cell in column 1
+# param = list(model)
+onToggleCell = function(cell, path, param)
+{
+    index = as.integer(path) + 1;
+    param$model[index, 1] = !param$model[index, 1];
+    return(NULL);
+}
+# Edit cell -- Edit cell in column 2 and column 3
+# param = list(column, model)
+onEditCell = function(cell, path, new.text, param)
+{
+    index = as.integer(path) + 1;
+    param$model[index, param$column] = new.text;
+    return(NULL);
+}
+
+
+#################################
+#                               #
+#   Events for menu items       #
+#                               #
+#################################
+
+# h$action = param = list(mainEnvir, mainWin, buttonGroup, mSave) for all the
+# handler functions in this section, except 
+
+# Exit -- exit optimgui
 onExit = function(h, ...) dispose(h$action$mainWin);
-# Open wizard
-onOpenWizard = function(h, ...)
-{
-    h$action$wizardPage$show();
-	return(NULL);
-}
-# Wizard confirmed
-onWizardConfirmed = function(widget, param)
-{
-	widget$hide();
-	fileName = "shobbs.Rop";
-	filePath = system.file("resources", "Rop", fileName, package = "optimgui");
-	if(!length(filePath)) return(NULL);
-	openRopFile(filePath, param);
-	return(FALSE);
-}
-# Open Catalog Page event
+# Open catalog page -- click the link label to open catalog page
 onOpenCatalog = function(h, ...)
 {
     editor = h$action$editor;
     editor$showCatalogPage(h$action);
 	return(NULL);
 }
-# Default event
+# Default event -- temporary handler for events that are not implemented
 onDefaultEvent = function(h, ...) gmessage("Not implemented yet. :(", "Message");
-# Open Rop file
+# Open Rop file -- not a handler, but a function called by some handlers
 openRopFile = function(filePath, param)
 {
     editor = param$editor;
@@ -42,9 +82,10 @@ openRopFile = function(filePath, param)
     editor$buildWidgets();
 	visible(param$buttonGroup) = TRUE;
     enabled(param$mSave) = TRUE;
+    svalue(param$mainWin) = "optimgui [" %+% path %+% "]";
 	return(NULL);
 }
-# Open built-in Rop file
+# Open built-in Rop file -- open the specified template Rop file
 onOpenBuiltinRopFile = function(h, ...)
 {
 	fileName = as.character(svalue(h$action$catalogPage$RopTable));
@@ -53,7 +94,7 @@ onOpenBuiltinRopFile = function(h, ...)
 	openRopFile(filePath, h$action$param);
 	return(NULL);
 }
-# Open Rop file event
+# Open Rop file -- open an Rop file using dialog
 onOpenRopFile = function(h, ...)
 {
 	filePath = gfile(text = "Choose an Rop file...", type = "open",
@@ -63,7 +104,7 @@ onOpenRopFile = function(h, ...)
 	openRopFile(filePath, h$action);
 	return(NULL);
 }
-# Save Rop file event
+# Save Rop file -- save the Rop file using dialog
 onSaveRopFile = function(h, ...)
 {
     editor = h$action$editor;
@@ -73,9 +114,10 @@ onSaveRopFile = function(h, ...)
 	if(is.na(filePath)) return(NULL);
     Encoding(filePath) = "UTF-8";
 	editor$saveRopFile(filePath %+% ".Rop");
+    svalue(h$action$mainWin) = "optimgui [" %+% filePath %+% ".Rop]";
 	return(NULL);
 }
-# Close Rop file event
+# Close Rop file -- close the Rop file and return to the welcome page
 onCloseRopFile = function(h, ...)
 {
     editor = h$action$editor;
@@ -83,8 +125,16 @@ onCloseRopFile = function(h, ...)
     editor$clearAll();
     editor$showWelcomePage(h$action);
     enabled(h$action$mSave) = FALSE;
+    svalue(h$action$mainWin) = "optimgui";
 	return(NULL);
 }
+
+
+#################################
+#                               #
+#   Events for notebook widget  #
+#                               #
+#################################
 
 # Focus tab event, to set the value of "noteCheckBox" and "codeCheckBox"
 onFocusTab = function(h, ...)
@@ -179,7 +229,6 @@ toggleShowCode = function(h, ...)
 
 welcomePageAddEvent = function(welcomePage, param)
 {
-    addHandlerClicked(welcomePage$wizardLabel, onOpenWizard, param);
 	addHandlerClicked(welcomePage$newLabel, onOpenCatalog, param);
 	addHandlerClicked(welcomePage$openLabel, onOpenRopFile, param);
 }
@@ -187,5 +236,7 @@ catalogPageAddEvent = function(catalogPage, param)
 {
     addHandlerClicked(catalogPage$openRopButton, onOpenBuiltinRopFile,
                       action = list(catalogPage = catalogPage, param = param));
+    addHandlerDoubleclick(catalogPage$RopTable, onOpenBuiltinRopFile,
+                          action = list(catalogPage = catalogPage, param = param));
 }
 

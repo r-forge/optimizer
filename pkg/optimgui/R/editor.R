@@ -1,55 +1,100 @@
 # Operator for convenience
 "%+%" = function(x, y) sprintf("%s%s", x, y);
 
-# The "CatalogTab" class
-CatalogTab = setRefClass("CatalogTab", fields = list(name = "character",
-                                                     labels = "list",
-                                                     entries = "list",
-                                                     box = "gGroup"));
-# The "constructor" of "CatalogTab"
-CatalogTabNew = function(name, items, values)
+# The "CatalogEntry" class
+CatalogEntry = setRefClass("CatalogEntry",
+                           fields = list(tabname = "character",
+                                         model = "RGtkDataFrame",
+                                         box = "gGroup"));
+# The "constructor" of "CatalogEntry"
+CatalogEntryNew = function(tabname, entries)
 {
     # Box to pack widgets
     tabBox = ggroup(horizontal = FALSE, spacing = 0);
     # Title
     addSpace(tabBox, 10, horizontal = FALSE);
-    titleLabel = glabel("Catalog of the optimization problem", container = tabBox);
+    titleLabel = glabel("Catalog entries", container = tabBox);
     font(titleLabel) = c(size = "xx-large");
-    # Align boxe
+    addSpace(tabBox, 20, horizontal = FALSE);
+    # Align box
     alignBox = gtkAlignmentNew(0.5, 0, 1, 1);
-    alignBox$setPadding(20, 0, 30, 30);
-    tabBox@widget@widget$packStart(alignBox);  
-    layout = glayout();
-    alignBox$add(layout@widget@widget);
-    if(is.null(values)) values = rep("", length(items));
-    for(i in 1:length(items))
-    {
-        layout[i, 1] = glabel(items[i]);
-        layout[i, 2] = gedit(values[i]);
-    }
-    labels = lapply(1:length(items), function(i) layout[i, 1]);
-    entries = lapply(1:length(items), function(i) layout[i, 2]);
-    val = new("CatalogTab", name = name, labels = labels, entries = entries,
+    alignBox$setPadding(0, 10, 20, 20);
+    # Frame
+    frame = gtkFrameNew();
+    sw = gtkScrolledWindowNew();
+    sw$setPolicy(GtkPolicyType["never"], GtkPolicyType["automatic"]);
+    # Table
+    textview = gtkTreeViewNew();
+    dat = cbind(delete = FALSE, entries);
+    model = rGtkDataFrame(dat);
+    textview$setModel(model);
+    # First column -- checkbox
+    renderer = gtkCellRendererToggleNew();
+    gSignalConnect(renderer, "toggled", onToggleCell, list(model = model));
+    column = gtkTreeViewColumnNewWithAttributes("", renderer, active = 0);
+    column$setSizing("fixed");
+    column$setFixedWidth(50);
+    textview$appendColumn(column);
+    # Second column -- Entry Name
+    renderer = gtkCellRendererTextNew();
+    renderer$set(editable = TRUE);
+    gSignalConnect(renderer, "edited", onEditCell, list(column = 2, model = model));
+    column = gtkTreeViewColumnNewWithAttributes("Entry Name", renderer, text = 1);
+    column$setSizing("fixed");
+    column$setFixedWidth(250);
+    textview$appendColumn(column);
+    # Third column -- Entry Value
+    renderer = gtkCellRendererTextNew();
+    renderer$set(editable = TRUE);
+    gSignalConnect(renderer, "edited", onEditCell, list(column = 3, model = model));
+    column = gtkTreeViewColumnNewWithAttributes("Entry Value", renderer, text = 2);
+    column$setSizing("fixed");
+    column$setFixedWidth(250);
+    textview$appendColumn(column);
+    # Add widgets
+    tabBox@widget@widget$packStart(alignBox);
+    alignBox$add(frame);
+    frame$add(sw);
+    sw$add(textview);
+    # ActionsBox
+    actionsBox = ggroup(container = tabBox);
+    addSpace(actionsBox, 20);
+    selectAllChBox = gcheckbox("Select All", container = actionsBox,
+                               anchor = c(-1, 0));
+    DeleteEntryButton = gbutton("Delete entries", container = actionsBox);
+    AddEntryButton = gbutton("Add entry", container = actionsBox);
+    addSpace(tabBox, 30, horizontal = FALSE);
+    # Add events
+    addHandlerChanged(selectAllChBox, onSelectAll, list(model = model));
+    addHandlerClicked(AddEntryButton, onAddEntry, list(model = model));
+    addHandlerClicked(DeleteEntryButton, onDeleteEntry, list(model = model));
+
+    val = new("CatalogEntry", tabname = tabname, model = model,
               box = tabBox);
     return(val);
 }
 # Member functions
-getItems.CatalogTab = function(...)
+getItems.CatalogEntry = function(...)
 {
-    items = sapply(.self$labels, svalue);
-    items = gsub(" ", "_", items);
-    items = gsub(":", "", items);
+    items = .self$model[, 2];
     return(items);
 }
-CatalogTab$methods(getItems = getItems.CatalogTab);
+CatalogEntry$methods(getItems = getItems.CatalogEntry);
 
 
-getValues.CatalogTab = function(...)
+getValues.CatalogEntry = function(...)
 {
-    values = sapply(.self$entries, svalue);
+    values = .self$model[, 3];
     return(values);
 }
-CatalogTab$methods(getValues = getValues.CatalogTab);
+CatalogEntry$methods(getValues = getValues.CatalogEntry);
+
+
+haveEntry.CatalogEntry = function(...)
+{
+    return(nrow(.self$model) > 0);
+}
+CatalogEntry$methods(haveEntry = haveEntry.CatalogEntry);
 
 
 
@@ -148,7 +193,7 @@ setMethod("show", "EditorTab", show.EditorTab);
 # The "Editor" class to describe the editor
 Editor = setRefClass("Editor", fields = list(noteBook = "gNotebook",
                                              currentFile = "character",
-                                             catalogTab = "CatalogTab",
+                                             CatalogEntry = "CatalogEntry",
                                              tabsList = "list",
                                              catalogSet = "data.frame"));
 # The "constructor" of "Editor"
@@ -170,7 +215,7 @@ EditorNew = function(...)
     noteBook@widget@widget$modifyBg(GtkStateType["normal"],
                                     gdkColorParse("white")$color);
     RopPath = system.file("resources", "Rop", package = "optimgui");
-    RopFiles = list.files(RopPath, full.names = TRUE);
+    RopFiles = list.files(RopPath, "*\\.[Rr][Oo][Pp]", full.names = TRUE);
     getCatalog = function(RopFile)
     {
         d = parseRop(RopFile);
@@ -180,11 +225,17 @@ EditorNew = function(...)
         names(catalog) = description[1, ];
         return(c(FileName = basename(RopFile), catalog));
     }
-    catalogSet = t(sapply(RopFiles, getCatalog, simplify = TRUE));
-    rownames(catalogSet) = NULL;
-    catalogSet = as.data.frame(catalogSet);
+    catalogSet = lapply(RopFiles, getCatalog);
+    itemnames = unique(unlist(lapply(catalogSet, names)));
+    tmp = matrix("", length(catalogSet), length(itemnames));
+    colnames(tmp) = itemnames;
+    for(i in 1:length(catalogSet))
+    {
+        tmp[i, names(catalogSet[[i]])] = catalogSet[[i]];
+    }                               
+    catalogSet = as.data.frame(tmp);
     val = new("Editor", noteBook = noteBook, currentFile = "",
-              catalogTab = new("CatalogTab"), tabsList = list(),
+              CatalogEntry = new("CatalogEntry"), tabsList = list(),
               catalogSet = catalogSet);
     return(val);
 }
@@ -196,7 +247,7 @@ clearAll.Editor = function(...)
     while(dispose(.self$noteBook)){}
     visible(.self$noteBook) = TRUE;
     .self$currentFile = character(0);
-    .self$catalogTab = new("CatalogTab");
+    .self$CatalogEntry = new("CatalogEntry");
     .self$tabsList = list();
     invisible(.self);
 }
@@ -206,22 +257,22 @@ Editor$methods(clearAll = clearAll.Editor);
 showWelcomePage.Editor = function(param, ...)
 {
     welcomePage = ggroup(horizontal = FALSE, expand = TRUE);
-	welcomeLabel = glabel("Create a new project or open an existing Rop file.",
+    addSpace(welcomePage, 10, horizontal = FALSE);
+	welcomeLabel = glabel("Create a new project or open an existing Rop file",
                           container = welcomePage);
 	font(welcomeLabel) = c(size = "x-large");
+    addSpace(welcomePage, 10, horizontal = FALSE);
 	tmpBox1 = ggroup(container = welcomePage);
 	tmpBox2 = ggroup(container = welcomePage);
-	tmpBox3 = ggroup(container = welcomePage);
-	gimage(system.file("resources", "images",  "wizard.png", package = "optimgui"), container = tmpBox1);
-	wizardLabel = glinklabel("Create a new project by wizard");
-    add(tmpBox1, wizardLabel);
-	gimage(system.file("resources", "images",  "template.png", package = "optimgui"), container = tmpBox2);
-	newLabel = glinklabel("Catalog of existing problems and templates to create new ones");
-	add(tmpBox2, newLabel);
-    gimage(system.file("resources", "images",  "open.png", package = "optimgui"), container = tmpBox3);
+    addSpace(tmpBox1, 10);
+	gimage(system.file("resources", "images",  "template.png", package = "optimgui"), container = tmpBox1);
+	newLabel = glinklabel("Catalog of existing problems and templates");
+	add(tmpBox1, newLabel);
+    addSpace(tmpBox2, 10);
+    gimage(system.file("resources", "images",  "open.png", package = "optimgui"), container = tmpBox2);
 	openLabel = glinklabel("Open an existing Rop file");
-	add(tmpBox3, openLabel);
-    val = list(welcomePage = welcomePage, wizardLabel = wizardLabel,
+	add(tmpBox2, openLabel);
+    val = list(welcomePage = welcomePage,
                newLabel = newLabel, openLabel = openLabel);
 	welcomePageAddEvent(val, param);
     add(.self$noteBook, welcomePage, label = "Welcome");
@@ -236,7 +287,7 @@ showCatalogPage.Editor = function(param, ...)
 	RopTable = gtable(.self$catalogSet, container = catalogPage, expand = TRUE);
 	gseparator(container = catalogPage);
 	tmpBox4 = ggroup(container = catalogPage);
-	openRopButton = gbutton("OK", container = tmpBox4);
+	openRopButton = gbutton("  OK  ", container = tmpBox4);
 	val = list(catalogPage = catalogPage, RopTable = RopTable,
                openRopButton = openRopButton);
 	catalogPageAddEvent(val, param);
@@ -257,11 +308,16 @@ loadRopFile.Editor = function(filePath, ...)
     {
         catalogNode = catalogNode[[1]];
         descrip = xmlElementsByTagName(catalogNode, "description");
-        tmp = sapply(descrip, xmlAttrs);
-        items = tmp[1, ];
-        items = paste(gsub("_", " ", items), ":", sep = "");
-        values = tmp[2, ];
-        .self$catalogTab = CatalogTabNew("Catalog", items, values);
+        entries = sapply(descrip, xmlAttrs);
+        colnames(entries) = NULL;
+        entries = as.data.frame(t(entries), stringsAsFactors = FALSE);
+        .self$CatalogEntry = CatalogEntryNew("Catalog", entries);
+    }else{
+        catalog = .self$catalogSet;
+        entries = colnames(catalog)[-1];
+        entries = data.frame(itemname = entries, value = "",
+                             stringsAsFactors = FALSE);
+        .self$CatalogEntry = CatalogEntryNew("Catalog", entries);
     }
     tabNodes = xmlElementsByTagName(xmlRoot(RopTree), "tab");
     if(length(tabNodes))
@@ -277,11 +333,11 @@ Editor$methods(loadRopFile = loadRopFile.Editor);
 saveRopFile.Editor = function(filePath, ...)
 {
     Rop = xmlTree("Roptimgui");
-    if(length(.self$catalogTab$labels))
+    if(.self$CatalogEntry$haveEntry())
     {
         Rop$addNode("catalog", close = FALSE);
-        items = .self$catalogTab$getItems();
-        values = .self$catalogTab$getValues();
+        items = .self$CatalogEntry$getItems();
+        values = .self$CatalogEntry$getValues();
         for(i in 1:length(items))
         {
             Rop$addNode("description", attrs = c(itemname = items[i],
@@ -327,7 +383,7 @@ Editor$methods(saveRopFile = saveRopFile.Editor);
 
 showCurrentCatalog.Editor = function(...)
 {
-    add(.self$noteBook, .self$catalogTab$box, label = .self$catalogTab$name);
+    add(.self$noteBook, .self$CatalogEntry$box, label = .self$CatalogEntry$tabname);
     invisible(.self);
 }
 Editor$methods(showCurrentCatalog = showCurrentCatalog.Editor);
@@ -337,7 +393,7 @@ buildWidgets.Editor = function(...)
 {
     visible(.self$noteBook) = FALSE;
     while(dispose(.self$noteBook)){}
-    if(length(.self$catalogSet)) .self$showCurrentCatalog();
+    .self$showCurrentCatalog();
     if(length(.self$tabsList))
     {
         for(tab in .self$tabsList) add(.self$noteBook, tab$box, label = tab$name);
@@ -349,7 +405,7 @@ Editor$methods(buildWidgets = buildWidgets.Editor);
 
 
 # Insert an EditorTab at a given position
-# catalogTab is on position 0
+# CatalogEntry is on position 0
 insertTab.Editor = function(tab, after, ...)
 {
     notebook = .self$noteBook@widget@widget;

@@ -1,10 +1,10 @@
 #@ <?xml version="1.0"?>
 #@ <Roptimgui>
 #@   <catalog>
-#@     <description itemname="Number_of_Parameters" value="3"/>
+#@     <description itemname="Number of Parameters" value="3"/>
 #@     <description itemname="Gradient" value="continuous"/>
 #@     <description itemname="Hessian" value="continuous"/>
-#@     <description itemname="Constrain" value="No"/>
+#@     <description itemname="Constraint" value="none"/>
 #@   </catalog>
 #@   <tab tabname="Description">
 #@     <title>Scaled Hobbs weeds problem</title>

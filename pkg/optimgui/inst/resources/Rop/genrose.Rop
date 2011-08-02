@@ -1,10 +1,10 @@
 #@ <?xml version="1.0"?>
 #@ <Roptimgui>
 #@   <catalog>
-#@     <description itemname="Number_of_Parameters" value="???"/>
+#@     <description itemname="Number of Parameters" value="variable"/>
 #@     <description itemname="Gradient" value="continuous"/>
 #@     <description itemname="Hessian" value="???"/>
-#@     <description itemname="Constrain" value="???"/>
+#@     <description itemname="Constraint" value="none"/>
 #@   </catalog>
 #@   <tab tabname="Description">
 #@     <title>Generalized Rosenbrock optimization test problem</title>
@@ -27,8 +27,7 @@ genrose.f <- function(x, gs = NULL) { # objective function
     fval <- 1 + sum(gs * (x[1:(n - 1)]^2 - x[2:n])^2 + (x[2:n] - 
         1)^2)
     return(fval)
-} 
-
+}
 #@     </rcode>
 #@   </tab>
 #@   <tab tabname="Gradient">
@@ -88,7 +87,11 @@ genrose.g <- function(x, gs = NULL) {
 #@   <tab tabname="Run">
 #@     <title>The Running Code of Optimization</title>
 #@     <rcode>
-# Edit R code here.
+xstart <- rep(pi, 10)
+library(optimx)
+ans <- optimx(xstart, genrose.f, genrose.g,
+              control = list(all.methods = TRUE,
+			                 trace=1))
 #@     </rcode>
 #@   </tab>
 #@ </Roptimgui>

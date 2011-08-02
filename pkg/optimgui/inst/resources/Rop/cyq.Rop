@@ -1,10 +1,10 @@
 #@ <?xml version="1.0"?>
 #@ <Roptimgui>
 #@   <catalog>
-#@     <description itemname="Number_of_Parameters" value="variable"/>
+#@     <description itemname="Number of Parameters" value="variable"/>
 #@     <description itemname="Gradient" value="continuous"/>
 #@     <description itemname="Hessian" value="???"/>
-#@     <description itemname="Constrain" value="???"/>
+#@     <description itemname="Constraint" value="none"/>
 #@   </catalog>
 #@   <tab tabname="Description">
 #@     <title>Chebyquad test problem</title>

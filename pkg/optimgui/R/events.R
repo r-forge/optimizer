@@ -227,6 +227,19 @@ onRunCode = function(h, ...)
     svalue(editor$noteBook) = which(names(editor$tabsList) == "Run") + 1;
     return(NULL);
 }
+# Save output event
+onSaveOutput = function(h, ...)
+{
+    
+}
+# Clear output event
+onClearOutput = function(h, ...)
+{
+    editor = h$action$editor;
+    runTab = editor$getTabByName("Run");
+    svalue(runTab$output) = "";
+    return(NULL);
+}
 # Show or hide notes
 toggleShowNote = function(h, ...)
 {

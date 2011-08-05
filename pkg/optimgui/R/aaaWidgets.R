@@ -123,3 +123,15 @@ glinklabel = function(text = "", ...)
 	return(as.gWidgetsRGtk2(label));
 }
 # End of definition of "glinklabel"
+
+
+
+addKeyAccel = function(menuItem, ctrlKey, accelGroup)
+{
+    if(is.null(ctrlKey)) return(NULL);
+    menuItem$addAccelerator("activate", accelGroup,
+                            as.integer(charToRaw(ctrlKey)),
+                            GdkModifierType[["control-mask"]],
+                            GtkAccelFlags[["visible"]]);
+    return(NULL);
+}

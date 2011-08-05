@@ -91,7 +91,9 @@ onOpenBuiltinRopFile = function(h, ...)
 	fileName = as.character(svalue(h$action$catalogPage$RopTable));
 	filePath = system.file("resources", "Rop", fileName, package = "optimgui");
 	if(!length(filePath)) return(NULL);
-	openRopFile(filePath, h$action$param);
+    openRopFile(filePath, h$action$param);
+    h$action$param$editor$currentFile = character(0);
+    svalue(h$action$param$mainWin) = "optimgui [New File]";
 	return(NULL);
 }
 # Open Rop file -- open an Rop file using dialog
@@ -108,11 +110,17 @@ onOpenRopFile = function(h, ...)
 onSaveRopFile = function(h, ...)
 {
     editor = h$action$editor;
-    filePath = gfile(text = "Save an Rop file...", type = "save",
-			         filter = list("Rop files (*.Rop)" = list(patterns = "*.Rop")),
-			         handler = function(h,...) return(NULL));
+    filePath = if(length(editor$currentFile))
+    {
+        editor$currentFile;
+    }else{
+        gfile(text = "Save an Rop file...", type = "save",
+              filter = list("Rop files (*.Rop)" = list(patterns = "*.Rop")),
+              handler = function(h,...) return(NULL));
+    }
 	if(is.na(filePath)) return(NULL);
     Encoding(filePath) = "UTF-8";
+    filePath = gsub("\\.[Rr][Oo][Pp]$", "", filePath);
 	editor$saveRopFile(filePath %+% ".Rop");
     svalue(h$action$mainWin) = "optimgui [" %+% filePath %+% ".Rop]";
 	return(NULL);
@@ -183,6 +191,22 @@ onDeleteTab = function(h, ...)
     dispose(editor$noteBook);
     return(NULL);
 }
+# Test function event
+onTestFunction = function(h, ...)
+{
+    editor = h$action$editor;
+    z = textConnection("output", open = "w");
+    sink(z);
+	editor$reportTest();
+	sink();
+	close(z);
+	output = paste(output, collapse = "\n");
+	outputWidget = editor$tabsList[["Run"]]$output;
+    visible(outputWidget) = TRUE;
+	svalue(outputWidget) = paste(svalue(outputWidget), output, "\n", sep = "");
+    svalue(editor$noteBook) = which(names(editor$tabsList) == "Run") + 1;
+    return(NULL);
+}
 # Run code event
 onRunCode = function(h, ...)
 {
@@ -191,13 +215,15 @@ onRunCode = function(h, ...)
     editor$saveRopFile(tmpfile);
 	z = textConnection("output", open = "w");
 	sink(z);
+    cat("=========== Run report ==========\n");
 	source(tmpfile, local = TRUE, echo = FALSE, print.eval = TRUE);
+    cat("=================================\n\n");
 	sink();
 	close(z);
 	output = paste(output, collapse = "\n");
 	outputWidget = editor$tabsList[["Run"]]$output;
     visible(outputWidget) = TRUE;
-	svalue(outputWidget) = output;
+	svalue(outputWidget) = paste(svalue(outputWidget), output, "\n", sep = "");
     svalue(editor$noteBook) = which(names(editor$tabsList) == "Run") + 1;
     return(NULL);
 }

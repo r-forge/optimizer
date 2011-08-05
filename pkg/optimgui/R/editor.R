@@ -1,7 +1,12 @@
 # Operator for convenience
 "%+%" = function(x, y) sprintf("%s%s", x, y);
 
-# The "CatalogEntry" class
+#################################
+#                               #
+#   The "CatalogEntry" class    #
+#                               #
+#################################
+
 CatalogEntry = setRefClass("CatalogEntry",
                            fields = list(tabname = "character",
                                          model = "RGtkDataFrame",
@@ -81,14 +86,12 @@ getItems.CatalogEntry = function(...)
 }
 CatalogEntry$methods(getItems = getItems.CatalogEntry);
 
-
 getValues.CatalogEntry = function(...)
 {
     values = .self$model[, 3];
     return(values);
 }
 CatalogEntry$methods(getValues = getValues.CatalogEntry);
-
 
 haveEntry.CatalogEntry = function(...)
 {
@@ -97,6 +100,11 @@ haveEntry.CatalogEntry = function(...)
 CatalogEntry$methods(haveEntry = haveEntry.CatalogEntry);
 
 
+#################################
+#                               #
+#     The "EditorTab" class     #
+#                               #
+#################################
 
 # The "EditorTab" class to describe a tab in the editor
 EditorTab = setRefClass("EditorTab", fields = list(name = "character",
@@ -171,24 +179,26 @@ EditorTabNewFromXMLNode = function(tabNode)
 show.EditorTab = function(object)
 {
     cat("An object of class \"EditorTab\":\n\n");
-    cat("@Slot name:\n");
-    print(object@name);
-    cat("\n");
-    cat("@Slot title:\n");
-    cat("An object of class \"gLabel\"\n\n");
-    cat("@Slot label:\n");
+    cat("name:\n");
+    cat(object$name, "\n\n");
+    cat("title:\n");
+    cat(svalue(object$title), "\n\n");
+    cat("label:\n");
     cat("An object of class \"gTextBox\"\n\n");
-    cat("@Slot rcode:\n");
+    cat("rcode:\n");
     cat("An object of class \"gTextBox\"\n\n");
-    cat("@Slot output:\n");
+    cat("output:\n");
     cat("An object of class \"gTextBox\"\n");
 }
 setMethod("show", "EditorTab", show.EditorTab);
 # End of definition of "EditorTab"
 
 
-
-
+#################################
+#                               #
+#      The "Editor" class       #
+#                               #
+#################################
 
 # The "Editor" class to describe the editor
 Editor = setRefClass("Editor", fields = list(noteBook = "gNotebook",
@@ -410,10 +420,57 @@ insertTab.Editor = function(tab, after, ...)
 {
     notebook = .self$noteBook@widget@widget;
     notebook$insertPage(tab$box@widget@widget, gtkLabelNew(tab$name), after + 1);
-    .self$tabsList = append(.self$tabsList, tab, after = after);
+    newTab = list(tab);
+    names(newTab) = tab$name;
+    .self$tabsList = append(.self$tabsList, newTab, after = after);
     invisible(.self);
 }
 Editor$methods(insertTab = insertTab.Editor);
+
+
+getTabByName.Editor = function(tabname, ...)
+{
+    return(.self$tabsList[tabname][[1]]);
+}
+Editor$methods(getTabByName = getTabByName.Editor);
+
+
+reportTest.Editor = function(...)
+{
+    cat("========== Test Report ==========\n");
+    objFunTab = .self$getTabByName("Objective");
+    objFun = analyzeAssignment(svalue(objFunTab$rcode));
+    objFunName = objFun$parName;
+    objFunBody = objFun$parVal;
+    cat("Objective function:", objFunName, "\n");
+    if(!("Gradient" %in% names(.self$tabsList)))
+    {
+        grFunName = "Not available";
+    }else{
+        grFunTab = .self$getTabByName("Gradient");
+        if(!visible(grFunTab$rcode))
+        {
+            grFunName = "Not available";
+        }else grFunName = analyzeAssignment(svalue(grFunTab$rcode))$parName;
+    }
+    if(grFunName == "") grFunName = "Not available";
+    cat("Gradient function:", grFunName, "\n");
+    parTab = .self$getTabByName("Parameters");
+    parReport = reportPar(svalue(parTab$rcode));
+    constrType = parReport$constrType;
+    bound = parReport$withinBound;
+    cat("Initial parameters value:", parReport$assignment, "\n");
+    cat("Initial function evaluation:", objFunBody(parReport$parVal), "\n");
+    cat("Constraints:\n");
+    for(i in 1:length(parReport$constrType))
+    {
+        cat("    ", i, ". ", constrType[i], " constraint", sep = "");
+        if(!bound[i]) cat(", initial value doesn't satisfy this constraint!\n") else cat(".\n");
+    }
+    cat("=================================\n\n");
+    return(NULL);
+}
+Editor$methods(reportTest = reportTest.Editor);
 
 
 show.Editor = function(object)

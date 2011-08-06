@@ -117,11 +117,19 @@ cyq.g <- function(x) {
 #@     To be added.
 #@     </label>
 #@   </tab>
+#@   <tab tabname="Parameters">
+#@     <title>Initial Values and Constraints for Parameters</title>
+#@     <label>
+#@     Initial value and constraints.
+#@     </label>
+#@     <rcode>
+xstart <- rep(pi, 4)
+#@     </rcode>
+#@   </tab>
 #@   <tab tabname="Run">
 #@     <title>The Running Code of Optimization</title>
 #@     <rcode>
-xx <- rep(pi, 4)
-ans1 <- optim(xx, cyq.f, control = list(trace = 1))
+optim(xstart, cyq.f, control = list(trace = 1))
 #@     </rcode>
 #@   </tab>
 #@ </Roptimgui>

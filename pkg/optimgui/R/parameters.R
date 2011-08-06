@@ -95,22 +95,23 @@ reportPar = function(src)
     {
         constrType = NULL;
         withinBound = NULL;
+    }else{
+        constr = gsub("^.*\\{|\\}$", "", src[2]);
+        constr = tidyCode(constr);
+        constr = tidyConstr(constr);
+        withinBound = checkBound(constr$expr, parName, parVal);
+        constrType = classifyConstr(constr$expr, parName, parVal);
     }
-    constr = gsub("^\\{|\\}$", "", src[2]);
-    constr = tidyCode(constr);
-    constr = tidyConstr(constr);
-    withinBound = checkBound(constr$expr, parName, parVal);
-    constrType = classifyConstr(constr$expr, parName, parVal);
     return(list(assignment = src[1], parName = parName, parVal = parVal,
                 constrType = constrType, withinBound = withinBound));
 }
 
 # src = "x = c(0, 1, 2, 3);
 #        
-#        {
+# constr = {
 #            x[1] >= 0;
 #            x[2] <= 3;
 #            x[1] + x[2] <= 5 * x[3];
 #            x[3]^2 + exp(x[4]) <= 10;
-#        }";
+#          }";
 # reportPar(src);

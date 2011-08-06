@@ -437,6 +437,12 @@ Editor$methods(getTabByName = getTabByName.Editor);
 
 reportTest.Editor = function(...)
 {
+    runTab = .self$getTabByName("Run");
+    visible(runTab$rcode) = FALSE;
+    tmpfile = tempfile();
+    .self$saveRopFile(tmpfile);
+    source(tmpfile);
+    visible(runTab$rcode) = TRUE;
     cat("========== Test Report ==========\n");
     objFunTab = .self$getTabByName("Objective");
     objFun = analyzeAssignment(svalue(objFunTab$rcode));
@@ -461,6 +467,11 @@ reportTest.Editor = function(...)
     bound = parReport$withinBound;
     cat("Initial parameters value:", parReport$assignment, "\n");
     cat("Initial function evaluation:", objFunBody(parReport$parVal), "\n");
+    if(is.null(constrType))
+    {
+        cat("=================================\n\n");
+        return(NULL);
+    }
     cat("Constraints:\n");
     for(i in 1:length(parReport$constrType))
     {

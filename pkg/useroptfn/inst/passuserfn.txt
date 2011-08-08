@@ -1,0 +1,89 @@
+passuserfn.txt
+
+This file is an attempt to document an important issue in R function calls
+that need to pass the names of other functions. This occurs in optimization
+methods in particular, but likely also in other applications. 
+
+Let us suppose we have an optimization function. Call it fakeopt().
+
+This has the ??name?? specification (Is there a better nomenclature?)
+
+  fakeopt <- function(par, fn, gr = NULL, lower = NULL, 
+    upper = NULL, bdmsk = NULL, control = list(), ...) {
+    # Body of function
+  }
+
+fn and gr are user-supplied functions to compute the objective function
+and, optionally, its gradient, where both these functions have npar = length(par)
+parameters. They are optionally bounded below and above by lower() and 
+upper(), which are normally of length npar, but may have length 1 (for a common
+bound) or be NULL. bdmsk is a vector to specify MASKS, that is, parameters that
+are fixed for the optimization. Elements of bdmsk are 1 for free parameters, 0
+for those that are masked.
+
+The ... arguments are extra arguments to fn and gr. These must be specified 
+by in the form name = value i.e., as a list. (?? is this correct).
+
+The control() list may have other arguments we want to use to modify the 
+user functions fn and gr:
+
+- parscale: a vector of scalings so that the parameters sent to the user fn 
+and gr are  par = opar * parscale. That is the optimizer works with opar = par/parscale
+in its operations. This changes step sizes. The goal is to have all elements
+of opar = par/parscale of roughly equal magnitude. The elements of parscale will
+usually be positive. Should we enforce that??
+
+- fnscale: a scaling for the function. Package optim() allows this to be negative
+to provide for maximization, but it seems we should probably NOT allow this, or at 
+least provide a warning. We could multiply this by -1 if maximize is true, with a
+STOP if maximize TRUE and fnscale supplied negative. This multiplies the function 
+value tha is used inside the optimizer. The principal effect seems to be related 
+to the termination tests, which may use measures related to size for the function, 
+gradient and Hessian in such tests.
+
+- maximize: set TRUE if the function is to be maximized, since the default is to 
+minimize a function. When TRUE, the function is multiplied by -1 (as are the gradient
+and hessian). 
+
+- trace: May want to use within fnuser (see below)
+
+- maxfn, maxgr, maxit: These may be problematic (see Ravi Varadhan email correspondence
+of July 2011), but it would be potentially useful to access these within fnuser.
+
+
+If fakeopt() is actually like optimx(), then inside optimx() we need to do the 
+following:
+
+    - set up a structure fnuser<-list(fn=fn, gr=[gr, NULL], hess=[hess,NULL]) to 
+communicate the user-supplied functions to three functions supplied by the
+package useroptfn, namely, ufn, ugr and uhess. These functions wrap the user function
+in a try() (?? or should we use something different), and also supply scaling and 
+maximize capability. 
+
+    - scale the user input parameter values by dividing them by the parscale 
+
+    - run the optimizer using the scaled parameters and function as inputs
+
+    - rescale the function and parameters
+
+    - put everything together and return answer
+
+Some choices:
+
+   1) Whether to include parscale, fnscale, and maximize in the fnuser() construct.
+      This would in some ways simplify the calls. Is it more overhead.
+ 
+   2) Whether to somehow pass bounds information to fnuser so that we could use these
+      in numerical gradient calculations to avoid disasters.
+
+   3) How to supply numgrad functional information to fnuser and WHERE ??
+
+   4) Whether to check evaluation count limits inside fnuser or not. This does double the 
+   checks, since they are included within the optimizers, but possibly NOT counting the
+   fnevals used for gradients. Also the gradient count will be messed up. ?? Needs resetting
+   at the end when we return answer. 
+
+Tests:
+   Need some fairly good sets of checks.
+
+

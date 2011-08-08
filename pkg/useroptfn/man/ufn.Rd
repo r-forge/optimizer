@@ -1,16 +1,16 @@
 \name{ufn}
 \alias{ufn}
 \encoding{UTF-8}
-\title{Output tool for answers from optimx}
+\title{Wrap user objective function for optimization tools}
 \concept{minimization}
 \concept{maximization}
 \description{
-Provides a wrapper around user functions for nonlinear optimization
+        Provides a wrapper around user functions for nonlinear optimization
 	to try to control for inadmissible arguments to user objective, gradient
-	or hessian functions, as well as provide for maximization.
+	or hessian functions, as well as provide for scaling and maximization.
 }
 \usage{
-ufn(par, fnuser, maximize=FALSE, ...)
+ufn(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
 }
 \arguments{
  \item{par}{A vector of parameters to the user-supplied function \code{fn}}
@@ -18,6 +18,11 @@ ufn(par, fnuser, maximize=FALSE, ...)
          fn, gr, and hess. fn generates the scalar numerical value of the
          objective function, gr its vector valued gradient (or is NULL) and
          hess a numerical matrix for the Hessian (or is NULL).}
+ \item{ps}{A vector of scalings for the parameters. The REAL parameters are the internal 
+         parameters multiplied by the scalings. The optimizers use upar/ps internally, 
+         where upar are the user space parameters. Note that there MUST be a vector ps.
+         Its length and properties are NOT checked inside ufn, ugr or uhess for efficiency.}
+ \item{fs}{A user supplied scaling for the function. Output is the fnuser$fn/fs.}
  \item{maximize}{Set TRUE if the objective function is to be maximized. Default FALSE.}
  \item{...}{Other data needed to evaluate the user function.}
 }
@@ -54,9 +59,10 @@ badlogh<-function(x, skale=10){
 badlog<-list(fn=badlogf, gr=badlogg, hess=badlogh)
 
 x0<-rep(20, 4)
+ps1<-rep(1,4)
 cat("OK parameters:")
 print(x0)
-fval<-ufn(x0, badlog)
+fval<-ufn(x0, badlog, ps1)
 print("result:")
 print(fval)
 
@@ -64,14 +70,14 @@ skale=1
 x0<-rep(20, 4)
 cat("skale=",skale,"  OK parameters:")
 print(x0)
-fval<-ufn(x0, badlog, skale=skale)
+fval<-ufn(x0, badlog, ps1, skale=skale)
 print("result:")
 print(fval)
 
 x0<-rep(2, 4)
 cat("Bad parameters:")
 print(x0)
-fval<-ufn(x0, badlog)
+fval<-ufn(x0, badlog, ps1)
 print("result:")
 print(fval)
 
@@ -79,13 +85,101 @@ skale=1
 x0<-rep(2, 4)
 cat("skale=",skale,"  Bad parameters:")
 print(x0)
-fval<-ufn(x0, badlog, skale=skale)
+fval<-ufn(x0, badlog, ps1, skale=skale)
 print("result:")
 print(fval)
 
+genrose.f<- function(x, gs=NULL){ # objective function
+## One generalization of the Rosenbrock banana valley function (n parameters)
+	n <- length(x)
+        if(is.null(gs)) { gs=100.0 }
+	fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
+        return(fval)
+}
 
+genrose.g <- function(x, gs=NULL){
+# Ravi Varadhan 2009-04-03
+	n <- length(x)
+        if(is.null(gs)) { gs=100.0 }
+	gg <- as.vector(rep(0, n))
+	tn <- 2:n
+	tn1 <- tn - 1
+	z1 <- x[tn] - x[tn1]^2
+	z2 <- 1 - x[tn]
+	gg[tn] <- 2 * (gs * z1 - z2)
+	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
+	gg
+}
+
+genrose.h <- function(x, gs=NULL) { ## compute Hessian
+   if(is.null(gs)) { gs=100.0 }
+	n <- length(x)
+	hh<-matrix(rep(0, n*n),n,n)
+	for (i in 2:n) {
+		z1<-x[i]-x[i-1]*x[i-1]
+		z2<-1.0-x[i]
+                hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
+                hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
+                hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
+                hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
+	}
+        return(hh)
+}
+
+mygenrose<-list(fn=genrose.f, gr=genrose.g, hess<-genrose.h)
+
+x0<-c(1,2,3,4)
+x1<-c(1,1,1,1)
+psc<-c(1,2,3,4)
+ps1<-c(1,1,1,1)
+
+g0<-genrose.f(x0)
+g0
+g1<-genrose.f(x1)
+g1
+
+tryf0<-ufn(x0, mygenrose, psc, fs=2, gs=10)
+tryf0
+tryf1<-ufn(x1, mygenrose, psc, fs=2, gs=10)
+tryf1
+
+tryf0u<-ufn(x0, mygenrose, ps1, fs=2, gs=10)
+tryf0u
+tryf1u<-ufn(x1, mygenrose, ps1, fs=2, gs=10)
+tryf1u
+
+# scaled quadratic function
+
+par<-rep(pi,4)
+sqf.f<-function(par,sbase=2){
+   npar<-length(par)
+   pshift<-seq(1,npar)
+   ss<-sbase^(2*pshift)
+   ff<-sum(ss*(par-pshift)^2)
+}
+
+sqf.g<-function(par,sbase=2){
+   npar<-length(par)
+   pshift<-seq(1,npar)
+   ss<-sbase^(2*pshift)
+   gg<-2*ss*(par-pshift)
+}
+
+npar<-length(par)
+pshift<-seq(1,npar)
+sbase<-2
+ss<-sbase^(2*pshift)
+aou<-optim(par,sqf.f, control=list(trace=1))
+aou
+ao<-optim(par,sqf.f, control=list(trace=1,parscale=ss, fnscale=1))
+ao
+aob<-optim(par,sqf.f, gr=sqf.g, method="BFGS", control=list(trace=1,parscale=ss, fnscale=1))
+aob
+aobu<-optim(par,sqf.f, gr=sqf.g, method="BFGS", control=list(trace=1))
+aobu
 
 
 }
 \keyword{nonlinear}
 \keyword{optimize}
+

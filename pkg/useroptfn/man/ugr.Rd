@@ -1,16 +1,16 @@
 \name{ugr}
 \alias{ugr}
 \encoding{UTF-8}
-\title{Output tool for answers from optimx}
+\title{Wrapper for user gradient function for optimization tools}
 \concept{minimization}
 \concept{maximization}
 \description{
-Provides a wrapper around user functions for nonlinear optimization
+        Provides a wrapper around user gradient function for nonlinear optimization
 	to try to control for inadmissible arguments to user objective, gradient
 	or hessian functions, as well as provide for maximization.
 }
 \usage{
-ugr(par, fnuser, maximize=FALSE, ...)
+ugr(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
 }
 \arguments{
  \item{par}{A vector of parameters to the user-supplied function \code{fn}}
@@ -18,6 +18,11 @@ ugr(par, fnuser, maximize=FALSE, ...)
          fn, gr, and hess. fn generates the scalar numerical value of the
          objective function, gr its vector valued gradient (or is NULL) and
          hess a numerical matrix for the Hessian (or is NULL).}
+ \item{ps}{A vector of scalings for the parameters. The REAL parameters are the internal 
+         parameters multiplied by the scalings. The optimizers use upar/ps internally, 
+         where upar are the user space parameters. Note that there MUST be a vector ps.
+         Its length and properties are NOT checked inside ufn, ugr or uhess for efficiency.}
+ \item{fs}{A user supplied scaling for the function. Output is the fnuser$fn/fs.}
  \item{maximize}{Set TRUE if the objective function is to be maximized. Default FALSE.}
  \item{...}{Other data needed to evaluate the user function.}
 }
@@ -54,10 +59,12 @@ badlogh<-function(x, skale=10){
 
 badlog<-list(fn=badlogf, gr=badlogg, hess=badlogh)
 
+ps1<-rep(1,4)
+
 x0<-rep(20, 4)
 cat("OK parameters:")
 print(x0)
-gval<-ugr(x0, badlog)
+gval<-ugr(x0, badlog, ps1)
 print("result:")
 print(gval)
 
@@ -65,14 +72,14 @@ skale=1
 x0<-rep(20, 4)
 cat("skale=",skale,"  OK parameters:")
 print(x0)
-gval<-ugr(x0, badlog, skale=skale)
+gval<-ugr(x0, badlog, ps1, skale=skale)
 print("result:")
 print(gval)
 
 x0<-rep(2, 4)
 cat("Bad parameters:")
 print(x0)
-gval<-ugr(x0, badlog)
+gval<-ugr(x0, badlog, ps1)
 print("result:")
 print(gval)
 
@@ -80,7 +87,7 @@ skale=1
 x0<-rep(2, 4)
 cat("skale=",skale,"  Bad parameters:")
 print(x0)
-gval<-ugr(x0, badlog, skale=skale)
+gval<-ugr(x0, badlog, ps1, skale=skale)
 print("result:")
 print(gval)
 

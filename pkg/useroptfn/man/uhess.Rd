@@ -1,7 +1,7 @@
 \name{uhess}
 \alias{uhess}
 \encoding{UTF-8}
-\title{Output tool for answers from optimx}
+\title{Wrapper for user Hessian function for optimization tools}
 \concept{minimization}
 \concept{maximization}
 \description{
@@ -10,7 +10,7 @@ Provides a wrapper around user analytic Hessian function for nonlinear optimizat
 	as well as provide for maximization.
 }
 \usage{
-uhess(par, fnuser, maximize=FALSE, ...)
+uhess(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
 }
 \arguments{
  \item{par}{A vector of parameters to the user-supplied function \code{fn}}
@@ -18,6 +18,11 @@ uhess(par, fnuser, maximize=FALSE, ...)
          fn, gr, and hess. fn generates the scalar numerical value of the
          objective function, gr its vector valued gradient (or is NULL) and
          hess a numerical matrix for the Hessian (or is NULL).}
+ \item{ps}{A vector of scalings for the parameters. The REAL parameters are the internal 
+         parameters multiplied by the scalings. The optimizers use upar/ps internally, 
+         where upar are the user space parameters. Note that there MUST be a vector ps.
+         Its length and properties are NOT checked inside ufn, ugr or uhess for efficiency.}
+ \item{fs}{A user supplied scaling for the function. Output is the fnuser$fn/fs.}
  \item{maximize}{Set TRUE if the objective function is to be maximized. Default FALSE.}
  \item{...}{Other data needed to evaluate the user function.}
 }
@@ -51,11 +56,13 @@ badlogh<-function(x, skale=10){
 } # note that this will fail when length(x)>x for some element of x
 
 badlog<-list(fn=badlogf, gr=badlogg, hess=badlogh)
+ 
+ps1<-rep(1,4)
 
 x0<-rep(20, 4)
 cat("OK parameters:")
 print(x0)
-hval<-uhess(x0, badlog)
+hval<-uhess(x0, badlog, ps1)
 print("result:")
 print(hval)
 
@@ -63,14 +70,14 @@ skale=1
 x0<-rep(20, 4)
 cat("skale=",skale,"  OK parameters:")
 print(x0)
-hval<-uhess(x0, badlog, skale=skale)
+hval<-uhess(x0, badlog, ps1, skale=skale)
 print("result:")
 print(hval)
 
 x0<-rep(2, 4)
 cat("Bad parameters:")
 print(x0)
-hval<-uhess(x0, badlog)
+hval<-uhess(x0, badlog, ps1)
 print("result:")
 print(hval)
 
@@ -78,7 +85,7 @@ skale=1
 x0<-rep(2, 4)
 cat("skale=",skale,"  Bad parameters:")
 print(x0)
-hval<-uhess(x0, badlog, skale=skale)
+hval<-uhess(x0, badlog, ps1, skale=skale)
 print("result:")
 print(hval)
 

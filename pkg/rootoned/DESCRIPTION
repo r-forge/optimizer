@@ -1,0 +1,11 @@
+Package: rootoned
+Version: 2011-8.18
+Date: 2011-08-18
+Title: Roots of one-dimensional functions
+Author: John C Nash <nashjc@uottawa.ca>
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Roots of one-dimensional functions
+License: GPL-2
+Lazyload: Yes
+Depends: 
+

@@ -174,23 +174,6 @@ EditorTabNewFromXMLNode = function(tabNode)
     val = EditorTabNew(name, title.content, label.content, rcode.content);
     return(val);
 }
-
-# Member functions
-show.EditorTab = function(object)
-{
-    cat("An object of class \"EditorTab\":\n\n");
-    cat("name:\n");
-    cat(object$name, "\n\n");
-    cat("title:\n");
-    cat(svalue(object$title), "\n\n");
-    cat("label:\n");
-    cat("An object of class \"gTextBox\"\n\n");
-    cat("rcode:\n");
-    cat("An object of class \"gTextBox\"\n\n");
-    cat("output:\n");
-    cat("An object of class \"gTextBox\"\n");
-}
-setMethod("show", "EditorTab", show.EditorTab);
 # End of definition of "EditorTab"
 
 
@@ -202,15 +185,16 @@ setMethod("show", "EditorTab", show.EditorTab);
 
 # The "Editor" class to describe the editor
 Editor = setRefClass("Editor", fields = list(noteBook = "gNotebook",
+                                             repoPath = "character",
                                              currentFile = "character",
-                                             CatalogEntry = "CatalogEntry",
+                                             catalogEntry = "CatalogEntry",
                                              tabsList = "list",
-                                             catalogSet = "data.frame"));
-# The "constructor" of "Editor"
+                                             catalogSet = "data.frame",
+                                             optInfo = "list"));
 parseRop = function(filePath)
 {
     RopFile = readLines(filePath);
-    RopFile = RopFile[RopFile != ""];
+    # RopFile = RopFile[RopFile != ""];
     index.XML = grep("^#@", RopFile);
     index.rcode = (1:length(RopFile))[-index.XML];
     RopFile[index.XML] = gsub("^#@ ?", "", RopFile[index.XML]);
@@ -219,6 +203,7 @@ parseRop = function(filePath)
     RopTree = xmlTreeParse(RopFile, asText = TRUE);
     return(RopTree);
 }
+# The "constructor" of "Editor"
 EditorNew = function(...)
 {
     noteBook = gnotebook(closebuttons = FALSE, expand = TRUE, ...);
@@ -244,9 +229,10 @@ EditorNew = function(...)
         tmp[i, names(catalogSet[[i]])] = catalogSet[[i]];
     }                               
     catalogSet = as.data.frame(tmp);
-    val = new("Editor", noteBook = noteBook, currentFile = "",
-              CatalogEntry = new("CatalogEntry"), tabsList = list(),
-              catalogSet = catalogSet);
+    val = new("Editor", noteBook = noteBook, repoPath = getwd(),
+              currentFile = character(0),
+              catalogEntry = new("CatalogEntry"), tabsList = list(),
+              catalogSet = catalogSet, optInfo = list());
     return(val);
 }
 
@@ -257,8 +243,9 @@ clearAll.Editor = function(...)
     while(dispose(.self$noteBook)){}
     visible(.self$noteBook) = TRUE;
     .self$currentFile = character(0);
-    .self$CatalogEntry = new("CatalogEntry");
+    .self$catalogEntry = new("CatalogEntry");
     .self$tabsList = list();
+    .self$optInfo = list();
     invisible(.self);
 }
 Editor$methods(clearAll = clearAll.Editor);
@@ -266,24 +253,30 @@ Editor$methods(clearAll = clearAll.Editor);
 
 showWelcomePage.Editor = function(param, ...)
 {
-    welcomePage = ggroup(horizontal = FALSE, expand = TRUE);
+    welcomePage = ggroup(horizontal = FALSE, spacing = 20, expand = TRUE);
     addSpace(welcomePage, 10, horizontal = FALSE);
-	welcomeLabel = glabel("Create a new project or open an existing Rop file",
-                          container = welcomePage);
-	font(welcomeLabel) = c(size = "x-large");
-    addSpace(welcomePage, 10, horizontal = FALSE);
+    gimage(system.file("resources", "images",  "Logo2-png.png",
+                       package = "optimgui"), container = welcomePage);
 	tmpBox1 = ggroup(container = welcomePage);
 	tmpBox2 = ggroup(container = welcomePage);
+    tmpBox3 = ggroup(container = welcomePage);
     addSpace(tmpBox1, 10);
-	gimage(system.file("resources", "images",  "template.png", package = "optimgui"), container = tmpBox1);
+	gimage(system.file("resources", "images",  "template.png", package = "optimgui"),
+           container = tmpBox1);
 	newLabel = glinklabel("Catalog of existing problems and templates");
 	add(tmpBox1, newLabel);
     addSpace(tmpBox2, 10);
-    gimage(system.file("resources", "images",  "open.png", package = "optimgui"), container = tmpBox2);
+    gimage(system.file("resources", "images",  "open.png", package = "optimgui"),
+           container = tmpBox2);
 	openLabel = glinklabel("Open an existing Rop file");
 	add(tmpBox2, openLabel);
-    val = list(welcomePage = welcomePage,
-               newLabel = newLabel, openLabel = openLabel);
+    addSpace(tmpBox3, 10);
+    gimage(system.file("resources", "images",  "manual.png", package = "optimgui"),
+           container = tmpBox3);
+    manualLabel = glinklabel("Read help manual");
+    add(tmpBox3, manualLabel);
+    val = list(welcomePage = welcomePage, newLabel = newLabel,
+               openLabel = openLabel, manualLabel = manualLabel);
 	welcomePageAddEvent(val, param);
     add(.self$noteBook, welcomePage, label = "Welcome");
 	invisible(.self);
@@ -321,13 +314,13 @@ loadRopFile.Editor = function(filePath, ...)
         entries = sapply(descrip, xmlAttrs);
         colnames(entries) = NULL;
         entries = as.data.frame(t(entries), stringsAsFactors = FALSE);
-        .self$CatalogEntry = CatalogEntryNew("Catalog", entries);
+        .self$catalogEntry = CatalogEntryNew("Catalog", entries);
     }else{
         catalog = .self$catalogSet;
         entries = colnames(catalog)[-1];
         entries = data.frame(itemname = entries, value = "",
                              stringsAsFactors = FALSE);
-        .self$CatalogEntry = CatalogEntryNew("Catalog", entries);
+        .self$catalogEntry = CatalogEntryNew("Catalog", entries);
     }
     tabNodes = xmlElementsByTagName(xmlRoot(RopTree), "tab");
     if(length(tabNodes))
@@ -343,11 +336,11 @@ Editor$methods(loadRopFile = loadRopFile.Editor);
 saveRopFile.Editor = function(filePath, ...)
 {
     Rop = xmlTree("Roptimgui");
-    if(.self$CatalogEntry$haveEntry())
+    if(.self$catalogEntry$haveEntry())
     {
         Rop$addNode("catalog", close = FALSE);
-        items = .self$CatalogEntry$getItems();
-        values = .self$CatalogEntry$getValues();
+        items = .self$catalogEntry$getItems();
+        values = .self$catalogEntry$getValues();
         for(i in 1:length(items))
         {
             Rop$addNode("description", attrs = c(itemname = items[i],
@@ -393,7 +386,7 @@ Editor$methods(saveRopFile = saveRopFile.Editor);
 
 showCurrentCatalog.Editor = function(...)
 {
-    add(.self$noteBook, .self$CatalogEntry$box, label = .self$CatalogEntry$tabname);
+    add(.self$noteBook, .self$catalogEntry$box, label = .self$catalogEntry$tabname);
     invisible(.self);
 }
 Editor$methods(showCurrentCatalog = showCurrentCatalog.Editor);
@@ -443,7 +436,7 @@ reportTest.Editor = function(...)
     .self$saveRopFile(tmpfile);
     source(tmpfile);
     visible(runTab$rcode) = TRUE;
-    cat("========== Test Report ==========\n");
+    cat("==================== Test Report ====================\n");
     objFunTab = .self$getTabByName("Objective");
     objFun = analyzeAssignment(svalue(objFunTab$rcode));
     objFunName = objFun$parName;
@@ -469,7 +462,10 @@ reportTest.Editor = function(...)
     cat("Initial function evaluation:", objFunBody(parReport$parVal), "\n");
     if(is.null(constrType))
     {
-        cat("=================================\n\n");
+        cat("=====================================================\n\n");
+        .self$optInfo = parReport;
+        .self$optInfo$objFunName = objFunName;
+        .self$optInfo$grFunName = grFunName;
         return(NULL);
     }
     cat("Constraints:\n");
@@ -478,22 +474,37 @@ reportTest.Editor = function(...)
         cat("    ", i, ". ", constrType[i], " constraint", sep = "");
         if(!bound[i]) cat(", initial value doesn't satisfy this constraint!\n") else cat(".\n");
     }
-    cat("=================================\n\n");
+    cat("Overall constraints:\n");
+    cat("    * box constraint: lb <= x <= ub\n");
+    if(is.null(parReport$boxConstr$lb) | is.null(parReport$boxConstr$ub))
+    {
+        cat("\nNone\n");
+    } else {
+        cat("\n> lb\n"); print(parReport$boxConstr$lb);
+        cat("> ub\n"); print(parReport$boxConstr$ub);
+    }
+    cat("\n    * linear constraint: A %*% x - b <= 0\n");
+    if(is.null(parReport$linearConstr$A) | is.null(parReport$linearConstr$b))
+    {
+        cat("\nNone\n");
+    } else {
+        cat("\n> A\n"); print(parReport$linearConstr$A);
+        cat("> b\n"); print(parReport$linearConstr$b);
+    }
+    cat("\n    * nonlinear constraint: f(x) <= fb\n");
+    if(is.null(parReport$nonlinearConstr$ineqFun) | is.null(parReport$nonlinearConstr$ineqUB))
+    {
+        cat("\nNone\n");
+    } else {
+        cat("\n> f\n"); print(parReport$nonlinearConstr$ineqFun);
+        cat("> fb\n"); print(parReport$nonlinearConstr$ineqUB);
+    }
+    cat("=====================================================\n\n");
+    
+    .self$optInfo = parReport;
+    .self$optInfo$objFunName = objFunName;
+    .self$optInfo$grFunName = grFunName;
     return(NULL);
 }
 Editor$methods(reportTest = reportTest.Editor);
-
-
-show.Editor = function(object)
-{
-    cat("An object of class \"Editor\":\n\n");
-    cat("@Slot noteBook:\n");
-    cat("An object of class \"gNotebook\"\n\n");
-    cat("@Slot currentFile:\n");
-    print(object@currentFile);
-    cat("\n");
-    cat("@Slot tabsList:\n");
-    cat(sprintf("A list of length %s\n", length(object@tabsList)));
-}
-setMethod("show", "Editor", show.Editor);
 # End of definition of "Editor"

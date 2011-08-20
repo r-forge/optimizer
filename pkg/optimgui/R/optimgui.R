@@ -36,20 +36,24 @@ addButton = gbutton("Add tab", container = buttonGroup);
 deleteButton = gbutton("Delete tab", container = buttonGroup);
 noteCheckBox = gcheckbox("Show note", checked = TRUE, container = buttonGroup);
 codeCheckBox = gcheckbox("Show code", checked = TRUE, container = buttonGroup);
-# synButton = gbutton("Syntex check", container = buttonGroup);
-# anoButton = gbutton("Another", container = buttonGroup);
 
 # Add events
 # Parameters to be passed to event handlers
 # "mSave" must be created before "param" is assigned.
 mSave = gaction(label = "Save", handler = onSaveRopFile,
                 action = list(mainWin = mainWin, editor = editor), icon = "save");
+mSaveAs = gaction(label = "Save As...", handler = onSaveAsRopFile,
+                  action = list(mainWin = mainWin, editor = editor), icon = "save-as");
+mSaveAsT = gaction(label = "Save As Template...", handler = onSaveAsTRopFile,
+                   action = list(mainWin = mainWin, editor = editor));
 param = list(mainWin = mainWin, editor = editor,
-             buttonGroup = buttonGroup, mSave = mSave,
-             noteCheckBox = noteCheckBox, codeCheckBox = codeCheckBox);
+             buttonGroup = buttonGroup, mSave = mSave, mSaveAs = mSaveAs,
+             mSaveAsT = mSaveAsT, noteCheckBox = noteCheckBox,
+             codeCheckBox = codeCheckBox);
 editor$showWelcomePage(param);
 addHandlerFocus(editor$noteBook, onFocusTab, param);
 addHandlerClicked(testButton, onTestFunction, param);
+addHandlerClicked(chooseButton, onChooseMethod, param);
 addHandlerClicked(runButton, onRunCode, param);
 addHandlerClicked(saveOutputButton, onSaveOutput, param);
 addHandlerClicked(clearOutputButton, onClearOutput, param);
@@ -59,22 +63,21 @@ addHandlerChanged(noteCheckBox, toggleShowNote, param);
 addHandlerChanged(codeCheckBox, toggleShowCode, param);
 
 # Menu list
-mOpen = gaction(label = "Open...",
+mOpen = gaction(label = "Open File...",
                 handler = onOpenRopFile, action = param, icon = "open");
-mClose = gaction(label = "Close",
+mSetDir = gaction(label = "Set User Repository...",
+                  handler = onSetUserRepo, action = param)
+mClose = gaction(label = "Close File",
                  handler = onCloseRopFile, action = param, icon = "close");
-mExit = gaction(label = "Exit",
+mExit = gaction(label = "Exit optimgui",
                 handler = onExit, action = param, icon = "quit");
-mCopy = gaction(label = "Copy", handler = onDefaultEvent);
-mCut = gaction(label = "Cut", handler = onDefaultEvent);
-mTool = gaction(label = "Tool", handler = onDefaultEvent);
-mHelp = gaction(label = "optimgui Help", handler = onDefaultEvent);
-mAbout = gaction(label = "About", handler = onDefaultEvent);
+mHelp = gaction(label = "optimgui Help", handler = onOpenManual, icon = "help");
+mAbout = gaction(label = "About", handler = onAboutDialog, action = param,
+                 icon = "about");
 
-menuList = list(File = list(open = mOpen, save = mSave, close = mClose,
-                            exit = mExit),
-		        Edit = list(copy = mCopy, cut = mCut),
-		        Tools = list(tool = mTool),
+menuList = list(File = list(open = mOpen, save = mSave, saveAs = mSaveAs,
+                            saveAsT = mSaveAsT, mSetDir = mSetDir,
+                            close = mClose, exit = mExit),
 		        Help = list(help = mHelp, about = mAbout));
 # Main menu
 mainMenu = gmenu(menuList, container = mainWin);
@@ -82,9 +85,9 @@ menuFolder1 = mainMenu@widget@widget$getChildren();
 menuFolder2 = lapply(menuFolder1, function(menuItem) menuItem$getSubmenu()$getChildren());
 accelGroup = gtkAccelGroupNew();
 mainWin@widget@widget$addAccelGroup(accelGroup);
-mapply(addKeyAccel, menuFolder2[[1]], c("o", "s", "w", "q"),
+mapply(addKeyAccel, menuFolder2[[1]], list("o", "s", NULL, NULL, NULL, "w", "q"),
        MoreArgs = list(accelGroup = accelGroup));
-enabled(mSave) = FALSE;
+enabled(mSave) = enabled(mSaveAs) = enabled(mSaveAsT) = FALSE;
 # Show main window
 visible(mainWin) = TRUE;
 

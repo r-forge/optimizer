@@ -69,8 +69,6 @@ onOpenCatalog = function(h, ...)
     editor$showCatalogPage(h$action);
 	return(NULL);
 }
-# Default event -- temporary handler for events that are not implemented
-onDefaultEvent = function(h, ...) gmessage("Not implemented yet. :(", "Message");
 # Open Rop file -- not a handler, but a function called by some handlers
 openRopFile = function(filePath, param)
 {
@@ -81,7 +79,8 @@ openRopFile = function(filePath, param)
     editor$loadRopFile(path);
     editor$buildWidgets();
 	visible(param$buttonGroup) = TRUE;
-    enabled(param$mSave) = TRUE;
+    enabled(param$mSave) = enabled(param$mSaveAs) =
+        enabled(param$mSaveAsT) = TRUE;
     svalue(param$mainWin) = "optimgui [" %+% path %+% "]";
 	return(NULL);
 }
@@ -104,12 +103,14 @@ onOpenRopFile = function(h, ...)
 			         handler = function(h,...) return(NULL));
 	if(is.na(filePath)) return(NULL);
 	openRopFile(filePath, h$action);
+    h$action$editor$currentFile = filePath;
 	return(NULL);
 }
 # Save Rop file -- save the Rop file using dialog
 onSaveRopFile = function(h, ...)
 {
     editor = h$action$editor;
+    oldwd = setwd(editor$repoPath);
     filePath = if(length(editor$currentFile))
     {
         editor$currentFile;
@@ -118,12 +119,57 @@ onSaveRopFile = function(h, ...)
               filter = list("Rop files (*.Rop)" = list(patterns = "*.Rop")),
               handler = function(h,...) return(NULL));
     }
+    setwd(oldwd);
 	if(is.na(filePath)) return(NULL);
     Encoding(filePath) = "UTF-8";
-    filePath = gsub("\\.[Rr][Oo][Pp]$", "", filePath);
-	editor$saveRopFile(filePath %+% ".Rop");
-    svalue(h$action$mainWin) = "optimgui [" %+% filePath %+% ".Rop]";
+    filePath = gsub("\\.[Rr][Oo][Pp]$", "", filePath) %+% ".Rop";
+	editor$saveRopFile(filePath);
+    svalue(h$action$mainWin) = "optimgui [" %+% filePath %+% "]";
+    editor$currentFile = filePath;
 	return(NULL);
+}
+onSaveAsRopFile = function(h, ...)
+{
+    editor = h$action$editor;
+    oldwd = setwd(editor$repoPath);
+    filePath = gfile(text = "Save an Rop file...", type = "save",
+                     filter = list("Rop files (*.Rop)" = list(patterns = "*.Rop")),
+                     handler = function(h,...) return(NULL));
+    setwd(oldwd);
+    if(is.na(filePath)) return(NULL);
+    Encoding(filePath) = "UTF-8";
+    filePath = gsub("\\.[Rr][Oo][Pp]$", "", filePath) %+% ".Rop";
+	editor$saveRopFile(filePath);
+    svalue(h$action$mainWin) = "optimgui [" %+% filePath %+% "]";
+    editor$currentFile = filePath;
+	return(NULL);
+}
+onSaveAsTRopFile = function(h, ...)
+{
+    editor = h$action$editor;
+    fileName = ginput("Please enter the file name:",
+                      parent = h$action$mainWin);
+    if(is.na(fileName)) return(NULL);
+    Encoding(fileName) = "UTF-8";
+    fileName = gsub("\\.[Rr][Oo][Pp]$", "", fileName) %+% ".Rop";
+    filePath = system.file("resources", "Rop", package = "optimgui");
+    filePath = file.path(filePath, fileName);
+    editor$saveRopFile(filePath);
+    svalue(h$action$mainWin) = "optimgui [" %+% filePath %+% "]";
+    editor$currentFile = filePath;
+	return(NULL);
+}
+# Set the user repository to store Rop files
+onSetUserRepo = function(h, ...)
+{
+    editor = h$action$editor;
+    oldwd = setwd(editor$repoPath);
+    repoPath = gfile(text = "Select a directory to store Rop files", type = "selectdir");
+    setwd(oldwd);
+    if(is.na(repoPath)) return(NULL);
+    Encoding(repoPath) = "UTF-8";
+    editor$repoPath = repoPath;
+    return(NULL);
 }
 # Close Rop file -- close the Rop file and return to the welcome page
 onCloseRopFile = function(h, ...)
@@ -132,11 +178,37 @@ onCloseRopFile = function(h, ...)
 	visible(h$action$buttonGroup) = FALSE;
     editor$clearAll();
     editor$showWelcomePage(h$action);
-    enabled(h$action$mSave) = FALSE;
+    enabled(h$action$mSave) = enabled(h$action$mSaveAs) =
+        enabled(h$action$mSaveAsT) = FALSE;
     svalue(h$action$mainWin) = "optimgui";
 	return(NULL);
 }
-
+# Open the help manual
+onOpenManual = function(h, ...)
+{
+    
+}
+# The About dialog
+onAboutDialog = function(h, ...)
+{
+    win = h$action$mainWin@widget@widget;
+    comments = packageDescription("optimgui", fields = "Title");
+    comments = paste(strwrap(comments, 50), collapse = "\n");
+    logo = gdkPixbufNewFromFile(system.file("resources", "images",
+                                            "Logo-png.png",
+                                            package = "optimgui"));
+    gtkShowAboutDialog(win,
+                       authors = c("John C. Nash <nashjc@uottawa.ca>",
+                                   "Ben Bolker <bbolker@gmail.com>",
+                                   "Yixuan Qiu <yixuan.qiu@cos.name>"),
+                       comments = comments,
+                       logo = logo,
+                       "program-name" = "optimgui",
+                       version = as.character(packageVersion("optimgui")),
+                       title = "About optimgui",
+                       website = "https://r-forge.r-project.org/scm/viewvc.php/pkg/optimgui/?root=optimizer",
+                       "website-label" = "Website on R-Forge");
+}
 
 #################################
 #                               #
@@ -162,7 +234,8 @@ onAddTab = function(h, ...)
 {
      editor = h$action$editor;
      currentPos = svalue(editor$noteBook) - 1;
-     tabName = ginput("Please input the name of the tab:");
+     tabName = ginput("Please input the name of the tab:",
+                      parent = h$action$mainWin);
      if(is.na(tabName)) return(NULL);
      tab = EditorTabNew(tabName, NULL, NULL, NULL);
      visible(tab$label) = TRUE;
@@ -178,13 +251,15 @@ onDeleteTab = function(h, ...)
     currentPos = svalue(editor$noteBook) - 1;
     if(currentPos < 1)
     {
-        gmessage("This tab could not be closed!");
+        gmessage("This tab could not be closed!", "Message",
+                 parent = h$action$mainWin);
         return(NULL);
     }
     tabname = editor$tabsList[[currentPos]]$name;
     if(tabname %in% c("Objective", "Run"))
     {
-        gmessage("This tab could not be closed!");
+        gmessage("This tab could not be closed!", "Message",
+                 parent = h$action$mainWin);
         return(NULL);
     }
     editor$tabsList = editor$tabsList[-currentPos];
@@ -207,6 +282,62 @@ onTestFunction = function(h, ...)
     svalue(editor$noteBook) = which(names(editor$tabsList) == "Run") + 1;
     return(NULL);
 }
+# Choose method event
+chooseMethod = function(optInfo)
+{
+    cmd1 = "library(optimx)
+ans <- optimx(par = %s, fn = %s, gr = %s,
+              lower = %s, upper = %s,
+              control = list(trace = 1))";
+    cmd2 = "ans <- constrOptim(theta = %s, f = %s, grad = %s,
+                   ui = %s, ci = %s,
+                   control = list(trace = 1))";
+    cmd3 = "library(Rsolnp)
+ans <- solnp(pars = %s, fun = %s, ineqfun = %s,
+             ineqLB = %s, ineqUB = %s,
+             LB = %s, UB = %s)";
+    runCode = "";
+    grad = gsub("Not available", "NULL", optInfo$grFunName);
+    if(!is.null(optInfo$nonlinearConstr2$assign))
+    {
+        if(!is.null(optInfo$boxConstr$assign))
+        {
+            runCode = paste(optInfo$boxConstr$assign, collapse = "\n") %+% "\n";
+        } else {
+            runCode = "LB <- NULL\nUB <- NULL\n";
+        }
+        ineqLB = rep(-Inf, length(optInfo$nonlinearConstr2$ineqUB));
+        runCode = runCode %+% paste(optInfo$nonlinearConstr2$assign, collapse = "\n") %+%
+            "\n" %+% sprintf("ineqLB <- %s", deparse(ineqLB)) %+% "\n";
+        runCode = runCode %+% sprintf(cmd3, optInfo$parName, optInfo$objFunName,
+                                      "ineqFun", "ineqLB", "ineqUB", "LB", "UB");
+    } else if(!is.null(optInfo$linearConstr$assign)){
+        runCode = paste(optInfo$boxlinearConstr$assign, collapse = "\n") %+% "\n";
+        runCode = runCode %+% sprintf(cmd2, optInfo$parName, optInfo$objFunName,
+                                      grad, "-linMat", "-linUB");
+    } else if(!is.null(optInfo$boxConstr$assign)){
+        runCode = paste(optInfo$boxConstr$assign, collapse = "\n") %+% "\n";
+        runCode = runCode %+% sprintf(cmd1, optInfo$parName, optInfo$objFunName,
+                                      grad, "LB", "UB");
+    } else {
+        runCode = runCode %+% sprintf(cmd1, optInfo$parName, optInfo$objFunName,
+                                      grad, "-Inf", "Inf");
+    }
+    return(runCode);
+}
+onChooseMethod = function(h, ...)
+{
+    editor = h$action$editor;
+    if(!length(editor$optInfo))
+    {
+        gmessage("You should first test the function by clicking the \"Test function\" button!",
+                 "Message", parent = h$action$mainWin);
+        return(NULL);
+    }
+    runTab = editor$getTabByName("Run");
+    svalue(runTab$rcode) = chooseMethod(editor$optInfo);
+    return(NULL);
+}
 # Run code event
 onRunCode = function(h, ...)
 {
@@ -215,9 +346,9 @@ onRunCode = function(h, ...)
     editor$saveRopFile(tmpfile);
 	z = textConnection("output", open = "w");
 	sink(z);
-    cat("=========== Run report ==========\n");
+    cat("===================== Run Report ====================\n");
 	source(tmpfile, local = TRUE, echo = FALSE, print.eval = TRUE);
-    cat("=================================\n\n");
+    cat("=====================================================\n\n");
 	sink();
 	close(z);
 	output = paste(output, collapse = "\n");
@@ -230,7 +361,17 @@ onRunCode = function(h, ...)
 # Save output event
 onSaveOutput = function(h, ...)
 {
-    
+    editor = h$action$editor;
+    runTab = editor$getTabByName("Run");
+    filePath = gfile(text = "Save ouput...", type = "save",
+                     filter = list("Text files (*.txt)" = list(patterns = "*.txt")),
+                     handler = function(h,...) return(NULL));
+    if(is.na(filePath)) return(NULL);
+    Encoding(filePath) = "UTF-8";
+    filePath = gsub("\\.[Tt][Xx][Tt]$", "", filePath) %+% ".txt";
+    write(sprintf("optimgui report\n\nDate: %s\n\n", date()), filePath);
+    write(svalue(runTab$output), filePath, append = TRUE);
+	return(NULL);
 }
 # Clear output event
 onClearOutput = function(h, ...)
@@ -270,6 +411,7 @@ welcomePageAddEvent = function(welcomePage, param)
 {
 	addHandlerClicked(welcomePage$newLabel, onOpenCatalog, param);
 	addHandlerClicked(welcomePage$openLabel, onOpenRopFile, param);
+    addHandlerClicked(welcomePage$manualLabel, onOpenManual, param);
 }
 catalogPageAddEvent = function(catalogPage, param)
 {

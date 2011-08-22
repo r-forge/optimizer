@@ -186,7 +186,9 @@ onCloseRopFile = function(h, ...)
 # Open the help manual
 onOpenManual = function(h, ...)
 {
-    
+    helpFile = system.file("doc", "optimgui.pdf", package = "optimgui");
+    shell.exec(helpFile);
+    return(NULL);
 }
 # The About dialog
 onAboutDialog = function(h, ...)

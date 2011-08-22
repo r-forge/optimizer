@@ -1,0 +1,976 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{ae}
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{aess}
+\renewcommand{\ttdefault}{aett}
+\end_preamble
+\options 12pt
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman ae
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 0
+\use_mhchem 0
+\use_mathdots 1
+\cite_engine natbib_authoryear
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 3cm
+\topmargin 3cm
+\rightmargin 3cm
+\bottommargin 3cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\bullet 0 2 29 -1
+\bullet 1 0 8 -1
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\series bold
+optimgui
+\series default
+: A GUI program to assist optimization problems in R
+\end_layout
+
+\begin_layout Author
+Yixuan Qiu
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Department of Statistics, Renmin University of China.
+ Email: 
+\begin_inset CommandInset href
+LatexCommand href
+target "yixuan.qiu@cos.name"
+type "mailto:"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Optimization methods are intensively used in statistical computations such
+ as maximum likelihood estimation and non-linear regression.
+ R also has numerous packages and functions to solve optimization problems
+ as those listed in the CRAN Task Views of Optimization
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://cran.r-project.org/web/views/Optimization.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+.
+ However, the number and variety of these methods often confuse users which
+ one to select, so it is quite necessary to provide a guidance of how to
+ choose appropriate optimizers and set up the control parameters.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+optimgui
+\series default
+ is an R package to assist the preparation and solution of optimization
+ problems in R.
+ This package has only one exported function, 
+\family typewriter
+optimgui()
+\family default
+, to accomplish most operations via a GUI (Graphical User Interface) environment
+, built with the 
+\series bold
+RGtk2
+\begin_inset CommandInset citation
+LatexCommand citep
+key "RGtk2"
+
+\end_inset
+
+
+\series default
+and 
+\series bold
+gWidgets
+\begin_inset CommandInset citation
+LatexCommand citep
+key "gWidgets"
+
+\end_inset
+
+
+\series default
+packages.
+ The main features of 
+\series bold
+optimgui
+\series default
+ are:
+\end_layout
+
+\begin_layout Itemize
+User-friendly interface and operations;
+\end_layout
+
+\begin_layout Itemize
+Built-in templates of optimization problems to get started with;
+\end_layout
+
+\begin_layout Itemize
+More convenient approach to express constraints in constrained optimization
+ problems;
+\end_layout
+
+\begin_layout Itemize
+Automatically provides suggestions and choice of optimizers and parameters;
+\end_layout
+
+\begin_layout Itemize
+Auto-generate R code of optimization problems.
+\end_layout
+
+\begin_layout Section
+Rop file
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+optimgui
+\series default
+ uses the 
+\begin_inset Quotes eld
+\end_inset
+
+Rop file
+\begin_inset Quotes erd
+\end_inset
+
+ to describe an optimization problem.
+ An Rop file is a combination of XML document and R code, wich stores the
+ functions, data and related infomation of an optimization problem.
+ Users are unlikely to edit the Rop file directly, since the creation and
+ modification of Rop file could all be done by the 
+\series bold
+optimgui 
+\series default
+program.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+optimgui
+\series default
+ has several built-in Rop files under the 
+\family typewriter
+<package dir>/resources/Rop
+\family default
+ directory, which serve as the templates to create a new one.
+ Users should avoid modifying these built-in Rop files in case of a program
+ crash.
+ The usage of Rop file is discussed in the next section.
+\end_layout
+
+\begin_layout Section
+Usage
+\end_layout
+
+\begin_layout Standard
+This section describes the usage of 
+\series bold
+optimgui
+\series default
+ and the work you can do with it.
+ To run the program, type the following two commands:
+\end_layout
+
+\begin_layout LyX-Code
+library(optimgui)
+\end_layout
+
+\begin_layout LyX-Code
+optimgui()
+\end_layout
+
+\begin_layout Subsection
+Welcome page and main menu
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Welcome page.png
+	width 12cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Welcome page
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The first interface you'll see is a Welcome page with the following three
+ links:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Catalog of existing problems and templates
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Clicking this link will open the Catalog page, which shows the built-in
+ templates of optimization problems.
+ The Catalog displays some 
+\begin_inset Quotes eld
+\end_inset
+
+characteristics
+\begin_inset Quotes erd
+\end_inset
+
+ (we call them 
+\begin_inset Quotes eld
+\end_inset
+
+Catalog entries
+\begin_inset Quotes erd
+\end_inset
+
+ in the following sections) of each template, such as the number of parameters,
+ property of gradient function, type of constraints, etc.
+ Then you can select one that most fits your problem to get started.
+ Click the 
+\begin_inset Quotes eld
+\end_inset
+
+OK
+\begin_inset Quotes erd
+\end_inset
+
+ button or double click the item to open the Rop editor.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Open an existing Rop file
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Directly open an Rop file from your filesystem.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Read help manual
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Open this document.
+\end_layout
+
+\begin_layout Standard
+There is also a menu bar on the top of the window.
+ The menu items and their functions are as follows:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+The 
+\begin_inset Quotes eld
+\end_inset
+
+File
+\begin_inset Quotes erd
+\end_inset
+
+ menu
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series bold
+Open File
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Open an existing Rop file from filesystem.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Save/Save As
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Save the current Rop file to filesystem.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Save As Template
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Save the current Rop file to the package directory, so that this file will
+ appear in the Catalog page as a template.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Set User Repository
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Set the working directory of Rop file.
+ When you have a new Rop file to be saved, this will be the default directory
+ to store the file.
+ Note that this will not change the working directory of R.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Close File
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Close the current file.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Exit optimgui
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Exit optimgui program.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+The 
+\begin_inset Quotes eld
+\end_inset
+
+Help
+\begin_inset Quotes erd
+\end_inset
+
+ menu
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series bold
+optimgui Help
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Open this document.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+About
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+Additional information of this package.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+If this is the first time you use 
+\series bold
+optimgui
+\series default
+, you probably want to create a new Rop file from the template, and the
+ next time you could open it directly from the filesystem, either by the
+ Welcome page or by the menu.
+\end_layout
+
+\begin_layout Subsection
+The Rop editor
+\end_layout
+
+\begin_layout Standard
+The Rop file will then be opened by the Rop editor, which consists of several
+ tabs and a column of buttons.
+ In the Rop editor, each tab represents a 
+\begin_inset Quotes eld
+\end_inset
+
+section
+\begin_inset Quotes erd
+\end_inset
+
+ of the Rop file, e.g., the objective function, the gradient function, etc.
+ Typically each tab has three parts: the title, the note and the code area,
+ all editable.
+ However, both the note and the code area could be hided by unchecking the
+ corresponding checkboxes in the button column.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Tab.png
+	width 12cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+A tab in the Rop editor
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+You can add a new tab by clicking the 
+\begin_inset Quotes eld
+\end_inset
+
+Add tab
+\begin_inset Quotes erd
+\end_inset
+
+ button, or delete an existing one by clicking 
+\begin_inset Quotes eld
+\end_inset
+
+Delete tab
+\begin_inset Quotes erd
+\end_inset
+
+, but note that there are several indispensable tabs that could not be deleted.
+ They are 
+\begin_inset Quotes eld
+\end_inset
+
+Catalog
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+Objective
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+Parameters
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+Run
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+The Catalog tab
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+This tab stores the Catalog entries of the optimization problem.
+ The entries could be added, edited or deleted.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+The Objective tab
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+The Objective tab stores the objective function, and the code area is not
+ allowed to be hided.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+The Parameters tab
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+This tab describes the initial value and constraints (optional) of the optimizer.
+ Details are discussed in section 3.3.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+The Run tab
+\begin_inset space \quad{}
+\end_inset
+
+
+\series default
+This tab holds the generated R code and output report.
+ Details are discussed in section 3.4.
+\end_layout
+
+\begin_layout Subsection
+About constrained optimization
+\end_layout
+
+\begin_layout Standard
+In many cases constraints of the following form should be added to the parameter
+s in an optimization problem:
+\begin_inset Formula 
+\begin{eqnarray*}
+ & x_{L}\leq x\le x_{U} & \text{(box constraint)}\\
+ & Ax\leq b & \text{(linear constraint)}\\
+ & f(x)\le0 & \text{(non-linear constraint)}
+\end{eqnarray*}
+
+\end_inset
+
+Here 
+\begin_inset Formula $x$
+\end_inset
+
+ is often a vector.
+\end_layout
+
+\begin_layout Standard
+In general, functions that allow constraints will ask users to specify the
+ coefficients in the formulas above.
+ However, this is often troublesome and not intuitive.
+ In 
+\series bold
+optimgui
+\series default
+, users could express the constraints using a more convenient approach,
+ that is, to input the constraints with respect to the elements of the parameter
+ vector in an inequality form, as is shown in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Input-constraints"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Par.png
+	width 12cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Input constraints
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Input-constraints"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then in the next step (described in section 3.4), the program will analyze
+ and classify these constraints and automatically determine the related
+ coefficients needed by the optimizer.
+\end_layout
+
+\begin_layout Subsection
+Testing and running
+\end_layout
+
+\begin_layout Standard
+When you have prepared all the needed functions, you can click the 
+\begin_inset Quotes eld
+\end_inset
+
+Test function
+\begin_inset Quotes erd
+\end_inset
+
+ button to obtain an overview of the optimization problem, including the
+ name of objective function and gradient function, the initial parameters
+ value, the type and coefficients of constraints, etc.
+ After doing this, the program could then generate appropriate running code
+ for the current problem when the 
+\begin_inset Quotes eld
+\end_inset
+
+Choose method
+\begin_inset Quotes erd
+\end_inset
+
+ button is clicked.
+ Currently, there are three optimizers used as alternatives: 
+\family typewriter
+optimx()
+\family default
+ in 
+\series bold
+optimx
+\begin_inset CommandInset citation
+LatexCommand citep
+key "optimx"
+
+\end_inset
+
+
+\series default
+package for unconstrained and box constrained optimization, 
+\family typewriter
+constrOptim()
+\family default
+ in 
+\series bold
+stats
+\begin_inset CommandInset citation
+LatexCommand citep
+key "stats"
+
+\end_inset
+
+
+\series default
+ package for linear constrained problem, and 
+\family typewriter
+solnp()
+\family default
+ in 
+\series bold
+Rsolnp
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Rsolnp"
+
+\end_inset
+
+
+\series default
+ package for non-linear constrained programming.
+ Finally, users could hit the 
+\begin_inset Quotes eld
+\end_inset
+
+Run
+\begin_inset Quotes erd
+\end_inset
+
+ button to run the optimizer and obtain the result in the output box.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Run.png
+	width 12cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Testing and running
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+TODO
+\end_layout
+
+\begin_layout Standard
+This package is still under development and user may experience unexpected
+ errors and crashes.
+ The author also has a TODO list including the following:
+\end_layout
+
+\begin_layout Itemize
+More templates of optimization problems;
+\end_layout
+
+\begin_layout Itemize
+Support for more optimizers in R;
+\end_layout
+
+\begin_layout Itemize
+Support for constraints in a vectorized form, e.g., user could input
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+x >= 0
+\end_layout
+
+\begin_layout Standard
+instead of
+\end_layout
+
+\begin_layout LyX-Code
+x[1] >= 0
+\end_layout
+
+\begin_layout LyX-Code
+x[2] >= 0
+\end_layout
+
+\begin_layout LyX-Code
+...
+\end_layout
+
+\begin_layout LyX-Code
+x[length(x)] >= 0
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+...
+\end_layout
+
+\begin_layout Standard
+Any comments and suggestions of this package are appreciated.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintAll"
+bibfiles "optimgui"
+options "bibtotoc,plainnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

@@ -13,8 +13,10 @@ This package aims at building up a GUI to assist the preparation and solution of
 See the package vignette for detailed usages.
 }
 \author{
-Yixuan Qiu \email{yixuan.qiu [at] cos.name}}
+Yixuan Qiu \email{yixuan.qiu [at] cos.name}
+
 John C. Nash \email{nashjc [at] uottawa.ca}
+}
 \keyword{optimize}
 \seealso{
 \code{\link[optimx]{optimx}}, \code{\link[stats]{constrOptim}}, \code{\link[Rsolnp]{solnp}}

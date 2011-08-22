@@ -1,71 +1,24 @@
 \name{optimgui}
 \alias{optimgui}
-\docType{package}
-\title{
-optimgui
+\title{A GUI to assist optimization problems in R}
+\usage{
+optimgui()
 }
 \description{
-A graphical user interface to assist R users to set up problems that require optimization 
-tools for their solution. At the time of this documentation (2011-8-6) we restrict tools to
-unconstrained or box-constrained function minimization.
+This function will invoke the main GUI window of optimgui program.
 }
 \details{
-The principal function of optimgui is called optimgui(). 
-It is loaded with
-   library(optimgui) 
-or 
-   require(optimgui)
-and invoked with
+This package aims at building up a GUI to assist the preparation and solution of optimization problems, and optimgui() is the only exported function in this package.
 
-   optimgui()
-
-at the R prompt.
-
-Functions from events.R
-
-   Events for "CatalogEntry"   
-
-onAddEntry = function(h, ...)
-onDeleteEntry = function(h, ...)
-onSelectAll = function(h, ...)
-onToggleCell = function(cell, path, param)
-onEditCell = function(cell, path, new.text, param)
-
-
-Events for menu items      
-onExit = function(h, ...) dispose(h$action$mainWin);
-onOpenCatalog = function(h, ...)
-onDefaultEvent = function(h, ...) gmessage("Not implemented yet. :(", "Message");
-openRopFile = function(filePath, param)
-onOpenBuiltinRopFile = function(h, ...)
-onOpenRopFile = function(h, ...)
-onSaveRopFile = function(h, ...)
-onCloseRopFile = function(h, ...)
-
-
-Events for notebook widget
-
-onFocusTab = function(h, ...)
-onAddTab = function(h, ...)
-onDeleteTab = function(h, ...)
-onTestFunction = function(h, ...)
-onRunCode = function(h, ...)
-onSaveOutput = function(h, ...)
-onClearOutput = function(h, ...)
-toggleShowNote = function(h, ...)
-toggleShowCode = function(h, ...)
-welcomePageAddEvent = function(welcomePage, param)
-catalogPageAddEvent = function(catalogPage, param)
-onChooseButton = function(h, ...) # JN
-
+See the package vignette for detailed usages.
 }
 \author{
-Yixuan Qiu \email{yixuan.qiu@cos.name}}
-\keyword{ optimization }
-\keyword{ graphical user interface }
+Yixuan Qiu \email{yixuan.qiu [at] cos.name}}
+John C. Nash \email{nashjc [at] uottawa.ca}
+\keyword{optimize}
 \seealso{
- optimx
+\code{\link[optimx]{optimx}}, \code{\link[stats]{constrOptim}}, \code{\link[Rsolnp]{solnp}}
 }
 \examples{
-cat("The examples for optimgui are built into the GUI itself.\n")
+\dontrun{optimgui()}
 }

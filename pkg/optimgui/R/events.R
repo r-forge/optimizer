@@ -256,7 +256,7 @@ onDeleteTab = function(h, ...)
         return(NULL);
     }
     tabname = editor$tabsList[[currentPos]]$name;
-    if(tabname %in% c("Objective", "Run"))
+    if(tabname %in% c("Objective", "Parameters", "Run"))
     {
         gmessage("This tab could not be closed!", "Message",
                  parent = h$action$mainWin);
@@ -271,10 +271,15 @@ onTestFunction = function(h, ...)
 {
     editor = h$action$editor;
     z = textConnection("output", open = "w");
+    error = function(e)
+    {
+        gmessage("Error occurs when testing function!", "Error", icon = "error",
+                 parent = h$action$mainWin);
+    }
     sink(z);
-	editor$reportTest();
-	sink();
-	close(z);
+	tryCatch(editor$reportTest(), error = error);
+    sink();
+    close(z);
 	output = paste(output, collapse = "\n");
 	outputWidget = editor$tabsList[["Run"]]$output;
     visible(outputWidget) = TRUE;
@@ -344,10 +349,16 @@ onRunCode = function(h, ...)
     editor = h$action$editor;
     tmpfile = tempfile();
     editor$saveRopFile(tmpfile);
+    error = function(e)
+    {
+        gmessage("Error occurs when running code!", "Error", icon = "error",
+                 parent = h$action$mainWin);
+    }
 	z = textConnection("output", open = "w");
 	sink(z);
     cat("===================== Run Report ====================\n");
-	source(tmpfile, local = TRUE, echo = FALSE, print.eval = TRUE);
+	tryCatch(source(tmpfile, local = TRUE, echo = FALSE, print.eval = TRUE),
+             error = error);
     cat("=====================================================\n\n");
 	sink();
 	close(z);

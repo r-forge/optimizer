@@ -369,9 +369,13 @@ saveRopFile.Editor = function(filePath, ...)
         }
 		Rop$closeTag();
 	}
+    error = function(e)
+    {
+        gmessage("Error occurs when saving Rop file!", "Error", icon = "error");
+    }
     z = textConnection("buffer", open = "w");
     sink(z);
-	cat(saveXML(Rop$value()));
+	tryCatch(cat(saveXML(Rop$value())), error = error);
     sink();
     close(z);
     buffer = paste("#@ ", buffer, sep = "");

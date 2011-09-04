@@ -135,12 +135,11 @@ SEXP doPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
 			
 			phiz[idz] = REAL(grobj_res)[0];
 
-//				Rprintf("res %f\n", phiz[idz] );			
-			
+//			Rprintf("res %f\n", phiz[idz] );			
 //			Rprintf("player i %d - idx deriv %d - dim %d \n", i+1, cumsum_j+j+1, dim_x[i]);
 			for(k = 0; k < dim_lam[i]; k++)	//index for variable lambda
 			{
-//				idgrconstr = k + j * dim_lam[i];
+
 				phiz[idz] += lambda[idlam + k] * REAL(grconstr_res)[k];
 //				Rprintf("i %d, j %d, k %d \n", i,j,k);
 //				Rprintf("res %f\n", phiz[idz] );

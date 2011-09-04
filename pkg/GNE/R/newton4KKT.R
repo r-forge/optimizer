@@ -1,6 +1,8 @@
-NewtonKKT <- function(xinit, method=c("Newton", "Levenberg-Marquardt","BFGS", "L-BFGS-B"), 
+NewtonKKT <- function(xinit, 
+	method=c("Newton", "Levenberg-Marquardt","BFGS", "L-BFGS-B"), 
 	phi, jacphi, control=list(), phi.arg=list(), jacphi.arg=list(), 
-	extrapol=c("none", "RRE", "MPE", "SqRRE", "SqMPE"), bounds)
+	extrapol=c("none", "RRE", "MPE", "SqRRE", "SqMPE"), bounds,
+	silent=TRUE)
 {
 	method <- match.arg(method, c("Newton", "Levenberg-Marquardt","BFGS", "L-BFGS-B"))
 	extrapol <- match.arg(extrapol, c("none", "RRE", "MPE", "SqRRE", "SqMPE"))
@@ -12,10 +14,10 @@ NewtonKKT <- function(xinit, method=c("Newton", "Levenberg-Marquardt","BFGS", "L
 
 	if(method %in% c("Newton", "Levenberg-Marquardt"))
 		myGNE <- try( EKKT_by_NLM(xinit, phi, jacphi, control=con, phi.arg, jacphi.arg, 
-								  method, extrapol), silent=TRUE)
+								  method, extrapol), silent=silent)
 	if(method %in% c("BFGS", "L-BFGS-B"))
 		myGNE <- try( EKKT_by_BFGS(xinit, phi, jacphi, control=con, phi.arg, jacphi.arg, 
-								   method, extrapol, bounds), silent=TRUE)
+								   method, extrapol, bounds), silent=silent)
 	
 	if(class(myGNE) == "try-error")
 	{

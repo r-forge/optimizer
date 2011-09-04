@@ -3,9 +3,9 @@
 phiFB <- function(a, b) 
 	sqrt(a^2+b^2) - (a+b)
 GrAphiFB <- function(a, b) 
-	a / sqrt(a^2+b^2) - 1
+	ifelse(a == 0 & b == 0, -1/2, a / sqrt(a^2+b^2) - 1)
 GrBphiFB <- function(a, b) 
-	b / sqrt(a^2+b^2) - 1
+	ifelse(a == 0 & b == 0, -1/2, b / sqrt(a^2+b^2) - 1)
 
 #minimum
 phiMin <- function(a, b) 

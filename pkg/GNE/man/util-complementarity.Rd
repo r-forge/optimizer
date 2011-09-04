@@ -24,12 +24,12 @@ GrBphiMin(a, b)
   \item{b}{second parameter.}
 }
 \details{
-\code{phiFB} corresponds to the Fischer-Burmeister Complementarity function 
+\code{phiFB} corresponds to the Fischer-Burmeister complementarity function 
 \eqn{\sqrt{a^2+b^2} - (a+b)}{sqrt(a^2+b^2) - (a+b)} and 
 \code{phiMin} to the minimum Complementarity function \eqn{\min(a,b)}{min(a,b)}.
 
-\code{GrAXXX} and \code{GrBXXX} implements the first and the second derivative of the Complementarity 
-function \code{XXX}.
+\code{GrAXXX} and \code{GrBXXX} implements the derivative of the complementarity 
+function \code{XXX} with respect to \eqn{a} and \eqn{b} respectively.
 	
 }
 \value{

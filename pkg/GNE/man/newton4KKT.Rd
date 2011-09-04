@@ -8,7 +8,8 @@
 \usage{
 NewtonKKT(xinit, method=c("Newton", "Levenberg-Marquardt","BFGS", "L-BFGS-B"), phi, jacphi, 
 	control=list(), phi.arg=list(), jacphi.arg=list(), 
-	extrapol=c("none", "RRE", "MPE", "SqRRE", "SqMPE"), bounds)
+	extrapol=c("none", "RRE", "MPE", "SqRRE", "SqMPE"), bounds,
+	silent=TRUE)
 }
 \arguments{
   \item{xinit}{initial point.}
@@ -22,6 +23,7 @@ NewtonKKT(xinit, method=c("Newton", "Levenberg-Marquardt","BFGS", "L-BFGS-B"), p
   \item{extrapol}{extrapolation name either \code{"none"}, \code{"Aitken"}, \code{"RRE"}, 
 	\code{"MPE"}. Default to \code{"none"}.}
   \item{bounds}{a vector with bounds for L-BFGS-B method.}
+  \item{silent}{a boolean to hide errors. Default to \code{TRUE}.}
 }
 \details{
 
@@ -34,7 +36,7 @@ where the direction \eqn{d_n} is computed in three different ways:
 	\item{(a) Newton:}{The direction solves the system \eqn{Jac\Phi(x_n) d = - \Phi(x_n),} 
 		generally called the Newton equation.}
 	\item{(b) Levenberg-Marquardt:}{The direction solves the system 
-		\deqn{ (Jac\Phi(x_n)^T Jac\Phi(x_n) + |\Phi(x_n)| I) d = - Jac\Phi(x_n),}
+		\deqn{ (Jac\Phi(x_n)^T Jac\Phi(x_n) + ||\Phi(x_n)|| I) d = - Jac\Phi(x_n)^T\Phi(x_n),}
 		where \eqn{I} denotes the identity matrix.}
 	\item{(c) quasi-Newton:}{quasi-Newton methods aim to solve an approximate version
 		of the Newton equation \eqn{d = -\Phi(x_n) W_n} where \eqn{W_n} is computed

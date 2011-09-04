@@ -41,19 +41,29 @@ Compute the Phi function or the Jacobian of the Phi function defined in F. Facch
     \item{\bold{Arguments of the Phi function}}{	
 The arguments which are functions must respect the following features
 	\describe{
-		\item{\code{grobj}}{It must have 4 arguments: vector \code{z}, player number, derivative index and additional arguments \code{arggrobj}.}
-		\item{\code{constr}}{It must have 4 arguments: vector \code{z}, player number, derivative index and additional arguments \code{argconstr}.}
-		\item{\code{grconstr}}{It must have 4 arguments: vector \code{z}, player number, derivative index and additional arguments \code{arggrconstr}.}
+		\item{\code{grobj}}{
+			The gradient \eqn{Grad Obj} of an objective function \eqn{Obj} (to be minimized) must have 3 arguments for \eqn{Grad Obj(z, playnum, ideriv)}: vector \code{z}, player number, derivative index
+			, and optionnally additional arguments in \code{arggrobj}.
+			}
+		\item{\code{constr}}{
+			The constraint function \eqn{g} must have 2 arguments: vector \code{z}, player number,
+			such that \eqn{g(z, playnum) <= 0}. Optionnally, \eqn{g} may have additional arguments in \code{argconstr}.
+			}
+		\item{\code{grconstr}}{
+			The gradient of the constraint function \eqn{g}  must have 3 arguments: vector \code{z}, player number, derivative index,
+			and optionnally additional arguments in \code{arggrconstr}.
+			}
 		\item{\code{compl}}{It must have two arguments. A typical example is the minimum function.}
 	}
 	}
 	\item{\bold{Arguments of the Jacobian of Phi}}{	
 The arguments which are functions must respect the following features
 	\describe{
-		\item{\code{heobj}}{It must have 5 arguments: vector \code{z}, player number, two derivative indexes and additional arguments \code{argheobj}.}
-		\item{\code{heconstr}}{It must have 5 arguments: vector \code{z}, player number, two derivative indexes and additional arguments \code{argheconstr}.}
+		\item{\code{heobj}}{It must have 4 arguments: vector \code{z}, player number, two derivative indexes.}
+		\item{\code{heconstr}}{It must have 4 arguments: vector \code{z}, player number, two derivative indexes.}
 		\item{\code{gcompla}}{It must have two arguments.}
 	}
+	Optionnally, \code{heobj} and \code{heconstr} can have additional arguments \code{argheobj} and \code{argheconstr}.
 	}
 }
 See the example	below.
@@ -75,13 +85,13 @@ A vector for \code{Phi} or a matrix for \code{JacPhi}.
 }
 \examples{
 
-# (1) objective linked functions
+# (1) associated objective functions
 #
 
 dimx <- c(2, 2, 3)
 
 #Gr_x_j O_i(x)
-grfullob <- function(x, i, j, par)
+grfullob <- function(x, i, j)
 {
 	x <- x[1:7]	
 	if(i == 1)
@@ -98,12 +108,12 @@ grfullob <- function(x, i, j, par)
 		grad <- c(1, 0, 1, 0, 4*x[5]*s, 4*x[6]*s, 4*x[7]*s)
 			
 	}
-	grad[j]	+ par$a	
+	grad[j]	
 }
 
 
 #Gr_x_k Gr_x_j O_i(x)
-hefullob <- function(x, i, j, k, par)
+hefullob <- function(x, i, j, k)
 {
 	x <- x[1:7]
 	if(i == 1)
@@ -123,7 +133,7 @@ hefullob <- function(x, i, j, k, par)
 			c(0, 0, 0, 0, 8*x[5]*x[6], 4*s+8*x[6]^2, 8*x[6]*x[7]),
 			c(0, 0, 0, 0,  8*x[5]*x[7], 8*x[6]*x[7], 4*s+8*x[7]^2) )
 	}
-	he[j,k]	+ par$a	
+	he[j,k]	
 }
 
 
@@ -134,23 +144,21 @@ hefullob <- function(x, i, j, k, par)
 dimlam <- c(1, 2, 2)
 
 #constraint function g_i(x)
-g <- function(x, i, par)
+g <- function(x, i)
 {
 	x <- x[1:7]
-	#cat(x[1:5], "|", i, "\n")
 	if(i == 1)
 		res <- sum( x^(1:7) ) -7
 	if(i == 2)
 		res <- c(sum(x) + prod(x) - 14, 20 - sum(x))
 	if(i == 3)
 		res <- c(sum(x^2) + 1, 100 - sum(x))
-	#cat("res", res + par$a, "\n")	
-	res	+ par$a				
+	res
 }
 
 
 #Gr_x_j g_i(x)
-grfullg <- function(x, i, j, par)
+grfullg <- function(x, i, j)
 {
 	x <- x[1:7]	
 	if(i == 1)
@@ -169,16 +177,16 @@ grfullg <- function(x, i, j, par)
 
 
 	if(i == 1)
-		res <- grad[j]	+ par$a				
+		res <- grad[j]	
 	if(i != 1)
-		res <- grad[j,]	+ par$a		
+		res <- grad[j,]	
 	as.numeric(res)
 }
 
 
 
 #Gr_x_k Gr_x_j g_i(x)
-hefullg <- function(x, i, j, k, par)
+hefullg <- function(x, i, j, k)
 {
 	x <- x[1:7]
 	if(i == 1)
@@ -206,15 +214,10 @@ hefullg <- function(x, i, j, k, par)
 		he2 <- matrix(0, 7, 7)
 	}
 	if(i != 1)
-		return( c(he1[j, k], he2[j, k])	+ par$a	)
+		return( c(he1[j, k], he2[j, k])	)
 	else				
-		return( he1[j, k]	+ par$a	)
+		return( he1[j, k] )
 }
-
-
-FB <- function(a,b) sqrt(a^2+b^2)-(a+b)
-GrAphiFB <- function(a, b) a / sqrt(a^2+b^2) - 1
-GrBphiFB <- function(a, b) b / sqrt(a^2+b^2) - 1
 
 
 # (3) compute Phi
@@ -222,17 +225,186 @@ GrBphiFB <- function(a, b) b / sqrt(a^2+b^2) - 1
 
 z <- rexp(sum(dimx) + sum(dimlam))
 
-a <- 0
+n <- sum(dimx)
+m <- sum(dimlam)
+x <- z[1:n]
+lam <- z[(n+1):(n+m)]
 
-Phi(z, dimx, dimlam, grfullob, list(a=a),  
-	g, list(a=a), grfullg, list(a=a), FB)
+resphi <- Phi(z, dimx, dimlam, grobj=grfullob, constr=g, grconstr=grfullg, compl=phiFB)
+
+c(1\%*\%1, 1\%*\%2)
+
+
+	check <- c(grfullob(x, 1, 1) + lam[1] * grfullg(x, 1, 1), 
+	grfullob(x, 1, 2) + lam[1] * grfullg(x, 1, 2), 
+	grfullob(x, 2, 3) + lam[2:3] \%*\% grfullg(x, 2, 3),
+	grfullob(x, 2, 4) + lam[2:3] \%*\% grfullg(x, 2, 4), 	
+	grfullob(x, 3, 5) + lam[4:5] \%*\% grfullg(x, 3, 5),
+	grfullob(x, 3, 6) + lam[4:5] \%*\% grfullg(x, 3, 6),
+	grfullob(x, 3, 7) + lam[4:5] \%*\% grfullg(x, 3, 7),
+	phiFB( -g(x, 1), lam[1]), 
+	phiFB( -g(x, 2)[1], lam[2]), 
+	phiFB( -g(x, 2)[2], lam[3]), 
+	phiFB( -g(x, 3)[1], lam[4]), 
+	phiFB( -g(x, 3)[2], lam[5]))
+	
+	
+
+#check
+cat("\n\n________________________________________\n\n")
+
+#part A
+print(cbind(check, res=as.numeric(resphi))[1:n, ])
+#part B
+print(cbind(check, res=as.numeric(resphi))[(n+1):(n+m), ])
 	
 # (4) compute Jac Phi
 #
 	
-JacPhi(z, dimx, dimlam, hefullob, list(a=a),  
-	g, list(a=a), grfullg, list(a=a),
-	hefullg, list(a=a), GrAphiFB, GrBphiFB)
+resjacphi <- JacPhi(z, dimx, dimlam, heobj=hefullob, constr=g, grconstr=grfullg, 
+	heconstr=hefullg, gcompla=GrAphiFB, gcomplb=GrBphiFB)
+
+	
+#check
+cat("\n\n________________________________________\n\n")
+
+
+cat("\n\npart A\n\n")	
+
+
+checkA <- 
+rbind(
+c(hefullob(x, 1, 1, 1) + lam[1]*hefullg(x, 1, 1, 1), 
+hefullob(x, 1, 1, 2) + lam[1]*hefullg(x, 1, 1, 2),
+hefullob(x, 1, 1, 3) + lam[1]*hefullg(x, 1, 1, 3),
+hefullob(x, 1, 1, 4) + lam[1]*hefullg(x, 1, 1, 4),
+hefullob(x, 1, 1, 5) + lam[1]*hefullg(x, 1, 1, 5),
+hefullob(x, 1, 1, 6) + lam[1]*hefullg(x, 1, 1, 6),
+hefullob(x, 1, 1, 7) + lam[1]*hefullg(x, 1, 1, 7)
+),
+c(hefullob(x, 1, 2, 1) + lam[1]*hefullg(x, 1, 2, 1), 
+hefullob(x, 1, 2, 2) + lam[1]*hefullg(x, 1, 2, 2),
+hefullob(x, 1, 2, 3) + lam[1]*hefullg(x, 1, 2, 3),
+hefullob(x, 1, 2, 4) + lam[1]*hefullg(x, 1, 2, 4),
+hefullob(x, 1, 2, 5) + lam[1]*hefullg(x, 1, 2, 5),
+hefullob(x, 1, 2, 6) + lam[1]*hefullg(x, 1, 2, 6),
+hefullob(x, 1, 2, 7) + lam[1]*hefullg(x, 1, 2, 7)
+),
+c(hefullob(x, 2, 3, 1) + lam[2:3] \%*\% hefullg(x, 2, 3, 1), 
+hefullob(x, 2, 3, 2) + lam[2:3] \%*\% hefullg(x, 2, 3, 2),
+hefullob(x, 2, 3, 3) + lam[2:3] \%*\% hefullg(x, 2, 3, 3),
+hefullob(x, 2, 3, 4) + lam[2:3] \%*\% hefullg(x, 2, 3, 4),
+hefullob(x, 2, 3, 5) + lam[2:3] \%*\% hefullg(x, 2, 3, 5),
+hefullob(x, 2, 3, 6) + lam[2:3] \%*\% hefullg(x, 2, 3, 6),
+hefullob(x, 2, 3, 7) + lam[2:3] \%*\% hefullg(x, 2, 3, 7)
+),
+c(hefullob(x, 2, 4, 1) + lam[2:3] \%*\% hefullg(x, 2, 4, 1), 
+hefullob(x, 2, 4, 2) + lam[2:3] \%*\% hefullg(x, 2, 4, 2), 
+hefullob(x, 2, 4, 3) + lam[2:3] \%*\% hefullg(x, 2, 4, 3), 
+hefullob(x, 2, 4, 4) + lam[2:3] \%*\% hefullg(x, 2, 4, 4), 
+hefullob(x, 2, 4, 5) + lam[2:3] \%*\% hefullg(x, 2, 4, 5), 
+hefullob(x, 2, 4, 6) + lam[2:3] \%*\% hefullg(x, 2, 4, 6), 
+hefullob(x, 2, 4, 7) + lam[2:3] \%*\% hefullg(x, 2, 4, 7)
+),
+c(hefullob(x, 3, 5, 1) + lam[4:5] \%*\% hefullg(x, 3, 5, 1),  
+hefullob(x, 3, 5, 2) + lam[4:5] \%*\% hefullg(x, 3, 5, 2),  
+hefullob(x, 3, 5, 3) + lam[4:5] \%*\% hefullg(x, 3, 5, 3),  
+hefullob(x, 3, 5, 4) + lam[4:5] \%*\% hefullg(x, 3, 5, 4),  
+hefullob(x, 3, 5, 5) + lam[4:5] \%*\% hefullg(x, 3, 5, 5),  
+hefullob(x, 3, 5, 6) + lam[4:5] \%*\% hefullg(x, 3, 5, 6),  
+hefullob(x, 3, 5, 7) + lam[4:5] \%*\% hefullg(x, 3, 5, 7)
+),
+c(hefullob(x, 3, 6, 1) + lam[4:5] \%*\% hefullg(x, 3, 6, 1),   
+hefullob(x, 3, 6, 2) + lam[4:5] \%*\% hefullg(x, 3, 6, 2),  
+hefullob(x, 3, 6, 3) + lam[4:5] \%*\% hefullg(x, 3, 6, 3),  
+hefullob(x, 3, 6, 4) + lam[4:5] \%*\% hefullg(x, 3, 6, 4),  
+hefullob(x, 3, 6, 5) + lam[4:5] \%*\% hefullg(x, 3, 6, 5),  
+hefullob(x, 3, 6, 6) + lam[4:5] \%*\% hefullg(x, 3, 6, 6),  
+hefullob(x, 3, 6, 7) + lam[4:5] \%*\% hefullg(x, 3, 6, 7)
+),
+c(hefullob(x, 3, 7, 1) + lam[4:5] \%*\% hefullg(x, 3, 7, 1),   
+hefullob(x, 3, 7, 2) + lam[4:5] \%*\% hefullg(x, 3, 7, 2),  
+hefullob(x, 3, 7, 3) + lam[4:5] \%*\% hefullg(x, 3, 7, 3),  
+hefullob(x, 3, 7, 4) + lam[4:5] \%*\% hefullg(x, 3, 7, 4),  
+hefullob(x, 3, 7, 5) + lam[4:5] \%*\% hefullg(x, 3, 7, 5),  
+hefullob(x, 3, 7, 6) + lam[4:5] \%*\% hefullg(x, 3, 7, 6),  
+hefullob(x, 3, 7, 7) + lam[4:5] \%*\% hefullg(x, 3, 7, 7)
+)
+)
+
+
+print(resjacphi[1:n, 1:n] - checkA)
+
+
+cat("\n\n________________________________________\n\n")
+
+
+cat("\n\npart B\n\n")	
+
+
+checkB <- 
+rbind(
+cbind(c(grfullg(x, 1, 1), grfullg(x, 1, 2)), c(0, 0), c(0, 0), c(0, 0), c(0, 0)),
+cbind(c(0, 0), rbind(grfullg(x, 2, 3), grfullg(x, 2, 4)), c(0, 0), c(0, 0)),
+cbind(c(0, 0, 0), c(0, 0, 0), c(0, 0, 0), rbind(grfullg(x, 3, 5), grfullg(x, 3, 6), grfullg(x, 3, 7)))
+)
+
+
+print(resjacphi[1:n, (n+1):(n+m)] - checkB)	
+
+
+cat("\n\n________________________________________\n\n")
+cat("\n\npart C\n\n")	
+
+
+gx <- c(g(x,1), g(x,2), g(x,3))
+
+checkC <- 
+- t(
+cbind(
+rbind(
+grfullg(x, 1, 1) * GrAphiFB(-gx, lam)[1],
+grfullg(x, 1, 2) * GrAphiFB(-gx, lam)[1],
+grfullg(x, 1, 3) * GrAphiFB(-gx, lam)[1],
+grfullg(x, 1, 4) * GrAphiFB(-gx, lam)[1],
+grfullg(x, 1, 5) * GrAphiFB(-gx, lam)[1],
+grfullg(x, 1, 6) * GrAphiFB(-gx, lam)[1],
+grfullg(x, 1, 7) * GrAphiFB(-gx, lam)[1]
+),
+rbind(
+grfullg(x, 2, 1) * GrAphiFB(-gx, lam)[2:3],
+grfullg(x, 2, 2) * GrAphiFB(-gx, lam)[2:3],
+grfullg(x, 2, 3) * GrAphiFB(-gx, lam)[2:3],
+grfullg(x, 2, 4) * GrAphiFB(-gx, lam)[2:3],
+grfullg(x, 2, 5) * GrAphiFB(-gx, lam)[2:3],
+grfullg(x, 2, 6) * GrAphiFB(-gx, lam)[2:3],
+grfullg(x, 2, 7) * GrAphiFB(-gx, lam)[2:3]
+),
+rbind(
+grfullg(x, 3, 1) * GrAphiFB(-gx, lam)[4:5],
+grfullg(x, 3, 2) * GrAphiFB(-gx, lam)[4:5],
+grfullg(x, 3, 3) * GrAphiFB(-gx, lam)[4:5],
+grfullg(x, 3, 4) * GrAphiFB(-gx, lam)[4:5],
+grfullg(x, 3, 5) * GrAphiFB(-gx, lam)[4:5],
+grfullg(x, 3, 6) * GrAphiFB(-gx, lam)[4:5],
+grfullg(x, 3, 7) * GrAphiFB(-gx, lam)[4:5]
+)
+)
+)
+
+
+
+print(resjacphi[(n+1):(n+m), 1:n] - checkC)
+
+
+cat("\n\n________________________________________\n\n")
+
+cat("\n\npart D\n\n")	
+
+
+checkD <- diag(GrBphiFB(-gx, lam)) 
+
+print(resjacphi[(n+1):(n+m), (n+1):(n+m)] - checkD)
 
 }
 \keyword{math}

@@ -30,14 +30,14 @@ commonArgs <- function(par, fn, ctrl, rho) {
            force.start = force.start)
       }, ctrl)
 
-    ## Create and populate and environment
+    ## Create and populate an environment
     ctrl <- new.env(parent = emptyenv()) # ctrl environment should not chain
     lapply(names(cc), function(nm) assign(nm, cc[[nm]], envir = ctrl))
 
     ## Adjust and check npt
-    ctrl$npt <- as.integer(max(n + 2, min(ctrl$npt, (n+1)*(n+2)/2)))
+    ctrl$npt <- as.integer(max(n + 2L, min(ctrl$npt, ((n+1L)*(n+2L)) %/% 2L)))
     if (ctrl$npt > (2 * n + 1))
-        warning("Setting 'npt' larger than 2 * length(par)+1 not recommended.")
+        warning("Setting npt > 2 * length(par) + 1 is not recommended.")
 
     ## Check and adjust rhobeg and rhoend
     if (is.na(ctrl$rhobeg))
@@ -47,14 +47,14 @@ commonArgs <- function(par, fn, ctrl, rho) {
 
     ## Check recommended range of maxfun
     if (ctrl$maxfun < 10 * n^2)
-        warning("'maxfun' less than 10*length(par)^2 not recommended.")
+        warning("maxfun < 10 * length(par)^2 is not recommended.")
     ctrl
 }
 
 ##' Nonlinear optimization with box constraints
 ##'
 ##' Minimize a function of many variables subject to box constraints
-##' by a trust region method ##' that forms quadratic models by 
+##' by a trust region method that forms quadratic models by 
 ##' interpolation, using the BOBYQA code written by Mike Powell.
 ##' 
 ##' @param par numeric vector of starting parameters (length > 1)

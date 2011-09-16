@@ -2,6 +2,7 @@
 #include <R_ext/RS.h>
 #include <R_ext/Arith.h>
 #include <R_ext/Rdynload.h>
+#include <limits>
 
 using namespace Rcpp;
 using namespace std;
@@ -30,8 +31,7 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
 	throw range_error("non-finite x values not allowed in calfun");
     copy(x, x + nn, pp.begin());
     double f = as<double>(cf(pp)); // evaluate objective
-    if (!R_finite(f))
-	throw range_error("non-finite objective values not allowed");
+    if (!R_finite(f)) f = numeric_limits<double>::max();
 
     if (*ip == 3) {		// print eval info when very verbose
 	Rprintf("%3d:%#14.8g:", cc[0], f);

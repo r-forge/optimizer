@@ -1,8 +1,6 @@
-fixedpoint <- function(xinit, method=c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
-	yfunc, stepfunc, Vfunc, control=list(), ...)
+fpeq <- function(xinit,	yfunc, stepfunc, Vfunc, method=c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
+	control=list(), ...)
 {
-	cat("Depreciated function.\n")
-	
 	method <- match.arg(method, c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"))
 	
 	if(method == "UR")

@@ -4,6 +4,8 @@ NewtonKKT <- function(xinit,
 	extrapol=c("none", "RRE", "MPE", "SqRRE", "SqMPE"), bounds,
 	silent=TRUE)
 {
+	cat("Depreciated function.\n")
+	
 	method <- match.arg(method, c("Newton", "Levenberg-Marquardt","BFGS", "L-BFGS-B"))
 	extrapol <- match.arg(extrapol, c("none", "RRE", "MPE", "SqRRE", "SqMPE"))
 	
@@ -226,12 +228,4 @@ EKKT_by_BFGS <- function(xinit, phi, jacphi, control, phi.arg, jacphi.arg, metho
 		message=resoptim$message)
 }
 
-
-evalwitharglist <- function(f, x, addarg)
-{
-	if(length(addarg) == 0)
-		f(x)
-	else
-		do.call(f, c(list(x), addarg) )
-}
 

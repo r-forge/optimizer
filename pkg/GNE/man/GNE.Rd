@@ -5,17 +5,39 @@
 \description{
 		Generalized Nash Equilibrium computational methods.
 	}
-\details{
+\usage{
+GNE(approach = c("non smooth", "fixed point", "minimization"), method = "default", xinit,
+	func1, func2, argfunc1=list(), argfunc2=list(), ..., control=list())
 
+}
+\arguments{
+  \item{approach}{a character string for the approach: either \code{"non smooth"}, \code{"fixed point"}, or 
+	\code{"minimization"}.}
+  \item{method}{a character string for the computation method: either \code{"default"} or the name
+	of the method.}
+  \item{xinit}{a numeric vector for the initial point.}
+  \item{func1}{function 1. See details.}
+  \item{func2}{function 2. See details.}
+  \item{argfunc1}{additionnal argument of function 1. Default a void list.}
+  \item{argfunc2}{additionnal argument of function 2. Default a void list.}
+  \item{\dots}{further arguments to be passed to \code{GNE.nseq}, \code{GNE.fpeq} or \code{GNE.min}. 
+	NOT to the functions \code{func1} and \code{func2}.}
+  \item{control}{a list with control parameters.}
+}	
+\details{
 Computing generalized Nash Equilibrium can be done in three different approaches.
 \describe{
-	\item{(i) fixed point approach}{It consists in solving equation \eqn{y(x)=x}. }
-	\item{(ii) gap function minimization}{It consists in minimizing a gap function \eqn{min V(x)}. }
-	\item{(iii) extended KKT system}{It consists in solving the extended Karush-Kuhn-Tucker 
-		(KKT) system \eqn{\Phi(z)=0}. }
+	\item{(i) extended KKT system}{It consists in solving the non smooth extended Karush-Kuhn-Tucker 
+		(KKT) system \eqn{\Phi(z)=0}. \code{func1} is \eqn{Phi} and \code{func2} is \eqn{Jac Phi}.}
+	\item{(ii) fixed point approach}{It consists in solving equation \eqn{y(x)=x}. \code{func1} is \eqn{y} and 
+		\code{func2} is ?}
+	\item{(iii) gap function minimization}{It consists in minimizing a gap function \eqn{min V(x)}. 
+		\code{func1} is \eqn{V} and \code{func2} is \eqn{Grad V}.}
 }
-The three different approaches are implemented in three distinct function \code{\link{fixedpoint}}, 
-\code{\link{NewtonKKT}} and \code{\link{minGap}}. 
+
+The \code{GNE} function is a global function calling the appropriate function \code{\link{GNE.nseq}}, 
+\code{\link{GNE.fpeq}} or \code{\link{GNE.min}}.
+
 
 Additionnal utitilty functions are also available:
 \code{\link{rejection}}, \code{\link{projector}}, \code{\link{stepfunc}},
@@ -28,6 +50,34 @@ TODO:
 \item{-}{write the headers for all files, in particuler C files.}
 }
 
+}
+\value{
+A list with components:
+	\describe{
+		\item{\code{par}}{The best set of parameters found.}
+		\item{\code{value}}{The value of the merit function.}
+		\item{\code{counts}}{A two-element integer vector giving the number of calls to 
+			\code{phi} and \code{jacphi} respectively.}			
+		\item{\code{iter}}{The outer iteration number.}
+		\item{\code{code}}{
+			         The values returned are
+         \describe{
+			\item{\code{1}}{Function criterion is near zero.
+			Convergence of function values has been achieved.}
+			\item{\code{2}}{x-values within tolerance. This means that the relative distance between two
+			consecutive x-values is smaller than \code{xtol}.}
+			\item{\code{3}}{No better point found.
+			This means that the algorithm has stalled and cannot find an acceptable new point.
+			This may or may not indicate acceptably small function values.}
+			\item{\code{4}}{Iteration limit \code{maxit} exceeded.}
+			\item{\code{5}}{Jacobian is too ill-conditioned.}
+			\item{\code{6}}{Jacobian is singular.}
+			\item{\code{100}}{an error in the execution.}
+			}
+		}
+		\item{\code{message}}{a string describing the termination code}	
+		\item{\code{approach}}{the name of the approach.}	
+	}
 }
 \references{
 
@@ -43,6 +93,11 @@ TODO:
  \emph{Optimization reformulations of the generalized Nash equilibrium problem using Nikaido-Isoda-type functions},
  Comput Optim Appl .
 
+
+}
+\seealso{
+
+See \code{\link{GNE.nseq}}, \code{\link{GNE.fpeq}} and \code{\link{GNE.min}}.
 
 }
 \author{

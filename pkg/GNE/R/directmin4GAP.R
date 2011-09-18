@@ -2,6 +2,8 @@
 minGap <- function(xinit, Gap, gradGap, method=c("BB","BFGS"), 
 	control=list(), ...)
 {
+	cat("Depreciated function.\n")
+	
 	method <- match.arg(method, c("BB","BFGS"))
 	
 	#default control parameters

@@ -1,11 +1,11 @@
 Package: GNE	
 Type: Package
 Title: Computation of Nash equilibria
-Version: 0.9
+Version: 0.95
 Date: 2010-08-25
 Author: Christophe Dutang
 Maintainer: Christophe Dutang <christophe.dutang@ensimag.fr>
 Description: Nash Equilibrium computational methods
-Depends: R (>= 2.6.0), alabama
+Depends: R (>= 2.6.0), alabama, nleqslv, BB
 License: GPL
 LazyLoad: yes

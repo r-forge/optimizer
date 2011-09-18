@@ -1,5 +1,11 @@
 === GNE: computation of Nash Equilibria ===
 
+Version 0.95
+=============
+
+- Wide and deep rebuild of the package. Now use
+the BB, alabama, nleqslv packages. 
+
 Version 0.9
 =============
 

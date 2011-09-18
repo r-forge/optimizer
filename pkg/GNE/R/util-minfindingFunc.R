@@ -156,7 +156,7 @@ NewtonNext <- function(xk, f_xk, jacf_xk, silent=TRUE)
 {
 	A <- jacf_xk
 	b <- -f_xk	
-	mycatch <- try( direction <- solve(A, b) , silent=silent)
+	mycatch <- try( direction <- qr.solve(A, b) , silent=silent)
 	
 	if(class(mycatch) == "try-error")
 	{	
@@ -169,9 +169,10 @@ NewtonNext <- function(xk, f_xk, jacf_xk, silent=TRUE)
 
 
 #Levenberg-Marquardt step
-LevenMarqNext <- function(xk, f_xk, jacf_xk, silent=TRUE)
+LevenMarqNext <- function(xk, f_xk, jacf_xk, silent=TRUE, delta=1)
 {
-	A <- crossprod( jacf_xk, jacf_xk ) + sqrt( sum( f_xk^2 ) ) * diag( length(xk) )
+	lambdak <- sqrt( sum( f_xk^2 ) )^delta
+	A <- crossprod( jacf_xk, jacf_xk ) + lambdak * diag( length(xk) )
 	b <- -crossprod( jacf_xk, f_xk )
 	mycatch <- try( direction <- solve(A, b) , silent=silent)
 	
@@ -184,3 +185,19 @@ LevenMarqNext <- function(xk, f_xk, jacf_xk, silent=TRUE)
 		xk + as.vector( direction )
 }
 
+#Quasi Newton step
+QuasiNewtonNext <- function(xk, f_xk, Wk, silent=TRUE, inv=TRUE)
+{
+	if(inv)
+		mycatch <- try( direction <- - Wk %*% f_xk , silent=silent)
+	if(!inv)
+		mycatch <- try( direction <- solve(Wk, -f_xk), silent=silent)
+		
+	if(class(mycatch) == "try-error")
+	{	
+		if(!silent)
+			cat(mycatch)
+		stop("The quasi-Newton step cannot be done.")
+	}else
+		xk + as.vector( direction )
+}

@@ -1,9 +1,8 @@
 
 
 ### Exports of R functions
-export(NewtonKKT, fixedpoint, minGap)
+export(GNE, GNE.nseq, GNE.fpeq, GNE.min)
 
-#export(NewtonNext, LevenMarqNext)
 
 export(decrstep, decrstep10, decrstep20, decrstep30, purestep)
 
@@ -12,6 +11,17 @@ export(phiFB, GrAphiFB, GrBphiFB, phiMin, GrAphiMin, GrBphiMin)
 export(projector, rejection)
 
 export(Phi, JacPhi, PROBj2k)
+
+
+### depreciated functions
+
+export(NewtonKKT, fixedpoint, minGap)
+
+### test functions
+
+#export(NewtonNext, LevenMarqNext)
+#export(eqsolve, graphContourOneIter, graphContourMultIter)
+
 
 ### C code
 useDynLib(GNE, .registration = TRUE)

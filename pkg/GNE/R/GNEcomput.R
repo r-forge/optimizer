@@ -15,12 +15,12 @@ GNE <- function(approach = c("non smooth", "fixed point", "minimization"), metho
 	c(res, approach=approach)
 }
 
-GNE.nseq <- function(xinit, phi, jacphi, argphi=list(), argjac=list(), method="Newton", control=list(), ...)
+GNE.nseq <- function(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), method="Newton", control=list(), ...)
 {
 	if(method == "default")
 		method <- "Newton"
 		
-	nseq(xinit, phi, jacphi, argphi, argjac, method, control, ...)	
+	nseq(xinit, Phi, jacPhi, argPhi, argjac, method, control, ...)	
 }
 
 
@@ -41,3 +41,45 @@ GNE.min <- function(xinit, gap, gradgap, arggap=list(), arggrad=list(), method, 
 	
 	minpb(xinit, gap, gradgap, arggap, arggrad, method, control, ...)
 }
+
+
+
+bench.GNE.nseq <- function(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
+{
+	
+methods <- c("Newton", "Broyden")
+globals <- c("none", "gline", "qline", "pwldog", "dbldog")
+globnames <- c("pure", "geom. line search", "quad. line search", "Powell trust region", "Dbl. trust region")
+
+fullnames <- paste(rep(methods, each=length(globals)), rep(globnames, length(methods)), sep=" - ")
+
+
+times <- vector("numeric", length(methods) * length(globals) )
+reslist <- list()
+
+for(m in methods)
+for(g in globals)
+{
+mytime <- system.time(
+	 res <- GNE.nseq(xinit, Phi, jacPhi, argPhi, argjac, ..., method=m, global=g) 
+, gcFirst = TRUE)
+	res <- c(res, method=m, global=g, time= mytime[3])
+	if(echo)
+		print(res)
+	reslist <- c(reslist, list(res))
+}	
+
+fctcall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[1] )
+jaccall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[2] )
+x <- t(sapply(1:length(reslist), function(i) reslist[[i]]$par ))
+normFx <- sapply(1:length(reslist), function(i) reslist[[i]]$value )
+comptime <- sapply(1:length(reslist), function(i) reslist[[i]]$time )
+
+
+
+#comparison of algorithms
+list(compres = data.frame( method= fullnames, fctcall, jaccall, comptime, x,normFx ),
+	reslist = reslist )
+
+}
+

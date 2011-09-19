@@ -1,12 +1,14 @@
 
 
 ### Exports of R functions
-export(GNE, GNE.nseq, GNE.fpeq, GNE.min)
+export(GNE, GNE.nseq, bench.GNE.nseq, GNE.fpeq, GNE.min)
 
 
 export(decrstep, decrstep10, decrstep20, decrstep30, purestep)
 
 export(phiFB, GrAphiFB, GrBphiFB, phiMin, GrAphiMin, GrBphiMin)
+export(phiMan, GrAphiMan, GrBphiMan, phiLT, GrAphiLT, GrBphiLT)
+export(phiKK, GrAphiKK, GrBphiKK)
 
 export(projector, rejection)
 

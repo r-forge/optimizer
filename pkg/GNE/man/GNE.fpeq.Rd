@@ -5,7 +5,7 @@
 		Fixed point equation reformulation via the NI function of the GNE problem.
 	}
 \usage{
-fpeq(xinit,	yfunc, stepfunc, Vfunc, method=c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
+GNE.fpeq(xinit,	yfunc, stepfunc, Vfunc, method=c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
 	control=list(), ...)
 
 }

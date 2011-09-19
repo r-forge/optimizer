@@ -5,37 +5,41 @@
 		Non smooth equation reformulation via the extended KKT system of the GNE problem.
 	}
 \usage{
-GNE.nseq(xinit, phi, jacphi, argphi=list(), argjac=list(), method="Newton", control=list(), ...)
+GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), method="Newton", control=list(), ...)
+bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
 }
 \arguments{
   \item{xinit}{initial point.}
-  \item{phi}{the phi function.}
-  \item{jacphi}{the Jacobian of the phi function.}
-  \item{argphi}{further arguments to be passed to \code{phi}.}
+  \item{Phi}{the phi function.}
+  \item{jacPhi}{the Jacobian of the phi function.}
+  \item{argPhi}{further arguments to be passed to \code{phi}.}
   \item{argjac}{further arguments to be passed to \code{jacphi}.}
   \item{method}{a character string specifying the method \code{"Newton"},
 	\code{"Broyden"}, \code{"Levenberg-Marquardt"}. }
   \item{control}{a list with control parameters.}
   \item{\dots}{further arguments to be passed to the optimization routine. 
 	NOT to the functions \code{phi} and \code{jacphi}.}
-  
+  \item{echo}{a logical to get some traces. Default to \code{FALSE}.}	
 }
 \details{
+\code{GNE.nseq} solves the GNE problem via a non smooth reformulation of the KKT system. 
+\code{bench.GNE.nseq} carries out a benchmark of the computation methods for a given initial point.
 
-The extended KKT system approach consists in solving the extended Karush-Kuhn-Tucker 
+This approach consists in solving the extended Karush-Kuhn-Tucker 
 (KKT) system denoted by \eqn{\Phi(z)=0}, where eqn{z} is formed by the players strategy 
 \eqn{x} and the Lagrange multiplier \eqn{\lambda}.
 The root problem \eqn{\Phi(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
 where the direction \eqn{d_n} is computed in three different ways:
 \describe{
-	\item{(a) Newton:}{The direction solves the system \eqn{Jac\Phi(x_n) d = - \Phi(x_n),} 
+	\item{(a) Newton:}{The direction solves the system \eqn{Jac\Phi(x_n) d = - \Phi(x_n)}{Jac Phi(x_n) d = - Phi(x_n)}, 
 		generally called the Newton equation.}
 	\item{(b) Broyden:}{It is a quasi-Newton method aiming to solve an approximate version
-		of the Newton equation \eqn{d = -\Phi(x_n) W_n} where \eqn{W_n} is computed
+		of the Newton equation \eqn{d = -\Phi(x_n) W_n}{d = -Phi(x_n) W_n} where \eqn{W_n} is computed
 		by an iterative scheme. In the current implementation, \eqn{W_n} is updated
 		by the Broyden method. }
 	\item{(c) Levenberg-Marquardt:}{The direction solves the system 
-		\deqn{ (Jac\Phi(x_n)^T Jac\Phi(x_n) + ||\Phi(x_n)|| I) d = - Jac\Phi(x_n)^T\Phi(x_n),}
+		\deqn{ (Jac\Phi(x_n)^T Jac\Phi(x_n) + ||\Phi(x_n)||^\delta I) d = - Jac\Phi(x_n)^T\Phi(x_n)
+			}{ (Jac Phi(x_n)^T Jac Phi(x_n) + ||Phi(x_n)||^delta I) d = - Jac Phi(x_n)^T Phi(x_n),}
 		where \eqn{I} denotes the identity matrix.}
 }
 Details on the methods can be found in Facchinei, Fischer & Piccialli (2009), \code{"Newton"}
@@ -75,7 +79,7 @@ The \code{control} argument is a list that can supply any of the following compo
 
 }
 \value{
-A list with components:
+\code{GNE.nseq} returns a list with components:
 	\describe{
 		\item{\code{par}}{The best set of parameters found.}
 		\item{\code{value}}{The value of the merit function.}
@@ -100,6 +104,12 @@ A list with components:
 		}
 		\item{\code{message}}{a string describing the termination code}	
 	}
+\code{bench.GNE.nseq} returns a list with components:
+	\describe{
+		\item{\code{compres}}{a data.frame summarizing the different computations.}
+		\item{\code{reslist}}{a list with the different results from \code{GNE.nseq}.}
+	} 	
+
 }
 \references{
 
@@ -125,8 +135,9 @@ A list with components:
 \seealso{
 
 See \code{\link{GNE.fpeq}} and \code{\link{GNE.min}} 
-for other approaches, and \code{\link{Phi}} and
-\code{\link{JacPhi}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi}.
+for other approaches; \code{\link{Phi}} and
+\code{\link{JacPhi}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi} and
+\code{\link{complementarity}} for complementarity functions.
 
 See \code{\link{nleqslv}} for the optimization routine.
 }
@@ -173,12 +184,12 @@ jacphiex1 <- function(z)
 	res
 }
 
-#call, true value is (3/4, 1/4, 0, 0, 1/2)
-NewtonKKT(rep(0,5), "Newton", phiex1, jacphiex1, control=list(maxit=100, echo=TRUE))
+#true value is (3/4, 1/4, 0, 0, 1/2)
 
-NewtonKKT(rep(0,5), "Levenberg-Marquardt", phiex1, jacphiex1, control=list(maxit=100, echo=TRUE))
+z0 <- rep(0, 5)
+GNE.nseq(z0, phiex1, jacphiex1, method="Newton")
 
-NewtonKKT(rep(-1,5), "Leven", phiex1, jacphiex1, control=list(maxit=100, echo=TRUE))
+GNE.nseq(z0, phiex1, jacphiex1, method="Broyden")
 
 
 #-------------------------------------------------------------------------------
@@ -222,7 +233,11 @@ jacphiex2 <- function(z)
 
 #call, true value is (16/3, 16/3, 0, 0) 
 
-NewtonKKT(rep(0, 4), "Levenberg-Marquardt", phiex2, jacphiex2, control=list(maxit=200, echo=TRUE))
+z0 <- rep(0, 4)
+GNE.nseq(z0, phiex2, jacphiex2, method="Newton")
+
+GNE.nseq(z0, phiex2, jacphiex2, method="Broyden")
+
 
 #-------------------------------------------------------------------------------
 # (3) Example 5.3 of von Heusinger & Kanzow (2009)
@@ -250,7 +265,7 @@ gradL <- function(z, index)
 }	
 
 #phi function
-phi <- function(z)
+phiex3 <- function(z)
 {
 	x <- z[1:3]
 	mu1 <- z[4]
@@ -264,7 +279,7 @@ c(	gradL(z, 1),
 }	
 
 #Jacobian of the phi function
-jacphi <- function(z)
+jacphiex3 <- function(z)
 {
 	x <- z[1:3]
 	mu1 <- z[4]
@@ -282,12 +297,125 @@ jacphi <- function(z)
 	res
 }
 
-#call, true value around (21.146, 16.027, 2.724)
+#call, true value around (21.146, 16.027, 2.724, 0.574, 0.000)
 
-NewtonKKT(rep(0,5), "Newton", phi, jacphi, control=list(maxit=2000, echo=FALSE))
+z0 <- rep(0, 5)
+GNE.nseq(z0, phiex3, jacphiex3, method="Newton")
+
+GNE.nseq(z0, phiex3, jacphiex3, method="Broyden")
 
 
-NewtonKKT(rep(0,5), "Levenberg-Marquardt", phi, jacphi, control=list(maxit=2000, echo=FALSE))
+#-------------------------------------------------------------------------------
+# (4) Example of GNE with 4 solutions(!)
+#-------------------------------------------------------------------------------
+
+
+
+F <- function(z, phi=phiMin, ...)
+{
+	x <- z[1:2]
+	lambda <- z[3:4]
+	# cat("x", x, "\n")
+	c(	2*(x[1] - 2)*(x[2]-4)^4 + lambda[1],
+		2*(x[2] - 3)*x[1]^4 + lambda[2],
+		phi(lambda[1], 1-sum(x), ...),
+		phi(lambda[2], 2-2*x[1]-x[2], ...)
+	)
+}
+
+
+JacF <- function(z, gphia, gphib, ...)
+{
+	x <- z[1:2]
+	lambda <- z[3:4]
+	idga1 <- gphia(lambda[1], 1- sum(x), ...)
+	idgb1 <- gphib(lambda[1], 1- sum(x), ...)
+	idga2 <- gphia(lambda[2], 2-2*x[1]-x[2], ...)
+	idgb2 <- gphib(lambda[2], 2-2*x[1]-x[2], ...)
+
+rbind(
+c(2*(x[2]-4)^4, 8*(x[1] - 2)*(x[2]-4)^3, 1, 0),
+c(8*(x[2] - 3)*x[1]^3, 2*x[1]^4, 0, 1),
+c(-idgb1, -idgb1, idga1, 0),
+c(-2*idgb2, -idgb2, 0, idga2)
+)	
+}
+
+
+#list of true GNEs
+trueGNE <- rbind(c(2, -2, 0, 5*2^5),
+	c(-2, 3, 8, 0),
+	c(0, 1, 4*3^4, 0),
+	c(1, 0, 2^9, 6))
+colnames(trueGNE) <- c("x1", "x2", "lam1", "lam2")
+rownames(trueGNE) <- 1:4
+
+z0 <- c(10, 10, 1, 1)
+
+GNE.nseq(z0, F, JacF, list(phi=phiMin), list(gphia= GrAphiMin, gphib= GrBphiMin), method="Newton")
+
+GNE.nseq(z0, F, JacF, list(phi= phiFB), list(gphia= GrAphiFB, gphib= GrBphiFB), method="Newton")
+
+
+#random initial points
+n <- 20
+set.seed(1234)
+initpt <- cbind(runif(n, -10, 10), runif(n, -10, 10), 1, 1)
+
+NewLnsrch <- function(i, echo=FALSE)
+{ 
+	if(echo)
+		cat("______", initpt[i, ], "\n")
+	res <- GNE.nseq(initpt[i, ], F, JacF, list(phi=phiMin), list(gphia= GrAphiMin, gphib= GrBphiMin), method="Newton") 
+	if(echo)
+		print(res$par)
+	c(res$par, res$value )
+}
+
+respt <- t( sapply(1:NROW(initpt), NewLnsrch ) )
+
+totalres <- cbind(1:NROW(initpt), initpt[, 1:2], NA, round(respt, 3))
+
+#remove non convergent optimization sequences
+finalres <- totalres[totalres[,9] == 0, -9]
+colnames(finalres) <- c("num", "x1 init", "x2 init", "", "x1 final", "x2 final", "lam 1", "lam 2")
+
+print(finalres)
+print(trueGNE)
+
+?GNE
+
+#-------------------------------------------------------------------------------
+#benchmark
+z0 <- c(10, 10, 1, 1)
+
+#min function
+resMin <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), echo=FALSE)
+
+resMin$compres
+
+#FB function
+resFB <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), echo=FALSE)
+
+resFB$compres
+
+
+#Mangasarian function
+resMan <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMan, f=function(t) t^3), argjac=list(gphia= GrAphiMan, gphib= GrBphiMan, fprime=function(t) 3*t^2), echo=FALSE, control=list(maxit=200))
+
+resMan$compres
+
+#LT function
+resLT <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiLT, q=4), argjac=list(gphia= GrAphiLT, gphib= GrBphiLT, q=4))
+
+resLT$compres
+
+
+#KK function
+resKK <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiKK, lambda=3/2), argjac=list(gphia= GrAphiKK, gphib= GrBphiKK, lambda=3/2))
+
+resKK$compres
+
 	
 
 }

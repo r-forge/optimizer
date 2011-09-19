@@ -1,4 +1,5 @@
-nseq <- function(xinit, phi, jacphi, argphi, argjac, method, control, global="gline", ...)	
+nseq <- function(xinit, Phi, jacPhi, argPhi, argjac, method, control, global="gline", 
+	silent=TRUE, ...)	
 {
 	
 	method <- match.arg(method, c("Newton", "Broyden", "Levenberg-Marquardt"))
@@ -10,14 +11,14 @@ nseq <- function(xinit, phi, jacphi, argphi, argjac, method, control, global="gl
 	con[namc <- names(control)] <- control
 	
 	wrapPhi <- function(x, argphi, argjac)
-		evalwitharglist(phi, x, argphi) 
+		evalwitharglist(Phi, x, argPhi) 
 	
 	wrapJac <- function(x, argphi, argjac)
-		evalwitharglist(jacphi, x, argjac)
+		evalwitharglist(jacPhi, x, argjac)
 	
 
 	test.try <- try( nleqslv(xinit, wrapPhi, wrapJac, argphi=argphi, argjac=argjac,
-		method = method, global = global, control=con, ...), silent=TRUE)
+		method = method, global = global, control=con, ...), silent=silent)
 	
 	
 	

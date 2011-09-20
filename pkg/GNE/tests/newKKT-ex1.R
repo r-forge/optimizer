@@ -41,9 +41,9 @@ jacphiex1 <- function(z)
 }
 
 #call
-NewtonVIP(rep(0,5), "3", phiex1, jacphiex1, control=list(maxit=100, echo=TRUE))
+NewtonKKT(rep(0,5), "Levenberg", phiex1, jacphiex1, control=list(maxit=100, echo=TRUE))
 
-NewtonVIP(rep(-1,5), "3", phiex1, jacphiex1, control=list(maxit=100, echo=TRUE))
+NewtonKKT(rep(-1,5), "Levenberg", phiex1, jacphiex1, control=list(maxit=100, echo=TRUE))
 	
 	
 	

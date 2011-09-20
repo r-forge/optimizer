@@ -97,12 +97,12 @@ V1abfullres(c(1/4,3/4), .02, .05)
 GV1alphabeta(c(1/4,3/4), .02, .05)
 GV1abfullres(c(1/4,3/4), .02, .05)
 
-minVhat(c(0,0), V1alphabeta, GV1alphabeta, method="BFGS", alpha=.02, beta=.05, control=list(tol=1e-8, echo=TRUE))
+minGap(c(0,0), V1alphabeta, GV1alphabeta, method="BFGS", alpha=.02, beta=.05, control=list(tol=1e-8, echo=TRUE))
 
-minVhat(c(0,0), V1abfullres, GV1abfullres, method="BFGS", alpha=.02, beta=.05, control=list(tol=1e-8, echo=TRUE))
+minGap(c(0,0), V1abfullres, GV1abfullres, method="BFGS", alpha=.02, beta=.05, control=list(tol=1e-8, echo=TRUE))
 
 
 
-minVhat(c(0,0), V1abfullres, GV1abfullres, method="BB", alpha=.02, beta=.05, control=list(tol=1e-8, echo=TRUE))
+minGap(c(0,0), V1abfullres, GV1abfullres, method="BB", alpha=.02, beta=.05, control=list(tol=1e-8, echo=TRUE))
 
 

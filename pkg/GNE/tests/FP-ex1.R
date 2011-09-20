@@ -65,12 +65,12 @@ Vfuncfullres <- function(x, alpha)
 
 
 
-fixedpointrelaxation(c(0,0), method="UR", yhat, purestep, Vfunc, control=list(echo=TRUE), alpha=.1)
+fixedpoint(c(0,0), method="UR", yhat, purestep, Vfunc, control=list(echo=TRUE), alpha=.1)
 
-fixedpointrelaxation(c(0,0), method="UR", yhatfullres, purestep, Vfuncfullres, control=list(echo=TRUE), alpha=.1)
+fixedpoint(c(0,0), method="UR", yhatfullres, purestep, Vfuncfullres, control=list(echo=TRUE), alpha=.1)
 
 
 
-fixedpointrelaxation(c(0,0), method="vH", yhat, Vfunc=Vfunc, control=list(echo=TRUE), alpha=.1)
+fixedpoint(c(0,0), method="vH", yhat, Vfunc=Vfunc, control=list(echo=TRUE), alpha=.1)
 
-fixedpointrelaxation(c(0,0), method="vH", yhatfullres, Vfunc= Vfuncfullres, control=list(echo=TRUE), alpha=.1)
+fixedpoint(c(0,0), method="vH", yhatfullres, Vfunc= Vfuncfullres, control=list(echo=TRUE), alpha=.1)

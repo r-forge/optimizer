@@ -60,7 +60,7 @@ phi(rep(0,5))
 jacphi(rep(0,5))
 jacphi(1:5)
 
-NewtonVIP(rep(0,5), "3", phi, jacphi, control=list(maxit=2000, echo=FALSE))
+NewtonKKT(rep(0,5), "Levenberg", phi, jacphi, control=list(maxit=2000, echo=FALSE))
 	
 
 

@@ -47,10 +47,4 @@ NewtonKKT(rep(0, 4), "Levenberg-Marquardt", phiex2, jacphiex2, control=list(maxi
 NewtonKKT(rep(0, 4), "New", phiex2, jacphiex2, control=list(maxit=200, echo=TRUE))
 
 
-NewtonKKT(rep(0, 4), "Leven", phiex2, jacphiex2, control=list(maxit=200, echo=TRUE), extrapol="MPE")
-
-
-NewtonKKT(rep(0, 4), "Leven", phiex2, jacphiex2, control=list(maxit=200, echo=TRUE), extrapol="SqMPE")
-
-
 

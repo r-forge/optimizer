@@ -34,8 +34,8 @@
 %citation
 \usepackage{natbib}
 
-%short toc
-\usepackage{shorttoc}
+%text style
+\usepackage{ulem}
 
 %reference hypertext
 \usepackage[pagebackref=true, hyperfootnotes=false]{hyperref}
@@ -86,7 +86,6 @@
 \newcommand{\blank}{ \clearpage{\pagestyle{empty}\cleardoublepage} }
 \newcommand{\card}{\textrm{Card}}
 \newcommand{\diag}{\textrm{diag}}
-\newcommand{\mbbR}{\mathbb R}
 \newcommand{\NIF}{\textrm{NIF}}
 \newcommand{\GAP}{\textrm{GAP}}
 \newcommand{\Jac}{\textrm{Jac\hskip+.1em}}
@@ -131,7 +130,10 @@ library(GNE)
 \begin{mydef}[GNEP]
 We define the generalized Nash equilibrium problem GNEP($N, \theta_\nu, X_\nu$) as the solutions $x^\star$ of the $N$ sub problems
 $$
-\forall \nu = 1, \dots, N, x_\nu^\star \txtm{solves} \underset{ y_\nu }{\min}~ \theta_\nu(y_\nu, x_{-\nu}^\star)
+\forall \nu = 1, \dots, N, x_\nu^\star \txtm{solves} 
+\underset{ y_\nu }{\min} 
+\quad
+\theta_\nu(y_\nu, x_{-\nu}^\star)
 \txtm{such that} x_\nu^\star \in X_\nu(x_{-\nu}^\star),
 $$
 where $X_\nu(x_{-\nu})$ is the action space of player $\nu$ given others player actions $x_{-\nu}$.
@@ -158,21 +160,22 @@ $$
 
 
 From \cite{facchfischpic09}, 
-assuming differentiability and a constraint qualification hold, the first-order necessary conditions of player $\nu$'s subproblem state there exists a Lagrangian multiplier $\lambda_\nu \in  \mbbR^{m_\nu} $ such that 
+assuming differentiability and a constraint qualification hold, the first-order necessary conditions of player $\nu$'s subproblem state there exists a Lagrangian multiplier
+ $\lambda_\nu \in  \mathbb{R}^{m_\nu} $ such that 
 $$
-\nabla_{x_\nu} \theta_{x_\nu}(x)   + \sum_{ 1 \leq j \leq m_\nu } \lambda_{\nu j} \nabla_{x_\nu} g_{\nu j}(x) = 0~~~~~~~ ( \in \mbbR^{n_\nu} )
+\nabla_{x_\nu} \theta_{x_\nu}(x)   + \sum_{ 1 \leq j \leq m_\nu } \lambda_{\nu j} \nabla_{x_\nu} g_{\nu j}(x) = 0\quad\quad\quad ( \in \mathbb R^{n_\nu} )
 $$
 $$
-0 \leq \lambda_\nu \perp - g_\nu(x) \leq  0~~~~~~~ ( \in \mbbR^{m_\nu} )
+0 \leq \lambda_\nu \perp - g_\nu(x) \leq  0\quad\quad\quad ( \in \mathbb R^{m_\nu} )
 $$
 Regrouping the $N$ subproblems, we get the following system.
 
 
 
 
-\begin{mydef}
-For the $N$ optimization subproblems for the functions $\theta_i: \mbbR^{n} \rightarrow \mbbR$, with constraints $g_i: \mbbR^{n} \rightarrow \mbbR^{m_i}$, the KKT conditions can be regrouped such that
-it exists $\lambda \in \mbbR^m$ and 
+\begin{mydef}[eKKT]
+For the $N$ optimization subproblems for the functions $\theta_i: \mathbb R^{n} \rightarrow \mathbb R$, with constraints $g_i: \mathbb R^{n} \rightarrow \mathbb R^{m_i}$, the KKT conditions can be regrouped such that
+it exists $\lambda \in \mathbb R^m$ and 
 $$
 \tilde L(x, \lambda) = 0 \txtm{and} 0 \leq \lambda \perp - G(x) \leq  0,
 $$
@@ -186,7 +189,7 @@ $$
 \nabla_{x_N} \theta_ N(x) + \Jac g_{N}(x)^T \lambda_N \\
 \end{matrix}
 \right)  
-\in \mbbR^{n}
+\in \mathbb R^{n}
 \txtm{and}
 G(x) = 
 \left( 
@@ -196,13 +199,14 @@ g_1(x) \\
 g_N(x) \\
 \end{matrix}
 \right) 
-\in \mbbR^{m},
+\in \mathbb R^{m},
 $$
-with $\Jac g_{\nu}(x)^T \lambda_\nu = \sum_{ 1 \leq j \leq m_\nu } \lambda_{\nu j} \nabla_{x_\nu} g_{\nu j}(x)  $. It will be denoted by eKKT($N, \theta_i, g_i$).
+with $\Jac g_{\nu}(x)^T \lambda_\nu = \sum_{ 1 \leq j \leq m_\nu } \lambda_{\nu j} \nabla_{x_\nu} g_{\nu j}(x)  $. The extended KKT system is denoted by eKKT($N, \theta_i, g_i$).
 \end{mydef}
 
 Using complementarity function $\phi(a,b)$ (e.g. $\min(a,b)$), we get the following nonsmooth equation
 $$
+\Phi(z) = 
 \left( 
 \begin{matrix}
 \tilde L(x, \lambda) \\
@@ -283,6 +287,8 @@ c(-2*idgb2, -idgb2, 0, idga2)
 @
 %%%
 
+\subsubsection{Usage example}
+
 Therefore, to compute a generalized Nash equilibrium, we use
 %%% R code
 <<testGNE, fig=FALSE, echo=TRUE, eval=TRUE>>=
@@ -304,11 +310,16 @@ print(trueGNE)
 @
 %%%
 
+\subsubsection{Localization of the GNEs}
+
+On figure \ref{GNEs}, we draw contour plots of the function $\frac{1}{2} || \Phi(z) ||^2$ with respect to $x_1$ and $x_2$, given $\lambda_1$ and $\lambda_2$. The second figure \ref{initpoint} just plots the initial points and the 6 GNEs.
+
 \begin{figure}[htb!]
 \begin{center}
-\subfloat[The 4 GNEs]{ \includegraphics[width=.5\textwidth]{img/4GNEPlots} \label{GNEs} }
-\subfloat[The 6 initial points]{ \includegraphics[width=.5\textwidth]{img/4GNEinitialPoints} \label{initpoint} }
+\subfloat[The 4 GNEs]{ \includegraphics[width=.6\textwidth]{img/4GNEPlots} \label{GNEs} }
+\subfloat[The 6 initial points]{ \includegraphics[width=.4\textwidth]{img/4GNEinitialPoints} \label{initpoint} }
 \caption{Contour plots of the norm of $\Phi$}
+\label{4GNE}
 \end{center}
 \end{figure}
 
@@ -316,6 +327,14 @@ print(trueGNE)
 
 \subsection{Benchmark of the complementarity functions and the computation methods}
 Using the following function, we compare all the different methods with different initial points and different complementarity functions.
+We consider the following complementarity functions.
+\begin{itemize}
+\item $\phi_{Min}(a,b)=\min(a,b)$,
+\item $\phi_{FB}(a,b)=\sqrt{a^2+b^2} -(a+b)$,
+\item $\phi_{Man}(a,b)=f(|a-b|) - f(a) - f(b)$ and $f(t)=t^3$,
+\item $\phi_{LT}(a,b)=(a^q+b^q)^{\frac{1}{q}} -(a+b)$ and $q=4$,
+\item $\phi_{KK}(a,b)= (\sqrt{(a-b)^2+2\lambda a b} -(a+b))/(2-\lambda)$ and $\lambda=3/2$.
+\end{itemize}
 Firstly, we define a function calling the benchmark function for the five complementarity functions under consideration.
 %%% R code
 <<bench, fig=FALSE, echo=TRUE, eval=FALSE>>=
@@ -362,51 +381,118 @@ for(i in 1: NCOL(initialpt))
 		cbind(mybench[[3]]$compres[,c(-1, -4)], mybench[[5]]$compres[,c(-1, -4)])
 		, 3) )
 
-
-	mytablelist <- c(mytablelist, list(mytable12), list(mytable35))
+	mytablelist <- c(mytablelist, z0=list(z0), MINFB=list(mytable12), MANKK=list(mytable35))
 }
 @
 %%%
+Note that one result table given by the function \code{bench.GNE.nseq} reports the computation results  for 10 methods given an initial point and a complementarity function. Below an example
+%%% R code
+<<benchessai, fig=FALSE, echo=TRUE, eval=TRUE>>=
+z0 <- c(-4, 4, 1, 1)
+bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), echo=FALSE)$compres
+@
+%%%
+The following subsections report the computation for 4 complementarity functions, the Luo-Tseng being discarded due to non convergence. We also remove the final estimates $z_n$ when the method has not converged, $|| \Phi(z_n) ||^2 \neq 0$. Tables are put in appendix, except the first one.
 
+
+\subsubsection{Initial point $z_0 = (4, -4,  1,  1)$}
+
+We work on the initial point $z_0 = (4, -4,  1,  1)$, close the GNE  $(2, -2, 0, 160)$.
+Clearly, we observe the Mangasarian complementarity function $\phi_{Man}$ does not converge except in the pure Newton method, for which the sequence converges to $(-2, 3, 8, 0)$ quite far from the initial point. So the ``Man'' sequence converged by a chance! For $\phi_{Min}$ function, when it converges, the GNEs found are $(2, -2, 0, 160)$ or $(1, 0, 512, 6)$. $\phi_{FB}$ and $\phi_{KK}$ associated sequences converge mostly to  $(2, -2, 0, 160)$. In terms of function/Jacobian calls, $\phi_{FB}$ is significantly better when used with the Newton scheme. 
 
 \begin{table}[htb!]
 
 \begin{scriptsize}
 \begin{tabular}{l|ccccccc|ccccccc}
-& \multicolumn{7}{c|}{$\phi(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
+ & \multicolumn{7}{c|}{$\phi_{Min}(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi_{FB}(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
    &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
 \hline   
 Newton - pure  &   5  &  5  &  1  &  0  &  512  &  6  &  0  &  6  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
 Newton - geom. LS  &   343  &  67  &  1  &  0  &  512  &  6  &  0  &  6  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
-Newton - quad. LS  &   292  &  100  &  1  &  0  &  276  &  9  &  2  &  6  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - quad. LS  &   292  &  100  &    &    &    &    &  2  &  6  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
 Newton - Powell TR  &   64  &  57  &  1  &  0  &  512  &  6  &  0  &  12  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
 Newton - Dbl. TR  &   63  &  58  &  1  &  0  &  512  &  6  &  0  &  12  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
-Broyden - pure  &   100  &  1  &  1  &  0  &  308  &  2  &  164  &  100  &  1  &  2  &  -1  &  353  &  147  &  188 \\ 
-Broyden - geom. LS  &   403  &  6  &  1  &  0  &  512  &  6  &  0  &  1079  &  26  &  2  &  -2  &  370  &  101  &  2 \\ 
-Broyden - quad. LS  &   291  &  6  &  1  &  0  &  487  &  6  &  1  &  467  &  3  &  2  &  -2  &  340  &  106  &  1 \\ 
-Broyden - Powell TR  &   22  &  2  &  2  &  -2  &  0  &  160  &  0  &  114  &  2  &  2  &  -1  &  558  &  63  &  1 \\ 
-Broyden - Dbl. TR  &   20  &  2  &  2  &  -2  &  0  &  160  &  0  &  115  &  2  &  2  &  -1  &  554  &  64  &  1 \\ 
+Broyden - pure  &   100  &  1  &    &    &    &    &  164  &  100  &  1  &    &    &    &    &  188 \\ 
+Broyden - geom. LS  &   403  &  6  &  1  &  0  &  512  &  6  &  0  &  1079  &  26  &    &    &    &    &  2 \\ 
+Broyden - quad. LS  &   291  &  6  &    &    &    &    &  1  &  467  &  3  &    &    &    &    &  1 \\ 
+Broyden - Powell TR  &   22  &  2  &  2  &  -2  &  0  &  160  &  0  &  114  &  2  &    &    &    &    &  1 \\ 
+Broyden - Dbl. TR  &   20  &  2  &  2  &  -2  &  0  &  160  &  0  &  115  &  2  &    &    &    &    &  1 \\ 
 \hline
-& \multicolumn{7}{c|}{$\phi(a,b)=|a-b|^3 - a^3 - b^3$} & \multicolumn{7}{c}{$\phi(a,b)=\phi_{KK}(a,b)$} \\
    &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
 \hline   
 Newton - pure  &   113  &  113  &  -2  &  3  &  8  &  0  &  0  &  48  &  48  &  0  &  1  &  325  &  0  &  0 \\ 
-Newton - geom. LS  &   203  &  25  &  1  &  2  &  -1  &  -2  &  33  &  727  &  100  &  1  &  1  &  199  &  0  &  2 \\ 
-Newton - quad. LS  &   91  &  27  &  1  &  2  &  -1  &  -1  &  37  &  85  &  39  &  2  &  -2  &  0  &  160  &  0 \\ 
-Newton - Powell TR  &   75  &  67  &  -1  &  3  &  0  &  0  &  3  &  152  &  100  &  0  &  1  &  309  &  0  &  0 \\ 
-Newton - Dbl. TR  &   62  &  53  &  -1  &  3  &  0  &  0  &  3  &  147  &  100  &  0  &  1  &  304  &  0  &  0 \\ 
-Broyden - pure  &   200  &  1  &  1  &  0  &  4  &  8  &  506  &  49  &  1  &  1  &  0  &  512  &  6  &  0 \\ 
-Broyden - geom. LS  &   167  &  6  &  2  &  1  &  -1  &  -2  &  82  &  29  &  3  &  2  &  -2  &  0  &  160  &  0 \\ 
-Broyden - quad. LS  &   86  &  5  &  2  &  1  &  -1  &  -2  &  78  &  20  &  3  &  2  &  -2  &  0  &  160  &  0 \\ 
-Broyden - Powell TR  &   215  &  14  &  -1  &  3  &  0  &  0  &  3  &  28  &  2  &  2  &  -2  &  0  &  160  &  0 \\ 
-Broyden - Dbl. TR  &   246  &  15  &  -1  &  3  &  0  &  0  &  3  &  29  &  2  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - geom. LS  &   203  &  25  &    &    &    &    &  33  &  727  &  100  &    &    &    &    &  2 \\ 
+Newton - quad. LS  &   91  &  27  &    &    &    &    &  37  &  85  &  39  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - Powell TR  &   75  &  67  &    &    &    &    &  3  &  152  &  100  &  0  &  1  &  309  &  0  &  0 \\ 
+Newton - Dbl. TR  &   62  &  53  &    &    &    &    &  3  &  147  &  100  &  0  &  1  &  304  &  0  &  0 \\ 
+Broyden - pure  &   200  &  1  &    &    &    &    &  506  &  49  &  1  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - geom. LS  &   167  &  6  &    &    &    &    &  82  &  29  &  3  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - quad. LS  &   86  &  5  &    &    &    &    &  78  &  20  &  3  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - Powell TR  &   215  &  14  &    &    &    &    &  3  &  28  &  2  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - Dbl. TR  &   246  &  15  &    &    &    &    &  3  &  29  &  2  &  2  &  -2  &  0  &  160  &  0 \\ 
 \hline
+& \multicolumn{7}{c|}{$\phi_{Man}(a,b)=f(|a-b|) - f(a) - f(b)$ and $f(t)=t^3$} & 
+\multicolumn{7}{c}{$\phi_{KK}(a,b)= (\sqrt{(a-b)^2+2\lambda a b} -(a+b))/(2-\lambda)$ and $\lambda=3/2$} \\
 \end{tabular}
 \end{scriptsize}
 
-\caption{With initial point $z_0 = (4, -4,  1,  1)$}
+\caption{With initial point $z_0 = (4, -4,  1,  1)$ close to $(2, -2, 0, 160)$}
+\label{bench4m411}
 
 \end{table}
+
+
+\subsubsection{Initial point $z_0 = (-4, 4,  1,  1)$}
+
+We work on the initial point $z_0 = (-4, 4,  1,  1)$, close the GNE  $(-2, 3, 8, 0)$.
+Again, we observe the Mangasarian complementarity function $\phi_{Man}$ does not converge. All other sequences converge the closest GNE $(-2, 3, 8, 0)$. $\phi_{Min}$ sequence with Newton scheme is particularly good, then comes $\phi_{FB}$ and finally $\phi_{KK}$.
+
+
+
+
+
+\subsubsection{Initial point $z_0 = (3, 0,  1,  1)$}
+
+We work on the initial point $z_0 = (3, 0,  1,  1)$ close to the GNE $(1, 0, 512, 6)$. As always, the ``Man'' sequence converges by chance with the pure Newton method to a GNE $(-2, 3, 8, 0)$. Otherwise the other sequences, namely ``Min'', ``FB'' and ``KK'' converges to the expected GNE. As the previous subsection, Broyden updates of the Jacobian is less performant than the true Jacobian (i.e. Newton scheme). The convergence speed order is preserved.
+
+
+
+
+
+
+\subsubsection{Initial point $z_0 = (0, 3, 1, 1)$}
+
+We work on the initial point $z_0 = (0, 3, 1,  1)$ close to the GNE $(0, 1, 324, 0)$. As always, the ``Man'' sequence converges by chance with the pure Newton method to a GNE $(-2, 3, 8, 0)$. Others sequences have difficulty to converge the closest GNE. Local methods (i.e. pure) find the GNE $(0, 1, 324, 0)$, while global version converges to $(1, 0, 512, 6)$. It is logical any method will have difficulty to choose between these two GNEs, because they are close. 
+
+
+
+\subsubsection{Initial point $z_0 = (-1, -1, 1,  1)$}
+
+We work on the initial point $z_0 = (-1, -1, 1,  1)$ equidistant to the GNEs $(0, 1, 324, 0)$ and $(1, 0, 512, 6)$. Despite being closer to these GNEs, the pure Newton version of the ``Man'' sequence converges unconditionally to the GNE $(-2, 3, 8, 0)$. All other sequences converges to the GNE $(0, 1, 324, 0)$  except for the Broyden version of the ``KK'' sequence, converging to the farthest GNEs. In terms of function calls, the Newton line search version of the ``Min'' sequence is the best, followed by the Newton trust region version of the ``FB'' sequence.
+
+
+
+\subsubsection{Initial point $z_0 = (0, 0, 1,  1)$}
+
+We work on the initial point $z_0 = (0, 0, 1,  1)$ equidistant to the GNEs $(0, 1, 324, 0)$ and $(1, 0, 512, 6)$. Both the ``Man'' and the ``Min'' sequences do not converge. The ``Min'' sequence diverges because the Jacobian at the initial point is exactly singular. Indeed, we have
+%%% R code
+<<singjac, fig=FALSE, echo=TRUE, eval=TRUE>>=
+z0 <- c(0, 0, 1, 1)
+JacF(z0, gphia= GrAphiMin, gphib= GrBphiMin)
+@
+%%%
+For the ``FB'' and ``KK'' sequences, we do not have this problem.
+%%% R code
+<<singjac, fig=FALSE, echo=TRUE, eval=TRUE>>=
+JacF(z0, gphia= GrAphiFB, gphib= GrBphiFB)
+JacF(z0, gphia= GrAphiKK, gphib= GrBphiKK, lambda=3/2)
+@
+%%%
+So the sequence converge to a GNE, either $(0, 1, 324, 0)$ or $(-2, 3, 8, 0)$. Again the ``KK'' sequence converges faster.
+
+\subsubsection{Conclusions}
+In conclusion to this analysis with respect to initial point, the computation method and the complementarity function, we observe the strong difference in terms of convergence, firstly and in terms of convergence speed. Clearly the choice of the complementarity function is crucial, the Luo-Tseng and the Mangasarian are particularly inadequate in our example. Regarding the remaining three complementarity functions (the minimum, the Fisher-Burmeister and the Kanzow-Kleinmichel functions) generally converge irrespectively of the computation method. However, the ``KK'' sequences are particularly efficient and most of the time the Newton trust region method is the best in terms of function/Jacobian calls.
+
 
 
 \section{GNEP as a fixed point equation}
@@ -416,10 +502,240 @@ Broyden - Dbl. TR  &   246  &  15  &  -1  &  3  &  0  &  0  &  3  &  29  &  2  &
 
 
 
-
 \newpage
 \bibliographystyle{agsm}
 \bibliography{GNE-howto}
+
+
+
+\appendix
+
+\section{Tables for the nonsmooth reformulation}
+
+
+
+\begin{table}[htb!]
+
+\begin{scriptsize}
+\begin{tabular}{l|ccccccc|ccccccc}
+ & \multicolumn{7}{c|}{$\phi_{Min}(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi_{FB}(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   7  &  7  &  -2  &  3  &  8  &  0  &  0  &  9  &  9  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - geom. LS  &   7  &  7  &  -2  &  3  &  8  &  0  &  0  &  10  &  9  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - quad. LS  &   7  &  7  &  -2  &  3  &  8  &  0  &  0  &  11  &  10  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - Powell TR  &   8  &  7  &  -2  &  3  &  8  &  0  &  0  &  13  &  10  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - Dbl. TR  &   8  &  7  &  -2  &  3  &  8  &  0  &  0  &  13  &  10  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - pure  &   35  &  1  &  -2  &  3  &  8  &  0  &  0  &  35  &  1  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - geom. LS  &   30  &  3  &  -2  &  3  &  8  &  0  &  0  &  39  &  4  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - quad. LS  &   26  &  3  &  -2  &  3  &  8  &  0  &  0  &  30  &  4  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Powell TR  &   169  &  6  &    &    &    &    &  1  &  26  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Dbl. TR  &   182  &  6  &    &    &    &    &  1  &  28  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+
+\hline
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   200  &  200  &    &    &    &    &  53  &  11  &  11  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - geom. LS  &   66  &  10  &    &    &    &    &  4  &  11  &  10  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - quad. LS  &   25  &  9  &    &    &    &    &  3  &  19  &  14  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - Powell TR  &   47  &  40  &    &    &    &    &  3  &  10  &  10  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - Dbl. TR  &   44  &  36  &    &    &    &    &  3  &  10  &  10  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - pure  &   200  &  1  &    &    &    &    &  73  &  39  &  1  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - geom. LS  &   1045  &  25  &    &    &    &    &  3  &  75  &  3  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - quad. LS  &   253  &  11  &    &    &    &    &  4  &  42  &  3  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Powell TR  &   156  &  12  &    &    &    &    &  3  &  33  &  3  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Dbl. TR  &   108  &  8  &    &    &    &    &  3  &  36  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+\hline
+& \multicolumn{7}{c|}{$\phi_{Man}(a,b)=f(|a-b|) - f(a) - f(b)$ and $f(t)=t^3$} & 
+\multicolumn{7}{c}{$\phi_{KK}(a,b)= (\sqrt{(a-b)^2+2\lambda a b} -(a+b))/(2-\lambda)$ and $\lambda=3/2$} \\
+
+\end{tabular}
+\end{scriptsize}
+
+\caption{With initial point $z_0 = (-4, 4,  1,  1)$ close to $(-2, 3, 8, 0)$}
+\label{benchm4411}
+
+\end{table}
+
+
+
+
+\begin{table}[htb!]
+
+\begin{scriptsize}
+\begin{tabular}{l|ccccccc|ccccccc}
+ & \multicolumn{7}{c|}{$\phi_{Min}(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi_{FB}(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   22  &  22  &  0  &  1  &  325  &  0  &  0  &  21  &  21  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - geom. LS  &   25  &  24  &  0  &  1  &  325  &  0  &  0  &  25  &  24  &  0  &  1  &  325  &  0  &  0 \\ 
+Newton - quad. LS  &   13  &  9  &  2  &  -2  &  0  &  160  &  0  &  197  &  100  &  0  &  1  &  345  &  0  &  0 \\ 
+Newton - Powell TR  &   26  &  24  &  0  &  1  &  325  &  0  &  0  &  12  &  8  &  1  &  0  &  512  &  6  &  0 \\ 
+Newton - Dbl. TR  &   26  &  24  &  0  &  1  &  325  &  0  &  0  &  13  &  9  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - pure  &   6  &  1  &    &    &    &    &  2e+25  &  100  &  1  &    &    &    &    &  4 \\ 
+Broyden - geom. LS  &   58  &  3  &  1  &  0  &  512  &  6  &  0  &  639  &  4  &    &    &    &    &  12 \\ 
+Broyden - quad. LS  &   389  &  3  &  1  &  0  &  512  &  6  &  0  &  187  &  3  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - Powell TR  &   164  &  2  &  0  &  1  &  376  &  0  &  0  &  133  &  2  &    &    &    &    &  1 \\ 
+Broyden - Dbl. TR  &   144  &  3  &  0  &  1  &  343  &  0  &  0  &  138  &  2  &    &    &    &    &  1 \\ 
+\hline
+
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   76  &  76  &  -2  &  3  &  8  &  0  &  0  &  66  &  66  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - geom. LS  &   176  &  17  &    &    &    &    &  50  &  45  &  17  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - quad. LS  &   1121  &  200  &    &    &    &    &  113  &  130  &  45  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - Powell TR  &   72  &  61  &    &    &    &    &  3  &  38  &  25  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - Dbl. TR  &   64  &  55  &    &    &    &    &  3  &  41  &  26  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - pure  &   200  &  1  &    &    &    &    &  5.9e6  &  85  &  1  &    &    &    &    &  393 \\ 
+Broyden - geom. LS  &   349  &  9  &    &    &    &    &  64  &  806  &  3  &    &    &    &    &  3 \\ 
+Broyden - quad. LS  &   123  &  9  &    &    &    &    &  58  &  202  &  3  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - Powell TR  &   101  &  6  &  -2  &  3  &  8  &  0  &  0  &  121  &  4  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - Dbl. TR  &   180  &  14  &    &    &    &    &  3  &  157  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+\hline
+& \multicolumn{7}{c|}{$\phi_{Man}(a,b)=f(|a-b|) - f(a) - f(b)$ and $f(t)=t^3$} & 
+\multicolumn{7}{c}{$\phi_{KK}(a,b)= (\sqrt{(a-b)^2+2\lambda a b} -(a+b))/(2-\lambda)$ and $\lambda=3/2$} \\
+
+\end{tabular}
+\end{scriptsize}
+
+\caption{With initial point $z_0 = (3, 0,  1,  1)$ close to $(1, 0, 512, 6)$}
+\label{bench3011}
+
+\end{table}
+
+
+\begin{table}[htb!]
+
+\begin{scriptsize}
+\begin{tabular}{l|ccccccc|ccccccc}
+ & \multicolumn{7}{c|}{$\phi_{Min}(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi_{FB}(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   22  &  22  &  0  &  1  &  325  &  0  &  0  &  5  &  5  &  1  &  0  &  512  &  6  &  0 \\ 
+Newton - geom. LS  &   522  &  82  &  1  &  0  &  512  &  6  &  0  &  779  &  100  &    &    &    &    &  1 \\ 
+Newton - quad. LS  &   300  &  100  &    &    &    &    &  2  &  366  &  100  &    &    &    &    &  1 \\ 
+Newton - Powell TR  &   88  &  67  &  1  &  0  &  512  &  6  &  0  &  94  &  73  &  1  &  0  &  512  &  6  &  0 \\ 
+Newton - Dbl. TR  &   102  &  80  &  1  &  0  &  512  &  6  &  0  &  87  &  80  &  0  &  1  &  323  &  0  &  0 \\ 
+Broyden - pure  &   8  &  1  &    &    &    &    &  2e+20  &  100  &  1  &    &    &    &    &  617 \\ 
+Broyden - geom. LS  &   746  &  3  &    &    &    &    &  3  &  844  &  3  &    &    &    &    &  1 \\ 
+Broyden - quad. LS  &   312  &  3  &    &    &    &    &  3  &  345  &  3  &    &    &    &    &  1 \\ 
+Broyden - Powell TR  &   169  &  4  &    &    &    &    &  1  &  40  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Dbl. TR  &   158  &  1  &    &    &    &    &  2  &  35  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+\hline
+
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   136  &  136  &  -2  &  3  &  8  &  0  &  0  &  24  &  24  &  0  &  1  &  325  &  0  &  0 \\ 
+Newton - geom. LS  &   156  &  14  &    &    &    &    &  14  &  762  &  100  &    &    &    &    &  2 \\ 
+Newton - quad. LS  &   33  &  8  &    &    &    &    &  14  &  358  &  100  &    &    &    &    &  1 \\ 
+Newton - Powell TR  &   31  &  25  &    &    &    &    &  3  &  90  &  72  &  1  &  0  &  512  &  6  &  0 \\ 
+Newton - Dbl. TR  &   35  &  29  &    &    &    &    &  3  &  89  &  76  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - pure  &   30  &  1  &    &    &    &    &  9e+33  &  18  &  1  &    &    &    &    &  4e+21 \\ 
+Broyden - geom. LS  &   327  &  10  &    &    &    &    &  13  &  659  &  4  &    &    &    &    &  1 \\ 
+Broyden - quad. LS  &   139  &  10  &    &    &    &    &  13  &  326  &  3  &    &    &    &    &  1 \\ 
+Broyden - Powell TR  &   175  &  14  &    &    &    &    &  3  &  35  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Dbl. TR  &   130  &  11  &    &    &    &    &  3  &  53  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+\hline
+& \multicolumn{7}{c|}{$\phi_{Man}(a,b)=f(|a-b|) - f(a) - f(b)$ and $f(t)=t^3$} & 
+\multicolumn{7}{c}{$\phi_{KK}(a,b)= (\sqrt{(a-b)^2+2\lambda a b} -(a+b))/(2-\lambda)$ and $\lambda=3/2$} \\
+
+\end{tabular}
+\end{scriptsize}
+
+\caption{With initial point $z_0 = (0, 3, 1,  1)$ close to $(0, 1, 324, 0)$}
+\label{bench0311}
+
+\end{table}
+
+
+
+\begin{table}[htb!]
+
+\begin{scriptsize}
+\begin{tabular}{l|ccccccc|ccccccc}
+ & \multicolumn{7}{c|}{$\phi_{Min}(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi_{FB}(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   21  &  21  &  0  &  1  &  323  &  0  &  0  &  9  &  9  &  0  &  1  &  324  &  0  &  0 \\ 
+Newton - geom. LS  &   21  &  21  &  0  &  1  &  323  &  0  &  0  &  194  &  52  &  0  &  1  &  323  &  0  &  0 \\ 
+Newton - quad. LS  &   21  &  21  &  0  &  1  &  323  &  0  &  0  &  154  &  68  &  0  &  1  &  323  &  0  &  0 \\ 
+Newton - Powell TR  &   84  &  70  &  0  &  1  &  323  &  0  &  0  &  32  &  30  &  0  &  1  &  323  &  0  &  0 \\ 
+Newton - Dbl. TR  &   78  &  70  &  0  &  1  &  323  &  0  &  0  &  32  &  30  &  0  &  1  &  323  &  0  &  0 \\ 
+Broyden - pure  &   100  &  1  &  0  &  1  &  307  &  0  &  0  &  37  &  1  &    &    &    &    &  408 \\ 
+Broyden - geom. LS  &   49  &  3  &  0  &  1  &  323  &  0  &  0  &  407  &  6  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - quad. LS  &   56  &  4  &  0  &  1  &  302  &  0  &  0  &  324  &  6  &    &    &    &    &  1 \\ 
+Broyden - Powell TR  &   169  &  5  &    &    &    &    &  1  &  183  &  4  &    &    &    &    &  1 \\ 
+Broyden - Dbl. TR  &   172  &  5  &    &    &    &    &  1  &  191  &  4  &    &    &    &    &  1 \\ 
+\hline
+
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   59  &  59  &  -2  &  3  &  8  &  0  &  0  &  18  &  18  &  0  &  1  &  323  &  0  &  0 \\ 
+Newton - geom. LS  &   67  &  11  &    &    &    &    &  5  &  170  &  48  &  0  &  1  &  323  &  0  &  0 \\ 
+Newton - quad. LS  &   42  &  14  &    &    &    &    &  5  &  132  &  60  &  0  &  1  &  323  &  0  &  0 \\ 
+Newton - Powell TR  &   55  &  49  &    &    &    &    &  3  &  87  &  72  &  1  &  0  &  512  &  6  &  0 \\ 
+Newton - Dbl. TR  &   46  &  40  &    &    &    &    &  3  &  87  &  79  &  0  &  1  &  323  &  0  &  0 \\ 
+Broyden - pure  &   200  &  1  &    &    &    &    &  6  &  100  &  1  &    &    &    &    &  168 \\ 
+Broyden - geom. LS  &   836  &  14  &    &    &    &    &  5  &  50  &  4  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - quad. LS  &   89  &  9  &    &    &    &    &  3  &  43  &  3  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Powell TR  &   113  &  10  &    &    &    &    &  3  &  146  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - Dbl. TR  &   98  &  7  &    &    &    &    &  3  &  136  &  7  &  2  &  -2  &  0  &  160  &  0 \\ 
+\hline
+& \multicolumn{7}{c|}{$\phi_{Man}(a,b)=f(|a-b|) - f(a) - f(b)$ and $f(t)=t^3$} & 
+\multicolumn{7}{c}{$\phi_{KK}(a,b)= (\sqrt{(a-b)^2+2\lambda a b} -(a+b))/(2-\lambda)$ and $\lambda=3/2$} \\
+
+\end{tabular}
+\end{scriptsize}
+
+\caption{With initial point $z_0 = (-1, -1, 1,  1)$}
+\label{benchm1m111}
+
+\end{table}
+
+\begin{table}[htb!]
+
+\begin{scriptsize}
+\begin{tabular}{l|ccccccc|ccccccc}
+ & \multicolumn{7}{c|}{$\phi_{Min}(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi_{FB}(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   0  &  1  &    &    &    &    &  1023  &  10  &  10  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - geom. LS  &   0  &  1  &    &    &    &    &  1023  &  9  &  8  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - quad. LS  &   0  &  1  &    &    &    &    &  1023  &  10  &  9  &  -2  &  3  &  8  &  0  &  0 \\ 
+Newton - Powell TR  &   0  &  1  &    &    &    &    &  1023  &  140  &  100  &    &    &    &    &  1 \\ 
+Newton - Dbl. TR  &   0  &  1  &    &    &    &    &  1023  &  150  &  94  &  0  &  1  &  324  &  0  &  0 \\ 
+Broyden - pure  &   0  &  1  &    &    &    &    &  1023  &  100  &  1  &    &    &    &    &  1 \\ 
+Broyden - geom. LS  &   0  &  1  &    &    &    &    &  1023  &  21  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - quad. LS  &   0  &  1  &    &    &    &    &  1023  &  16  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Powell TR  &   0  &  1  &    &    &    &    &  1023  &  40  &  2  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - Dbl. TR  &   0  &  1  &    &    &    &    &  1023  &  133  &  1  &    &    &    &    &  2 \\ 
+\hline
+
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   200  &  200  &    &    &    &    &  39  &  43  &  43  &  0  &  1  &  325  &  0  &  0 \\ 
+Newton - geom. LS  &   91  &  11  &    &    &    &    &  6  &  32  &  26  &  0  &  1  &  325  &  0  &  0 \\ 
+Newton - quad. LS  &   25  &  9  &    &    &    &    &  6  &  77  &  46  &  0  &  1  &  325  &  0  &  0 \\ 
+Newton - Powell TR  &   43  &  39  &    &    &    &    &  3  &  70  &  52  &  0  &  1  &  325  &  0  &  0 \\ 
+Newton - Dbl. TR  &   42  &  39  &    &    &    &    &  3  &  137  &  100  &  0  &  1  &  333  &  0  &  0 \\ 
+Broyden - pure  &   200  &  1  &    &    &    &    &  489  &  35  &  1  &  -2  &  3  &  8  &  0  &  0 \\ 
+Broyden - geom. LS  &   276  &  7  &    &    &    &    &  3  &  274  &  8  &  0  &  1  &  325  &  0  &  0 \\ 
+Broyden - quad. LS  &   124  &  6  &    &    &    &    &  3  &  253  &  7  &  0  &  1  &  352  &  0  &  0 \\ 
+Broyden - Powell TR  &   135  &  12  &    &    &    &    &  3  &  157  &  3  &    &    &    &    &  2 \\ 
+Broyden - Dbl. TR  &   169  &  13  &    &    &    &    &  3  &  163  &  2  &    &    &    &    &  1 \\ 
+\hline
+& \multicolumn{7}{c|}{$\phi_{Man}(a,b)=f(|a-b|) - f(a) - f(b)$ and $f(t)=t^3$} & 
+\multicolumn{7}{c}{$\phi_{KK}(a,b)= (\sqrt{(a-b)^2+2\lambda a b} -(a+b))/(2-\lambda)$ and $\lambda=3/2$} \\
+
+\end{tabular}
+\end{scriptsize}
+
+\caption{With initial point $z_0 = (0, 0, 1,  1)$}
+\label{bench0011}
+
+\end{table}
+
+
 
 
 

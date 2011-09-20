@@ -1,5 +1,5 @@
 
-require(NE)	
+library(GNE)	
 
 
 

@@ -1,5 +1,5 @@
 
-require(NE)
+library(GNE)
 
 # (3) Example 5.3 of von Heusinger & Kanzow (2009)
 #

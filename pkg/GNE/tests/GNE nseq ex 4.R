@@ -1,5 +1,5 @@
 
-library(GNE)	
+require(GNE)	
 
 
 
@@ -91,6 +91,10 @@ z0 <- c(10, 10, 1, 1)
 resMin <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), echo=FALSE)
 
 resMin$compres
+
+resMinLM <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="none", silent=FALSE)
+
+resMinLM <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="gline", silent=FALSE)
 
 #FB function
 resFB <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), echo=FALSE)

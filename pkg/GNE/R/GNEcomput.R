@@ -75,11 +75,7 @@ x <- t(sapply(1:length(reslist), function(i) reslist[[i]]$par ))
 normFx <- sapply(1:length(reslist), function(i) reslist[[i]]$value )
 comptime <- sapply(1:length(reslist), function(i) reslist[[i]]$time )
 
-
-
-#comparison of algorithms
 list(compres = data.frame( method= fullnames, fctcall, jaccall, comptime, x,normFx ),
 	reslist = reslist )
-
 }
 

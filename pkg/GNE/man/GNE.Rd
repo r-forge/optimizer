@@ -41,7 +41,7 @@ The \code{GNE} function is a global function calling the appropriate function \c
 
 Additionnal utitilty functions are also available:
 \code{\link{rejection}}, \code{\link{projector}}, \code{\link{stepfunc}},
- \code{\link{complfunc}} and \code{\link{templatePhi}}.
+ \code{\link{complementarity}} and \code{\link{templatePhi}}.
 
 
 TODO:
@@ -76,6 +76,7 @@ A list with components:
 			}
 		}
 		\item{\code{message}}{a string describing the termination code}	
+		\item{\code{fvec}}{a vector with function values.}
 		\item{\code{approach}}{the name of the approach.}	
 	}
 }

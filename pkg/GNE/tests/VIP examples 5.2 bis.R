@@ -1,4 +1,4 @@
-require(GNE)
+library(GNE)
 
 #constants
 d <- 20

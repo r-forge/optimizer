@@ -3,6 +3,7 @@ eqsolve <- function(xinit, f, jac, method=c("Newton", "Levenberg-Marquardt","Bro
 {
 	method <- match.arg(method, c("Newton", "Levenberg-Marquardt","Broyden"))
 	global <- match.arg(global, c("line search", "trust region", "none"))
+
 	
 	#default control parameters
 	con <- list(tol=1e-6, maxit=100, echo=0, sigma=1/2, btol=1e-2, 

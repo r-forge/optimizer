@@ -26,12 +26,13 @@ bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...
 \code{bench.GNE.nseq} carries out a benchmark of the computation methods for a given initial point.
 
 This approach consists in solving the extended Karush-Kuhn-Tucker 
-(KKT) system denoted by \eqn{\Phi(z)=0}, where eqn{z} is formed by the players strategy 
-\eqn{x} and the Lagrange multiplier \eqn{\lambda}.
-The root problem \eqn{\Phi(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
+(KKT) system denoted by \eqn{\Phi(z)=0}{Phi(z)=0}, where eqn{z} is formed by the players strategy 
+\eqn{x} and the Lagrange multiplier \eqn{\lambda}{lambda}.
+The root problem \eqn{\Phi(z)=0}{Phi(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
 where the direction \eqn{d_n} is computed in three different ways:
 \describe{
-	\item{(a) Newton:}{The direction solves the system \eqn{Jac\Phi(x_n) d = - \Phi(x_n)}{Jac Phi(x_n) d = - Phi(x_n)}, 
+	\item{(a) Newton:}{The direction solves the system \eqn{Jac\Phi(x_n) d = - \Phi(x_n)
+		}{Jac Phi(x_n) d = - Phi(x_n)}, 
 		generally called the Newton equation.}
 	\item{(b) Broyden:}{It is a quasi-Newton method aiming to solve an approximate version
 		of the Newton equation \eqn{d = -\Phi(x_n) W_n}{d = -Phi(x_n) W_n} where \eqn{W_n} is computed
@@ -40,14 +41,14 @@ where the direction \eqn{d_n} is computed in three different ways:
 	\item{(c) Levenberg-Marquardt:}{The direction solves the system 
 		\deqn{ (Jac\Phi(x_n)^T Jac\Phi(x_n) + ||\Phi(x_n)||^\delta I) d = - Jac\Phi(x_n)^T\Phi(x_n)
 			}{ (Jac Phi(x_n)^T Jac Phi(x_n) + ||Phi(x_n)||^delta I) d = - Jac Phi(x_n)^T Phi(x_n),}
-		where \eqn{I} denotes the identity matrix.}
+		where \eqn{I} denotes the identity matrix and \eqn{\delta}{delta} is a parameter in [1,2].}
 }
 Details on the methods can be found in Facchinei, Fischer & Piccialli (2009), \code{"Newton"}
 corresponds to method 1 and \code{"Levenberg-Marquardt"} to method 3. For the Broyden, see 
 Dennis & Moree (1977).
 
 In addition to the computation method, a globalization scheme can be choosed using the \code{global}
-argument. Available schemes are 
+argument, via the \code{\dots} argument. Available schemes are 
 \describe{
 	\item{(1) Line search:}{ if \code{global} is set to \code{"qline"} or \code{"gline"}, a line search
 		is used with the merit function being half of the L2 norm of \eqn{Phi}, respectively with a
@@ -58,8 +59,9 @@ argument. Available schemes are
 }	
 The default value of \code{global} is \code{"gline"}. 
 
+
 The implementation relies heavily on the 
-\code{nleqslv} function of the package of the same name. So full details on the control parameters are
+\code{\link{nleqslv}} function of the package of the same name. So full details on the control parameters are
 to be found in the help page of this function. We briefly recall here the main parameters.
 The \code{control} argument is a list that can supply any of the following components:
 \describe{
@@ -76,6 +78,15 @@ The \code{control} argument is a list that can supply any of the following compo
 	\item{\code{trace}}{Non-negative integer. A value of 1 will give a detailed report of the
 	progress of the iteration.}
 }
+
+\code{\dots} are further arguments to be passed to the optimization routine, 
+that is \code{global}, \code{xscalm}, \code{silent}. See above for the globalization scheme. 
+The \code{xscalm} is a scaling parameter to used, either \code{"fixed"} (default)
+or \code{"auto"}, for which scaling factors are calculated from the euclidean norms of the 
+columns of the jacobian matrix. See \code{\link{nleqslv}} for details.
+The \code{silent} argument is a logical to report or not the optimization process, default
+to \code{FALSE}.
+
 
 }
 \value{
@@ -102,7 +113,8 @@ The \code{control} argument is a list that can supply any of the following compo
 			\item{\code{100}}{an error in the execution.}
 			}
 		}
-		\item{\code{message}}{a string describing the termination code}	
+		\item{\code{message}}{a string describing the termination code.}	
+		\item{\code{fvec}}{a vector with function values.}
 	}
 \code{bench.GNE.nseq} returns a list with components:
 	\describe{

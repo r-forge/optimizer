@@ -1,0 +1,433 @@
+%% 
+% @file  GNE-howto.Rnw
+% @brief sweave file for the vignette
+%
+% @author Christophe Dutang
+%
+%
+
+
+\documentclass[11pt, a4paper]{article}
+
+%\VignetteIndexEntry{User guide for the GNE package}
+%\VignettePackage{GNE}
+%\VignetteKeyword{nonlinear}
+
+  
+% package
+
+%American Mathematical Society (AMS) math symbols
+\usepackage{amsfonts,amssymb,amsmath}
+%english typography
+\usepackage[english]{babel}
+\usepackage{a4wide,courier,newlfont}
+
+% 8 bit accents 
+%\usepackage[applemac]{inputenc} %MAC encoding
+\usepackage[utf8]{inputenc} %UNIX encoding
+%\usepackage[ansinew]{inputenc} %WINDOWS encoding
+
+%graph
+\usepackage[dvips]{graphicx}
+\usepackage{color,graphics, subfig}
+
+%citation
+\usepackage{natbib}
+
+%short toc
+\usepackage{shorttoc}
+
+%reference hypertext
+\usepackage[pagebackref=true, hyperfootnotes=false]{hyperref}
+
+%footnote
+\usepackage[ stable]{footmisc}
+\usepackage{perpage}
+\MakePerPage[1]{footnote}
+
+%multicol package
+\usepackage{multirow, multicol}
+
+%url
+\usepackage{url}
+
+%header
+\pagestyle{headings}
+
+
+% layout
+\normalsize\setlength{\parskip}{\baselineskip}
+\setlength{\oddsidemargin}{25mm}
+\setlength{\evensidemargin}{25mm}
+\setlength{\voffset}{-2.54cm}
+\setlength{\hoffset}{-3.8cm}
+\setlength{\textwidth}{180mm}
+\setlength{\topmargin}{0mm}
+\setlength{\headheight}{15mm}
+\setlength{\headsep}{11mm}
+\setlength{\topskip}{0mm}
+\setlength{\textheight}{230mm}
+
+% macros
+\newcommand\HRule{\noindent\rule{\linewidth}{1pt}}
+\newcommand{\II}{\mbox{\large 1\hskip -0,353em 1}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\ligne}{\rule[2mm]{.3\textwidth}{0,5mm}\\}
+\newcommand{\pkg}{\textbf}
+\newcommand{\sigle}{\textsc}
+\newcommand{\code}{\texttt}
+\newcommand{\soft}{\textsf}
+\newcommand{\myskip}{\vspace{\parskip}}
+\newcommand{\txtm}[1]{\textrm{~~#1~~}}
+\newcommand{\expo}{\textsuperscript}
+\newcommand{\ind}{1\!\!1}
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\blank}{ \clearpage{\pagestyle{empty}\cleardoublepage} }
+\newcommand{\card}{\textrm{Card}}
+\newcommand{\diag}{\textrm{diag}}
+\newcommand{\mbbR}{\mathbb R}
+\newcommand{\NIF}{\textrm{NIF}}
+\newcommand{\GAP}{\textrm{GAP}}
+\newcommand{\Jac}{\textrm{Jac\hskip+.1em}}
+
+
+% footnote in table or legend
+\newcounter{noteTabCap} 
+\newcommand{\initFmark}{\setcounter{noteTabCap}{0}} %init noteTabCap counter
+\newcommand{\fmark}{\footnotemark  \addtocounter{noteTabCap}{1}} %mark footnote
+\newcommand{\updateFtext}{\addtocounter{footnote}{-\value{noteTabCap}}} %update footnote counter
+\newcommand{\ftext}[1]{\addtocounter{footnote}{1}  \footnotetext{#1}} %set the footnote text
+
+%theorems
+\newtheorem{mydef}{Definition}
+
+
+
+\title{User guide for the \pkg{GNE} package}
+
+
+\author{Christophe Dutang}
+
+\date{September 2011}
+
+
+
+\begin{document}
+
+\maketitle
+
+
+As usual, the \pkg{GNE} package is loaded via the \code{library} function. We suppose in the following that the line below is called
+%%% R code
+<<load, fig=FALSE, echo=TRUE, eval=TRUE>>=
+library(GNE)
+@
+%%%
+
+
+\section{Introduction}
+
+\begin{mydef}[GNEP]
+We define the generalized Nash equilibrium problem GNEP($N, \theta_\nu, X_\nu$) as the solutions $x^\star$ of the $N$ sub problems
+$$
+\forall \nu = 1, \dots, N, x_\nu^\star \txtm{solves} \underset{ y_\nu }{\min}~ \theta_\nu(y_\nu, x_{-\nu}^\star)
+\txtm{such that} x_\nu^\star \in X_\nu(x_{-\nu}^\star),
+$$
+where $X_\nu(x_{-\nu})$ is the action space of player $\nu$ given others player actions $x_{-\nu}$.
+\end{mydef}
+
+If we have parametrized action space $X_\nu(x_{-\nu}) = \{ y_\nu, g_\nu(y_\nu, x_{-\nu}) \leq 0  \}$, we denote the GNEP by  GNEP($N, \theta_\nu, g_\nu$).
+
+We denote by $X(x) $ the action set $X(x) = X_1(x_{-1}) \times \dots \times X_N(x_{-N})$. For standard NE, this set does not depend on $x$.
+
+The following example seems very basic, but in fact it has particular features, one of them is to have four solutions, i.e. four GNEs.
+Let $N=2$. The objective functions are
+$$
+\theta_1(x) = (x_1-2)^2 (x_2-4)^4 \txtm{and} \theta_2(x) = (x_2-3)^2 (x_1)^4,
+$$
+for $x\in \mathbb R^2$, while the constraint function are
+$$
+g_1(x) = x_1+x_2-1 \leq 0 \txtm{and} g_2(x) = 2x_1+x_2-2 \leq 0.
+$$
+
+
+
+\section{GNEP as a nonsmooth equation}
+
+
+
+From \cite{facchfischpic09}, 
+assuming differentiability and a constraint qualification hold, the first-order necessary conditions of player $\nu$'s subproblem state there exists a Lagrangian multiplier $\lambda_\nu \in  \mbbR^{m_\nu} $ such that 
+$$
+\nabla_{x_\nu} \theta_{x_\nu}(x)   + \sum_{ 1 \leq j \leq m_\nu } \lambda_{\nu j} \nabla_{x_\nu} g_{\nu j}(x) = 0~~~~~~~ ( \in \mbbR^{n_\nu} )
+$$
+$$
+0 \leq \lambda_\nu \perp - g_\nu(x) \leq  0~~~~~~~ ( \in \mbbR^{m_\nu} )
+$$
+Regrouping the $N$ subproblems, we get the following system.
+
+
+
+
+\begin{mydef}
+For the $N$ optimization subproblems for the functions $\theta_i: \mbbR^{n} \rightarrow \mbbR$, with constraints $g_i: \mbbR^{n} \rightarrow \mbbR^{m_i}$, the KKT conditions can be regrouped such that
+it exists $\lambda \in \mbbR^m$ and 
+$$
+\tilde L(x, \lambda) = 0 \txtm{and} 0 \leq \lambda \perp - G(x) \leq  0,
+$$
+where $L$ and $G$ are given by
+$$
+\tilde L(x, \lambda) = 
+\left( 
+\begin{matrix}
+\nabla_{x_1} \theta_1(x) + \Jac g_{1}(x)^T \lambda_1 \\
+\vdots \\
+\nabla_{x_N} \theta_ N(x) + \Jac g_{N}(x)^T \lambda_N \\
+\end{matrix}
+\right)  
+\in \mbbR^{n}
+\txtm{and}
+G(x) = 
+\left( 
+\begin{matrix}
+g_1(x) \\
+\vdots \\
+g_N(x) \\
+\end{matrix}
+\right) 
+\in \mbbR^{m},
+$$
+with $\Jac g_{\nu}(x)^T \lambda_\nu = \sum_{ 1 \leq j \leq m_\nu } \lambda_{\nu j} \nabla_{x_\nu} g_{\nu j}(x)  $. It will be denoted by eKKT($N, \theta_i, g_i$).
+\end{mydef}
+
+Using complementarity function $\phi(a,b)$ (e.g. $\min(a,b)$), we get the following nonsmooth equation
+$$
+\left( 
+\begin{matrix}
+\tilde L(x, \lambda) \\
+\phi_.(-G(x), \lambda) \\
+\end{matrix}
+\right) = 0 ,
+$$
+where $\phi_.$ is the component-wise version of the function $\phi$ and $\tilde L$ is the Lagrangian function of the extended system.
+
+
+\subsection{A classic example}
+
+Returning to our example, we define the $\Phi$ as
+$$
+\Phi(x) = 
+\left( 
+\begin{matrix}
+2(x_1-2) (x_2-4)^4 + \lambda_1 \\
+2(x_2-3) (x_1)^4 + \lambda_2 \\
+\phi(\lambda_1, 1-  x_1-x_2) \\
+\phi(\lambda_2,  2- 2x_1-x_2) \\
+\end{matrix}
+\right) ,
+$$
+where $\phi$ denotes a complementarity function.
+In \soft{R}, we use 
+%%% R code
+<<F, fig=FALSE, echo=TRUE, eval=TRUE>>=
+F <- function(z, phi=phiMin, ...)
+{
+	x <- z[1:2]
+	lambda <- z[3:4]
+	# cat("x", x, "\n")
+	c(	2*(x[1] - 2)*(x[2]-4)^4 + lambda[1],
+		2*(x[2] - 3)*x[1]^4 + lambda[2],
+		phi(lambda[1], 1-sum(x), ...),
+		phi(lambda[2], 2-2*x[1]-x[2], ...)
+	)
+}
+@
+%%%
+Note that the triple dot arguments $\dots$ is used to pass arguments to the complementarity function.
+
+Elements of the generalized Jacobian of $\Phi$ have the following form
+$$
+\partial \Phi(x) = 
+\left\{
+\left( 
+\begin{matrix}
+2(x_2-4)^4 		& 8(x_1-2) (x_2-4)^3  & 1 & 0 \\
+8(x_2-3) (x_1)^3  	& 2(x_1)^4 & 0 & 1 \\
+-\phi_b'(\lambda_1, 1-  x_1-x_2) & -\phi_b'(\lambda_1, 1-  x_1-x_2)  & \phi_a'(\lambda_1, 1-  x_1-x_2)  & 0 \\
+-2\phi_b'(\lambda_2,  2- 2x_1-x_2) & - \phi_b'(\lambda_2,  2- 2x_1-x_2) & 0 & \phi_a'(\lambda_2,  2- 2x_1-x_2) \\
+\end{matrix}
+\right) 
+\right\} ,
+$$
+where $\phi_a'$ and $\phi_b'$ denote elements of the generalized gradient of the complementarity function.
+The corresponding \soft{R} code is 
+%%% R code
+<<JacF, fig=FALSE, echo=TRUE, eval=TRUE>>=
+JacF <- function(z, gphia, gphib, ...)
+{
+	x <- z[1:2]
+	lambda <- z[3:4]
+	idga1 <- gphia(lambda[1], 1- sum(x), ...)
+	idgb1 <- gphib(lambda[1], 1- sum(x), ...)
+	idga2 <- gphia(lambda[2], 2-2*x[1]-x[2], ...)
+	idgb2 <- gphib(lambda[2], 2-2*x[1]-x[2], ...)
+
+rbind(
+c(2*(x[2]-4)^4, 8*(x[1] - 2)*(x[2]-4)^3, 1, 0),
+c(8*(x[2] - 3)*x[1]^3, 2*x[1]^4, 0, 1),
+c(-idgb1, -idgb1, idga1, 0),
+c(-2*idgb2, -idgb2, 0, idga2)
+)	
+}
+@
+%%%
+
+Therefore, to compute a generalized Nash equilibrium, we use
+%%% R code
+<<testGNE, fig=FALSE, echo=TRUE, eval=TRUE>>=
+z0 <- c(10, 10, 1, 1)
+GNE.nseq(z0, F, JacF, list(phi=phiMin), list(gphia= GrAphiMin, gphib= GrBphiMin))
+@
+%%%
+Recalling that the true GNEs are
+%%% R code
+<<trueGNE, fig=FALSE, echo=TRUE, eval=TRUE>>=
+#list of true GNEs
+trueGNE <- rbind(c(2, -2, 0, 5*2^5),
+	c(-2, 3, 8, 0),
+	c(0, 1, 4*3^4, 0),
+	c(1, 0, 2^9, 6))
+colnames(trueGNE) <- c("x1", "x2", "lam1", "lam2")
+rownames(trueGNE) <- 1:4
+print(trueGNE)
+@
+%%%
+
+\begin{figure}[htb!]
+\begin{center}
+\subfloat[The 4 GNEs]{ \includegraphics[width=.5\textwidth]{img/4GNEPlots} \label{GNEs} }
+\subfloat[The 6 initial points]{ \includegraphics[width=.5\textwidth]{img/4GNEinitialPoints} \label{initpoint} }
+\caption{Contour plots of the norm of $\Phi$}
+\end{center}
+\end{figure}
+
+
+
+\subsection{Benchmark of the complementarity functions and the computation methods}
+Using the following function, we compare all the different methods with different initial points and different complementarity functions.
+Firstly, we define a function calling the benchmark function for the five complementarity functions under consideration.
+%%% R code
+<<bench, fig=FALSE, echo=TRUE, eval=FALSE>>=
+wholebench <- function(z0)
+{
+#min function
+resMin <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), echo=FALSE)
+
+#FB function
+resFB <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), echo=FALSE)
+
+#Mangasarian function
+resMan <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMan, f=function(t) t^3), argjac=list(gphia= GrAphiMan, gphib= GrBphiMan, fprime=function(t) 3*t^2), echo=FALSE, control=list(maxit=200))
+
+#LT function
+resLT <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiLT, q=4), argjac=list(gphia= GrAphiLT, gphib= GrBphiLT, q=4))
+
+#KK function
+resKK <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiKK, lambda=3/2), argjac=list(gphia= GrAphiKK, gphib= GrBphiKK, lambda=3/2))
+
+list(resMin=resMin, resFB=resFB, resMan=resMan, resLT=resLT, resKK=resKK)
+}
+@
+%%%
+Then the following call give us a list of result tables.
+%%% R code
+<<benchcall, fig=FALSE, echo=TRUE, eval=FALSE>>=
+initialpt <- cbind(c(4, -4), c(-4, 4), c(3, 0), c(0, 3), c(-1, -1), c(0, 0))
+mytablelist <- list()
+for(i in 1: NCOL(initialpt))
+{
+	z0 <- c(initialpt[, i], 1, 1)
+	mybench <- wholebench(z0)
+
+	cat("z0", z0, "\n")	
+
+	mytable12 <- data.frame(method=mybench[[1]]$compres[, 1], 
+	round( 
+		cbind(mybench[[1]]$compres[,c(-1, -4)], mybench[[2]]$compres[,c(-1, -4)])
+		, 3) )
+
+	mytable35 <- data.frame(method=mybench[[1]]$compres[, 1], 
+	round( 
+		cbind(mybench[[3]]$compres[,c(-1, -4)], mybench[[5]]$compres[,c(-1, -4)])
+		, 3) )
+
+
+	mytablelist <- c(mytablelist, list(mytable12), list(mytable35))
+}
+@
+%%%
+
+
+\begin{table}[htb!]
+
+\begin{scriptsize}
+\begin{tabular}{l|ccccccc|ccccccc}
+& \multicolumn{7}{c|}{$\phi(a,b)=\min(a,b)$} & \multicolumn{7}{c}{$\phi(a,b)=\sqrt{a^2+b^2} -(a+b)$} \\
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   5  &  5  &  1  &  0  &  512  &  6  &  0  &  6  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - geom. LS  &   343  &  67  &  1  &  0  &  512  &  6  &  0  &  6  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - quad. LS  &   292  &  100  &  1  &  0  &  276  &  9  &  2  &  6  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - Powell TR  &   64  &  57  &  1  &  0  &  512  &  6  &  0  &  12  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - Dbl. TR  &   63  &  58  &  1  &  0  &  512  &  6  &  0  &  12  &  6  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - pure  &   100  &  1  &  1  &  0  &  308  &  2  &  164  &  100  &  1  &  2  &  -1  &  353  &  147  &  188 \\ 
+Broyden - geom. LS  &   403  &  6  &  1  &  0  &  512  &  6  &  0  &  1079  &  26  &  2  &  -2  &  370  &  101  &  2 \\ 
+Broyden - quad. LS  &   291  &  6  &  1  &  0  &  487  &  6  &  1  &  467  &  3  &  2  &  -2  &  340  &  106  &  1 \\ 
+Broyden - Powell TR  &   22  &  2  &  2  &  -2  &  0  &  160  &  0  &  114  &  2  &  2  &  -1  &  558  &  63  &  1 \\ 
+Broyden - Dbl. TR  &   20  &  2  &  2  &  -2  &  0  &  160  &  0  &  115  &  2  &  2  &  -1  &  554  &  64  &  1 \\ 
+\hline
+& \multicolumn{7}{c|}{$\phi(a,b)=|a-b|^3 - a^3 - b^3$} & \multicolumn{7}{c}{$\phi(a,b)=\phi_{KK}(a,b)$} \\
+   &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$  &  fctcall  &  jaccall  &  $x_1$  &  $x_2$  &  $\lambda_1$  &  $\lambda_2$  &  $||\Phi(z)||$ \\ 
+\hline   
+Newton - pure  &   113  &  113  &  -2  &  3  &  8  &  0  &  0  &  48  &  48  &  0  &  1  &  325  &  0  &  0 \\ 
+Newton - geom. LS  &   203  &  25  &  1  &  2  &  -1  &  -2  &  33  &  727  &  100  &  1  &  1  &  199  &  0  &  2 \\ 
+Newton - quad. LS  &   91  &  27  &  1  &  2  &  -1  &  -1  &  37  &  85  &  39  &  2  &  -2  &  0  &  160  &  0 \\ 
+Newton - Powell TR  &   75  &  67  &  -1  &  3  &  0  &  0  &  3  &  152  &  100  &  0  &  1  &  309  &  0  &  0 \\ 
+Newton - Dbl. TR  &   62  &  53  &  -1  &  3  &  0  &  0  &  3  &  147  &  100  &  0  &  1  &  304  &  0  &  0 \\ 
+Broyden - pure  &   200  &  1  &  1  &  0  &  4  &  8  &  506  &  49  &  1  &  1  &  0  &  512  &  6  &  0 \\ 
+Broyden - geom. LS  &   167  &  6  &  2  &  1  &  -1  &  -2  &  82  &  29  &  3  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - quad. LS  &   86  &  5  &  2  &  1  &  -1  &  -2  &  78  &  20  &  3  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - Powell TR  &   215  &  14  &  -1  &  3  &  0  &  0  &  3  &  28  &  2  &  2  &  -2  &  0  &  160  &  0 \\ 
+Broyden - Dbl. TR  &   246  &  15  &  -1  &  3  &  0  &  0  &  3  &  29  &  2  &  2  &  -2  &  0  &  160  &  0 \\ 
+\hline
+\end{tabular}
+\end{scriptsize}
+
+\caption{With initial point $z_0 = (4, -4,  1,  1)$}
+
+\end{table}
+
+
+\section{GNEP as a fixed point equation}
+
+
+\section{GNEP as a gap minimization problem}
+
+
+
+
+\newpage
+\bibliographystyle{agsm}
+\bibliography{GNE-howto}
+
+
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% coding: utf-8
+%%% End:

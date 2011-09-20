@@ -45,7 +45,7 @@ GrBphiLT(a, b, q)
 \arguments{
   \item{a}{first parameter.}
   \item{b}{second parameter.}
-  \item{f}{a function.}
+  \item{f, fprime}{a univariate function and its derivative.}
   \item{lambda}{a parameter in [0, 2[.}
   \item{q}{a parameter >1.}
 }

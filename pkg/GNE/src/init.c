@@ -18,7 +18,9 @@
 //table of registration for call methods
 static const R_CallMethodDef callMethods[] = 
 {
-        {"doPROBj2k", (DL_FUNC) &doPROBj2k, 4},	
+        {"doPROBj2k", (DL_FUNC) &doPROBj2k, 4},
+		{"doGradPROBj2k", (DL_FUNC) &doGradPROBj2k, 5},
+		{"doGradGradPROBj2k", (DL_FUNC) &doGradGradPROBj2k, 6},
 		{"doPhi", (DL_FUNC) &doPhi, 12},
         {"doJacPhi", (DL_FUNC) &doJacPhi, 15},
         {NULL, NULL, 0}

@@ -24,6 +24,10 @@
 
 /* Functions accessed from .Call() */
 SEXP doPROBj2k(SEXP x, SEXP j, SEXP k, SEXP param_j);
+SEXP doGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j);
+SEXP doGradGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP mderiv, SEXP param_j);
 
-
- 
+/* utility functions */
+double PROBj2k(double* x, int j, int k, double* param_j, int n);
+double GradPROBj2k(double* x, int j, int k, int ideriv, double* paramj, int n);
+double GradGradPROBj2k(double* x, int j, int k, int i, int m, double* paramj, int n); 

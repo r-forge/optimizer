@@ -30,7 +30,15 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
     if (count_if(x, x + nn, R_finite) < pp.size())
 	throw range_error("non-finite x values not allowed in calfun");
     copy(x, x + nn, pp.begin());
-    double f = as<double>(cf(pp)); // evaluate objective
+
+    double f;
+    try {
+       f  = as<double>(cf(pp)); // evaluate objective
+    } catch( std::exception& __ex__ ) {
+	forward_exception_to_r( __ex__ );
+    } catch(...) {
+	::Rf_error("c++ exception (unknown reason)");
+    }
     if (!R_finite(f)) f = numeric_limits<double>::max();
 
     if (*ip == 3) {		// print eval info when very verbose

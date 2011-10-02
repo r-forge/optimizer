@@ -239,8 +239,12 @@ targetQ <- function(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-
 vgQ.target <- function(L, Target=NULL){
    if(is.null(Target)) stop("argument Target must be specified.")
    #   e.g.  Target <- matrix(c(rep(9,4),rep(0,8),rep(9,4)),8) 
-   list(Gq=2*(L-Target),
-        f=sum((L-Target)^2), 
+   #  missing elements in the target replaced by 0.0 to more closely
+   #  approximates  Michael Brown approach
+   Gq <-  2 * (L - Target)
+   Gq[is.na(Gq)] <- 0
+   list(Gq=Gq,
+        f=sum((L-Target)^2, na.rm=TRUE), 
 	Method="Target rotation")
    }
 
@@ -502,6 +506,47 @@ vgQ.mccammon <- function(L){
   Gq <- 2*L*(G1/Q1 - G2/Q2)
   Q <- log(Q1) - log(Q2)
   list(Gq=Gq, f=Q, Method=Method)
+}
+
+
+bifactor <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, 
+     eps=1e-5, maxit=1000){
+  #adapted from Jennrich and Bentler 2011. code provided by William Revelle	
+    GPForth(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+            method="bimin")
+    }
+
+biquartimin <- function(L, Tmat=diag(ncol(L)), normalize=FALSE, 
+     eps=1e-5, maxit=1000){
+  #the oblique case
+  #adapted from Jennrich and Bentler 2011. code provided by William Revelle	
+    GPFoblq(L, Tmat=Tmat, normalize=normalize, eps=eps, maxit=maxit,
+            method="bimin")
+    }
+
+vgbQ.bimin <- function(L) {
+  #find the derivative
+  # code provided by William Revelle	
+  k <- dim(L)[2]
+  L2 <- L^2
+  N <- matrix(1,k,k)
+  diag(N) <- 0
+  L2N <- L2 %*% N
+  v <- sum(L2 * L2N)
+  G = 4 * L * L2N
+  return(list(f=v,Gq=G))
+}
+
+vgQ.bimin <- function(L) {
+  #find the  fit
+  # code provided by William Revelle	
+  L2 <- L[,-1]
+  lvg <- vgbQ.bimin(L2)
+  v <- lvg$f
+  G <- lvg$Gq
+  G <-cbind(G[,1],G)
+  G[,1] <- 0
+  return(list(f=v,Gq=G))
 }
 
 

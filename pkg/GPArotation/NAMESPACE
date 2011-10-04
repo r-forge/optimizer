@@ -26,8 +26,8 @@ export("cfQ")
 export("infomaxT")
 export("infomaxQ")
 export("mccammon")
-export("bifactor")
-export("biquartimin")
+export("bifactorT")
+export("bifactorQ")
 
 export(
     "eiv",

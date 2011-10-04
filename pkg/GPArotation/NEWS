@@ -9,7 +9,7 @@ Changes in GPArotation version 2011.10-1
    o	Modification to vgQ.target to allow NA in target, which is replaced by
    	0.0 (from William Revelle).
 
-   o	Added bifactor and biquartimin (from William Revelle).
+   o	Added bifactorT and bifactorQ (biquartimin) from William Revelle.
 
 Changes in GPArotation version 2010.07-1
 

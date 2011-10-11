@@ -28,7 +28,6 @@ The main optimization functions are
 Code is modified from original source \file{splusfunctions.net} available at 
   \url{http://www.stat.ucla.edu/research/gpa}.
 
-Maintainer: Paul Gilbert <pgilbert@bank-banque-canada.ca>  
 }
 \references{
    The software reference is

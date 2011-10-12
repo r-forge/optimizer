@@ -238,14 +238,13 @@ targetQ <- function(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-
 
 vgQ.target <- function(L, Target=NULL){
    if(is.null(Target)) stop("argument Target must be specified.")
-   #   e.g.  Target <- matrix(c(rep(9,4),rep(0,8),rep(9,4)),8) 
-   #  missing elements in the target replaced by 0.0 to more closely
+   #   e.g.  Target <- matrix(c(rep(NA,4),rep(0,8),rep(NA,4)),8) 
    #  approximates  Michael Brown approach
    Gq <-  2 * (L - Target)
-   Gq[is.na(Gq)] <- 0
+   Gq[is.na(Gq)] <- 0 #missing elements in target do not affect the first derivative 
    list(Gq=Gq,
-        f=sum((L-Target)^2, na.rm=TRUE), 
-	Method="Target rotation")
+        f=sum((L-Target)^2, na.rm=TRUE),  
+	Method="Target rotation")  #The target rotation ? option in Michael Browne's algorithm should be NA
    }
 
 pstT <- function(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000) {

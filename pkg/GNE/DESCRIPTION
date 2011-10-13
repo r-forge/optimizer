@@ -7,5 +7,4 @@ Author: Christophe Dutang
 Maintainer: Christophe Dutang <christophe.dutang@ensimag.fr>
 Description: Nash Equilibrium computational methods
 Depends: R (>= 2.6.0), alabama, nleqslv, BB
-License: GPL
-LazyLoad: yes
+License: GPL (>= 2)

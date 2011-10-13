@@ -32,11 +32,10 @@ nseq <- function(xinit, Phi, jacPhi, argPhi, argjac, method, control, global="gl
 	test.try <- try( wrapJac(xinit, argjac=argjac), silent=TRUE )
 	if(class(test.try) == "try-error")
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Can't evalate Jac Phi(xinit).", fvec=NA) )
+				 message="Can't evaluate Jac Phi(xinit).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Jac Phi(xinit) has infinite or NaN values.", fvec=NA) )
-	
 	
 	if(method != "Levenberg-Marquardt")
 		test.try <- try( nleqslv(xinit, wrapPhi, wrapJac, argPhi=argPhi, argjac=argjac,

@@ -86,6 +86,10 @@ print(trueGNE)
 #-------------------------------------------------------------------------------
 #benchmark
 z0 <- c(10, 10, 1, 1)
+# z0 <- c(1/2, 1/2, 0, 0)
+
+# F(z0)
+# JacF(z0, gphia= GrAphiMin, gphib= GrBphiMin)
 
 #min function
 resMin <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), echo=FALSE)

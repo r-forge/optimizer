@@ -8,13 +8,15 @@ GrAphiFB <- function(a, b)
 GrBphiFB <- function(a, b) 
 	ifelse(a == 0 & b == 0, -1/2, b / sqrt(a^2+b^2) - 1)
 
+
 #minimum
 phiMin <- function(a, b) 
 	min(a, b)
 GrAphiMin <- function(a, b) 
-	1*(a <= b)
+	ifelse(a == 0 & b == 0, 1/2, 1*(a <= b))
 GrBphiMin <- function(a, b) 
-	1*(b <= a)
+	ifelse(a == 0 & b == 0, 1/2, 1*(b <= a))
+
 
 #Mangasarian
 phiMan <- function(a, b, f)
@@ -25,6 +27,7 @@ GrAphiMan <- function(a, b, fprime)
 
 GrBphiMan <- function(a, b, fprime)
 	sign(b-a) * fprime(abs(a-b)) - fprime(b)
+
 
 #Luo-Tseng
 phiLT <- function(a, b, q)
@@ -39,7 +42,6 @@ GrBphiLT <- function(a, b, q)
 	ifelse(a == 0 & b == 0,
 		1 + (1/2)^((q-1)/q),
 		1 - sign(b)*( abs(b) / (a^q + b^q)^(1/q) )^(q-1) )
-
 
 
 #Kanzow-Kleinmichel

@@ -8,5 +8,4 @@ Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Conjugate gradient minimization of nonlinear functions with box constraints incorporating Dai/Yuan update
 Depends: numDeriv
 License: GPL (>= 2)
-LazyLoad: no
 Packaged: 2010-11-09; nashjc

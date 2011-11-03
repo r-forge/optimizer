@@ -26,7 +26,6 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
-
 }
 \arguments{
  \item{par}{A vector of initial values for the parameters for which optimal 
@@ -82,19 +81,26 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
   use both methods. 
 
   Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
-  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', and 'ucminf'.
+  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', 'ucminf', 'Rcgmin', 'Rvmmin',
+  'bobyqa', 'uobyqa', 'newuoa', 'nmkb', and 'hjkb'.
+
+  (For convenience, 'NM' may be used instead of 'Nelder-Mead' and that is the
+   display name to minimize display width. Similarly, 'LBFGSB' may be used
+   instead of 'L-BFGS-B'.) 
 
   The default methods for unconstrained problems (no \code{lower} or
-  \code{upper} specified) are an implementation of the Nelder and Mead
-  (1965) and a Variable Metric method based on the ideas of Fletcher
-  (1970) as modified by him in conversation with Nash (1979). Nelder-Mead
-  uses only function values and is robust but relatively slow.  It will 
-  work reasonably well for non-differentiable functions. The Variable
-  Metric method, \code{"BFGS"} updates an approximation to the inverse
-  Hessian using the BFGS update formulas, along with an acceptable point
-  line search strategy. This method appears to work best with analytic
+  \code{upper} specified) are 'Nelder-Mead', an implementation of the 
+  Nelder and Mead (1965) and 'BFGS', a Variable Metric method based 
+  on the ideas of Fletcher (1970) as modified by him in conversation 
+  with J.C. Nash (see Nash, 1979). Nelder-Mead uses only function 
+  values and is robust but relatively slow.  It will work reasonably 
+  well for non-differentiable functions. The Variable Metric method, 
+  \code{"BFGS"} updates an approximation to the inverse Hessian using 
+  the BFGS update formulas, along with an acceptable point line 
+  search strategy. This method appears to work best with analytic
   gradients. (\code{"Rvmmmin"} provides a box-constrained version of this
-  algorithm.
+  algorithm, but there are some differences in detail so that the trajectories
+  of the minimization of an unconstrained problem will not match exactly.
 
   If no \code{method} is given, and there are bounds constraints provided,
   the method is set to \code{"L-BFGS-B"}.
@@ -102,8 +108,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
   Method \code{"CG"} is a conjugate gradients method based on that by
   Fletcher and Reeves (1964) (but with the option of Polak--Ribiere or
   Beale--Sorenson updates). The particular implementation is now dated,
-  and improved yet simpler codes are being implemented (as at June 2009),
-  and furthermore a version with box constraints is being tested.
+  and improved yet simpler codes exist, and one of them is provided via
+  \code{Rcgmin}. Furthermore this permits box constraints on parameters.
   Conjugate gradient methods will generally be more fragile than the 
   BFGS method, but as they do not store a matrix they may be successful 
   in much larger optimization problems.
@@ -118,16 +124,20 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
   Nocedal and Wright (1999) is a comprehensive reference for the
   previous three methods.
 
-  Function \code{fn} can return \code{NA} or \code{Inf} if the function
-  cannot be evaluated at the supplied value, but the initial value must
-  have a computable finite value of \code{fn}. However, some methods, of
+  The user objective function (\code{fn}) can commonly return \code{NA} 
+  or \code{Inf} if the function cannot be evaluated at the supplied 
+  parameters. \code{optimx} requires that the initial parameters must
+  give a computable finite value of \code{fn}. However, some methods, of
   which \code{"L-BFGS-B"} is known to be a case, require that the values
-  returned should always be finite.
+  returned should always be finite. To control for excursions outside the
+  domain where function \code{fn} and, if provided, \code{gr} and \code{hess},
+  can be computed, \code{optimx} wraps these function using tools in 
+  the package \code{optfntools}, namely \code{ufn}, \code{ugr} and \code{uhess}.
 
   While \code{optim} can be used recursively, and for a single parameter
   as well as many, this may not be true for \code{optimx}. \code{optim}
   also accepts a zero-length \code{par}, and just evaluates the function 
-  with that argument.
+  with that argument. Such usage is strongly discouraged for \code{optimx}.
 
   Method \code{"nlm"} is from the package of the same name that implements
   ideas of Dennis and Schnabel (1983) and Schnabel et al. (1985). See nlm()
@@ -156,6 +166,12 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
   for details. Note that \code{"uobyqa"} and \code{"newuoa"} are for 
   unconstrained minimization, while \code{"bobyqa"} is for box constrained
   problems.
+
+  Methods \code{nmkb} and \code{hjkb} are box-constrained versions of the 
+  Nelder-Mead implementation of Tim Kelley and the Hooke and Jeeves method. 
+  When unconstrained problems are presented, functions \code{nmk} and \code{hjk}
+  are called, but these naming variations are NOT permitted in the vector of
+  methods \code{method} in the call to \code{optimx}. 
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -190,8 +206,6 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
       Note, however, that the tests are sensitive to scaling, and users may need
       to perform additional verification. If \code{kkt} is FALSE but \code{hessian}
       is TRUE, then \code{KKT1} is generated, but \code{KKT2} is not.}
-    \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
-      methods.}
     \item{\code{sort.result}}{= TRUE if we want to have the results table sorted 
       into reverse order of final objective function.}
     \item{\code{kkttol}}{= value to use to check for small gradient and negative
@@ -203,7 +217,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
       scaling tests, before we try optimization methods. Default is TRUE.}
     \item{\code{dowarn}}{= TRUE if we want warnings generated by optimx. Default is 
       TRUE.}
-    \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.
+    \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.\cr
       Default is (0.5)*.Machine$double.xmax }
   }
 
@@ -216,11 +230,15 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
       of \code{fn} and \code{gr} during optimization. If negative,
       turns the problem into a maximization problem. Optimization is
       performed on \code{fn(par)/fnscale}. For methods from the set in
-      \code{optim()}. Note potential conflicts with the control \code{maximize}.}
+      \code{optim()}. Note potential conflicts with the control \code{maximize}.
+      This also conflicts with the argument \code{ps} to the tools from 
+      package optfntools.}
     \item{\code{parscale}}{A vector of scaling values for the parameters.
 	Optimization is performed on \code{par/parscale} and these should be
 	comparable in the sense that a unit change in any element produces
-	about a unit change in the scaled value.For \code{optim}.}
+	about a unit change in the scaled value.For \code{optim}.
+        This also conflicts with the argument \code{ps} to the tools from 
+        package optfntools.}
     \item{\code{ndeps}}{A vector of step sizes for the finite-difference
       approximation to the gradient, on \code{par/parscale}
       scale. Defaults to \code{1e-3}. For \code{optim}.}
@@ -258,21 +276,22 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
 
   Any names given to \code{par} will be copied to the vectors passed to
   \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
-  are copied over. (We have not verified this as at 2009-07-29.)
+  are copied over. (We have not verified this as at 2011-11-02.)
 
 }
 \value{
 
-	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
-                        itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
+   \code{ansout <- data.frame(cbind(method=meths ,par=pars, fvalues=vals,}\cr 
+   \code{fns=fevals, grs=gevals, itns=nitns, conv=convcode, KKT1=kkt1,}\cr
+   \code{KKT2=kkt2, xtimes=xtimes, meths=meths))}
 
 
   A dataframe with the following columns, each having one element (row) for each
   each of the methods that has returned an answer. In each row the columne elements
   give:
+  \item{method}{The name of the method used for this answer.}
   \item{par}{The best set of parameters found.}
   \item{fvalues}{The value of \code{fn} corresponding to \code{par}.}
-  \item{method}{The name of the method used for this answer.}
   \item{fns}{The number of calls to \code{fn}.}
   \item{grs}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
@@ -283,8 +302,19 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
     convergence. Various methods may or may not return sufficient information
 	to allow all the codes to be specified. An incomplete list of codes includes
     \describe{
+      \item{\code{-1}}{indicates that the function could NOT be computed at the initial
+           point.} 
+      \item{\code{-2}}{indicates that the bounds are inadmissible, i.e., at least one lower bound 
+           exceeds the corresponding upper bound.}
+      \item{\code{-3}}{indicates that at least one of the parameters is out of bounds (and the
+           call has been made with control \code{allowmv2bound} = FALSE).}
+      \item{\code{-5}}{indicates that the gradient test has failed when there is a function specified
+           to compute the gradient.}
+      \item{\code{-6}}{indicates that the Hessian test has failed when there is a function specified
+           to compute the Hessian.}
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
+      \item{\code{-4}}{indicates that the initial function returned was NOT a scalar.} 
       \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
 	that the function cannot be computed or returns an infinite, NULL, or NA value.}
       \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
@@ -299,14 +329,15 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
   \item{KKT2}{A logical value returned TRUE if the solution reported appears to have a 
   positive-definite Hessian.}
   \item{xtimes}{The reported execution time of the calculations for the particular method.}
+  \item{meths}{A copy of the first column (method) to aid in reading a printout.}
 
-More detail is provided in the attribute "details" to the returned answer object. 
+More detail is provided in the attribute \code{"details"} to the returned answer object. 
 If the returned object from optimx() is \code{ans}, this is accessed 
-via the construct
-    \code{attr(ans, "details")}
+via the construct \cr
+    \code{attr(ans, "details")} \cr
 This object is a list of lists, one list for each method that has been successful 
 or that has been forced by save.failures=TRUE. To get the details list for the 
-third method, we use
+third method, we use \cr
     \code{attr(ans, "details")[[3]]]]}
 
 Each such list has possible elements:
@@ -350,15 +381,17 @@ Each such list has possible elements:
 \source{
   The code for methods \code{"Nelder-Mead"}, \code{"BFGS"} and
   \code{"CG"} was based originally on Pascal code in Nash (1990) that was
-  translated by \code{p2c} and then hand-optimized.  Dr Nash has agreed
-  that the code can be made freely available.
+  translated by \code{p2c} and then hand-optimized.  As author, I (J C Nash)
+  have agreed that the code can be made freely available. However, I 
+  encourage the use of some of the later methods e.g., \code{"Rcgmin"}, 
+  \code{"Rvmmin"}, and \code{"nmkb"}.
 
   The code for method \code{"L-BFGS-B"} is based on Fortran code by Zhu,
   Byrd, Lu-Chen and Nocedal obtained from Netlib (file
   \file{opt/lbfgs\_bcm.shar}: another version is in \file{toms/778}).
 
   See documentation for \code{"nlm"} and \code{"nlminb"} for those
-  methods, package \code{"ucminf"} for the funciton of the same
+  methods, package \code{"ucminf"} for the function of the same
   name, and package BB for method \code{"spg"}.
 }
 \references{
@@ -366,10 +399,9 @@ Each such list has possible elements:
   annealing algorithms on \eqn{R^d}{Rd}. \emph{J Applied Probability},
   \bold{29}, 885--895.
 
-   Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for
+  Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for
      convex-constrained optimization, \emph{ACM Transactions on Mathematical
      Software}. ??incomplete reference??
-
 
   Byrd, R. H., Lu, P., Nocedal, J. and Zhu, C.  (1995) A limited
   memory algorithm for bound constrained optimization.
@@ -406,7 +438,8 @@ Each such list has possible elements:
 }
 
 \seealso{
-  \code{\link{spg}}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{\link{bobyqa}}, \code{\link{Rcgmin}}, \code{\link{Rvmmin}}, \code{\link{ucminf}}.
+  \code{\link{spg}}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{\link{bobyqa}}, 
+  \code{\link{Rcgmin}}, \code{\link{Rvmmin}}, \code{\link{ucminf}}, \code{\link{dfoptim}}.
 
   \code{\link{optimize}} for one-dimensional minimization;
   \code{\link{constrOptim}} or \code{\link{spg}} for linearly constrained optimization.
@@ -456,15 +489,6 @@ fw <- function (x)
     10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
 
-## Suppressed for optimx() ans7 <- optimx(50, fw, method="SANN",
-##             control=list(maxit=20000, temp=20, parscale=20))
-## ans7
-## Now improve locally {typically only by a small bit}:
-## newpar<-unlist(ans7$par) # NOTE: you need to unlist the parameters as optimx() has multiple outputs
-##(r2 <- optimx(newpar, fw, method="BFGS"))
-##points(r2$par, r2$value, pch = 8, col = "red", cex = 2)
-
-## Show multiple outputs of optimx using all.methods
 # genrose function code
 genrose.f<- function(x, gs=NULL){ # objective function
 ## One generalization of the Rosenbrock banana valley function (n parameters)
@@ -505,7 +529,8 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 }
 
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+     control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
 print(ans8)
 
 get.result(ans8, attribute="grs")
@@ -514,41 +539,29 @@ get.result(ans8, method="spg")
 
 startx<-4*seq(1:10)/3.
 cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
-ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
-             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
+ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+             method=c("Nelder-Mead","ucminf"), itnmax=c(200,75), 
+             control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
 print(ans9)
+
+tmp<-readline("A case where methods do not work and we do not save failures")
 
 startx<-4*seq(1:10)/3.
 cat("200 steps NM is not enough to terminate\n")
 ans10<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("Nelder-Mead"),
              itnmax=c(200), control=list(trace=0, save.failures=FALSE), gs=10)
 cat("The answer should be NULL\n")
-print(ans10)
+print(str(ans10))
 
 
 startx<-4*seq(1:10)/3.
 cat("Try getting hessian but not kkt tests\n")
 ans11<-optimx(startx,fn=genrose.f,gr=genrose.g, hessian=TRUE,  
-	control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
+    control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE),
+    gs=10)
 print(ans11)
 cat("Method 7 should be Rvmmin\n")
 print(attr(ans11,"details")[7])
-
-
-genrose.h <- function(x, gs=NULL) { ## compute Hessian
-   if(is.null(gs)) { gs=100.0 }
-	n <- length(x)
-	hh<-matrix(rep(0, n*n),n,n)
-	for (i in 2:n) {
-		z1<-x[i]-x[i-1]*x[i-1]
-		z2<-1.0-x[i]
-                hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
-                hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
-                hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
-                hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
-	}
-        return(hh)
-}
 
 
 startx<-4*seq(1:10)/3.

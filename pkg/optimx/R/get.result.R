@@ -7,11 +7,20 @@ get.result <- function(optimx.obj, method = NULL,
     # attribute = type of result desired for all methods (e.g.
     #   `fvalues')
     #
-    if (!is.null(attribute) & is.null(method)) {
+    cat("optimx.obj:\n")
+    print(optimx.obj)
+    print(attributes(optimx.obj))
+    if (!is.null(attribute) & is.null(method)) { # ?? should it be &&?
+        cat("attribute:")
+        print(attribute)
         allattr <- names(optimx.obj)[!(names(optimx.obj) %in% 
             "method")]
+        cat("allattr:")
+        print(allattr)
+        cat("names in optimx.obj:")
+        print(names(optimx.obj))
         attrib <- unique(match.arg(attribute, allattr, several.ok = TRUE))
-        
+        # ???problem here!!
         sel.attr <- names(optimx.obj) %in% attrib
         ret <- cbind(optimx.obj["method"], optimx.obj[sel.attr])
         ord <- rev(order(unlist(ret[, 2])))

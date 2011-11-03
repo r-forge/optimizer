@@ -1,0 +1,135 @@
+\name{scalecheck}
+\alias{scalecheck}
+\encoding{UTF-8}
+\title{Check the scale of the initial parameters and bounds input to an optimization code
+   used in nonlinear optimization}
+\description{Nonlinear optimization problems often have different scale for different
+parameters. This function is intended to explore the differences in scale. It is, however,
+an imperfect and heuristic tool, and could be improved.
+
+At this time scalecheck does NOT take account of masks. (?? should 110702)
+}
+\usage{
+   scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE)
+}
+\arguments{
+ \item{par}{A numeric vector of starting values of the optimization function parameters.}
+ \item{lower}{A vector of lower bounds on the parameters.}
+ \item{upper}{A vector of upper bounds on the parameters.}
+ \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or
+     unconstrained, and 0 for any parameter that is fixed or MASKED for the
+     duration of the optimization.}
+ \item{dowarn}{Set TRUE to issue warnings. Othwerwise this is a silent routine.
+               Default TRUE.}
+}
+\details{
+     The scalecheck function will check that the bounds exist and are admissible, 
+     that is, that there are no lower bounds that exceed upper bounds. 
+
+     NOTE: Free paramters outside bounds are adjusted to the nearest bound.
+     We then set parchanged = TRUE which implies the original parameters
+     were infeasible.
+
+     There is a check if lower and upper bounds are very close together, in 
+     which case a mask is imposed and maskadded is set TRUE. NOTE: it is 
+     generally a VERY BAD IDEA to have bounds close together in optimization,
+     but here we use a tolerance based on the double precision machine 
+     epsilon. Thus it is not a good idea to rely on scalecheck() to test if 
+     bounds constraints are well-posed.
+ 
+}
+
+\value{
+  A list with components:
+
+   # Returns:
+   #   list(lpratio, lbratio) -- the log of the ratio of largest to smallest parameters
+   #      and bounds intervals (upper-lower) in absolute value (ignoring Inf, NULL, NA)
+
+  \item{lpratio}{The log of the ratio of largest to smallest parameters
+       in absolute value (ignoring Inf, NULL, NA)}
+  \item{lbration}{The log of the ratio of largest to smallest bounds intervals 
+        (upper-lower) in absolute value (ignoring Inf, NULL, NA)}
+}
+\examples{
+#####################
+# cat("tsc.R -- test scalecheck -- put this in Examples when working\n")
+# rm(list=ls())
+cat("Test scalecheck() function \n")
+# source("/home/john/R-optimtest/work/optfntools/R/scalecheck.R")
+
+cat("Simple, well-scaled, free parameters and bounds\n")
+par<-rep(pi,4)
+lo<-rep(1,4)
+up<-rep(5,4)
+bm<-rep(1,4)
+dall<-data.frame(par, lo, up, bm)
+
+a1<-scalecheck(par, lo, up, bm)
+# cat("a1\n")
+print(dall)
+print(a1)
+cat("\n\n")
+
+cat("log scaled parameters\n")
+par<-c(1e-9, 1e-6, 1e-3, 1)
+lo<-rep(0,4)
+up<-rep(Inf,4)
+bm<-rep(1,4)
+dall<-data.frame(par, lo, up, bm)
+
+a2<-scalecheck(par, lo, up, bm)
+# cat("a2\n")
+print(dall)
+print(a2)
+cat("\n\n")
+
+cat("no bounds\n")
+par<-rep(pi,4)
+lo<-NULL
+up<-NULL
+bm<-rep(1,4)
+lonull<-rep(NULL,4)
+dall<-data.frame(par, bm)
+
+a3<-scalecheck(par, lo, up, bm)
+# cat("a3\n")
+print(dall)
+print(a3)
+cat("\n\n")
+
+cat("log-scaled bounds\n")
+par<-rep(pi,4)
+lo<-rep(1,4)
+up<-(1:4)^10
+bm<-rep(1,4)
+dall<-data.frame(par, lo, up, bm)
+
+a4<-scalecheck(par, lo, up, bm)
+#cat("a4\n")
+print(dall)
+print(a4)
+cat("\n\n")
+
+cat("log scaled parameters, but first is masked \n")
+par<-c(1e-9, 1e-6, 1e-3, 1)
+lo<-rep(0,4)
+up<-rep(Inf,4)
+bm<-rep(1,4)
+bm[1]<-0
+dall<-data.frame(par, lo, up, bm)
+
+a5<-scalecheck(par, lo, up, bm)
+#cat("a5\n")
+print(dall)
+print(a5)
+cat("\n\n")
+
+
+}
+\keyword{nonlinear}
+\keyword{optimize}
+\keyword{upper}
+\keyword{lower}
+\keyword{bound}
+\keyword{mask}

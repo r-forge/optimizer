@@ -1,9 +1,9 @@
 zeroin <- function(f, interval,
-             tol = .Machine$double.eps^0.5, maxiter = 1000, ...){
-debug <- FALSE # to allow for debugging
+             tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE,...){
+# trace <- FALSE # to allow for debugging
 # epsilon <- .Machine$double.eps^0.5
 epsilon <- .Machine$double.eps
-if (debug) cat("epsilon= ",epsilon,"\n")
+if (trace) cat("epsilon= ",epsilon,"\n")
 
 # uniroot <- function(f, interval, ...,
 #             lower = min(interval), upper = max(interval),
@@ -29,7 +29,7 @@ ax <- interval[1]
 bx <- interval[2]
 fa <- f(ax, ...)
 fb <- f(bx, ...)
-if (debug) cat("Start zeroin: f(",ax,")=",fa,"   f(",bx,")=",fb,"\n")
+if (trace) cat("Start zeroin: f(",ax,")=",fa,"   f(",bx,")=",fb,"\n")
 
 a <- ax
 b <- bx
@@ -40,20 +40,20 @@ wtol <- tol # to avoid changing tol
     if(fa == 0.0) {
 	wtol <- 0.0
 	maxit <- 0
-        if (debug) cat("fa is 0\n")
+        if (trace) cat("fa is 0\n")
 	return(list(root=a, froot=0, wtol=0.0, maxit=2))
     }
     if(fb ==  0.0) {
 	wtol <- 0.0
 	maxit <- 0
-        if (debug) cat("fb is 0\n")
+        if (trace) cat("fb is 0\n")
 	return(list(root=b, froot=0, wtol=0.0, maxit=2))
     }
     maxit <- maxiter + 2 # count evaluations as maxiter-maxit
 
     while(maxit > 0)		## Main iteration loop	*/
     {
-        if (debug) cat("Top of iteration, maxit=",maxit,"\n")
+        if (trace) cat("Top of iteration, maxit=",maxit,"\n")
 
 	prev_step <- b-a		## Distance from the last but one
 					##   to the last approximation	*/
@@ -66,7 +66,7 @@ wtol <- tol # to avoid changing tol
 
 	if( abs(fc) < abs(fb) )
 	{				## Swap data for b to be the	*/
-            if (debug) cat("fc smaller than fb\n")
+            if (trace) cat("fc smaller than fb\n")
 	    a <- b
             b <- c
             c <- a	## best approximation		*/
@@ -75,14 +75,14 @@ wtol <- tol # to avoid changing tol
             fc<-fa
 	}
 	tol_act <- 2*epsilon*abs(b) + tol/2
-        if (debug) cat("tol_act= ",tol_act,"\n")
+        if (trace) cat("tol_act= ",tol_act,"\n")
 
 	new_step <- (c-b)/2 # bisection
-        if (debug) cat("new_step= ",new_step,"\n")
+        if (trace) cat("new_step= ",new_step,"\n")
 
 	if( (abs(new_step) <= tol_act) || (fb == 0.0 ))
 	{
-            if (debug) cat("DONE! -- small new_step or fb=0\n")
+            if (trace) cat("DONE! -- small new_step or fb=0\n")
 	    wtol = abs(c-b)
 	    return(list(root=b, froot=fb, rtol=wtol, maxit=maxiter-maxit)) ## Acceptable approx. is found	*/
 	}
@@ -92,7 +92,7 @@ wtol <- tol # to avoid changing tol
 	    && (abs(fa) > abs(fb)) ) {	## and was in true direction,
 					## Interpolation may be tried	*/
 	#    register double t1,cb,t2;
-            if (debug) cat("prev_step larger than tol_act and fa bigger than fb\n")
+            if (trace) cat("prev_step larger than tol_act and fa bigger than fb\n")
 
 	    cb <- c-b
 	    if( a==c ) {		## If we have only two distinct	*/
@@ -100,10 +100,10 @@ wtol <- tol # to avoid changing tol
 		t1 <- fb/fa		## can only be applied		*/
 		p <- cb*t1
 		q <- 1.0 - t1
-                if (debug) cat("a == c\n")
+                if (trace) cat("a == c\n")
 	    }
 	    else {			## Quadric inverse interpolation*/
-                if (debug) cat("a != c\n")
+                if (trace) cat("a != c\n")
 		q <- fa/fc
                 t1 <- fb/fc
                 t2 <- fb/fa
@@ -111,15 +111,15 @@ wtol <- tol # to avoid changing tol
 		q <- (q-1.0) * (t1-1.0) * (t2-1.0)
 	    }
 	    if( p>0.0 )	{	## p was calculated with the */
-                if (debug) cat("p>0\n")
+                if (trace) cat("p>0\n")
 		q <- -q			## opposite sign; make p positive */
 	    } else {			## and assign possible minus to	*/
-                if (debug) cat("! p>0\n")
+                if (trace) cat("! p>0\n")
 		p <- -p			## q				*/
             }
 	    if( (p < (0.75*cb*q-abs(tol_act*q)/2))  ## If b+p/q falls in [b,c]*/
 		&& (p < abs(prev_step*q/2)) ) {	## and isn't too large	*/
-                if (debug) cat("p satisfies conditions for changing new_step\n")
+                if (trace) cat("p satisfies conditions for changing new_step\n")
 		new_step <- p/q			## it is accepted
 	    }					# * If p/q is too large then the
 						# * bisection procedure can
@@ -128,7 +128,7 @@ wtol <- tol # to avoid changing tol
 	}
 
 	if( abs(new_step) < tol_act) {	## Adjust the step to be not less*/
-            if (debug) cat("new_step smaller than tol_act\n")
+            if (trace) cat("new_step smaller than tol_act\n")
 	    if( new_step > 0.0 )	## than tolerance		*/
 		new_step <- tol_act
 	    else
@@ -141,7 +141,7 @@ wtol <- tol # to avoid changing tol
         maxit <- maxit-1
 	## Do step to a new approxim. */
 	if( ((fb > 0) && (fc > 0)) || ((fb < 0) && (fc < 0)) ) {
-            if (debug) cat("make c to have sign opposite to b\n")
+            if (trace) cat("make c to have sign opposite to b\n")
 	    ## Adjust c for it to have a sign opposite to that of b */
 	    c <- a
             fc <- fa
@@ -149,7 +149,7 @@ wtol <- tol # to avoid changing tol
 
     }
     ## failed! */
-    if (debug) cat("Failed!\n")
+    if (trace) cat("Failed!\n")
     wtol <- abs(c-b)
     maxit <- -1
     return(list(root=b, froot=NA, rtol=wtol, maxit=maxit)) ## Acceptable approx. is found	*/

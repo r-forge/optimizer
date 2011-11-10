@@ -1,10 +1,10 @@
 Package: rootoned
-Version: 2011-8.18
-Date: 2011-08-18
-Title: Roots of one-dimensional functions
+Version: 2011-11.10
+Date: 2011-11-10
+Title: Roots of one-dimensional functions in R-only code
 Author: John C Nash <nashjc@uottawa.ca>
 Maintainer: John C Nash <nashjc@uottawa.ca>
-Description: Roots of one-dimensional functions
+Description: Roots of one-dimensional functions in R-only code
 License: GPL-2
 Lazyload: Yes
 Depends: 

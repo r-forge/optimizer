@@ -11,7 +11,7 @@
 \description{
 Find a single root of a function of one variable within a specified interval.}
 \usage{
-    zeroin(f, interval,tol = .Machine$double.eps^0.5, maxiter = 1000, ...) 
+    zeroin(f, interval,tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) 
 }
 \arguments{
  \item{f}{A real function of a single variable.}
@@ -19,6 +19,7 @@ Find a single root of a function of one variable within a specified interval.}
  \item{tol}{A tolerance for the root. When the interval within which a root exists is smaller than \code{tol}, 
     zeroin will terminate.}
  \item{maxiter}{A limit on the number of function evaluations permitted in the attempt to find a root.}
+ \item{trace}{If TRUE, provided diagnostic output of the process of rootfinding.}
  \item{...}{Extra data needed to compute the function \code{f}.}
 }
 \details{

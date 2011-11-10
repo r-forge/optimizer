@@ -16,8 +16,10 @@ John C. Nash <nashjc@uottawa.ca>
 }
 \references{
 References to Brent and Dekker need to be added.
+
 Nash J C (1979) Compact numerical methods for computers, Adam-Hilger: Bristol.
 Second Edition, 1990, Institute of Physics Publications: Bristol.
+
 }
 \keyword{ root-finding }
 \keyword{ uniroot }
@@ -63,6 +65,18 @@ for (al in 1:10){
 
    tmp<-readline("Next?")
 }
+
+cat("Tangent function false root\n")
+mytan<-function(xdeg){ # tangent in degrees
+    xrad<-xdeg*pi/180.0 # conversion to radians
+    tt<-tan(xrad)
+}
+
+cat("find root between 80 and 100 degrees\n")
+tint<-c(80,100)
+rtan<-root1d(mytan, tint)
+print(rtan)
+
 }
 \keyword{optimize}
 

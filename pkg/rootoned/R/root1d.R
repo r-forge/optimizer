@@ -1,7 +1,7 @@
 root1d <- function(f, interval,
-             tol = .Machine$double.eps^0.5, maxiter = 1000, ...) {
+             tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) {
 
-debug <- FALSE
+# trace <- FALSE
 #     uniroot(f, interval,
 #             lower = min(interval), upper = max(interval),
 #             f.lower = f(lower, ...), f.upper = f(upper, ...),
@@ -18,7 +18,7 @@ debug <- FALSE
 # notcomp: boolean;
 
 
-if (debug) cat('alg18 == root1d -- root of a function of one variable\n')
+if (trace) cat('alg18 == root1d -- root of a function of one variable\n')
 
 ubound <- interval[2]
 lbound <- interval[1]
@@ -30,22 +30,25 @@ lbound <- interval[1]
 #  if notcomp then halt;
   flow <- f(lbound,...)
 #  if notcomp then halt;
-if (debug) cat('f(',lbound,')=',flow,'  f(',ubound,')=',fup,"\n")
+#if (trace) cat('f(',lbound,')=',flow,'  f(',ubound,')=',fup,"\n")
 
   if (fup*flow>0) {
      noroot  <-  TRUE
   } else { noroot  <-  FALSE }
-
+  op<-"start"
   while ( (! noroot) && ((ubound-lbound)>tol) ) {
-
+    if (trace) cat("f(",lbound,")=",flow,"  f(",ubound,")=",fup,"  interval=",ubound-lbound,"  ",op,"\n")
     if ( (nbis * ((ifn - 2) %/% nbis) == (ifn - 2)) ){
-if (debug) cat('Bisect  \n')
+      op<-"Bisect"
+#if (trace) cat('Bisect  \n')
       b  <-  lbound + 0.5*(ubound - lbound)
     } else {
-if (debug) cat('False position \n')
+#if (trace) cat('False position \n')
+      op<-"FalsePos"
       b  <-  (lbound*fup-ubound*flow)/(fup-flow)
     }
 
+#  cat("b =",b,"  lbound=",lbound,"  ubound=",ubound,"\n")
     if (b <= lbound) {
       b  <-  lbound
       ubound  <-  lbound
@@ -58,8 +61,8 @@ if (debug) cat('False position \n')
 
     fb  <-  f(b, ...)
 #    if notcomp then halt;
-if (debug) cat(ifn,' evalns: f(',b,')=',fb,"\n")
-if (debug) cat('  width interval= ',(ubound-lbound),"\n")
+# if (trace) cat(ifn,' evalns: f(',b,')=',fb,"\n")
+# if (trace) cat('  width interval= ',(ubound-lbound),"\n")
     if ( (ubound-lbound)>tol ){
       if (fb*flow<0.0) {
         fup  <-  fb
@@ -70,7 +73,7 @@ if (debug) cat('  width interval= ',(ubound-lbound),"\n")
       }
     }
   } # end while
-if (debug)   cat('Converged to f(',b,')=',fb,"\n")
-if (debug)   cat('  Final interval width =',ubound-lbound,"\n")
+if (trace)   cat('Converged to f(',b,')=',fb,"\n")
+if (trace)   cat('  Final interval width =',ubound-lbound,"\n")
   res<-list(root=b, froot=fb, rtol=(ubound-lbound), fcount=ifn)
 }

@@ -483,8 +483,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
                       # end box constraint adjustment of step length
                     }  # end if bounds
                   bvec <- par + steplength * t
-                  changed <- (!identical((bvec + reltest), (par + 
-                    reltest)))
+                  changed <- (!identical((bvec + reltest), (par + reltest)))
                   if (changed) {
                     # compute newstep, if possible
                     f <- myfn(bvec, ...)  # Because we need the value for linesearch, don't use try()
@@ -499,7 +498,9 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
                       f1 <- f  # Hold onto value
                     }
                     else {
+                      savestep<-steplength
                       steplength <- steplength * stepredn
+                      if (steplength >=savestep) changed<-FALSE
                       if (trace > 0) 
                         cat("*")
                     }

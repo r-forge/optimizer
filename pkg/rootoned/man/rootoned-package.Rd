@@ -36,6 +36,7 @@ optimize
 cat("simple test\n")
 
 tf1<-function(x) { 10 - 3*x + x*x*x }
+gtf1<-function(x) { -3 + 3*x*x }
 tint<-c(-4,4)
 # curve(tf1, tint) ## uncomment to draw
 
@@ -47,10 +48,19 @@ res2<-zeroin(tf1,tint)
 cat("res2\n")
 res2
 
+x0<-tint[1]
+res3a<-newt1d(tf1, gtf1, x0)
+res3a
+x0<-tint[2]
+res3b<-newt1d(tf1, gtf1, x0)
+res3b
+
+
 
 cat("exponential case\n")
 alpha<-1.0
 efn<-function(x) { exp(-alpha*x) - 0.02 }
+gefn<-function(x){-alpha*exp(-alpha*x) }
 tint<-c(0,100)
 
 for (al in 1:10){
@@ -62,7 +72,13 @@ for (al in 1:10){
    resz<-zeroin(efn,tint,tol=1e-10)
    cat("zeroin:")
    print(resz)
-
+##   cat("newt1d:")
+##   x0<-tint[1]
+##   resna<-newt1d(efn, gefn, x0, maxiter=1000, trace=TRUE)
+##   print(resna)
+##   x0<-tint[2]
+##   resnb<-newt1d(efn, gefn, x0, maxiter=1000, trace=TRUE)
+##   print(resnb)
    tmp<-readline("Next?")
 }
 

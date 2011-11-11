@@ -27,8 +27,10 @@ lbound <- interval[1]
   ifn <- 2
   nbis <- 5
   fup <- f(ubound,...)
+  fup0<-fup # save it
 #  if notcomp then halt;
   flow <- f(lbound,...)
+  flow0<-flow # save it
 #  if notcomp then halt;
 #if (trace) cat('f(',lbound,')=',flow,'  f(',ubound,')=',fup,"\n")
 
@@ -73,7 +75,16 @@ lbound <- interval[1]
       }
     }
   } # end while
+  if (noroot) { 
+	b<-NA # We did not find a root
+	fb<-NA
+  }
 if (trace)   cat('Converged to f(',b,')=',fb,"\n")
 if (trace)   cat('  Final interval width =',ubound-lbound,"\n")
+  if (! is.na(fb) && (abs(fb) > 0.5*max(abs(fup0), abs(flow0)))) {
+      msg<-"Final function magnitude > 0.5 * max(abs(f(lbound)), abs(f(ubound)))"
+      if (trace) cat(msg,"\n")
+      warning(msg)
+  }
   res<-list(root=b, froot=fb, rtol=(ubound-lbound), fcount=ifn)
 }

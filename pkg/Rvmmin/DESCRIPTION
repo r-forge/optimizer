@@ -6,6 +6,6 @@ Date: 2011-07-06
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Variable metric nonlinear function minimization with bounds constraints
-Depends: numDeriv, bmchk
+Depends: numDeriv, optfntools
 License: GPL (>= 2)
 

@@ -459,47 +459,91 @@ grr <- function(x) { ## Gradient of 'fr'
     c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1),
        200 *      (x2 - x1 * x1))
 }
-ans1<-optimx(c(-1.2,1), fr)
+cat("Rosenbrock function, with and without analytic gradients\n")
+
+ans1<-optimx(c(-1.2,1), fr, control=list(all.methods=TRUE))
+cat("Default numerical gradients via grfwd\n")
 print(ans1)
-print(attr(ans1,"details"))
+# print(attr(ans1,"details"))
 cat("\n\n")
-ans2<-optimx(c(-1.2,1), fr, grr, method = "BFGS")
+cat("Analytic gradients\n")
+ans2<-optimx(c(-1.2,1), fr, grr, control=list(all.methods=TRUE))
 print(ans2)
-## The next line will fail if executed because 'hessian = TRUE' no longer allowed
-# ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
+
+
+cat("The next line should fail if executed because 'hessian = TRUE' no longer allowed\n")
+try3<-try(ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE))
+print(class(try3))
+
 cat("\n\n")
-ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=1))
-print(ans4)
-cat("\n\n")
+
+cat("Single method call -- note control for CG is 'type=2'\n")
 ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
 print(ans5)
 cat("\n\n")
-ans6<-optimx(c(-1.2,1), fr, grr, method = "L-BFGS-B")
-print(ans6)
-cat("\n\n")
 
+
+cat("25-dimensional box constrained function\n")
 flb <- function(x)
     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
-## 25-dimensional box constrained
-optimx(rep(3, 25), flb, NULL, method = "L-BFGS-B",
-      lower=rep(2, 25), upper=rep(4, 25)) # par[24] is *not* at boundary
 
-## "wild" function , global minimum at about -15.81515
-fw <- function (x)
-    10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
+ans7<-optimx(rep(3, 25), flb, lower=rep(2, 25), upper=rep(4, 25),
+        control=list(all.methods=TRUE)) # par[24] is *not* at boundary
+print(ans7)
 
-# genrose function code
-genrose.f<- function(x, gs=NULL){ # objective function
+
+cat("Check on maximization\n")
+
+maxfn<-function(x) {
+      	n<-length(x)
+	ss<-seq(1,n)
+	f<-10-(crossprod(x-ss))^2
+	f<-as.numeric(f)
+	return(f)
+}
+
+negmaxfn<-function(x) {
+	f<-(-1)*maxfn(x)
+	return(f)
+}
+
+x0<-rep(pi,4)
+ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=0))
+ans.mx1<-optansout(ans.mx, filename="./ansmx.txt")
+print(ans.mx1)
+x0b<-get.best(ans.mx)
+cat("trying get.best for maxfn\n")
+print(x0b)
+
+
+cat("verify using explicit negation\n")
+ans.mxn<-optimx(x0,negmaxfn,control=list(all.methods=TRUE,save.failures=TRUE,trace=0))
+x0bn<-get.best(ans.mxn)
+print(x0bn)
+cat("\n\n")
+
+x00<-c(1,2,3,4)
+cat("Test if things work when we provide the solution!\n")
+ans.mx0<-optimx(x0,maxfn,control=list(all.methods=TRUE,maximize=TRUE,save.failures=TRUE,trace=0))
+optansout(ans.mx0, filename="./ansmx0.txt")
+x00b<-get.best(ans.mx0)
+cat("trying get.best for maxfn from solution\n")
+print(x00b)
+cat("\n\n")
+
+
+
+# genrosa function code -- matches rosenbrock when npar=2 and gs=100
+genrosa.f<- function(x, gs=NULL){ # objective function
 ## One generalization of the Rosenbrock banana valley function (n parameters)
 	n <- length(x)
         if(is.null(gs)) { gs=100.0 }
-	fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
-        return(fval)
+        # Note do not at 1.0 so min at 0
+	fval<-sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[1:(n-1)] - 1)^2)
 }
 
-genrose.g <- function(x, gs=NULL){
-# vectorized gradient for genrose.f
+genrosa.g <- function(x, gs=NULL){
+# vectorized gradient for genrosa.f
 # Ravi Varadhan 2009-04-03
 	n <- length(x)
         if(is.null(gs)) { gs=100.0 }
@@ -507,19 +551,20 @@ genrose.g <- function(x, gs=NULL){
 	tn <- 2:n
 	tn1 <- tn - 1
 	z1 <- x[tn] - x[tn1]^2
-	z2 <- 1 - x[tn]
-	gg[tn] <- 2 * (gs * z1 - z2)
-	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
+	z2 <- 1 - x[tn1]
+        # f = gs*z1*z1 + z2*z2
+	gg[tn] <- 2 * (gs * z1)
+	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1 - 2 *z2 
 	return(gg)
 }
 
-genrose.h <- function(x, gs=NULL) { ## compute Hessian
+genrosa.h <- function(x, gs=NULL) { ## compute Hessian
    if(is.null(gs)) { gs=100.0 }
 	n <- length(x)
 	hh<-matrix(rep(0, n*n),n,n)
 	for (i in 2:n) {
 		z1<-x[i]-x[i-1]*x[i-1]
-		z2<-1.0-x[i]
+#		z2<-1.0 - x[i-1]
                 hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
                 hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
                 hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
@@ -527,46 +572,49 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 	}
         return(hh)
 }
-
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+ans8<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
      control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
 print(ans8)
 
 get.result(ans8, attribute="grs")
 get.result(ans8, method="spg")
+cat("\n\n")
 
 
+cat("Try follow-on\n")
 startx<-4*seq(1:10)/3.
 cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
-ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+ans9<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
              method=c("Nelder-Mead","ucminf"), itnmax=c(200,75), 
              control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
 print(ans9)
+cat("\n\n")
 
-tmp<-readline("A case where methods do not work and we do not save failures")
+cat("A case where methods do not work and we do not save failures\n")
 
 startx<-4*seq(1:10)/3.
 cat("200 steps NM is not enough to terminate\n")
-ans10<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("Nelder-Mead"),
+ans10<-optimx(startx,fn=genrosa.f,gr=genrosa.g, method=c("Nelder-Mead"),
              itnmax=c(200), control=list(trace=0, save.failures=FALSE), gs=10)
 cat("The answer should be NULL\n")
 print(str(ans10))
+cat("\n\n")
 
 
 startx<-4*seq(1:10)/3.
 cat("Try getting hessian but not kkt tests\n")
-ans11<-optimx(startx,fn=genrose.f,gr=genrose.g, hessian=TRUE,  
+ans11<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hessian=TRUE,  
     control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE),
     gs=10)
 print(ans11)
-cat("Method 7 should be Rvmmin\n")
 print(attr(ans11,"details")[7])
+cat("\n\n")
 
 
 startx<-4*seq(1:10)/3.
 cat("Use analytic hessian and no KKT tests\n")
-ans12<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+ans12<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
       control=list(trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
 print(ans12)
 print(attr(ans12,"details"))
@@ -576,9 +624,10 @@ startx<-4*seq(1:10)/7.
 lo<-rep(0.5,10)
 up<-rep(8,10)
 bm<-c(1,1,1,1,1,0,0,1,1,1)
-ans13<-optimx(startx,fn=genrose.f,gr=genrose.g, lower=lo, upper=up, bdmsk=bm, 
+ans13<-optimx(startx,fn=genrosa.f,gr=genrosa.g, lower=lo, upper=up, bdmsk=bm, 
        control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=4)
 print(ans13)
+cat("\n\n")
 
 
 
@@ -658,7 +707,10 @@ ansnames
 cat("check the names on the parameters\n")
 print(ansnames$method)
 print(ansnames$par)
-
+bestans<-get.best(ansnames)
+cat("The get.best result\n")
+print(bestans)
+cat("\n\n")
 
 startx<-c(0.2, 0.4, 0.6, 0.8)
 cat("check Hessian -- no bounds\n")

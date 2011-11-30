@@ -12,7 +12,7 @@ optansout <- function(ansdf, filename) {
     #   check paths
     tpar <- ansdf$par
     tdf <- ansdf
-    ltvec <- length(tpar[[1]])
+#    ltvec <- length(tpar[[1]]) #?? needed??
     for (i in 1:length(tpar)) {
         tvec <- tpar[[i]]
         ltvec <- length(tvec)
@@ -35,7 +35,6 @@ optansout <- function(ansdf, filename) {
     if (!is.null(filename)) {
         sink()
     }
-    # if (! exists(filename)) { sink() } # to turn it off
     rm(tdf)
     rm(tpar)
     return(TRUE)

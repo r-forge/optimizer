@@ -1,5 +1,6 @@
 export(
   "optimx",
   "optansout",
-  "get.result"
+  "get.result",
+  "get.best"
 )

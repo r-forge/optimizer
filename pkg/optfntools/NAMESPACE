@@ -1,6 +1,10 @@
 export(
+  "axsearch",
   "fnchk",
+  "grback",
+  "grcentral",
   "grchk",
+  "grfwd",
   "hesschk", 
   "ufn",
   "ugr",
@@ -11,6 +15,7 @@ export(
   "ugHgenb",
   "bmchk",
   "bmstep",
-  "scalecheck"
+  "scalecheck",
+  "grnd"
 )
 

@@ -16,6 +16,13 @@ uhess <- function(par, fnuser, ps=rep(1,length(par)), fs=1.0, maximize = FALSE, 
     }
     tattr<-attributes(tryh) # save all attrubutes
     if (any(is.null(tryh))) stop("NULL FUNCTION")
+    kkhess<-try(get("khess",pos=sys.frame(fnuser$callpos)), silent=TRUE)
+    if ((class(kkhess)!="try-error") && ! is.null(kkhess) && ! is.na(kkhess)) { 
+       assign("khess", kkhess+1, pos=sys.frame(fnuser$callpos))
+    } else  {
+       warning("khess undefined in calling program -- set to 1")
+       assign("khess", 1, sys.frame(fnuser$callpos))
+    }
     if ((!is.null(maximize)) && maximize) 
         tryh <- -tryh # handle the maximization
     tryh<- diag(ps)%*%(tryh)%*%diag(ps)

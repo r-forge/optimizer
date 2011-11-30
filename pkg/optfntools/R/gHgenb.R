@@ -1,5 +1,5 @@
 gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL, 
-    lower = NULL, upper = NULL, control = list(), ...) {
+    lower = NULL, upper = NULL, control = list(ktrace=0), ...) {
     # Generate the gradient and Hessian for a given function at the parameters
     #   par
     #  WITH recognition of bounds and masks.

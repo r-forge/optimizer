@@ -1,4 +1,4 @@
-gHgen <- function(par, fn, gr = NULL, hess = NULL, control = list(), 
+gHgen <- function(par, fn, gr = NULL, hess = NULL, control = list(ktrace=0), 
     ...) {
     # Generate the gradient and Hessian for a given function at the parameters
     #   par.

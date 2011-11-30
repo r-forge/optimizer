@@ -1,6 +1,6 @@
 ugHgenb <- function(par, fnuser, bdmsk = NULL, 
-    lower = NULL, upper = NULL, control = list(),
-    ps=1, fs=1, maximize=FALSE, ...) {
+    lower = NULL, upper = NULL, control = list(ktrace=0),
+    ps=1, fs=1, maximize=FALSE, numgrad=FALSE, ...) {
     # Generate the gradient and Hessian for a function specified via the user
     # function wrapper at the parameters par
     #  WITH recognition of bounds and masks.
@@ -50,8 +50,8 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     #  At 2011-10-28 we are NOT using the bounds unless constraints active.
     #
     #################################################################
-    require(numDeriv)
-    require(optfntools)
+#    require(numDeriv)
+#    require(optfntools)
     ctrl <- list(asymtol = 1e-07, ktrace = 0, stoponerror = FALSE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
@@ -66,11 +66,11 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     # No tolerance is used. ?? Do we want to consider parameters 'close' to
     #   bounds?
     gradOK <- FALSE
-    if (ctrl$ktrace > 1) {
-        cat("Compute gradient approximation using fnuser:\n")
-        print(fnuser)
-    }
-    if (is.null(fnuser$gr)) {
+#    if (ctrl$ktrace > 1) {
+#        cat("Compute gradient approximation using fnuser:\n")
+#        print(fnuser
+#    }
+    if (is.null(fnuser$gr) || numgrad) {
         gt <- try(gn<-grad(ufn, par, fnuser=fnuser, ps=ps, fs=fs, maximize=maximize, ...),
                 silent = TRUE)  # change 20100711; 20111031 we need fnuser=fnuser
     }
@@ -95,7 +95,7 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     if (is.null(fnuser$hess)) {
         if (ctrl$ktrace > 1) 
             cat("is.null(hess) is TRUE\n")  # ???
-        if (is.null(fnuser$gr)) {
+        if (is.null(fnuser$gr) || numgrad) {
             if (ctrl$ktrace > 1) 
                 cat("is.null(fnuser$gr) is TRUE use numDeriv hessian()\n")  # ???
             Ht<-try(Hn<-hessian(ufn, par, fnuser=fnuser, ps=ps, fs=fs, maximize=maximize, ...),
@@ -123,7 +123,7 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
                 cat("Hessian from Jacobian:")
                 # print(Hn) # Printed below
             }
-            if (!isSymmetric(Hn, tol=0.1*sqrt(.Machine$double.eps))) 
+            if (!isSymmetric(Hn, tol=sqrt(.Machine$double.eps))) 
                 {
                   asym <- sum(abs(t(Hn) - Hn))/sum(abs(Hn))
                   asw <- paste("Hn from jacobian is reported non-symmetric with asymmetry ratio ", 
@@ -175,8 +175,10 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
                 Hn <- 0.5 * (t(Hn) + Hn)
             }  # end if ! isSymmetric
     }  # end hessian computation
-    if (ctrl$ktrace > 1) 
+    if (ctrl$ktrace > 1) {
+        cat("Raw Hessian\n")
         print(Hn)
+    }
     # apply the bounds and masks
     if (nbm > 0) {
         Hn[bmset, ] <- 0

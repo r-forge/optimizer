@@ -22,7 +22,7 @@
 }
 \usage{
   gHgen(par, fn, gr=NULL, hess=NULL,
-      control=list(), ...) 
+      control=list(ktrace=0), ...) 
 }
 \arguments{
  \item{par}{Set of parameters, assumed to be at a minimum of the function \code{fn}.}

@@ -1,6 +1,6 @@
 Package: optfntools
-Version: 2011-11.03
-Date: 2011-11.03
+Version: 2011-11.20
+Date: 2011-11.20
 Title: Tools for assisting the preparation and testing of objective functions for optimization.
 Author: John C Nash <nashjc@uottawa.ca>
 Maintainer: John C Nash <nashjc@uottawa.ca>
@@ -8,7 +8,8 @@ Description: Tools to assist in safely applying user generated objective and der
    to optimization programs. Provides a way to check the basic computation of objective functions that 
    the user provides, along with proposed gradient and Hessian functions, as well as to wrap such 
    functions to avoid failures when inadmissible parameters are provided. Check bounds and masks.
-   Check scaling or optimality conditions.
+   Check scaling or optimality conditions. Perform an axial search to seek lower points on the 
+   objective function surface. Includes forward, central and backward gradient approximation codes.
 License: GPL version 2
 Depends: numDeriv
 

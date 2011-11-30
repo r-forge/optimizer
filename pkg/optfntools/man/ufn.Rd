@@ -15,7 +15,8 @@ ufn(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
 \arguments{
  \item{par}{A vector of parameters to the user-supplied function \code{fn}}
  \item{fnuser}{A user-supplied function object that has three sub-functions
-         fn, gr, and hess. fn generates the scalar numerical value of the
+         fn, gr, and hess, as well as a callpos that indicates the R stack 
+         position (see details). fn generates the scalar numerical value of the
          objective function, gr its vector valued gradient (or is NULL) and
          hess a numerical matrix for the Hessian (or is NULL).}
  \item{ps}{A vector of scalings for the parameters. The REAL parameters are 
@@ -28,7 +29,13 @@ ufn(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
  \item{...}{Other data needed to evaluate the user function.}
 }
 \details{
-  None
+   The calling routine MUST have a variable \code{kfn} defined. This is incremented in each
+   call to \code{ufn}. The stack position of the calling routine / environment is best set
+   in the \code{fnuser} list by using  
+
+     callpos = sys.nframe()
+
+   as in the examples. 
 }
 \value{
   \code{ufn} returns a scalar numeric value, but this is set to the R constant
@@ -60,39 +67,44 @@ badlogg<-function(x, skale=10){# This is the gradient of badlogf
 ## NOT YET SET UP PROPERLY #  
 #} # note that this will fail when length(x)>x for some element of x
 
-##badlog<-list(fn=badlogf, gr=badlogg, hess=badlogh)
-badlog<-list(fn=badlogf, gr=badlogg, hess=NULL)
+opxfn<-list(fn=badlogf, gr=badlogg, hess=NULL, callpos=sys.nframe())
+
+cat("Initially kfn undefined\n")
 
 x0<-rep(20, 4)
 ps1<-rep(1,4)
 cat("OK parameters:")
 print(x0)
-fval<-ufn(x0, badlog, ps1)
+fval<-ufn(x0, opxfn, ps1)
 print("result:")
 print(fval)
+cat("counter: kfn=",kfn,"\n")
 
 skale=1
 x0<-rep(20, 4)
 cat("skale=",skale,"  OK parameters:")
 print(x0)
-fval<-ufn(x0, badlog, ps1, skale=skale)
+fval<-ufn(x0, opxfn, ps1, skale=skale)
 print("result:")
 print(fval)
+cat("counter: kfn=",kfn,"\n")
 
 x0<-rep(2, 4)
 cat("Bad parameters:")
 print(x0)
-fval<-ufn(x0, badlog, ps1)
+fval<-ufn(x0, opxfn, ps1)
 print("result:")
 print(fval)
+cat("counter: kfn=",kfn,"\n")
 
 skale=1
 x0<-rep(2, 4)
 cat("skale=",skale,"  Bad parameters:")
 print(x0)
-fval<-ufn(x0, badlog, ps1, skale=skale)
+fval<-ufn(x0, opxfn, ps1, skale=skale)
 print("result:")
 print(fval)
+cat("counter: kfn=",kfn,"\n")
 
 genrose.f<- function(x, gs=NULL){ # objective function
 ## One generalization of the Rosenbrock banana valley function (n parameters)
@@ -131,7 +143,7 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
         return(hh)
 }
 
-mygenrose<-list(fn=genrose.f, gr=genrose.g, hess<-genrose.h)
+mygenrose<-list(fn=genrose.f, gr=genrose.g, hess<-genrose.h, callpos=sys.nframe())
 
 x0<-c(1,2,3,4)
 x1<-c(1,1,1,1)
@@ -143,25 +155,34 @@ g0
 g1<-genrose.f(x1)
 g1
 
+kfn=0
 tryf01<-ufn(x0, mygenrose, ps1, fs=1, gs=10)
 tryf01
+cat("counter: kfn=",kfn,"\n")
 tryf11<-ufn(x1, mygenrose, ps1, fs=1, gs=10)
 tryf11
+cat("counter: kfn=",kfn,"\n")
 
 tryf02<-ufn(x0, mygenrose, ps1, fs=2, gs=10)
 tryf02
+cat("counter: kfn=",kfn,"\n")
 tryf12<-ufn(x1, mygenrose, ps1, fs=2, gs=10)
 tryf12
+cat("counter: kfn=",kfn,"\n")
 
 tryf0c<-ufn(x0, mygenrose, psc, fs=1, gs=10)
 tryf0c
+cat("counter: kfn=",kfn,"\n")
 tryf1c<-ufn(x1, mygenrose, psc, fs=1, gs=10)
 tryf1c
+cat("counter: kfn=",kfn,"\n")
 
 tryf0c2<-ufn(x0, mygenrose, psc, fs=2, gs=10)
 tryf0c2
+cat("counter: kfn=",kfn,"\n")
 tryf1c2<-ufn(x1, mygenrose, psc, fs=2, gs=10)
 tryf1c2
+cat("counter: kfn=",kfn,"\n")
 
 
 # scaled quadratic function
@@ -185,12 +206,21 @@ npar<-length(par)
 sbase<-2
 aou<-optim(par,sqf.f, control=list(trace=1), sbase=sbase)
 aou
+## 'x' tests could be useful to test scaling
+## aoux<-optimx(par,sqf.f, control=list(trace=1), sbase=sbase)
+## aoux
 ao<-optim(par,sqf.f, control=list(trace=1, parscale=psc, fnscale=1), sbase=sbase)
 ao
+## aox<-optimx(par,sqf.f, control=list(trace=1, parscale=psc, fnscale=1), sbase=sbase)
+## aox
 aob<-optim(par,sqf.f, gr=sqf.g, method="BFGS", control=list(trace=1,parscale=psc, fnscale=1), sbase=sbase)
 aob
+## aobx<-optimx(par,sqf.f, gr=sqf.g, method="BFGS", control=list(trace=1,parscale=psc, fnscale=1), sbase=sbase)
+## aobx
 aobu<-optim(par,sqf.f, gr=sqf.g, method="BFGS", control=list(trace=1), sbase=sbase)
 aobu
+## aobux<-optimx(par,sqf.f, gr=sqf.g, method="BFGS", control=list(trace=1), sbase=sbase)
+## aobux
 
 
 }

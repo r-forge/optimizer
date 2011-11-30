@@ -59,6 +59,7 @@ John C Nash <nashjc@uottawa.ca>
 
 Maintainer: John C Nash <nashjc@uottawa.ca>
 }
+
 \keyword{ optimization }
 \seealso{
 optimx

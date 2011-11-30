@@ -106,16 +106,10 @@ cat("test benbad() with y=as.array(1:10), x=c(1)\n")
 fc04<-fnchk(x, benbad, trace=1, y)
 print(fc04)
    
-# the following throws an error that fnchk does not catch (why??)
-# y<-"This is a string"
-# cat("test benbad() with y a string, x=c(1)\n")
-# fc05<-fnchk(x, benbad, trace=1, y)
-# print(fc05)
-
-
-
-
-
+y<-"This is a string"
+cat("test benbad() with y a string, x=c(1)\n")
+fc05<-fnchk(x, benbad, trace=1, y)
+print(fc05)
 
 }
 

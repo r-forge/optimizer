@@ -15,7 +15,8 @@ uhess(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
 \arguments{
  \item{par}{A vector of parameters to the user-supplied function \code{fn}}
  \item{fnuser}{A user-supplied function object that has three sub-functions
-         fn, gr, and hess. fn generates the scalar numerical value of the
+         fn, gr, and hess, as well as a callpos that indicates the R stack 
+         position (see details). fn generates the scalar numerical value of the
          objective function, gr its vector valued gradient (or is NULL) and
          hess a numerical matrix for the Hessian (or is NULL).}
  \item{ps}{A vector of scalings for the parameters. The REAL parameters are the internal 
@@ -27,7 +28,13 @@ uhess(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
  \item{...}{Other data needed to evaluate the user function.}
 }
 \details{
-  None
+   The calling routine MUST have a variable \code{khess} defined. This is incremented in each
+   call to \code{uhess}. The stack position of the calling routine / environment is best set
+   in the \code{fnuser} list by using  
+
+     callpos = sys.nframe()
+
+   as in the examples. 
 }
 \value{
   \code{uhess} returns a matrix numeric value, but if the inputs to the function
@@ -56,7 +63,7 @@ badlogh<-function(x, skale=10){
    H<-r \%*\% t(r) #  note that we must escape percent signs
 } # note that this will fail when length(x)>x for some element of x
 
-badlog<-list(fn=badlogf, gr=badlogg, hess=badlogh)
+badlog<-list(fn=badlogf, gr=badlogg, hess=badlogh, callpos=sys.nframe())
  
 ps1<-rep(1,4)
 

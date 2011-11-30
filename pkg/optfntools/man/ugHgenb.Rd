@@ -25,7 +25,7 @@
 }
 \usage{
   ugHgenb(par, fnuser, bdmsk=NULL, lower=NULL, upper=NULL,
-      control=list(), ps=1, fs=1, maximize=FALSE, ...) 
+      control=list(ktrace=0), ps=1, fs=1, maximize=FALSE, numgrad=FALSE, ...) 
 }
 \arguments{
  \item{par}{Set of parameters, assumed to be at a minimum of the function \code{fn}.}
@@ -48,6 +48,7 @@
  \item{ps}{Parameter scaling vector for parameters in \code{par}.}
  \item{fs}{Function scaling value.}
  \item{maximize}{TRUE if we are maximizing a function.}
+ \item{numgrad}{TRUE if we are using numerical gradient approximations.}
  \item{\dots}{Extra data needed to compute the function, gradient and Hessian.}
 }
 
@@ -188,7 +189,7 @@ print(fval)
 print(gval)
 print(Ahess)
 cat("\n\n By ufn etc.\n")
-myfn<-list(fn=genrose.f, gr=genrose.g, hess=genrose.h)
+myfn<-list(fn=genrose.f, gr=genrose.g, hess=genrose.h, callpos=sys.nframe())
 uf<-ufn(trad, fnuser=myfn, ps=1, fs=1, maximize=FALSE)
 ugH<-ugHgenb(trad, fnuser=myfn, ps=1, fs=1, maximize=FALSE)
 print(uf)
@@ -207,7 +208,7 @@ print(fvala)
 print(gvala)
 print(Ahessa)
 cat("\n\n By ufn etc.\n")
-myfn<-list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h)
+myfn<-list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h, callpos=sys.nframe())
 ufa<-ufn(trad, fnuser=myfn, ps=1, fs=1, maximize=FALSE)
 ugHa<-ugHgenb(trad, fnuser=myfn, ps=1, fs=1, maximize=FALSE)
 print(ufa)
@@ -227,7 +228,7 @@ trad<-c(-1.2,1)
 fval<-genrose.f(trad, gs=1)
 gval<-genrose.g(trad, gs=1)
 Ahess<-genrose.h(trad, gs=1)
-myfn<-list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h)
+myfn<-list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h, callpos=sys.nframe())
 cat("Traditional start\n")
 print(trad)
 cat("f, g, H\n")
@@ -248,7 +249,7 @@ upper<-rep(10,4)
 fval<-genrose.f(parx)
 gval<-genrose.g(parx)
 Ahess<-genrose.h(parx)
-myfn<-list(fn=genrose.f, gr=genrose.g, hess=genrose.h)
+myfn<-list(fn=genrose.f, gr=genrose.g, hess=genrose.h, callpos=sys.nframe())
 gennog<-ugHgenb(parx,fnuser=myfn, control=list(ktrace=1), ps=1, fs=1, maximize=FALSE)
 cat("results of ugHgenb for genrose without gradient code at \n")
 print(parx)
@@ -261,7 +262,7 @@ cat("*****************************************\n")
 
 tmp<-readline("try with hessian set to NULL")
 
-myfn2<-list(fn=genrose.f, gr=genrose.g, hess=NULL)
+myfn2<-list(fn=genrose.f, gr=genrose.g, hess=NULL, callpos=sys.nframe())
 geng<-ugHgenb(parx,fnuser=myfn2, control=list(ktrace=1), ps=1, fs=1, maximize=FALSE)
 cat("results of ugHgenb for genrose at ")
 print(parx)
@@ -358,7 +359,7 @@ hn<-hessian(ssfn, good)
 print(hn)
 cat("Max abs diff =", max(abs(hh-hn)),"\n")
 tmp<-readline("Now try using jn user functions with scaling")
-myfn<-list(fn=ssfn, gr=ssfn.g, hess=ssfn.h)
+myfn<-list(fn=ssfn, gr=ssfn.g, hess=ssfn.h, callpos=sys.nframe())
 goods<-c(1,2,3,4,5)
 psc<-c(100,10,1,.1,.01)
 uf<-ufn(goods, fnuser=myfn, fs=1, ps=psc, maximize=FALSE)
@@ -376,7 +377,7 @@ cat("diff = ",max(abs(uh-hns)),"\n")
 
 tmp<-readline("Now use ugHgenb with good solution")
 print(good)
-myfn<-list(fn=ssfn, gr=ssfn.g, hess=ssfn.h)
+myfn<-list(fn=ssfn, gr=ssfn.g, hess=ssfn.h, callpos=sys.nframe())
 ugH0<-ugHgenb(good,fnuser=myfn, control=list(ktrace=1), ps=1, fs=1, maximize=FALSE)
 print(ugH0)
 

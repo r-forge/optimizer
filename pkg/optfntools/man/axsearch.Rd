@@ -8,13 +8,17 @@ search, stepping forward and backward along each parameter and computing the obj
 function. This allows us to compute the \code{tilt} and \code{radius of curvature} or
 \code{roc} along that parameter axis. 
 
-(we will
-discuss the problem always in terms of minimization, but the control \code{maximize}
-permits maximization. ?? need to expand.)
+\code{axsearch} assumes that one is MINIMIZING the function \code{fn}. While we believe
+that it will work using the wrapper \code{ufn} from this package with the 'maximize=TRUE'
+setting, we believe it is much safer to write your own function that is to be minimized.
+That is minimize  (-1)*(function to be maximized). All discussion here is in
+terms of minimization.
 
-It is possible that a function value lower than that at the supposed minimum is found.
+Axial search may find parameters with a function value lower than that at the 
+supposed minimum, i.e., lower than \code{fmin}. 
+
 In this case \code{axsearch} exits immediately with the new function value and
-parameters.
+parameters. This can be used to restart an optimizer, as in the optimx wrapper.
 
 }
 \usage{

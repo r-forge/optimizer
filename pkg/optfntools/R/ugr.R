@@ -10,7 +10,7 @@ ugr <- function(par, fnuser, ps=1.0, fs=1.0, maximize=FALSE, ...) {
        # Use numerical gradient
        deriv.approx<-attr(fnuser,"deriv.approx")
        if (is.null(deriv.approx)) deriv.approx=grfwd # default method is fwd diff
-       tgr<-try(tryg<-deriv.approx(par*ps, fnuser$fn, ...))
+       tgr<-try(tryg<-deriv.approx(par*ps, fnuser$fn, ...), silent = TRUE)
        #?? we are using the ORIGINAL function, scales parameters
     } else {
       tgr <- try(tryg <- fnuser$gr(par*ps, ...), silent = TRUE)

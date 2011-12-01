@@ -7,7 +7,7 @@ ufn <- function(par, fnuser, ps=1.0, fs=1.0, maximize=FALSE, ...) {
        ps<-rep(ps,length(par))
     }
     parps<-par*ps # Probably not necessary to pre-multiply
-    testf <- try(tryf <- fnuser$fn(parps, ...))
+    testf <- try(tryf <- fnuser$fn(parps, ...), silent = TRUE)
     # try to Compute the function. Should we quote it?
     if ((class(testf) == "try-error") || is.na(tryf) || is.null(tryf) || 
         is.infinite(tryf)) {

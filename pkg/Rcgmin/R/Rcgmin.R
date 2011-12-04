@@ -26,12 +26,8 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     #           trace = 0 (default) for no output,
     #                  >0 for output (bigger => more output)
     # eps=1.0e-7 (default) for use in computing numerical
-    #   gradient
-    #                  approximations.
-    # usenumDeriv=FALSE default. TRUE to use numDeriv for
-    #   numerical
-    #                  gradient approximations.)
-    #           dowarn=TRUE by default. Set FALSE to suppress warnings.
+    #   gradient approximations.
+    # dowarn=TRUE by default. Set FALSE to suppress warnings.
     #
     # Output:
     #    A list with components:
@@ -78,7 +74,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     #################################################################
     # control defaults -- idea from spg
     ctrl <- list(maxit = 500, maximize = FALSE, trace = 0, eps = 1e-07, 
-        usenumDeriv = FALSE, dowarn = TRUE)
+        dowarn = TRUE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -92,48 +88,28 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     grNULL <- is.null(gr)
     dowarn <- ctrl$dowarn  #
-    
     #############################################
-    # local function defined only when user does not specify a
-    #   gr
-    # Simple gr numerical approximation. Using fn, fmin and eps
-    #   from calling env.
-    if (grNULL) 
-        {
-            if (dowarn) 
-                warning("Numerical gradients may be inappropriate for Rvmmin")
-            if (ctrl[["usenumDeriv"]]) {
-                # external gradient
-                require(numDeriv)
-                gr <- function(par, ...) {
-                  gg <- grad(myfn, par, ...)
-                  gg
-                }
-            }
-            else {
-                # using local gradient
-                gr <- function(par, ...) {
-                  fbase <- myfn(par, ...)  # ensure we have right value, may not be necessary
-                  df <- rep(NA, length(par))
-                  teps <- eps * (abs(par) + eps)
-                  for (i in 1:length(par)) {
-                    dx <- par
-                    dx[i] <- dx[i] + teps[i]
-                    df[i] <- (myfn(dx, ...) - fbase)/teps[i]
-                  }
-                  df
-                }
-            }  # end else
-        }  # grNULL
-    ############# end gr ########################
-    myfn <- if (maximize) 
-        function(par, ...) -fn(par, ...)
-    else function(par, ...) fn(par, ...)
-    
-    mygr <- if (maximize && !grNULL) 
-        function(par, ...) -gr(par, ...)
-    else function(par, ...) gr(par, ...)
-    
+    # gr MUST be provided
+    if (grNULL) {
+       if (dowarn) 
+          warning("A gradient calculation (analytic or numerical) MUST be provided for Rcgmin")
+       msg<-"No gradient function provided for Rcgmin"
+       ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
+       return(ans)
+    }  # grNULL
+    if ( is.character(gr) ) {
+       # Convert string to function call, assuming it is a numerical gradient function
+       mygr<-function(par=par, userfn=fn, ...){
+           do.call(gr, list(par, userfn, ...))
+       }
+    } else { mygr<-gr }
+    ############# end test gr ####################
+    if (maximize) {
+       warning("Rcgmin no longer supports maximize 111121 -- see documentation")
+       msg<-"Rcgmin no longer supports maximize 111121"
+       ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
+       return(ans)
+    }
     ## Set working parameters (See CNM Alg 22)
     if (trace > 0) {
         cat("Rcgmin -- J C Nash 2009 - bounds constraint version of new CG\n")
@@ -164,8 +140,6 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
         cat("Extra function arguments:")
         print(fargs)
     }
-    
-    
     # set default masks if not defined
     if (is.null(bdmsk)) {
         bdmsk <- rep(1, n)
@@ -192,7 +166,8 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     if (noupper) 
         upper <- rep(Inf, n)
     ######## check bounds and masks #############
-    ## NOTE: do this inline to avoid call (??should we change
+    ## NOTE: do this inline to avoid call (??should change
+    ##?? use bmchk, also be able to turn off?
     #   this?)
     if (bounds) {
         ## tmp<-readline('There are bounds ')
@@ -277,7 +252,9 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
         cat("Try function at initial point:")
         print(bvec)
     }
-    f <- try(do.call("myfn", append(list(bvec), fargs)), silent = TRUE)  # Compute the function at initial point.
+#?? Why do the following
+#    f <- try(do.call("fn", append(list(bvec), fargs)), silent = TRUE)  # Compute the function at initial point.
+     f <- try(fn(bvec, ...), silent = TRUE)  # Compute the function at initial point.
     if (trace > 0) {
         cat("Initial function value=", f, "\n")
     }
@@ -299,7 +276,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     keepgoing <- TRUE
     notconv <- TRUE
     msg <- "not finished"  # in case we exit somehow
-    oldstep <- 0.8  #!! 2/3 #!!
+    oldstep <- 0.8  #!! 2/3 #!!?? WHY?
     ####################################################################
     fdiff <- NA  # initially no decrease
     cycle <- 0  # !! cycle loop counter
@@ -405,7 +382,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
                   gradsqr, sep = " ")
                 if (trace > 0) 
                   cat(msg, "\n")
-                keepgoing <- FALSE  # done loops -- should we break ????
+                keepgoing <- FALSE  # done loops -- should we break ??
                 break  # to leave inner loop
             }
             if (trace > 2) 
@@ -486,7 +463,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
                   changed <- (!identical((bvec + reltest), (par + reltest)))
                   if (changed) {
                     # compute newstep, if possible
-                    f <- myfn(bvec, ...)  # Because we need the value for linesearch, don't use try()
+                    f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
                     # instead preferring to fail out, which will hopefully be
                     #   unlikely.
                     ifn <- ifn + 1
@@ -545,7 +522,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
                     changed <- (!identical((bvec + reltest), 
                       (par + reltest)))
                     if (changed) {
-                      f <- myfn(bvec, ...)
+                      f <- fn(bvec, ...)
                       ifn <- ifn + 1
                     }
                     if (trace > 2) 

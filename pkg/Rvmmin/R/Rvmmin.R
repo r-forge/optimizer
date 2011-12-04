@@ -1,4 +1,4 @@
-Rvmmin <- function(par, fn, gr = NULL, lower = NULL, 
+Rvmmin <- function(par, fn, gr=NULL, lower = NULL, 
     upper = NULL, bdmsk = NULL, control = list(), ...) {
     #1
     ## Bounds constrained version -- 090408, 090814
@@ -35,12 +35,9 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     #           trace = 0 (default) for no output,
     #                  >0 for output (bigger => more output)
     # eps=1.0e-7 (default) for use in computing numerical
-    #   gradient
-    #                  approximations.
-    # usenumDeriv=FALSE default. TRUE to use numDeriv for
-    #   numerical
-    #                  gradient approximations.)
-    #           dowarn=TRUE by default. Set FALSE to suppress warnings.
+    #   gradient approximations.
+    #
+    # dowarn=TRUE by default. Set FALSE to suppress warnings.
     #
     ##
     # Output:
@@ -90,28 +87,27 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     #################################################################
     # control defaults -- taken from spg -- need to adjust for
     #   Rcgmin and Rvmmin
-    # NOT yet in control set
+    # NOT yet in control set ??
     keepinputpar <- FALSE  # Do not let bmchk change parameters to nearest bound
     #  ?? put keepinputpar into controls??
     ctrl <- list(maxit = 500, maxfeval = 3000, maximize = FALSE, 
-        trace = 0, eps = 1e-07, usenumDeriv = FALSE, dowarn = TRUE)
+        trace = 0, eps = 1e-07, dowarn = TRUE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control  #
-    #  M           <- ctrl$M      # not needed
     maxit <- ctrl$maxit  #
     maxfeval <- ctrl$maxfeval  #
     maximize <- ctrl$maximize  # TRUE to maximize the function
     trace <- ctrl$trace  #
     eps <- ctrl$eps  #
     dowarn <- ctrl$dowarn  #
-    grNULL <- is.null(gr)  # if gr function is not provided, we want to use numDeriv
+    grNULL <- is.null(gr)  # if gr function is not provided, we want to use approximations
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     #################################################################
     ## Set working parameters (See CNM Alg 22)
     if (trace > 0) 
-        cat("Rvmmin -- J C Nash 2009 - an R implementation of Alg 21\n")
+        cat("Rvmmin -- J C Nash 2009, 2011 - an R implementation of Alg 21\n")
     bvec <- par  # copy the parameter vector
     n <- length(bvec)  # number of elements in par vector
     if (trace > 0) {
@@ -125,50 +121,28 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     ceps <- .Machine$double.eps * reltest
     dblmax <- .Machine$double.xmax  # used to flag bad function
     #############################################
-    # local function defined only when user does not specify a
-    #   gr
-    # Simple gr numerical approximation. Using fn, fmin and eps
-    #   from calling env.
-    if (is.null(gr)) 
-        {
-            if (dowarn) 
-                warning("Numerical gradients may be inappropriate for Rvmmin")
-            if (ctrl[["usenumDeriv"]]) {
-                # external gradient
-                require(numDeriv)
-                gr <- function(par, ...) {
-                  gg <- grad(myfn, par, ...)
-                  gg[which((!is.finite(gg)) || (is.nan(gg)))] <- 0
-                  gg
-                }
-            }
-            else {
-                # using local gradient
-                gr <- function(par, ...) {
-                  fbase <- myfn(par, ...)  # ensure we have right value, may not be necessary
-                  df <- rep(NA, length(par))
-                  teps <- eps * (abs(par) + eps)
-                  for (i in 1:length(par)) {
-                    dx <- par
-                    dx[i] <- dx[i] + teps[i]
-                    tdf <- (myfn(dx, ...) - fbase)/teps[i]
-                    if (!is.finite(tdf) || is.nan(tdf)) 
-                      tdf <- 0  # ??? choice
-                    df[i] <- tdf
-                  }
-                  df
-                }
-            }  # end else
-        }  # is.null(gr)
-    ############# end gr ########################
-    myfn <- if (maximize) 
-        function(par, ...) -fn(par, ...)
-    else function(par, ...) fn(par, ...)
-    # mygr <- if (maximize && !grNULL) function(par, ...)
-    #   -gr(par, ...)
-    mygr <- if (maximize) 
-        function(par, ...) -gr(par, ...)
-    else function(par, ...) gr(par, ...)
+    # gr MUST be provided
+    if (grNULL) {
+       if (dowarn) 
+          warning("A gradient calculation (analytic or numerical) MUST be provided for Rvmmin")
+       msg<-"No gradient function provided for Rvmmin"
+       ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
+       return(ans)
+    }  # grNULL
+    if ( is.character(gr) ) {
+       # Convert string to function call, assuming it is a numerical gradient function ??
+       mygr<-function(par=par, userfn=fn, ...){
+           do.call(gr, list(par, userfn, ...))
+       }
+    } else { mygr<-gr }
+    ############# end test gr ####################
+    if (maximize) {
+       warning("Rvmmin no longer supports maximize 111121 -- see documentation")
+       msg<-"Rvmmin no longer supports maximize 111121"
+       ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
+       return(ans)
+    }
+#??    myfn<-fn #?? temporary
     btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
         trace = trace)
     if (!btest$admissible) 
@@ -189,7 +163,8 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     lower <- btest$lower
     upper <- btest$upper
     ############## end bounds check #############
-    f <- try(do.call("myfn", append(list(bvec), fargs)), silent = TRUE)  # Compute the function.
+#??    f <- try(do.call("myfn", append(list(bvec), fargs)), silent = TRUE)  # Compute the function.
+    f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
     if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
         msg <- "Initial point gives inadmissible function value"
         conv <- 20
@@ -338,7 +313,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
                     reltest)))
                   if (changed) {
                     # compute new step, if possible
-                    f <- myfn(bvec, ...)  # Because we need the value for linesearch, don't use try()
+                    f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
                     # instead preferring to fail out, which will hopefully be
                     #   unlikely.
                     ifn <- ifn + 1

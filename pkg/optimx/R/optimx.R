@@ -177,7 +177,8 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
    badval=(0.5)*.Machine$double.xmax,
    scaletol=3,
    fnscale=1.0,
-   parscale=NULL
+   parscale=NULL,
+   axsearch.tries=3
    ) # for now turn off sorting until we can work out how to do it nicely
 # Note that we do NOT want to check on the names, because we may introduce 
 #    new names in the control lists of added methods. That is, we do NOT do
@@ -293,8 +294,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
       ## cat("check gradient\n")
       if(! numgrad){ # check gradient
          gname <- deparse(substitute(gr)) # Make sure gr is NOT ugr
-         #ctrl$trace<-trace<-1 #??
-         #cat("JN rubbish\n") #??
          if (ctrl$trace>1) cat("Analytic gradient uses function ",gname,"\n")
          kgr<-0
          mygc<-grchk(par, ufn, ugr, trace=max(0,(ctrl$trace-1)), fnuser=opxfn, 
@@ -458,8 +457,10 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
    times <- rep(0, nmeth)  # figure out how many methods and reserve that many times to record.
    names(times) <- method  # And label these times appropriately with the method.
    j <- 0  # j will be the index to the answers, one per each method, starting parameter pair
+   par0<-par # save starting parameters -- note issue with follow.on
    for (i in 1:nmeth) { # loop over the methods
-      loopsleft<-3 # ?? define how many in setup with a control 'axsearch.tries'
+      if (! ctrl$follow.on) par<-par0
+      loopsleft<-ctrl$axsearch.tries # ?? define how many in setup with a control 'axsearch.tries'
       repeat { # Start of main loop per method
         loopsleft<-loopsleft-1 # reduce cycle
       meth <- method[i] # extract the method name
@@ -481,7 +482,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          if (ctrl$follow.on) cat("Do ",ctrl$maxit," steps of ",meth,"\n")
       }
       if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
-      # Extract control information e.g., trace
       # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
       # create local control list for a single method -- this is one of the key issues for optimx
       mcontrol<-ctrl
@@ -497,6 +497,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
       mcontrol$maximize<-NULL # Even if method DOES have it
       mcontrol$badval<-NULL
       mcontrol$eps<-NULL
+      mcontrol$axsearch.tries<-NULL # used only by optimx
       mcontrol$scaletol<-NULL # not used in any methods -- it is here 
                  # for the scale check of parameters and bounds above
 # ---  UNDEFINED METHOD ---
@@ -550,9 +551,9 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          mcontrol$fnscale<-NULL
     ##     mcontrol$abs.tol<-0 # To fix issues when minimum is less than 0. 20100711
          if( is.null(mcontrol$trace) || is.na(mcontrol$trace) || mcontrol$trace == 0) { 
-            mcontrol$trace = 0
+            mcontrol$trace <- 0
          } else { 
-            mcontrol$trace = 1 # this is EVERY iteration. nlminb trace is freq of reporting.
+            mcontrol$trace <- 1 # this is EVERY iteration. nlminb trace is freq of reporting.
          }
          time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=ugr,  lower=lower,
             upper=upper, control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
@@ -585,14 +586,9 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
 ## --------------------------------------------
 #      else 
       if (meth == "nlm") { # Use stats package nlm routine
-#         tufn <- fn
-#         attr(tufn, "gradient") <- gr
-#         attr(tufn, "hessian") <- hess
-#         if (ctrl$dowarn) warning("Method nlm function evaluation NOT safeguarded")
          tufn <- ufn
          if (nullgr) attr(tufn, "gradient")<-NULL else attr(tufn, "gradient") <- ugr
          if (nullhess) attr(tufn, "hessian")<-NULL else attr(tufn, "hessian") <- uhess
- 
          ## 091215 added control for iteration limit
          if (! is.null(mcontrol$maxit)) { iterlim<-mcontrol$maxit } 
          else { 
@@ -927,7 +923,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
             ans$fevals<-ans$feval
             ans$gevals<-NA
             names(ans$par)<-nampar # restore names 110508
-           # What about 'restarts' and 'message'?
+           # What about 'restarts' and 'message'??
          } else {
             if (ctrl$trace>0) cat("nmkb failed for current problem \n")
             ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -1004,6 +1000,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
       ## list(bestfn=bestfn, par=par, details=data.frame(par0, fback, fminv, ffwd, parstep, tilt, roc)
       if (asres$bestfn<ans$value) {
          ans$par<-asres$par # reset parameters
+         par<-ans$par # for restart
          fmin<-asres$bestfn
          if (ctrl$trace>1) {
             cat("Axial Search result with lower fn val\n")
@@ -1037,7 +1034,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
       ans$kfn<-kfn # save counters
       ans$kgr<-kgr
       ans$khess<-khess
-      ans$restarts<-(3-1)-loopsleft # note that best fn has been saved
+      ans$restarts<-(ctrl$axsearch.tries-1)-loopsleft # note that best fn has been saved
       ans$mtilt<-max(asres$details$tilt)
       if (asres$bestfn<ans$value) ans$restarts <- -ans$restarts # found better at end when set negative
       if ( ctrl$save.failures || (ans$conv < 1 ) ){  # Save the solution if converged or directed to save

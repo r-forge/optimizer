@@ -15,13 +15,6 @@ parstep<- fback     # for the step sizes
 tilt   <- fback     # for the tilts
 roc    <- fback     # for radii of curvature
 bestfn <- Inf  # to record best function found OTHER than fmin (if lower, then restart??)
-# cat("In axsearch, par:")
-# print(par)
-# cat("Lower, upper, bdmsk\n")
-# print(lower)
-# print(upper)
-# print(bdmsk)
-
 par0<-par
 # check bounds and masks
 if (is.null(lower)) {

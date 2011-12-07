@@ -219,6 +219,10 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
       TRUE.}
     \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.\cr
       Default is (0.5)*.Machine$double.xmax }
+    \item{\code{axsearch.tries}}{= The number of times to try the axial search. If >1, then restarts
+        will be attempted until axial search does not yield a lower function value. Default is 3. 
+        CAUTION: Be very careful using axial search when maximizing a function. It is much safer
+        to define your own function that is (-1) * (function to be maximized) and to use minimization.}
   }
 
   The following \code{control} elements apply only to some of the methods. The list
@@ -477,9 +481,13 @@ print(class(try3))
 
 cat("\n\n")
 
-cat("Single method call -- note control for CG is 'type=2'\n")
-ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
-print(ans5)
+cat("Single method call -- note control for CG is 'type=...'\n")
+ans5a<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=1, axsearch.tries=10, trace=2))
+print(ans5a)
+ans5b<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2, axsearch.tries=10, trace=2))
+print(ans5b)
+ans5c<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=3, axsearch.tries=10, trace=2))
+print(ans5c)
 cat("\n\n")
 
 
@@ -514,12 +522,21 @@ print(ans.mx1)
 x0b<-get.best(ans.mx)
 cat("trying get.best for maxfn\n")
 print(x0b)
+cat("axial search on x0b\n")
+## Need to be very careful with axial search when maximizing
+## WRONG ## as.x0b<-axsearch(x0b, maxfn, x0b$value)
+# Here is how to do it
+mymax<-list(fn=maxfn, gr=NULL, hess=NULL, callpos=sys.nframe())
+as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=2, fnuser=mymax,maximize=TRUE)
+print(as.x0b)
 
 
 cat("verify using explicit negation\n")
 ans.mxn<-optimx(x0,negmaxfn,control=list(all.methods=TRUE,save.failures=TRUE,trace=0))
 x0bn<-get.best(ans.mxn)
 print(x0bn)
+as.x0bn<-axsearch(x0bn$par, negmaxfn, x0bn$value)
+print(as.x0bn)
 cat("\n\n")
 
 x00<-c(1,2,3,4)

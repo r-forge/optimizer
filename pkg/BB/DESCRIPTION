@@ -8,7 +8,7 @@ Description: Barzilai-Borwein spectral methods for solving nonlinear
         session, with vignette("BB").
 Depends: R (>= 2.6.1), quadprog
 Suggests: setRNG, survival, Hmisc, numDeriv
-Version: 2011.11-1
+Version: 2011.12-1
 LazyLoad: yes
 License: GPL (>= 2)
 Author: Ravi Varadhan

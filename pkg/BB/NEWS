@@ -1,3 +1,9 @@
+Changes in BB version 2011.12-1
+
+   o	Set trace=TRUE as default in BBoptim.
+
+   o	Included project and projectArgs as arguments in multiStart.
+
 Changes in BB version 2011.11-1
 
    o	updated maintainer email address.

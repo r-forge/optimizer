@@ -161,7 +161,7 @@ $$
 
 From \cite{facchfischpic09}, 
 assuming differentiability and a constraint qualification hold, the first-order necessary conditions of player $\nu$'s subproblem state there exists a Lagrangian multiplier
- $\lambda_\nu \in  \mathbb{R}^{m_\nu} $ such that 
+ $\lambda_\nuâ€ \in  \mathbb{R}^{m_\nu} $ such that 
 $$
 \nabla_{x_\nu} \theta_{x_\nu}(x)   + \sum_{ 1 \leq j \leq m_\nu } \lambda_{\nu j} \nabla_{x_\nu} g_{\nu j}(x) = 0\quad\quad\quad ( \in \mathbb R^{n_\nu} )
 $$

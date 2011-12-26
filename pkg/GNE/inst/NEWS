@@ -5,6 +5,8 @@ Version 0.95
 
 - Wide and deep rebuild of the package. Now use
 the BB, alabama, nleqslv packages. 
+- deleted functions are PROBj2k, GrPROBj2k, GrGrPROBj2k and
+depreciated functions are NewtonKKT, fixedpoint, minGap.
 
 Version 0.9
 =============

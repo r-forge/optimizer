@@ -12,8 +12,9 @@ export(phiKK, GrAphiKK, GrBphiKK)
 
 export(projector, rejection)
 
-export(Phi, JacPhi, PROBj2k, GrPROBj2k, GrGrPROBj2k)
-
+export(Phi, JacPhi)
+export(PROBj2kRatio, GrPROBj2kRatio, GrGrPROBj2kRatio)
+export(PROBj2kDiff, GrPROBj2kDiff, GrGrPROBj2kDiff)
 
 ### depreciated functions
 

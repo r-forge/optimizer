@@ -1,6 +1,6 @@
 /** 
  * @file  util-clg.c
- * @brief C file for cumulative logistic function
+ * @brief C file for multinomial logit (price-ratio function)
  *
  * @author Christophe Dutang
  *
@@ -11,7 +11,7 @@
  */
 
 
-#include "util-clg.h"
+#include "util-mnl-pratio.h"
 
 
 
@@ -21,7 +21,7 @@
 /********************************/
 
 //main function used .Call()
-SEXP doPROBj2k(SEXP x, SEXP j, SEXP k, SEXP param_j)
+SEXP doPROBj2kRatio(SEXP x, SEXP j, SEXP k, SEXP param_j)
 {
     //temporary C working variables
 	int i;
@@ -62,28 +62,7 @@ SEXP doPROBj2k(SEXP x, SEXP j, SEXP k, SEXP param_j)
     PROTECT(resultinR = allocVector(REALSXP, 1)); //allocate a 1-vector
     res = REAL( resultinR ); //plug the C pointer on the R type
     
-	/*
-	//computation - old code
-	denom = 1.0;
-	
-	for (i = 0; i < n; i++)
-		if (i != id_j && c_x[i] != 0.0)
-			denom += exp(paramj[2] + paramj[3] * c_x[id_j] / c_x[i]);
-
-	
-	if (id_j == id_k)
-	{
-		num = 1.0;
-		rmintilde = 1 - paramj[1];
-	}else
-	{
-		num = exp(paramj[2] + paramj[3] * c_x[id_j] / c_x[id_k]);	
-		rmintilde = paramj[0] / (n-1);
-	}
-	
-	*res = rmintilde + (paramj[1] - paramj[0]) * num / denom;
-	*/
-	*res = PROBj2k(c_x, id_j, id_k, paramj, n);
+	*res = PROBj2kRatio(c_x, id_j, id_k, paramj, n);
 	
 	UNPROTECT(1);
 	
@@ -91,7 +70,7 @@ SEXP doPROBj2k(SEXP x, SEXP j, SEXP k, SEXP param_j)
 }
 
 //computation function by doPROBj2k
-double PROBj2k(double* x, int j, int k, double* paramj, int n)
+double PROBj2kRatio(double* x, int j, int k, double* paramj, int n)
 {
 	//x price vector
 	//j, k player indexes
@@ -132,7 +111,7 @@ double PROBj2k(double* x, int j, int k, double* paramj, int n)
 //(x, j, k, ideriv, paramj)
 
 //main function used .Call()
-SEXP doGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j)
+SEXP doGradPROBj2kRatio(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j)
 {
     //temporary C working variables
 	int id_j, id_k, id_i; //indexes	
@@ -177,7 +156,7 @@ SEXP doGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j)
     res = REAL( resultinR ); //plug the C pointer on the R type
     
 		//(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j)
-	*res = GradPROBj2k(c_x, id_j, id_k, id_i, paramj, n);
+	*res = GradPROBj2kRatio(c_x, id_j, id_k, id_i, paramj, n);
 	
 	UNPROTECT(1);
 	
@@ -185,7 +164,7 @@ SEXP doGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j)
 }
 
 //computation function by doGradPROBj2k
-double GradPROBj2k(double* x, int j, int k, int i, double* paramj, int n)
+double GradPROBj2kRatio(double* x, int j, int k, int i, double* paramj, int n)
 {
 	//x price vector
 	//j, k player indexes
@@ -195,13 +174,13 @@ double GradPROBj2k(double* x, int j, int k, int i, double* paramj, int n)
 	
 	//temporary C working variables
 	int l;
-	double Sumlclgxjl; //array of sum_l clg(x, j, l) / x_l for l=1, ..., n	and l diff j
+	double Sumlclgxjl; //array of sum_l clg(x, j, l) / x_l for l=1, ..., n and l diff j
 	double clgxjk; //clg(x, j, k) 
 	
 	//result 
 	double res;
 	
-	clgxjk = PROBj2k(x, j, k, paramj, n);
+	clgxjk = PROBj2kRatio(x, j, k, paramj, n);
 	
 	if(i == j)
 	{	
@@ -209,13 +188,13 @@ double GradPROBj2k(double* x, int j, int k, int i, double* paramj, int n)
 		Sumlclgxjl = 0.0;
 		for (l = 0; l < n; l++)
 			if(l != j && x[l] != 0.0)
-				Sumlclgxjl += PROBj2k(x, j, l, paramj, n) / x[l];
+				Sumlclgxjl += PROBj2kRatio(x, j, l, paramj, n) / x[l];
 		
 		res = -paramj[3] * Sumlclgxjl * clgxjk;
 	}else
 	{
 		if(x[i] != 0.0)
-			res = paramj[3] * x[j] / (x[i] * x[i]) * PROBj2k(x, j, i, paramj, n) * clgxjk; 
+			res = paramj[3] * x[j] / (x[i] * x[i]) * PROBj2kRatio(x, j, i, paramj, n) * clgxjk; 
 		else
 			res = 0.0;
 	}
@@ -226,7 +205,7 @@ double GradPROBj2k(double* x, int j, int k, int i, double* paramj, int n)
 	if(i == k && j != k && x[k] != 0.0)
 		res -= paramj[3] * x[j] / (x[k] * x[k]) * clgxjk; 
 	
-	return res;
+	return (paramj[1] - paramj[0]) * res;
 }	
 
 
@@ -239,7 +218,7 @@ double GradPROBj2k(double* x, int j, int k, int i, double* paramj, int n)
 //(x, j, k, ideriv, mderiv, paramj)
 
 //main function used .Call()
-SEXP doGradGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP mderiv, SEXP param_j)
+SEXP doGradGradPROBj2kRatio(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP mderiv, SEXP param_j)
 {
     //temporary C working variables
 	int id_j, id_k, id_i, id_m; //indexes	
@@ -287,7 +266,7 @@ SEXP doGradGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP mderiv, SEXP pa
     res = REAL( resultinR ); //plug the C pointer on the R type
     
 	//(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j)
-	*res = GradGradPROBj2k(c_x, id_j, id_k, id_i, id_m, paramj, n);
+	*res = GradGradPROBj2kRatio(c_x, id_j, id_k, id_i, id_m, paramj, n);
 	
 	UNPROTECT(1);
 	
@@ -295,7 +274,7 @@ SEXP doGradGradPROBj2k(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP mderiv, SEXP pa
 }
 
 //computation function by doGradGradPROBj2k
-double GradGradPROBj2k(double* x, int j, int k, int i, int m, double* paramj, int n)
+double GradGradPROBj2kRatio(double* x, int j, int k, int i, int m, double* paramj, int n)
 {
 	//x price vector
 	//j, k player indexes
@@ -305,15 +284,15 @@ double GradGradPROBj2k(double* x, int j, int k, int i, int m, double* paramj, in
 	
 	//temporary C working variables
 	int l;
-	double Sumlclgxjl; //array of sum_l clg(x, j, l) / x_l for l=1, ..., n	and l diff j
-	double Sumlgrmclgxjl; //array of sum_l Gr x_m clg(x, j, l) / x_l for l=1, ..., n	and l diff j	
+	double Sumlclgxjl; //array of sum_l clg(x, j, l) / x_l for l=1, ..., n and l diff j
+	double Sumlgrmclgxjl; //array of sum_l Gr x_m clg(x, j, l) / x_l for l=1, ..., n and l diff j	
 	double clgxjk, grmclgxjk;
 	double clgxji;
 	
 	double res = 0.0;
 	
-	clgxjk = PROBj2k(x, j, k, paramj, n);
-	grmclgxjk = GradPROBj2k(x, j, k, m, paramj, n);
+	clgxjk = PROBj2kRatio(x, j, k, paramj, n);
+	grmclgxjk = GradPROBj2kRatio(x, j, k, m, paramj, n);
 	
 	
 	if(i == j)
@@ -321,25 +300,25 @@ double GradGradPROBj2k(double* x, int j, int k, int i, int m, double* paramj, in
 		Sumlclgxjl = 0.0;
 		for (l = 0; l < n; l++)
 			if(l != j && x[l] != 0.0)
-				Sumlclgxjl += PROBj2k(x, j, l, paramj, n) / x[l];
+				Sumlclgxjl += PROBj2kRatio(x, j, l, paramj, n) / x[l];
 		
 		Sumlgrmclgxjl = 0.0;
 		for (l = 0; l < n; l++)
 			if(l != j && x[l] != 0.0)
-				Sumlgrmclgxjl += GradPROBj2k(x, j, l, m, paramj, n) / x[l];
+				Sumlgrmclgxjl += GradPROBj2kRatio(x, j, l, m, paramj, n) / x[l];
 		
 		if(x[k] != 0.0)
 			res += -paramj[3] * Sumlgrmclgxjl * clgxjk;
 		res += -paramj[3] * Sumlclgxjl * grmclgxjk;
 		if(j != m && x[m] != 0.0)
-			res += paramj[3] / (x[m] * x[m]) * clgxjk * PROBj2k(x, j, m, paramj, n);
+			res += paramj[3] / (x[m] * x[m]) * clgxjk * PROBj2kRatio(x, j, m, paramj, n);
 	}else
 	{
-		clgxji = PROBj2k(x, j, i, paramj, n);
+		clgxji = PROBj2kRatio(x, j, i, paramj, n);
 		
 		if(x[i] != 0.0)
 		{	
-			res += paramj[3] * x[j] / (x[i] * x[i]) * GradPROBj2k(x, j, i, m, paramj, n) * clgxjk;
+			res += paramj[3] * x[j] / (x[i] * x[i]) * GradPROBj2kRatio(x, j, i, m, paramj, n) * clgxjk;
 			res += paramj[3] * x[j] / (x[i] * x[i]) * clgxji * grmclgxjk;
 			if(j == m)
 				res += paramj[3] / (x[i] * x[i]) * clgxji * clgxjk;
@@ -368,7 +347,7 @@ double GradGradPROBj2k(double* x, int j, int k, int i, int m, double* paramj, in
 			res += 2*paramj[3] * x[j] / (x[i] * x[i] * x[i]) * clgxjk;
 	}
 	
-	return res;
+	return (paramj[1] - paramj[0]) * res;
 }
 
 

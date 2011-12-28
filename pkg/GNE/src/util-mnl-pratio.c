@@ -24,13 +24,13 @@
 SEXP doPROBj2kRatio(SEXP x, SEXP j, SEXP k, SEXP param_j)
 {
     //temporary C working variables
-	int i;
+//	int i;
 	int id_j, id_k; //indexes	
 	int n; //nb element
 	double *paramj; //parameters c(rmin=0.02, rmax=0.98, mu=-16.52114, alpha=13.63030)
 	double *c_x; //pointer to x
-	double denom, num; //denominator and numerator
-	double rmintilde; 
+//	double denom, num; //denominator and numerator
+//	double rmintilde; 
 
 	//sanity check
     if (!isVector(x))
@@ -118,9 +118,9 @@ SEXP doGradPROBj2kRatio(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP param_j)
 	int n; //nb element
 	double *paramj; //parameters c(rmin=0.02, rmax=0.98, mu=-16.52114, alpha=13.63030)
 	double *c_x; //pointer to x
-	double denom, num; //denominator and numerator
-	double rmintilde; 
-	double *probarray; //array with prob(x, j, l) for l=1, ... n
+//	double denom, num; //denominator and numerator
+//	double rmintilde; 
+//	double *probarray; //array with prob(x, j, l) for l=1, ... n
 	
 	//sanity check
     if (!isVector(x))
@@ -225,9 +225,9 @@ SEXP doGradGradPROBj2kRatio(SEXP x, SEXP j, SEXP k, SEXP ideriv, SEXP mderiv, SE
 	int n; //nb element
 	double *paramj; //parameters c(rmin=0.02, rmax=0.98, mu=-16.52114, alpha=13.63030)
 	double *c_x; //pointer to x
-	double denom, num; //denominator and numerator
-	double rmintilde; 
-	double *probarray; //array with prob(x, j, l) for l=1, ... n
+//	double denom, num; //denominator and numerator
+//	double rmintilde; 
+//	double *probarray; //array with prob(x, j, l) for l=1, ... n
 	
 	//sanity check
     if (!isVector(x))

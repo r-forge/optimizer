@@ -41,13 +41,13 @@ SEXP doPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
 
     
     //temporary C working variables
-	int i, j, k, idz, idlam, idgrconstr;
+	int i, j, k, idz, idlam; // idgrconstr;
     int N = asInteger(nplayer); //number of players
 	int n, m; //dimension of x and dimension of lambda
-	int cumsum_i, cumsum_j;	
+	int cumsum_j;	//cumsum_i
 	int *dim_x = INTEGER(dimx);
 	int *dim_lam = INTEGER(dimlam);
-	double *grobj_res_C, *constr_res_C;
+//	double *grobj_res_C, *constr_res_C;
 	double *lambda;
 
 	
@@ -214,7 +214,7 @@ SEXP doJacPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
     
     
     //temporary C working variables
-	int i, j, k, l, idz, idlam, idgrconstr;
+	int i, j, k, l, idlam; // idz, idgrconstr;
 	int cumsum_i, cumsum_j;
     int N = asInteger(nplayer); //number of players
 	int n, m, max_m; //dimension of x, dimension of lambda, maximum dimension of lambda_i

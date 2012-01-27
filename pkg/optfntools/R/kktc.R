@@ -71,6 +71,6 @@ kktc <- function(par, fval, ngr, nHes, nbm, maxfn=FALSE, control=list()) {
        return(ans)
    } else {
        warning("Eigenvalue failure")
-       if(trace) cat("Eigenvalue calculation has failed!")
+       if(trace) cat("Eigenvalue calculation has failed!\n") # JN 111207 added \n
    } # end kkt test
 } ## end of kktc

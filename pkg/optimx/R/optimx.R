@@ -2,6 +2,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NUL
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(), ...) {
 ##### OPEN ISSUES: (any date order)
+# 120128 -- ?? No way to input function value at initial parameters -- should have this
 # 111127 -- ?? ctrl$trace vs trace, ctrl$dowarn, ctrl$maximize
 # 111124 -- ?? check that structure of all answers is consistent
 # 111026 -- ?? change structure of returned information
@@ -130,13 +131,12 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       do.call(gr, list(par, userfn, ...))
    }
 }
-## cat("numgrad=",numgrad,"\n") #??
 # Get real name of function to be minimized
    fname<-deparse(substitute(fn))
    ## cat("fname:",fname,"\n")
    if (is.null(control$trace)) control$trace<-0 # to ensure trace set
    if (control$trace>0) {
-      cat("fn is ",fname,"\n")
+      cat("Objective fn is ",fname,"\n")
    }
    ## cat("check params\n")
 ## Code more or less common to funtest, funcheck and optimx <<<
@@ -156,9 +156,6 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       stop("npar == 1. Use optimize() not optimx()")
    } # End check on number of parameters
    if (is.null(bdmsk) ) bdmsk<-rep(1,npar) # set masks for free parameters
-#?? should scalecheck come later?
-pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE)
-# ?? how to use this result??
 # Set control defaults. Do we want to save.failures?
    ## cat("Develop control list\n")
    ctrl <- list(
@@ -178,7 +175,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
    scaletol=3,
    fnscale=1.0,
    parscale=NULL,
-   axsearch.tries=3
+   axsearch.tries=3 # will try axial search 3 times, but restart only 2 times!
    ) # for now turn off sorting until we can work out how to do it nicely
 # Note that we do NOT want to check on the names, because we may introduce 
 #    new names in the control lists of added methods. That is, we do NOT do
@@ -264,6 +261,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
           upper<-mybm$upper
           bdmsk<-mybm$bdmsk          
       } # end have.bounds
+   } # end if (starttests) ...
       ## cat("check fnscale/parscale\n")
       if ( ctrl$fnscale < 0.0 ) {
           if (ctrl$dowarn)
@@ -277,19 +275,41 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
       } else {
              ctrl$parscale<-rep(1,npar)
       }
+# Scaling check
+   if (ctrl$starttests) {
+      srat<-scalecheck(par, lower, upper,ctrl$dowarn)
+      sratv<-c(srat$lpratio, srat$lbratio)
+      if(max(sratv,na.rm=TRUE) > ctrl$scaletol) { 
+         warnstr<-"Parameters or bounds appear to have different scalings. See optimx.Rd"
+         if (ctrl$dowarn) warning(warnstr)
+      }
+      if(ctrl$trace>0) {
+          cat("Scale check -- log parameter ratio=",srat$lpratio,
+                          "  log bounds ratio=",srat$lbratio,"\n")
+      }
+# end scaling check
+   } # end if (starttests) ...
+   # ?? 120128 -- need initial function value -- this is inefficient in that it 
+   # causes an extra evaluation, but needed to ensure we have a finite value
+   # for comparisons later
       # Check if function can be computed  
       kfn<- 0 # need values defined, even if not used (though ufn does set it)
       ## cat("check myfval\n")
       myfval<-fnchk(par, ufn, trace=max(ctrl$trace-1, 0), fnuser=opxfn, ps=ctrl$parscale,
              fs=ctrl$fnscale, maximize=ctrl$maximize, ...)
       if (ctrl$trace>0) {
-          ## cat("results of first function evaluation:")
+          cat("results of first function evaluation:")
           print(myfval)
+          cat("at:")
+          print(par)
+#          tmp<-readline("  continue")
       }
       if (myfval$infeasible) {
           # ?? should exit in a controlled way
           stop("Function is infeasible at initial parameter values")
       }
+   # end computation of function
+   if (ctrl$starttests) {
       # check gradient and possibly Hessian functions
       ## cat("check gradient\n")
       if(! numgrad){ # check gradient
@@ -299,7 +319,7 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          mygc<-grchk(par, ufn, ugr, trace=max(0,(ctrl$trace-1)), fnuser=opxfn, 
             ps=ctrl$parscale, fs=ctrl$fnscale, maximize=ctrl$maximize, ...)
          ## cat("mygc=",mygc," ")
-         tmp<-readline("OK")
+         # tmp<-readline("OK")
          if (! mygc) {
             # ?? need to change so we exit gracefully
             cat("Gradient check\n")
@@ -324,22 +344,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
            }
          } # end if (! nullhess) 
       } # end if (! numgrad) 
-# Scaling check  091219 -- ?? MOVE to be with starttests
-      ## cat("check scaling\n")
-      srat<-scalecheck(par, lower, upper,ctrl$dowarn)
-      sratv<-c(srat$lpratio, srat$lbratio)
-      if(max(sratv,na.rm=TRUE) > ctrl$scaletol) { 
-         warnstr<-"Parameters or bounds appear to have different scalings. See optimx.Rd"
-##             \n  This can cause poor performance in optimization. 
-##             \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
-         if (ctrl$dowarn) warning(warnstr)
-      }
-      if(ctrl$trace>0) {
-          cat("Scale check -- log parameter ratio=",srat$lpratio,
-                          "  log bounds ratio=",srat$lbratio,"\n")
-      }
-# end scaling check
-
    } # end if (starttests) ...
    # Check that we have the functions we need for gradient check
    ipkgs <- installed.packages()
@@ -460,11 +464,11 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
    par0<-par # save starting parameters -- note issue with follow.on
    for (i in 1:nmeth) { # loop over the methods
       if (! ctrl$follow.on) par<-par0
-      loopsleft<-ctrl$axsearch.tries # ?? define how many in setup with a control 'axsearch.tries'
+      loopsleft<-ctrl$axsearch.tries # Initialize to 1 more than restarts
       repeat { # Start of main loop per method
         loopsleft<-loopsleft-1 # reduce cycle
-      meth <- method[i] # extract the method name
-      if (ctrl$trace>0) cat("method:",meth,"\n")
+        meth <- method[i] # extract the method name
+        if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
       # Set the counters
       kfn<-0
       kgr<-0
@@ -481,7 +485,6 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
          }
          if (ctrl$follow.on) cat("Do ",ctrl$maxit," steps of ",meth,"\n")
       }
-      if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
       # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
       # create local control list for a single method -- this is one of the key issues for optimx
       mcontrol<-ctrl
@@ -980,45 +983,46 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
             ans$value= -ans$value
          }
       }  ## end if using hjkb
-## --------------------------------------------
+## ========================== END OF METHODS ==========================
       times[i] <- times[i] + time # Accumulate time for a single method (in case called multiple times)
-
-#      cat("About to call axsearch. lower, upper:\n")
-#      print(lower)
-#      print(upper)
-
       #?? timing of axsearch
-#      if( have.bounds) { # ?? not yet using masks fully
-#??       cat("About to call axsearch with trace=",(ctrl$trace-1),"\n")
-         asres<-axsearch(ans$par, fn=ufn, fmin=ans$value, lower = lower, 
-            upper = upper, bdmsk=NULL, trace=(ctrl$trace-1), fnuser=opxfn, ps=ctrl$parscale, 
-            fs=ctrl$fnscale, maximize=ctrl$maximize,...)
-#      } else {
-#         asres<-axsearch(par, fn=ufn, fmin=ans$value, fnuser=opxfn, ps=ctrl$parscale,
-#            fs=ctrl$fnscale, maximize=ctrl$maximize,...)
-#      }
-      ## list(bestfn=bestfn, par=par, details=data.frame(par0, fback, fminv, ffwd, parstep, tilt, roc)
-      if (asres$bestfn<ans$value) {
-         ans$par<-asres$par # reset parameters
-         par<-ans$par # for restart
-         fmin<-asres$bestfn
-         if (ctrl$trace>1) {
-            cat("Axial Search result with lower fn val\n")
-            print(asres$details)
+      if ( any(is.na(ans$par)) ) {
+         loopsleft<-0 # force end to looping
+         if (ctrl$trace>0) { 
+             cat("NA in returned parameters\n")
          }
-      }
-#??      cat("loopsleft=",loopsleft,"\n")
-      if ((loopsleft<=0) || (asres$bestfn>=ans$value)) {
-          if (ctrl$trace>0) {
-             if (asres$bestfn<ans$value) 
-                   cat("Exiting with axial search best function value and parameters\n")
-             cat("END OF REPEAT CYCLE\n")
-             print(asres$details)
-          }
-          break
-      } #?? until()
+         break
+      } else {
+         if (ctrl$axsearch.tries > 0) {
+            asres<-axsearch(ans$par, fn=ufn, fmin=ans$value, lower = lower, 
+               upper = upper, bdmsk=NULL, trace=(ctrl$trace-1), fnuser=opxfn, ps=ctrl$parscale, 
+               fs=ctrl$fnscale, maximize=ctrl$maximize,...)
+            if (asres$bestfn<ans$value) {
+               ans$par<-asres$par # reset parameters
+               ans$conv<-3 # adjust convergence code for axial search failure
+               par<-ans$par # for restart
+               fmin<-asres$bestfn
+               if (ctrl$trace>1) {
+                  cat("Axial Search result with lower fn val\n")
+                  print(asres$details)
+               }
+            }
+         }
+         if (loopsleft<=0) {
+            if (ctrl$axsearch.tries>0) {
+               if (asres$bestfn>=ans$value) {
+                  if (ctrl$trace>0) {
+                     if (asres$bestfn<ans$value) 
+                       cat("Exiting with axial search best function value and parameters\n")
+                     cat("END OF REPEAT CYCLE\n")
+                     print(asres$details)
+                  }
+               }
+            }
+            break
+         }
+         } #?? until()
       } # end of repeat loop for method
-    
 ## Post-processing -- Kuhn Karush Tucker conditions
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
       if (ctrl$trace>0) { cat("Post processing for method ",meth,"\n") }
@@ -1035,15 +1039,19 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
       ans$kgr<-kgr
       ans$khess<-khess
       ans$restarts<-(ctrl$axsearch.tries-1)-loopsleft # note that best fn has been saved
-      ans$mtilt<-max(asres$details$tilt)
-      if (asres$bestfn<ans$value) ans$restarts <- -ans$restarts # found better at end when set negative
+      ans$mtilt<-NA # in case no axsearch
+      if (ans$conv!=9999) {
+          if (ctrl$axsearch.tries>0) {
+             ans$mtilt<-max(asres$details$tilt)
+             if (asres$bestfn<ans$value) ans$restarts <- -ans$restarts # found better at end when set negative
+          }
+      }
       if ( ctrl$save.failures || (ans$conv < 1 ) ){  # Save the solution if converged or directed to save
          j <- j + 1 ## increment the counter for (successful) method/start case
          if (ctrl$trace && ans$conv==0) cat("Successful convergence! \n")  ## inform user we've succeeded
          # Testing final solution. Use numDeriv to get gradient and Hessian
          if (ans$conv != 9999) {
-            gH<-NULL
-            # ? initialize answer elements that MAY not get calculated  111023
+            gH<-NULL # initialize answer elements that MAY not get calculated  111023
             ans$kkt1<-NA
             ans$kkt2<-NA
             ans$ngatend<-NA
@@ -1082,9 +1090,11 @@ pbscale<-scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE
                   if (ctrl$trace>0) cat(warnstr,"\n") 
                }
             } else { # gradient failure
-               warnstr<-paste("Gradient not computable after method ",method[i],sep='')
-               if (ctrl$dowarn) warning(warnstr)
-               if (ctrl$trace>0) cat(warnstr,"\n") 
+               if (ctrl$kkt || hessian) {
+                  warnstr<-paste("Gradient not computable/computed after method ",method[i],sep='')
+                  if (ctrl$dowarn) warning(warnstr)
+                  if (ctrl$trace>0) cat(warnstr,"\n") 
+               }
             }
          } # end NOT conv=9999
             ans$systime <- time

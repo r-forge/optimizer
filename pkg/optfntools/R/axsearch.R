@@ -15,6 +15,13 @@ parstep<- fback     # for the step sizes
 tilt   <- fback     # for the tilts
 roc    <- fback     # for radii of curvature
 bestfn <- Inf  # to record best function found OTHER than fmin (if lower, then restart??)
+# cat("In axsearch, par:")
+#print(par)
+#print(lower)
+#tmp<-readline("above are vectors par & lower ")
+# print(upper)
+# print(bdmsk)
+
 par0<-par
 # check bounds and masks
 if (is.null(lower)) {
@@ -41,15 +48,20 @@ if (is.null(fmin)) {
 }
 fmin0<-rep(fmin,npar) #?? is this needed
 
+print(par)
+
 for (j in 1:npar) { # loop over parameters
    if (bdmsk[j] != 0) { # check if NOT masked
 # ?? Issue is that parameter may be in bounds, but not ON bound. Is function defined
 # ON bound. 
       pkeep<-par[j]
+#      cat(j, pkeep)
+#      tmp<-readline(" <==pkeep")
       pstep<-epst*(abs(pkeep+epst))
       parstep[j]<-pstep
       # step backwards
       parj<-pkeep-pstep
+      cat(j, parj, lower[j],"  pstep=",pstep," pkeep=",pkeep,"\n")
       if (parj < lower[j]) { # out of bounds
          fb<-bigval # set to provide tilt and possibly roc, but leave NA in fback[] 
       } else { if ((reltest+parj)==(reltest+pkeep)) { # no change in parameter

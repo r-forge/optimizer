@@ -2,8 +2,9 @@
 # function defined in order to deal with out of bounds functions/parameters
 # ?? add exceeding function count inside and change attributes??  ##
 ufn <- function(par, fnuser, ps=1.0, fs=1.0, maximize=FALSE, ...) {
-    if (any(is.na(ps))) stop("No parameter scaling!")
-    if (length(ps) == 1) {
+#    if ((is.null(ps) || any(is.na(ps)) ) ) stop("No parameter scaling!")
+    if (length(ps)>1 && any(is.na(ps)) ) stop("No parameter scaling!")
+    else {
        ps<-rep(ps,length(par))
     }
     parps<-par*ps # Probably not necessary to pre-multiply

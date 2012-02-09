@@ -48,13 +48,22 @@ trueGNE <- rbind(c(2, -2, 0, 5*2^5),
 colnames(trueGNE) <- c("x1", "x2", "lam1", "lam2")
 rownames(trueGNE) <- 1:4
 
+#check GNE
+apply(trueGNE, 1, function(x) sqrt(sum(F(x)^2)) )
+
+#check constraint
+apply(trueGNE[, 1:2], 1, function(x) 1-sum(x) )
+apply(trueGNE[, 1:2], 1, function(x) 2-2*x[1]-x[2] )
+
+
+#a simple test
 z0 <- c(10, 10, 1, 1)
 
 GNE.nseq(z0, F, JacF, list(phi=phiMin), list(gphia= GrAphiMin, gphib= GrBphiMin), method="Newton")
 
 GNE.nseq(z0, F, JacF, list(phi= phiFB), list(gphia= GrAphiFB, gphib= GrBphiFB), method="Newton")
 
-
+#-------------------------------------------------------------------------------
 #random initial points
 n <- 20
 set.seed(1234)
@@ -83,6 +92,21 @@ print(trueGNE)
 
 ?GNE
 
+
+#-------------------------------------------------------------------------------
+#test LM
+z0 <- c(10, 10, 1, 1)
+
+resMINLM <- bench.GNE.nseq.LM(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin))
+
+resMINLM$compres
+
+resMINLM$reslist
+
+# resMinLMnoneMin <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="none", silent=FALSE, control=list(LM.param="min", trace=0, delta=1, maxit=50))
+
+
+
 #-------------------------------------------------------------------------------
 #benchmark
 z0 <- c(10, 10, 1, 1)
@@ -95,15 +119,33 @@ z0 <- c(10, 10, 1, 1)
 resMin <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), echo=FALSE)
 
 resMin$compres
+resMin$reslist[[1]]
 
-resMinLM <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="none", silent=FALSE)
+resMinNewgline <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Newton", global="gline", silent=FALSE)
 
-resMinLM <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="gline", silent=FALSE)
+resMinNewnone <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Newton", global="none", silent=FALSE)
+
+
+resMinLMnone <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="none", silent=FALSE, control=list(trace=1))
+
+resMinLMgline <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="gline", silent=FALSE)
+
+
+x <- "par"
+freport <- function(x)
+cbind(LMnone= resMinLMnone[[x]], Newnone= resMinNewnone[[x]], LMgline= resMinLMgline[[x]], Newgline= resMinNewgline[[x]])
+
+freport("par")
+freport("iter")
+freport("counts")
+
+
 
 #FB function
 resFB <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), echo=FALSE)
 
 resFB$compres
+
 
 
 #Mangasarian function

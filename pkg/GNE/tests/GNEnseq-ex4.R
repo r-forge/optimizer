@@ -51,9 +51,18 @@ rownames(trueGNE) <- 1:4
 #check GNE
 apply(trueGNE, 1, function(x) sqrt(sum(F(x)^2)) )
 
+#is the jacobian singular?
+for(i in 1:4)
+print( try( solve(JacF(trueGNE[i, ], gphia= GrAphiMin, gphib= GrBphiMin)) ) )
+
+
 #check constraint
 apply(trueGNE[, 1:2], 1, function(x) 1-sum(x) )
 apply(trueGNE[, 1:2], 1, function(x) 2-2*x[1]-x[2] )
+
+
+plot(trueGNE[, "x1"], trueGNE[, "x2"], pch=4, col="red")
+grid()
 
 
 #a simple test
@@ -96,14 +105,32 @@ print(trueGNE)
 #-------------------------------------------------------------------------------
 #test LM
 z0 <- c(10, 10, 1, 1)
+z0 <- c(-4, 4, 1, 1)
 
-resMINLM <- bench.GNE.nseq.LM(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin))
+#min function
+resMINLM <- bench.GNE.nseq.LM(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), control=list(maxit=300, ftol=1e-7))
 
 resMINLM$compres
 
 resMINLM$reslist
 
-# resMinLMnoneMin <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="none", silent=FALSE, control=list(LM.param="min", trace=0, delta=1, maxit=50))
+#FB function
+resFBLM <- bench.GNE.nseq.LM(z0, F, JacF, argPhi=list(phi= phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), control=list(maxit=300, ftol=1e-7))
+
+resFBLM$compres
+
+GNE.nseq(z0, F, JacF, argPhi=list(phi= phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), method="Levenberg-Marquardt", global="gline", control=list(LM.param="min", trace=1))
+
+GNE.nseq(z0, F, JacF, argPhi=list(phi= phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), method="Levenberg-Marquardt", global="qline", control=list(LM.param="min", trace=3))
+
+
+GNE.nseq(z0, F, JacF, argPhi=list(phi= phiFB), argjac=list(gphia= GrAphiFB, gphib= GrBphiFB), method="Levenberg-Marquardt", control=list(LM.param="adaptive", trace=1, maxit=1000))
+
+
+
+plot(trueGNE[, "x1"], trueGNE[, "x2"], pch=4, col="red", xlim=c(-2, 10), ylim=c(-2, 10))
+points(z0[1], z0[2], pch=3)
+grid()
 
 
 
@@ -120,24 +147,6 @@ resMin <- bench.GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia
 
 resMin$compres
 resMin$reslist[[1]]
-
-resMinNewgline <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Newton", global="gline", silent=FALSE)
-
-resMinNewnone <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Newton", global="none", silent=FALSE)
-
-
-resMinLMnone <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="none", silent=FALSE, control=list(trace=1))
-
-resMinLMgline <- GNE.nseq(z0, F, JacF, argPhi=list(phi=phiMin), argjac=list(gphia= GrAphiMin, gphib= GrBphiMin), method="Levenberg", global="gline", silent=FALSE)
-
-
-x <- "par"
-freport <- function(x)
-cbind(LMnone= resMinLMnone[[x]], Newnone= resMinNewnone[[x]], LMgline= resMinLMgline[[x]], Newgline= resMinNewgline[[x]])
-
-freport("par")
-freport("iter")
-freport("counts")
 
 
 

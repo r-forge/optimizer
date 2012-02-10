@@ -63,7 +63,7 @@ for(g in globals)
 mytime <- system.time(
 	 res <- GNE.nseq(xinit, Phi, jacPhi, argPhi, argjac, ..., method=m, global=g) 
 , gcFirst = TRUE)
-	res <- c(res, method=m, global=g, time= mytime[3])
+	res <- c(res, method=m, global=g, time= mytime[3], name=paste(m,g))
 	if(echo)
 		print(res)
 	reslist <- c(reslist, list(res))
@@ -74,8 +74,64 @@ jaccall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[2] )
 x <- t(sapply(1:length(reslist), function(i) reslist[[i]]$par ))
 normFx <- sapply(1:length(reslist), function(i) reslist[[i]]$value )
 comptime <- sapply(1:length(reslist), function(i) reslist[[i]]$time )
+checknam <- sapply(1:length(reslist), function(i) reslist[[i]]$name )	
+codes <- sapply(1:length(reslist), function(i) reslist[[i]]$code )		
 
-list(compres = data.frame( method= fullnames, fctcall, jaccall, comptime, x,normFx ),
-	reslist = reslist )
+list(compres = data.frame( method= fullnames, fctcall, jaccall, comptime, x, normFx, codes ),
+	reslist = reslist)
+}
+
+
+bench.GNE.nseq.LM <- function(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), 
+	echo=FALSE, control=list())
+{
+	
+	method <- "Levenberg-Marquardt"
+	LM.Params <- "min"  #c("merit", "jacmerit", "min")
+	globals <- c("none", "gline", "qline")
+	globnames <- c("pure", "geom. line search", "quad. line search")
+	
+	fullnames <- paste("LM", paste(rep(LM.Params, each=length(globals)), rep(globnames, length(LM.Params)), sep=" - "))
+		
+	
+	times <- vector("numeric", length(LM.Params) * length(globals) )
+	reslist <- list()
+	
+	
+	for(l in LM.Params)
+	for(g in globals)
+	{
+		
+		mytime <- system.time(
+			res <- nseq(xinit, Phi, jacPhi, argPhi, argjac, method=method, 
+						control=c(control, list(LM.param=l)), global=g) 
+							  , gcFirst = TRUE)
+		res <- c(res, method=method, global=g, LM.param=l, time= mytime[3], name=paste(g,l))
+		if(echo)
+			print(res)
+		reslist <- c(reslist, list(res))
+	}	
+	mytime <- system.time(
+		res <- nseq(xinit, Phi, jacPhi, argPhi, argjac, method=method, 
+					  control=c(control, list(LM.param="adaptive")), global="none") 
+						  , gcFirst = TRUE)
+	res <- c(res, method=method, global="none", LM.param="adaptive", time= mytime[3], name=paste("none", "adaptive"))
+	if(echo)
+		print(res)
+	reslist <- c(reslist, list(res))
+	fullnames <- c(fullnames, paste("LM", paste("adaptive", "pure", sep=" - ")) )
+	
+	print(res)
+	
+	fctcall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[1] )
+	jaccall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[2] )
+	x <- t(sapply(1:length(reslist), function(i) reslist[[i]]$par ))
+	normFx <- sapply(1:length(reslist), function(i) reslist[[i]]$value )
+	comptime <- sapply(1:length(reslist), function(i) reslist[[i]]$time )
+	checknam <- sapply(1:length(reslist), function(i) reslist[[i]]$name )
+	codes <- sapply(1:length(reslist), function(i) reslist[[i]]$code )	
+	
+	list(compres = data.frame( method= fullnames, fctcall, jaccall, comptime, x, normFx, codes ),
+		 reslist = reslist )
 }
 

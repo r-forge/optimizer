@@ -7,6 +7,7 @@
 \usage{
 GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), method="Newton", control=list(), ...)
 bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
+bench.GNE.nseq.LM(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, control=list())
 }
 \arguments{
   \item{xinit}{initial point.}
@@ -23,29 +24,33 @@ bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...
 }
 \details{
 \code{GNE.nseq} solves the GNE problem via a non smooth reformulation of the KKT system. 
-\code{bench.GNE.nseq} carries out a benchmark of the computation methods for a given initial point.
+\code{bench.GNE.nseq} carries out a benchmark of the computation methods (Newton and Broyden 
+direction with all possible global schemes) for a given initial point.
+\code{bench.GNE.nseq.LM} carries out a benchmark of the Levenberg-Marquardt computation method.
 
 This approach consists in solving the extended Karush-Kuhn-Tucker 
 (KKT) system denoted by \eqn{\Phi(z)=0}{Phi(z)=0}, where eqn{z} is formed by the players strategy 
 \eqn{x} and the Lagrange multiplier \eqn{\lambda}{lambda}.
 The root problem \eqn{\Phi(z)=0}{Phi(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
-where the direction \eqn{d_n} is computed in three different ways:
+where the direction \eqn{d_n} is computed in three different ways. Let \eqn{J(x)=Jac\Phi(x)}{J(x)=Jac Phi(x)}.
 \describe{
-	\item{(a) Newton:}{The direction solves the system \eqn{Jac\Phi(x_n) d = - \Phi(x_n)
-		}{Jac Phi(x_n) d = - Phi(x_n)}, 
+	\item{(a) Newton:}{The direction solves the system \eqn{J(x_n) d = - \Phi(x_n)
+		}{J(x_n) d = - Phi(x_n)}, 
 		generally called the Newton equation.}
 	\item{(b) Broyden:}{It is a quasi-Newton method aiming to solve an approximate version
 		of the Newton equation \eqn{d = -\Phi(x_n) W_n}{d = -Phi(x_n) W_n} where \eqn{W_n} is computed
 		by an iterative scheme. In the current implementation, \eqn{W_n} is updated
 		by the Broyden method. }
 	\item{(c) Levenberg-Marquardt:}{The direction solves the system 
-		\deqn{ (Jac\Phi(x_n)^T Jac\Phi(x_n) + ||\Phi(x_n)||^\delta I) d = - Jac\Phi(x_n)^T\Phi(x_n)
-			}{ (Jac Phi(x_n)^T Jac Phi(x_n) + ||Phi(x_n)||^delta I) d = - Jac Phi(x_n)^T Phi(x_n),}
-		where \eqn{I} denotes the identity matrix and \eqn{\delta}{delta} is a parameter in [1,2].}
+		\deqn{ \left[ J(x_n)^T J(x_n) + \lambda_n^\delta I \right] d = - J(x_n)^T\Phi(x_n)
+			}{ [J(x_n)^T J(x_n) + lambda_n^delta I] d = - J(x_n)^T Phi(x_n),}
+		where \eqn{I} denotes the identity matrix, \eqn{\delta}{delta} is a parameter in [1,2] 
+		and \eqn{\lambda_n = ||\Phi(x_n)|| }{lambda_n = ||Phi(x_n)||} if \code{LM.param="merit"},
+		\eqn{||J(x_n)^T \Phi(x_n)|| }{||J(x_n)^T Phi(x_n)||} if \code{LM.param="jacmerit"},
+		the minimum of both preceding quantities if \code{LM.param="min"}, or an adatpive
+		parameter according to Fan(2003).
+		}
 }
-Details on the methods can be found in Facchinei, Fischer & Piccialli (2009), \code{"Newton"}
-corresponds to method 1 and \code{"Levenberg-Marquardt"} to method 3. For the Broyden, see 
-Dennis & Moree (1977).
 
 In addition to the computation method, a globalization scheme can be choosed using the \code{global}
 argument, via the \code{\dots} argument. Available schemes are 
@@ -54,10 +59,16 @@ argument, via the \code{\dots} argument. Available schemes are
 		is used with the merit function being half of the L2 norm of \eqn{Phi}, respectively with a
 		quadratic or a geometric implementation.}
 	\item{(2) Trust region:}{ if \code{global} is set to \code{"dbldog"} or \code{"pwldog"}, a trust
-		region is used respectively with a double dogleg or a Powell (simple) dogleg implementation.}
+		region is used respectively with a double dogleg or a Powell (simple) dogleg implementation.
+		This global scheme is not available for the Levenberg-Marquardt direction.}
 	\item{(3) None:}{ if  \code{global} is set to \code{"none"}, no globalization is done. }
 }	
-The default value of \code{global} is \code{"gline"}. 
+The default value of \code{global} is \code{"gline"}. Note that in the special case of 
+the Levenberg-Marquardt direction with adaptive parameter, the global scheme must be \code{"none"}.
+
+In the GNEP context, details on the methods can be found in Facchinei, Fischer & Piccialli (2009), \code{"Newton"}
+corresponds to method 1 and \code{"Levenberg-Marquardt"} to method 3. In a general nonlinear
+equation framework, see Dennis & Moree (1977), Dennis & Schnabel (1996) or Nocedal & Wright (2006), 
 
 
 The implementation relies heavily on the 
@@ -73,10 +84,16 @@ The \code{control} argument is a list that can supply any of the following compo
 	Convergence is declared when the largest absolute function value is smaller than \code{ftol}.
 	The	default value is \eqn{10^{-8}}{1e-8}.
 	}
+	\item{\code{delta}}{A numeric \code{delta} in [1, 2], default to 2, for
+	 the Levenberg-Marquardt method only.
+	}
+	\item{\code{LM.param}}{A character string, default to \code{"merit"}, for
+	 the Levenberg-Marquardt method only.
+	}
 	\item{\code{maxit}}{The maximum number of major iterations. The default value is 150 if a 
 	global strategy has been specified.}
 	\item{\code{trace}}{Non-negative integer. A value of 1 will give a detailed report of the
-	progress of the iteration.}
+	progress of the iteration, default 0.}
 }
 
 \code{\dots} are further arguments to be passed to the optimization routine, 
@@ -125,13 +142,22 @@ to \code{FALSE}.
 }
 \references{
 
- J. E. Dennis and J. J. Moree (1977), 
+ J.E. Dennis and J.J. Moree (1977), 
  \emph{Quasi-Newton methods, Motivation and Theory},
  SIAM review.
+
+ J.E. Dennis and R.B. Schnabel (1996), 
+ \emph{Numerical methods for unconstrained optimization and nonlinear equations},
+ SIAM.
  
  F. Facchinei, A. Fischer and V. Piccialli (2009), 
  \emph{Generalized Nash equilibrium problems and Newton methods},
  Math. Program.
+ 
+ J.-Y. Fan (2003),
+ \emph{A modified Levenberg-Marquardt algorithm for singular 
+ system of nonlinear equations},
+ Journal of Computational Mathematics.
  
  B. Hasselman (2011), 
  \emph{nleqslv: Solve systems of non linear equations},
@@ -142,6 +168,9 @@ to \code{FALSE}.
  using Nikaido-Isoda-type functions},
  Comput Optim Appl .
 
+ J. Nocedal and S.J. Wright (2006), 
+ \emph{Numerical Optimization}, 
+ Springer Science+Business Media
 
 }
 \seealso{
@@ -151,7 +180,7 @@ for other approaches; \code{\link{Phi}} and
 \code{\link{JacPhi}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi} and
 \code{\link{complementarity}} for complementarity functions.
 
-See \code{\link{nleqslv}} for the optimization routine.
+See also \code{\link{nleqslv}} for some optimization details.
 }
 \author{
  Christophe Dutang

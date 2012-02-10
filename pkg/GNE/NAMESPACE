@@ -1,7 +1,7 @@
 
 
 ### Exports of R functions
-export(GNE, GNE.nseq, bench.GNE.nseq, GNE.fpeq, GNE.min)
+export(GNE, GNE.nseq, bench.GNE.nseq, bench.GNE.nseq.LM, GNE.fpeq, GNE.min)
 
 
 export(decrstep, decrstep10, decrstep20, decrstep30, purestep)

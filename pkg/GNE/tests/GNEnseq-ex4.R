@@ -53,7 +53,12 @@ apply(trueGNE, 1, function(x) sqrt(sum(F(x)^2)) )
 
 #is the jacobian singular?
 for(i in 1:4)
+{ 
+	cat(">>>\t", i, "\n")
+	print(JacF(trueGNE[i, ], gphia= GrAphiMin, gphib= GrBphiMin))
 print( try( solve(JacF(trueGNE[i, ], gphia= GrAphiMin, gphib= GrBphiMin)) ) )
+	cat("\n")
+}
 
 
 #check constraint

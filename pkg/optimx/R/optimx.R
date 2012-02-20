@@ -346,9 +346,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       } # end if (! numgrad) 
    } # end if (starttests) ...
    # Check that we have the functions we need for gradient check
-   ipkgs <- installed.packages()
-   if ("numDeriv" %in% ipkgs[,1]) require(numDeriv, quietly=FALSE) 
-   else stop("Install package `numDeriv'", call.=FALSE) # cannot avoid stop here.
+   if (! require(numDeriv, quietly=FALSE) ) stop("Install package `numDeriv'", call.=FALSE) # cannot avoid stop here.
 # Set up the vector to return answers
    ans.ret <- vector(mode="list")
    # mode= is not strictly required. length defaults to 0. This sets up our answer vector.
@@ -417,40 +415,31 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    }
 # Now make sure methods loaded
    if(any(method == "spg")) {
-      if ("BB" %in% ipkgs[,1]) require(BB, quietly=FALSE)
-      else  stop("Package `BB' Not installed", call.=FALSE)
+      if (! require(BB, quietly=FALSE) )stop("Package `BB' Not installed", call.=FALSE)
    }
    if(any(method == "ucminf")) { 
-      if ("ucminf" %in% ipkgs[,1]) require(ucminf, quietly=FALSE)
-      else  stop("Package `ucminf' Not installed", call.=FALSE)
+      if (! require(ucminf, quietly=FALSE) ) stop("Package `ucminf' Not installed", call.=FALSE)
    }
    if(any(method == "Rcgmin")) { 
-      if ("Rcgmin" %in% ipkgs[,1]) require(Rcgmin, quietly=FALSE)
-      else  stop("Package `Rcgmin' Not installed", call.=FALSE)
+      if (! require(Rcgmin, quietly=FALSE) ) stop("Package `Rcgmin' Not installed", call.=FALSE)
    }
    if(any(method == "Rvmmin")) { 
-      if ("Rvmmin" %in% ipkgs[,1]) require(Rvmmin, quietly=FALSE)
-      else  stop("Package `Rvmmin' Not installed", call.=FALSE)
+      if (! require(Rvmmin, quietly=FALSE) ) stop("Package `Rvmmin' Not installed", call.=FALSE)
    }
    if(any(method == "bobyqa")) { 
-      if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=FALSE)
-      else  stop("Package `minqa' (for bobyqa) Not installed", call.=FALSE)
+      if (! require(minqa, quietly=FALSE) ) stop("Package `minqa' (for bobyqa) Not installed", call.=FALSE)
    }
    if(any(method == "uobyqa")) { 
-      if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=FALSE)
-      else  stop("Package `minqa' (for uobyqa) Not installed", call.=FALSE)
+      if (! require(minqa, quietly=FALSE) )  stop("Package `minqa' (for uobyqa) Not installed", call.=FALSE)
    }
    if(any(method == "newuoa")) { 
-      if ("minqa" %in% ipkgs[,1]) require(minqa, quietly=FALSE)
-      else  stop("Package `minqa' (for newuoa) Not installed", call.=FALSE)
+      if (! require(minqa, quietly=FALSE) )  stop("Package `minqa' (for newuoa) Not installed", call.=FALSE)
    }
    if(any(method == "nmkb")) { 
-      if ("dfoptim" %in% ipkgs[,1]) require(dfoptim, quietly=FALSE)
-      else  stop("Package `dfoptim' (for nmkb) Not installed", call.=FALSE)
+      if (! require(dfoptim, quietly=FALSE) ) stop("Package `dfoptim' (for nmkb) Not installed", call.=FALSE)
    }
    if(any(method == "hjkb")) { 
-      if ("dfoptim" %in% ipkgs[,1]) require(dfoptim, quietly=FALSE)
-      else  stop("Package `dfoptim' (for hjkb) Not installed", call.=FALSE)
+      if (! require(dfoptim, quietly=FALSE) ) stop("Package `dfoptim' (for hjkb) Not installed", call.=FALSE)
    }
 #  if(any(method == "DEoptim")) { # Code removed as DEoptim not part of current set of methods
 #     if ("DEoptim" %in% ipkgs[,1]) require(DEoptim, quietly=FALSE)

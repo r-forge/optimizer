@@ -299,8 +299,9 @@ graphContourOneIter <- function(f, xk, dk, k, delta=.2, tols=c(1e-1, 1e-3, 1e-6)
 
 
 graphContourMultIter <- function(f, xks, xlim, 
-	option, nbgrid=101,
-	tols=c(1e-1, 1e-3, 1e-6), cex=1, lwd=1, itercol=c("orange", "red"))
+	option, nbgrid=101, tols=c(1e-1, 1e-3, 1e-6), 
+	cex=1, lwd=1, itercol=c("orange", "red"),
+	title=NULL, posleg=NULL)
 {	
 	if(missing(xlim))
 		xlim <- apply(xks, 2, range)	
@@ -311,14 +312,21 @@ graphContourMultIter <- function(f, xks, xlim,
 	
 	option <- match.arg(option, c("none", "zeros", "colored", "numbered"), several.ok=TRUE)
 
-	if(length(option) == 1)
-	mytitle <- switch(option, 
+	if(!is.null(title))
+	{
+		mytitle <- paste("Contour of ||F(x)||", title)
+		
+	}else if(length(option) == 1)
+	{
+		mytitle <- switch(option, 
 		none= "Contour of norm(F(x))",
 		zeros = "Contour of norm(F(x)), with 'zeros'",	
 		colored = "Contour of norm(F(x)), with colored iterates",
 		numbered = "Contour of norm(F(x)), with numbered iterates")		
-	else
+	}else
 		mytitle <- "Contour of norm(F(x)), with iterates and zeros"	
+	
+	
 						
 		x <- seq(xlim[1, "min"], xlim[1, "max"], length= nbgrid)		
 		y <- seq(xlim[2, "min"], xlim[2, "max"], length= nbgrid)				
@@ -334,7 +342,7 @@ graphContourMultIter <- function(f, xks, xlim,
 		
 
 		
-		contour(x, y, z, nlevels=20, main=mytitle, cex=cex, col="grey50")
+		contour(x, y, z, nlevels=20, main=mytitle, cex=cex, col="grey50", xlab="x_1", ylab="x_2")
 
 	if("zeros" %in% option)		
 	{
@@ -346,6 +354,11 @@ graphContourMultIter <- function(f, xks, xlim,
 
 		idzero <- which(abs(z) < tols[3], arr.ind=TRUE)
 		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col="red", pch=19)
+		
+		if(!is.null(posleg))
+			legend(posleg, leg=c(paste("<", rev(tols), sep=""), paste(">", tols[1], sep="")), 
+				   fill=c("red", "orange", "yellow", "white"), bg ="white")
+
 	}
 
 	if("colored" %in% option)

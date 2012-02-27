@@ -1,10 +1,15 @@
-GNE <- function(approach = c("non smooth", "fixed point", "minimization"), method = "default", xinit,
-	func1, func2, argfunc1=list(), argfunc2=list(), ..., control=list())
+GNE <- function(approach = 
+	c("non smooth", "fixed point", "minimization", "constr equation"), 
+	method = "default", xinit, func1, func2, argfunc1=list(), 
+	argfunc2=list(), ..., control=list())
 {
-	approach <- match.arg(approach, c("non smooth", "fixed point", "minimization"))
+	approach <- match.arg(approach, c("non smooth", "fixed point", "minimization", "constr equation"))
 	
 	if(approach == "non smooth")
 		res <- GNE.nseq(xinit, func1, func2, argfunc1, argfunc2, method, control, ...)
+
+	if(approach == "constr equation")
+		res <- GNE.ceq(xinit, argfunc1, argfunc2, method, control, ...)
 	
 	if(approach == "fixed point")
 		res <- GNE.fpeq(xinit, func1, func2, argfunc1, argfunc2, method, control, ...)
@@ -21,6 +26,14 @@ GNE.nseq <- function(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), method="N
 		method <- "Newton"
 		
 	nseq(xinit, Phi, jacPhi, argPhi, argjac, method, control, ...)	
+}
+
+GNE.ceq <- function(xinit, argH, argjacH, method="IP", control=list(), ...)
+{
+	if(method == "default")
+		method <- "IP"
+		
+	ceq(xinit, argH, argjacH, method, control, global="gline", ...)	
 }
 
 

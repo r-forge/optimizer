@@ -1,3 +1,5 @@
+#phi as defined for the extended KKT system
+#z = (x , lambda)
 Phi <- function(z, dimx, dimlam,
 	grobj, arggrobj, 
 	constr, argconstr,  

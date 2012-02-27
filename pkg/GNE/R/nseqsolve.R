@@ -109,7 +109,7 @@ nseq.LM <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=
 		
 		A <- crossprod( Jacfk, Jacfk ) + lambdak * diag( length(xk) )
 
-		mycatch <- try( dk <- solve(A, b) , silent=silent)
+		mycatch <- try( dk <- qr.solve(A, b) , silent=silent)
 		
 		if(class(mycatch) == "try-error")
 		{

@@ -1,12 +1,10 @@
 PREREQ_PACS=
 
-include ../Makevars
-#override ./Makevars to not copy Licence
-CODE_PREREQS=$(CODE) DESCRIPTION NAMESPACE #INDEX LICENSE
+#  ../Makevars goes up real path not sym link, so
+QC=${shell cd ../ ; pwd}
 
-default:	$(DEFAULT)
+include $(QC)/Makevars
 
-PRETESTLIB=$(CODE_PREREQS) $(CODESCAN)
+default: $(DEFAULT)
 
-
-include ../Makerules
+include $(QC)/Makerules

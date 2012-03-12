@@ -5,8 +5,7 @@ Version: 2011-5.09
 Date: 2011-05-09
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
-Description: Variable metric nonlinear function minimization with bounds constraints - experimental
-             Intended to test saving stepsize and using quadratic minimization.
+Description: Variable metric nonlinear function minimization with bounds constraints - experimental Intended to test saving stepsize and using quadratic minimization.    Redated  v 2011-5.09
 Depends: numDeriv
 License: GPL (>= 2)
 LazyLoad: no

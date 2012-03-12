@@ -1,11 +1,12 @@
 Package: optimgui
 Title: EXPERIMENTAL: A GUI program to assist optimization problems in R
-Version: 0.1-0
-Date: 2011-08-22
+Version: 2011-8.22
+Date: 2012-03-12
 Author: Yixuan Qiu, John Nash
 Maintainer: Yixuan Qiu <yixuan.qiu@cos.name>
 Depends: methods, XML, RGtk2, gWidgets, gWidgetsRGtk2
 Suggests: optimx, Rsolnp
-Description: This package aims at building up a GUI to assist the preparation and solution of optimization problems.
-License: GPL
+Description: This package aims at building up a GUI to assist the preparation and solution of 
+  optimization problems. Redated to rebuild on R-forge.
+License: GPL-2
 LazyLoad: yes

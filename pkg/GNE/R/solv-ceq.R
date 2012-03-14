@@ -61,8 +61,6 @@ ceq.IP <- function(xinit, argH, argjacH, merit, gradmerit, checkint,
 	namc <- names(con)
 	con[namc <- names(control)] <- control
 	
-	print(con)
-	
 	xk_1 <- xinit
 	xk <- xinit
 	fk <- Htemplate(xinit, argH) 
@@ -222,7 +220,7 @@ ceq.IP.direction <- function(z, argH, argjacH, sigma, silent=TRUE)
 	if(class(d4x) != "try-error")
 	{
 		d4w <- blam - Jacgx %*% d4x
-		d4lam <- diag(1/w) %*% (bw - diag(w) %*% d4w)
+		d4lam <- diag(1/w) %*% (bw - diag(lam) %*% d4w)
 		return(c(d4x, d4lam, d4w))
 	}else
 		return(d4x)	
@@ -264,11 +262,9 @@ gradpsi.ce <- function(z, argH, argjacH, zeta)
 
 	grpHz <- gradpotential.ce(Htemplate(z, argH), n, zeta)
 	
-	c(
-		argjacH$jaclagreq(x, lam) %*% grpHz[1:n] + argjacH$jacconstr(x) %*% grpHz[1:m+n], 
+	c(	argjacH$jaclagreq(x, lam) %*% grpHz[1:n] + argjacH$jacconstr(x) %*% grpHz[1:m+n], 
 		argjacH$diaggrconstr(x) %*% grpHz[1:n] + diag(w) %*% grpHz[1:m+n+m], 
-		grpHz[1:m+n] + diag(lam) %*% grpHz[1:m+n+m]		
-	)
+		grpHz[1:m+n] + diag(lam) %*% grpHz[1:m+n+m]		)
 }
 
 
@@ -282,3 +278,4 @@ checkint.ce <- function(z, argH, zeta)
 	# cat("lam", lam, "w", w, "-", all(lam > 0, w > 0), "\n")
 	all(lam > 0, w > 0)
 }
+

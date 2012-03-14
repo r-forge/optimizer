@@ -148,7 +148,7 @@ Let $N=2$. The objective functions are
 $$
 \theta_1(x) = (x_1-2)^2 (x_2-4)^4 \txtm{and} \theta_2(x) = (x_2-3)^2 (x_1)^4,
 $$
-for $x\in \mathbb R^2$, while the constraint function are
+for $x\in \mathbb R^2$, while the constraint functions are
 $$
 g_1(x) = x_1+x_2-1 \leq 0 \txtm{and} g_2(x) = 2x_1+x_2-2 \leq 0.
 $$

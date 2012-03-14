@@ -45,29 +45,22 @@ psi.ce(z, argH, 4)
 gradpsi.ce(z, argH, argjac, 4)
 
 
-#first call
-xk <- c(3.7826847, 0.5112527)
-zk <- c(xk, 10, 10, pmax(10, 5-constr(xk) ) )
-Htemplate(zk, argH)
-psi.ce(zk, argH, length(zk)/2)
+#a simple test
+x0 <- -c(2, 2)
+z0 <- c(x0, 2, 2, pmax(10, 5-constr(x0) ) )
 
-GNE.ceq(zk, argH, argjac, silent=FALSE, control=list(trace=3, btol=1e-2))
+# jacHtemplate(z0, argjac)
 
-
-
-zeta <- 4	
-zk <- c(3.7826847, 0.5112527, 0.9206536, 0.2450269, 1.0918416, 1.7969769)	
-dk <- ceq.direction(zk, argH, argjac, 1/2)
-slopek <- as.numeric( crossprod( gradpsi(zk, argH, argjac, zeta) , dk ) )
-control <- list(ftol=1e-6, xtol=1e-5, btol=1e-2, maxit=100, trace=0, sigma=1/2, 
-				echofile=NULL, delta=1)
-
-psi.ce(zk+dk, argH=argH, zeta=zeta)
+GNE.ceq(z0, argH, argjac, silent=FALSE, control=list(trace=0))
 
 
-linesearch.geom(zk, dk, slopek, control, psi, argH=argH, zeta=zeta)	
+x0 <- c(1, 0)
+z0 <- c(x0, 2^9, 6, pmax(2, 2-constr(x0) ) )
 
-linesearch.geom(zk, dk, slopek, control, function(z) as.numeric(crossprod(z)/2)	)
+# jacHtemplate(z0, argjac)
+
+GNE.ceq(z0, argH, argjac, silent=FALSE, control=list(trace=1))
+
 
 
 

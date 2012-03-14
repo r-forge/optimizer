@@ -300,7 +300,7 @@ graphContourOneIter <- function(f, xk, dk, k, delta=.2, tols=c(1e-1, 1e-3, 1e-6)
 
 graphContourMultIter <- function(f, xks, xlim, 
 	option, nbgrid=101, tols=c(1e-1, 1e-3, 1e-6), 
-	cex=1, lwd=1, itercol=c("orange", "red"),
+	cex=1, lwd=1, itercol=c("blue", "green"), zerocol=c("yellow", "orange","red"), 
 	title=NULL, posleg=NULL)
 {	
 	if(missing(xlim))
@@ -347,17 +347,17 @@ graphContourMultIter <- function(f, xks, xlim,
 	if("zeros" %in% option)		
 	{
 		idzero <- which(abs(z) < tols[1], arr.ind=TRUE)
-		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col="yellow", pch=".", cex=cex)
+		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col=zerocol[1], pch=".", cex=cex)
 
 		idzero <- which(abs(z) < tols[2], arr.ind=TRUE)
-		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col="orange", pch=20)
+		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col=zerocol[2], pch=20)
 
 		idzero <- which(abs(z) < tols[3], arr.ind=TRUE)
-		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col="red", pch=19)
+		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col=zerocol[3], pch=19)
 		
 		if(!is.null(posleg))
 			legend(posleg, leg=c(paste("<", rev(tols), sep=""), paste(">", tols[1], sep="")), 
-				   fill=c("red", "orange", "yellow", "white"), bg ="white")
+				   fill=c(rev(zerocol), "white"), bg ="white")
 
 	}
 

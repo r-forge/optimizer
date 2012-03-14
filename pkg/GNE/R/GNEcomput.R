@@ -134,7 +134,6 @@ bench.GNE.nseq.LM <- function(xinit, Phi, jacPhi, argPhi=list(), argjac=list(),
 	reslist <- c(reslist, list(res))
 	fullnames <- c(fullnames, paste("LM", paste("adaptive", "pure", sep=" - ")) )
 	
-	print(res)
 	
 	fctcall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[1] )
 	jaccall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[2] )

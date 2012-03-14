@@ -26,11 +26,15 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
     int nn = *n;
     cc[0]++;			// increment func eval count
 
-    NumericVector pp(nn);
-    if (count_if(x, x + nn, R_finite) < pp.size())
+    if (count_if(x, x + nn, R_finite) < nn)
 	throw range_error("non-finite x values not allowed in calfun");
-    copy(x, x + nn, pp.begin());
 
+    SEXP pp = PROTECT(::Rf_allocVector(REALSXP, nn));
+    copy(x, x + nn, REAL(pp));
+    double f = ::Rf_asReal(::Rf_eval(PROTECT(::Rf_lang2(as<SEXP>(cf), pp)), as<SEXP>(rho)));
+    UNPROTECT(2);
+
+#if 0
     double f;
     try {
        f  = as<double>(cf(pp)); // evaluate objective
@@ -39,6 +43,7 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
     } catch(...) {
 	::Rf_error("c++ exception (unknown reason)");
     }
+#endif
     if (!R_finite(f)) f = numeric_limits<double>::max();
 
     if (*ip == 3) {		// print eval info when very verbose
@@ -64,9 +69,14 @@ static SEXP rval(NumericVector par, string cnm, int ierr = 0) {
     StringVector cl(2);
     cl[0] = cnm;
     cl[1] = "minqa";
+    
+    double f = ::Rf_asReal(::Rf_eval(PROTECT(::Rf_lang2(as<SEXP>(cf),
+							as<SEXP>(par))),
+				     as<SEXP>(rho)));
+    UNPROTECT(1);
 
     List rr = List::create(_["par"] = par,
-			   _["fval"] = cf(par),
+			   _["fval"] = f,
 			   _["feval"] = feval,
 			   _["ierr"] = ierr);
     rr.attr("class") = cl;

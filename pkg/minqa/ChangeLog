@@ -1,3 +1,8 @@
+2012-03-14 Douglas Bates  <bates@stat.wisc.edu>
+	* src/minqa.cpp: avoid evaluating an Rcpp::Function object
+	and use direct calls to R's eval (which shows up as ::Rf_eval in
+	this code).
+	
 2011-09-30  K Mullen <kmullen@nist.gov>
 	* src/minqa.cpp brought in patch contributed by Ben Bolker. 
 
@@ -30,6 +35,7 @@
 	* src/minqa.cpp: Expand RCPP_FUNCTION_X macros to make debugging
 	easier. 
 
+	
 2010-11-19  Douglas Bates  <bates@stat.wisc.edu>
 
 	* src/Makevars (PKG_LIBS): Change to the backticks version

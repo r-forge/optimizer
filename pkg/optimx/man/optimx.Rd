@@ -442,11 +442,13 @@ Each such list has possible elements:
 }
 
 \seealso{
-  \code{\link{spg}}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{\link{bobyqa}}, 
-  \code{\link{Rcgmin}}, \code{\link{Rvmmin}}, \code{\link{ucminf}}, \code{\link{dfoptim}}.
+  \code{spg}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{bobyqa}, 
+  \code{Rcgmin}, \code{Rvmmin}, \code{ucminf}, \code{dfoptim}.
 
   \code{\link{optimize}} for one-dimensional minimization;
-  \code{\link{constrOptim}} or \code{\link{spg}} for linearly constrained optimization.
+  \code{constrOptim} or \code{spg} for linearly constrained optimization.
+
+Note that links have been removed to Suggested packages.
 }
 
 \examples{
@@ -474,7 +476,7 @@ cat("Analytic gradients\n")
 ans2<-optimx(c(-1.2,1), fr, grr, control=list(all.methods=TRUE))
 print(ans2)
 
-
+\dontrun{
 cat("The next line should fail if executed because 'hessian = TRUE' no longer allowed\n")
 try3<-try(ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE))
 print(class(try3))
@@ -742,7 +744,7 @@ for (i in 1:nmeth){
    print(adet[[i]]$evnhatend)
    cat("=======================================\n")
 }
-
+}
 }
 \keyword{nonlinear}
 \keyword{optimize}

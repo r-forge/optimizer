@@ -12,17 +12,14 @@ constrained functions of several or many parameters
 \details{
 \tabular{ll}{
 Package: \tab optimx\cr
-Version: \tab 2011-7.10\cr
-Date: \tab 2011-07-10\cr
+Version: \tab 2012-2.202\cr
+Date: \tab 2012-03-16\cr
 License: \tab GPL-2\cr
 Lazyload: \tab Yes\cr
-Depends: \tab numDeriv, BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, kktc, useroptfn, bmchk\cr
+Depends: \tab numDeriv, optfntools\cr
+Suggests: \tab BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim\cr
 Repository: \tab R-Forge\cr
 Repository/R-Forge/Project: \tab optimizer\cr
-Repository/R-Forge/Revision: \tab 478\cr
-Date/Publication: \tab 2011-07-21 02:13:01\cr
-Packaged: \tab 2011-07-26 21:17:43 UTC; rforge\cr
-Built: \tab R 2.13.1; ; 2011-07-28 14:38:19 UTC; unix\cr
 }
 
 Index:

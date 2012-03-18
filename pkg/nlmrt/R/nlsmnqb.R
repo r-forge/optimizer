@@ -3,10 +3,7 @@ nlsmnqb <-function(formula, start, trace=FALSE, data=NULL,
 #
 #  A simplified and hopefully robust alternative to finding the 
 #  nonlinear least squares minimizer that causes 'formula' to 
-#  given a minimal residual sum of squares. 
-#
-# This version with bounds constraints
-# ?? do we want masks e.g., lower>upper? Or explicitly??
+#  give a minimal residual sum of squares. 
 #
 #  nls.mn is particularly intended to allow for the resolution of 
 #  very ill-conditioned or else near zero-residual problems for 
@@ -17,55 +14,70 @@ nlsmnqb <-function(formula, start, trace=FALSE, data=NULL,
 #
 #  formula looks like "y~b1/(1+b2*exp(-b3*T))"
 #  start MUST be a vector where all the elements are named:
-#   e.g., start=c(b1=200, b2=50, b3=0.3)
-#  trace -- TRUE for extra output (?? NOT implemented)
-# ?? control is a list of control parameters. These are:
+#     e.g., start=c(b1=200, b2=50, b3=0.3)
+#  trace -- TRUE for console output 
+#  data is a data frame containing data for variables used in the formula
+#     that are NOT the parameters. This data may also be defined in the 
+#     parent frame i.e., "global" to this function
+#  lower is a vector of lower bounds
+#  upper is a vector of upper bounds
+#  masked is a character vector of names of parameters that are fixed.
+#  control is a list of control parameters. These are:
 #     ...
 #  
 #  ... will need to contain data for other variables that appear in
-#  the formula and are defined in a parent frame
+#  the formula and are defined in a parent frame (Not sure how needed??)
 #
-# data
-#   dots<-list(...)
-#   if (length(dots)>0){
-#     print(dots)
-#     str(dots)
-#     xx<-..1
-#     yy<-..2 # But how to get names right!??
-#   }
+#  This variant uses a qr solution without forming the sum of squares and cross
+#  products t(J)%*%J 
+# 
+# Function to display SS and point
+showpoint<-function(SS, pnum){
+    pnames<-names(pnum)
+    npar<-length(pnum)
+    cat("lamda:",lamda," SS=",SS," at")
+    for (i in 1:npar){
+       cat(" ",pnames[i],"=",pnum[i])
+    }
+    cat(" ",feval,"/",jeval)
+    cat("\n")
+}
+#########
 # get data from data frame if exists
+print(str(data))
 if (! is.null(data)){
     for (dfn in names(data)) {
        cmd<-paste(dfn,"<-data$",dfn,"")
        eval(parse(text=cmd))
     }
-}
-if (trace) {
-  cat("Extracted data for variables:")
-  print(names(data))
-} 
+} else stop("'data' must be a list or an environment")
 # bounds
 npar<-length(start) # number of parameters
 if (length(lower)==1) lower<-rep(lower,npar)
 if (length(upper)==1) upper<-rep(upper,npar) 
-# ?? more tests on bounds / also scaling?
+# ?? more tests on bounds
 if (length(lower)!=npar) stop("Wrong length: lower")
 if (length(upper)!=npar) stop("Wrong length: upper")
-if (any(start<lower) || any(start>upper)) {
+if (any(start<lower) || any(start>upper)) stop("Infeasible start")
+if (trace) {
+   cat("formula: ")
+   print(formula)
    cat("lower:")
    print(lower)
    cat("upper:")
    print(upper)
-   stop("Infeasible start")
 }
+# Should make this more informative??
 # controls
    ctrl<-list(
-     watch=FALSE, # monitor progress
-     phi=1, # the phi parameter
-     lamda=0.0001, # lamda (spelled lamda in JNWMS)
-     offset=100, # to determine if paramters changed
-     laminc=10,
-     lamdec=4 # use decreased_lamda<-lamda*lamdec/laminc
+    watch=FALSE, # monitor progress
+    phi=1, # the phi parameter
+    lamda=0.0001, # lamda (spelled lamda in JNWMS)
+    offset=100, # to determine if paramters changed
+    laminc=10,
+    lamdec=4, # use decreased_lamda<-lamda*lamdec/laminc
+    femax=10000,
+    jemax=5000
    )
    epstol<-(.Machine$double.eps)*ctrl$offset
    ncontrol <- names(control)
@@ -76,23 +88,27 @@ if (any(start<lower) || any(start>upper)) {
       }
       ctrl[onename]<-control[onename]
    }
+   print(ctrl)
    phiroot<-sqrt(ctrl$phi)
-   lamda<-ctrl$lamda # simplify controls to simplify code
+   lamda<-ctrl$lamda
    offset<-ctrl$offset
    laminc<-ctrl$laminc
    lamdec<-ctrl$lamdec # save typing
+   watch<-ctrl$watch
+   femax<-ctrl$femax
+   jemax<-ctrl$jemax
 #  First get all the variable names:
     vn <- all.vars(parse(text=formula))
 # Then see which ones are parameters (get their positions in the set xx
     pnum<-start # may simplify later??
     pnames<-names(pnum)
     bdmsk<-rep(1,npar) # set all params free for now
-    bdmsk<-rep(1,npar) # set all params free for now
-    mindx<-which(pnames==masked)
-    bdmsk[mindx]<-0 # fixed parameters
-    cat("bdmsk:")
-    print(bdmsk)
-    tmp<-readline("cont.")
+    mskdx<-which(pnames %in% masked) # NOTE: %in% not == or order gives trouble
+    if (length(mskdx)>0 && trace) {
+       cat("The following parameters are masked:")
+       print(pnames[mskdx])
+    }
+    bdmsk[mskdx]<-0 # fixed parameters
     if (trace) {
       parpos  <- match(pnames, vn)
       datvar<-vn[-parpos] # NOT the parameters
@@ -101,7 +117,7 @@ if (any(start<lower) || any(start>upper)) {
          print(eval(parse(text=dvn)))
       }
     }
-    if (is.character(formula)){
+   if (is.character(formula)){
        es<-formula
     } else {
        tstr<-as.character(formula) # note ordering of terms!
@@ -119,116 +135,152 @@ if (any(start<lower) || any(start>upper)) {
        eval(parse(text=joe))
     }
     gradexp<-deriv(parse(text=resexp), names(start)) # gradient expression
-    if (is.null(data)){
-      resbest<-eval(parse(text=resexp)) # initial residual
-    } else {resbest<-with(data, eval(parse(text=resexp))) }
+    resbest<-with(data, eval(parse(text=resexp))) 
     ssbest<-crossprod(resbest)
     feval<-1
     pbest<-pnum
     feval<-1 # number of function evaluations
     jeval<-0 # number of Jacobian evaluations
     if (trace) {
-      cat("START -- lamda:",lamda," SS = ",ssbest," at ")
-      print(pnum)
+       cat("Start:")
+       showpoint(ssbest,pnum)
+       if (watch) tmp<-readline("Continue")
     }
+    if (length(mskdx) == npar) stop("All parameters are masked") # Should we return?
     ssquares<-.Machine$double.xmax # make it big
     newjac<-TRUE # set control for computing Jacobian
     eqcount<-0
-    while (eqcount < npar) {
-       bdmsk[which(pnum-lower<=epstol*(abs(lower)+epstol))]<- -3 
-       bdmsk[which(pnum-upper>=epstol*(abs(lower)+epstol))]<- -1
-       cat("bdmsk:")
-       print(bdmsk)
+    while ((eqcount < npar) && (feval<=femax) && (jeval<=jemax)) {
        if (newjac) {
-          # cat("Evaluate Jacobian")
-          if (is.null(data)){
-            J0<-eval(gradexp) # initial residual
-          } else {J0<-with(data, eval(gradexp))}
+          bdmsk<-rep(1,npar)
+          bdmsk[mskdx]<-0
+          bdmsk[which(pnum-lower<epstol*(abs(lower)+epstol))]<- -3 
+          bdmsk[which(upper-pnum<epstol*(abs(upper)+epstol))]<- -1
+          if (trace && watch) {
+            cat("bdmsk:")
+            print(bdmsk)
+          }
+          J0<-with(data, eval(gradexp))
           Jac<-attr(J0,"gradient")
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
-          dee<-diag(sqrt(diag(crossprod(Jac))))+phiroot*diag(npar) # to append to Jacobian
-       }
+          JTJ<-crossprod(Jac)
+          gjty<-t(Jac)%*%resbest # raw gradient
+          for (i in 1:npar){
+             bmi<-bdmsk[i]
+             if (bmi==0) {
+                gjty[i]<-0 # masked
+                Jac[,i]<-0
+             }
+             if (bmi<0) {
+                if((2+bmi)*gjty[i] > 0) { # free parameter
+                   bdmsk[i]<-1
+                   if (trace) cat("freeing parameter ",i," now at ",pnum[i],"\n")
+                } else {
+                   gjty[i]<-0 # active bound
+                   Jac[,i]<-0
+                   if (trace) cat("active bound ",i," at ",pnum[i],"\n") 
+                }
+             } # bmi
+          } # end for loop
+          dee<-diag(sqrt(diag(crossprod(Jac)))) # to append to Jacobian
+       } # end newjac
        lamroot<-sqrt(lamda)
-       JJ<-rbind(Jac,lamroot*dee) # build the matrix
-       print(JJ)
-       print(resbest)
-       tmp<-readline("continue")
+       JJ<-rbind(Jac,lamroot*dee, lamroot*phiroot*diag(npar)) # build the matrix
+       if (trace && watch) {
+         cat("JJ\n")
+         print(JJ)
+       }
        JQR<-qr(JJ)# ??try
-       rplus<-c(resbest, rep(0,npar))
-       w<-qr.qty(JQR,rplus)
-       gradproj<- -crossprod(w)
-       cat("gradient projection=",gradproj,"\n") # ?? test
+       rplus<-c(resbest, rep(0,2*npar))
        delta<-try(qr.coef(JQR,-rplus)) # Note appended rows of y)
        if (class(delta)=="try-error") {
           if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
           lamda<-laminc*lamda
           newjac<-FALSE # increasing lamda -- don't re-evaluate
-          if (trace) cat(" Singular matrix\n")
-       } else {
-#          if (trace) {
-#             cat("delta:")
-#             print(delta)
-#          }
-	  delta[mindx]<-0
-          delta<-as.numeric(delta)
-          cat("delta:")
-          print(delta)
-            step<-rep(1,npar)
-            for (i in 1:npar){
-                step[i]<-0
-                if (delta[i]>0) step[i]<-(upper[i]-pbest[i])/delta[i]
-                if (delta[i]<0) step[i]<-(lower[i]-pbest[i])/delta[i] # positive
+          if (trace) cat(" Equation solve failure\n")
+          feval<-feval+1 # count as a function evaluation to force stop
+       } else { # solution OK
+          gproj<-crossprod(delta,gjty)
+          gangle<-gproj/sqrt(crossprod(gjty)*crossprod(delta))
+          if (trace) cat("gradient projection0 = ",gproj," gangle=",gangle,"\n")
+          if (gproj >= 0) { # uphill direction (??test) -- should NOT be possible
+            if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
+            lamda<-laminc*lamda
+            newjac<-FALSE # increasing lamda -- don't re-evaluate
+            if (trace) cat(" Uphill search direction\n")
+          } else { # downhill
+            delta[mskdx]<-0
+            delta<-as.numeric(delta)
+            if (trace && watch) {
+              cat("delta:")
+              print(delta)
             }
-            print(step)
+            step<-rep(1,npar)
+    #        for (i in 1:npar){
+    #            step[i]<-0
+    #            if (delta[i]>0) step[i]<-(upper[i]-pbest[i])/delta[i]
+    #            if (delta[i]<0) step[i]<-(lower[i]-pbest[i])/delta[i] # positive
+    #        }
+            for (i in 1:npar){
+                bd<-bdmsk[i]
+                da<-delta[i]
+#                if (trace) cat(i," bdmsk=",bd,"  delta=",da,"\n")
+                if (bd==0 || ((bd==-3) && (da<0)) ||((bd==-1)&& (da>0))) {
+                  delta[i]<-0
+                } else {
+                  if (delta[i]>0) step[i]<-(upper[i]-pbest[i])/delta[i]
+                  if (delta[i]<0) step[i]<-(lower[i]-pbest[i])/delta[i] # positive
+                }
+            }
+#            if (trace && watch) {
+#              cat("step:")
+#              print(step)
+#           }
             stepsize<-min(1,step[which(delta!=0)])
-            cat("Stepsize=",stepsize,"\n")
-            tmp<-readline("more")
+            if (trace) cat("Stepsize=",stepsize,"\n")
+            if (stepsize<.Machine$double.eps) {
+              if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
+              lamda<-laminc*lamda
+              newjac<-FALSE # increasing lamda -- don't re-evaluate
+              if (trace) cat(" Stepsize too small\n")
+            } else { # continue
             pnum<-pbest+stepsize*delta # adjust (note POSITIVE here, but not in nlsmn0
-            cat("pnum:")
-            print(pnum)
-#            names(pnum)<-pnames # NOT inherited through %*% !!!
-	
-          eqcount<-length(which((offset+pbest)==(offset+pnum)))
-          if (eqcount<npar) {
-             for (i in 1:npar){
-               joe<-paste(pnames[[i]],"<-",pnum[[i]])
-               eval(parse(text=joe))
-             }
-             feval<-feval+1 # count evaluations
-             if (is.null(data)){
-                resid<-eval(parse(text=resexp)) # trial residual
-             } else {resid<-with(data, eval(parse(text=resexp)))}
-             ssquares<-as.numeric(crossprod(resid))
-             if (ssquares>=ssbest) {
-                ## ?? see jnmws page 206 for simpler technique
+            names(pnum)<-pnames # NOT inherited through %*% !!!
+            eqcount<-length(which((offset+pbest)==(offset+pnum)))
+            if (eqcount<npar) {
+              for (i in 1:npar){
+                joe<-paste(pnames[[i]],"<-",pnum[[i]])
+                eval(parse(text=joe))
+              }
+              feval<-feval+1 # count evaluations
+              resid<-with(data, eval(parse(text=resexp)))
+              ssquares<-as.numeric(crossprod(resid))
+              if (is.na(ssquares)) ssquares<-.Machine$double.xmax
+              if (ssquares>=ssbest) {
                 if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
                 lamda<-laminc*lamda
                 newjac<-FALSE # increasing lamda -- don't re-evaluate
-                if(trace) cat(">= lamda=",lamda,"\n")
-             } else {
-                if (trace) {
-                  cat("<< lamda=",lamda,"\n")
-                  cat(" SS = ",ssquares," evals J/F:",jeval,"/",feval," eqcount=",eqcount,"\n")
-                  print(pnum)
-                }
+                if(trace) showpoint(ssquares, pnum)
+              } else {
                 lamda<-lamdec*lamda/laminc
+                if (trace) {
+                  cat("<<")
+                  showpoint(ssquares, pnum)
+                }
                 ssbest<-ssquares
                 resbest<-resid
                 pbest<-pnum
-                if (trace) {
-                   cat("<< Lamda=",lamda,"\n")
-                }
                 newjac<-TRUE
-             }
-             if (ctrl$watch)  tmp<-readline() 
-          } else {
-             if (trace) cat(" No parameter change\n")
-          }
-      }
-   }
-## should return bdmsk too!
-   result<-list(coeffs=pnum,ssquares=ssbest, resid=resbest, jacobian=Jac, feval=feval, jeval=jeval)
+              } # reduced sumsquares
+            } else {# end if equcount
+  	            if (trace) cat("No parameter change\n")
+            }
+            } # end stepsize not too small
+          } # end downhill
+        } # solution OK
+        if (watch) tmp<-readline("Cycle")
+     } # end main while loop 
+    pnum<-as.vector(pnum)
+    result<-list(resid=resbest, jacobian=Jac, feval=feval, jeval=jeval, coeffs=pnum, ssquares=ssbest)
 }
-
-

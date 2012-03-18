@@ -7,7 +7,7 @@ Tools for solving nonlinear least squares problems.
 }
 \description{
 The package provides some tools related to using the Nash variant
-of Marquardt's algorithm for nonlinear least squares. 
+of Levenberg-Marquardt algorithm for nonlinear least squares. 
 Todos: different solvers (chol, backsolve, forwardsolve as well
     as qr.solve. Also model2function().
 }
@@ -36,6 +36,8 @@ The main functions in \code{nlmrt} are:
 \preformatted{
    nlsmnq - Nash variant of the Marquardt procedure for nonlinear least squares.
             
+   nlsmnq - Same approach with bounds and mask constraints.
+            
    wrapnls - Uses nlsmnq to solve nonlinear least squares then calls nls() to
             create an object of type nls.
 } 
@@ -45,6 +47,8 @@ For testing purposes, there are also
    nlsmn0 - Nash-Marquardt using solution for delta of 
           (J_transpose*J + lambda*D) * delta = J_transpose*residuals
            via the solve() command.
+
+   nlsmn0d - Same approach with bounds and mask constraints.
 
    nlsmnc - Nash-Marquardt using solution for delta of 
           (J_transpose*J + lambda*D) * delta = J_transpose*residuals
@@ -60,6 +64,8 @@ Maintainer:  <nashjc@uottawa.ca>
      Linear Algebra and Function Minimisation._ Adam Hilger./Institute
      of Physics Publications
 
+     jnmws
+
      others!!
 
 }
@@ -67,55 +73,96 @@ Maintainer:  <nashjc@uottawa.ca>
 \keyword{ nonlinear least squares }
 \seealso{\code{nls} }
 \examples{
-# to be added
-
+# Want to have:                                        Names of results:
+#   - Unconstrained algorithms, inc. nls
+#          Simple test with data frame                 anlsmnq1df, 
+#                                                      anls1df (singular gradient)
+#          Simple test with "global" data              anls1g (singular gradient)
+#                                                      anlsmnq1g (must have 'data')
+#          -- works with nls, should FAIL with nlmrt
+#          Simple test with ... -- NOT INCLUDED
+# 
+#   - Bounds constrained algorithms -- use data frame approach throughout
+#          Repeat Unconstrainted tests
+#          Repeat unconstrained nls with port algorithm
+#          Simple bounds -- feasible 
+#              nlsmn0b 
+#              nlsmnqb 
+#              nls
+#          Repeat with infeasible bounds
+#          Masks (only JN codes)
+#              1, 2, all parameters
+#              special case formulas to check results
+#              nls special case formulas
+#
+#     Put more starts and more problems in test file(s).
+#
 ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat<-1:length(ydat) # for testing
-start1<-c(b1=1, b2=1, b3=1)
+st1<-c(b1=1, b2=1, b3=1)
 eunsc<- y ~ b1/(1+b2*exp(-b3*t))
 escal<- y ~ 100*b1/(1+10*b2*exp(-0.1*b3*t))
-sscaleasy<-c(b1=200, b2=50, b3=0.3)
-sunsceasy<-c(b1=2, b2=5, b3=3)
 st1scal<-c(b1=100, b2=10, b3=0.1)
+st1easy<-c(b1=200, b2=50, b3=0.3)
+st1sceasy<-c(b1=2, b2=5, b3=3)
 
 weeddata<-data.frame(y=ydat, t=tdat)
 
-cat("EASY start -- unscaled")
-anls01<-try(nls(eunsc, start=sscaleasy, trace=TRUE, data=weeddata))
-print(anls01)
-anlmrt01<-try(nlsmnq(eunsc, start=sscaleasy, trace=TRUE, data=weeddata))
-print(anlmrt01)
-
-# ?? can we put in a table of things to run??
 cat("All 1s start -- unscaled")
-anls02<-try(nls(eunsc, start=start1, trace=TRUE, data=weeddata))
-if (class(anls02) == "try-error") {
+
+# Note that we can put in a table for testing. See inst (rather than tests -- avoid 
+#          automatic execution)
+anls1df<-try(nls(eunsc, start=st1, trace=TRUE, data=weeddata))
+if (class(anls1df) == "try-error") {
    cat("FAILED:")
-   print(anls02)
+   print(anls1df)
 } else {
-   print(anls02)
+   print(anls1df)
 }
-anlmrt02<-nlsmnq(eunsc, start=start1, trace=TRUE, data=weeddata)
-print(anlmrt02)
 
-cat("ones start -- scaled")
-anls03<-try(nls(escal, start=start1, trace=TRUE, data=weeddata))
-print(anls03)
-anlmrt03<-nlsmnq(escal, start=start1, trace=TRUE, data=weeddata)
-print(anlmrt03)
 
-cat("HARD start -- scaled")
-anls04<-try(nls(escal, start=st1scal, trace=TRUE, data=weeddata))
-print(anls04)
-anlmrt04<-nlsmnq(escal, start=st1scal, trace=TRUE, data=weeddata)
-print(anlmrt04)
+anlsmnq1df<-nlsmnq(eunsc, start=st1, trace=TRUE, data=weeddata)
+print(anlsmnq1df)
 
-cat("EASY start -- scaled")
-anls05<-try(nls(escal, start=sscaleasy, trace=TRUE, data=weeddata))
-print(anls05)
-anlmrt05<-nlsmnq(escal, start=sscaleasy, trace=TRUE, data=weeddata)
-print(anlmrt03)
+
+y<-ydat
+t<-tdat
+anls1g<-try(nls(eunsc, start=st1, trace=TRUE))
+if (class(anls1g) == "try-error") {
+   cat("FAILED:")
+   print(anls1g)
+} else {
+   print(anls1g)
+}
+anlsmnq1g<-try(nlsmnq(eunsc, start=st1, trace=TRUE))
+if (class(anlsmnq1g) == "try-error") {
+   cat("FAILED:")
+   print(anlsmnq1g)
+} else {
+   print(anlsmnq1g)
+}
+
+\dontrun{
+cat("Remove data and try again to see if methods fail\n")
+cat("They should complain that data is not available\n")
+rm(y)
+rm(t)
+anls1g<-try(nls(eunsc, start=st1, trace=TRUE))
+if (class(anls1g) == "try-error") {
+   cat("FAILED:")
+   print(anls1g)
+} else {
+   print(anls1g)
+}
+anlsmnq1g<-try(nlsmnq(eunsc, start=st1, trace=TRUE))
+if (class(anlsmnq1g) == "try-error") {
+   cat("FAILED:")
+   print(anlsmnq1g)
+} else {
+   print(anlsmnq1g)
+}
+} # end dontrun
 
 
 

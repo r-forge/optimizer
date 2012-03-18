@@ -40,7 +40,8 @@
   \item{\dots}{
      Any data needed for computation of the residual vector from the expression
        rhsexpression - lhsvar. Note that this is the negative of the usual residual,
-     but the sum of squares is the same.
+     but the sum of squares is the same. It is not clear how the dot variables should
+     be used, since data should be in 'data'.
 }
 }
 \details{

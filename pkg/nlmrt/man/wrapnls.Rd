@@ -12,7 +12,7 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   wrapnls(formula, start, trace=FALSE, data, control, ...)
+   wrapnls(formula, start, trace=FALSE, data, lower=NULL, upper=NULL, masked=NULL, control, ...)
 }
 \arguments{
   \item{formula}{
@@ -32,6 +32,17 @@
   \item{data}{
      A data frame containing the data of the variables in the formula. This data may,
      however, be supplied directly in the parent frame. 
+} 
+  \item{lower}{
+     Lower bounds on parameters (a vector, or scalar if all parameters have same lower
+     bound. Else NULL if no lower bounds.
+} 
+  \item{upper}{
+     Upper bounds on parameters (a vector, or scalar if all parameters have same upper
+     bound. Else NULL if no upper bounds.
+} 
+  \item{masked}{
+     This should be NULL, as nls() cannot handle masked parameters, but nlsmnqb can.
 } 
   \item{control}{ 
      A list of controls for the algorithm. These are:
@@ -71,6 +82,11 @@ wdata<-data.frame(t=tdat, y=ydat)
 
 an1w<-try(wrapnls(eunsc, start=start1, trace=TRUE, data=wdata))
 print(an1w)
+
+cat("Now try bounded case\n")
+an1wb<-try(wrapnls(eunsc, start=start1, trace=TRUE,lower=0, upper=c(300,80,1), data=wdata))
+print(an1wb)
+
 
 ## Put in example using data frame!
 }

@@ -21,10 +21,16 @@ License: \tab GPL-2\cr
 }
 This package includes methods for solving nonlinear least squares problems
 specified by a modeling expression and given a starting vector of named 
-paramters. Note: You must provide an expression of the form
+paramters. 
+
+Note: You must provide an expression of the form
+
     lhs ~ rhsexpression
+
 so that the residual expression 
+
     rhsexpression - lhs
+
 can be computed. The expression can be enclosed in quotes, and this seems to give
 fewer difficulties with R. Data variables must already be defined, either within 
 the parent environment or else in the dot-arguments. Other symbolic elements in
@@ -36,7 +42,7 @@ The main functions in \code{nlmrt} are:
 \preformatted{
    nlsmnq - Nash variant of the Marquardt procedure for nonlinear least squares.
             
-   nlsmnq - Same approach with bounds and mask constraints.
+   nlsmnqb - Same approach with bounds and mask constraints.
             
    wrapnls - Uses nlsmnq to solve nonlinear least squares then calls nls() to
             create an object of type nls.
@@ -48,12 +54,20 @@ For testing purposes, there are also
           (J_transpose*J + lambda*D) * delta = J_transpose*residuals
            via the solve() command.
 
-   nlsmn0d - Same approach with bounds and mask constraints.
+   nlsmn0b - Same approach with bounds and mask constraints.
 
    nlsmnc - Nash-Marquardt using solution for delta of 
           (J_transpose*J + lambda*D) * delta = J_transpose*residuals
            via the chol(), backsolve() and forwardsolve() commands.
+           We have not (yet!) provided a bounds constrained version of this code.
 }
+
+The package contains a number of example or test problems in the \code{inst} 
+subdirectory.
+
+
+
+
 }
 \author{ John C Nash 
 
@@ -64,7 +78,9 @@ Maintainer:  <nashjc@uottawa.ca>
      Linear Algebra and Function Minimisation._ Adam Hilger./Institute
      of Physics Publications
 
-     jnmws
+     Nash, J. C. and Walker-Smith, M.  (1987) _Nonlinear parameter estimation: 
+     an integrated system in BASIC_, Marcel Dekker, New York. Available by
+     download from http://macnash.telfer.uottawa.ca/nlpe/
 
      others!!
 

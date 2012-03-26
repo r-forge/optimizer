@@ -1,6 +1,6 @@
 wrapnls <-function(formula, start, trace=FALSE, data=NULL, lower=NULL, upper=NULL, masked=NULL, control=list(),...){
 #
-#  A wrapper to call nlsmnq() and then call nls() with the solution.
+#  A wrapper to call nlsmnq() or nlsmnqb and then call nls() with the solution.
 #  The calling sequence matches that of nlsmnq()
 #
     if (is.null(data)) stop("wrapnls() must have 'data' supplied")
@@ -27,3 +27,4 @@ wrapnls <-function(formula, start, trace=FALSE, data=NULL, lower=NULL, upper=NUL
        second<-nls(formula, newstart, trace=trace, data=data, control=control,...)
      }
 }
+

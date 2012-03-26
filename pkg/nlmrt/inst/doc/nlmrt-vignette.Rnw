@@ -35,11 +35,62 @@ However, we do provide a tool \code{wrapnls} that will run either
 constrained problems followed by an appropriate call to \code{nls}.
 
 
-\section*{An example problem}
+\section{An example problem}
+
+Let us try an example initially presented by \cite{Ratkowsky83} and 
+developed by \cite{Huet1996}. This is a model for the regrowth of pasture.
+We set up the computation by putting the data for the problem in a data
+frame, and specifying the formula for the model. This can be as a formula
+object, but I have found that saving it as a character string seems to give
+fewer difficulties. Note the "~" that implies "is modeled by". There must
+be such an element in the formula for this package (and for \code{nls()}).
+We also specify two sets of starting parameters, that is, the \code{ones}
+which is a trivial (but possibly unsuitable) start with all parameters 
+set to 1, and \code{huetstart} which was suggested in \cite{Huet1996}.
+Finally we load the routines in the package \code{nlmrt}.
 
 
+%%Chunk01, 
+<<echo=TRUE>>=
+options(width=60)
+pastured <- data.frame(
+time=c(9, 14, 21, 28, 42, 57, 63, 70, 79),
+yield= c(8.93, 10.8, 18.59, 22.33, 39.35, 
+         56.11, 61.73, 64.62, 67.08))
+regmod<-"yield ~ t1 - t2*exp(-exp(t3+t4*log(time)))"
+ones<-c(t1=1, t2=1, t3=1, t4=1) # all ones start
+huetstart<-c(t1=70, t2=60, t3=0, t4=1)
+require(nlmrt)
+@
 
+Let us now call the routine \code{nlsmnqb} (even though we are not 
+specifying bounds). We try both starts.
 
+<<echo=TRUE>>=
+anmrt<-nlsmnqb(regmod, start=ones, trace=FALSE, data=pastured)
+print(anmrt)
+@
 
+<<echo=TRUE>>=
+anmrtx<-try(nlsmnqb(regmod, start=huetstart, trace=FALSE, data=pastured))
+print(anmrtx)
+@
+
+Note that the standard \code{nls()} of \R fails to find a solution 
+from either start.
+
+<<echo=TRUE>>=
+anls<-try(nls(regmod, start=ones, trace=TRUE, data=pastured))
+print(anls)
+anlsx<-try(nls(regmod, start=huetstart, trace=TRUE, data=pastured))
+print(anlsx)
+@
+
+We were unable to install the INRA package \code{nls2} (there is a very
+different package by the same name on CRAN by Gabor Grothendieck). 
+
+\bibliography{nlpd}
+\bibliographystyle{siam}
 
 \end{document}
+

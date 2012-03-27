@@ -1,4 +1,5 @@
 Package: numDeriv
+Version: 2012.3-1
 Title: Accurate Numerical Derivatives
 Description: This package provide methods for calculating (usually) accurate
 	numerical first and second order derivatives. Accurate calculations 
@@ -7,7 +8,6 @@ Description: This package provide methods for calculating (usually) accurate
 	but is much quicker and provides a useful cross-check. Methods are 
 	provided for real scalar and vector valued functions. 
 Depends: R (>= 1.8.1)
-Version: 2011.11-3
 LazyLoad: yes
 License: GPL-2 | file LICENSE
 Author: Paul Gilbert

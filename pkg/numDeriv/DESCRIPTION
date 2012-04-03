@@ -9,7 +9,8 @@ Description: This package provide methods for calculating (usually) accurate
 	provided for real scalar and vector valued functions. 
 Depends: R (>= 1.8.1)
 LazyLoad: yes
-License: GPL-2 | file LICENSE
+License: GPL-2
+Copyright: 2006-2011, Bank of Canada. 2012, Paul Gilbert
 Author: Paul Gilbert
 Maintainer: Paul Gilbert and Ravi Varadhan <pgilbert.ttv9z@ncf.ca>
 URL: http:http://optimizer.r-forge.r-project.org/

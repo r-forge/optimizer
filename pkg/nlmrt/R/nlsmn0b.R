@@ -49,6 +49,10 @@ if (! is.null(data)){
        eval(parse(text=cmd))
     }
 } else stop("'data' must be a list or an environment")
+# ensure params in vector
+pnames<-names(start)
+start<-as.numeric(start)
+names(start)<-pnames
 # bounds
 npar<-length(start) # number of parameters
 if (length(lower)==1) lower<-rep(lower,npar)

@@ -42,6 +42,10 @@ if (! is.null(data)){
        eval(parse(text=cmd))
     }
 }
+# ensure params in vector
+pnames<-names(start)
+start<-as.numeric(start)
+names(start)<-pnames
 # controls
    ctrl<-list(
     watch=FALSE, # monitor progress
@@ -68,7 +72,7 @@ if (! is.null(data)){
     vn <- all.vars(parse(text=formula))
 # Then see which ones are parameters (get their positions in the set xx
     pnum<-start # may simplify later??
-    pnames<-names(pnum)
+##??    pnames<-names(pnum)
      if (trace) {
       parpos  <- match(names(pnum), vn)
       datvar<-vn[-parpos] # NOT the parameters

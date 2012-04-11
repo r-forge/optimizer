@@ -4,6 +4,9 @@
 %\VignetteDepends{}
 %\VignetteKeywords{nonlinear least squares, Levenberg-Marquardt method}
 %\VignettePackage{nlmrt}
+
+%% from Ross Ihaka doc.
+
 \newcommand{\R}{{\sf R\ }}
 \newcommand{\Splus}{{\sf S-PLUS}}
 \newcommand{\fixme}[1]{\textbf{FIXME: #1}}
@@ -12,6 +15,19 @@
 \title{nlmrt-vignette}
 \author{John C. Nash}
 \usepackage{Sweave}
+\usepackage{fancyvrb}
+
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1em}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1em}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=1em}
+\fvset{listparameters={\setlength{\topsep}{0pt}}}
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+ 
+%%% \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small,fontshape=n}
+
+
+
+
 \begin{document}
 \maketitle
 
@@ -73,17 +89,34 @@ print(anmrt)
 
 <<echo=TRUE>>=
 anmrtx<-try(nlsmnqb(regmod, start=huetstart, trace=FALSE, data=pastured))
-print(anmrtx)
+print(strwrap(anmrtx))
 @
 
 Note that the standard \code{nls()} of \R fails to find a solution 
 from either start.
 
 <<echo=TRUE>>=
+cat("try regular\n")
 anls<-try(nls(regmod, start=ones, trace=TRUE, data=pastured))
 print(anls)
+@
+
+\RecustomVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\scriptsize}
+
+<<echo=TRUE>>=
+anls<-try(nls(regmod, start=ones, trace=TRUE, data=pastured))
+print(anls)
+@
+
+
+<<echo=TRUE>>=
+anls<-try(nls(regmod, start=ones, trace=TRUE, data=pastured))
+print(strwrap(anls))
+cat(strwrap(anls), sep='\n')
+
 anlsx<-try(nls(regmod, start=huetstart, trace=TRUE, data=pastured))
-print(anlsx)
+# capture.output(print(anlsx), file="anlsxout.txt")
+
 @
 
 We were unable to install the INRA package \code{nls2} (there is a very

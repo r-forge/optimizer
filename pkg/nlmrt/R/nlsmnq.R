@@ -48,6 +48,10 @@ if (! is.null(data)){
        eval(parse(text=cmd))
     }
 } else stop("'data' must be a list or an environment")
+# ensure params in vector
+pnames<-names(start)
+start<-as.numeric(start)
+names(start)<-pnames
 # controls
    ctrl<-list(
      watch=FALSE, # monitor progress

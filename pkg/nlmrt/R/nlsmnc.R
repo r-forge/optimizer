@@ -42,6 +42,10 @@ if (! is.null(data)){
        eval(parse(text=cmd))
     }
 }
+# ensure params in vector
+pnames<-names(start)
+start<-as.numeric(start)
+names(start)<-pnames
 # controls
    ctrl<-list(
       watch=FALSE, # monitor progress

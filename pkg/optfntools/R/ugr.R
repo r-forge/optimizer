@@ -1,19 +1,26 @@
 ############### ugr.R ####################
-ugr <- function(par, fnuser, ps=1.0, fs=1.0, maximize=FALSE, ...) {
-    if (length(ps) == 1) ps<-rep(ps,length(par))
+ugr <- function(par, fnuser) {
     # Analytic gradient wrapper
-    # ?? add exceeding function count inside and change attributes?? #
-    # ?? put numerical gradient inside this function ??#
-    #   igr<-igr+1
+    OPCON<-fnuser$OPCON
     npar <- length(par)
     if (is.null(fnuser$gr)){
        # Use numerical gradient
        deriv.approx<-attr(fnuser,"deriv.approx")
        if (is.null(deriv.approx)) deriv.approx=grfwd # default method is fwd diff
-       tgr<-try(tryg<-deriv.approx(par*ps, fnuser$fn, ...), silent = TRUE)
+       if (is.null(fnuser$dots)) {
+         tgr<-try(tryg<-deriv.approx(par*OPCON$PARSCALE, fnuser$fn), silent = TRUE)
+       } else {
+         tgr<-try(tryg<-deriv.approx(par*OPCON$PARSCALE, fnuser$fn, unlist(fnuser$dots)),
+            silent = TRUE) 
+       }
        #?? we are using the ORIGINAL function, scales parameters
     } else {
-      tgr <- try(tryg <- fnuser$gr(par*ps, ...), silent = TRUE)
+      if (is.null(fnuser$dots)) {
+        tgr <- try(tryg <- fnuser$gr(par*OPCON$PARSCALE), silent = TRUE)
+      } else {
+        tgr <- try(tryg <- fnuser$gr(par*OPCON$PARSCALE, unlist(fnuser$dots)), 
+               silent = TRUE)
+      }
     }
     if ((class(tgr) == "try-error") || any(is.na(tryg)) || any(is.null(tryg)) || 
       any(is.infinite(tryg))) {
@@ -24,16 +31,9 @@ ugr <- function(par, fnuser, ps=1.0, fs=1.0, maximize=FALSE, ...) {
       attr(tryg, "inadmissible") <- FALSE
     }
     if (any(is.null(tryg))) stop("NULL FUNCTION")
-    kkgr<-try(get("kgr",pos=sys.frame(fnuser$callpos)),silent=TRUE)
-    if ((class(kkgr)!="try-error") && ! is.null(kkgr) && ! is.na(kkgr)) { 
-       assign("kgr", kkgr+1, pos=sys.frame(fnuser$callpos))
-    } else {
-       warning("kfn undefined in calling program -- set to 1")
-       assign("kfn", 1, sys.frame(fnuser$callpos))
-    }
-    if ((!is.null(maximize)) && maximize) 
-      tryg <- -tryg # Internal gradient
-    tryg*ps/fs # handle the scaling
+    OPCON$KGR<-1+OPCON$KGR
+    if (OPCON$MAXIMIZE) tryg <- -tryg # Internal gradient
+    tryg*OPCON$PARSCALE/OPCON$FNSCALE # handle the scaling
 }
 ############# end ugr.R ##########################
 

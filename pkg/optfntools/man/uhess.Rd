@@ -10,31 +10,19 @@ Provides a wrapper around user analytic Hessian function for nonlinear optimizat
 	as well as provide for maximization.
 }
 \usage{
-uhess(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
+uhess(par, fnuser)
 }
 \arguments{
  \item{par}{A vector of parameters to the user-supplied function \code{fn}}
  \item{fnuser}{A user-supplied function object that has three sub-functions
-         fn, gr, and hess, as well as a callpos that indicates the R stack 
-         position (see details). fn generates the scalar numerical value of the
+         fn, gr, and hess. fn generates the scalar numerical value of the
          objective function, gr its vector valued gradient (or is NULL) and
          hess a numerical matrix for the Hessian (or is NULL).}
- \item{ps}{A vector of scalings for the parameters. The REAL parameters are the internal 
-         parameters multiplied by the scalings. The optimizers use upar/ps internally, 
-         where upar are the user space parameters. Note that there MUST be a vector ps.
-         Its length and properties are NOT checked inside ufn, ugr or uhess for efficiency.}
- \item{fs}{A user supplied scaling for the function. Output is the fnuser$fn/fs.}
- \item{maximize}{Set TRUE if the objective function is to be maximized. Default FALSE.}
- \item{...}{Other data needed to evaluate the user function.}
 }
 \details{
-   The calling routine MUST have a variable \code{khess} defined. This is incremented in each
-   call to \code{uhess}. The stack position of the calling routine / environment is best set
-   in the \code{fnuser} list by using  
-
-     callpos = sys.nframe()
-
-   as in the examples. 
+   The usual dot arguments (...) are subsumed in fnuser$dots to save
+   complexity in the function call. Note that we need to unlist()
+   these is the call to the actual user function.
 }
 \value{
   \code{uhess} returns a matrix numeric value, but if the inputs to the function
@@ -45,57 +33,6 @@ uhess(par, fnuser, ps, fs=1.0, maximize=FALSE, ...)
    is FALSE.
 }\examples{
 cat("uhess: try an inadmissible set of parameters to a user function\n")
-
-badlogf<-function(x, skale=10){
-   sq<-seq(1:length(x))
-   r<-(10-x)^2 + skale*log(x-sq)
-   f<-crossprod(r)
-} # note that this will fail when length(x)>x for some element of x
-
-badlogg<-function(x, skale=10){
-   sq<-seq(1:length(x))
-   r<-(10-x)^2 + skale*log(x-sq)
-} # note that this will fail when length(x)>x for some element of x
-
-badlogh<-function(x, skale=10){
-   sq<-seq(1:length(x))
-   r<-(10-x)^2 + skale*log(x-sq)
-   H<-r \%*\% t(r) #  note that we must escape percent signs
-} # note that this will fail when length(x)>x for some element of x
-
-badlog<-list(fn=badlogf, gr=badlogg, hess=badlogh, callpos=sys.nframe())
- 
-ps1<-rep(1,4)
-
-x0<-rep(20, 4)
-cat("OK parameters:")
-print(x0)
-hval<-uhess(x0, badlog, ps1)
-print("result:")
-print(hval)
-
-skale=1
-x0<-rep(20, 4)
-cat("skale=",skale,"  OK parameters:")
-print(x0)
-hval<-uhess(x0, badlog, ps1, skale=skale)
-print("result:")
-print(hval)
-
-x0<-rep(2, 4)
-cat("Bad parameters:")
-print(x0)
-hval<-uhess(x0, badlog, ps1)
-print("result:")
-print(hval)
-
-skale=1
-x0<-rep(2, 4)
-cat("skale=",skale,"  Bad parameters:")
-print(x0)
-hval<-uhess(x0, badlog, ps1, skale=skale)
-print("result:")
-print(hval)
 
 }
 \keyword{nonlinear}

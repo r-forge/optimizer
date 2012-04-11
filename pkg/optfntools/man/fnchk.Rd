@@ -1,16 +1,12 @@
 \name{fnchk}
 \alias{fnchk}
-
 \title{Run tests, where possible, on user objective function}
-
 \description{
    \code{fnchk} checks a user-provided R function, \code{ffn}. 
 }
-
 \usage{
    fnchk(xpar, ffn, trace=0, ... )
 }
-
 \arguments{
      
     \item{xpar}{
@@ -26,21 +22,14 @@
         optional arguments passed to the objective function.
         }
 }
-
-
 \details{
-
 \code{fnchk} attempts to discover various errors in function setup in user-supplied
 functions primarily intended for use in optimization calculations. There are always 
 more conditions that could be tested!    
-
 }
-
-
 \value{
   The output is a list consisting of 
 list(fval=fval, infeasible=infeasible, excode=excode, msg=msg)
-
   \item{fval}{The calculated value of the function at parameters \code{xpar} if the function
       can be evaluated.}
   \item{infeasible}{FALSE if the function can be evaluated, TRUE if not.}
@@ -110,8 +99,6 @@ y<-"This is a string"
 cat("test benbad() with y a string, x=c(1)\n")
 fc05<-fnchk(x, benbad, trace=1, y)
 print(fc05)
-
 }
-
 \keyword{optimize}
 

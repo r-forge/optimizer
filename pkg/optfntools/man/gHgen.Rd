@@ -88,7 +88,7 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 	hh<-matrix(rep(0, n*n),n,n)
 	for (i in 2:n) {
 		z1<-x[i]-x[i-1]*x[i-1]
-		z2<-1.0-x[i]
+#		z2<-1.0-x[i]
                 hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
                 hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
                 hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
@@ -97,91 +97,25 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
         return(hh)
 }
 
-
-maxfn<-function(x, top=10) {
-      	n<-length(x)
-	ss<-seq(1,n)
-	f<-top-(crossprod(x-ss))^2
-	f<-as.numeric(f)
-	return(f)
-}
-
-negmaxfn<-function(x) {
-	f<-(-1)*maxfn(x)
-	return(f)
-}
-
-
-parx<-rep(1,4)
-fval<-genrose.f(parx)
-gval<-genrose.g(parx)
-Ahess<-genrose.h(parx)
-gennog<-gHgen(parx,genrose.f)
-cat("results of gHgen for genrose without gradient code at ")
-print(parx)
-print(gennog)
-cat("compare to g =")
-print(gval)
-cat("and Hess\n")
-print(Ahess)
-cat("\n\n")
-geng<-gHgen(parx,genrose.f,genrose.g)
-cat("results of gHgen for genrose at ")
-print(parx)
-print(gennog)
-cat("compare to g =")
-print(gval)
-cat("and Hess\n")
-print(Ahess)
-cat("*****************************************\n")
-parx<-rep(0.9,4)
-fval<-genrose.f(parx)
-gval<-genrose.g(parx)
-Ahess<-genrose.h(parx)
-gennog<-gHgen(parx,genrose.f,control=list(ktrace=TRUE), gs=9.4)
-cat("results of gHgen with gs=",9.4," for genrose without gradient code at ")
-print(parx)
-print(gennog)
-cat("compare to g =")
-print(gval)
-cat("and Hess\n")
-print(Ahess)
-cat("\n\n")
-geng<-gHgen(parx,genrose.f,genrose.g, control=list(ktrace=TRUE))
-cat("results of gHgen for genrose at ")
-print(parx)
-print(gennog)
-cat("compare to g =")
-print(gval)
-cat("and Hess\n")
-print(Ahess)
-gst<-5
-cat("\n\nTest with full calling sequence and gs=",gst,"\n")
-gengall<-gHgen(parx,genrose.f,genrose.g,genrose.h, control=list(ktrace=TRUE),gs=gst)
-print(gengall)
-
-top<-25
-x0<-rep(2,4)
-cat("\n\nTest for maximization and top=",top,"\n")
-cat("Gradient and Hessian will have sign inverted")
-maxt<-gHgen(x0, maxfn, control=list(ktrace=TRUE), top=top)
-print(maxt)
-
-cat("test against negmaxfn\n")
-gneg<-grad(negmaxfn, x0)
-Hneg<-hessian(negmaxfn, x0)
-# gdiff<-max(abs(gneg-maxt$gn))/max(abs(maxt$gn))
-# Hdiff<-max(abs(Hneg-maxt$Hn))/max(abs(maxt$Hn))
-# explicitly change sign 
-gdiff<-max(abs(gneg-(-1)*maxt$gn))/max(abs(maxt$gn))
-Hdiff<-max(abs(Hneg-(-1)*maxt$Hn))/max(abs(maxt$Hn))
-cat("gdiff = ",gdiff,"  Hdiff=",Hdiff,"\n")
-
+trad<-c(-1.2,1)
+ans100fgh<-  gHgen(trad, genrose.f, gr=genrose.g, hess=genrose.h,
+      control=list(ktrace=1)) 
+print(ans100fgh)
+ans100fg<-  gHgen(trad, genrose.f, gr=genrose.g, 
+      control=list(ktrace=1)) 
+print(ans100fg)
+ans100f<-  gHgen(trad, genrose.f, control=list(ktrace=1)) 
+print(ans100f)
+ans10fgh<-   gHgen(trad, genrose.f, gr=genrose.g, hess=genrose.h,
+      control=list(ktrace=1), gs=10) 
+print(ans10fgh)
+ans10fg<-   gHgen(trad, genrose.f, gr=genrose.g, 
+      control=list(ktrace=1), gs=10) 
+print(ans10fg)
+ans10f<-   gHgen(trad, genrose.f, control=list(ktrace=1), gs=10) 
+print(ans10f)
 
 }
-
-
-
 
 \keyword{nonlinear}
 \keyword{optimize}

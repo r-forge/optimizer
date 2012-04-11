@@ -39,67 +39,6 @@ along a particular search direction from current parameters to bounds.
 }
 \examples{
 #####################
-# tbmstep.R
-#####################
-# rm(list=ls())
-# source("/home/john/R-optimtest/work/optfntools/R/bmstep.R")
-cat("Test bmstep() function \n")
-# test bmstep ideas
-tdir<-c(1,0,-1) # search direction
-up<-c(Inf, 10, 10) # upper bound
-lo<-c(-10, -10, -Inf) # lower bound
-bvec<-c(1,1,1) # current parameters
-bm<-c(1,1,1)
-
-dall<-data.frame(bvec, tdir,up, lo)
-
-ms<-bmstep(bvec, srchdirn=tdir, lower=lo, upper=up, bdmsk=NULL, trace=2)
-print(dall)
-cat("maxst=",ms,"\n\n")
-
-cat("\n\n change direction of search\n")
-tdir<- -c(1,0,-1) # search direction
-dall<-data.frame(bvec, tdir,up, lo, bm)
-
-ms<-bmstep(bvec, srchdirn=tdir, lower=lo, upper=up, bdmsk=bm, trace=2)
-print(dall)
-cat("maxst=",ms,"\n\n")
-
-cat("\n Now mask first parameter\n")
-bm<-c(0,1,1)
-dall<-data.frame(bvec, tdir,up, lo, bm)
-
-ms<-bmstep(bvec, srchdirn=tdir, lower=lo, upper=up, bdmsk=bm, trace=2)
-print(dall)
-cat("maxst=",ms,"\n\n")
-
-cat("\n Now mask first parameter and use to original search direction\n")
-bm<-c(0,1,1)
-tdir<-c(1,0,-1) # search direction
-dall<-data.frame(bvec, tdir,up, lo, bm)
-
-ms<-bmstep(bvec, srchdirn=tdir, lower=lo, upper=up, bdmsk=bm, trace=2)
-print(dall)
-cat("maxst=",ms,"\n\n")
-
-cat("\nMask last parameter and use original search direction\n")
-bm<-c(1,1,0)
-tdir<-c(1,0,-1) # search direction
-dall<-data.frame(bvec, tdir,up, lo, bm)
-
-ms<-bmstep(bvec, srchdirn=tdir, lower=lo, upper=up, bdmsk=bm, trace=2)
-print(dall)
-cat("maxst=",ms,"\n\n")
-
-cat("\n Now mask last parameter and neg original search direction\n")
-bm<-c(1,1,0)
-tdir<- -c(1,0,-1) # search direction
-dall<-data.frame(bvec, tdir,up, lo, bm)
-
-ms<-bmstep(bvec, srchdirn=tdir, lower=lo, upper=up, bdmsk=bm, trace=2)
-print(dall)
-cat("maxst=",ms,"\n\n")
-
 }
 \keyword{nonlinear}
 \keyword{optimize}

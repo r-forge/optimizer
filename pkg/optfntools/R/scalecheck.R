@@ -41,7 +41,6 @@ scalecheck<-function(par, lower=lower, upper=upper, bdmsk=NULL, dowarn=TRUE){
    } else { 
       lbratio<-NA
    }
-   ratios<-list(lpratio=lpratio,lbratio=lbratio)
-   # return(ratios)
+   ratios<-list(lpratio=lpratio,lbratio=lbratio) # return(ratios)
 }
 ################### end scalecheck #######################

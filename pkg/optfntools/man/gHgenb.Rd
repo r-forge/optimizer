@@ -117,8 +117,6 @@ negmaxfn<-function(x) {
 	return(f)
 }
 
-
-
 parx<-rep(1,4)
 lower<-rep(-10,4)
 upper<-rep(10,4)

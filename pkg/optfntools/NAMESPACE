@@ -16,6 +16,7 @@ export(
   "bmchk",
   "bmstep",
   "scalecheck",
+  "optstart",
   "grnd"
 )
 

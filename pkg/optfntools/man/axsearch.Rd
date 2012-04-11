@@ -57,27 +57,6 @@ None.
 }
 \examples{
 #####################
-sq<-function(x){
-   nn<-length(x)
-   yy<-1:nn
-   f<-sum((yy-x)^2)
-}
-
-cat("axial search test at the minimum of a simple function\n")
-
-xx<-1:4
-xx
-res1<-axsearch(xx, fn=sq)
-res1
-
-cat("axial search test NOT at the minimum of a simple function\n")
-xy<-rep(pi,3)
-res2<-axsearch(xy, fn=sq)
-res2
-
-# ?? put in maxfn as a test -- Need to make mods to the program for this.
-
-
 
 }
 \keyword{nonlinear}

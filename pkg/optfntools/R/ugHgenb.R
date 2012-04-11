@@ -1,6 +1,5 @@
 ugHgenb <- function(par, fnuser, bdmsk = NULL, 
-    lower = NULL, upper = NULL, control = list(ktrace=0),
-    ps=1, fs=1, maximize=FALSE, numgrad=FALSE, ...) {
+    lower = NULL, upper = NULL, numgrad=FALSE, control = list()) {
     # Generate the gradient and Hessian for a function specified via the user
     # function wrapper at the parameters par
     #  WITH recognition of bounds and masks.
@@ -50,13 +49,12 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     #  At 2011-10-28 we are NOT using the bounds unless constraints active.
     #
     #################################################################
-#    require(numDeriv)
-#    require(optfntools)
     ctrl <- list(asymtol = 1e-07, ktrace = 0, stoponerror = FALSE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
+##    print(ctrl)
     # For bounds constraints, we need to 'project' the gradient and Hessian
     # For masks there is no possibility of movement in parameter.
     bmset <- sort(unique(c(which(par <= lower), which(par >= upper), 
@@ -66,20 +64,35 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     # No tolerance is used. ?? Do we want to consider parameters 'close' to
     #   bounds?
     gradOK <- FALSE
-#    if (ctrl$ktrace > 1) {
-#        cat("Compute gradient approximation using fnuser:\n")
-#        print(fnuser
-#    }
-    if (is.null(fnuser$gr) || numgrad) {
-        gt <- try(gn<-grad(ufn, par, fnuser=fnuser, ps=ps, fs=fs, maximize=maximize, ...),
-                silent = TRUE)  # change 20100711; 20111031 we need fnuser=fnuser
+##    cat("gradOK set to ",gradOK,"\n")
+    if (ctrl$ktrace > 1) {
+        cat("Compute gradient approximation using fnuser:\n")
+        print(fnuser)
     }
-    else {
-        gt <- try(gn<-ugr(par, fnuser=fnuser, ps=ps, fs=fs, maximize=maximize,...), 
-                silent = TRUE)  # Gradient at solution # change 20100711
+    if (is.null(fnuser$gr) || numgrad) {
+#       if (is.null(fnuser$dots) ) {
+#          cat("no dots\n")
+##          cat("calling grad\n")
+          gt <- try(gn<-grad(ufn, par, fnuser=fnuser),
+                silent = TRUE)  # 20111031 we need fnuser=fnuser
+#       } else {
+#          cat("with dots\n")
+#          gt <- try(gn<-grad(ufn, par, fnuser=fnuser, unlist(fnuser$dots)),
+#                silent = TRUE)  
+#       }
+    } else {
+#      if (is.null(fnuser$dots) ) {
+#         cat("no dots\n")
+##         cat("calling ugr\n")
+         gt <- try(gn<-ugr(par, fnuser=fnuser), silent = TRUE)  
+#      } else {
+#         cat("with dots\n")
+#         gt <- try(gn<-ugr(par, fnuser=fnuser, unlist(fnuser$dots)), silent = TRUE)  
+#      }
     }
     if (class(gt) != "try-error") 
         gradOK <- TRUE  
+##        cat("new gradOK:",gradOK,"\n")
     if (!gradOK && ctrl$stoponerror) 
         stop("Gradient computations failure!")
     if (nbm > 0) {
@@ -98,20 +111,26 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
         if (is.null(fnuser$gr) || numgrad) {
             if (ctrl$ktrace > 1) 
                 cat("is.null(fnuser$gr) is TRUE use numDeriv hessian()\n")  # ???
-            Ht<-try(Hn<-hessian(ufn, par, fnuser=fnuser, ps=ps, fs=fs, maximize=maximize, ...),
-                silent = TRUE)  # change 20100711
+#            if (is.null(fnuser$dots)) {# Hessian at solution # change 20100711
+               Ht<-try(Hn<-hessian(ufn, par, fnuser=fnuser), silent = TRUE) 
+#            } else {
+#               Ht<-try(Hn<-hessian(ufn, par, fnuser=fnuser, 
+#                  unlist(fnuser$dots)), silent = TRUE)
+#            }
             if (class(Ht) == "try-error") {
-                if (ctrl$stoponerror) 
+               if (ctrl$stoponerror) 
                   stop("Unable to compute Hessian using numDeriv::hessian")
-                # hessOK still FALSE
-            }
-            else hessOK <- TRUE  # Do not need to check for symmetry either.
-        }
-        else { # fnuser$gr not null -- use Jacobian
+               # hessOK still FALSE
+            } else hessOK <- TRUE  # Do not need to check for symmetry either.
+        } else { # fnuser$gr not null -- use Jacobian
             if (ctrl$ktrace > 1) 
                 cat("is.null(fnuser$gr) is FALSE use numDeriv jacobian()\n")  # ???
-            Ht <- try(Hn <- jacobian(ugr, par, fnuser=fnuser, ps=ps, fs=fs, maximize=maximize,
-                ...), silent = TRUE)  # change 20100711
+##            if (is.null(fnuser$dots)) {# Hessian at solution # change 20100711
+               Ht <- try(Hn <- jacobian(ugr, par, fnuser=fnuser), silent = TRUE)  
+##            } else {
+##               Ht <- try(Hn <- jacobian(ugr, par, fnuser=fnuser, 
+##                  unlist(fnuser$dots)), silent = TRUE)  
+##            }
             if (class(Ht) == "try-error") {
                 if (ctrl$stoponerror) 
                   stop("Unable to compute Hessian using numDeriv::jacobian")
@@ -146,18 +165,16 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     else { # fnuser$hess exists -- use it
         if (ctrl$ktrace > 1) 
             cat("is.null(fnuser$hess) is FALSE -- trying hess()\n")  # ???
-        Hn <- try(uhess(par, fnuser, ps=ps, fs=fs, maximize=maximize,
-                 ...), silent = TRUE)  # change 20110222
+        Hn <- try(uhess(par, fnuser), silent = TRUE)  # change 20110222
         if (class(Hn) == "try-error") {
             if (ctrl$stoponerror) 
                 stop("Hessian evaluation with function hess() failed")
             if (ctrl$ktrace > 0) 
                 cat("Hessian evaluation with function hess() failed \n")
         }
-        else hessOK <- TRUE
-        # print(Hn)
-        if (!isSymmetric(Hn)) 
-            {
+        else {
+          # print(Hn)
+           if (!isSymmetric(Hn)) {
                 asym <- sum(abs(t(Hn) - Hn))/sum(abs(Hn))
                 asw <- paste("Hn from hess() is reported non-symmetric with asymmetry ratio ", 
                   asym, sep = "")
@@ -174,6 +191,7 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
                 else warning("Hessian forced symmetric", call. = FALSE)
                 Hn <- 0.5 * (t(Hn) + Hn)
             }  # end if ! isSymmetric
+         }
     }  # end hessian computation
     if (ctrl$ktrace > 1) {
         cat("Raw Hessian\n")

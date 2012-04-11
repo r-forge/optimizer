@@ -99,6 +99,21 @@ y<-"This is a string"
 cat("test benbad() with y a string, x=c(1)\n")
 fc05<-fnchk(x, benbad, trace=1, y)
 print(fc05)
+
+fr <- function(x) {   ## Rosenbrock Banana function
+    x1 <- x[1]
+    x2 <- x[2]
+    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
+}
+xtrad<-c(-1.2,1)
+ros1<-fnchk(xtrad, fr, trace=1)
+print(ros1)
+OPCON<-optstart(2)
+opros<-list(fn=fr, gr=NULL, hess=NULL, OPCON=OPCON, dots=NULL)
+uros1<-fnchk(xtrad, ufn, trace=1, fnuser=opros)
+print(uros1)
+
+
 }
 \keyword{optimize}
 

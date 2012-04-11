@@ -38,6 +38,8 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
 # and ... to dotargs
 #    fval<-ffn(xpar, unlist(dotargs)) # ?? BAD! Will expand vectors etc
    test<-try(fval<-ffn(xpar, ...)) # 
+   cat("test in fnchk:")
+   print(test)
    # Note: This incurs one EXTRA function evaluation because optimx wraps other methods
    if (inherits(test, "try-error") ) {
       fval<-NA
@@ -58,10 +60,12 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
 
    # Also check that it is returned as a scalar
    if (is.vector(fval)) {
-      excode <- -4
-      msg <- "Function evaluation returns a vector not a scalar"
-      infeasible <- TRUE
-      if (trace>0) cat(msg,"\n")
+      if (length(fval)>1) { # added 120411
+        excode <- -4
+        msg <- "Function evaluation returns a vector not a scalar"
+        infeasible <- TRUE
+        if (trace>0) cat(msg,"\n")
+      }
    }
 
    if (is.list(fval)) {

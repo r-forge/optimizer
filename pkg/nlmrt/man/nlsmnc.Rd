@@ -26,6 +26,7 @@
   \item{start}{
      A named parameter vector. For our example, we could use
         start=c(b1=1, b2=2.345, b3=0.123)
+     \code{nls()} takes a list, and that is permitted here also.
 }
   \item{trace}{
      Logical TRUE if we want intermediate progress to be reported. Default is FALSE.

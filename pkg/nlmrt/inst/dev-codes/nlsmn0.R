@@ -22,19 +22,6 @@ nlsmn0 <-function(formula, start, trace=FALSE, data=NULL, control=list(),...){
 #  the formula and are defined in a parent frame
 #
 #  This variant uses a traditional solve() approach
-# 
-# Function to display SS and point
-showpoint<-function(SS, pnum){
-    pnames<-names(pnum)
-    npar<-length(pnum)
-    cat("lamda:",lamda," SS=",SS," at")
-    for (i in 1:npar){
-       cat(" ",pnames[i],"=",pnum[i])
-    }
-    cat(" ",feval,"/",jeval)
-    cat("\n")
-}
-#########
 # get data from data frame if exists
 if (! is.null(data)){
     for (dfn in names(data)) {
@@ -42,10 +29,6 @@ if (! is.null(data)){
        eval(parse(text=cmd))
     }
 }
-# ensure params in vector
-pnames<-names(start)
-start<-as.numeric(start)
-names(start)<-pnames
 # controls
    ctrl<-list(
     watch=FALSE, # monitor progress
@@ -72,7 +55,7 @@ names(start)<-pnames
     vn <- all.vars(parse(text=formula))
 # Then see which ones are parameters (get their positions in the set xx
     pnum<-start # may simplify later??
-##??    pnames<-names(pnum)
+    pnames<-names(pnum)
      if (trace) {
       parpos  <- match(names(pnum), vn)
       datvar<-vn[-parpos] # NOT the parameters
@@ -109,8 +92,8 @@ names(start)<-pnames
     feval<-1 # number of function evaluations
     jeval<-0 # number of Jacobian evaluations
     if (trace) {
-       cat("Start:")
-       showpoint(ssbest,pnum)
+       cat("lamda:",lamda," SS = ",ssbest," at ")
+       print(pnum)
     }
     ssquares<-.Machine$double.xmax # make it big
     newjac<-TRUE # set control for computing Jacobian
@@ -152,16 +135,20 @@ names(start)<-pnames
                 if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
                 lamda<-laminc*lamda
                 newjac<-FALSE # increasing lamda -- don't re-evaluate
-                if (trace) { showpoint(ssquares, pnum) }
+                if(trace) cat(">= lamda=",lamda,"\n")
              } else {
                 if (trace) {
-                  cat("<<")
-                  showpoint(ssquares, pnum)
+                  cat("<< lamda=",lamda,"\n")
+                  cat(" SS = ",ssquares," evals J/F:",jeval,"/",feval," eqcount=",eqcount,"\n")
+                  print(pnum)
                 }
                 lamda<-lamdec*lamda/laminc
                 ssbest<-ssquares
                 resbest<-resid
                 pbest<-pnum
+                if (trace) {
+                   cat("<< Lamda=",lamda,"\n")
+                }
                 newjac<-TRUE
              }
              if (ctrl$watch) tmp<-readline()
@@ -170,6 +157,5 @@ names(start)<-pnames
           }
        }
     }
-    pnum<-as.vector(pnum)
-    result<-list(resid=resbest, jacobian=Jac, feval=feval, jeval=jeval, coeffs=pnum, ssquares=ssbest)
+    result<-list(coeffs=pnum,ssquares=ssbest, resid=resbest, jacobian=Jac, feval=feval, jeval=jeval)
 }

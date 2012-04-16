@@ -1,4 +1,4 @@
-nlsmnqb <-function(formula, start, trace=FALSE, data=NULL, 
+nlxb <-function(formula, start, trace=FALSE, data=NULL, 
             lower=-Inf, upper=Inf, masked=NULL, control=list(), ...){
 #
 #  A simplified and hopefully robust alternative to finding the 

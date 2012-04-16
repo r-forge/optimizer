@@ -1,5 +1,5 @@
-\name{nlsmnq}
-\alias{nlsmnq}
+\name{nlsmnc}
+\alias{nlsmnc}
 \title{Nash variant of Marquardt nonlinear least squares solution via
      qr linear solver.
 }
@@ -9,10 +9,10 @@
    and a start vector where parameters used in the model formula are named,
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
+   sub-problem is solved by using a Cholesky and backsolve method.
 }
 \usage{
-   nlsmnq(formula, start, trace=FALSE, data, control, ...)
+   nlsmnc(formula, start, trace=FALSE, data, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -26,8 +26,6 @@
   \item{start}{
      A named parameter vector. For our example, we could use
         start=c(b1=1, b2=2.345, b3=0.123)
-     \code{nls()} takes a list, and that is permitted here also.
-
 }
   \item{trace}{
      Logical TRUE if we want intermediate progress to be reported. Default is FALSE.
@@ -43,8 +41,7 @@
   \item{\dots}{
      Any data needed for computation of the residual vector from the expression
        rhsexpression - lhsvar. Note that this is the negative of the usual residual,
-     but the sum of squares is the same. It is not clear how the dot variables should
-     be used, since data should be in 'data'.
+     but the sum of squares is the same.
 }
 }
 \details{
@@ -60,6 +57,7 @@
 }
 \value{
   A list of the following items
+=pnum,ssquares=ssbest, resid=resbest, jacobian=Jac, feval=feval, jeval=jeval)
   \item{coeffs}{A named vector giving the parameter values at the supposed solution.}
   \item{ssquares}{The sum of squared residuals at this set of parameters.}
   \item{resid}{The residual vector at the returned parameters.}
@@ -81,7 +79,7 @@
 John C Nash <nashjc@uottawa.ca>
 }
 \note{
-   Special notes, if any, will appear here.
+  Special notes will go here if there are any.
 }
 
 \seealso{
@@ -94,35 +92,15 @@ ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 y<-ydat  # for testing
 tdat<-1:length(ydat) # for testing
-# WARNING -- using T can get confusion with TRUE
-t<-tdat
 start1<-c(b1=1, b2=1, b3=1)
 eunsc<- y ~ b1/(1+b2*exp(-b3*t))
 
-an1<-try(nls(eunsc, start=start1, trace=TRUE))
+wdata<-data.frame(t=tdat, y=ydat)
+
+
+an1<-try(nls(eunsc, start=start1, trace=TRUE, data=wdata))
 print(an1)
-
-cat("GLOBAL DATA\n")
-an1q<-try(nlsmnq(eunsc, start=start1, trace=TRUE))
-print(an1q)
-
-rm(y, t)
-
-cat("LOCAL DATA\n")
-ydata1<-data.frame(y=ydat, t=tdat)
-ydata2<-data.frame(y=1.5*ydat, t=tdat)
-an1ql1<-try(nlsmnq(eunsc, start=start1, trace=TRUE, data=ydata1))
-print(an1ql1)
-
-an1ql2<-try(nlsmnq(eunsc, start=start1, trace=TRUE, data=ydata2))
-print(an1ql2)
-
-cat("GLOBAL DATA AGAIN -- should fail due to no data\n")
-an1q<-try(nlsmnq(eunsc, start=start1, trace=TRUE))
-print(an1q)
-
-
-
-}
+an1c<-try(nlsmnc(eunsc, start=start1, trace=TRUE, data=wdata))
+print(an1c)}
 \keyword{ nonlinear least squares }
 

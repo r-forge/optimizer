@@ -1,5 +1,5 @@
-\name{nlsmnqb}
-\alias{nlsmnqb}
+\name{nlfb}
+\alias{nlfb}
 \title{Nash variant of Marquardt nonlinear least squares solution via
      qr linear solver.
 }
@@ -12,16 +12,18 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   nlsmnqb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, masked=NULL, control, ...)
+   nlfb(resfn, jacfn, start, trace=FALSE, lower=-Inf, upper=Inf, masked=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{formula}{
-     This is a modeling formula of the form (as in \code{nls})
-           lhsvar ~ rhsexpression
-     for example,
-           y ~ b1/(1+b2*exp(-b3*T))
-     You may also give this as a string.
+  \item{resfn}{
+     A function that evaluates the residual vector for computing the elements of
+     the sum of squares function at the set of parameters \code{start}. 
+}
+  \item{jacfn}{
+     A function that evaluates the Jacobian of the sum of squares function, that
+     is, the matrix of partial derivatives of the residuals with respect to each
+     of the parameters.
 }
   \item{start}{
      A named parameter vector. For our example, we could use
@@ -30,10 +32,6 @@
 }
   \item{trace}{
      Logical TRUE if we want intermediate progress to be reported. Default is FALSE.
-} 
-  \item{data}{
-     A data frame containing the data of the variables in the formula. This data may,
-     however, be supplied directly in the parent frame. 
 } 
   \item{lower}{
      Lower bounds on the parameters. If a single number, this will be applied to all
@@ -46,6 +44,7 @@
   \item{masked}{
      Character vector of quoted parameter names. These parameters will NOT be altered
      by the algorithm.
+     MASKS ARE NOT WORKING PROPERLY AS OF 20120415. ??
 } 
   \item{control}{ 
      A list of controls for the algorithm. These are:
@@ -59,7 +58,7 @@
 }
 }
 \details{
-    \code{nlsmnqb} attempts to solve the nonlinear sum of squares problem by using
+    \code{nlfb} attempts to solve the nonlinear sum of squares problem by using
     a variant of Marquardt's approach to stabilizing the Gauss-Newton method using
     the Levenberg-Marquardt adjustment. This is explained in Nash (1979 or 1990) in
     the sections that discuss Algorithm 23. (?? do we want a vignette. Yes, because
@@ -100,86 +99,7 @@ John C Nash <nashjc@uottawa.ca>
 }
 
 \examples{
-
-ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
-          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
-tdat<-1:length(ydat) # for testing
-# WARNING -- using T can get confusion with TRUE
-start1<-c(b1=1, b2=1, b3=.1)
-eunsc<- y ~ b1/(1+b2*exp(-b3*t))
-weeddata<-data.frame(y=ydat, t=tdat)
-
-anlsmnqb1<-try(nlsmn0b(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), upper=c(b0=500, b2=100, b3=5), trace=TRUE, data=weeddata))
-print(anlsmnqb1)
-
-tmp<-readline("next")
-
-anlsb1<-try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), upper=c(b0=500, b2=100, b3=5), trace=TRUE, data=weeddata, algorithm='port'))
-print(anlsb1)
-
-tmp<-readline("next")
-
-anlsmnqb2<-try(nlsmn0b(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), upper=c(b0=500, b2=100, b3=.25), trace=TRUE, data=weeddata))
-print(anlsmnqb2)
-
-tmp<-readline("next")
-
-anlsb2<-try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), upper=c(b0=500, b2=100, b3=.25), trace=TRUE, data=weeddata, algorithm='port'))
-print(anlsb2)
-
-tmp<-readline("next")
-
-cat("TEST MASKING OF b2\n")
-
-anlsmnqm<-try(nlsmn0b(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), upper=c(b0=500, b2=100, b3=5), masked=c("b2"), trace=TRUE, data=weeddata))
-print(anlsmnqm)
-
-tmp<-readline("next")
-
-anlsmnqmx<-try(nlsmn0b("y ~ b1/(1+exp(-b3*t))", start=c(b1=1, b3=.1), lower=c(b1=0, b3=0), upper=c(b0=500, b3=.25), trace=TRUE, data=weeddata))
-print(anlsmnqmx)
-
-tmp<-readline("next")
-
-
-ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
-          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
-tdat<-1:length(ydat) # for testing
-wedat<-data.frame(t=tdat, y=ydat)
-# WARNING -- using T can get confusion with TRUE
-start1<-c(b1=1, b2=1, b3=1)
-eunsc<- y ~ b1/(1+b2*exp(-b3*t))
-
-cat("UNCONSTRAINED\n")
-an1q<-try(nlsmnqb(eunsc, start=start1, trace=TRUE, data=wedat))
-print(an1q)
-tmp<-readline("next")
-
-
-cat("MASKED\n")
-an1qm3<-try(nlsmnqb(eunsc, start=start1, trace=TRUE, data=wedat, masked=c("b3")))
-print(an1qm3)
-tmp<-readline("next")
-
-# Note that the parameters are put in out of order to test code.
-an1qm123<-try(nlsmnqb(eunsc, start=start1, trace=TRUE, data=wedat, masked=c("b2","b1","b3")))
-print(an1qm123)
-tmp<-readline("next")
-
-
-cat("BOUNDS")
-start2<-c(b1=100, b2=10, b3=0.1)
-an1qb1<-try(nlsmnqb(eunsc, start=start2, trace=TRUE, data=wedat, lower=c(0,0,0), upper=c(200, 60, .3)))
-print(an1qb1)
-tmp<-readline("next")
-
-
-cat("BOUNDS and MASK")
-an1qbm2<-try(nlsmnqb(eunsc, start=start2, trace=TRUE, data=wedat, lower=c(0,0,0), upper=c(200, 60, .3), masked=c("b2")))
-print(an1qbm2)
-tmp<-readline("next")
-
-
+cat("See examples in nlmrt-package.Rd\n")
 
 }
 \keyword{ nonlinear least squares }

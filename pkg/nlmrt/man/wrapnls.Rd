@@ -12,7 +12,7 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   wrapnls(formula, start, trace=FALSE, data, lower=NULL, upper=NULL, control=list(), ...)
+   wrapnls(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, control=list(), ...)
 }
 \arguments{
   \item{formula}{

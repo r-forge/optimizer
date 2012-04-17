@@ -1,0 +1,124 @@
+\documentclass{article}
+
+%\VignetteIndexEntry{nlmrt Tutorial}
+%\VignetteDepends{}
+%\VignetteKeywords{nonlinear least squares, Levenberg-Marquardt method}
+%\VignettePackage{nlmrt}
+
+%% from Ross Ihaka doc.
+
+\newcommand{\R}{{\sf R\ }}
+\newcommand{\Splus}{{\sf S-PLUS}}
+\newcommand{\fixme}[1]{\textbf{FIXME: #1}}
+%\newcommand{\fixme}[1]{}
+\newcommand{\code}[1]{{\tt #1}}
+\title{nlmrt-vignette}
+\author{John C. Nash}
+\usepackage{Sweave}
+\usepackage{fancyvrb}
+
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1em}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1em}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=1em}
+\fvset{listparameters={\setlength{\topsep}{0pt}}}
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+ 
+%%% \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small,fontshape=n}
+
+
+
+
+\begin{document}
+\maketitle
+
+
+
+\section*{Background}
+
+This vignette discusses the (at time of writing \textbf{experimental} 
+\R package \code{nlmrt}, that aims to provide computationally robust
+tools for nonlinear least squares problems. Note that \R already has the
+\code{nls()} function to solve nonlinear least squares problems, and this
+function has a large repertoire of tools for such problems. However, it is
+specifically NOT indicated for problems where the residuals are small or
+zero. Furthermore, it frequently fails to find a solution if starting 
+parameters are provided that are not close enough to a solution. The tools
+of \code{nlmrt} are very much intended to cope with both these issues.
+
+\code{nlmrt} tools generally do not return the large nls-style object.
+However, we do provide a tool \code{wrapnls} that will run either
+\code{nlxb} followed by a call to \code{nls}. The call to \code{nls} is
+adjusted to use the \code{port} algorithm if there are bounds constraints.
+
+
+\section{An example problem}
+
+Let us try an example initially presented by \cite{Ratkowsky83} and 
+developed by \cite{Huet1996}. This is a model for the regrowth of pasture.
+We set up the computation by putting the data for the problem in a data
+frame, and specifying the formula for the model. This can be as a formula
+object, but I have found that saving it as a character string seems to give
+fewer difficulties. Note the "~" that implies "is modeled by". There must
+be such an element in the formula for this package (and for \code{nls()}).
+We also specify two sets of starting parameters, that is, the \code{ones}
+which is a trivial (but possibly unsuitable) start with all parameters 
+set to 1, and \code{huetstart} which was suggested in \cite{Huet1996}.
+Finally we load the routines in the package \code{nlmrt}.
+
+
+%%Chunk01, 
+<<echo=TRUE>>=
+options(width=60)
+pastured <- data.frame(
+time=c(9, 14, 21, 28, 42, 57, 63, 70, 79),
+yield= c(8.93, 10.8, 18.59, 22.33, 39.35, 
+         56.11, 61.73, 64.62, 67.08))
+regmod<-"yield ~ t1 - t2*exp(-exp(t3+t4*log(time)))"
+ones<-c(t1=1, t2=1, t3=1, t4=1) # all ones start
+huetstart<-c(t1=70, t2=60, t3=0, t4=1)
+require(nlmrt)
+@
+
+Let us now call the routine \code{nlsmnqb} (even though we are not 
+specifying bounds). We try both starts.
+
+<<echo=TRUE>>=
+anmrt<-nlxb(regmod, start=ones, trace=FALSE, data=pastured)
+print(anmrt)
+@
+
+<<echo=TRUE>>=
+anmrtx<-try(nlxb(regmod, start=huetstart, trace=FALSE, data=pastured))
+print(strwrap(anmrtx))
+@
+
+Note that the standard \code{nls()} of \R fails to find a solution 
+from either start.
+
+\RecustomVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\scriptsize}
+
+<<echo=TRUE>>=
+anls<-try(nls(regmod, start=ones, trace=TRUE, data=pastured))
+print(anls)
+@
+
+
+<<echo=TRUE>>=
+anls<-try(nls(regmod, start=ones, trace=TRUE, data=pastured))
+print(strwrap(anls))
+cat(strwrap(anls), sep='\n')
+
+anlsx<-try(nls(regmod, start=huetstart, trace=TRUE, data=pastured))
+# capture.output(print(anlsx), file="anlsxout.txt")
+@
+
+We have not yet been able to successfully use the INRA package \code{nls2}. This
+is quite a complicated package and is not installable as a regular \R package 
+using \code{install.packages()}. Note that there is a very different package 
+by the same name on CRAN by Gabor Grothendieck. 
+
+\bibliography{nlpd}
+\bibliographystyle{siam}
+
+\end{document}
+

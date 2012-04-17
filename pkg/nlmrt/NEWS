@@ -1,0 +1,11 @@
+Changes in nlmrt version 2012-4.17 
+	   
+   o	Added nlfb to allow functions for residual and Jacobian.
+        These are developed from the expression for the residuals as
+	a model in nlxb. 
+
+   o	Bounds now in wrapnls.
+
+   o	Note misleading trace output in nls() runs with bounds. The objective
+        function is 0.5*sum_of_squares.
+

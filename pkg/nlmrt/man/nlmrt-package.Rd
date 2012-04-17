@@ -238,8 +238,7 @@ ans1<-nlfb(shobbs.res, shobbs.jac, st, trace=traceval)
 ans1
 
 # tmp<-readline("Try with bounds at 2")
-up<-c(2,2,2)
-time2<-system.time(ans2<-nlfb(shobbs.res, shobbs.jac, st, upper=c(2, 6, 3), trace=traceval))
+time2<-system.time(ans2<-nlfb(shobbs.res, shobbs.jac, st, upper=c(2,2,2), trace=traceval))
 ans2
 time2
 
@@ -259,19 +258,36 @@ anlsb<-nls(escal, start=st2s, trace=traceval, data=weeddata1, lower=c(0,0,0),
      upper=c(2,6,3), algorithm='port')
 cat("However, let us check the answer\n")
 print(anlsb)
-cat("And...crossprod(resid(anlsb))=",crossprod(resid(anlsb)),"\n")
+cat("BUT...crossprod(resid(anlsb))=",crossprod(resid(anlsb)),"\n")
 
 tmp<-readline("next")
+cat("Try wrapnls\n")
+traceval<-FALSE
+# Data for Hobbs problem
+ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+tdat<-1:length(ydat) # for testing
+start1<-c(b1=1, b2=1, b3=1)
+escal<- y ~ 100*b1/(1+10*b2*exp(-0.1*b3*t))
+up1<-c(2,6,3)
+up2<-c(1, 5, 9)
 
+weeddata1<-data.frame(y=ydat, t=tdat)
 
-
-an1w<-try(wrapnls(eunsc, start=start1, trace=traceval, data=weeddata1))
+an1w<-try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1))
 print(an1w)
+
+tmp<-readline("continue")
 
 cat("BOUNDED wrapnls\n")
 
-an1wb<-try(wrapnls(eunsc, start=start1, trace=traceval, data=weeddata1, upper=up2))
+an1wb<-try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up1))
 print(an1wb)
+tmp<-readline("continue")
 
+cat("BOUNDED wrapnls\n")
+
+an2wb<-try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up2))
+print(an2wb)
 
 }

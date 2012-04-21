@@ -387,10 +387,10 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 #     if ("DEoptim" %in% ipkgs[,1]) require(DEoptim, quietly=FALSE)
 #     else  stop("Package `DEoptim' Not installed", call.=FALSE)
 #  }
-   pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa", "uobyqa", "nmkb", "hjkb")
+##   pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa", "uobyqa", "nmkb", "hjkb")
    # Restrict list of methods if we have bounds
-   if (any(is.finite(c(lower, upper)))) 
-      allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb") 
+   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
+   if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
    if (ctrl$all.methods) { # Changes method vector!
       method<-allmeth
       if (ctrl$trace>0) {

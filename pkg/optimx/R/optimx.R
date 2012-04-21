@@ -389,7 +389,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 #  }
 ##   pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa", "uobyqa", "nmkb", "hjkb")
    # Restrict list of methods if we have bounds
-   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa")
+   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "hjkb", "nmkb")
    if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
    if (ctrl$all.methods) { # Changes method vector!
       method<-allmeth

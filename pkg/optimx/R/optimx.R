@@ -2,6 +2,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NUL
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(), ...) {
 ##### OPEN ISSUES: (any date order)
+# 120411 -- ?? change method of specifying masks -- also for nlmrt
 # 120128 -- ?? No way to input function value at initial parameters -- should have this
 # 111127 -- ?? ctrl$trace vs trace, ctrl$dowarn, ctrl$maximize
 # 111124 -- ?? check that structure of all answers is consistent
@@ -119,16 +120,17 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NUL
 #  Changes: Ravi Varadhan - Date: May 29, 2009, John Nash - Latest: July 2, 2011
 #
 #################################################################
-opxfn<-list(fn=fn, gr=gr, hess=hess, callpos=sys.nframe()) # define the user function for Hessian
-#################################################################
+#?? require("optfntools") # used extensively in the code -- but don't reload here!!!
+npar<-length(par) # number of parameters
 nullgr<-is.null(gr) # save these as we redefine functions so NOT null later
 numgrad<-FALSE
 nullhess<-is.null(hess)
+tgr<-gr # save object
 if (nullgr) gr<-"grfwd" # The default numerical gradient
 if (is.character(gr)) { # we are calling an approximation to the gradient
-   numgrad<-TRUE # set flag
-   opxfn$gr<-function(par=par, userfn=fn, ...){
-      do.call(gr, list(par, userfn, ...))
+   numgrad<-TRUE # set flag  ??? this may be problematic -- need to check all info there eg ...
+   tgr<-function(par=par, userfn=fn){
+      do.call(gr, list(par, userfn))
    }
 }
 # Get real name of function to be minimized
@@ -145,7 +147,6 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    if (! is.vector(par) ) {
       stop("The parameters are NOT in a vector")
    }
-   npar<-length(par)
 # Check for npar > 1
    if (npar < 2) {
       if (npar < 1) {
@@ -275,9 +276,19 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       } else {
              ctrl$parscale<-rep(1,npar)
       }
+#################################################################
+OPCON<-optstart(npar)
+opxfn<-list(fn=fn, gr=gr, hess=hess, OPCON=OPCON, dots=list(...)) 
+   # define the user function for Hessian
+opxfn$OPCON$PARSCALE<-ctrl$parscale
+opxfn$OPCON$FNSCALE<-ctrl$fnscale
+opxfn$OPCON$MAXIMIZE<-ctrl$maximize
+opxfn$gr<-tgr # copy over the appropriate gradient function
+if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
+#################################################################
 # Scaling check
    if (ctrl$starttests) {
-      srat<-scalecheck(par, lower, upper,ctrl$dowarn)
+      srat<-scalecheck(par, lower, upper, ctrl$dowarn)
       sratv<-c(srat$lpratio, srat$lbratio)
       if(max(sratv,na.rm=TRUE) > ctrl$scaletol) { 
          warnstr<-"Parameters or bounds appear to have different scalings. See optimx.Rd"
@@ -286,23 +297,21 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       if(ctrl$trace>0) {
           cat("Scale check -- log parameter ratio=",srat$lpratio,
                           "  log bounds ratio=",srat$lbratio,"\n")
-      }
-# end scaling check
+      } # end scaling check
    } # end if (starttests) ...
-   # ?? 120128 -- need initial function value -- this is inefficient in that it 
+   # 120128 -- need initial function value -- this is inefficient in that it 
    # causes an extra evaluation, but needed to ensure we have a finite value
    # for comparisons later
-      # Check if function can be computed  
-      kfn<- 0 # need values defined, even if not used (though ufn does set it)
-      ## cat("check myfval\n")
-      myfval<-fnchk(par, ufn, trace=max(ctrl$trace-1, 0), fnuser=opxfn, ps=ctrl$parscale,
-             fs=ctrl$fnscale, maximize=ctrl$maximize, ...)
+   # Check if function can be computed  
+      cat("about to call fnchk\n")
+      print(par)
+      print(opxfn)
+      myfval<-fnchk(par, ufn, trace=max(ctrl$trace-1, 0), fnuser=opxfn)
       if (ctrl$trace>0) {
           cat("results of first function evaluation:")
           print(myfval)
           cat("at:")
           print(par)
-#          tmp<-readline("  continue")
       }
       if (myfval$infeasible) {
           # ?? should exit in a controlled way
@@ -316,10 +325,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          gname <- deparse(substitute(gr)) # Make sure gr is NOT ugr
          if (ctrl$trace>1) cat("Analytic gradient uses function ",gname,"\n")
          kgr<-0
-         mygc<-grchk(par, ufn, ugr, trace=max(0,(ctrl$trace-1)), fnuser=opxfn, 
-            ps=ctrl$parscale, fs=ctrl$fnscale, maximize=ctrl$maximize, ...)
-         ## cat("mygc=",mygc," ")
-         # tmp<-readline("OK")
+         mygc<-grchk(par, ufn, ugr, trace=max(0,(ctrl$trace-1)), fnuser=opxfn)
          if (! mygc) {
             # ?? need to change so we exit gracefully
             cat("Gradient check\n")
@@ -330,8 +336,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          if (! nullhess) {
            khess<-0
            myhc<-hesschk(par, ufn, ugr, uhess, trace=max(0, (ctrl$trace-1)), 
-              fnuser=opxfn, ps=ctrl$parscale, fs=ctrl$fnscale, 
-              maximize=ctrl$maximize, ...) 
+              fnuser=opxfn) 
            if (! myhc ) {
              cat("Hessian check:\n")
              print(myhc)
@@ -351,15 +356,38 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    ans.ret <- vector(mode="list")
    # mode= is not strictly required. length defaults to 0. This sets up our answer vector.
 # List of methods in base or stats, namely those in optim(), nlm(), nlminb()
-   bmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb")
+   bmeth <- c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "nlm", "nlminb")
 # SANN has no termination for optimality, only a maxit count for
 #    the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #    for smooth functions. Code left in as example for those who may need it.
 # List of methods in packages. 
    ## cat("check methods present\n")
 # uobyqa removed 110114 because of some crashes that did not seem resolvable. Replaced 111027 -- different from newuoa
+# Now make sure methods loaded
+   allmeth <- bmeth # start with base methods
+   if (require(BB, quietly=FALSE) )  allmeth<-c(allmeth,"spg")
+   else warning("Package `BB' Not installed", call.=FALSE)
+
+   if (require(ucminf, quietly=FALSE) ) allmeth<-c(allmeth, "ucminf")
+   else warning("Package `ucminf' Not installed", call.=FALSE)
+   
+   if (require(Rcgmin, quietly=FALSE) )  allmeth<-c(allmeth, "Rcgmin")
+   else warning("Package `Rcgmin' Not installed", call.=FALSE)
+   
+   if (require(Rvmmin, quietly=FALSE) )  allmeth<-c(allmeth, "Rvmmin")
+   else warning("Package `Rvmmin' Not installed", call.=FALSE)
+   
+   if (require(minqa, quietly=FALSE) ) allmeth<-c(allmeth, "uobyqa", "newuoa", "bobyqa")
+   else  warning("Package `minqa' (for uobyqa, newuoa, and bobyqa) Not installed", call.=FALSE)
+   
+   if (require(dfoptim, quietly=FALSE) ) allmeth<-c(allmeth, "hjkb", "nmkb")
+   else  warning("Package `dfoptim' (for nmkb) Not installed", call.=FALSE)
+ 
+#  if(any(method == "DEoptim")) { # Code removed as DEoptim not part of current set of methods
+#     if ("DEoptim" %in% ipkgs[,1]) require(DEoptim, quietly=FALSE)
+#     else  stop("Package `DEoptim' Not installed", call.=FALSE)
+#  }
    pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa", "uobyqa", "nmkb", "hjkb")
-   allmeth <- c(bmeth, pmeth)
    # Restrict list of methods if we have bounds
    if (any(is.finite(c(lower, upper)))) 
       allmeth <- c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb") 
@@ -413,38 +441,6 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          nmeth <- length(method) # number of methods requested
       }
    }
-# Now make sure methods loaded
-   if(any(method == "spg")) {
-      if (! require(BB, quietly=FALSE) )stop("Package `BB' Not installed", call.=FALSE)
-   }
-   if(any(method == "ucminf")) { 
-      if (! require(ucminf, quietly=FALSE) ) stop("Package `ucminf' Not installed", call.=FALSE)
-   }
-   if(any(method == "Rcgmin")) { 
-      if (! require(Rcgmin, quietly=FALSE) ) stop("Package `Rcgmin' Not installed", call.=FALSE)
-   }
-   if(any(method == "Rvmmin")) { 
-      if (! require(Rvmmin, quietly=FALSE) ) stop("Package `Rvmmin' Not installed", call.=FALSE)
-   }
-   if(any(method == "bobyqa")) { 
-      if (! require(minqa, quietly=FALSE) ) stop("Package `minqa' (for bobyqa) Not installed", call.=FALSE)
-   }
-   if(any(method == "uobyqa")) { 
-      if (! require(minqa, quietly=FALSE) )  stop("Package `minqa' (for uobyqa) Not installed", call.=FALSE)
-   }
-   if(any(method == "newuoa")) { 
-      if (! require(minqa, quietly=FALSE) )  stop("Package `minqa' (for newuoa) Not installed", call.=FALSE)
-   }
-   if(any(method == "nmkb")) { 
-      if (! require(dfoptim, quietly=FALSE) ) stop("Package `dfoptim' (for nmkb) Not installed", call.=FALSE)
-   }
-   if(any(method == "hjkb")) { 
-      if (! require(dfoptim, quietly=FALSE) ) stop("Package `dfoptim' (for hjkb) Not installed", call.=FALSE)
-   }
-#  if(any(method == "DEoptim")) { # Code removed as DEoptim not part of current set of methods
-#     if ("DEoptim" %in% ipkgs[,1]) require(DEoptim, quietly=FALSE)
-#     else  stop("Package `DEoptim' Not installed", call.=FALSE)
-#  }
 # Run methods
    ## cat("set times to 0\n")
    times <- rep(0, nmeth)  # figure out how many methods and reserve that many times to record.
@@ -462,8 +458,6 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       kfn<-0
       kgr<-0
       khess<-0
-#      cat("callpos:",opxfn$callpos," ")
-#      tmp<-readline("OK")
       conv <- -1 # indicate that we have not yet converged
       # 20100608 - take care of polyalgorithms
       if (! is.null(itnmax) ) {
@@ -509,8 +503,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, 
                  lower=lower, upper=upper, method=meth, 
-                 control=mcontrol, fnuser=opxfn, ps=ctrl$parscale, 
-                 fs=ctrl$fnscale, maximize=ctrl$maximize, ...), silent=TRUE))[1]
+                 control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          # The time is the index=1 element of the system.time for the process, 
          # which is a 'try()' of the regular optim() function
          if (class(ans)[1] != "try-error") { 
@@ -547,9 +540,8 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          } else { 
             mcontrol$trace <- 1 # this is EVERY iteration. nlminb trace is freq of reporting.
          }
-         time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=ugr,  lower=lower,
-            upper=upper, control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-            fs=ctrl$fnscale, maximize=ctrl$maximize, ...), silent=TRUE))[1]
+         time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=ugr, 
+            lower=lower, upper=upper, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
             # Translate output to common format and names
@@ -596,8 +588,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          nampar<-names(par) # save names 110508
          time <- system.time(ans <- try(nlm(f=tufn, p=par, iterlim=iterlim, 
-                 print.level=plevel, fnuser=opxfn, ps=ctrl$parscale, 
-                 fs=ctrl$fnscale, maximize=ctrl$maximize,...), silent=TRUE))[1]
+                 print.level=plevel, fnuser=opxfn), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$code
             if (ans$conv == 1 || ans$conv == 2 || ans$conv == 3) ans$conv <- 0
@@ -633,9 +624,8 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          mcontrol$maximize<-NULL # Use external maximization approach
          mcontrol$checkGrad.tol<-10.0 # Want to suppress the gradient check
-         time <- system.time(ans <- try(spg(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper,  
-            fnuser=opxfn, ps=ctrl$parscale, fs=ctrl$fnscale, maximize=ctrl$maximize, 
-            ..., control=mcontrol), silent=TRUE))[1]
+         time <- system.time(ans <- try(spg(par=par, fn=ufn, gr=ugr, lower=lower, 
+            upper=upper, fnuser=opxfn, control=mcontrol), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") { 
            ans$conv <- ans$convergence
            ans$fevals<-ans$feval
@@ -668,8 +658,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
          time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr, 
-              fnuser=opxfn, ps=ctrl$parscale, fs=ctrl$fnscale, 
-              maximize=ctrl$maximize, ..., control=mcontrol), silent=TRUE))[1]
+              fnuser=opxfn, control=mcontrol), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
             # From ucminf documentation:  
@@ -717,8 +706,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          if (ctrl$trace>0) mcontrol$trace<-1
          time <- system.time(ans <- try(Rcgmin(par=par, fn=ufn, gr=ugr, lower=lower, 
-              upper=upper, bdmsk=bdmsk, control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-              fs=ctrl$fnscale, maximize=ctrl$maximize, ...), silent=TRUE))[1]
+              upper=upper, bdmsk=bdmsk, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
             ans$fevals<-ans$counts[1]
@@ -748,8 +736,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          if (ctrl$trace>0) mcontrol$trace<-1 # ?? does Rvmmin not allow other values??
          mcontrol$maximize<-NULL # negation built into ufn
          time <- system.time(ans <- try(Rvmmin(par=par, fn=ufn, gr=ugr, lower=lower, 
-             upper=upper, bdmsk=bdmsk, control=mcontrol, fnuser=opxfn, ps=ctrl$parscale, 
-             fs=ctrl$fnscale, maximize=ctrl$maximize, ...), silent=TRUE))[1]
+             upper=upper, bdmsk=bdmsk, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
             ans$conv <- ans$convergence
             ans$fevals<-ans$counts[1]
@@ -783,8 +770,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$usenumDeriv<-NULL
          nampar<-names(par) # save names 110508
          time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, 
-               control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-                     fs=ctrl$fnscale, maximize=ctrl$maximize, ...), silent=TRUE))[1]
+               control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") {
             ans$conv <- 0
             if (ans$feval > mcontrol$maxfun) {
@@ -823,8 +809,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          nampar<-names(par) # save names 110508
          time <- system.time(ans <- try(uobyqa(par=par, fn=ufn, 
-              control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-              fs=ctrl$fnscale, maximize=ctrl$maximize,...), silent=TRUE))[1]
+              control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") {
             ans$conv <- 0
             if (ans$feval > mcontrol$maxfun) {
@@ -863,8 +848,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          nampar<-names(par) # save names 110508
          time <- system.time(ans <- try(newuoa(par=par, fn=ufn, 
-              control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-              fs=ctrl$fnscale, maximize=ctrl$maximize,...), silent=TRUE))[1]
+              control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          if (class(ans)[1] != "try-error") {
             ans$conv <- 0
             if (ans$feval > mcontrol$maxfun) {
@@ -901,13 +885,11 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          nampar<-names(par) # save names 110508
          if (have.bounds) {
-             time <- system.time(ans <- try(nmkb(par=par, fn=ufn, 
-                lower = lower, upper = upper, control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-                fs=ctrl$fnscale, maximize=ctrl$maximize,...), silent=TRUE))[1]
+             time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
+              upper = upper, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          } else {
              time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
-                control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-                fs=ctrl$fnscale, maximize=ctrl$maximize,...), silent=TRUE))[1]
+                control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          }
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
@@ -945,13 +927,11 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          mcontrol$fnscale<-NULL
          nampar<-names(par) # save names 110508
          if( have.bounds) {
-             time <- system.time(ans <- try(hjkb(par=par, fn=ufn, 
-                lower = lower, upper = upper, control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-                fs=ctrl$fnscale, maximize=ctrl$maximize,...), silent=TRUE))[1]
+             time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
+                upper = upper, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          } else {
              time <- system.time(ans <- try(hjk(par=par, fn=ufn, 
-                control=mcontrol, fnuser=opxfn, ps=ctrl$parscale,
-                fs=ctrl$fnscale, maximize=ctrl$maximize,...), silent=TRUE))[1]
+                control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          }
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
@@ -983,9 +963,10 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
          break
       } else {
          if (ctrl$axsearch.tries > 0) {
+      cat("meth:",meth,"\n")
+            cat("ans$value=",ans$value,"\n")
             asres<-axsearch(ans$par, fn=ufn, fmin=ans$value, lower = lower, 
-               upper = upper, bdmsk=NULL, trace=(ctrl$trace-1), fnuser=opxfn, ps=ctrl$parscale, 
-               fs=ctrl$fnscale, maximize=ctrl$maximize,...)
+               upper = upper, bdmsk=NULL, trace=(ctrl$trace-1), fnuser=opxfn)
             if (asres$bestfn<ans$value) {
                ans$par<-asres$par # reset parameters
                ans$conv<-3 # adjust convergence code for axial search failure
@@ -1050,8 +1031,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
                if (ctrl$trace>0) cat("Compute gradient and Hessian approximations at finish of ",method[i],"\n")
                #?? NOTE: we could do extra counts and timings here, and probably should
                gH<-ugHgenb(ans$par, fnuser=opxfn, bdmsk=bdmsk, lower=lower,
-                  upper=upper, control=list(ktrace=(ctrl$trace-1)), ps=ctrl$parscale,
-                  fs=ctrl$fnscale, maximize=ctrl$maximize, numgrad, ...)
+                  upper=upper, control=list(ktrace=(ctrl$trace-1)))
                gradOK<-gH$gradOK #?? These MAY not be OK after scaling
                hessOK<-gH$hessOK
                ngatend<-gH$gn*ctrl$parscale/ctrl$fnscale
@@ -1132,5 +1112,5 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       ansout<-NULL # no answer if no parameters
    }
    if (ctrl$trace>2) cat("returning after fcount=",attr(opxfn,"fcount"),"\n")
-   ansout # return(ansout)
-} ## end of optimx
+   ansout # return(ansout)-- modified test version
+} ## end of optimx 

@@ -312,13 +312,14 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
            exceeds the corresponding upper bound.}
       \item{\code{-3}}{indicates that at least one of the parameters is out of bounds (and the
            call has been made with control \code{allowmv2bound} = FALSE).}
+      \item{\code{-4}}{indicates that the initial function returned was NOT a scalar.} 
       \item{\code{-5}}{indicates that the gradient test has failed when there is a function specified
            to compute the gradient.}
       \item{\code{-6}}{indicates that the Hessian test has failed when there is a function specified
            to compute the Hessian.}
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
-      \item{\code{-4}}{indicates that the initial function returned was NOT a scalar.} 
+      \item{\code{3}}{indicates that the axial search failed.}
       \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
 	that the function cannot be computed or returns an infinite, NULL, or NA value.}
       \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
@@ -442,13 +443,12 @@ Each such list has possible elements:
 }
 
 \seealso{
-  \code{spg}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{bobyqa}, 
-  \code{Rcgmin}, \code{Rvmmin}, \code{ucminf}, \code{dfoptim}.
+  \code{\link[BB]{spg}}, \code{\link{nlm}}, \code{\link{nlminb}}, \code{\link[minqa]{bobyqa}}, 
+  \code{\link[Rcgmin]{Rcgmin}}, \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}},
+  \code{\link[dfoptim]{dfoptim}}.
 
   \code{\link{optimize}} for one-dimensional minimization;
-  \code{constrOptim} or \code{spg} for linearly constrained optimization.
-
-Note that links have been removed to Suggested packages.
+  \code{\link{constrOptim}} or \code{\link[BB]{spg}} for linearly constrained optimization.
 }
 
 \examples{
@@ -476,7 +476,7 @@ cat("Analytic gradients\n")
 ans2<-optimx(c(-1.2,1), fr, grr, control=list(all.methods=TRUE))
 print(ans2)
 
-\dontrun{
+
 cat("The next line should fail if executed because 'hessian = TRUE' no longer allowed\n")
 try3<-try(ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE))
 print(class(try3))
@@ -484,11 +484,11 @@ print(class(try3))
 cat("\n\n")
 
 cat("Single method call -- note control for CG is 'type=...'\n")
-ans5a<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=1, axsearch.tries=10, trace=2))
+ans5a<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=1, axsearch.tries=10, trace=0))
 print(ans5a)
-ans5b<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2, axsearch.tries=10, trace=2))
+ans5b<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2, axsearch.tries=10, trace=0))
 print(ans5b)
-ans5c<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=3, axsearch.tries=10, trace=2))
+ans5c<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=3, axsearch.tries=10, trace=0))
 print(ans5c)
 cat("\n\n")
 
@@ -519,8 +519,8 @@ negmaxfn<-function(x) {
 
 x0<-rep(pi,4)
 ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=0))
-ans.mx1<-optansout(ans.mx, filename="./ansmx.txt")
-print(ans.mx1)
+# ans.mx1<-optansout(ans.mx, filename="./ansmx.txt")
+print(ans.mx)
 x0b<-get.best(ans.mx)
 cat("trying get.best for maxfn\n")
 print(x0b)
@@ -528,9 +528,12 @@ cat("axial search on x0b\n")
 ## Need to be very careful with axial search when maximizing
 ## WRONG ## as.x0b<-axsearch(x0b, maxfn, x0b$value)
 # Here is how to do it
-mymax<-list(fn=maxfn, gr=NULL, hess=NULL, callpos=sys.nframe())
-as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=2, fnuser=mymax,maximize=TRUE)
+myopcon<-optstart(length(x0b))
+myopcon$MAXIMIZE=TRUE
+mymax<-list(fn=maxfn, gr=NULL, hess=NULL, OPCON=myopcon)
+as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=0, fnuser=mymax)
 print(as.x0b)
+
 
 
 cat("verify using explicit negation\n")
@@ -744,7 +747,7 @@ for (i in 1:nmeth){
    print(adet[[i]]$evnhatend)
    cat("=======================================\n")
 }
-}
+
 }
 \keyword{nonlinear}
 \keyword{optimize}

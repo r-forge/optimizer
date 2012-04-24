@@ -1,0 +1,81 @@
+\name{model2resfun}
+\alias{model2resfun}
+\title{Generate a sum of squares objective function from a nonlinear model expression
+and a vector of named parameters.
+}
+\description{
+   Given a nonlinear model expressed as an expression of the form
+         lhs ~ formula_for_rhs
+   and a start vector where parameters used in the model formula are named,
+   attempts to build the the \code{R} function for the residual sum of squares.
+   As a side effect, a text file with the program code is generated.
+}
+\usage{
+   model2resfun(resformula, pvec, filename)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{resformula}{
+     This is a modeling formula of the form (as in \code{nls})
+           lhsvar ~ rhsexpression
+     for example,
+           y ~ b1/(1+b2*exp(-b3*T))
+     You may also give this as a string.
+}
+  \item{pvec}{
+     A named parameter vector. For our example, we could use
+        start=c(b1=1, b2=2.345, b3=0.123)
+}
+  \item{filename}{
+     The name of a file that is written containing the (text) program code
+     for the function. 
+} 
+}
+\details{
+    None.
+}
+\value{
+  An \code{R} function object. An attribute 
+  As a side-effect, the file \code{filename} contains the text of the function code.
+}
+\references{
+     Nash, J. C. (1979, 1990) _Compact Numerical Methods for Computers.
+     Linear Algebra and Function Minimisation._ Adam Hilger./Institute
+     of Physics Publications
+}
+\author{
+John C Nash <nashjc@uottawa.ca>
+}
+\seealso{
+    Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
+}
+
+\examples{
+cat("See also examples in nlmrt-package.Rd\n")
+# a test
+    y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+    t<-1:length(y) # for testing
+    f<- y ~ b1/(1+b2*exp(-1*b3*t))
+    p<-c(b1=1, b2=1, b3=1)
+    myfn<-model2resfun(f, p, "mytxtfn.R")
+    cat("myfn:\n")
+    print(myfn)
+    print(str(myfn))
+    print(attributes(myfn))
+    
+    ans<-eval(myfn(p, t=t,y=y))
+    print(ans)
+    print(str(ans))
+    bnew<-c(b1=200, b2=50, b3=0.3)
+    anew<-eval(myfn(prm=bnew, t=t, y=y))
+    print(anew)
+    print(str(anew))
+
+    cat("Test with un-named vector\n") # At 20120424 should fail
+    bthree<-c(100,40,.1)
+    athree<-eval(myfn(prm=bthree, t=t, y=y))
+    athree
+}
+\keyword{ nonlinear least squares }
+

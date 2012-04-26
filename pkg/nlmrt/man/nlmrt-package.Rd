@@ -168,15 +168,15 @@ tmp<-readline("next")
 
 
 escal<- y ~ 100*b1/(1+10*b2*exp(-0.1*b3*t))
-sscaleasy<-c(b1=200, b2=50, b3=0.3)
-sunsceasy<-c(b1=2, b2=5, b3=3)
+suneasy<-c(b1=200, b2=50, b3=0.3)
+ssceasy<-c(b1=2, b2=5, b3=3)
 st1scal<-c(b1=100, b2=10, b3=0.1)
 
 
 cat("EASY start -- unscaled")
-anls01<-try(nls(eunsc, start=sscaleasy, trace=traceval, data=weeddata1))
+anls01<-try(nls(eunsc, start=suneasy, trace=traceval, data=weeddata1))
 print(anls01)
-anlmrt01<-try(nlxb(eunsc, start=sscaleasy, trace=traceval, data=weeddata1))
+anlmrt01<-try(nlxb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
 print(anlmrt01)
 
 cat("All 1s start -- unscaled")
@@ -203,9 +203,9 @@ anlmrt04<-nlxb(escal, start=st1scal, trace=traceval, data=weeddata1)
 print(anlmrt04)
 
 cat("EASY start -- scaled")
-anls05<-try(nls(escal, start=sscaleasy, trace=traceval, data=weeddata1))
+anls05<-try(nls(escal, start=ssceasy, trace=traceval, data=weeddata1))
 print(anls05)
-anlmrt05<-nlxb(escal, start=sscaleasy, trace=traceval, data=weeddata1)
+anlmrt05<-nlxb(escal, start=ssceasy, trace=traceval, data=weeddata1)
 print(anlmrt03)
 
 
@@ -277,17 +277,107 @@ weeddata1<-data.frame(y=ydat, t=tdat)
 an1w<-try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1))
 print(an1w)
 
-tmp<-readline("continue")
+
 
 cat("BOUNDED wrapnls\n")
 
 an1wb<-try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up1))
 print(an1wb)
-tmp<-readline("continue")
+
 
 cat("BOUNDED wrapnls\n")
 
 an2wb<-try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up2))
 print(an2wb)
+
+cat("TRY MASKS ONLY\n")
+
+an1xm3<-try(nlxb(escal, start1, trace=traceval, data=weeddata1, masked=c("b3")))
+print(an1xm3)
+an1fm3<-try(nlfb(shobbs.res, shobbs.jac, start1, trace=traceval, data=weeddata1, maskidx=c(3)))
+print(an1fm3)
+
+an1xm1<-try(nlxb(escal, start1, trace=traceval, data=weeddata1, masked=c("b1")))
+print(an1xm1)
+an1fm1<-try(nlfb(shobbs.res, shobbs.jac, start1, trace=traceval, data=weeddata1, maskidx=c(1)))
+print(an1fm1)
+
+# Need to check when all parameters masked.??
+
+cat("\n\n Now check conversion of expression to function\n\n")
+cat("K Vandepoel function\n")
+
+x<-c(1,3,5,7) # data
+y<-c(37.98,11.68,3.65,3.93)
+penetrationks28<-data.frame(x=x,y=y)
+
+cat("Try nls() -- note the try() function!\n")
+
+fit0 <- try(nls(y ~ (a+b*exp(1)^(-c * x)), data = penetrationks28, 
+    start = c(a=0,b = 1,c=1), trace = TRUE))
+print(fit0)
+
+cat("\n\n")
+
+
+fit1 <- nlxb(y ~ (a+b*exp(-c*x)), data = penetrationks28, 
+   start = c(a=0,b=1,c=1), trace = TRUE) 
+print(fit1)
+
+mexprn<-"y ~ (a+b*exp(-c*x))"
+pvec<-c(a=0,b=1,c=1)
+bnew<-c(a=10,b=3,c=4)
+
+k.r<-model2resfun(mexprn , pvec, "karenr.R")
+k.j<-model2jacfun(mexprn , pvec, "karenj.R")
+k.f<-model2ssfun(mexprn , pvec, "karenj.R")
+k.g<-model2grfun(mexprn , pvec, "karenj.R")
+
+
+cat("At pvec:")
+print(pvec)
+rp<-k.r(pvec, x=x, y=y)
+cat(" rp=")
+print(rp)
+rf<-k.f(pvec, x=x, y=y)
+cat(" rf=")
+print(rf)
+rj<-k.j(pvec, x=x, y=y)
+cat(" rj=")
+print(rj)
+rg<-k.g(pvec, x=x, y=y)
+cat(" rg=")
+print(rg)
+cat("modss at pvec gives ")
+print(modss(pvec, k.r, x=x, y=y))
+cat("modgr at pvec gives ")
+print(modgr(pvec, k.r, k.j, x=x, y=y))
+cat("\n\n")
+
+
+
+cat("At bnew:")
+print(bnew)
+rb<-k.r(bnew, x=x, y=y)
+cat(" rb=")
+print(rb)
+rf<-k.f(bnew, x=x, y=y)
+cat(" rf=")
+print(rf)
+rj<-k.j(bnew, x=x, y=y)
+cat(" rj=")
+print(rj)
+rg<-k.g(bnew, x=x, y=y)
+cat(" rg=")
+print(rg)
+cat("modss at bnew gives ")
+print(modss(bnew, k.r, x=x, y=y))
+cat("modgr at bnew gives ")
+print(modgr(bnew, k.r, k.j, x=x, y=y))
+cat("\n\n")
+
+
+
+
 
 }

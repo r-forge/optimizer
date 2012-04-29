@@ -1,4 +1,4 @@
-model2resfun <- function(resformula, pvec, filename) {
+model2resfun <- function(resformula, pvec, filename=NULL) {
    pnames<-names(pvec)
 #   cat("pnames:")
 #   print(pnames)
@@ -53,14 +53,20 @@ model2resfun <- function(resformula, pvec, filename) {
    pparse<-""
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
+# for diagnostic
+#      pparse<-paste(pparse, "   cat(\"",pnames[[i]],"=\",",pnames[[i]],",\"\n\")\n", sep='')
    }
-   myfstr<-paste("myfn<-function(prm, ",vstr,"){\n",
+# for diagnostic
+#   pparse<-paste(pparse, "cat(\"tt:\")\n  print(tt)\n  cat(\"y:\")\n print(y)\n", sep='')
+#   myfstr<-paste("myres<-function(prm, ",vstr,"){\n",
+    myfstr<-paste("{\n",
       pparse,"\n ",
       fnexp,"\n }",sep='')
-   write(myfstr, file=filename) # write out the file
-   myfn<-source(file=filename)$value # This may be inefficient, but ...
-   # Note that the $value element is needed.
-#   attr(myfn, "source-text")<-myfstr # Do we want this?
-   return(myfn)      
+   if (! is.null(filename)) write(myfstr, file=filename) # write out the file
+   tparse<-try(body(myres)<-parse(text=myfstr)) 
+   # This may be cause trouble if there are errors
+   if (class(tparse) == "try-error") stop("Error in residual code string")
+   print(myres)
+   return(myres)      
 }
 

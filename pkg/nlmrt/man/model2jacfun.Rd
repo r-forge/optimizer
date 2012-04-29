@@ -30,7 +30,7 @@ and a vector of named parameters.
      output function. 
 }
   \item{filename}{
-     The name of a file that is written containing the (text) program code
+     The (optional) name of a file that is written containing the (text) program code
      for the function. 
 } 
 }
@@ -58,26 +58,22 @@ cat("See also examples in nlmrt-package.Rd\n")
 # a test
     y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
-    t<-1:length(y) # for testing
-    f<- y ~ b1/(1+b2*exp(-1*b3*t))
+    tt<-1:length(y) # for testing
+    f<- y ~ b1/(1+b2*exp(-1*b3*tt))
     p<-c(b1=1, b2=1, b3=1)
-    myfn<-model2resfun(f, p, "mytxtfn.R")
+    myfn<-model2jacfun(f, p)
     cat("myfn:\n")
     print(myfn)
-    print(str(myfn))
-    print(attributes(myfn))
     
-    ans<-eval(myfn(p, t=t,y=y))
+    ans<-myfn(p, t=t,y=y)
     print(ans)
-    print(str(ans))
     bnew<-c(b1=200, b2=50, b3=0.3)
-    anew<-eval(myfn(prm=bnew, t=t, y=y))
+    anew<-myfn(prm=bnew, tt=tt, y=y)
     print(anew)
-    print(str(anew))
-
+   
     cat("Test with un-named vector\n") # At 20120424 should fail
     bthree<-c(100,40,.1)
-    athree<-eval(myfn(prm=bthree, t=t, y=y))
+    athree<-myfn(prm=bthree, tt=tt, y=y)
     athree
 }
 \keyword{ nonlinear least squares }

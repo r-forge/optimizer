@@ -1,4 +1,4 @@
-model2grfun <- function(resformula, pvec, filename) {
+model2grfun <- function(resformula, pvec, filename=NULL) {
    pnames<-names(pvec)
 #   cat("pnames:")
 #   print(pnames)
@@ -68,16 +68,17 @@ model2grfun <- function(resformula, pvec, filename) {
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-   myjstr<-paste("myjac<-function(prm, ",vstr,"){\n",
-      pparse,"\n ",
+#   mygstr<-paste("myjac<-function(prm, ",vstr,"){\n",
+   mygstr<-paste("{\n",      pparse,"\n ",
       jfstr," \n",
       "jacmat<-attr(jstruc,'gradient')\n ",
       resval,"\n",
       "grj<-t(jacmat) %*% resids \n",
       "}",sep='')
-   write(myjstr, file=filename) # write out the file
-   myjac<-source(file=filename)$value # This may be inefficient, but ...
-#   attr(myjac, "source-text")<-myjstr
-   return(myjac)      
+   if (! is.null(filename)) write(mygstr, file=filename) # write out the file
+   tparse<-try(body(mygr)<-parse(text=mygstr)) 
+   # This may be cause trouble if there are errors
+   if (class(tparse) == "try-error") stop("Error in gradient code string")
+   return(mygr)      
 }
 

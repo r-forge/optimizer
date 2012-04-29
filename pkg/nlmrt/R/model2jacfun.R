@@ -1,4 +1,4 @@
-model2jacfun <- function(resformula, pvec, filename) {
+model2jacfun <- function(resformula, pvec, filename=NULL) {
    pnames<-names(pvec)
 # Creates Jacobian function
 #   cat("pnames:")
@@ -70,14 +70,16 @@ model2jacfun <- function(resformula, pvec, filename) {
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-   myjstr<-paste("myjac<-function(prm, ",vstr,"){\n",
+#   myjstr<-paste("myjac<-function(prm, ",vstr,"){\n",
+   myjstr<-paste("{\n",
       pparse,"\n ",
       jfstr," \n",
       "jacmat<-attr(jstruc,'gradient')\n ",
       "return(jacmat)\n }",sep='')
-   write(myjstr, file=filename) # write out the file
-   myjac<-source(file=filename)$value # This may be inefficient, but ...
-#   attr(myjac, "source-text")<-myjstr
+   if (! is.null(filename)) write(myjstr, file=filename) # write out the file
+   tparse<-try(body(myjac)<-parse(text=myjstr)) 
+   # This may be cause trouble if there are errors
+   if (class(tparse) == "try-error") stop("Error in Jacobian code string")
    return(myjac)      
 }
 

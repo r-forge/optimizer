@@ -328,10 +328,10 @@ mexprn<-"y ~ (a+b*exp(-c*x))"
 pvec<-c(a=0,b=1,c=1)
 bnew<-c(a=10,b=3,c=4)
 
-k.r<-model2resfun(mexprn , pvec, "karenr.R")
-k.j<-model2jacfun(mexprn , pvec, "karenj.R")
-k.f<-model2ssfun(mexprn , pvec, "karenj.R")
-k.g<-model2grfun(mexprn , pvec, "karenj.R")
+k.r<-model2resfun(mexprn , pvec)
+k.j<-model2jacfun(mexprn , pvec)
+k.f<-model2ssfun(mexprn , pvec)
+k.g<-model2grfun(mexprn , pvec)
 
 
 cat("At pvec:")

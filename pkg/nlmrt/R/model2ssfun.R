@@ -1,4 +1,4 @@
-model2ssfun <- function(resformula, pvec, filename) {
+model2ssfun <- function(resformula, pvec, filename=NULL) {
    pnames<-names(pvec)
 #   cat("pnames:")
 #   print(pnames)
@@ -54,14 +54,17 @@ model2ssfun <- function(resformula, pvec, filename) {
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-   myfstr<-paste("myss<-function(prm, ",vstr,"){\n",
+#   myfstr<-paste("myss<-function(prm, ",vstr,"){\n",
+   myfstr<-paste("{\n",
       pparse,"\n ",
       fnexp,"\n ",
       "ss<-crossprod(resids)\n",
       "\n }",sep='')
-   write(myfstr, file=filename) # write out the file
-   myss<-source(file=filename)$value # This may be inefficient, but ...
-   # Note that the $value element is needed.
+   if (! is.null(filename)) write(myfstr, file=filename) # write out the file
+   tparse<-try(body(myss)<-parse(text=myfstr)) 
+   # This may be cause trouble if there are errors
+   if (class(tparse) == "try-error") stop("Error in Jacobian code string")
+   # Note that the $value element is needed reading source().
    return(myss)      
 }
 

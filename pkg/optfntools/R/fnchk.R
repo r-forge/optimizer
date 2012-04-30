@@ -32,20 +32,25 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
    infeasible<-FALSE # set value OK, then alter if not feasible later
    excode <- 0 # ditto
    msg <- "fnchk OK" # ditto
-
-#  Note that fnscale and parscale will be passed through the fnuser structure.
-#   fval<-ffn(xpar, ffn, ...) # !! fn twice!!
-# and ... to dotargs
-#    fval<-ffn(xpar, unlist(dotargs)) # ?? BAD! Will expand vectors etc
+   if (trace>1) {
+      cat("about to call ffn(xpar, ...)\n")
+      cat("ffn:")
+      print(ffn)
+      cat("xpar & dots:")
+      print(xpar)
+      print(list(...))
+   }
    test<-try(fval<-ffn(xpar, ...)) # 
-   cat("test in fnchk:")
-   print(test)
+   if (trace>1) {
+      cat("test in fnchk:")
+      print(test)
+   }
    # Note: This incurs one EXTRA function evaluation because optimx wraps other methods
    if (inherits(test, "try-error") ) {
       fval<-NA
       attr(fval, "inadmissible")<-TRUE
    }
-   if (trace > 1) {
+   if (trace > 0) {
       cat("Function value at supplied parameters =")
       print(fval) # Use "print" rather than "cat" to allow extra structure to be displayed
       print(str(fval))

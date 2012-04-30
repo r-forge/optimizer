@@ -65,7 +65,7 @@ cat("See also examples in nlmrt-package.Rd\n")
     cat("myfn:\n")
     print(myfn)
     
-    ans<-myfn(p, t=t,y=y)
+    ans<-myfn(p, tt=tt,y=y)
     print(ans)
     bnew<-c(b1=200, b2=50, b3=0.3)
     anew<-myfn(prm=bnew, tt=tt, y=y)

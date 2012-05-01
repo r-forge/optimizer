@@ -1,5 +1,5 @@
 nlfb <-function(resfn, jacfn, start, trace=FALSE,  
-            lower=-Inf, upper=Inf, masked=NULL, control=list(), ...){
+            lower=-Inf, upper=Inf, maskidx=NULL, control=list(), ...){
 #
 #  A simplified and hopefully robust alternative to finding the 
 #  nonlinear least squares minimizer that causes 'formula' to 
@@ -17,7 +17,7 @@ nlfb <-function(resfn, jacfn, start, trace=FALSE,
 #  trace -- TRUE for console output 
 #  lower is a vector of lower bounds
 #  upper is a vector of upper bounds
-#  masked is a character vector of names of parameters that are fixed.
+#  maskidx is an index vector of positions of parameters that are fixed.
 #  control is a list of control parameters. These are:
 #     ...
 #  
@@ -91,12 +91,11 @@ if (trace) {
     pnum<-start # may simplify later??
     pnames<-names(pnum)
     bdmsk<-rep(1,npar) # set all params free for now
-    mskdx<-which(pnames %in% masked) # NOTE: %in% not == or order gives trouble
-    if (length(mskdx)>0 && trace) {
+    if (length(maskidx)>0 && trace) {
        cat("The following parameters are masked:")
-       print(pnames[mskdx])
+       print(maskidx)
     }
-    bdmsk[mskdx]<-0 # fixed parameters
+    bdmsk[maskidx]<-0 # fixed parameters
     resbest<-resfn(pnum, ...)
     ssbest<-crossprod(resbest)
     feval<-1
@@ -108,14 +107,14 @@ if (trace) {
        showpoint(ssbest,pnum)
        if (watch) tmp<-readline("Continue")
     }
-    if (length(mskdx) == npar) stop("All parameters are masked") # Should we return?
+    if (length(maskidx) == npar) stop("All parameters are masked") # Should we return?
     ssquares<-.Machine$double.xmax # make it big
     newjac<-TRUE # set control for computing Jacobian
     eqcount<-0
     while ((eqcount < npar) && (feval<=femax) && (jeval<=jemax)) {
        if (newjac) {
           bdmsk<-rep(1,npar)
-          bdmsk[mskdx]<-0
+          bdmsk[maskidx]<-0
           bdmsk[which(pnum-lower<epstol*(abs(lower)+epstol))]<- -3 
           bdmsk[which(upper-pnum<epstol*(abs(upper)+epstol))]<- -1
           if (trace && watch) {
@@ -165,15 +164,15 @@ if (trace) {
           feval<-feval+1 # count as a function evaluation to force stop
        } else { # solution OK
           gproj<-crossprod(delta,gjty)
-          gangle<-gproj/sqrt(crossprod(gjty)*crossprod(delta))
-          if (trace) cat("gradient projection0 = ",gproj," gangle=",gangle,"\n")
-          if (gproj >= 0) { # uphill direction (??test) -- should NOT be possible
+          gangle<-180*acos(gproj/sqrt(crossprod(gjty)*crossprod(delta)))/pi
+          if (trace) cat("gradient projection = ",gproj," g-delta-angle=",gangle,"\n")
+          if (is.na(gproj) || (gproj >= 0) ) { # uphill direction -- should NOT be possible
             if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
             lamda<-laminc*lamda
             newjac<-FALSE # increasing lamda -- don't re-evaluate
             if (trace) cat(" Uphill search direction\n")
           } else { # downhill
-            delta[mskdx]<-0
+            delta[maskidx]<-0
             delta<-as.numeric(delta)
             if (trace && watch) {
               cat("delta:")

@@ -482,6 +482,12 @@ try3<-try(ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE))
 print(class(try3))
 
 cat("\n\n")
+cat("The next line should fail if because we mask parameter 2\n")
+try4<-try(ans4<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", bdmsk=c(1,0)))
+print(class(try4))
+print(ans4)
+
+cat("\n\n")
 
 cat("Single method call -- note control for CG is 'type=...'\n")
 ans5a<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=1, axsearch.tries=10, trace=0))

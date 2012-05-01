@@ -120,7 +120,9 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NUL
 #  Changes: Ravi Varadhan - Date: May 29, 2009, John Nash - Latest: July 2, 2011
 #
 #################################################################
-#?? require("optfntools") # used extensively in the code -- but don't reload here!!!
+# Note package "optfntools" is used extensively in the code -- but don't reload here!!!
+cat("control:")
+print(control)
 npar<-length(par) # number of parameters
 nullgr<-is.null(gr) # save these as we redefine functions so NOT null later
 numgrad<-FALSE
@@ -149,12 +151,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    }
 # Check for npar > 1
    if (npar < 2) {
-      if (npar < 1) {
-         cat("npar =",npar,"\n")
-         stop("npar must be >1 for optimx")
-      }
-      # npar == 1, so we should use optimize. For now stop
-      stop("npar == 1. Use optimize() not optimx()")
+      stop("npar must be >1 for optimx")
    } # End check on number of parameters
    if (is.null(bdmsk) ) bdmsk<-rep(1,npar) # set masks for free parameters
 # Set control defaults. Do we want to save.failures?
@@ -187,7 +184,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    nctrl <- names(ctrl)
    for (onename in ncontrol) {
       if (!(onename %in% nctrl)) {
-         if (ctrl$trace>2) cat("control ",onename," is not in default set\n")
+         warning("optimx: control ",onename," is not in default control set\n")
       }
       ctrl[onename]<-control[onename]
    }
@@ -263,20 +260,22 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
           bdmsk<-mybm$bdmsk          
       } # end have.bounds
    } # end if (starttests) ...
-      ## cat("check fnscale/parscale\n")
-      if ( ctrl$fnscale < 0.0 ) {
-          if (ctrl$dowarn)
-          warning("ctrl$fnscale must be positive -- using abs(ctrl$fnscale)")
-          if (ctrl$trace) cat("ctrl$fnscale must be positive -- using abs(ctrl$fnscale)")
-          ctrl$fnscale<-abs(ctrl$fnscale)
-      }
-      if (! is.null(ctrl$parscale)) {
-             if (length(ctrl$parscale) != npar) stop("Wrong length for scaling vector")
-             if (any(ctrl$parscale <= 0.0)) stop("Scalings must be non-negative")
-      } else {
-             ctrl$parscale<-rep(1,npar)
-      }
-#################################################################
+   nmask<-length(which(bdmsk==0)) # number of masks
+   if (ctrl$trace>0) cat("Number of masked (fixed) parameters = ",nmask,"\n")
+   if (npar-nmask < 2) warning("The number of free parameters is less than 2")
+   ## cat("check fnscale/parscale\n")
+   if ( ctrl$fnscale < 0.0 ) {
+      if (ctrl$dowarn || (ctrl$trace>0) )
+         warning("ctrl$fnscale must be positive -- using abs(ctrl$fnscale)")
+      ctrl$fnscale<-abs(ctrl$fnscale)
+   }
+   if (! is.null(ctrl$parscale)) {
+      if (length(ctrl$parscale) != npar) stop("Wrong length for scaling vector")
+      if (any(ctrl$parscale <= 0.0)) stop("Scalings must be positive")
+   } else {
+      ctrl$parscale<-rep(1,npar)
+   }
+######## Set up environment to hold working data ################
 OPCON<-optstart(npar)
 opxfn<-list(fn=fn, gr=gr, hess=hess, OPCON=OPCON, dots=list(...)) 
    # define the user function for Hessian
@@ -303,20 +302,17 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
    # causes an extra evaluation, but needed to ensure we have a finite value
    # for comparisons later
    # Check if function can be computed  
-      cat("about to call fnchk\n")
-      print(par)
-      print(opxfn)
-      myfval<-fnchk(par, ufn, trace=max(ctrl$trace-1, 0), fnuser=opxfn)
-      if (ctrl$trace>0) {
-          cat("results of first function evaluation:")
-          print(myfval)
-          cat("at:")
-          print(par)
-      }
-      if (myfval$infeasible) {
-          # ?? should exit in a controlled way
-          stop("Function is infeasible at initial parameter values")
-      }
+   myfval<-fnchk(par, ufn, trace=max(ctrl$trace-1, 0), fnuser=opxfn)
+   if (ctrl$trace>0) {
+       cat("results of first function evaluation:")
+       print(myfval)
+       cat("at:")
+       print(par)
+   }
+   if (myfval$infeasible) {
+       # ?? should exit in a controlled way
+       stop("Function is infeasible at initial parameter values")
+   }
    # end computation of function
    if (ctrl$starttests) {
       # check gradient and possibly Hessian functions

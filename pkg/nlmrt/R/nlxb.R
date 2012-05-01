@@ -206,9 +206,9 @@ if (trace) {
           feval<-feval+1 # count as a function evaluation to force stop
        } else { # solution OK
           gproj<-crossprod(delta,gjty)
-          gangle<-gproj/sqrt(crossprod(gjty)*crossprod(delta))
-          if (trace) cat("gradient projection0 = ",gproj," gangle=",gangle,"\n")
-          if (gproj >= 0) { # uphill direction (??test) -- should NOT be possible
+          gangle<-180*acos(gproj/sqrt(crossprod(gjty)*crossprod(delta)))/pi
+          if (trace) cat("gradient projection = ",gproj," g-delta-angle=",gangle,"\n")
+          if (is.na(gproj) || (gproj >= 0) ) { # uphill direction -- should NOT be possible
             if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
             lamda<-laminc*lamda
             newjac<-FALSE # increasing lamda -- don't re-evaluate

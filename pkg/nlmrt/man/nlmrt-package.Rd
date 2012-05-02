@@ -79,11 +79,11 @@ ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
 y<-ydat  # for testing
 tdat<-1:length(ydat) # for testing
 # WARNING -- using T can get confusion with TRUE
-t<-tdat
+tt<-tdat
 # A simple starting vector -- must have named parameters for nlxb, nls, wrapnls.
 start1<-c(b1=1, b2=1, b3=1)
 
-eunsc<- y ~ b1/(1+b2*exp(-b3*t))
+eunsc<- y ~ b1/(1+b2*exp(-b3*tt))
 
 cat("GLOBAL DATA\n")
 
@@ -95,11 +95,11 @@ anlxb1g<-try(nlxb(eunsc, start=start1, trace=traceval))
 print(anlxb1g)
 
 rm(y)
-rm(t)
+rm(tt)
 
 cat("LOCAL DATA IN DATA FRAMES\n")
-weeddata1<-data.frame(y=ydat, t=tdat)
-weeddata2<-data.frame(y=1.5*ydat, t=tdat)
+weeddata1<-data.frame(y=ydat, tt=tdat)
+weeddata2<-data.frame(y=1.5*ydat, tt=tdat)
 anlxb1<-try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
 print(anlxb1)
 
@@ -167,7 +167,7 @@ print(an1qbm2)
 tmp<-readline("next")
 
 
-escal<- y ~ 100*b1/(1+10*b2*exp(-0.1*b3*t))
+escal<- y ~ 100*b1/(1+10*b2*exp(-0.1*b3*tt))
 suneasy<-c(b1=200, b2=50, b3=0.3)
 ssceasy<-c(b1=2, b2=5, b3=3)
 st1scal<-c(b1=100, b2=10, b3=0.1)
@@ -214,18 +214,18 @@ shobbs.res<-function(x){ # scaled Hobbs weeds problem -- residual
     if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
     y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
          75.995, 91.972)
-    t<-1:12
-    res<-100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*t)) - y
+    tt<-1:12
+    res<-100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*tt)) - y
 }
  
 shobbs.jac<-function(x) { # scaled Hobbs weeds problem -- Jacobian
     jj<-matrix(0.0, 12, 3)
-    t<-1:12
-    yy<-exp(-0.1*x[3]*t)
+    tt<-1:12
+    yy<-exp(-0.1*x[3]*tt)
     zz<-100.0/(1+10.*x[2]*yy)
-    jj[t,1] <- zz
-    jj[t,2] <- -0.1*x[1]*zz*zz*yy
-    jj[t,3] <- 0.01*x[1]*zz*zz*yy*x[2]*t
+    jj[tt,1] <- zz
+    jj[tt,2] <- -0.1*x[1]*zz*zz*yy
+    jj[tt,3] <- 0.01*x[1]*zz*zz*yy*x[2]*tt
     return(jj)
 }
 
@@ -268,11 +268,11 @@ ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat<-1:length(ydat) # for testing
 start1<-c(b1=1, b2=1, b3=1)
-escal<- y ~ 100*b1/(1+10*b2*exp(-0.1*b3*t))
+escal<- y ~ 100*b1/(1+10*b2*exp(-0.1*b3*tt))
 up1<-c(2,6,3)
 up2<-c(1, 5, 9)
 
-weeddata1<-data.frame(y=ydat, t=tdat)
+weeddata1<-data.frame(y=ydat, tt=tdat)
 
 an1w<-try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1))
 print(an1w)
@@ -375,9 +375,5 @@ print(modss(bnew, k.r, x=x, y=y))
 cat("modgr at bnew gives ")
 print(modgr(bnew, k.r, k.j, x=x, y=y))
 cat("\n\n")
-
-
-
-
 
 }

@@ -19,7 +19,7 @@
      This is a modeling formula of the form (as in \code{nls})
            lhsvar ~ rhsexpression
      for example,
-           y ~ b1/(1+b2*exp(-b3*T))
+           y ~ b1/(1+b2*exp(-b3*tt))
      You may also give this as a string.
 }
   \item{start}{

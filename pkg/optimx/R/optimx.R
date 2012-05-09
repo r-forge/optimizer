@@ -121,8 +121,6 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NUL
 #
 #################################################################
 # Note package "optfntools" is used extensively in the code -- but don't reload here!!!
-cat("control:")
-print(control)
 npar<-length(par) # number of parameters
 nullgr<-is.null(gr) # save these as we redefine functions so NOT null later
 numgrad<-FALSE
@@ -137,12 +135,10 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
 }
 # Get real name of function to be minimized
    fname<-deparse(substitute(fn))
-   ## cat("fname:",fname,"\n")
    if (is.null(control$trace)) control$trace<-0 # to ensure trace set
    if (control$trace>0) {
       cat("Objective fn is ",fname,"\n")
    }
-   ## cat("check params\n")
 ## Code more or less common to funtest, funcheck and optimx <<<
 # Check parameters are in right form
    if(!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!")
@@ -155,7 +151,6 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    } # End check on number of parameters
    if (is.null(bdmsk) ) bdmsk<-rep(1,npar) # set masks for free parameters
 # Set control defaults. Do we want to save.failures?
-   ## cat("Develop control list\n")
    ctrl <- list(
    follow.on=FALSE, 
    save.failures=TRUE,
@@ -276,12 +271,12 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       ctrl$parscale<-rep(1,npar)
    }
 ######## Set up environment to hold working data ################
-OPCON<-optstart(npar)
-opxfn<-list(fn=fn, gr=gr, hess=hess, OPCON=OPCON, dots=list(...)) 
+opxfn<-list2env(list(fn=fn, gr=gr, hess=hess,  MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
+       KFN=0, KGR=0, KHESS=0, dots=list(...)) )
    # define the user function for Hessian
-opxfn$OPCON$PARSCALE<-ctrl$parscale
-opxfn$OPCON$FNSCALE<-ctrl$fnscale
-opxfn$OPCON$MAXIMIZE<-ctrl$maximize
+opxfn$PARSCALE<-ctrl$parscale
+opxfn$FNSCALE<-ctrl$fnscale
+opxfn$MAXIMIZE<-ctrl$maximize
 opxfn$gr<-tgr # copy over the appropriate gradient function
 if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 #################################################################
@@ -450,10 +445,10 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
         loopsleft<-loopsleft-1 # reduce cycle
         meth <- method[i] # extract the method name
         if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
-      # Set the counters
-      kfn<-0
-      kgr<-0
-      khess<-0
+      # Set the counters ??? these were set in opxfn definition
+#      kfn<-0
+#      kgr<-0
+#      khess<-0
       conv <- -1 # indicate that we have not yet converged
       # 20100608 - take care of polyalgorithms
       if (! is.null(itnmax) ) {
@@ -695,7 +690,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 ## --------------------------------------------
 #      else 
       if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
-         bdmsk<-rep(1,npar) #??
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -724,7 +718,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 ## --------------------------------------------
 #      else 
       if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
-         bdmsk<-rep(1,npar) #??
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -959,8 +952,10 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          break
       } else {
          if (ctrl$axsearch.tries > 0) {
-      cat("meth:",meth,"\n")
-            cat("ans$value=",ans$value,"\n")
+            if(ctrl$trace>0) {
+               cat("axsearch -- meth:",meth,"\n")
+               cat("ans$value=",ans$value,"\n")
+            }
             asres<-axsearch(ans$par, fn=ufn, fmin=ans$value, lower = lower, 
                upper = upper, bdmsk=NULL, trace=(ctrl$trace-1), fnuser=opxfn)
             if (asres$bestfn<ans$value) {
@@ -1001,9 +996,9 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
       ans$ngatend<-NA
       ans$nhatend<-NA
       ans$evnhatend<-NA
-      ans$kfn<-kfn # save counters
-      ans$kgr<-kgr
-      ans$khess<-khess
+      ans$kfn<-opxfn$KFN # save counters
+      ans$kgr<-opxfn$KGR
+      ans$khess<-opxfn$KHESS
       ans$restarts<-(ctrl$axsearch.tries-1)-loopsleft # note that best fn has been saved
       ans$mtilt<-NA # in case no axsearch
       if (ans$conv!=9999) {
@@ -1107,6 +1102,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
       } else {
       ansout<-NULL # no answer if no parameters
    }
-   if (ctrl$trace>2) cat("returning after fcount=",attr(opxfn,"fcount"),"\n")
+   if (ctrl$trace>2) cat("returning after fcount=",opxfn$KFN,"\n")
+   # attr(ansout,"fnuser")<-opxfn # shows how to return the opxfn or fnuser object, otherwise lost
    ansout # return(ansout)-- modified test version
 } ## end of optimx 

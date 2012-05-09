@@ -1,0 +1,26 @@
+Changes in optimx 
+
+Changes before 2012-4-30 not recorded 
+
+TODOS
+   o    Axial search needs to be tested and possibly adjusted for 
+        dealing with maximization. (This is actually in optfntools,
+	but will almost certainly be accessed through package
+	optimx.)
+
+   o    Entire code needs to be checked for vestiges of earlier
+	changes and diagnostic output, as well as being better
+	formatted.
+
+	   
+2012-5-6
+   o	Changed to use new structure opxfn which is an environment
+	created with list2env. This environment allows the passing
+	of scaling information as well as recording of function,
+	gradient and hessian counts. Note that the structure may
+	be extended later, and that it also affects package
+	optfntools.
+
+   o	Control axsearch.tries = 0 should suppress axial search.
+
+

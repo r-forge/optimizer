@@ -1,8 +1,3 @@
-% File src/library/stats/man/optimx.Rd
-% Part of the R package, http://www.R-project.org
-% Copyright 1995-2007 R Core Development Team
-% Distributed under GPL 2 or later
-
 \name{optimx}
 \alias{optimx}
 \encoding{UTF-8}
@@ -524,7 +519,7 @@ negmaxfn<-function(x) {
 }
 
 x0<-rep(pi,4)
-ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=0))
+ans.mx<-optimx(x0,maxfn,gr="grfwd", control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=1))
 # ans.mx1<-optansout(ans.mx, filename="./ansmx.txt")
 print(ans.mx)
 x0b<-get.best(ans.mx)
@@ -533,10 +528,12 @@ print(x0b)
 cat("axial search on x0b\n")
 ## Need to be very careful with axial search when maximizing
 ## WRONG ## as.x0b<-axsearch(x0b, maxfn, x0b$value)
-# Here is how to do it
-myopcon<-optstart(length(x0b))
-myopcon$MAXIMIZE=TRUE
-mymax<-list(fn=maxfn, gr=NULL, hess=NULL, OPCON=myopcon)
+# Here is how to do it ???
+##FIX?? myopcon<-optstart(length(x0b))
+##FIX?? myopcon$MAXIMIZE=TRUE
+##FIX?? mymax<-list(fn=maxfn, gr=NULL, hess=NULL, OPCON=myopcon)
+mymax<-list(fn=maxfn, gr=NULL, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,length(x0b)), FNSCALE=1,
+       KFN=0, KGR=0, KHESS=0)
 as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=0, fnuser=mymax)
 print(as.x0b)
 

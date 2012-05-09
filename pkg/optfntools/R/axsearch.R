@@ -46,9 +46,10 @@ if (is.null(fmin)) {
    fmin<-fn(par,...) # evaluate the function if we don't have a value
  # ?? test that this works??
 }
-fmin0<-rep(fmin,npar) #?? is this needed
+# cat("fmin =",fmin)
+fmin0<-rep(fmin,npar) #?? is this needed. Only for return dataframe.
 
-print(par)
+# print(par)
 
 for (j in 1:npar) { # loop over parameters
    if (bdmsk[j] != 0) { # check if NOT masked
@@ -61,7 +62,7 @@ for (j in 1:npar) { # loop over parameters
       parstep[j]<-pstep
       # step backwards
       parj<-pkeep-pstep
-      cat(j, parj, lower[j],"  pstep=",pstep," pkeep=",pkeep,"\n")
+#      cat(j, parj, lower[j],"  pstep=",pstep," pkeep=",pkeep,"\n")  #??
       if (parj < lower[j]) { # out of bounds
          fb<-bigval # set to provide tilt and possibly roc, but leave NA in fback[] 
       } else { if ((reltest+parj)==(reltest+pkeep)) { # no change in parameter
@@ -73,6 +74,7 @@ for (j in 1:npar) { # loop over parameters
                fback[j]<-fb
       }
       if (fb < bestfn) bestfn <- fb
+      if (trace>1) cat("bestfn=",bestfn,"  fb=",fb,"\n")  #??
       if (fb < fmin) { # lower value found
           if (trace>0) cat(fb, " *** LOWER ***\n")
           break # to end cycle -- parameters are reset at moment

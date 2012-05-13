@@ -130,19 +130,12 @@ Rvmmin <- function(par, fn, gr=NULL, lower = NULL,
        return(ans)
     }  # grNULL
     if ( is.character(gr) ) {
-       # Convert string to function call, assuming it is a numerical gradient function ??
+       # Convert string to function call, assuming it is a numerical gradient function
        mygr<-function(par=par, userfn=fn, ...){
            do.call(gr, list(par, userfn, ...))
        }
     } else { mygr<-gr }
     ############# end test gr ####################
-    if (maximize) {
-       warning("Rvmmin no longer supports maximize 111121 -- see documentation")
-       msg<-"Rvmmin no longer supports maximize 111121"
-       ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
-       return(ans)
-    }
-#??    myfn<-fn #?? temporary
     btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
         trace = trace)
     if (!btest$admissible) 

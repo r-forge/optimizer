@@ -1,0 +1,5 @@
+These codes are test codes for different routines. Because we need to use
+the matrix multiply %*%, these cannot be incorporated directly into .Rd
+files, as parsing of these manuals then fails.
+
+JN 120517

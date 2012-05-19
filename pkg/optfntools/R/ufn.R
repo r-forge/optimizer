@@ -1,13 +1,14 @@
 ############### ufn ####################
 # function defined in order to deal with out of bounds functions/parameters
 ufn <- function(par, fnuser) {
-    OPCON<-fnuser$OPCON
-    parps<-par*OPCON$PARSCALE 
-    if (is.null(fnuser$dots)) {
-       testf <- try(tryf <- fnuser$fn(parps), silent = TRUE)
-    } else {
-       testf <- try(tryf <- fnuser$fn(parps, unlist(fnuser$dots)), silent = TRUE)
-    }
+    userfn<-fnuser$fn # Because do.call doesn't know about fnuser
+    nlist<-length(fnuser$dots)
+    lnames<-names(fnuser$dots)
+    dots<-fnuser$dots
+    parps<-par*fnuser$PARSCALE
+    testf<-try(tryf<-do.call("userfn",c(list(parps),dots)))
+    # Note: Idea from R_inferno of using c(list(), dots), but ?? no names(dots) %in% spec
+    # Since function may NOT always use par, do not list(par=par).
     if ((class(testf) == "try-error") || is.na(tryf) || is.null(tryf) || 
         is.infinite(tryf)) {
         tryf <- .Machine$double.xmax
@@ -17,11 +18,10 @@ ufn <- function(par, fnuser) {
         attr(tryf, "inadmissible") <- FALSE
     }
     if (is.null(tryf)) stop("NULL FUNCTION")
-    OPCON$KFN<-1+OPCON$KFN
-    if (OPCON$MAXIMIZE) tryf <- -tryf # handle the maximization
-    tryf/OPCON$FNSCALE # and scale to finish
+    fnuser$KFN<-1+fnuser$KFN
+    if (fnuser$MAXIMIZE) tryf <- -tryf # handle the maximization
+    tryf/fnuser$FNSCALE # and scale to finish
 }
-# put probname into fnuser and change things that way
 ############## end ufn ###################
 
 

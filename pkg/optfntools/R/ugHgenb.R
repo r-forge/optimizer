@@ -1,5 +1,5 @@
-ugHgenb <- function(par, fnuser, bdmsk = NULL, 
-    lower = NULL, upper = NULL, numgrad=FALSE, control = list()) {
+ugHgenb <- function(par, opx12env=NULL, bdmsk = NULL, lower = NULL, upper = NULL, 
+     numgrad=FALSE, control = list(), ...) {
     # Generate the gradient and Hessian for a function specified via the user
     # function wrapper at the parameters par
     #  WITH recognition of bounds and masks.
@@ -17,8 +17,6 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     #
     # Input:
     #  par = a vector for function parameters
-    #  fnuser = a list giving fn, gr, and hess from the user
-    #  of which gr or (gr and hess) may be NULL
     #  bdmsk = index of bounds and masks (see ?? for explanation)
     #  lower = vector of lower bounds on the parameters par
     #  upper = vector of upper bounds on the parameters par
@@ -49,6 +47,7 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     #  At 2011-10-28 we are NOT using the bounds unless constraints active.
     #
     #################################################################
+    if (is.null(opx12env)) stop("MUST have environment opx12env defined.")
     ctrl <- list(asymtol = 1e-07, ktrace = 0, stoponerror = FALSE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
@@ -64,37 +63,16 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
     # No tolerance is used. ?? Do we want to consider parameters 'close' to
     #   bounds?
     gradOK <- FALSE
-##    cat("gradOK set to ",gradOK,"\n")
     if (ctrl$ktrace > 1) {
-        cat("Compute gradient approximation using fnuser:\n")
-        print(fnuser)
+        cat("Compute gradient approximation\n")
     }
-    if (is.null(fnuser$gr) || numgrad) {
-#       if (is.null(fnuser$dots) ) {
-#          cat("no dots\n")
-##          cat("calling grad\n")
-          gt <- try(gn<-grad(ufn, par, fnuser=fnuser),
-                silent = TRUE)  # 20111031 we need fnuser=fnuser
-#       } else {
-#          cat("with dots\n")
-#          gt <- try(gn<-grad(ufn, par, fnuser=fnuser, unlist(fnuser$dots)),
-#                silent = TRUE)  
-#       }
+    if (is.null(opx12env$gr) || numgrad) {
+          gt <- try(gn<-grad(ufn, par, ...), silent = TRUE)
     } else {
-#      if (is.null(fnuser$dots) ) {
-#         cat("no dots\n")
-##         cat("calling ugr\n")
-         gt <- try(gn<-ugr(par, fnuser=fnuser), silent = TRUE)  
-#      } else {
-#         cat("with dots\n")
-#         gt <- try(gn<-ugr(par, fnuser=fnuser, unlist(fnuser$dots)), silent = TRUE)  
-#      }
+          gt <- try(gn<-ugr(par, ...), silent = TRUE)  
     }
-    if (class(gt) != "try-error") 
-        gradOK <- TRUE  
-##        cat("new gradOK:",gradOK,"\n")
-    if (!gradOK && ctrl$stoponerror) 
-        stop("Gradient computations failure!")
+    if (class(gt) != "try-error") gradOK <- TRUE  
+    if (!gradOK && ctrl$stoponerror) stop("Gradient computations failure!")
     if (nbm > 0) {
         gn[bmset] <- 0  # 'project' the gradient
         if (ctrl$ktrace > 0) {
@@ -102,35 +80,22 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
             print(gn)
         }
     }
-    if (ctrl$ktrace > 0) 
-        cat("Compute Hessian approximation\n")
+    if (ctrl$ktrace > 0) cat("Compute Hessian approximation\n")
     hessOK <- FALSE
-    if (is.null(fnuser$hess)) {
+    if (is.null(opx12env$hess)) {
         if (ctrl$ktrace > 1) 
             cat("is.null(hess) is TRUE\n")  # ???
-        if (is.null(fnuser$gr) || numgrad) {
-            if (ctrl$ktrace > 1) 
-                cat("is.null(fnuser$gr) is TRUE use numDeriv hessian()\n")  # ???
-#            if (is.null(fnuser$dots)) {# Hessian at solution # change 20100711
-               Ht<-try(Hn<-hessian(ufn, par, fnuser=fnuser), silent = TRUE) 
-#            } else {
-#               Ht<-try(Hn<-hessian(ufn, par, fnuser=fnuser, 
-#                  unlist(fnuser$dots)), silent = TRUE)
-#            }
+        if (is.null(opx12env$gr) || numgrad) {
+            if (ctrl$ktrace > 1) cat("is.null(opx12env$gr) is TRUE use numDeriv hessian()\n")
+            Ht<-try(Hn<-hessian(ufn, par, ...), silent = TRUE) 
             if (class(Ht) == "try-error") {
                if (ctrl$stoponerror) 
                   stop("Unable to compute Hessian using numDeriv::hessian")
                # hessOK still FALSE
             } else hessOK <- TRUE  # Do not need to check for symmetry either.
-        } else { # fnuser$gr not null -- use Jacobian
-            if (ctrl$ktrace > 1) 
-                cat("is.null(fnuser$gr) is FALSE use numDeriv jacobian()\n")  # ???
-##            if (is.null(fnuser$dots)) {# Hessian at solution # change 20100711
-               Ht <- try(Hn <- jacobian(ugr, par, fnuser=fnuser), silent = TRUE)  
-##            } else {
-##               Ht <- try(Hn <- jacobian(ugr, par, fnuser=fnuser, 
-##                  unlist(fnuser$dots)), silent = TRUE)  
-##            }
+        } else { # opx12env$gr not null -- use Jacobian
+            if (ctrl$ktrace > 1) cat("is.null(opx12env$gr) is FALSE use numDeriv jacobian()\n")
+            Ht <- try(Hn <- jacobian(ugr, par, ...), silent = TRUE)  
             if (class(Ht) == "try-error") {
                 if (ctrl$stoponerror) 
                   stop("Unable to compute Hessian using numDeriv::jacobian")
@@ -162,10 +127,9 @@ ugHgenb <- function(par, fnuser, bdmsk = NULL,
                 }  # end if ! isSymmetric
         }  # numerical hessian at 'solution'
     }
-    else { # fnuser$hess exists -- use it
-        if (ctrl$ktrace > 1) 
-            cat("is.null(fnuser$hess) is FALSE -- trying hess()\n")  # ???
-        Hn <- try(uhess(par, fnuser), silent = TRUE)  # change 20110222
+    else { # opx12env$hess exists -- use it
+        if (ctrl$ktrace > 1) cat("is.null(opx12env$hess) is FALSE -- trying hess()\n") 
+        Hn <- try(uhess(par, ...), silent = TRUE)  # change 20110222
         if (class(Hn) == "try-error") {
             if (ctrl$stoponerror) 
                 stop("Hessian evaluation with function hess() failed")

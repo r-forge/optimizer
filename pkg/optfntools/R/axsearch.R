@@ -47,7 +47,7 @@ if (is.null(fmin)) {
  # ?? test that this works??
 }
 # cat("fmin =",fmin)
-fmin0<-rep(fmin,npar) #?? is this needed. Only for return dataframe.
+fmin0<-rep(fmin,npar) #?? is this needed
 
 # print(par)
 
@@ -62,7 +62,7 @@ for (j in 1:npar) { # loop over parameters
       parstep[j]<-pstep
       # step backwards
       parj<-pkeep-pstep
-#      cat(j, parj, lower[j],"  pstep=",pstep," pkeep=",pkeep,"\n")  #??
+      # cat(j, parj, lower[j],"  pstep=",pstep," pkeep=",pkeep,"\n")  #??
       if (parj < lower[j]) { # out of bounds
          fb<-bigval # set to provide tilt and possibly roc, but leave NA in fback[] 
       } else { if ((reltest+parj)==(reltest+pkeep)) { # no change in parameter
@@ -74,7 +74,7 @@ for (j in 1:npar) { # loop over parameters
                fback[j]<-fb
       }
       if (fb < bestfn) bestfn <- fb
-      if (trace>1) cat("bestfn=",bestfn,"  fb=",fb,"\n")  #??
+      # cat("bestfn=",bestfn,"  fb=",fb,"\n")  #??
       if (fb < fmin) { # lower value found
           if (trace>0) cat(fb, " *** LOWER ***\n")
           break # to end cycle -- parameters are reset at moment

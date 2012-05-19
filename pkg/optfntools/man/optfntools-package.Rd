@@ -50,8 +50,8 @@ gHgenb       Compute gradient and Hessian as a given
              set of parameters appying bounds and masks
 ugHgenb      Compute gradient and Hessian as a given 
              set of parameters appying bounds and masks
-             but using the fnuser list of fn, gr, and 
-             hess.
+             but using the opx12env list of fn, gr, and 
+             hess. Note FIXED name opx12env
 }
 }
 \author{

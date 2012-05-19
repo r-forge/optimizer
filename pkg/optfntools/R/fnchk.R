@@ -8,7 +8,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
 #
 # Input:
 #  xpar = a vector of starting values
-#  ffn = objective function (assumed to be sufficeintly differentiable)
+#  ffn = objective function (assumed to be sufficiently differentiable)
 #  cctrl = a list of control information FOR THE CHECKING PROGRAM. See Details.
 #          The name has been changed from control to avoid confusion with control list in optim/optimx
 #  ...     = other arguments to the function identified by fname
@@ -29,6 +29,15 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
     result<-max(abs((one-two)/(abs(one)+abs(two)+10.0)))
     return(result)
   }
+#########
+   if (trace>3) {
+      cat("fnchk: ffn =\n")
+      print(ffn)
+      cat("xpar:")
+      print(xpar)
+      cat("dots:")
+      print(list(...))
+   }
    infeasible<-FALSE # set value OK, then alter if not feasible later
    excode <- 0 # ditto
    msg <- "fnchk OK" # ditto

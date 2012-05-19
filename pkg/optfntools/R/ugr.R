@@ -1,26 +1,25 @@
 ############### ugr.R ####################
 ugr <- function(par, fnuser) {
-    # Analytic gradient wrapper
-    OPCON<-fnuser$OPCON
+    # gradient wrapper. par are INTERNAL scaled parameters == upar/parscale
     npar <- length(par)
+    parps<-par*fnuser$PARSCALE # user parameters
+#    cat("ugr -- parps:")
+#    print(parps)
+    dots<-fnuser$dots # function does not know about fnuser ?? needed
     if (is.null(fnuser$gr)){
-       # Use numerical gradient
-       deriv.approx<-attr(fnuser,"deriv.approx")
-       if (is.null(deriv.approx)) deriv.approx=grfwd # default method is fwd diff
-       if (is.null(fnuser$dots)) {
-         tgr<-try(tryg<-deriv.approx(par*OPCON$PARSCALE, fnuser$fn), silent = TRUE)
-       } else {
-         tgr<-try(tryg<-deriv.approx(par*OPCON$PARSCALE, fnuser$fn, unlist(fnuser$dots)),
-            silent = TRUE) 
-       }
-       #?? we are using the ORIGINAL function, scales parameters
+       stop("ugr: MUST specify a numerical derivative routine or character name")
     } else {
-      if (is.null(fnuser$dots)) {
-        tgr <- try(tryg <- fnuser$gr(par*OPCON$PARSCALE), silent = TRUE)
-      } else {
-        tgr <- try(tryg <- fnuser$gr(par*OPCON$PARSCALE, unlist(fnuser$dots)), 
-               silent = TRUE)
-      }
+       usergr<-fnuser$gr
+       if (is.character(usergr)) { # Character string means numerical gradient routine
+          userfn<-fnuser$fn # Note that already have string. Must add function. 
+          # ?? !! Note -- cannot use ufn because of scaling!
+          # Consider fvalbest and parbest in opxfn (fnuser) structure and compare to see if usable.
+          tgr<-try(tryg<-do.call(usergr, c(list(parps), list(userfn), dots)), silent=TRUE)
+          fnuser$KFN<-npar+1+fnuser$KFN # Note we include the evaluation at base point
+       } else {
+          tgr<-try(tryg<-do.call("usergr", c(list(parps), dots)), silent = TRUE) 
+          fnuser$KGR<-1+fnuser$KGR
+       }
     }
     if ((class(tgr) == "try-error") || any(is.na(tryg)) || any(is.null(tryg)) || 
       any(is.infinite(tryg))) {
@@ -31,9 +30,8 @@ ugr <- function(par, fnuser) {
       attr(tryg, "inadmissible") <- FALSE
     }
     if (any(is.null(tryg))) stop("NULL FUNCTION")
-    OPCON$KGR<-1+OPCON$KGR
-    if (OPCON$MAXIMIZE) tryg <- -tryg # Internal gradient
-    tryg*OPCON$PARSCALE/OPCON$FNSCALE # handle the scaling
+    if (fnuser$MAXIMIZE) tryg <- -tryg 
+    tryg*fnuser$PARSCALE/fnuser$FNSCALE # handle the scaling
 }
 ############# end ugr.R ##########################
 

@@ -108,11 +108,11 @@ fr <- function(x) {   ## Rosenbrock Banana function
 xtrad<-c(-1.2,1)
 ros1<-fnchk(xtrad, fr, trace=1)
 print(ros1)
-OPCON<-optstart(2)
-opros<-list(fn=fr, gr=NULL, hess=NULL, OPCON=OPCON, dots=NULL)
+npar<-2
+opros<-list2env(list(fn=fr, gr=NULL, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
+       KFN=0, KGR=0, KHESS=0, dots=NULL))
 uros1<-fnchk(xtrad, ufn, trace=1, fnuser=opros)
 print(uros1)
-
 
 }
 \keyword{optimize}

@@ -1,49 +1,22 @@
-\name{ugr}
-\alias{ugr}
-\encoding{UTF-8}
-\title{Wrapper for user gradient function for optimization tools}
-\concept{minimization}
-\concept{maximization}
-\description{
-        Provides a wrapper around user gradient function for nonlinear optimization
-	to try to control for inadmissible arguments to user objective, gradient
-	or hessian functions, as well as provide for maximization.
-}
-\usage{
-ugr(par, fnuser)
-}
-\arguments{
- \item{par}{A vector of parameters to the user-supplied function \code{fn}}
- \item{fnuser}{A user-supplied function object that has three sub-functions
-         fn, gr, and hess. fn generates the scalar numerical value of the
-         objective function, gr its vector valued gradient (or is NULL) and
-         hess a numerical matrix for the Hessian (or is NULL).}
-}
-\details{
-   The usual dot arguments (...) are subsumed in fnuser$dots to save
-   complexity in the function call. Note that we need to unlist()
-   these is the call to the actual user function.
-}
-\value{
-  \code{ugr} returns a vector numeric value, but all elements are set to the R 
-   constant .Machine$double.xmax if the inputs to the function are inadmissible and the
-   computation of \code{gr} fails. The returned value has an attribute 
-   \code{inadmissible} which is returned TRUE in this case, but otherwise
-   is FALSE.
-}
-\examples{
+rm(list=ls())
+require(optfntools)
 cat("Show how ugr works\n")
+source("/home/work/R-optimtest/xdevel/optfntools/R/ugr.R")
+source("/home/work/R-optimtest/xdevel/optfntools/R/ufn.R")
+## source("/home/work/R-optimtest/develmake/optfntools/R/optstart.R")
+
 cat("matrix function\n")
+
 aa<-matrix(c(2,1,1,2),nrow=2)
 
 myxp<-function(par, A=NULL){
    if(is.null(A))stop("MUST have matrix A")
-   f<-as.numeric((t(par) \%*\% A) \%*\% par)+(as.numeric(crossprod(par))-1)^2
+   f<-as.numeric((t(par) %*% A) %*% par)+(as.numeric(crossprod(par))-1)^2
 }
 
 myxpg<-function(par, A=NULL){
    if(is.null(A))stop("MUST have matrix A")
-   gg<-2.0*as.vector(A \%*\% par)+4.0*(as.numeric(crossprod(par))-1)*par
+   gg<-2.0*as.vector(A %*% par)+4.0*(as.numeric(crossprod(par))-1)*par
 }
 npar<-2
 opxfn<-list2env(list(fn=myxp, gr=myxpg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
@@ -70,6 +43,7 @@ print(g0un)
 
 
 tmp<-readline("next")
+#??????? tested to here
 rm(opxfn)
 cat("=====================================\n\n")
 
@@ -89,7 +63,7 @@ badlogg<-function(x, skale=10){# This is the gradient of badlogf
 #badlogh<-function(x, skale=10){
 #   sq<-seq(1:length(x))
 #   r<-(10-x)^2 + skale*log(x-sq)
-#   H<-r\%*\%t(r) # WRONG!
+#   H<-r%*%t(r) # WRONG!
 #   2*r*(-2*(10-x)+skale/(x-sq))
 ## NOT YET SET UP PROPERLY #  
 #} # note that this will fail when length(x)>x for some element of x
@@ -201,9 +175,67 @@ cat("rescaled:")
 print(gvalund/ps1)
 cat("counter: kfn=",opxfn$KFN," kgr=",opxfn$KGR,"\n")
 
+
+
+
 cat("======================================\n")
+tmp<-readline("set skale=1 AND reset opxfn")
 
-}
+# ??? fix up below here -- fn not gr
 
-\keyword{nonlinear}
-\keyword{optimize}
+skale<-1
+npar<-length(x0)
+opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
+       KFN=0, KGR=0, KHESS=0, dots=list(skale=skale)))
+cat("prior to call, opxfn$dots:")
+print(opxfn$dots)
+
+cat("skale=",skale," parameters:")
+print(x0)
+fval0<-badlogf(x0, skale=skale)
+cat(fval0,"\n")
+fval<-ufn(x0, opxfn)
+print("result:")
+print(fval)
+cat("counter: kfn=",opxfn$KFN,"\n")
+
+cat("======================================\n")
+tmp<-readline("Compare good and bad params")
+
+x0<-rep(20, 4)
+npar<-length(x0)
+
+cat("skale=",skale,"  OK parameters:")
+print(x0)
+tfval0<-try(badlogf(x0))
+print(tfval0)
+
+
+opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
+       KFN=0, KGR=0, KHESS=0, dots=NULL))
+fval<-ufn(x0, opxfn)
+print("result:")
+print(fval)
+cat("counter: kfn=",opxfn$KFN,"\n")
+
+cat("======================================\n")
+tmp<-readline("now bad params")
+x0<-rep(2, 4)
+npar<-length(x0)
+cat("Bad parameters:")
+opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
+       KFN=0, KGR=0, KHESS=0, dots=NULL))
+print(x0)
+tfval0<-try(badlogf(x0))
+print(tfval0)
+fval<-ufn(x0, opxfn)
+print("result:")
+print(fval)
+cat("counter: kfn=",opxfn$KFN,"\n")
+
+cat("======================================\n")
+cat("Try to remove opxfn\n")
+print(ls())
+rm(opxfn) # Try to remove the scratchpad
+print(ls())
+

@@ -3,14 +3,23 @@ Changes in optimx
 Changes before 2012-4-30 not recorded 
 
 TODOS
-   o    Axial search needs to be tested and possibly adjusted for 
-        dealing with maximization. (This is actually in optfntools,
-	but will almost certainly be accessed through package
-	optimx.)
-
    o    Entire code needs to be checked for vestiges of earlier
 	changes and diagnostic output, as well as being better
 	formatted.
+
+2012-5-18
+   o	The structure for passing information into and out of ufn, 
+	ugr and uhess has been updated to allow for matrix arguments.
+	This has been tested and appears to work, but the full set
+	of tests still needs to be suitably tidied and documented,
+	then shortened to put in the Examples. 
+
+   o    Axial search has been tested but suitable examples need to 
+	be tidied. NOTE: axsearch ONLY uses minimization. 
+
+   o    get.best adjusted as min(fs*fv) failed.
+        This prompted addition of as.numeric() to all function values
+	returned.
 
 	   
 2012-5-6

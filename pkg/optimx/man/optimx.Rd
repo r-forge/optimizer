@@ -1,3 +1,8 @@
+% File src/library/stats/man/optimx.Rd
+% Part of the R package, http://www.R-project.org
+% Copyright 1995-2007 R Core Development Team
+% Distributed under GPL 2 or later
+
 \name{optimx}
 \alias{optimx}
 \encoding{UTF-8}
@@ -8,9 +13,18 @@
   General-purpose optimization wrapper function that calls other
   R tools for optimization, including the existing optim() function.
   \code{optimx} also tries to unify the calling sequence to allow
-  a number of tools to use the same front-end. These include 
-  \code{spg} from the BB package, \code{ucminf}, \code{nlm}, and 
-  \code{nlminb}. Note that 
+  a number of tools to use the same front-end. These include
+  \itemize{
+  \item{\code{spg} from the BB package,}
+  \item{\code{ucminf},}
+  \item{ \code{nlm},} 
+  \item{\code{nlminb},}
+  \item{\code{Rvmmin},} 
+  \item{\code{Rcgmin},} 
+  \item{\code{nmk}, \code{nmkb}, \code{hjk}, and \code{hjkb} from the dfoptim package,} 
+  \item{\code{uobyqa}, \code{newuoa} and \code{bobyqa} from the minqa package.}
+  }
+  Note that 
   optim() itself allows Nelder--Mead, quasi-Newton and 
   conjugate-gradient algorithms as well as box-constrained optimization 
   via L-BFGS-B. Because SANN does not return a meaningful convergence code
@@ -513,27 +527,29 @@ maxfn<-function(x) {
 	return(f)
 }
 
-negmaxfn<-function(x) {
+negmaxfn<-function(x) { # Can minimize this as an alternative
 	f<-(-1)*maxfn(x)
 	return(f)
 }
 
 x0<-rep(pi,4)
 ans.mx<-optimx(x0,maxfn,gr="grfwd", control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=1))
-# ans.mx1<-optansout(ans.mx, filename="./ansmx.txt")
 print(ans.mx)
-x0b<-get.best(ans.mx)
+x0b<-get.best(ans.mx, maximize=TRUE)
 cat("trying get.best for maxfn\n")
 print(x0b)
 cat("axial search on x0b\n")
-## Need to be very careful with axial search when maximizing
-## WRONG ## as.x0b<-axsearch(x0b, maxfn, x0b$value)
-# Here is how to do it ???
-##FIX?? myopcon<-optstart(length(x0b))
-##FIX?? myopcon$MAXIMIZE=TRUE
-##FIX?? mymax<-list(fn=maxfn, gr=NULL, hess=NULL, OPCON=myopcon)
-mymax<-list(fn=maxfn, gr=NULL, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,length(x0b)), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0)
+cat("Need to be very careful with axial search when maximizing.\n")
+cat("## WRONG ##: as.x0b<-axsearch(x0b, maxfn, x0b$value)\n")
+cat("\\n Here is how to do it.\n\n")
+cat("First define the user function working environment.\n")
+mymax<-list2env(list(fn=maxfn, gr=NULL, hess=NULL, MAXIMIZE=TRUE, KFN=0, KGR=0, KHESS=0, 
+    PARSCALE=rep(1,length(x0b$par)), FNSCALE=1, dots=NULL))
+cat("mymax<-list2env(list(fn=maxfn, gr=NULL, hess=NULL, MAXIMIZE=TRUE, KFN=0, KGR=0, KHESS=0, \n")
+cat("    PARSCALE=rep(1,length(x0b$par)), FNSCALE=1, dots=NULL))\n")
+cat("\nThen call axial search. Note that the base function value is entered NEGATIVE.\n")
+cat("Also that axsearch() always works in the context of MINIMIZING.\n")
+cat("as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=0, fnuser=mymax)\n")
 as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=0, fnuser=mymax)
 print(as.x0b)
 

@@ -20,7 +20,7 @@
   The Richardson method is used in this routine.
 }
 \value{
-  \code{grnd} returns an approximation to the gradient of the function fnuser
+  \code{grnd} returns an approximation to the gradient of the function userfn
 }
 \examples{
 cat("Example of use of grnd\n")

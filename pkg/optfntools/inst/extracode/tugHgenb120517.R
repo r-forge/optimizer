@@ -1,66 +1,6 @@
-\name{ugHgenb}
-\alias{ugHgenb}
-\encoding{UTF-8}
-\title{Generate gradient and Hessian for a function at given parameters
-    using function wrappers to control for scaling and inadmissible inputs.}
-\description{
-  \code{ugHgenb} is used to generate the gradient and Hessian of an objective
-  function used for optimization. If a user-provided gradient function 
-  \code{gr} is available it is used to compute the gradient via the wrapper
-  \code{ugr}, otherwise 
-  package \code{numDeriv} is used. If a user-provided Hessian function
-  \code{hess} is available, it is used to compute a Hessian via the wrapper
-  \code{uhess}. However, we do not allow the user Hessian function to be
-  specified if the user gradient function is NULL.  If the user 
-  \code{gr} is available, we use the function \code{jacobian()} from
-  package \code{numDeriv} to compute the Hessian. In both these cases we
-  check for symmetry of the Hessian. Computational Hessians are commonly
-  NOT symmetric. If only the objective function \code{fn} is provided, then
-  the Hessian is approximated with the function \code{hessian} from 
-  package \code{numDeriv} which guarantees a symmetric matrix. 
-}
-\usage{
-  ugHgenb(par, fnuser, bdmsk=NULL, lower=NULL, upper=NULL,numgrad=FALSE,
-      control=list()) 
-}
-\arguments{
- \item{par}{Set of parameters, assumed to be at a minimum of the function \code{fn}.}
- \item{fnuser}{Name of the list that has fn=user_objective_function, gr=user_gradient and
-        hess=user_hessian. Note that gr or gr and hess may be NULL.}
- \item{bdmsk}{An integer vector of the same length as \code{par}. When an element
-     of this vector is 0, the corresponding parameter value is fixed (masked) 
-     during an optimization. Non-zero values indicate a parameter is free (1),
-     at a lower bound (-3) or at an upper bound (-1), but this routine only
-     uses 0 values.
-     ?? Do we want to use the mskidx used in some other routines?? which??}
- \item{lower}{Lower bounds for parameters in \code{par}.}
- \item{upper}{Upper bounds for parameters in \code{par}.}
- \item{control}{A list of controls to the function. Currently 
-                  asymptol (default of 1.0e-7 which tests for asymmetry of Hessian approximation
-                  (see code for details of the test); 
-                  ktrace, an integer, 0 gives no output, higher values give more 
-                       information to monitor progress, and 
-                  stoponerror, defaulting to FALSE to NOT stop when there is
-                  an error or asymmetry of Hessian. Set TRUE to stop.}
- \item{numgrad}{TRUE if we are using numerical gradient approximations.}
-}
-\details{
-  None
-}
-\value{
-  \code{ansout} a list of four items, 
-  \itemize{
-      \item{\code{gn}}{  The approximation to the gradient vector.}
-      \item{\code{Hn}}{  The approximation to the Hessian matrix.}
-      \item{\code{gradOK}}{  TRUE if the gradient has been computed acceptably. FALSE otherwise.}
-      \item{\code{hessOK}}{  TRUE if the gradient has been computed acceptably and passes the
-             symmetry test. FALSE otherwise.}
-      \item{\code{nbm}}{  The number of active bounds and masks.}
-  }
-}
-\examples{
+rm(list=ls())
 cat("tugHgenb 120517\n")
-# require(optfntools)
+require(optfntools)
 
 # source("/home/work/R-optimtest/xdevel/optfntools/R/ugHgenb.R")
 
@@ -353,6 +293,3 @@ cat("*****************************************\n")
 
 rm(myfn4)
 
-}
-\keyword{nonlinear}
-\keyword{optimize}

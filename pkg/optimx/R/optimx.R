@@ -135,10 +135,12 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
 }
 # Get real name of function to be minimized
    fname<-deparse(substitute(fn))
+   ## cat("fname:",fname,"\n")
    if (is.null(control$trace)) control$trace<-0 # to ensure trace set
    if (control$trace>0) {
       cat("Objective fn is ",fname,"\n")
    }
+   ## cat("check params\n")
 ## Code more or less common to funtest, funcheck and optimx <<<
 # Check parameters are in right form
    if(!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!")
@@ -151,6 +153,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    } # End check on number of parameters
    if (is.null(bdmsk) ) bdmsk<-rep(1,npar) # set masks for free parameters
 # Set control defaults. Do we want to save.failures?
+   ## cat("Develop control list\n")
    ctrl <- list(
    follow.on=FALSE, 
    save.failures=TRUE,
@@ -221,9 +224,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    dowarn<-ctrl$dowarn
    eps<-ctrl$eps
    # end move ctrl elements to top level
-   maxscale<-1.0 # used for determining "better" when comparing function values
    if (ctrl$maximize) {
-      maxscale<- -1.0
       if (ctrl$trace>0) cat("MAXIMIZING\n")
    }
    ## cat("check bounds\n")
@@ -271,8 +272,8 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       ctrl$parscale<-rep(1,npar)
    }
 ######## Set up environment to hold working data ################
-opxfn<-list2env(list(fn=fn, gr=gr, hess=hess,  MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=list(...)) )
+opxfn<-list2env(list(fn=fn, gr=gr, hess=hess, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
+       KFN=0, KGR=0, KHESS=0, dots=list(...)))
    # define the user function for Hessian
 opxfn$PARSCALE<-ctrl$parscale
 opxfn$FNSCALE<-ctrl$fnscale
@@ -365,6 +366,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
    if (require(Rcgmin, quietly=FALSE) )  allmeth<-c(allmeth, "Rcgmin")
    else warning("Package `Rcgmin' Not installed", call.=FALSE)
    
+
    if (require(Rvmmin, quietly=FALSE) )  allmeth<-c(allmeth, "Rvmmin")
    else warning("Package `Rvmmin' Not installed", call.=FALSE)
    
@@ -445,10 +447,10 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
         loopsleft<-loopsleft-1 # reduce cycle
         meth <- method[i] # extract the method name
         if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
-      # Set the counters ??? these were set in opxfn definition
-#      kfn<-0
-#      kgr<-0
-#      khess<-0
+      # Set the counters
+      kfn<-0
+      kgr<-0
+      khess<-0
       conv <- -1 # indicate that we have not yet converged
       # 20100608 - take care of polyalgorithms
       if (! is.null(itnmax) ) {
@@ -489,6 +491,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          if (ctrl$trace>2) cat("Found an optim method\n")
          # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
          mcontrol$usenumDeriv<-NULL # not used in optim()
+         if (is.null(mcontrol$type)) mcontrol$type=2 # use Polak Ribiere formula
          ## Shall we use the fnuser scaling?
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
@@ -500,7 +503,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          if (class(ans)[1] != "try-error") { 
             ans$conv <- ans$convergence
          #  convergence: An integer code. '0' indicates successful convergence.
-         #  ans$value alread defined OK in this case
+            ans$value<-as.numeric(ans$value) # ensure not atomic etc.
             ans$fevals<-ans$counts[1] # save function and gradient count information
             ans$gevals<-ans$counts[2]
             ans$counts<-NULL # and erase the counts element now data is saved
@@ -511,9 +514,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             if (ctrl$trace>0) cat("optim function evaluation failure\n")
             ans$value= ctrl$badval
             ans$par<-rep(NA,npar)
-         }
-         if (ctrl$maximize) { # want to return the maximum with correct sign
-            ans$value= -ans$value
          }
       }   # end if using optim() methods
 ## --------------------------------------------
@@ -536,7 +536,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
             # Translate output to common format and names
-            ans$value<-ans$objective
+            ans$value<-as.numeric(ans$objective)
             ans$objective<-NULL
             ans$fevals<-ans$evaluations[1]
             ans$gevals<-ans$evaluations[2]
@@ -549,13 +549,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             if (ctrl$trace>0) cat("nlminb function evaluation failure\n")
             ans$value= ctrl$badval
             ans$par<-rep(NA,npar)
-         }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
-            if (ctrl$trace) {
-               cat("maximize using nlminb:\n")
-               print(ans)
-            }
          }
       }  ## end if using nlminb
 ## --------------------------------------------
@@ -585,7 +578,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             if (ans$conv == 1 || ans$conv == 2 || ans$conv == 3) ans$conv <- 0
             if (ans$conv == 4) ans$conv <- 1
             # Translate output to common format
-            ans$value<-ans$minimum
+            ans$value<-as.numeric(ans$minimum)
             ans$par<-ans$estimate
             ans$estimate<-NULL
             ans$minimum<-NULL
@@ -603,9 +596,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$gevals<-NA 
             ans$niter<-NA
          }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
-         }
       } # end if using nlm
 ## --------------------------------------------
 #      else 
@@ -617,7 +607,8 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          mcontrol$checkGrad.tol<-10.0 # Want to suppress the gradient check
          time <- system.time(ans <- try(spg(par=par, fn=ufn, gr=ugr, lower=lower, 
             upper=upper, fnuser=opxfn, control=mcontrol), silent=TRUE))[1]
-         if (class(ans)[1] != "try-error") { 
+          if (class(ans)[1] != "try-error") { 
+           ans$value<-as.numeric(ans$value)
            ans$conv <- ans$convergence
            ans$fevals<-ans$feval
            ans$feval<-NULL # to erase conflicting name
@@ -632,9 +623,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
            ans$conv<-9999 # failed in run
            ans$gevals<-NA 
            ans$niter<-NA
-         }
-         if (ctrl$maximize) {
-           ans$value= -ans$value
          }
       }  # end if using spg
 ## --------------------------------------------
@@ -669,6 +657,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$conv <- ans$convergence
          } # Termination criteria are tricky here!  How to determine successful convergence?
          ans$convergence<-NULL
+         ans$value<-as.numeric(ans$value)
          ans$fevals<-ans$info[4]
          ans$gevals<-ans$info[4] # calls fn and gr together
          ans$info<-NULL # to erase conflicting name
@@ -683,13 +672,11 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$gevals<-NA 
             ans$niter<-NA
          }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
-         }
       }  ## end if using ucminf
 ## --------------------------------------------
 #      else 
       if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
+         bdmsk<-rep(1,npar) #??
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -701,7 +688,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$conv <- ans$convergence
             ans$fevals<-ans$counts[1]
             ans$gevals<-ans$counts[2]
-            # ans$value<-ans$value 
+            ans$value<-as.numeric(ans$value)
          } else {
             if (ctrl$trace>0) cat("Rcgmin failed for current problem \n")
             ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -711,13 +698,11 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$gevals<-NA 
             ans$niter<-NA
          }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
-         }
       }  ## end if using Rcgmin
 ## --------------------------------------------
 #      else 
       if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
+         bdmsk<-rep(1,npar) #??
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -728,6 +713,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
              upper=upper, bdmsk=bdmsk, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
          if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
             ans$conv <- ans$convergence
+            ans$value<-as.numeric(ans$value)
             ans$fevals<-ans$counts[1]
             ans$gevals<-ans$counts[2]
          } else {
@@ -738,9 +724,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$conv<-9999 # failed in run
             ans$gevals<-NA 
             ans$niter<-NA
-         }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
          }
       }  ## end if using Rvmmin
 ## --------------------------------------------
@@ -767,7 +750,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             }
             ans$fevals<-ans$feval
             ans$gevals<-NA
-            ans$value<-ans$fval 
+            ans$value<-as.numeric(ans$fval )
             names(ans$par)<-nampar # restore names 110508
          } else {
             if (ctrl$trace>0) cat("bobyqa failed for current problem \n")
@@ -777,9 +760,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$conv<-9999 # failed in run
             ans$gevals<-NA 
             ans$niter<-NA
-         }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
          }
       }  ## end if using bobyqa
 ## --------------------------------------------
@@ -806,7 +786,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             }
             ans$fevals<-ans$feval
             ans$gevals<-NA
-            ans$value<-ans$fval 
+            ans$value<-as.numeric(ans$fval)
             names(ans$par)<-nampar # restore names 110508
          } else {
             if (ctrl$trace>0) cat("uobyqa failed for current problem \n")
@@ -816,9 +796,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$conv<-9999 # failed in run
             ans$gevals<-NA 
             ans$niter<-NA
-         }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
          }
       }  ## end if using uobyqa
 ## --------------------------------------------
@@ -845,7 +822,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             }
             ans$fevals<-ans$feval
             ans$gevals<-NA
-            ans$value<-ans$fval 
+            ans$value<-as.numeric(ans$fval)
             names(ans$par)<-nampar # restore names 110508
          } else {
             if (ctrl$trace>0) cat("newuoa failed for current problem \n")
@@ -855,9 +832,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$conv<-9999 # failed in run
             ans$gevals<-NA 
             ans$niter<-NA
-         }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
          }
       }  ## end if using newuoa
 ## --------------------------------------------
@@ -883,6 +857,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
             ans$convergence<-NULL
+            ans$value<-as.numeric(ans$value)
             ans$fevals<-ans$feval
             ans$gevals<-NA
             names(ans$par)<-nampar # restore names 110508
@@ -896,9 +871,9 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$gevals<-NA 
             ans$niter<-NA
          }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
-         }
+#         if (ctrl$maximize) {
+#            ans$value= -ans$value
+#         }
       }  ## end if using nmkb
 ## --------------------------------------------
 #      else 
@@ -925,6 +900,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
             ans$convergence<-NULL
+            ans$value<-as.numeric(ans$value)
             ans$fevals<-ans$feval
             ans$gevals<-NA
             names(ans$par)<-nampar # restore names 110508
@@ -936,9 +912,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
             ans$conv<-9999 # failed in run
             ans$gevals<-NA 
             ans$niter<-NA
-         }
-         if (ctrl$maximize) {
-            ans$value= -ans$value
          }
       }  ## end if using hjkb
 ## ========================== END OF METHODS ==========================
@@ -952,10 +925,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          break
       } else {
          if (ctrl$axsearch.tries > 0) {
-            if(ctrl$trace>0) {
-               cat("axsearch -- meth:",meth,"\n")
-               cat("ans$value=",ans$value,"\n")
-            }
             asres<-axsearch(ans$par, fn=ufn, fmin=ans$value, lower = lower, 
                upper = upper, bdmsk=NULL, trace=(ctrl$trace-1), fnuser=opxfn)
             if (asres$bestfn<ans$value) {
@@ -996,7 +965,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
       ans$ngatend<-NA
       ans$nhatend<-NA
       ans$evnhatend<-NA
-      ans$kfn<-opxfn$KFN # save counters
+      ans$kfn<-opxfn$KFN # save counters -- NOTE: do not re-zero, includes axsearch
       ans$kgr<-opxfn$KGR
       ans$khess<-opxfn$KHESS
       ans$restarts<-(ctrl$axsearch.tries-1)-loopsleft # note that best fn has been saved
@@ -1026,9 +995,9 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
                gradOK<-gH$gradOK #?? These MAY not be OK after scaling
                hessOK<-gH$hessOK
                ngatend<-gH$gn*ctrl$parscale/ctrl$fnscale
-               if(ctrl$maximize) ngatend<- (-1)*ngatend
+#               if(ctrl$maximize) ngatend<- (-1)*ngatend
                nhatend<-(diag(ctrl$parscale) %*% gH$Hn %*% diag(ctrl$parscale))/ctrl$fnscale
-               if(ctrl$maximize) nhatend<- (-1)*nhatend
+#               if(ctrl$maximize) nhatend<- (-1)*nhatend
             } # end test if hessian computed; note gradient is also computed
             if (gradOK) { # have gradient
                if (hessOK) { # have hessian
@@ -1095,14 +1064,17 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          # sort by function value (DECREASING so best is last and 
          # follow.on gives natural ordering)
          if (ctrl$sort.result) { # sort by fvalues decreasing
-            if(ctrl$maximize) ord <- order(as.numeric(ansout$fvalues))
-            else ord <- rev(order(as.numeric(ansout$fvalues)))
+#            if(ctrl$maximize) ord <- order(as.numeric(ansout$fvalues)) # ???!!!
+#            else ord <- rev(order(as.numeric(ansout$fvalues)))
+            ord <- rev(order(as.numeric(ansout$fvalues)))
             ansout <- ansout[ord, ]
          }
       } else {
       ansout<-NULL # no answer if no parameters
    }
-   if (ctrl$trace>2) cat("returning after fcount=",opxfn$KFN,"\n")
-   # attr(ansout,"fnuser")<-opxfn # shows how to return the opxfn or fnuser object, otherwise lost
+   if (ctrl$maximize) {
+       for (i in 1:j) { ansout$fvalues[[i]] <- (-1)*ansout$fvalues[[i]] }
+   }
+   if (ctrl$trace>2) cat("returning after fcount=",attr(opxfn,"fcount"),"\n")
    ansout # return(ansout)-- modified test version
 } ## end of optimx 

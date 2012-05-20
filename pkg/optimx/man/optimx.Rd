@@ -61,7 +61,12 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
        entries in \code{bdmsk} that are 0, while free parameters have 1. On termination there
        may be values -3 for active lower bounds, and -1 for active upper bounds. 
        However, at 2011-6-28 the \code{bdmsk} vector is NOT returned. (It is returned
-       by packages \code{Rvmmin} }
+       by packages \code{Rvmmin}.
+
+       Note that only Rcgmin and Rvmmin handle masks at 2012-5-20, so these methods are both
+       attempted if masks are specified and another method is suggested via the \code{method}
+       argument.
+       }
  \item{method}{A list of the methods to be used. 
        Note that this is an important change from optim() that allows
        just one method to be specified. See \sQuote{Details}.}
@@ -480,24 +485,21 @@ ans1<-optimx(c(-1.2,1), fr, control=list(all.methods=TRUE))
 cat("Default numerical gradients via grfwd\n")
 print(ans1)
 # print(attr(ans1,"details"))
+\dontrun{
 cat("\n\n")
 cat("Analytic gradients\n")
 ans2<-optimx(c(-1.2,1), fr, grr, control=list(all.methods=TRUE))
 print(ans2)
-
-
-cat("The next line should fail if executed because 'hessian = TRUE' no longer allowed\n")
-try3<-try(ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE))
-print(class(try3))
+}
 
 cat("\n\n")
-cat("The next line should fail if because we mask parameter 2\n")
+cat("The call will mask (or fix) the second parameter at 1.\n")
+cat("This call will WARN that we cannot use BFGS for masks.\n")
 try4<-try(ans4<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", bdmsk=c(1,0)))
-print(class(try4))
 print(ans4)
 
-cat("\n\n")
 
+cat("\n\n")
 cat("Single method call -- note control for CG is 'type=...'\n")
 ans5a<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=1, axsearch.tries=10, trace=0))
 print(ans5a)
@@ -509,6 +511,7 @@ cat("\n\n")
 
 
 cat("25-dimensional box constrained function\n")
+cat("Note: nmkb fails because it cannot handle as starting vector with a parameter on bound.\n")
 flb <- function(x)
     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
 
@@ -527,14 +530,31 @@ maxfn<-function(x) {
 	return(f)
 }
 
+\dontrun{
 negmaxfn<-function(x) { # Can minimize this as an alternative
 	f<-(-1)*maxfn(x)
 	return(f)
 }
+}
 
 x0<-rep(pi,4)
-ans.mx<-optimx(x0,maxfn,gr="grfwd", control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=1))
+cat("maximization using standard forward difference numerical derivatives\n")
+ans.mx<-optimx(x0,maxfn,gr="grfwd", control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=0))
 print(ans.mx)
+
+\dontrun{
+cat("verify using explicit negation\n")
+ans.mxn<-optimx(x0,negmaxfn,control=list(all.methods=TRUE,save.failures=TRUE,trace=0))
+print(ans.mxn)
+x0bn<-get.best(ans.mxn)
+print(x0bn)
+as.x0bn<-axsearch(x0bn$par, negmaxfn, x0bn$value)
+print(as.x0bn)
+cat("\n\n")
+}
+
+
+\dontrun{
 x0b<-get.best(ans.mx, maximize=TRUE)
 cat("trying get.best for maxfn\n")
 print(x0b)
@@ -552,17 +572,9 @@ cat("Also that axsearch() always works in the context of MINIMIZING.\n")
 cat("as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=0, fnuser=mymax)\n")
 as.x0b<-axsearch(x0b$par, ufn, -x0b$value, trace=0, fnuser=mymax)
 print(as.x0b)
+}
 
-
-
-cat("verify using explicit negation\n")
-ans.mxn<-optimx(x0,negmaxfn,control=list(all.methods=TRUE,save.failures=TRUE,trace=0))
-x0bn<-get.best(ans.mxn)
-print(x0bn)
-as.x0bn<-axsearch(x0bn$par, negmaxfn, x0bn$value)
-print(as.x0bn)
-cat("\n\n")
-
+\dontrun{
 x00<-c(1,2,3,4)
 cat("Test if things work when we provide the solution!\n")
 ans.mx0<-optimx(x0,maxfn,control=list(all.methods=TRUE,maximize=TRUE,save.failures=TRUE,trace=0))
@@ -571,7 +583,7 @@ x00b<-get.best(ans.mx0)
 cat("trying get.best for maxfn from solution\n")
 print(x00b)
 cat("\n\n")
-
+}
 
 
 # genrosa function code -- matches rosenbrock when npar=2 and gs=100
@@ -613,27 +625,40 @@ genrosa.h <- function(x, gs=NULL) { ## compute Hessian
 	}
         return(hh)
 }
+
+cat("Use genrosa to show dots, follow-on etc.\n")
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
-     control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
+ans8<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
 print(ans8)
 
+\dontrun{
 get.result(ans8, attribute="grs")
 get.result(ans8, method="spg")
 cat("\n\n")
+}
 
-
+\dontrun{
 cat("Try follow-on\n")
 startx<-4*seq(1:10)/3.
 cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
-ans9<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
+ans9a<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
              method=c("Nelder-Mead","ucminf"), itnmax=c(200,75), 
+             control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
+print(ans9a)
+cat("\n\n")
+}
+
+cat("Try follow-on\n")
+startx<-4*seq(1:10)/3.
+cat("Polyalgorithm with 200 steps NM followed by up to 75 of Rvmmin\n")
+ans9<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
+             method=c("Nelder-Mead","Rvmmin"), itnmax=c(200,75), 
              control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
 print(ans9)
 cat("\n\n")
 
+\dontrun{
 cat("A case where methods do not work and we do not save failures\n")
-
 startx<-4*seq(1:10)/3.
 cat("200 steps NM is not enough to terminate\n")
 ans10<-optimx(startx,fn=genrosa.f,gr=genrosa.g, method=c("Nelder-Mead"),
@@ -641,24 +666,27 @@ ans10<-optimx(startx,fn=genrosa.f,gr=genrosa.g, method=c("Nelder-Mead"),
 cat("The answer should be NULL\n")
 print(str(ans10))
 cat("\n\n")
+}
 
-
+\dontrun{
 startx<-4*seq(1:10)/3.
-cat("Try getting hessian but not kkt tests\n")
+cat("Try getting hessian but not kkt tests -- no results!\n")
 ans11<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hessian=TRUE,  
     control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE),
     gs=10)
 print(ans11)
 print(attr(ans11,"details")[7])
 cat("\n\n")
+}
 
-
+\dontrun{
 startx<-4*seq(1:10)/3.
 cat("Use analytic hessian and no KKT tests\n")
 ans12<-optimx(startx,fn=genrosa.f,gr=genrosa.g, hess=genrosa.h, 
       control=list(trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
 print(ans12)
 print(attr(ans12,"details"))
+}
 
 cat("Example with bounds and masks\n")
 startx<-4*seq(1:10)/7.
@@ -732,12 +760,22 @@ cyq.jac<- function (x) {
 }
 
 
-cyq.g <- function (x) {
+cyq.g <- function(x) {
    cj<-cyq.jac(x)
    rv<-cyq.res(x)
    # Need to escape the \% in .Rd file
    gg<- as.vector(2.0* rv \%*\% cj)
 }
+
+\dontrun{ # Use for copy and paste
+cyq.g <- function(x) {
+   cj<-cyq.jac(x)
+   rv<-cyq.res(x)
+   # Need to escape the \% in .Rd file
+   gg<- as.vector(2.0* rv %*% cj)
+}
+}
+
 
 startx<-c(0.2, 0.6)
 names(startx)<-c("First","Second")
@@ -753,6 +791,7 @@ cat("The get.best result\n")
 print(bestans)
 cat("\n\n")
 
+\dontrun{
 startx<-c(0.2, 0.4, 0.6, 0.8)
 cat("check Hessian -- no bounds\n")
 # should check bounds, control.kkt=FALSE, etc.
@@ -765,6 +804,7 @@ for (i in 1:nmeth){
    print(adet[[i]]$nhatend)
    print(adet[[i]]$evnhatend)
    cat("=======================================\n")
+}
 }
 
 }

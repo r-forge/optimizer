@@ -21,6 +21,11 @@ TODOS
         This prompted addition of as.numeric() to all function values
 	returned.
 
+   o    Axial search is available. control list element 
+	axsearch.tries will attempt that number of axial searches 
+  	and will restart one fewer times. The axial search reports
+	tilt angles and radii of curvature along axial directions.
+
 	   
 2012-5-6
    o	Changed to use new structure opxfn which is an environment

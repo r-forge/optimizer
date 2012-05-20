@@ -2,9 +2,5 @@ export(
   "optimx",
   "optansout",
   "get.result",
-  "get.best",
-  "ufn",
-  "ugr",
-  "uhess",
-  "ugHgenb"
+  "get.best"
 )

@@ -20,13 +20,16 @@
   package \code{numDeriv} which guarantees a symmetric matrix. 
 }
 \usage{
-  ugHgenb(par, fnuser, bdmsk=NULL, lower=NULL, upper=NULL,numgrad=FALSE,
+  ugHgenb(par, fnuser=NULL, bdmsk=NULL, lower=NULL, upper=NULL,numgrad=FALSE,
       control=list()) 
 }
 \arguments{
  \item{par}{Set of parameters, assumed to be at a minimum of the function \code{fn}.}
  \item{fnuser}{Name of the list that has fn=user_objective_function, gr=user_gradient and
-        hess=user_hessian. Note that gr or gr and hess may be NULL.}
+        hess=user_hessian. Note that gr or (gr and hess) may be NULL. While the default
+        for this parameter is NULL, it MUST be provided if \code{ugHgenb} is to return
+        a useful answer. The NULL is provided to ensure we do not inadvertently use an
+        existing object in the scope of the function.}
  \item{bdmsk}{An integer vector of the same length as \code{par}. When an element
      of this vector is 0, the corresponding parameter value is fixed (masked) 
      during an optimization. Non-zero values indicate a parameter is free (1),

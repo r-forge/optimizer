@@ -171,7 +171,8 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    scaletol=3,
    fnscale=1.0,
    parscale=NULL,
-   axsearch.tries=3 # will try axial search 3 times, but restart only 2 times!
+   axsearch.tries=1 # will try axial search once. No restart.
+   # Note if axsearch.tries=3, restart only 2 times!
    ) # for now turn off sorting until we can work out how to do it nicely
 # Note that we do NOT want to check on the names, because we may introduce 
 #    new names in the control lists of added methods. That is, we do NOT do
@@ -231,8 +232,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
 # Do we have bounds? 
    if (any(is.finite(c(lower, upper)))) { have.bounds<-TRUE # set this for convenience
    } else { have.bounds <- FALSE }
-   if (ctrl$starttests) {
-      # Check parameters in bounds (090601: As yet not dealing with masks ??)
+   if (ctrl$starttests) { # Check parameters in bounds
       infeasible<-FALSE
       if (ctrl$trace > 0) cat("Function has ",npar," arguments\n")
       if (have.bounds) {
@@ -375,12 +375,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
    
    if (require(dfoptim, quietly=FALSE) ) allmeth<-c(allmeth, "hjkb", "nmkb")
    else  warning("Package `dfoptim' (for nmkb) Not installed", call.=FALSE)
- 
-#  if(any(method == "DEoptim")) { # Code removed as DEoptim not part of current set of methods
-#     if ("DEoptim" %in% ipkgs[,1]) require(DEoptim, quietly=FALSE)
-#     else  stop("Package `DEoptim' Not installed", call.=FALSE)
-#  }
-##   pmeth <- c("spg", "ucminf", "Rcgmin", "Rvmmin", "bobyqa", "newuoa", "uobyqa", "nmkb", "hjkb")
+
    # Restrict list of methods if we have bounds
    bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "hjkb", "nmkb")
    if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
@@ -448,9 +443,12 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
         meth <- method[i] # extract the method name
         if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
       # Set the counters
-      kfn<-0
-      kgr<-0
-      khess<-0
+      # kfn<-0
+      # kgr<-0
+      # khess<-0
+      opxfn$KFN<-0
+      opxfn$KGR<-0
+      opxfn$KHESS<-0
       conv <- -1 # indicate that we have not yet converged
       # 20100608 - take care of polyalgorithms
       if (! is.null(itnmax) ) {
@@ -676,7 +674,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 ## --------------------------------------------
 #      else 
       if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
-         bdmsk<-rep(1,npar) #??
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -702,7 +699,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 ## --------------------------------------------
 #      else 
       if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
-         bdmsk<-rep(1,npar) #??
          mcontrol$trace<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -711,7 +707,8 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          mcontrol$maximize<-NULL # negation built into ufn
          time <- system.time(ans <- try(Rvmmin(par=par, fn=ufn, gr=ugr, lower=lower, 
              upper=upper, bdmsk=bdmsk, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
-         if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
+         if ((class(ans)[1] != "try-error") && (ans$convergence<2)) { 
+            # Note that convergence=1 when too many fns or grs.120520
             ans$conv <- ans$convergence
             ans$value<-as.numeric(ans$value)
             ans$fevals<-ans$counts[1]
@@ -995,9 +992,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
                gradOK<-gH$gradOK #?? These MAY not be OK after scaling
                hessOK<-gH$hessOK
                ngatend<-gH$gn*ctrl$parscale/ctrl$fnscale
-#               if(ctrl$maximize) ngatend<- (-1)*ngatend
                nhatend<-(diag(ctrl$parscale) %*% gH$Hn %*% diag(ctrl$parscale))/ctrl$fnscale
-#               if(ctrl$maximize) nhatend<- (-1)*nhatend
             } # end test if hessian computed; note gradient is also computed
             if (gradOK) { # have gradient
                if (hessOK) { # have hessian
@@ -1076,5 +1071,6 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
        for (i in 1:j) { ansout$fvalues[[i]] <- (-1)*ansout$fvalues[[i]] }
    }
    if (ctrl$trace>2) cat("returning after fcount=",attr(opxfn,"fcount"),"\n")
+   rm(opxfn) # remove the environment
    ansout # return(ansout)-- modified test version
 } ## end of optimx 

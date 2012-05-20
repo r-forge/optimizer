@@ -10,11 +10,11 @@ Provides a wrapper around user analytic Hessian function for nonlinear optimizat
 	as well as provide for maximization.
 }
 \usage{
-uhess(par, ...)
+uhess(par, fnuser)
 }
 \arguments{
  \item{par}{A vector of parameters to the user-supplied function \code{fn}}
- \item{...}{Extra arguments to the three sub-functions
+ \item{fnuser}{A user-supplied function object that has three sub-functions
          fn, gr, and hess. fn generates the scalar numerical value of the
          objective function, gr its vector valued gradient (or is NULL) and
          hess a numerical matrix for the Hessian (or is NULL).}

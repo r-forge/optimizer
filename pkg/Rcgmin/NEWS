@@ -1,0 +1,11 @@
+Changes in Rcgmin
+
+Changes before 2012-4-30 not recorded 
+
+TODOS
+   o    Eventual of different line searches, possibly in a
+        separate routine
+
+2012-5-21
+   o	Separation of constrained and unconstrained versions.
+

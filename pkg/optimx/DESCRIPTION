@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2012-5.20
-Date: 2012-05-20
+Version: 2012.5.22
+Date: 2012-05-22
 Title: A replacement and extension of the optim() function
 Author: John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
 Maintainer: John C Nash <nashjc@uottawa.ca>
@@ -10,6 +10,6 @@ Description: Provides a replacement and extension of the optim() function to uni
         number of tools for function minimization available as contributed R packages.
 License: GPL-2
 Lazyload: Yes
-Depends: optfntools, numDeriv
+Depends: optfntools (>= 2012.05.21), numDeriv
 Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim
 

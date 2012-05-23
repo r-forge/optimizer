@@ -1,6 +1,6 @@
 Package: optfntools
-Version: 2012-05.20
-Date: 2012-05-20
+Version: 2012.05.21
+Date: 2012-05-21
 Title: Tools for assisting the preparation and testing of objective functions for optimization.
 Author: John C Nash <nashjc@uottawa.ca>
 Maintainer: John C Nash <nashjc@uottawa.ca>

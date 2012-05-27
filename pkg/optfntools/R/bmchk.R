@@ -41,6 +41,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     #     parchanged: TRUE if parameters changed, FALSE if not
     #        parchanged = TRUE means that parameters are 
     #        INFEASIBLE, or they would not be changed.
+    #     onbound: TRUE if any parameter equal to a bound
     #
     ########## length of vectors #########
     n <- length(par)
@@ -75,6 +76,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     parchanged <- FALSE  # # must be set BEFORE if (bounds) ...; equivalent to feasible<-TRUE
     admissible <- TRUE  # similarly must set before we look at bounds
     maskadded <- FALSE  # similarly set here
+    onbound <- FALSE
     if (bounds) {
         # Make sure to expand lower and upper
         if (!nolower & (length(lower) < n)) 
@@ -162,11 +164,15 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     }
     if (trace > 0) 
         cat("parchanged = ", parchanged, "\n")
+    if (any(bvec == lower) || any(bvec == upper)){
+        onbound <- TRUE
+        if (trace > 0) cat("At least one parameter is on a bound\n")
+    }
     ############## end bounds check #############
     bcout <- list(bvec, bdmsk, lower, upper, nolower, noupper, 
-        bounds, admissible, maskadded, parchanged)
+        bounds, admissible, maskadded, parchanged, onbound)
     names(bcout) <- c("bvec", "bdmsk", "lower", "upper", "nolower", 
-        "noupper", "bounds", "admissible", "maskadded", "parchanged")
+        "noupper", "bounds", "admissible", "maskadded", "parchanged", "onbound")
     # Note bdmsk, lower and upper are returned because they are
     #   modified (length, etc.)
     return(bcout)

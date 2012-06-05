@@ -143,8 +143,6 @@ if (trace) {
                 }
              } # bmi
           } # end for loop
-          cat("reset bdmsk:")
-          print(bdmsk)
           dee<-diag(sqrt(diag(crossprod(Jac)))) # to append to Jacobian
        } # end newjac
        lamroot<-sqrt(lamda)

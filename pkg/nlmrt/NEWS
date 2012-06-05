@@ -1,4 +1,16 @@
-Changes in nlmrt version 2012-4.17 
+To do
+
+   o    The examples in ./inst/examples/ are calling routines that
+        have been renamed. These need to be fixed.
+
+   o    nlfb() needs an explicit Jacobian function and needs a way
+        to compute numerical Jacobian if omitted.
+
+Changes in nlmrt version 2012-6.01
+
+   o    Removed diagnostic printout of bdmsk in nlfb
+
+Changes in nlmrt version 2012-4.15 
 	   
    o	Added nlfb to allow functions for residual and Jacobian.
         These are developed from the expression for the residuals as
@@ -6,6 +18,5 @@ Changes in nlmrt version 2012-4.17
 
    o	Bounds now in wrapnls.
 
-   o	Note misleading trace output in nls() runs with bounds. The objective
-        function is 0.5*sum_of_squares.
+   o	Note misleading trace output in nls() runs with bounds.
 

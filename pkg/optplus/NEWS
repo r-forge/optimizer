@@ -1,0 +1,14 @@
+Changes in optfntools
+
+Changes before 2012-5-26 not recorded 
+
+TODOS
+
+
+Changes
+
+2012-5-26
+   o    Added check for "on a bound" in bmchk to aid
+	in use of tanh() transformation as in nmkb().
+
+

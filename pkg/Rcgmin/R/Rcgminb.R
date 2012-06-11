@@ -77,7 +77,8 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
-    if (ctrl$tol == 0) tol <- n * (n * .Machine$double.eps)  # for gradient test.  Note -- integer overflow if n*n*d.eps
+    npar<-length(par)
+    if (ctrl$tol == 0) tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  Note -- integer overflow if n*n*d.eps
     else tol<-ctrl$tol
     maxit <- ctrl$maxit  # limit on function evaluations
     maximize <- ctrl$maximize  # TRUE to maximize the function

@@ -52,11 +52,13 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     #################################################################
     # control defaults -- idea from spg
     ctrl <- list(maxit = 500, maximize = FALSE, trace = 0, eps = 1e-07, 
-        dowarn = TRUE)
+        dowarn = TRUE, tol=0)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
+    if (ctrl$tol == 0) tol <- n * (n * .Machine$double.eps)  # for gradient test.  Note -- integer overflow if n*n*d.eps
+    else tol<-ctrl$tol
     maxit <- ctrl$maxit  # limit on function evaluations
     maximize <- ctrl$maximize  # TRUE to maximize the function
     trace <- ctrl$trace  # 0 for no output, >0 for output (bigger => more output)
@@ -122,7 +124,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     #   Operations Research 103, 33–47, 2001 aor01.pdf
     # in Alg 22 pascal, we can set this as user. Do we wish to
     #   allow that?
-    tol <- n * (n * .Machine$double.eps)  # # for gradient test.  Note -- integer overflow if n*n*d.eps
+##    tol <- n * (n * .Machine$double.eps)  # # for gradient test.  Note -- integer overflow if n*n*d.eps
     fargs <- list(...)  # function arguments
     if (trace > 2) {
         cat("Extra function arguments:")

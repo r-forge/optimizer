@@ -1,4 +1,4 @@
-nlfb <-function(resfn, jacfn, start, trace=FALSE,  
+nlfb <-function(start, resfn, jacfn=NULL, trace=FALSE,  
             lower=-Inf, upper=Inf, maskidx=NULL, control=list(), ...){
 #
 #  A simplified and hopefully robust alternative to finding the 
@@ -67,7 +67,8 @@ if (trace) {
     laminc=10,
     lamdec=4, # use decreased_lamda<-lamda*lamdec/laminc
     femax=10000,
-    jemax=5000
+    jemax=5000, 
+    ndstep=1e-7 # numerical jacobian step
    )
    epstol<-(.Machine$double.eps)*ctrl$offset
    ncontrol <- names(control)
@@ -78,7 +79,7 @@ if (trace) {
       }
       ctrl[onename]<-control[onename]
    }
-   print(ctrl)
+   # print(ctrl)
    phiroot<-sqrt(ctrl$phi)
    lamda<-ctrl$lamda
    offset<-ctrl$offset
@@ -96,7 +97,33 @@ if (trace) {
        print(maskidx)
     }
     bdmsk[maskidx]<-0 # fixed parameters
+# 20120607 -- put in if needed
+    if (is.null(jacfn)){
+       if (trace) cat("Using default jacobian approximation\n")
+       numjac<-TRUE
+       myjac<-function(pars, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...){
+         npar<-length(pars)
+         jacmat<-matrix(0, ncol=npar, nrow=length(resbest))
+         tpars<-pars
+         for (j in 1:npar){
+            if (bdmsk[j]!=0) {
+               step<-ctrl$ndstep*(abs(pars[j])+ctrl$ndstep)
+##               cat("step ",j," = ",step,"\n")
+               tpars[j]<-tpars[j]+step
+               jacmat[,j]<-(rfn(tpars,...)-resbest)/step
+               tpars[j]<-pars[j]
+##               cat("Column ",j," of jacobian :\n")
+##               print(jacmat[,j])
+            }
+         }
+         jacmat
+       } # end myjac numeric
+    } else { 
+       numjac<-FALSE
+    }
     resbest<-resfn(pnum, ...)
+#    cat("resbest:")
+#    print(resbest)
     ssbest<-crossprod(resbest)
     feval<-1
     pbest<-pnum
@@ -121,7 +148,10 @@ if (trace) {
             cat("bdmsk:")
             print(bdmsk)
           }
-          Jac<-jacfn(pbest, ...)
+          if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
+          else Jac<-jacfn(pbest, ...)
+##          cat("Jac:")
+##          print(Jac)
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
           JTJ<-crossprod(Jac)

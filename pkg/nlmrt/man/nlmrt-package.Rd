@@ -234,11 +234,14 @@ st<-c(b1=1, b2=1, b3=1)
 low<--Inf
 up<-Inf
 
-ans1<-nlfb(shobbs.res, shobbs.jac, st, trace=traceval)
+ans1<-nlfb(st, shobbs.res, shobbs.jac, trace=traceval)
 ans1
+cat("No jacobian function -- use internal approximation\n")
+ans1n<-nlfb(st, shobbs.res, trace=TRUE, control=list(watch=TRUE)) # NO jacfn
+ans1n
 
 # tmp<-readline("Try with bounds at 2")
-time2<-system.time(ans2<-nlfb(shobbs.res, shobbs.jac, st, upper=c(2,2,2), trace=traceval))
+time2<-system.time(ans2<-nlfb(st, shobbs.res, shobbs.jac, upper=c(2,2,2), trace=traceval))
 ans2
 time2
 
@@ -249,7 +252,7 @@ an1qb1<-try(nlxb(escal, start=st2s, trace=traceval, data=weeddata1,
   lower=c(0,0,0), upper=c(2, 6, 3), control=list(watch=FALSE)))
 print(an1qb1)
 tmp<-readline("next")
-ans2<-nlfb(shobbs.res, shobbs.jac, st2s, lower=c(0,0,0), upper=c(2, 6, 3), 
+ans2<-nlfb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
    trace=traceval, control=list(watch=FALSE))
 print(ans2)
 
@@ -294,12 +297,12 @@ cat("TRY MASKS ONLY\n")
 
 an1xm3<-try(nlxb(escal, start1, trace=traceval, data=weeddata1, masked=c("b3")))
 print(an1xm3)
-an1fm3<-try(nlfb(shobbs.res, shobbs.jac, start1, trace=traceval, data=weeddata1, maskidx=c(3)))
+an1fm3<-try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, data=weeddata1, maskidx=c(3)))
 print(an1fm3)
 
 an1xm1<-try(nlxb(escal, start1, trace=traceval, data=weeddata1, masked=c("b1")))
 print(an1xm1)
-an1fm1<-try(nlfb(shobbs.res, shobbs.jac, start1, trace=traceval, data=weeddata1, maskidx=c(1)))
+an1fm1<-try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, data=weeddata1, maskidx=c(1)))
 print(an1fm1)
 
 # Need to check when all parameters masked.??

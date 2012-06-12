@@ -12,7 +12,7 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   nlfb(resfn, jacfn, start, trace=FALSE, lower=-Inf, upper=Inf, masked=NULL, control, ...)
+   nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, maskidx=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +23,8 @@
   \item{jacfn}{
      A function that evaluates the Jacobian of the sum of squares function, that
      is, the matrix of partial derivatives of the residuals with respect to each
-     of the parameters.
+     of the parameters. If NULL (default), uses an approximation.
+     ?? put in character form as in optimx??
 }
   \item{start}{
      A named parameter vector. For our example, we could use
@@ -41,10 +42,11 @@
      Upper bounds on the parameters. If a single number, this will be applied to all
      parameters. Default Inf.
 } 
-  \item{masked}{
-     Character vector of quoted parameter names. These parameters will NOT be altered
-     by the algorithm.
-     MASKS ARE NOT WORKING PROPERLY AS OF 20120415. ??
+  \item{maskidx}{
+     Vector if indices of the parameters to be masked. These parameters will NOT be altered
+     by the algorithm. Note that the mechanism here is different from that in \code{nlxb}
+     which uses the names of the parameters.
+
 } 
   \item{control}{ 
      A list of controls for the algorithm. These are:

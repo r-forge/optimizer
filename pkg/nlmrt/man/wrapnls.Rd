@@ -67,8 +67,21 @@ John C Nash <nashjc@uottawa.ca>
     Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
 }
 \examples{
-
 cat("See examples in nlmrt-package.Rd\n")
+cat("kvanderpoel.R test\n")
+require(nlmrt)
+x<-c(1,3,5,7)
+y<-c(37.98,11.68,3.65,3.93)
+pks28<-data.frame(x=x,y=y)
+fit0<-try(nls(y~(a+b*exp(1)^(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace=TRUE))
+print(fit0)
+cat("\n\n")
+fit1<-nlxb(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace = TRUE)
+print(fit1) 
+cat("\n\nor better\n")
+fit2<-wrapnls(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), lower=-Inf, upper=Inf, trace = TRUE)
+
+
 
 }
 \keyword{ nonlinear least squares }

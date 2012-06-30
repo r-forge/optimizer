@@ -1,6 +1,0 @@
-export(
-  "optimx",
-  "optansout",
-  "get.result",
-  "get.best"
-)

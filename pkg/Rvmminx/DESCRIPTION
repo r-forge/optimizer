@@ -1,8 +1,8 @@
 Package: Rvmminx
 Type: Package
 Title: Variable metric nonlinear function minimization with bounds constraints - experimental
-Version: 2011-5.09
-Date: 2011-05-09
+Version: 2011-5.10
+Date: 2011-05-10
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Variable metric nonlinear function minimization with bounds constraints - experimental Intended to test saving stepsize and using quadratic minimization.    Redated  v 2011-5.09

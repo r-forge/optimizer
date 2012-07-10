@@ -104,3 +104,4 @@ t1000m <- system.time(ans <- Rvmmin(xx, genrose.f,
     gs = 100))[1]
 cat("final fn value =", ans$value, "\n")
 cat("time = ", t1000m, "\n")
+

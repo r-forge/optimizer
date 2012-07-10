@@ -52,15 +52,16 @@ for (ii in ni) {
     ut <- system.time(ans <- Rvmmin(x0, broydt.f, broydt.g, control = list(trace = 1)))[1]
     times[ii, 1] <- ut
     cat("unconstrained with gradient\n")
-    #   ans
-    optansout(ans, filename = afname)
+    sink(afname, split=TRUE)
+    print(ans)
+    sink()
     afname <- paste("ansbroydt", n, "UN", sep = "")
     ut <- system.time(ans <- Rvmmin(x0, broydt.f, control = list(trace = 1)))[1]
     times[ii, 2] <- ut
     cat("unconstrained, no analytic gradient\n")
-    #   ans
-    optansout(ans, filename = afname)
-    
+    sink(afname, split=TRUE)
+    print(ans)
+    sink()
     
     lower <- rep(1, n)
     upper <- rep(Inf, n)
@@ -71,15 +72,17 @@ for (ii in ni) {
         upper = upper, control = list(trace = 1)))[1]
     times[ii, 3] <- ut
     cat("constrained, no analytic gradient\n")
-    #   ans
-    optansout(ans, filename = afname)
+    sink(afname, split=TRUE)
+    print(ans)
+    sink()
     afname <- paste("ansbroydt", n, "BN", sep = "")
     ut <- system.time(ans <- Rvmmin(x0, broydt.f, lower = lower, 
         upper = upper, control = list(trace = 1)))[1]
     times[ii, 4] <- ut
     cat("constrained, no analytic gradient\n")
-    #   ans
-    optansout(ans, filename = afname)
+    sink(afname, split=TRUE)
+    print(ans)
+    sink()
 }
 
 cat("Cols are UG, UN, BG, BN times\n")

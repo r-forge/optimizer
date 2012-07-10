@@ -1,19 +1,16 @@
-\name{templatePhi}
-\alias{templatePhi}
-\alias{Phi}
-\alias{phi}
-\alias{JacPhi}
-\alias{jacphi}
-\alias{Jacphi}
-\alias{jacPhi}
-\title{the Phi function}
+\name{SSR}
+\alias{SSR}
+\alias{funSSR}
+\alias{jacSSR}
+\title{SemiSmooth Reformulation}
 \description{
-		a template for the Phi function of the extended KKT system
+		functions of the SemiSmooth Reformulation of the GNEP
 	}
 \usage{
-Phi(z, dimx, dimlam, grobj, arggrobj, constr, argconstr, grconstr, arggrconstr, compl)
-JacPhi(z, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
-	heconstr, argheconstr, gcompla, gcomplb)
+funSSR(z, dimx, dimlam, grobj, arggrobj, constr, argconstr, grconstr, arggrconstr, 
+	compl, argcompl)
+jacSSR(z, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
+	heconstr, argheconstr, gcompla, gcomplb, argcompl)
 }
 \arguments{
   \item{z}{a numeric vector z containing x then lambda values.}
@@ -25,7 +22,8 @@ JacPhi(z, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconst
   \item{argconstr}{a list of additional arguments of the constraint function.}
   \item{grconstr}{gradient of the constraint function, see details.}
   \item{arggrconstr}{a list of additional arguments of the constraint gradient.}
-  \item{compl}{the complementarity function with two arguments: \code{compl(a,b)}.}
+  \item{compl}{the complementarity function with (at least) two arguments: \code{compl(a,b)}.}
+  \item{argcompl}{list of possible additional arguments for \code{compl}.}
 
   \item{heobj}{Hessian of the objective function, see details.}
   \item{argheobj}{a list of additional arguments of the objective Hessian.}	
@@ -70,7 +68,7 @@ See the example	below.
 	
 }
 \value{
-A vector for \code{Phi} or a matrix for \code{JacPhi}.
+A vector for \code{funSSR} or a matrix for \code{jacSSR}.
 }
 \references{
  F. Facchinei, A. Fischer and V. Piccialli (2009), 
@@ -78,7 +76,7 @@ A vector for \code{Phi} or a matrix for \code{JacPhi}.
  Math. Program.
 } 
 \seealso{
-  See also \code{\link{NewtonKKT}}.
+  See also \code{\link{GNE.nseq}}.
 }
 \author{
  Christophe Dutang
@@ -230,12 +228,10 @@ m <- sum(dimlam)
 x <- z[1:n]
 lam <- z[(n+1):(n+m)]
 
-resphi <- Phi(z, dimx, dimlam, grobj=grfullob, constr=g, grconstr=grfullg, compl=phiFB)
-
-c(1\%*\%1, 1\%*\%2)
+resphi <- funSSR(z, dimx, dimlam, grobj=grfullob, constr=g, grconstr=grfullg, compl=phiFB)
 
 
-	check <- c(grfullob(x, 1, 1) + lam[1] * grfullg(x, 1, 1), 
+check <- c(grfullob(x, 1, 1) + lam[1] * grfullg(x, 1, 1), 
 	grfullob(x, 1, 2) + lam[1] * grfullg(x, 1, 2), 
 	grfullob(x, 2, 3) + lam[2:3] \%*\% grfullg(x, 2, 3),
 	grfullob(x, 2, 4) + lam[2:3] \%*\% grfullg(x, 2, 4), 	
@@ -261,7 +257,7 @@ print(cbind(check, res=as.numeric(resphi))[(n+1):(n+m), ])
 # (4) compute Jac Phi
 #
 	
-resjacphi <- JacPhi(z, dimx, dimlam, heobj=hefullob, constr=g, grconstr=grfullg, 
+resjacphi <- jacSSR(z, dimx, dimlam, heobj=hefullob, constr=g, grconstr=grfullg, 
 	heconstr=hefullg, gcompla=GrAphiFB, gcomplb=GrBphiFB)
 
 	

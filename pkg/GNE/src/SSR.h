@@ -5,7 +5,7 @@
  * @author Christophe Dutang
  *
  *
- * Copyright (C) 2010, Christophe Dutang.
+ * Copyright (C) 2012, Christophe Dutang.
  * All rights reserved.
  *
  */
@@ -23,18 +23,18 @@
 
 
 /* Functions accessed from .Call() */
-SEXP doPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam, 
+SEXP dofunSSR(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam, 
 		   SEXP grobj, SEXP arggrobj, 
 		   SEXP constr, SEXP argconstr, 
 		   SEXP grconstr, SEXP arggrconstr, 
-		   SEXP complfunc, SEXP env);
+		   SEXP complfunc, SEXP argcompl, SEXP env);
 
 
-SEXP doJacPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
+SEXP dojacSSR(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
 			  SEXP heobj, SEXP argheobj, 
 			  SEXP constr, SEXP argconstr, 
 			  SEXP grconstr, SEXP arggrconstr, 
 			  SEXP heconstr, SEXP argheconstr,
-			  SEXP grcompla, SEXP grcomplb, SEXP env);
+			  SEXP grcompla, SEXP grcomplb, SEXP argcompl, SEXP env);
 
  

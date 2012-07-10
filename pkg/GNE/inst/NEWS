@@ -1,5 +1,15 @@
 === GNE: computation of Nash Equilibria ===
 
+Version 0.97
+=============
+
+- change the arguments of GNE.nseq.
+
+Version 0.96
+=============
+
+- remove PROBj2k***, GrPROBj2k***, GrGrPROBj2k*** functions.
+
 Version 0.95
 =============
 

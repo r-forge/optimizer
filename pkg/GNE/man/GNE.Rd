@@ -41,7 +41,7 @@ The \code{GNE} function is a global function calling the appropriate function \c
 
 Additionnal utitilty functions are also available:
 \code{\link{rejection}}, \code{\link{projector}}, \code{\link{stepfunc}},
- \code{\link{complementarity}} and \code{\link{templatePhi}}.
+ \code{\link{complementarity}} and \code{\link{funSSR}}.
 
 
 TODO:

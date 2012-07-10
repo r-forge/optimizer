@@ -6,7 +6,16 @@ library(GNE)
 # (1) Example 5.1 of von Heusinger & Kanzow (2009)
 #-------------------------------------------------------------------------------
 
-#Phi(z) function
+#for Phi(z) function
+#gro1 <- function(x, i, j)
+#{
+#	if(j == 1)
+#		2*(x[1]-1)
+#	if(j == 1)
+#		2*(x[2]-1/2)
+#}
+#c1 <- function(x, i,j)
+
 phiex1 <- function(z)
 {
 	x <- z[1]

@@ -5,7 +5,7 @@
  * @author Christophe Dutang
  *
  *
- * Copyright (C) 2009, Christophe Dutang. 
+ * Copyright (C) 2012, Christophe Dutang. 
  * All rights reserved.
  *
  */

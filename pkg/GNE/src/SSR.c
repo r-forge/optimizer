@@ -1,31 +1,31 @@
 /** 
- * @file  newton4KKT.c
- * @brief C file for Newton type methods to solve KKT system
+ * @file  funSSR.c
+ * @brief C file for functions of the SemiSmooth Reformulation of the GNEP
  *
  * @author Christophe Dutang
  *
  *
- * Copyright (C) 2010, Christophe Dutang. 
+ * Copyright (C) 2012, Christophe Dutang. 
  * All rights reserved.
  *
  */
 
 
-#include "newton4KKT.h"
+#include "SSR.h"
 
 
 
 
 /*********************************/
-/* Phi function */
+/* function phi of the SSR */
 
 
 //main function used .Call()
-SEXP doPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam, 
+SEXP dofunSSR(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam, 
 		   SEXP grobj, SEXP arggrobj, 
 		   SEXP constr, SEXP argconstr, 
 		   SEXP grconstr, SEXP arggrconstr, 
-		   SEXP complfunc, SEXP env)
+		   SEXP complfunc, SEXP argcompl, SEXP env)
 {
 //    if (!isReal(nplayer))
   //      error(_("invalid argument nplayer"));
@@ -90,7 +90,7 @@ SEXP doPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
 	PROTECT(R_grobjcall = lang5(grobj, z, play, deriv1, arggrobj)); //Grad_i O_i(x) 
 	PROTECT(R_constrcall = lang4(constr, z, play, argconstr)); //g_i(x) 
 	PROTECT(R_grconstrcall = lang5(grconstr, z, play, deriv1, arggrconstr)); //Grad_j g_i(x) 	
-	PROTECT(R_complcall = lang3(complfunc, a, b)); //phi(a,b)   
+	PROTECT(R_complcall = lang4(complfunc, a, b, argcompl)); //phi(a,b)   
 	
 	//init SEXP variables for results
 	PROTECT(grobj_res = allocVector(REALSXP, 1)); 
@@ -193,17 +193,18 @@ SEXP doPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
 
 
 /*********************************/
-/* Jacobian of the Phi function */
+/* Jacobian of phi of the SSR */
 
 
 
 //main function used .Call()
-SEXP doJacPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
+SEXP dojacSSR(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
 			  SEXP heobj, SEXP argheobj, 
 			  SEXP constr, SEXP argconstr, 
 			  SEXP grconstr, SEXP arggrconstr, 
 			  SEXP heconstr, SEXP argheconstr,
-			  SEXP grcompla, SEXP grcomplb, SEXP env)
+			  SEXP grcompla, SEXP grcomplb, SEXP argcompl,
+			  SEXP env)
 {
     if (!isVector(z))
         error(_("invalid argument z"));
@@ -268,9 +269,9 @@ SEXP doJacPhi(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
 	PROTECT(R_heobjcall = lang6(heobj, z, play, deriv1, deriv2, argheobj)); //Grad_k Grad_j 0_i(x)
 	PROTECT(R_constrcall = lang4(constr, z, play, argconstr)); //g_i(x) 
 	PROTECT(R_grconstrcall = lang5(grconstr, z, play, deriv1, arggrconstr)); //Grad_j g_i(x) 	
-	PROTECT(R_heconstrcall = lang6(heconstr, z, play, deriv1, deriv2, argheobj)); //Grad_k Grad_j g_i(x)
-	PROTECT(R_grcomplacall = lang3(grcompla, a, b)); //phi'_a(a,b)
-	PROTECT(R_grcomplbcall = lang3(grcomplb, a, b)); //phi'_b(a,b)	
+	PROTECT(R_heconstrcall = lang6(heconstr, z, play, deriv1, deriv2, argheconstr)); //Grad_k Grad_j g_i(x)
+	PROTECT(R_grcomplacall = lang4(grcompla, a, b, argcompl)); //phi'_a(a,b)
+	PROTECT(R_grcomplbcall = lang4(grcomplb, a, b, argcompl)); //phi'_b(a,b)	
 	
 	//init SEXP variables for results
 	PROTECT(heobj_res = allocVector(REALSXP, 1)); 

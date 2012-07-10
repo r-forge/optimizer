@@ -1,20 +1,38 @@
 \name{GNE.nseq}
 \alias{GNE.nseq}
+\alias{bench.GNE.nseq}
+\alias{bench.GNE.nseq.LM}
 \title{Non smooth equation reformulation of the GNE problem.}
 \description{
 		Non smooth equation reformulation via the extended KKT system of the GNE problem.
 	}
 \usage{
-GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), method="Newton", control=list(), ...)
+GNE.nseq(xinit, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
+constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr, 
+compl, gcompla, gcomplb, method="Newton", control=list(), ...)
+
 bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
 bench.GNE.nseq.LM(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, control=list())
 }
 \arguments{
   \item{xinit}{initial point.}
-  \item{Phi}{the phi function.}
-  \item{jacPhi}{the Jacobian of the phi function.}
-  \item{argPhi}{further arguments to be passed to \code{phi}.}
-  \item{argjac}{further arguments to be passed to \code{jacphi}.}
+  \item{dimx}{dimension of x.}
+  \item{dimlam}{dimension of lambda.}
+  \item{grobj}{gradient of the objective function, see details.}
+  \item{arggrobj}{a list of additional arguments of the objective gradient.}
+  \item{constr}{constraint function, see details.}
+  \item{argconstr}{a list of additional arguments of the constraint function.}
+  \item{grconstr}{gradient of the constraint function, see details.}
+  \item{arggrconstr}{a list of additional arguments of the constraint gradient.}
+  \item{compl}{the complementarity function with two arguments: \code{compl(a,b)}.}
+
+  \item{heobj}{Hessian of the objective function, see details.}
+  \item{argheobj}{a list of additional arguments of the objective Hessian.}	
+  \item{heconstr}{Hessian of the constraint function, see details.}
+  \item{argheconstr}{a list of additional arguments of the constraint Hessian.}
+  \item{gcompla}{derivative of the complementarity function w.r.t. the first argument.}
+  \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}    
+
   \item{method}{a character string specifying the method \code{"Newton"},
 	\code{"Broyden"}, \code{"Levenberg-Marquardt"}. }
   \item{control}{a list with control parameters.}
@@ -176,8 +194,8 @@ to \code{FALSE}.
 \seealso{
 
 See \code{\link{GNE.fpeq}} and \code{\link{GNE.min}} 
-for other approaches; \code{\link{Phi}} and
-\code{\link{JacPhi}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi} and
+for other approaches; \code{\link{funSSR}} and
+\code{\link{jacSSR}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi} and
 \code{\link{complementarity}} for complementarity functions.
 
 See also \code{\link{nleqslv}} for some optimization details.

@@ -30,9 +30,10 @@ linesearch.geom <- function(xk, dk, slopek, con, merit, ...)
 
 }			
 
-linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, ...)
+# geometric backtracking line search customized for interior point methods
+linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dimlam, dimw, ...)
 {
-	normfk <- merit(xk, ...)
+	normfk <- merit(xk, dimx, dimlam, dimw, ...)
 	stepk <- 1
 			
 	inner.iter <- 0
@@ -44,9 +45,9 @@ linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, ...)
 		if(con$trace >= 3)
 			cat("i", inner.iter, "\tstep", stepk, "\n")			
 		
-		if(checkint(xk + stepk*dk, ...))
+		if(checkint(xk + stepk*dk, dimx, dimlam, dimw))
 		{
-			normfp <- merit(xk + stepk*dk, ...)
+			normfp <- merit(xk + stepk*dk, dimx, dimlam, dimw, ...)
 	
 			#traces in R console	
 			if(con$trace >= 3)
@@ -101,4 +102,41 @@ linesearch.quad <- function(xk, dk, slopek, con, merit, ...)
 		normfp=normfp, normfk=normfk)
 }			
 	
+# quadratic backtracking line search customized for interior point methods
+linesearch.quad.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dimlam, dimw, ...)
+{
+	normfk <- merit(xk, dimx, dimlam, dimw, ...)
+	stepk <- 1
 	
+	inner.iter <- 0
+	minstep <- con$xtol / max( abs(dk) / pmax(xk, 1) )		
+	
+	while(stepk > minstep)
+	{
+		#traces in R console	
+		if(con$trace >= 3)
+			cat("i", inner.iter, "\tstep", stepk, "\n")			
+		
+		if(checkint(xk + stepk*dk, dimx, dimlam, dimw))
+		{
+			
+			normfp <- merit(xk + stepk*dk, dimx, dimlam, dimw, ...)
+		
+			#traces in R console	
+			if(con$trace >= 3)
+				cat("i", inner.iter, "\tstep", stepk, "\tleft term", normfp, "\tright term\t", normfk + con$btol * stepk * slopek, "\n")			
+		
+		
+			#check Armijo condition
+			if(normfp <= normfk + con$btol * stepk * slopek)
+				break
+		}
+		
+		inner.iter <- inner.iter + 1	
+		stepk <- - as.numeric( (stepk)^2 * slopek / 2 / (normfp - normfk - slopek)	)	
+		
+	}	
+	list(stepk=stepk, xk=xk, dk=dk, slopek=slopek, inner.iter=inner.iter, 
+		 normfp=normfp, normfk=normfk)
+}			
+

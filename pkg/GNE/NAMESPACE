@@ -2,15 +2,25 @@
 
 ### Exports of main R functions
 export(GNE, GNE.nseq, bench.GNE.nseq, bench.GNE.nseq.LM, GNE.ceq, GNE.fpeq, GNE.min)
+S3method(print, GNE)
+S3method(summary, GNE)
+S3method(print, summary.GNE)
+
 
 ### template functions
-export(Phi, JacPhi)
-export(Htemplate, jacHtemplate)
+export(funSSR, jacSSR)
+export(funCER, jacCER)
+### depreciated functions
+export(Phi, JacPhi, GNE.nseq.old)
 
 ### aux - step functions
 export(decrstep, decrstep10, decrstep20, decrstep30, purestep)
 
-### aux - complémentarité functions
+### aux - complementarity functions
+export(compl.par)
+S3method(print, compl.par)
+S3method(summary, compl.par)
+S3method(print, summary.compl.par)
 export(phiFB, GrAphiFB, GrBphiFB, phiMin, GrAphiMin, GrBphiMin)
 export(phiMan, GrAphiMan, GrBphiMan, phiLT, GrAphiLT, GrBphiLT)
 export(phiKK, GrAphiKK, GrBphiKK)
@@ -21,17 +31,13 @@ export(projector, rejection)
 ### aux - complementarity functions
 export(potential.ce, gradpotential.ce, psi.ce, gradpsi.ce)
 
-### aux - multinomial logit functions
-export(PROBj2kRatio, GrPROBj2kRatio, GrGrPROBj2kRatio)
-export(PROBj2kDiff, GrPROBj2kDiff, GrGrPROBj2kDiff)
-
 ### depreciated functions
-export(NewtonKKT, fixedpoint, minGap)
+#export(NewtonKKT, fixedpoint, minGap)
 
 ### test functions
 #export(NewtonNext, LevenMarqNext)
 #export(eqsolve, graphContourOneIter)
-export(graphContourMultIter)
+#export(graphContourMultIter)
 
 ### C code
 useDynLib(GNE, .registration = TRUE)

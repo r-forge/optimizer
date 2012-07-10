@@ -1,5 +1,6 @@
 #see page 857 or page xxx (30) of vol II of Facchinei & Pang (2003)
 
+
 #Fischer-Burmeister
 phiFB <- function(a, b) 
 	sqrt(a^2+b^2) - (a+b)
@@ -19,13 +20,13 @@ GrBphiMin <- function(a, b)
 
 
 #Mangasarian
-phiMan <- function(a, b, f)
+phiMan <- function(a, b, f, fprime)
 	f(abs(a-b)) - f(a) - f(b)
 
-GrAphiMan <- function(a, b, fprime)
+GrAphiMan <- function(a, b, f, fprime)
 	sign(a-b) * fprime(abs(a-b)) - fprime(a)
 
-GrBphiMan <- function(a, b, fprime)
+GrBphiMan <- function(a, b, f, fprime)
 	sign(b-a) * fprime(abs(a-b)) - fprime(b)
 
 
@@ -60,3 +61,56 @@ GrBphiKK <- function(a, b, lambda)
 
 
 
+
+
+#complementarity parameter class
+compl.par <- function(type=c("FB", "Min", "Man", "LT", "KK"), 
+f, fprime, q, lambda)
+{
+	type <- match.arg(type, c("FB", "Min", "Man", "LT", "KK"))
+	
+	if(type == "FB")
+		res <- list(type=type, fun=phiFB, grA=GrAphiFB, grB=GrBphiFB)
+	else if(type == "Min")
+		res <- list(type=type, fun=phiMin, grA=GrAphiMin, grB=GrBphiMin)
+	else if(type == "Man")
+		res <- list(type=type, fun=phiMan, grA=GrAphiMan, grB=GrBphiMan, f=f, fprime=fprime)
+	else if(type == "LT")
+		res <- list(type=type, fun=phiLT, grA=GrAphiLT, grB=GrBphiLT, q=q)
+	else if(type == "KK")
+		res <- list(type=type, fun=phiKK, grA=GrAphiKK, grB=GrBphiKK, lambda=lambda)
+	else
+		stop("internal error in compl.par.")
+	
+	class(res) <- "compl.par"
+	res
+}
+
+#print function
+print.compl.par <- function(x, ...)
+{
+	cat("Complementarity function:", x$type,"\n")
+	print(x$fun)
+	cat("with derivatives:\n")
+	print(x$grA)
+	print(x$grB)
+	print(x[!names(x) %in% c("fun", "grA", "grB", "type")])
+}
+
+
+#summary function
+summary.compl.par <- function(object, ...)
+{
+	structure(object, class = c("summary.compl.par", class(object)))	
+}
+
+
+#print function
+print.summary.compl.par <- function(x, ...)
+{
+	cat("Complementarity function:", x$type,"\n")
+	print(args(x$fun))
+	cat("with derivatives:\n")
+	print(args(x$grA))
+	print(args(x$grB))
+}

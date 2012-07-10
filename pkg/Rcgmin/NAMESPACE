@@ -1,6 +1,5 @@
 export(
   "Rcgmin",
   "Rcgminu",
-  "Rcgminb",
-  "optansout"
+  "Rcgminb"
 )

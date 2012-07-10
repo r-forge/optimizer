@@ -93,7 +93,6 @@ for (n in nn) {
     x0 <- x0/(n + 1)  # Initial value suggested by Fletcher
     ut <- system.time(ans <- Rcgmin(x0, cyq.f, cyq.g, lower, 
         upper, bdmsk, control = list(trace = 1)))[1]
-    optansout(ans, afname)
     print(ans)
     cat("time = ", ut, "\n")
 }

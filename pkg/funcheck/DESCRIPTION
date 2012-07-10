@@ -1,10 +1,11 @@
 Package: funcheck
-Version: 2009-5.12
+Version: 2009-5.121
 Date: 2012-03-12
-Title: Run tests, where possible, on named optimization problem file.
+Title: OBSOLETE: Run tests, where possible, on named optimization problem file.
 Author: John C Nash <nashjc@uottawa.ca>
 Maintainer: John C Nash <nashjc@uottawa.ca>
-Description: Provides a way to check the file fname.R that contains various functions that
+Description: This package is obsolete and should not be used.
+        Provides a way to check the file fname.R that contains various functions that
 	compute the objective function, gradient, Hessian, residuals, Jacobian, Jacobian second 
 	derivatives and setup for functions used to test optimization routines. A second function
         funtest allows the individual function names to be given. Redated to force R-forge build.

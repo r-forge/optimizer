@@ -379,6 +379,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
    # Restrict list of methods if we have bounds
    bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "hjkb", "nmkb")
    if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
+   if (method=="ALL") ctrl$all.methods<-TRUE # 120709
    if (ctrl$all.methods) { # Changes method vector!
       method<-allmeth
       if (ctrl$trace>0) {
@@ -386,8 +387,8 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          print(method)
       }
    } 
-   # Convert Nelder-Mead to NM
-   method[which(method == "NM")]<-"Nelder-Mead" # convert NM to Nelder-Mead for decisions, other way on output
+   # convert NM to Nelder-Mead for decisions, other way on output
+   method[which(method == "NM")]<-"Nelder-Mead" 
    method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
    if (class(method)=="try-error") {
       warning("optimx: No match to available methods")
@@ -988,7 +989,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
                if (ctrl$trace>0) cat("Compute gradient and Hessian approximations at finish of ",method[i],"\n")
                #?? NOTE: we could do extra counts and timings here, and probably should
                gH<-ugHgenb(ans$par, fnuser=opxfn, bdmsk=bdmsk, lower=lower,
-                  upper=upper, control=list(ktrace=(ctrl$trace-1)))
+                  upper=upper, control=list(dowarn=FALSE, ktrace=(ctrl$trace-1)))
                gradOK<-gH$gradOK #?? These MAY not be OK after scaling
                hessOK<-gH$hessOK
                ngatend<-gH$gn*ctrl$parscale/ctrl$fnscale

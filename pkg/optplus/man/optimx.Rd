@@ -511,13 +511,13 @@ cat("\n\n")
 
 
 cat("25-dimensional box constrained function\n")
-cat("Note: nmkb fails because it cannot handle as starting vector with a parameter on bound.\n")
+cat("Note: nmkb fails. Starting vector must have no parameter on bound.\n")
 flb <- function(x)
     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
 
 ans7<-optimx(rep(3, 25), flb, lower=rep(2, 25), upper=rep(4, 25),
         control=list(all.methods=TRUE)) # par[24] is *not* at boundary
-print(ans7)
+optansout(ans7, NULL)
 
 
 cat("Check on maximization\n")

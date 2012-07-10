@@ -1,4 +1,4 @@
-Changes in optfntools
+Changes in optplus
 
 Changes before 2012-5-26 not recorded 
 
@@ -6,6 +6,15 @@ TODOS
 
 
 Changes
+
+2012-7-09
+   o    Suppress warnings in ugHgenb -- too much
+        unhelpful output
+   o    Fixed optansout to print parameters
+
+2012-6-07
+   o    Merged optfntools into optplus to ensure 
+        R-forge build.
 
 2012-5-26
    o    Added check for "on a bound" in bmchk to aid

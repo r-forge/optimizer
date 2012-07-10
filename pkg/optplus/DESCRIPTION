@@ -1,6 +1,6 @@
 Package: optplus
-Version: 2012-06.07
-Date: 2012-06-07
+Version: 2012-07.09
+Date: 2012-07-09
 Title: A suite of tools for optimization (function minimization with at most bounds and masks).
 Author: John C Nash <nashjc@uottawa.ca>
 Maintainer: John C Nash <nashjc@uottawa.ca>

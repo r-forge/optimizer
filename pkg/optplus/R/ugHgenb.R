@@ -24,6 +24,7 @@ ugHgenb <- function(par, fnuser=NULL, bdmsk = NULL, lower = NULL, upper = NULL,
     #      asymtol = Tolerance to decide if we should force symmetry
     #                Default is 1.0e-7.
     #      ktrace = integer flag (default 0) to cause allow output if >0
+    #      dowarn = TRUE for warnings, FALSE otherwise
     #      stoponerror = logical flag (default=FALSE) to stop if we cannot
     #            compute gradient or Hessian approximations. Otherwise return
     #            with flags gradOK and/or hessOK set FALSE.
@@ -48,11 +49,13 @@ ugHgenb <- function(par, fnuser=NULL, bdmsk = NULL, lower = NULL, upper = NULL,
     #
     #################################################################
     if (is.null(fnuser)) stop("MUST have environment fnuser defined.")
-    ctrl <- list(asymtol = 1e-07, ktrace = 0, stoponerror = FALSE)
+    ctrl <- list(asymtol = 1e-07, ktrace = 0, dowarn=TRUE, 
+              stoponerror = FALSE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
+    if (ctrl$ktrace>0) ctrl$dowarn<-TRUE # force true if tracing
     # For bounds constraints, we need to 'project' the gradient and Hessian
     # For masks there is no possibility of movement in parameter.
     bmset <- sort(unique(c(which(par <= lower), which(par >= upper), 
@@ -117,7 +120,7 @@ ugHgenb <- function(par, fnuser=NULL, bdmsk = NULL, lower = NULL, upper = NULL,
                     asym, sep = "")
                   if (ctrl$ktrace > 1) 
                     cat(asw, "\n")
-                  warning(asw)
+                  if (ctrl$dowarn) warning(asw)
                   if (asym > ctrl$asymtol) {
                     if (ctrl$stoponerror) 
                       stop("Hessian too asymmetric")
@@ -125,7 +128,7 @@ ugHgenb <- function(par, fnuser=NULL, bdmsk = NULL, lower = NULL, upper = NULL,
                   else hessOK <- TRUE
                   if (ctrl$ktrace > 1) 
                     cat("Force Hessian symmetric\n")
-                  else warning("Hessian forced symmetric", call. = FALSE)
+                  else if (ctrl$dowarn) warning("Hessian forced symmetric", call. = FALSE)
                   Hn <- 0.5 * (t(Hn) + Hn)
                 }  # end if ! isSymmetric
         }  # numerical hessian at 'solution'
@@ -147,7 +150,7 @@ ugHgenb <- function(par, fnuser=NULL, bdmsk = NULL, lower = NULL, upper = NULL,
                   asym, sep = "")
                 if (ctrl$ktrace > 1) 
                   cat(asw, "\n")
-                else warning(asw)
+                else if (ctrl$dowarn) warning(asw)
                 if (asym > ctrl$asymtol) {
                   if (ctrl$stoponerror) 
                     stop("Hessian too asymmetric")
@@ -155,7 +158,7 @@ ugHgenb <- function(par, fnuser=NULL, bdmsk = NULL, lower = NULL, upper = NULL,
                 else hessOK <- TRUE
                 if (ctrl$ktrace > 0) 
                   cat("Force Hessian symmetric\n")
-                else warning("Hessian forced symmetric", call. = FALSE)
+                else if (ctrl$dowarn) warning("Hessian forced symmetric", call. = FALSE)
                 Hn <- 0.5 * (t(Hn) + Hn)
            }  # end if ! isSymmetric
            else hessOK=TRUE

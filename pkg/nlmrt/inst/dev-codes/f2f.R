@@ -13,8 +13,11 @@ Form2resfun <- function(f, p ) {
 # And build the residual at the parameters
         resexp<-paste(rhs,"-",lhs, collapse=" ")
         fnexp<-paste("crossprod(",resexp,")", sep="")
+#2        ff[[length(ff) + 1]] <- eval(parse(text=fnexp)) ##2 returns only for setup b
         ff[[length(ff) + 1]] <- parse(text=fnexp)
 #  want crossprod(resexp)
+##1        myfn<-as.function(eval(ff), parent.frame())
+##1  Does not evaluate automatically
         myfn<-as.function(ff, parent.frame())
 }
 # a test
@@ -30,6 +33,18 @@ Form2resfun <- function(f, p ) {
                 eval(parse(text=bbit))
     }
     tfn<-Form2resfun(f, b)
-    ans<-eval(tfn(t=t,y=y, b))
+    ans<-eval(tfn(b, t=t,y=y))
+##1     ans<-tfn(t=t,y=y, b)
+##2    ans<-tfn(t=t,y=y, b) ##2
     print(ans)
+    
+    ansx<-eval(tfn(b=c(b1=200, b2=50, b3=0.3), t=t,y=y))
+    print(ansx)
+
+
+    wfn<-function(tfn, b, y, t){
+        out<-eval(tfn, t, y, b)
+    }
+    a2<-wfn(b, t=t,y=y)
+    cat("a2=",a2,"\n")
 

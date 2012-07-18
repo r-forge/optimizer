@@ -1,0 +1,31 @@
+Changes in optextras
+
+Changes before 2012-5-26 not recorded 
+
+TODOS
+
+
+Changes
+
+2012-7-18
+   o    Extracted helper routines from optplus to 
+        create optextras package to put on CRAN.
+        Formerly in optplus or optfntools on R-forge,
+        but difficulties with dependencies indicated
+        that the support routines need to be on CRAN.
+        Renamed to avoid name confusion.
+
+2012-7-09
+   o    Suppress warnings in ugHgenb -- too much
+        unhelpful output
+   o    Fixed optansout to print parameters
+
+2012-6-07
+   o    Merged optfntools into optplus to ensure 
+        R-forge build.
+
+2012-5-26
+   o    Added check for "on a bound" in bmchk to aid
+	in use of tanh() transformation as in nmkb().
+
+

@@ -1,0 +1,21 @@
+export(
+  "axsearch",
+  "fnchk",
+  "grback",
+  "grcentral",
+  "grchk",
+  "grfwd",
+  "hesschk", 
+  "ufn",
+  "ugr",
+  "uhess",
+  "kktc",
+  "gHgen",
+  "gHgenb",
+  "ugHgenb",
+  "bmchk",
+  "bmstep",
+  "scalecheck",
+  "grnd"
+)
+

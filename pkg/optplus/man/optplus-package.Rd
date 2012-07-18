@@ -25,8 +25,8 @@ derivatives.
 \details{
 \tabular{ll}{
 Package: \tab optplus\cr
-Version: \tab 2012-6.07\cr
-Date: \tab 2012-06-07\cr
+Version: \tab 2012-6.18\cr
+Date: \tab 2012-06-18\cr
 License: \tab GPL-2\cr
 Lazyload: \tab Yes\cr
 Depends: \tab numDeriv \cr
@@ -37,35 +37,10 @@ Repository/R-Forge/Project: \tab optimizer\cr
 
 Index:
 \preformatted{
-axsearch     Perform an axial search optimality check
-bmchk        ???
-bmstep       ???
-fnchk        Test validity of user function
 get.best     ???
 get.result   Result extraction tool for answers from optimx
-gHgen        Compute gradient and Hessian as a given 
-             set of parameters
-gHgenb       Compute gradient and Hessian as a given 
-             set of parameters appying bounds and masks
-grback       ???
-grcentral    ???
-grchk        Check that gradient function evaluation 
-             matches numerical gradient
-grfwd        ???
-grnd         ???
-hesschk      Check that Hessian function evaluation 
-             matches numerical approximation
-kktc         Check the Karush-Kuhn-Tucker optimality conditions
 optansout    Output tool for answers from optimx
 optimx       General-purpose optimization wrapper
-scalecheck   ??
-ufn          Wrapper for user objective function
-ugr          Wrapper for user gradient function
-ugHgenb      Compute gradient and Hessian as a given 
-             set of parameters appying bounds and masks
-             but using the opx12env list of fn, gr, and 
-             hess. Note FIXED name opx12env
-uhess        Wrapper for user Hessian function
 }
 }
 \author{

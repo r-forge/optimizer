@@ -2,7 +2,7 @@ Package: GNE
 Type: Package
 Title: Computation of generalized Nash equilibria
 Version: 0.97
-Date: 2012-06-04
+Date: 2012-08-31
 Author: Christophe Dutang
 Maintainer: Christophe Dutang <christophe.dutang@ensimag.fr>
 Description: Nash Equilibrium computational methods

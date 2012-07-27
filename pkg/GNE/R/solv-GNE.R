@@ -112,7 +112,7 @@ GNE.ceq <- function(xinit, dimx, dimlam, dimw, grobj, arggrobj, heobj, argheobj,
 	arg2 <- list(dimx, dimlam, dimw, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr)	
 	
 		
-	ceq(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH=arg1, argjac=arg2,
+	res <- ceq(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH=arg1, argjac=arg2,
 		method, control, global="gline", ...)	
 	class(res) <- "GNE"
 	res

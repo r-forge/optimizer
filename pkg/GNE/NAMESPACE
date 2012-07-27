@@ -1,17 +1,17 @@
 
 
 ### Exports of main R functions
-export(GNE, GNE.nseq, bench.GNE.nseq, bench.GNE.nseq.LM, GNE.ceq, GNE.fpeq, GNE.min)
+export(GNE, GNE.nseq, GNE.ceq, GNE.fpeq, GNE.min)
 S3method(print, GNE)
 S3method(summary, GNE)
 S3method(print, summary.GNE)
-
+#export(bench.GNE.nseq, bench.GNE.nseq.LM)
 
 ### template functions
 export(funSSR, jacSSR)
 export(funCER, jacCER)
 ### depreciated functions
-export(Phi, JacPhi, GNE.nseq.old)
+#export(Phi, JacPhi, GNE.nseq.old)
 
 ### aux - step functions
 export(decrstep, decrstep10, decrstep20, decrstep30, purestep)

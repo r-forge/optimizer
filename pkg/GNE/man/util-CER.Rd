@@ -7,9 +7,18 @@
 		functions of the Constrained Equation Reformulation of the GNEP
 	}
 \usage{
-funCER(z, dimx, dimlam, grobj, arggrobj, constr, argconstr, grconstr, arggrconstr)
-jacCER(z, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
+
+funCER(z, dimx, dimlam, dimw,
+	grobj, arggrobj, 
+	constr, argconstr,  
+	grconstr, arggrconstr)
+
+jacCER(z, dimx, dimlam, dimw,
+	heobj, argheobj, 
+	constr, argconstr, 
+	grconstr, arggrconstr, 
 	heconstr, argheconstr)
+
 }
 \arguments{
   \item{z}{a numeric vector z containing x then lambda values.}
@@ -237,11 +246,11 @@ resphi <- funCER(z, dimx, dimlam, dimw, grobj=grfullob, constr=g, grconstr=grful
 
 check <- c(grfullob(x, 1, 1) + lam[1] * grfullg(x, 1, 1),
 	grfullob(x, 1, 2) + lam[1] * grfullg(x, 1, 2),
-	grfullob(x, 2, 3) + lam[2:3] \\%*\\% grfullg(x, 2, 3),
-	grfullob(x, 2, 4) + lam[2:3] \\%*\\% grfullg(x, 2, 4),
-	grfullob(x, 3, 5) + lam[4:5] \\%*\\% grfullg(x, 3, 5),
-	grfullob(x, 3, 6) + lam[4:5] \\%*\\% grfullg(x, 3, 6),
-	grfullob(x, 3, 7) + lam[4:5] \\%*\\% grfullg(x, 3, 7),
+	grfullob(x, 2, 3) + lam[2:3] \%*\% grfullg(x, 2, 3),
+	grfullob(x, 2, 4) + lam[2:3] \%*\% grfullg(x, 2, 4),
+	grfullob(x, 3, 5) + lam[4:5] \%*\% grfullg(x, 3, 5),
+	grfullob(x, 3, 6) + lam[4:5] \%*\% grfullg(x, 3, 6),
+	grfullob(x, 3, 7) + lam[4:5] \%*\% grfullg(x, 3, 7),
 	g(x, 1) + w[1], 
 	g(x, 2) + w[2:3], 
 	g(x, 3) + w[4:5], 

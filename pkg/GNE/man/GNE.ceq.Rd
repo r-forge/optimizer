@@ -1,18 +1,14 @@
-\name{GNE.nseq}
-\alias{GNE.nseq}
-\alias{bench.GNE.nseq}
-\alias{bench.GNE.nseq.LM}
-\title{Non smooth equation reformulation of the GNE problem.}
+\name{GNE.ceq}
+\alias{GNE.ceq}
+\title{Constrained equation reformulation of the GNE problem.}
 \description{
 		Non smooth equation reformulation via the extended KKT system of the GNE problem.
 	}
 \usage{
-GNE.nseq(xinit, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
-	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr, 
-	compl, gcompla, gcomplb, argcompl, method="Newton", control=list(), silent=TRUE, ...)
+GNE.ceq(xinit, dimx, dimlam, dimw, grobj, arggrobj, heobj, argheobj, 
+	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr,
+	method="IP", control=list(), silent=TRUE, ...)
 
-#bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
-#bench.GNE.nseq.LM(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, control=list())
 }
 \arguments{
   \item{xinit}{initial point.}
@@ -38,7 +34,7 @@ GNE.nseq(xinit, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
   \item{control}{a list with control parameters.}
   \item{\dots}{further arguments to be passed to the optimization routine. 
 	NOT to the functions \code{phi} and \code{jacphi}.}
-  \item{echo}{a logical to get some traces. Default to \code{FALSE}.}	
+  \item{silent}{a logical to get some traces. Default to \code{FALSE}.}	
 }
 \details{
 \code{GNE.nseq} solves the GNE problem via a non smooth reformulation of the KKT system. 

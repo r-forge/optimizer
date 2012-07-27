@@ -35,7 +35,7 @@ eqsolve <- function(xinit, f, jac, method=c("Newton", "Levenberg-Marquardt","Bro
 		
 		dirname <- sub(":", "m", sub(":", "h", Sys.time()))
 		dirname <- paste(dirname, " - example", sep="")
-		dir.create(dirname, show=FALSE)
+		dir.create(dirname, showWarnings=FALSE)
 		setwd(paste("./", dirname, sep=""))
 	}else
 	{
@@ -237,7 +237,7 @@ graphlinesearch <- function(f, xk, dk, k, tbound=c(0, 2))
 	
 	plot(times, yval, type="l", main=paste("phi_k(t) (k=", k, ")", sep=""), ylim=c(min(yval), yval[1]), xlab="t", ylab="phi_k(t)")
 	abline(h=phi(0), lty=2, col="grey")
-	legend("topright", leg=paste("xk", as.vector(xk)))
+	legend("topright", legend=paste("xk", as.vector(xk)))
 	
 	
 	
@@ -290,7 +290,7 @@ graphContourOneIter <- function(f, xk, dk, k, delta=.2, tols=c(1e-1, 1e-3, 1e-6)
 			lines(vals[1:2,1], vals[1:2,2], col="black", lty="solid")
 			points(vals[1,1], vals[1,2], pch=4)	
 			
-			legend("topright", leg=c("t<=1/2", "t<=1", "t<=2"), lty=c("dotted","dotdash","solid"), col="black")
+			legend("topright", legend=c("t<=1/2", "t<=1", "t<=2"), lty=c("dotted","dotdash","solid"), col="black")
 		}
 		
 	}
@@ -356,7 +356,7 @@ graphContourMultIter <- function(f, xks, xlim,
 		points(cbind( x[idzero[, "row"]], y[idzero[, "col"]] ), col=zerocol[3], pch=19)
 		
 		if(!is.null(posleg))
-			legend(posleg, leg=c(paste("<", rev(tols), sep=""), paste(">", tols[1], sep="")), 
+			legend(posleg, legend=c(paste("<", rev(tols), sep=""), paste(">", tols[1], sep="")), 
 				   fill=c(rev(zerocol), "white"), bg ="white")
 
 	}

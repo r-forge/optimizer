@@ -6,7 +6,9 @@
 		Generate random variate satisfying the constraint function by the Rejection algorithm.
 }
 \usage{
-rejection(constr, nvars, LB=0, UB=1, ..., echo=FALSE, method=c("unif","norm", "normcap"))
+rejection(constr, nvars, LB=0, UB=1, ..., echo=FALSE, 
+	method=c("unif","norm", "normcap"), control=list())
+
 }
 \arguments{
   \item{constr}{Constraint function}

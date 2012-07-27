@@ -7,10 +7,17 @@
 		functions of the SemiSmooth Reformulation of the GNEP
 	}
 \usage{
-funSSR(z, dimx, dimlam, grobj, arggrobj, constr, argconstr, grconstr, arggrconstr, 
-	compl, argcompl)
-jacSSR(z, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
-	heconstr, argheconstr, gcompla, gcomplb, argcompl)
+funSSR(z, dimx, dimlam,
+	grobj, arggrobj, 
+	constr, argconstr,  
+	grconstr, arggrconstr, 
+	compl, argcompl, echo=FALSE)
+jacSSR(z, dimx, dimlam,
+	heobj, argheobj, 
+	constr, argconstr, 
+	grconstr, arggrconstr, 
+	heconstr, argheconstr,
+	gcompla, gcomplb, argcompl, echo=FALSE)
 }
 \arguments{
   \item{z}{a numeric vector z containing x then lambda values.}
@@ -30,7 +37,8 @@ jacSSR(z, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconst
   \item{heconstr}{Hessian of the constraint function, see details.}
   \item{argheconstr}{a list of additional arguments of the constraint Hessian.}
   \item{gcompla}{derivative of the complementarity function w.r.t. the first argument.}
-  \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}    
+  \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}
+  \item{echo}{a logical to show some traces.}    
 }
 \details{
 Compute the Phi function or the Jacobian of the Phi function defined in F. Facchinei et al.(2009).

@@ -6,8 +6,9 @@
 		Generalized Nash Equilibrium computational methods.
 	}
 \usage{
-GNE(approach = c("non smooth", "fixed point", "minimization"), method = "default", xinit,
-	func1, func2, argfunc1=list(), argfunc2=list(), ..., control=list())
+GNE(approach = 
+	c("non smooth", "fixed point", "minimization", "constrained equation"), 
+	method = "default", xinit, control=list(), ...)
 
 }
 \arguments{
@@ -16,10 +17,6 @@ GNE(approach = c("non smooth", "fixed point", "minimization"), method = "default
   \item{method}{a character string for the computation method: either \code{"default"} or the name
 	of the method.}
   \item{xinit}{a numeric vector for the initial point.}
-  \item{func1}{function 1. See details.}
-  \item{func2}{function 2. See details.}
-  \item{argfunc1}{additionnal argument of function 1. Default a void list.}
-  \item{argfunc2}{additionnal argument of function 2. Default a void list.}
   \item{\dots}{further arguments to be passed to \code{GNE.nseq}, \code{GNE.fpeq} or \code{GNE.min}. 
 	NOT to the functions \code{func1} and \code{func2}.}
   \item{control}{a list with control parameters.}

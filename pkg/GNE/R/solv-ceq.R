@@ -89,16 +89,17 @@ ceq.IP <- function(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH, argjac,
 			stepk <- 1			
 			
 			if(global == "gline")
-				LSres <- linesearch.geom.cond(xk, dk, slopek, con, merit= merit, 
+				LSres <- try( linesearch.geom.cond(xk, dk, slopek, con, merit= merit, 
 					checkint=checkint, dimx=dimx, dimlam=dimlam, dimw=dimw, 
-					Hfinal=Hfinal, argH=argH, zeta=con$zeta)
+					Hfinal=Hfinal, argH=argH, zeta=con$zeta) )
 			
 			
 			if(global == "qline")
-				LSres <- linesearch.quad.cond(xk, dk, slopek, con, merit= merit, 
+				LSres <- try( linesearch.quad.cond(xk, dk, slopek, con, merit= merit, 
 					checkint=checkint, dimx=dimx, dimlam=dimlam, dimw=dimw, 
-					Hfinal=Hfinal, argH=argH, zeta=con$zeta)
-			
+					Hfinal=Hfinal, argH=argH, zeta=con$zeta) )
+			if(class(LSres) == "try-error")
+				stop("internal error in line search function.")
 			
 			if(LSres$stepk <= minstep)
 			{	
@@ -216,7 +217,11 @@ ceq.IP.direction <- function(z, dimx, dimlam, dimw, Hfinal, jacHfinal,
 
 #logarithm potential function	
 potential.ce <- function(u, n, zeta)
+{
+	if(any(u[-(1:n)] < 0))
+		stop(paste("u has negative components:", u, "\n"))
 	zeta * log( sum(u^2) ) - sum( log( u[-(1:n)] ) )
+}
 
 #gradient of logarithm potential function		
 gradpotential.ce <- function(u, n, zeta)	

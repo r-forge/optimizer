@@ -275,7 +275,7 @@ print(resjacphi[1:n, (n+1):(n+m)] - checkB)
 cat("\n\n________________________________________\n\n")
 cat("\n\npart C\n\n")	
 
-checkC <- matrix(0, m, n)
+checkC <- matrix(0, n, m)
 
 print(resjacphi[1:n, (n+m+1):(n+2*m)] - checkC)
 

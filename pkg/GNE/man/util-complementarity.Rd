@@ -28,9 +28,9 @@ phiMin(a, b)
 GrAphiMin(a, b) 
 GrBphiMin(a, b)
 
-phiMan(a, b, f)
-GrAphiMan(a, b, fprime)
-GrBphiMan(a, b, fprime)
+phiMan(a, b, f, fprime)
+GrAphiMan(a, b, f, fprime)
+GrBphiMan(a, b, f, fprime)
 
 phiKK(a, b, lambda)
 GrAphiKK(a, b, lambda)

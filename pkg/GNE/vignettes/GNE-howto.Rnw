@@ -243,7 +243,7 @@ $$
 \right) = 0 ,
 $$
 where $\phi_.$ is the component-wise version of the function $\phi$ and $\tilde L$ is the Lagrangian function of the extended system.
-
+The generalized Jacobian is given in Appendix \ref{app:nseq:gencase}.
 
 \subsection{A classic example}
 
@@ -589,6 +589,10 @@ h(x)
 $$
 The extended KKT system is denoted by eKKTc($N, \theta_i, g_i, h$).
 \end{mydef}
+
+The generalized Jacobian is given in Appendix \ref{app:nseq:jointcase}.
+
+
 
 
 
@@ -936,6 +940,7 @@ $$
 \section{Appendix for the nonsmooth reformulation}
 %________________________________________________________________________
 
+\subsection{General case\label{app:nseq:gencase}}
 
 The generalized Jacobian of the complementarity formulation has the following form
 $$
@@ -969,7 +974,86 @@ J(z) =
 \end{array}	
 \right) .
 $$
+The diagonal matrices $D_a$ and $D_b$ are given by
+$$
+D_a(z) = \diag[ a^1(x, \lambda^1) , \dots , a^N(x, \lambda^N) ] 
+\txtm{and}
+D_b(z) = \diag[ b^1(x, \lambda^1) , \dots , b^N(x, \lambda^N) ],
+$$
+with $a^i(x, \lambda^i), b^i(x, \lambda^i) \in \R^{m_i}$  defined as
+$$
+( a^i_j(x, \lambda_j^i) , b^i_j(x, \lambda_j^i) ) = 
+\left\{
+\begin{array}{cl} %\frac{ \partial \phi }{ \partial a}
+\left(  \phi'_a( -g^i_j(x), \lambda_j^i ), \phi'_b ( -g^i_j(x), \lambda_j^i ) \right) 
+& \txtm{if} ( -g^i_j(x), \lambda_j^i ) \neq (0, 0), \\
+  (\xi_{ij} , \zeta_{ij} )
+& \txtm{if} ( -g^i_j(x), \lambda_j^i ) = (0, 0), 
+\end{array}
+\right.
+$$
+where $\phi'_a$ (resp. $\phi'_b$) denotes the derivative of $\phi$ with respect to the first (second) argument $a$ ($b$)  and $(\xi_{ij} , \zeta_{ij} ) \in \bar B(p_\phi, c_\phi)$, the closed ball at $p_\phi$ of radius $c_\phi$. 
 
+
+\subsection{Shared constraint case\label{app:nseq:jointcase}}
+
+The generalized Jacobian of the complementarity formulation has the following form
+$$
+J(z) =
+\left(
+\begin{array}{c|c|c}
+	\begin{matrix}
+	\Jac_{x_1} L_1(x, \lambda^1, \mu)  & \dots & \Jac_{x_N} L_1(x, \lambda^1, \mu)  \\
+	\vdots & & \vdots \\
+	\Jac_{x_1} L_N(x, \lambda^N, \mu)  & \dots & \Jac_{x_N} L_N(x, \lambda^N, \mu)  \\
+	\end{matrix}
+&
+	\begin{matrix}
+	\Jac_{x_1} g^1(x)^T & & 0 \\
+	& \ddots & \\
+	0 & & \Jac_{x_N} g^N(x)^T \\
+	\end{matrix}	
+&
+	\begin{matrix}
+	\Jac_{x_1} h(x)^T \\
+	\vdots \\
+	\Jac_{x_N} h(x)^T \\
+	\end{matrix}	
+\\
+\hline 
+	\begin{matrix}	
+	- D_1^a(x, \lambda^1) \Jac_{x_1} g^1(x) & \dots & - D_1^a(x, \lambda^1) \Jac_{x_N} g^1(x) \\
+	\vdots & & \vdots \\
+	- D_N^a(x, \lambda^N) \Jac_{x_1} g^N(x) & \dots & - D_N^a(x, \lambda^N) \Jac_{x_N} g^N(x) \\
+	\end{matrix}		
+&
+	\begin{matrix}	
+	 D^b_{1}(x, \lambda^1) & & 0 \\
+	 & \ddots &  \\
+	0  &  &  D^b_{N}(x, \lambda^N) \\
+	\end{matrix}			
+&
+	\begin{matrix}	
+	 0 \\
+	\vdots  \\
+	0  \\
+	\end{matrix}			
+\\
+\hline 
+	\begin{matrix}	
+	- D_N^a(x, \mu) \Jac_{x_1} h(x) & \dots & - D_N^a(x, \mu) \Jac_{x_N} h(x) \\
+	\end{matrix}		
+&
+	\begin{matrix}	
+	0  & \dots &  0 \\
+	\end{matrix}			
+&
+	\begin{matrix}	
+	D^b_{N}(x, \mu) \\
+	\end{matrix}			
+\end{array}	
+\right) .
+$$
 
 
 

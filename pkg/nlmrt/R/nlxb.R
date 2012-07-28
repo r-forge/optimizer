@@ -44,7 +44,7 @@ showpoint<-function(SS, pnum){
 }
 #########
 # get data from data frame if exists
-print(str(data))
+# print(str(data))
 if (! is.null(data)){
     for (dfn in names(data)) {
        cmd<-paste(dfn,"<-data$",dfn,"")
@@ -81,7 +81,8 @@ if (trace) {
     laminc=10,
     lamdec=4, # use decreased_lamda<-lamda*lamdec/laminc
     femax=10000,
-    jemax=5000
+    jemax=5000,
+    maxlamda<-1e60 # arbitrary choice? 120726
    )
    epstol<-(.Machine$double.eps)*ctrl$offset
    ncontrol <- names(control)
@@ -92,7 +93,7 @@ if (trace) {
       }
       ctrl[onename]<-control[onename]
    }
-   print(ctrl)
+   if (trace) print(ctrl)
    phiroot<-sqrt(ctrl$phi)
    lamda<-ctrl$lamda
    offset<-ctrl$offset
@@ -191,10 +192,10 @@ if (trace) {
        } # end newjac
        lamroot<-sqrt(lamda)
        JJ<-rbind(Jac,lamroot*dee, lamroot*phiroot*diag(npar)) # build the matrix
-       if (trace && watch) {
-         cat("JJ\n")
-         print(JJ)
-       }
+#       if (trace && watch) { ## Too much data 120726
+#         cat("JJ\n")
+#         print(JJ)
+#       }
        JQR<-qr(JJ)# ??try
        rplus<-c(resbest, rep(0,2*npar))
        delta<-try(qr.coef(JQR,-rplus)) # Note appended rows of y)
@@ -213,6 +214,7 @@ if (trace) {
             lamda<-laminc*lamda
             newjac<-FALSE # increasing lamda -- don't re-evaluate
             if (trace) cat(" Uphill search direction\n")
+            if (lamda>maxlamda) eqcount<-npar # force stop on big lamda
           } else { # downhill
             delta[mskdx]<-0
             delta<-as.numeric(delta)

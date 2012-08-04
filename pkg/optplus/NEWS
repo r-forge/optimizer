@@ -11,6 +11,8 @@ Changes
    o    Change stop on npar<2 to warning if dowarn=TRUE.
    o    uobyqa is available by explicit method="uobyqa" but not
         as part of method="ALL"
+   o    nlm and nlminb uses their own gradient approximation 
+        when gr=NULL, rather than default "grfwd"
 
 2012-7-09
    o    Suppress warnings in ugHgenb -- too much

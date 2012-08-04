@@ -44,15 +44,27 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, bdmsk=NULL,
    place.  It should return a scalar result.}
  \item{gr}{A function to return (as a vector) the gradient for those methods that 
    can use this information.
-   This includes the following methods:
+   This includes the following methods among others:
 		\code{"BFGS"}
 		\code{"CG"}
 		\code{"L-BFGS-B"}
-
+		\code{"ucminf"}
+		\code{"Rvmmin"}
+		\code{"Rcgmin"}
+		\code{"nlm"}
+		\code{"nlminb"}
+		\code{"spg"}
 
    If 'gr' is \code{NULL}, a finite-difference approximation will be used.
    An open question concerns whether the SAME approximation code used for all methods, 
-   or whether there are differences that could/should be examined? }
+   or whether there are differences that could/should be examined. As at 2012-8-3,
+   \code{nlm} and \code{nlminb} use their own approximations when \code{gr=NULL}.
+   Otherwise, a forward gradient approximation is used. 
+
+   Gradient approximation routines can be specified by enclosing them in quotes.
+   Thus  \code{gr="grfwd"} calls the forward gradient approximation. Also available
+   in the \code{optextras} are \code{"grcentral"}, 
+   \code{"grback"} and \code{"grnd"} (which uses \code{numDeriv}). }
  \item{hess}{A function to return (as a symmetric matrix) the Hessian of the objective 
    function for those methods that can use this information.}
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can

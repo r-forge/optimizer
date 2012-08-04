@@ -534,8 +534,13 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
          } else { 
             mcontrol$trace <- 1 # this is EVERY iteration. nlminb trace is freq of reporting.
          }
-         time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=ugr, 
-            lower=lower, upper=upper, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
+         if (nullgr) {
+            time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=NULL, 
+              lower=lower, upper=upper, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
+         } else {
+            time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=ugr, 
+              lower=lower, upper=upper, control=mcontrol, fnuser=opxfn), silent=TRUE))[1]
+         }
          if (class(ans)[1] != "try-error") {
             ans$conv <- ans$convergence
             # Translate output to common format and names

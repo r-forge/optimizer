@@ -35,7 +35,7 @@ The main functions in \code{nlmrt} are:
    nlfb - Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using a residual and optionally Jacobian
 	described as \code{R} functions. 
-    ?? Todo: Make masks more consistent between nlfb and nlxb.
+    20120803: Todo: Make masks more consistent between nlfb and nlxb.
 
    nlxb - Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using an expression to describe the residual via
@@ -44,6 +44,29 @@ The main functions in \code{nlmrt} are:
             
    wrapnls - Uses nlxb to solve nonlinear least squares then calls nls() to
             create an object of type nls.
+
+   model2grfun.R - Generate a gradient vector function from a nonlinear 
+        model expression and a vector of named parameters.
+
+   model2jacfun.R - Generate a Jacobian matrix function from a nonlinear 
+        model expression and a vector of named parameters.
+
+   model2resfun.R - Generate a residual vector function from a nonlinear 
+        model expression and a vector of named parameters.
+
+   model2ssfun.R - Generate a sum of squares objective function from a 
+        nonlinear model expression and a vector of named parameters.
+
+   modgr.R - compute gradient of the sum of squares function using the 
+        Jacobian and residuals for a nonlinear least squares problem
+      
+   modss.R - computer the sum of squares function from the residuals of
+        a nonlinear least squares problem
+
+   myfn.R, mygr.R, myjac.R, myres.R, myss.R - dummy functions that seem to
+       be needed so there is an available handle for output of functions that
+       generate various functions from expressions.
+
 } 
 
 For testing purposes, there are also some experimental codes using different 

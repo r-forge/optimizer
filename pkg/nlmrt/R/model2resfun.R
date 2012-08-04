@@ -1,4 +1,4 @@
-model2resfun <- function(resformula, pvec, filename=NULL) {
+model2resfun <- function(resformula, pvec, funname=NULL, filename=NULL, trace=FALSE) {
    pnames<-names(pvec)
 #   cat("pnames:")
 #   print(pnames)
@@ -10,12 +10,13 @@ model2resfun <- function(resformula, pvec, filename=NULL) {
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))
-#   cat("xx:")
-#   print(xx)
+   cat("xx:")
+   print(xx)
    rp <- match(pnames, xx) # Match names to parameters
 # ?? How to ensure there are names?
    xx2 <- c(xx[rp], xx[-rp])
    xxparm<-xx[rp]
+   vnames<-xx[-rp]
    cat("xx2:")
    print(xx2)
    cat("xxparm:")
@@ -31,7 +32,6 @@ model2resfun <- function(resformula, pvec, filename=NULL) {
    pstr<-paste(pstr,")",sep='')
    cat("pstr:")
    print(pstr)
-   tmp<-readline("...")
    xxvars<-xx[-rp]
    nvar<-length(xxvars)
    vstr<-""
@@ -58,15 +58,16 @@ model2resfun <- function(resformula, pvec, filename=NULL) {
    }
 # for diagnostic
 #   pparse<-paste(pparse, "cat(\"tt:\")\n  print(tt)\n  cat(\"y:\")\n print(y)\n", sep='')
-#   myfstr<-paste("myres<-function(prm, ",vstr,"){\n",
     myfstr<-paste("{\n",
-      pparse,"\n ",
+      pparse,
       fnexp,"\n }",sep='')
-   if (! is.null(filename)) write(myfstr, file=filename) # write out the file
+   if (is.null(funname)) funname<-"myres"
+   myfstr1<-paste(funname,"<-function(prm, ",vstr,")", myfstr,sep='')
+   if (! is.null(filename)) write(myfstr1, file=filename) # write out the file
    tparse<-try(body(myres)<-parse(text=myfstr)) 
-   # This may be cause trouble if there are errors
+    # This may be cause trouble if there are errors
    if (class(tparse) == "try-error") stop("Error in residual code string")
-   print(myres)
+   if (trace) print(myres)
    return(myres)      
 }
 

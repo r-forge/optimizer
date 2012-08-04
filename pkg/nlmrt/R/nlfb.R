@@ -1,4 +1,4 @@
-nlfb <-function(start, resfn, jacfn=NULL, trace=FALSE,  
+nlfb <-function(start, resfn, jacfn=NULL, trace=FALSE, 
             lower=-Inf, upper=Inf, maskidx=NULL, control=list(), ...){
 #
 #  A simplified and hopefully robust alternative to finding the 
@@ -28,7 +28,7 @@ nlfb <-function(start, resfn, jacfn=NULL, trace=FALSE,
 #  products t(J)%*%J 
 # 
 # Function to display SS and point
-showpoint<-function(SS, pnum){
+showprms<-function(SS, pnum){edi
     pnames<-names(pnum)
     npar<-length(pnum)
     cat("lamda:",lamda," SS=",SS," at")
@@ -131,7 +131,7 @@ if (trace) {
     jeval<-0 # number of Jacobian evaluations
     if (trace) {
        cat("Start:")
-       showpoint(ssbest,pnum)
+       showprms(ssbest,pnum)
        if (watch) tmp<-readline("Continue")
     }
     if (length(maskidx) == npar) stop("All parameters are masked") # Should we return?
@@ -242,12 +242,12 @@ if (trace) {
                 if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
                 lamda<-laminc*lamda
                 newjac<-FALSE # increasing lamda -- don't re-evaluate
-                if(trace) showpoint(ssquares, pnum)
+                if(trace) showprms(ssquares, pnum)
               } else {
                 lamda<-lamdec*lamda/laminc
                 if (trace) {
                   cat("<<")
-                  showpoint(ssquares, pnum)
+                  showprms(ssquares, pnum)
                 }
                 ssbest<-ssquares
                 resbest<-resid

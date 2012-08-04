@@ -1,6 +1,6 @@
 \name{model2resfun}
 \alias{model2resfun}
-\title{Generate a gradient function from a nonlinear model expression
+\title{Generate a residual function from a nonlinear model expression
 and a vector of named parameters.
 }
 \description{

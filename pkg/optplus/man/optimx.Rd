@@ -468,6 +468,23 @@ Each such list has possible elements:
 \examples{
 require(graphics)
 
+cat("Test warning on 1-parameter problems\n")
+quad<-function(x){
+    qq<-1:length(x)
+    fn<-as.numeric(crossprod((x-qq)/qq))
+}
+quad.g<-function(x){
+    qq<-1:length(x)
+    gg<-2*(x-qq)/(qq*qq)
+}
+x<-0.1234
+a1par<-optimx(x, quad, quad.g, method="ALL")
+optansout(a1par, NULL)
+
+xx<-runif(2)
+a2uobyqa<-optimx(xx, quad, method="uobyqa")
+a2uobyqa
+
 fr <- function(x) {   ## Rosenbrock Banana function
     x1 <- x[1]
     x2 <- x[2]

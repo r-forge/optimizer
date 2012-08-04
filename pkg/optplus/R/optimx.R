@@ -147,10 +147,6 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    if (! is.vector(par) ) {
       stop("The parameters are NOT in a vector")
    }
-# Check for npar > 1
-   if (npar < 2) {
-      stop("npar must be >1 for optimx")
-   } # End check on number of parameters
    if (is.null(bdmsk) ) bdmsk<-rep(1,npar) # set masks for free parameters
 # Set control defaults. Do we want to save.failures?
    ## cat("Develop control list\n")
@@ -229,6 +225,10 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
       if (ctrl$trace>0) cat("MAXIMIZING\n")
    }
    ## cat("check bounds\n")
+# Check for npar > 1
+   if (npar < 2) {
+      if (dowarn) {warning("npar should be >1 for optimx")}
+   } # End check on number of parameters
 # Do we have bounds? 
    if (any(is.finite(c(lower, upper)))) { have.bounds<-TRUE # set this for convenience
    } else { have.bounds <- FALSE }
@@ -258,7 +258,7 @@ if (is.character(gr)) { # we are calling an approximation to the gradient
    } # end if (starttests) ...
    nmask<-length(which(bdmsk==0)) # number of masks
    if (ctrl$trace>0) cat("Number of masked (fixed) parameters = ",nmask,"\n")
-   if (npar-nmask < 2) warning("The number of free parameters is less than 2")
+   if (npar-nmask < 2) if(dowarn) {warning("The number of free parameters is less than 2")}
    ## cat("check fnscale/parscale\n")
    if ( ctrl$fnscale < 0.0 ) {
       if (ctrl$dowarn || (ctrl$trace>0) )
@@ -354,7 +354,9 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
 #    for smooth functions. Code left in as example for those who may need it.
 # List of methods in packages. 
    ## cat("check methods present\n")
-# uobyqa removed 110114 because of some crashes that did not seem resolvable. Replaced 111027 -- different from newuoa
+# uobyqa removed 110114 because of some crashes that did not seem resolvable. 
+#    Replaced 111027 -- different from newuoa. But giving problems, so not in ALL methods,
+#    but can be called explicitly.
 # Now make sure methods loaded
    allmeth <- bmeth # start with base methods
    if (require(BB, quietly=FALSE) )  allmeth<-c(allmeth,"spg")
@@ -370,7 +372,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
    if (require(Rvmmin, quietly=FALSE) )  allmeth<-c(allmeth, "Rvmmin")
    else warning("Package `Rvmmin' Not installed", call.=FALSE)
    
-   if (require(minqa, quietly=FALSE) ) allmeth<-c(allmeth, "uobyqa", "newuoa", "bobyqa")
+   if (require(minqa, quietly=FALSE) ) allmeth<-c(allmeth,"uobyqa", "newuoa", "bobyqa")
    else  warning("Package `minqa' (for uobyqa, newuoa, and bobyqa) Not installed", call.=FALSE)
    
    if (require(dfoptim, quietly=FALSE) ) allmeth<-c(allmeth, "hjkb", "nmkb")
@@ -382,8 +384,10 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
    if (method=="ALL") ctrl$all.methods<-TRUE # 120709
    if (ctrl$all.methods) { # Changes method vector!
       method<-allmeth
+      idx<-which(method=="uobyqa")
+      method<-method[-idx]
       if (ctrl$trace>0) {
-         cat("all.methods is TRUE -- Using all available methods\n")
+         cat("all.methods is TRUE -- Using all available methods except uobyqa\n")
          print(method)
       }
    } 

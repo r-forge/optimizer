@@ -1,6 +1,6 @@
 Package: optplus
-Version: 2012-07.18
-Date: 2012-07-18
+Version: 2012-08.03
+Date: 2012-08-03
 Title: A wrapper for optimization methods (function minimization with at most bounds and masks).
 Author: John C Nash <nashjc@uottawa.ca>
 Maintainer: John C Nash <nashjc@uottawa.ca>

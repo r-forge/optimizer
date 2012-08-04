@@ -7,6 +7,11 @@ TODOS
 
 Changes
 
+2012-8-03
+   o    Change stop on npar<2 to warning if dowarn=TRUE.
+   o    uobyqa is available by explicit method="uobyqa" but not
+        as part of method="ALL"
+
 2012-7-09
    o    Suppress warnings in ugHgenb -- too much
         unhelpful output

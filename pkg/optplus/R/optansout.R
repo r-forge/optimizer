@@ -18,8 +18,7 @@ optansout <- function(ansdf, filename) {
         ltvec <- length(tvec)
         if (ltvec > 5) {
             tvec <- tvec[1:5]
-            cat("truncating parameters\n")
-        } else cat("no shortening of parameters\n")
+        }
         tpar[[i]] <- tvec
     }
     tdf$par <- tpar

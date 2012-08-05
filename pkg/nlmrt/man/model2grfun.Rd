@@ -12,11 +12,11 @@ and a vector of named parameters.
    As a side effect, a text file with the program code is generated.
 }
 \usage{
-   model2grfun(resformula, pvec, filename)
+   model2grfun(modelformula, pvec, funname="mygr", filename=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{resformula}{
+  \item{modelformula}{
      This is a modeling formula of the form (as in \code{nls})
            lhsvar ~ rhsexpression
      for example,
@@ -30,9 +30,13 @@ and a vector of named parameters.
      order presented in this vector. Names are NOT respected in the 
      output function. 
 }
+  \item{funname}{
+     The (optional) name for the function that is generated in the file
+     named in the next argument. The default name is 'mygr'.
+} 
   \item{filename}{
      The (optional) name of a file that is written containing the (text) program code
-     for the function. 
+     for the function. If NULL, no file is written.
 } 
 }
 \details{

@@ -11,11 +11,11 @@ and a vector of named parameters.
    As a side effect, a text file with the program code is generated.
 }
 \usage{
-   model2resfun(resformula, pvec, filename)
+   model2resfun(modelformula, pvec, funname="myres", filename=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{resformula}{
+  \item{modelformula}{
      This is a modeling formula of the form (as in \code{nls})
            lhsvar ~ rhsexpression
      for example,
@@ -29,9 +29,13 @@ and a vector of named parameters.
      order presented in this vector. Names are NOT respected in the 
      output function. 
 }
+  \item{funname}{
+     The (optional) name for the function that is generated in the file
+     named in the next argument. The default name is 'myres'.
+} 
   \item{filename}{
      The (optional) name of a file that is written containing the (text) program code
-     for the function. 
+     for the function. If NULL, no file is written.
 } 
 }
 \details{
@@ -63,20 +67,20 @@ cat("See also examples in nlmrt-package.Rd\n")
     # not in direct use with source()  120429
     f<- y ~ b1/(1+b2*exp(-1*b3*tt))
     p<-c(b1=1, b2=1, b3=1)
-    myres<-model2resfun(f, p, "./testfn.R")
+    myres<-model2resfun(f, p)
     cat("myres:\n")
     print(myres)
     ans<-myres(p, tt=tt,y=y)
     cat("ans:")
     print(ans)
     bnew<-c(b1=200, b2=50, b3=0.3)
-#     anew<-myres(prm=bnew, t=t, y=y) # Note problem with t vs t()
+#     anew<-myres(prm=bnew, t=t, y=y) # Note issue with t vs t()
     anew<-eval(myres(prm=bnew, tt=tt, y=y))
     cat("anew:")
     print(anew)
-    cat("Test with un-named vector\n") # At 20120424 should fail
+    cat("Test (fails?) with un-named vector\n") # At 20120424 should fail
     bthree<-c(100,40,.1)
-    athree<-myres(prm=bthree, tt=tt, y=y)
+    athree<-try(myres(prm=bthree, tt=tt, y=y))
     print(athree)
 }
 \keyword{ nonlinear least squares }

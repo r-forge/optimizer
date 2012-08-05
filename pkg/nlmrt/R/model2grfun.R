@@ -1,10 +1,10 @@
-model2grfun <- function(resformula, pvec, funname="mygr", filename=NULL) {
+model2grfun <- function(modelformula, pvec, funname="mygr", filename=NULL) {
    pnames<-names(pvec)
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
-   if (is.character(resformula)){
-      es<-resformula
+   if (is.character(modelformula)){
+      es<-modelformula
    } else {
-      tstr<-as.character(resformula) # note ordering of terms!
+      tstr<-as.character(modelformula) # note ordering of terms!
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))

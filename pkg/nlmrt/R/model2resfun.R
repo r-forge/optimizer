@@ -1,10 +1,10 @@
-model2resfun <- function(resformula, pvec, funname="myres", filename=NULL) {
+model2resfun <- function(modelformula, pvec, funname="myres", filename=NULL) {
    pnames<-names(pvec)
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
-   if (is.character(resformula)){
-      es<-resformula
+   if (is.character(modelformula)){
+      es<-modelformula
    } else {
-      tstr<-as.character(resformula) # note ordering of terms!
+      tstr<-as.character(modelformula) # note ordering of terms!
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))

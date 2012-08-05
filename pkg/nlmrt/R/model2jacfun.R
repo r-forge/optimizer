@@ -1,11 +1,11 @@
-model2jacfun <- function(resformula, pvec, funname="myjac", filename=NULL) {
+model2jacfun <- function(modelformula, pvec, funname="myjac", filename=NULL) {
    pnames<-names(pvec)
 # Creates Jacobian function
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
-   if (is.character(resformula)){
-      es<-resformula
+   if (is.character(modelformula)){
+      es<-modelformula
    } else {
-      tstr<-as.character(resformula) # note ordering of terms!
+      tstr<-as.character(modelformula) # note ordering of terms!
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))
@@ -54,7 +54,7 @@ model2jacfun <- function(resformula, pvec, funname="myjac", filename=NULL) {
    }
    myjstr<-paste(funname,"<-function(prm, ",vstr,") {\n", pparse, jfstr," \n",
       "jacmat<-attr(jstruc,'gradient')\n ", "return(jacmat)\n }",sep='')
-   if (! is.null(filename)) write(myjstr1, file=filename) # write out the file
+   if (! is.null(filename)) write(myjstr, file=filename) # write out the file
    myparse<-parse(text=myjstr)
    # This may be cause trouble if there are errors
    if (class(myparse) == "try-error") stop("Error in Jacobian code string")

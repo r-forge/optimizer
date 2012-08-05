@@ -1,10 +1,18 @@
 To do
+   o    Bounds and masks examples in nlmrt-vignette.
+
+Changes in nlmrt version 2012-8.04
+   o    Vignette nlmrt-vignette updated.
+
+   o    Functions to convert expression to residual, Jacobian,
+        sum of squares and gradient functions (for use with optimx
+        or nlmrt:nlfb or minpack.lm:nls.lm
 
    o    The examples in ./inst/examples/ are calling routines that
-        have been renamed. These need to be fixed.
+        have been renamed. These have, I believe, been fixed.
 
    o    nlfb() needs an explicit Jacobian function and needs a way
-        to compute numerical Jacobian if omitted.
+        to compute numerical Jacobian if omitted. Fixed, I believe.
 
 Changes in nlmrt version 2012-6.01
 

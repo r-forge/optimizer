@@ -1,4 +1,4 @@
-model2ssfun <- function(resformula, pvec, filename=NULL) {
+model2ssfun <- function(resformula, pvec, funname="myss", filename=NULL) {
    pnames<-names(pvec)
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
    if (is.character(resformula)){
@@ -11,10 +11,6 @@ model2ssfun <- function(resformula, pvec, filename=NULL) {
    rp <- match(pnames, xx) # Match names to parameters
    xx2 <- c(xx[rp], xx[-rp])
    xxparm<-xx[rp]
-   cat("xx2:")
-   print(xx2)
-   cat("xxparm:")
-   print(xxparm)
    pstr<-"c("
    npar<-length(xxparm)
    if (npar>0) {
@@ -24,9 +20,6 @@ model2ssfun <- function(resformula, pvec, filename=NULL) {
       }
    }
    pstr<-paste(pstr,")",sep='')
-   cat("pstr:")
-   print(pstr)
-   tmp<-readline("...")
    xxvars<-xx[-rp]
    nvar<-length(xxvars)
    vstr<-""
@@ -49,17 +42,13 @@ model2ssfun <- function(resformula, pvec, filename=NULL) {
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-#   myfstr<-paste("myss<-function(prm, ",vstr,"){\n",
-   myfstr<-paste("{\n",
-      pparse,"\n ",
-      fnexp,"\n ",
-      "ss<-crossprod(resids)\n",
-      "\n }",sep='')
+   
+   myfstr<-paste(funname,"<-function(prm, ",vstr,") {\n", pparse, fnexp,
+          "\n  ss<-as.numeric(crossprod(resids))\n }\n",sep='')
    if (! is.null(filename)) write(myfstr, file=filename) # write out the file
-   tparse<-try(body(myss)<-parse(text=myfstr)) 
-   # This may be cause trouble if there are errors
-   if (class(tparse) == "try-error") stop("Error in Jacobian code string")
-   # Note that the $value element is needed reading source().
-   return(myss)      
+   tparse<-try(parse(text=myfstr))
+   # This may cause trouble if there are errors
+   if (class(tparse) == "try-error") stop("Error in residual code string")
+   eval(tparse)
 }
 

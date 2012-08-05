@@ -1,7 +1,5 @@
-model2resfun <- function(resformula, pvec, funname="myres", filename=NULL, trace=FALSE) {
+model2resfun <- function(resformula, pvec, funname="myres", filename=NULL) {
    pnames<-names(pvec)
-#   cat("pnames:")
-#   print(pnames)
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
    if (is.character(resformula)){
       es<-resformula
@@ -10,8 +8,6 @@ model2resfun <- function(resformula, pvec, funname="myres", filename=NULL, trace
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))
-   cat("xx:")
-   print(xx)
    rp <- match(pnames, xx) # Match names to parameters
    xx2 <- c(xx[rp], xx[-rp])
    xxparm<-xx[rp]
@@ -47,14 +43,11 @@ model2resfun <- function(resformula, pvec, funname="myres", filename=NULL, trace
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-   myfstr<-paste("{\n", pparse, fnexp,"\n }",sep='')
-#   if (is.null(funname)) funname<-"myres"
-   myfstr1<-paste(funname,"<-function(prm, ",vstr,")", myfstr,sep='')
-   if (! is.null(filename)) write(myfstr1, file=filename) # write out the file
-   tparse<-try(body(myres)<-parse(text=myfstr)) 
+   myfstr<-paste(funname,"<-function(prm, ",vstr,") {\n", pparse, fnexp,"\n }",sep='')
+   if (! is.null(filename)) write(myfstr, file=filename) # write out the file
+   tparse<-try(parse(text=myfstr))
    # This may cause trouble if there are errors
    if (class(tparse) == "try-error") stop("Error in residual code string")
-   if (trace) print(myres)
-   return(myres)      
+   eval(tparse)
 }
 

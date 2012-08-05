@@ -1,4 +1,4 @@
-model2jacfun <- function(resformula, pvec, funname="myjac", filename=NULL, trace=FALSE) {
+model2jacfun <- function(resformula, pvec, funname="myjac", filename=NULL) {
    pnames<-names(pvec)
 # Creates Jacobian function
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
@@ -52,17 +52,13 @@ model2jacfun <- function(resformula, pvec, funname="myjac", filename=NULL, trace
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-   myjstr<-paste("{\n", pparse, jfstr," \n",
+   myjstr<-paste(funname,"<-function(prm, ",vstr,") {\n", pparse, jfstr," \n",
       "jacmat<-attr(jstruc,'gradient')\n ", "return(jacmat)\n }",sep='')
-   myjstr1<-paste(funname,"<-function(prm, ",vstr,")", myjstr,sep='')
    if (! is.null(filename)) write(myjstr1, file=filename) # write out the file
-   tparse<-try(body(myjac)<-parse(text=myjstr)) 
-   myparse<-parse(text=myjstr1)
-   print(myparse)
+   myparse<-parse(text=myjstr)
    # This may be cause trouble if there are errors
-   if (class(tparse) == "try-error") stop("Error in Jacobian code string")
-   if (trace) print(myjac)
-   return(list(myjac=myjac, myparse=myparse))      
+   if (class(myparse) == "try-error") stop("Error in Jacobian code string")
+   eval(myparse)
 }
 
 

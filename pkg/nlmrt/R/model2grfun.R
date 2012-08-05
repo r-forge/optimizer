@@ -1,7 +1,5 @@
-model2grfun <- function(resformula, pvec, filename=NULL) {
+model2grfun <- function(resformula, pvec, funname="mygr", filename=NULL) {
    pnames<-names(pvec)
-#   cat("pnames:")
-#   print(pnames)
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
    if (is.character(resformula)){
       es<-resformula
@@ -10,16 +8,9 @@ model2grfun <- function(resformula, pvec, filename=NULL) {
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))
-#   cat("xx:")
-#   print(xx)
    rp <- match(pnames, xx) # Match names to parameters
-# ?? How to ensure there are names?
    xx2 <- c(xx[rp], xx[-rp])
    xxparm<-xx[rp]
-   cat("xx2:")
-   print(xx2)
-   cat("xxparm:")
-   print(xxparm)
    pstr<-"c("
    npar<-length(xxparm)
    if (npar>0) {
@@ -29,9 +20,6 @@ model2grfun <- function(resformula, pvec, filename=NULL) {
       }
    }
    pstr<-paste(pstr,")",sep='')
-   cat("pstr:")
-   print(pstr)
-   tmp<-readline("...")
    xxvars<-xx[-rp]
    nvar<-length(xxvars)
    vstr<-""
@@ -52,9 +40,6 @@ model2grfun <- function(resformula, pvec, filename=NULL) {
    resval<-paste("resids<-as.numeric(eval(",resexp,"))", sep="") ##3
    resexp<-paste(rhs,"-",lhs, collapse=" ") # build the residuals
    jacexp<-deriv(parse(text=resexp), pnames) # gradient expression
-#   cat("jacexp:")
-#   print(jacexp)
-#   tmp<-readline("cont.")
    dvstr<-""
    if (nvar>0) {
       for (i in 1:nvar){
@@ -68,17 +53,16 @@ model2grfun <- function(resformula, pvec, filename=NULL) {
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-#   mygstr<-paste("myjac<-function(prm, ",vstr,"){\n",
-   mygstr<-paste("{\n",      pparse,"\n ",
+   mygstr<-paste(funname,"<-function(prm, ",vstr,") {\n", pparse,"\n ",
       jfstr," \n",
       "jacmat<-attr(jstruc,'gradient')\n ",
       resval,"\n",
-      "grj<-t(jacmat) %*% resids \n",
+      "grj<-as.vector(t(jacmat) %*% resids) \n",
       "}",sep='')
    if (! is.null(filename)) write(mygstr, file=filename) # write out the file
-   tparse<-try(body(mygr)<-parse(text=mygstr)) 
-   # This may be cause trouble if there are errors
-   if (class(tparse) == "try-error") stop("Error in gradient code string")
-   return(mygr)      
+   tparse<-try(parse(text=mygstr))
+   # This may cause trouble if there are errors
+   if (class(tparse) == "try-error") stop("Error in residual code string")
+   eval(tparse)
 }
 

@@ -1,7 +1,5 @@
 model2ssfun <- function(resformula, pvec, filename=NULL) {
    pnames<-names(pvec)
-#   cat("pnames:")
-#   print(pnames)
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
    if (is.character(resformula)){
       es<-resformula
@@ -10,10 +8,7 @@ model2ssfun <- function(resformula, pvec, filename=NULL) {
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))
-#   cat("xx:")
-#   print(xx)
    rp <- match(pnames, xx) # Match names to parameters
-# ?? How to ensure there are names?
    xx2 <- c(xx[rp], xx[-rp])
    xxparm<-xx[rp]
    cat("xx2:")

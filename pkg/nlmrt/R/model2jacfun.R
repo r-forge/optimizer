@@ -1,8 +1,6 @@
-model2jacfun <- function(resformula, pvec, filename=NULL) {
+model2jacfun <- function(resformula, pvec, funname="myjac", filename=NULL, trace=FALSE) {
    pnames<-names(pvec)
 # Creates Jacobian function
-#   cat("pnames:")
-#   print(pnames)
    if (is.null(pnames) ) stop("MUST have named parameters in pvec")
    if (is.character(resformula)){
       es<-resformula
@@ -11,16 +9,9 @@ model2jacfun <- function(resformula, pvec, filename=NULL) {
       es<-paste(tstr[[2]],"~",tstr[[3]],'')
    }
    xx <- all.vars(parse(text=es))
-#   cat("xx:")
-#   print(xx)
    rp <- match(pnames, xx) # Match names to parameters
-# ?? How to ensure there are names?
    xx2 <- c(xx[rp], xx[-rp])
    xxparm<-xx[rp]
-#   cat("xx2:")
-#   print(xx2)
-#   cat("xxparm:")
-#   print(xxparm)
    pstr<-"c("
    npar<-length(xxparm)
    if (npar>0) {
@@ -30,9 +21,6 @@ model2jacfun <- function(resformula, pvec, filename=NULL) {
       }
    }
    pstr<-paste(pstr,")",sep='')
-   cat("pstr:")
-   print(pstr)
-   tmp<-readline("...")
    xxvars<-xx[-rp]
    nvar<-length(xxvars)
    vstr<-""
@@ -42,10 +30,7 @@ model2jacfun <- function(resformula, pvec, filename=NULL) {
          if (i<nvar) vstr<-paste(vstr,", ",sep='')
       }
    }
-   cat("vstr:")
-   print(vstr)
-   tmp<-readline("...")
-    ff <- vector("list", length(xx2))
+   ff <- vector("list", length(xx2))
    names(ff) <- xx2
    parts<-strsplit(as.character(es), "~")[[1]]
    if (length(parts)!=2) stop("Model expression is incorrect!")
@@ -54,9 +39,6 @@ model2jacfun <- function(resformula, pvec, filename=NULL) {
 #  And build the residual at the parameters
    resexp<-paste(rhs,"-",lhs, collapse=" ") # build the residuals
    jacexp<-deriv(parse(text=resexp), pnames) # gradient expression
-#   cat("jacexp:")
-#   print(jacexp)
-#   tmp<-readline("cont.")
    dvstr<-""
    if (nvar>0) {
       for (i in 1:nvar){
@@ -70,17 +52,17 @@ model2jacfun <- function(resformula, pvec, filename=NULL) {
    for (i in 1:npar){
       pparse<-paste(pparse, "   ",pnames[[i]],"<-prm[[",i,"]]\n", sep='')
    }
-#   myjstr<-paste("myjac<-function(prm, ",vstr,"){\n",
-   myjstr<-paste("{\n",
-      pparse,"\n ",
-      jfstr," \n",
-      "jacmat<-attr(jstruc,'gradient')\n ",
-      "return(jacmat)\n }",sep='')
-   if (! is.null(filename)) write(myjstr, file=filename) # write out the file
+   myjstr<-paste("{\n", pparse, jfstr," \n",
+      "jacmat<-attr(jstruc,'gradient')\n ", "return(jacmat)\n }",sep='')
+   myjstr1<-paste(funname,"<-function(prm, ",vstr,")", myjstr,sep='')
+   if (! is.null(filename)) write(myjstr1, file=filename) # write out the file
    tparse<-try(body(myjac)<-parse(text=myjstr)) 
+   myparse<-parse(text=myjstr1)
+   print(myparse)
    # This may be cause trouble if there are errors
    if (class(tparse) == "try-error") stop("Error in Jacobian code string")
-   return(myjac)      
+   if (trace) print(myjac)
+   return(list(myjac=myjac, myparse=myparse))      
 }
 
 

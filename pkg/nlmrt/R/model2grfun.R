@@ -57,7 +57,7 @@ model2grfun <- function(modelformula, pvec, funname="mygr", filename=NULL) {
       jfstr," \n",
       "jacmat<-attr(jstruc,'gradient')\n ",
       resval,"\n",
-      "grj<-as.vector(t(jacmat) %*% resids) \n",
+      "grj<-as.vector(2.0*crossprod(jacmat, resids)) \n",
       "}",sep='')
    if (! is.null(filename)) write(mygstr, file=filename) # write out the file
    tparse<-try(parse(text=mygstr))

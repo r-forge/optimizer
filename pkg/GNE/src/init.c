@@ -17,11 +17,10 @@
 //table of registration for call methods
 static const R_CallMethodDef callMethods[] = 
 {
-		{"dofunSSR", (DL_FUNC) &dofunSSR, 13},
-        {"dojacSSR", (DL_FUNC) &dojacSSR, 16},
+		{"dofunSSR", (DL_FUNC) &dofunSSR, 19},
+        {"dojacSSR", (DL_FUNC) &dojacSSR, 24},
         {NULL, NULL, 0}
 };
-
 
 //table of registered routines
 void R_init_GNE(DllInfo *info)

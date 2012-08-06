@@ -23,18 +23,26 @@
 
 
 /* Functions accessed from .Call() */
-SEXP dofunSSR(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam, 
-		   SEXP grobj, SEXP arggrobj, 
-		   SEXP constr, SEXP argconstr, 
-		   SEXP grconstr, SEXP arggrconstr, 
-		   SEXP complfunc, SEXP argcompl, SEXP env);
+SEXP dofunSSR(SEXP mode, SEXP nplayer, 
+			  SEXP z, SEXP dimx, SEXP dimlam, SEXP dimmu,
+			  SEXP grobj, SEXP arggrobj, 
+			  SEXP constr, SEXP argconstr, 
+			  SEXP grconstr, SEXP arggrconstr, 
+			  SEXP joint, SEXP argjoint, 
+			  SEXP grjoint, SEXP arggrjoint, 
+			  SEXP complfunc, SEXP argcompl, SEXP env);
 
 
-SEXP dojacSSR(SEXP nplayer, SEXP z, SEXP dimx, SEXP dimlam,
+SEXP dojacSSR(SEXP mode, SEXP nplayer, 
+			  SEXP z, SEXP dimx, SEXP dimlam, SEXP dimmu,
 			  SEXP heobj, SEXP argheobj, 
 			  SEXP constr, SEXP argconstr, 
 			  SEXP grconstr, SEXP arggrconstr, 
 			  SEXP heconstr, SEXP argheconstr,
-			  SEXP grcompla, SEXP grcomplb, SEXP argcompl, SEXP env);
+			  SEXP joint, SEXP argjoint, 
+			  SEXP grjoint, SEXP arggrjoint, 
+			  SEXP hejoint, SEXP arghejoint,
+			  SEXP grcompla, SEXP grcomplb, SEXP argcompl,
+			  SEXP env);
 
  

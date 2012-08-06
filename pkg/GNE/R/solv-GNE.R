@@ -19,53 +19,74 @@ GNE <- function(approach =
 	c(res, list(approach=approach))
 }
 
-GNE.nseq <- function(xinit, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
-constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr, 
-compl, gcompla, gcomplb, argcompl, method="Newton", control=list(), silent=TRUE, ...)
+GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
+	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr,
+	compl, gcompla, gcomplb, argcompl, 
+	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
+	method="default", control=list(), silent=TRUE, ...)
 {
 	if(method == "default") method <- "Newton"
-	if(missing(arggrobj)) arggrobj <- NULL
-	if(missing(argheobj)) argheobj <- NULL
-	if(missing(argconstr)) argconstr <- NULL
-	if(missing(arggrconstr)) arggrconstr <- NULL
-	if(missing(argheconstr)) argheconstr <- NULL
-	if(missing(argcompl)) argcompl <- NULL
+#	if(missing(arggrobj)) arggrobj <- NULL
+#	if(missing(argheobj)) argheobj <- NULL
+#	if(missing(argconstr)) argconstr <- NULL
+#	if(missing(arggrconstr)) arggrconstr <- NULL
+#	if(missing(argheconstr)) argheconstr <- NULL
+#	if(missing(argcompl)) argcompl <- NULL
+#	if(missing(argjoint)) argjoint <- NULL
+#	if(missing(arggrjoint)) arggrjoint <- NULL
+#	if(missing(arghejoint)) arghejoint <- NULL
+	
+	argtest1 <- testargfunSSR(init, dimx, dimlam, grobj, arggrobj, constr, argconstr,  grconstr, arggrconstr, 
+						 compl, argcompl, dimmu, joint, argjoint, grjoint, arggrjoint)
 	
 	#basic tests for funSSR
-	test.try <- try( funSSR(xinit, dimx, dimlam, grobj, arggrobj, 
-							constr, argconstr, grconstr, arggrconstr, 
-							compl, argcompl), silent=silent )
+	test.try <- try( funSSR(init, dimx, dimlam, grobj, arggrobj, constr, argconstr,  
+							grconstr, arggrconstr, compl, argcompl, dimmu, joint, argjoint,
+							grjoint, arggrjoint), silent=silent )
+	
 	if(class(test.try) == "try-error")
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Can't evalate Phi(xinit).", fvec=NA) )
+				 message="Can't evalate Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Phi(xinit) has infinite or NaN values.", fvec=NA) )
+				 message="Phi(init) has infinite or NaN values.", fvec=NA) )
+
+	argtest2 <- testargjacSSR(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
+						 heconstr, argheconstr, gcompla, gcomplb, argcompl, dimmu, joint, argjoint, grjoint, arggrjoint,
+						 hejoint, arghejoint)	
 	
 	#basic tests for jacSSR
-	test.try <- try( jacSSR(xinit, dimx, dimlam, heobj, argheobj, constr, argconstr, 
-							grconstr, arggrconstr, heconstr, argheconstr, gcompla, 
-							gcomplb, argcompl), silent=silent )
+	test.try <- try( jacSSR(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
+					  heconstr, argheconstr, gcompla, gcomplb, argcompl, dimmu, joint, argjoint,
+					  grjoint, arggrjoint, hejoint, arghejoint), silent=silent )
 	if(class(test.try) == "try-error")
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Can't evaluate Jac Phi(xinit).", fvec=NA) )
+				 message="Can't evaluate Jac Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Jac Phi(xinit) has infinite or NaN values.", fvec=NA) )
+				 message="Jac Phi(init) has infinite or NaN values.", fvec=NA) )
 	
 	#wrapped functions
-	phifinal <- function(x, argPhi, argjac)
-		evalwitharglist(funSSR, x, argPhi) 
+	myfunSSR <- function(x, argfun, argjac)
+		evalwitharglist(funSSR, x, argfun) 
 	
-	jacphifinal <- function(x, argPhi, argjac)
+	myjacSSR <- function(x, argfun, argjac)
 		evalwitharglist(jacSSR, x, argjac)
 	
-	arg1 <- list(dimx, dimlam, grobj, arggrobj, constr, argconstr, grconstr, 
-				 arggrconstr, compl, argcompl)
-	arg2 <- list(dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, 
-				 arggrconstr, heconstr, argheconstr, gcompla, gcomplb, argcompl)	
+	arg1 <- list(argtest1$dimx, argtest1$dimlam, argtest1$grobj, argtest1$arggrobj, 
+				 argtest1$constr, argtest1$argconstr, argtest1$grconstr, argtest1$arggrconstr, 
+				 argtest1$compl, argtest1$argcompl, argtest1$dimmu, 
+				 argtest1$joint, argtest1$argjoint, argtest1$grjoint, argtest1$arggrjoint)
+	arg2 <- list(argtest2$dimx, argtest2$dimlam, argtest2$heobj, argtest2$argheobj, 
+				 argtest2$constr, argtest2$argconstr, argtest2$grconstr, argtest2$arggrconstr, 
+				 argtest2$heconstr, argtest2$argheconstr, argtest2$gcompla, argtest2$gcomplb, argtest2$argcompl, 
+				 argtest2$dimmu, argtest2$joint, argtest2$argjoint, argtest2$grjoint, 
+				 argtest2$arggrjoint, argtest2$hejoint, argtest2$arghejoint)	
+	
+	print(method)
+	print(control)
 		
-	res <- nseq(xinit, phifinal, jacphifinal, argPhi=arg1, argjac=arg2, method, control, ...)	
+	res <- nseq(init, myfunSSR, myjacSSR, argPhi=arg1, argjac=arg2, method, control, ...)	
 	class(res) <- "GNE"
 	res
 }

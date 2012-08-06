@@ -7,22 +7,16 @@
 		functions of the SemiSmooth Reformulation of the GNEP
 	}
 \usage{
-funSSR(z, dimx, dimlam,
-	grobj, arggrobj, 
-	constr, argconstr,  
-	grconstr, arggrconstr, 
-	compl, argcompl, echo=FALSE)
-jacSSR(z, dimx, dimlam,
-	heobj, argheobj, 
-	constr, argconstr, 
-	grconstr, arggrconstr, 
-	heconstr, argheconstr,
-	gcompla, gcomplb, argcompl, echo=FALSE)
+funSSR(z, dimx, dimlam, grobj, arggrobj, constr, argconstr,  grconstr, arggrconstr, 
+	compl, argcompl, dimmu, joint, argjoint, grjoint, arggrjoint, echo=FALSE)
+jacSSR(z, dimx, dimlam, heobj, argheobj, constr, argconstr,  grconstr, arggrconstr, 
+	heconstr, argheconstr, gcompla, gcomplb, argcompl, dimmu, joint, argjoint,
+	grjoint, arggrjoint, hejoint, arghejoint, echo=FALSE)
 }
 \arguments{
-  \item{z}{a numeric vector z containing x then lambda values.}
-  \item{dimx}{dimension of x.}
-  \item{dimlam}{dimension of lambda.}
+  \item{z}{a numeric vector \code{z} containing \eqn{(x, lambda, mu)} values.}
+  \item{dimx}{a vector of dimension for \eqn{x}.}
+  \item{dimlam}{a vector of dimension for \eqn{lambda}.}
   \item{grobj}{gradient of the objective function, see details.}
   \item{arggrobj}{a list of additional arguments of the objective gradient.}
   \item{constr}{constraint function, see details.}
@@ -31,6 +25,12 @@ jacSSR(z, dimx, dimlam,
   \item{arggrconstr}{a list of additional arguments of the constraint gradient.}
   \item{compl}{the complementarity function with (at least) two arguments: \code{compl(a,b)}.}
   \item{argcompl}{list of possible additional arguments for \code{compl}.}
+  
+  \item{dimmu}{a vector of dimension for \eqn{mu}.}
+  \item{joint}{joint function, see details.}
+  \item{argjoint}{a list of additional arguments of the joint function.}
+  \item{grjoint}{gradient of the joint function, see details.}
+  \item{arggrjoint}{a list of additional arguments of the joint gradient.}
 
   \item{heobj}{Hessian of the objective function, see details.}
   \item{argheobj}{a list of additional arguments of the objective Hessian.}	
@@ -38,11 +38,18 @@ jacSSR(z, dimx, dimlam,
   \item{argheconstr}{a list of additional arguments of the constraint Hessian.}
   \item{gcompla}{derivative of the complementarity function w.r.t. the first argument.}
   \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}
+  
+  \item{hejoint}{Hessian of the joint function, see details.}
+  \item{arghejoint}{a list of additional arguments of the joint Hessian.}
   \item{echo}{a logical to show some traces.}    
 }
 \details{
-Compute the Phi function or the Jacobian of the Phi function defined in F. Facchinei et al.(2009).
-
+Compute the SemiSmooth Reformulation of the GNEP: the Generalized Nash equilibrium problem is defined
+by objective functions \eqn{Obj} with player variables \eqn{x} defined in \code{dimx} and 
+may have player-dependent constraint functions \eqn{g} of dimension \code{dimlam} 
+and/or a common shared joint function \eqn{h} of dimension \code{dimmu},
+where the Lagrange multiplier are \eqn{lambda} and \eqn{mu}, respectively,
+see F. Facchinei et al.(2009) where there is no joint function.
 \describe{
     \item{\bold{Arguments of the Phi function}}{	
 The arguments which are functions must respect the following features
@@ -59,17 +66,26 @@ The arguments which are functions must respect the following features
 			The gradient of the constraint function \eqn{g}  must have 3 arguments: vector \code{z}, player number, derivative index,
 			and optionnally additional arguments in \code{arggrconstr}.
 			}
-		\item{\code{compl}}{It must have two arguments. A typical example is the minimum function.}
+		\item{\code{compl}}{It must have two arguments and optionnally additional arguments in \code{argcompl}. 
+			A typical example is the minimum function.}
+		\item{\code{joint}}{
+			The constraint function \eqn{h} must have 1 argument: vector \code{z},
+			such that \eqn{h(z) <= 0}. Optionnally, \eqn{h} may have additional arguments in \code{argjoint}.
+			}
+		\item{\code{grjoint}}{
+			The gradient of the constraint function \eqn{h}  must have 2 arguments: vector \code{z}, derivative index,
+			and optionnally additional arguments in \code{arggrjoint}.
+			}		
 	}
 	}
 	\item{\bold{Arguments of the Jacobian of Phi}}{	
 The arguments which are functions must respect the following features
 	\describe{
-		\item{\code{heobj}}{It must have 4 arguments: vector \code{z}, player number, two derivative indexes.}
-		\item{\code{heconstr}}{It must have 4 arguments: vector \code{z}, player number, two derivative indexes.}
-		\item{\code{gcompla}}{It must have two arguments.}
+		\item{\code{heobj}}{It must have 4 arguments: vector \code{z}, player number, two derivative indexes and optionnally additional arguments in \code{argheobj}.}
+		\item{\code{heconstr}}{It must have 4 arguments: vector \code{z}, player number, two derivative indexes and optionnally additional arguments in \code{argheconstr}.}
+		\item{\code{gcompla},\code{gcomplb}}{It must have two arguments and optionnally additional arguments in \code{argcompl}.}
+		\item{\code{hejoint}}{It must have 3 arguments: vector \code{z}, two derivative indexes and optionnally additional arguments in \code{arghejoint}.}
 	}
-	Optionnally, \code{heobj} and \code{heconstr} can have additional arguments \code{argheobj} and \code{argheconstr}.
 	}
 }
 See the example	below.

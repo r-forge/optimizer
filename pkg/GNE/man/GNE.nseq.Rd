@@ -7,38 +7,51 @@
 		Non smooth equation reformulation via the extended KKT system of the GNE problem.
 	}
 \usage{
-GNE.nseq(xinit, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
-	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr, 
-	compl, gcompla, gcomplb, argcompl, method="Newton", control=list(), silent=TRUE, ...)
-
+GNE.nseq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
+	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr,
+	compl, gcompla, gcomplb, argcompl, 
+	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
+	method="default", control=list(), silent=TRUE, ...)
+	
 #bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
 #bench.GNE.nseq.LM(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, control=list())
 }
 \arguments{
-  \item{xinit}{initial point.}
-  \item{dimx}{dimension of x.}
-  \item{dimlam}{dimension of lambda.}
+  \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}
+  \item{dimx}{a vector of dimension for \eqn{x}.}
+  \item{dimlam}{a vector of dimension for \eqn{lambda}.}
   \item{grobj}{gradient of the objective function, see details.}
   \item{arggrobj}{a list of additional arguments of the objective gradient.}
+  \item{heobj}{Hessian of the objective function, see details.}
+  \item{argheobj}{a list of additional arguments of the objective Hessian.}	
+
   \item{constr}{constraint function, see details.}
   \item{argconstr}{a list of additional arguments of the constraint function.}
   \item{grconstr}{gradient of the constraint function, see details.}
   \item{arggrconstr}{a list of additional arguments of the constraint gradient.}
-  \item{compl}{the complementarity function with two arguments: \code{compl(a,b)}.}
-
-  \item{heobj}{Hessian of the objective function, see details.}
-  \item{argheobj}{a list of additional arguments of the objective Hessian.}	
   \item{heconstr}{Hessian of the constraint function, see details.}
   \item{argheconstr}{a list of additional arguments of the constraint Hessian.}
+
+  \item{compl}{the complementarity function with (at least) two arguments: \code{compl(a,b)}.}
+  \item{argcompl}{list of possible additional arguments for \code{compl}.}
   \item{gcompla}{derivative of the complementarity function w.r.t. the first argument.}
-  \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}    
+  \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}   
+  
+  \item{dimmu}{a vector of dimension for \eqn{mu}.}
+  \item{joint}{joint function, see details.}
+  \item{argjoint}{a list of additional arguments of the joint function.}
+  \item{grjoint}{gradient of the joint function, see details.}
+  \item{arggrjoint}{a list of additional arguments of the joint gradient.}
+  \item{hejoint}{Hessian of the joint function, see details.}
+  \item{arghejoint}{a list of additional arguments of the joint Hessian.}
 
   \item{method}{a character string specifying the method \code{"Newton"},
-	\code{"Broyden"}, \code{"Levenberg-Marquardt"}. }
+	\code{"Broyden"}, \code{"Levenberg-Marquardt"} or \code{"default"} 
+	which is \code{"Newton"}. }
   \item{control}{a list with control parameters.}
   \item{\dots}{further arguments to be passed to the optimization routine. 
 	NOT to the functions \code{phi} and \code{jacphi}.}
-  \item{echo}{a logical to get some traces. Default to \code{FALSE}.}	
+  \item{silent}{a logical to get some traces. Default to \code{FALSE}.}	
 }
 \details{
 \code{GNE.nseq} solves the GNE problem via a non smooth reformulation of the KKT system. 

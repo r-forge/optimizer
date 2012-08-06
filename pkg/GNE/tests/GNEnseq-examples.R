@@ -165,12 +165,12 @@ heconstr=heg, myarg, gcompla=GrAphiFB, gcomplb=GrBphiFB)
 
 
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
-	constr=g, myarg, grconstr=grg, myarg, heg=heg, myarg, 
+	constr=g, myarg, grconstr=grg, myarg, heconstr=heg, myarg, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
 	control=list(trace=1))
 
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
-	constr=g, myarg, grconstr=grg, myarg, heg=heg, myarg, 
+	constr=g, myarg, grconstr=grg, myarg, heconstr=heg, myarg, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Broyden", 
 	control=list(trace=1))
 

@@ -569,9 +569,9 @@ $$
 \bar L(x, \lambda, \mu) = 
 \left( 
 \begin{matrix}
-L ^1(x, \lambda^1, \mu) \\
+\nabla_{x_1} L ^1(x, \lambda^1, \mu) \\
 \vdots \\
-L ^I(x, \lambda^I, \mu) \\
+\nabla_{x_I} L ^I(x, \lambda^I, \mu) \\
 \end{matrix}
 \right)  
 \in \R^{n}
@@ -671,8 +671,8 @@ and
 $$
 g(x) = 
 \left( \begin{matrix}
-\sum_{l=1}^3 u_{l1} e_l x_l - K_1 \\
-\sum_{l=1}^3 u_{l2} e_l x_l - K_2 
+\sum\limits_{l=1}^3 u_{l1} e_l x_l - K_1 \\
+\sum\limits_{l=1}^3 u_{l2} e_l x_l - K_2 
 \end{matrix} \right).
 $$
 Derivatives are given by
@@ -974,11 +974,11 @@ J(z) =
 \end{array}	
 \right) .
 $$
-The diagonal matrices $D_a$ and $D_b$ are given by
+The diagonal matrices $D_i^a$ and $D_i^b$ are given by
 $$
-D_a(z) = \diag[ a^1(x, \lambda^1) , \dots , a^N(x, \lambda^N) ] 
+D_i^a(x, \lambda^i) = \diag[ a^i(x, \lambda^i) ]
 \txtm{and}
-D_b(z) = \diag[ b^1(x, \lambda^1) , \dots , b^N(x, \lambda^N) ],
+D_i^b(x, \lambda^i) = \diag[ b^i(x, \lambda^i) ],
 $$
 with $a^i(x, \lambda^i), b^i(x, \lambda^i) \in \R^{m_i}$  defined as
 $$
@@ -997,9 +997,8 @@ where $\phi'_a$ (resp. $\phi'_b$) denotes the derivative of $\phi$ with respect 
 
 \subsection{Shared constraint case\label{app:nseq:jointcase}}
 
-The generalized Jacobian of the complementarity formulation has the following form
+The generalized Jacobian of the complementarity formulation has the following form $J(z) =$
 $$
-J(z) =
 \left(
 \begin{array}{c|c|c}
 	\begin{matrix}
@@ -1041,7 +1040,7 @@ J(z) =
 \\
 \hline 
 	\begin{matrix}	
-	- D_N^a(x, \mu) \Jac_{x_1} h(x) & \dots & - D_N^a(x, \mu) \Jac_{x_N} h(x) \\
+	- D_h^a(x, \mu) \Jac_{x_1} h(x) & \dots & - D_h^a(x, \mu) \Jac_{x_N} h(x) \\
 	\end{matrix}		
 &
 	\begin{matrix}	
@@ -1049,12 +1048,30 @@ J(z) =
 	\end{matrix}			
 &
 	\begin{matrix}	
-	D^b_{N}(x, \mu) \\
+	D^b_{h}(x, \mu) \\
 	\end{matrix}			
 \end{array}	
 \right) .
 $$
-
+The diagonal matrices $D_a$ and $D_b$ are given by
+$$
+D_h^a(x, \mu) = \diag[ \tilde a(x, \mu) ]
+\txtm{and}
+D_h^b(x, \mu) = \diag[ \tilde b(x, \mu) ],
+$$
+with $\tilde a(x, \mu), \tilde b(x, \mu) \in \R^{l}$  defined as
+$$
+( \tilde a_j(x, \mu) , \tilde b_j(x, \mu) ) = 
+\left\{
+\begin{array}{cl} %\frac{ \partial \phi }{ \partial a}
+\left(  \phi'_a( -h_j(x), \mu_j ), \phi'_b ( -h_j(x), \mu_j ) \right) 
+& \txtm{if} ( -h_j(x), \mu_j ) \neq (0, 0), \\
+  (\tilde \xi_{j} ,\tilde \zeta_{j} )
+& \txtm{if} ( -h_j(x), \mu_j ) = (0, 0), 
+\end{array}
+\right.
+$$
+where $(\tilde \xi_{j} , \tilde \zeta_{j} ) \in \bar B(p_\phi, c_\phi)$. 
 
 
 

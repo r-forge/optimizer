@@ -26,15 +26,6 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	method="default", control=list(), silent=TRUE, ...)
 {
 	if(method == "default") method <- "Newton"
-#	if(missing(arggrobj)) arggrobj <- NULL
-#	if(missing(argheobj)) argheobj <- NULL
-#	if(missing(argconstr)) argconstr <- NULL
-#	if(missing(arggrconstr)) arggrconstr <- NULL
-#	if(missing(argheconstr)) argheconstr <- NULL
-#	if(missing(argcompl)) argcompl <- NULL
-#	if(missing(argjoint)) argjoint <- NULL
-#	if(missing(arggrjoint)) arggrjoint <- NULL
-#	if(missing(arghejoint)) arghejoint <- NULL
 	
 	argtest1 <- testargfunSSR(init, dimx, dimlam, grobj, arggrobj, constr, argconstr,  grconstr, arggrconstr, 
 						 compl, argcompl, dimmu, joint, argjoint, grjoint, arggrjoint)
@@ -82,58 +73,71 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 				 argtest2$heconstr, argtest2$argheconstr, argtest2$gcompla, argtest2$gcomplb, argtest2$argcompl, 
 				 argtest2$dimmu, argtest2$joint, argtest2$argjoint, argtest2$grjoint, 
 				 argtest2$arggrjoint, argtest2$hejoint, argtest2$arghejoint)	
+	if(!silent)
+		print("init completed.")
 	
-	print(method)
-	print(control)
-		
-	res <- nseq(init, myfunSSR, myjacSSR, argPhi=arg1, argjac=arg2, method, control, ...)	
+	res <- nseq(init, myfunSSR, myjacSSR, argfun=arg1, argjac=arg2, method, control, ...)	
 	class(res) <- "GNE"
 	res
 }
 
-GNE.ceq <- function(xinit, dimx, dimlam, dimw, grobj, arggrobj, heobj, argheobj, 
+GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
 	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr,
+	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
 	method="IP", control=list(), silent=TRUE, ...)
 {
 	if(method == "default") method <- "IP"
-	if(missing(arggrobj)) arggrobj <- NULL
-	if(missing(argheobj)) argheobj <- NULL
-	if(missing(argconstr)) argconstr <- NULL
-	if(missing(arggrconstr)) arggrconstr <- NULL
-	if(missing(argheconstr)) argheconstr <- NULL
+	
+	argtest1 <- testargfunCER(init, dimx, dimlam, grobj, arggrobj, constr, argconstr, 
+							  grconstr, arggrconstr, dimmu, joint, argjoint, grjoint, arggrjoint)
+	
+	#basic tests for funCER
+	test.try <- try( funCER(init, dimx, dimlam, grobj, arggrobj, constr, argconstr, 
+				grconstr, arggrconstr, dimmu, joint, argjoint, grjoint, arggrjoint), silent=silent )
 
-#basic tests for funCER
-	test.try <- try( funCER(xinit, dimx, dimlam, dimw, grobj, arggrobj, 
-							constr, argconstr, grconstr, arggrconstr), silent=silent )
 	if(class(test.try) == "try-error")
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Can't evalate H(xinit).", fvec=NA) )
+				 message="Can't evalate H(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="H(xinit) has infinite or NaN values.", fvec=NA) )
+				 message="H(init) has infinite or NaN values.", fvec=NA) )
 	
-#basic tests for jacCER
-	test.try <- try( jacCER(xinit, dimx, dimlam, dimw, heobj, argheobj,  
-							constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr), silent=silent )
+	argtest2 <- testargjacCER(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, 
+							  arggrconstr, heconstr, argheconstr, dimmu, joint, argjoint, grjoint, 
+							  arggrjoint, hejoint, arghejoint)
+	
+	#basic tests for jacCER
+	test.try <- try( jacCER(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, 
+							arggrconstr, heconstr, argheconstr, dimmu, joint, argjoint,
+							grjoint, arggrjoint, hejoint, arghejoint), silent=silent )
 	if(class(test.try) == "try-error")
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Can't evaluate Jac H(xinit).", fvec=NA) )
+				 message="Can't evaluate Jac H(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-				 message="Jac H(xinit) has infinite or NaN values.", fvec=NA) )
+				 message="Jac H(init) has infinite or NaN values.", fvec=NA) )
 	
-#wrapped functions
-	Hfinal <- function(x, argH, argjac)
-		evalwitharglist(funCER, x, argH) 
+	#wrapped functions
+	myfunCER <- function(x, argfun, argjac)
+		evalwitharglist(funCER, x, argfun) 
 	
-	jacHfinal <- function(x, argH, argjac)
+	myjacCER <- function(x, argfun, argjac)
 		evalwitharglist(jacCER, x, argjac)
 	
-	arg1 <- list(dimx, dimlam, dimw, grobj, arggrobj, constr, argconstr, grconstr, arggrconstr)
-	arg2 <- list(dimx, dimlam, dimw, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr)	
-	
+	arg1 <- list(dimx = argtest1$dimx, dimlam = argtest1$dimlam, grobj = argtest1$grobj, 
+		arggrobj = argtest1$arggrobj, constr = argtest1$constr, argconstr = argtest1$argconstr, 
+		grconstr = argtest1$grconstr, arggrconstr = argtest1$arggrconstr, dimmu = argtest1$dimmu, 
+		joint = argtest1$joint, argjoint = argtest1$argjoint, grjoint = argtest1$grjoint, 
+		arggrjoint = argtest1$arggrjoint)
+	arg2 <- list(argtest2$dimx, argtest2$dimlam, argtest2$heobj, argtest2$argheobj, 
+				 argtest2$constr, argtest2$argconstr, argtest2$grconstr, argtest2$arggrconstr, 
+				 argtest2$heconstr, argtest2$argheconstr, argtest2$dimmu, argtest2$joint, 
+				 argtest2$argjoint, argtest2$grjoint, argtest2$arggrjoint,
+				 argtest2$hejoint, argtest2$arghejoint)	
+	if(!silent)
+		print("init completed.")
 		
-	res <- ceq(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH=arg1, argjac=arg2,
+	res <- ceq(init, dimx, dimlam, myfunCER, myjacCER, argfun=arg1, argjac=arg2,
 		method, control, global="gline", ...)	
 	class(res) <- "GNE"
 	res

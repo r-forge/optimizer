@@ -2,68 +2,59 @@
 \alias{GNE.ceq}
 \title{Constrained equation reformulation of the GNE problem.}
 \description{
-		Non smooth equation reformulation via the extended KKT system of the GNE problem.
+		Constrained equation reformulation via the extended KKT system of the GNE problem.
 	}
 \usage{
-GNE.ceq(xinit, dimx, dimlam, dimw, grobj, arggrobj, heobj, argheobj, 
+GNE.ceq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
 	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr,
+	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
 	method="IP", control=list(), silent=TRUE, ...)
 
 }
 \arguments{
-  \item{xinit}{initial point.}
-  \item{dimx}{dimension of x.}
-  \item{dimlam}{dimension of lambda.}
+  \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}
+  \item{dimx}{a vector of dimension for \eqn{x}.}
+  \item{dimlam}{a vector of dimension for \eqn{lambda}.}
+  
   \item{grobj}{gradient of the objective function, see details.}
   \item{arggrobj}{a list of additional arguments of the objective gradient.}
+  \item{heobj}{Hessian of the objective function, see details.}
+  \item{argheobj}{a list of additional arguments of the objective Hessian.}	
+  
   \item{constr}{constraint function, see details.}
   \item{argconstr}{a list of additional arguments of the constraint function.}
   \item{grconstr}{gradient of the constraint function, see details.}
   \item{arggrconstr}{a list of additional arguments of the constraint gradient.}
-  \item{compl}{the complementarity function with two arguments: \code{compl(a,b)}.}
-
-  \item{heobj}{Hessian of the objective function, see details.}
-  \item{argheobj}{a list of additional arguments of the objective Hessian.}	
   \item{heconstr}{Hessian of the constraint function, see details.}
   \item{argheconstr}{a list of additional arguments of the constraint Hessian.}
-  \item{gcompla}{derivative of the complementarity function w.r.t. the first argument.}
-  \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}    
+
+  \item{dimmu}{a vector of dimension for \eqn{mu}.}
+  \item{joint}{joint function, see details.}
+  \item{argjoint}{a list of additional arguments of the joint function.}
+  \item{grjoint}{gradient of the joint function, see details.}
+  \item{arggrjoint}{a list of additional arguments of the joint gradient.}
+  \item{hejoint}{Hessian of the joint function, see details.}
+  \item{arghejoint}{a list of additional arguments of the joint Hessian.}
 
   \item{method}{a character string specifying the method \code{"Newton"},
 	\code{"Broyden"}, \code{"Levenberg-Marquardt"}. }
   \item{control}{a list with control parameters.}
   \item{\dots}{further arguments to be passed to the optimization routine. 
-	NOT to the functions \code{phi} and \code{jacphi}.}
+	NOT to the functions \code{H} and \code{jacH}.}
   \item{silent}{a logical to get some traces. Default to \code{FALSE}.}	
 }
 \details{
-\code{GNE.nseq} solves the GNE problem via a non smooth reformulation of the KKT system. 
-\code{bench.GNE.nseq} carries out a benchmark of the computation methods (Newton and Broyden 
-direction with all possible global schemes) for a given initial point.
-\code{bench.GNE.nseq.LM} carries out a benchmark of the Levenberg-Marquardt computation method.
+\code{GNE.ceq} solves the GNE problem via a constrained equation reformulation of the KKT system. 
 
 This approach consists in solving the extended Karush-Kuhn-Tucker 
-(KKT) system denoted by \eqn{\Phi(z)=0}{Phi(z)=0}, where eqn{z} is formed by the players strategy 
-\eqn{x} and the Lagrange multiplier \eqn{\lambda}{lambda}.
-The root problem \eqn{\Phi(z)=0}{Phi(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
-where the direction \eqn{d_n} is computed in three different ways. Let \eqn{J(x)=Jac\Phi(x)}{J(x)=Jac Phi(x)}.
+(KKT) system denoted by \eqn{H(z)=0}, where eqn{z} is formed by the players strategy 
+\eqn{x}, the Lagrange multiplier \eqn{\lambda}{lambda} and the slate variable \eqn{w}.
+The root problem \eqn{H(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
+where the direction \eqn{d_n} is computed in two different ways. Let \eqn{J(x)=Jac H(x)}.
 \describe{
-	\item{(a) Newton:}{The direction solves the system \eqn{J(x_n) d = - \Phi(x_n)
-		}{J(x_n) d = - Phi(x_n)}, 
-		generally called the Newton equation.}
-	\item{(b) Broyden:}{It is a quasi-Newton method aiming to solve an approximate version
-		of the Newton equation \eqn{d = -\Phi(x_n) W_n}{d = -Phi(x_n) W_n} where \eqn{W_n} is computed
-		by an iterative scheme. In the current implementation, \eqn{W_n} is updated
-		by the Broyden method. }
-	\item{(c) Levenberg-Marquardt:}{The direction solves the system 
-		\deqn{ \left[ J(x_n)^T J(x_n) + \lambda_n^\delta I \right] d = - J(x_n)^T\Phi(x_n)
-			}{ [J(x_n)^T J(x_n) + lambda_n^delta I] d = - J(x_n)^T Phi(x_n),}
-		where \eqn{I} denotes the identity matrix, \eqn{\delta}{delta} is a parameter in [1,2] 
-		and \eqn{\lambda_n = ||\Phi(x_n)|| }{lambda_n = ||Phi(x_n)||} if \code{LM.param="merit"},
-		\eqn{||J(x_n)^T \Phi(x_n)|| }{||J(x_n)^T Phi(x_n)||} if \code{LM.param="jacmerit"},
-		the minimum of both preceding quantities if \code{LM.param="min"}, or an adatpive
-		parameter according to Fan(2003).
-		}
+	\item{(a) modified Newton:}{The direction solves the system \eqn{H(z_n) + J(x_n) d = sigma_n a^T H(z_n) / ||a||_2^2 a
+		}.}
+	\item{(b) ?:}{}
 }
 
 In addition to the computation method, a globalization scheme can be choosed using the \code{global}
@@ -72,22 +63,10 @@ argument, via the \code{\dots} argument. Available schemes are
 	\item{(1) Line search:}{ if \code{global} is set to \code{"qline"} or \code{"gline"}, a line search
 		is used with the merit function being half of the L2 norm of \eqn{Phi}, respectively with a
 		quadratic or a geometric implementation.}
-	\item{(2) Trust region:}{ if \code{global} is set to \code{"dbldog"} or \code{"pwldog"}, a trust
-		region is used respectively with a double dogleg or a Powell (simple) dogleg implementation.
-		This global scheme is not available for the Levenberg-Marquardt direction.}
-	\item{(3) None:}{ if  \code{global} is set to \code{"none"}, no globalization is done. }
+	\item{(2) None:}{ if  \code{global} is set to \code{"none"}, no globalization is done. }
 }	
-The default value of \code{global} is \code{"gline"}. Note that in the special case of 
-the Levenberg-Marquardt direction with adaptive parameter, the global scheme must be \code{"none"}.
+The default value of \code{global} is \code{"gline"}. 
 
-In the GNEP context, details on the methods can be found in Facchinei, Fischer & Piccialli (2009), \code{"Newton"}
-corresponds to method 1 and \code{"Levenberg-Marquardt"} to method 3. In a general nonlinear
-equation framework, see Dennis & Moree (1977), Dennis & Schnabel (1996) or Nocedal & Wright (2006), 
-
-
-The implementation relies heavily on the 
-\code{\link{nleqslv}} function of the package of the same name. So full details on the control parameters are
-to be found in the help page of this function. We briefly recall here the main parameters.
 The \code{control} argument is a list that can supply any of the following components:
 \describe{
 	\item{\code{xtol}}{The relative steplength tolerance.
@@ -98,35 +77,26 @@ The \code{control} argument is a list that can supply any of the following compo
 	Convergence is declared when the largest absolute function value is smaller than \code{ftol}.
 	The	default value is \eqn{10^{-8}}{1e-8}.
 	}
-	\item{\code{delta}}{A numeric \code{delta} in [1, 2], default to 2, for
-	 the Levenberg-Marquardt method only.
-	}
-	\item{\code{LM.param}}{A character string, default to \code{"merit"}, for
-	 the Levenberg-Marquardt method only.
-	}
-	\item{\code{maxit}}{The maximum number of major iterations. The default value is 150 if a 
+	\item{\code{btol}}{The backtracking tolerance.
+	The	default value is \eqn{10^{-2}}{1e-2}.
+	}	
+	\item{\code{maxit}}{The maximum number of major iterations. The default value is 100 if a 
 	global strategy has been specified.}
 	\item{\code{trace}}{Non-negative integer. A value of 1 will give a detailed report of the
 	progress of the iteration, default 0.}
+	\item{\code{sigma}, \code{delta}, \code{zeta}}{Parameters initialized to \code{1/2}, 
+	\code{1}, \code{length(init)/2}.}
+	\item{\code{forcingpar}}{Forcing parameter set to 0.1.}
 }
-
-\code{\dots} are further arguments to be passed to the optimization routine, 
-that is \code{global}, \code{xscalm}, \code{silent}. See above for the globalization scheme. 
-The \code{xscalm} is a scaling parameter to used, either \code{"fixed"} (default)
-or \code{"auto"}, for which scaling factors are calculated from the euclidean norms of the 
-columns of the jacobian matrix. See \code{\link{nleqslv}} for details.
-The \code{silent} argument is a logical to report or not the optimization process, default
-to \code{FALSE}.
-
 
 }
 \value{
-\code{GNE.nseq} returns a list with components:
+\code{GNE.ceq} returns a list with components:
 	\describe{
 		\item{\code{par}}{The best set of parameters found.}
 		\item{\code{value}}{The value of the merit function.}
 		\item{\code{counts}}{A two-element integer vector giving the number of calls to 
-			\code{phi} and \code{jacphi} respectively.}			
+			\code{H} and \code{jacH} respectively.}			
 		\item{\code{iter}}{The outer iteration number.}
 		\item{\code{code}}{
 			         The values returned are
@@ -147,11 +117,6 @@ to \code{FALSE}.
 		\item{\code{message}}{a string describing the termination code.}	
 		\item{\code{fvec}}{a vector with function values.}
 	}
-\code{bench.GNE.nseq} returns a list with components:
-	\describe{
-		\item{\code{compres}}{a data.frame summarizing the different computations.}
-		\item{\code{reslist}}{a list with the different results from \code{GNE.nseq}.}
-	} 	
 
 }
 \references{
@@ -160,41 +125,18 @@ to \code{FALSE}.
  \emph{Quasi-Newton methods, Motivation and Theory},
  SIAM review.
 
- J.E. Dennis and R.B. Schnabel (1996), 
- \emph{Numerical methods for unconstrained optimization and nonlinear equations},
- SIAM.
- 
- F. Facchinei, A. Fischer and V. Piccialli (2009), 
- \emph{Generalized Nash equilibrium problems and Newton methods},
- Math. Program.
- 
- J.-Y. Fan (2003),
- \emph{A modified Levenberg-Marquardt algorithm for singular 
- system of nonlinear equations},
- Journal of Computational Mathematics.
- 
- B. Hasselman (2011), 
- \emph{nleqslv: Solve systems of non linear equations},
- R package.
+ A. Dreves, F. Facchinei, C. Kanzow and S. Sagratella (2011), 
+ \emph{On the solutions of the KKT conditions of generalized Nash equilibrium problems}, 
+ SIAM Journal on Optimization 21(3), 1082–1108.
 
- A. von Heusinger & J. Kanzow (2009),
- \emph{Optimization reformulations of the generalized Nash equilibrium problem 
- using Nikaido-Isoda-type functions},
- Comput Optim Appl .
-
- J. Nocedal and S.J. Wright (2006), 
- \emph{Numerical Optimization}, 
- Springer Science+Business Media
 
 }
 \seealso{
 
 See \code{\link{GNE.fpeq}} and \code{\link{GNE.min}} 
-for other approaches; \code{\link{funSSR}} and
-\code{\link{jacSSR}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi} and
-\code{\link{complementarity}} for complementarity functions.
+for other approaches; \code{\link{funCER}} and
+\code{\link{jacCER}} for template functions of \eqn{H} and \eqn{Jac H}.
 
-See also \code{\link{nleqslv}} for some optimization details.
 }
 \author{
  Christophe Dutang
@@ -232,27 +174,14 @@ heg <- function(x, i, j, k)
 	0
 
 
+x0 <- rep(0, sum(dimx))
+z0 <- c(x0, 2, 2, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 #true value is (3/4, 1/4, 1/2, 1/2)
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
+	constr=g, grconstr=grg, heconstr=heg, method="IP", 
+	control=list(trace=0, maxit=10))
 
-z0 <- rep(0, sum(dimx)+sum(dimlam))
-
-funSSR(z0, dimx, dimlam, grobj=grobj, constr=g, grconstr=grg, compl=phiFB, echo=FALSE)
-
-	
-jacSSR(z0, dimx, dimlam, heobj=heobj, constr=g, grconstr=grg, 
-	heconstr=heg, gcompla=GrAphiFB, gcomplb=GrBphiFB)
-
-
-GNE.nseq(z0, dimx, dimlam, grobj=grobj, NULL, heobj=heobj, NULL, 
-	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
-	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=1))
-
-GNE.nseq(z0, dimx, dimlam, grobj=grobj, NULL, heobj=heobj, NULL, 
-	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
-	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Broyden", 
-	control=list(trace=1))
 
 
 
@@ -270,7 +199,7 @@ grobj <- function(x, i, j, arg)
 {
 	res <- -arg$rho * x[i]
 	if(i == j)
-		res <- res + arg$d - arg$lambda - arg$rho*(x[1]+x[2])
+	res <- res + arg$d - arg$lambda - arg$rho*(x[1]+x[2])
 	-res
 }
 #Gr_x_k Gr_x_j O_i(x)
@@ -291,23 +220,13 @@ heg <- function(x, i, j, k)
 
 #true value is (16/3, 16/3, 0, 0) 
 
-z0 <- rep(0, sum(dimx)+sum(dimlam))
-
-funSSR(z0, dimx, dimlam, grobj=grobj, myarg, constr=g, grconstr=grg, compl=phiFB, echo=FALSE)
-
-jacSSR(z0, dimx, dimlam, heobj=heobj, myarg, constr=g, grconstr=grg, 
-	heconstr=heg, gcompla=GrAphiFB, gcomplb=GrBphiFB)
+x0 <- rep(0, sum(dimx))
+z0 <- c(x0, 2, 2, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 
-GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
-	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
-	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=1))
-
-GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
-	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
-	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Broyden", 
-	control=list(trace=1))
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, arggrobj=myarg, 
+	argheobj=myarg, constr=g, grconstr=grg, heconstr=heg,
+	method="IP", control=list(trace=0, maxit=10))
 
 
 	

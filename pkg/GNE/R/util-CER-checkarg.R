@@ -1,13 +1,13 @@
 #functions of the SemiSmooth Reformulation of the GNEP
-#z = (x, lambda, mu)
+#z = (x, lambda, mu, w, y) 
+#or (x, lambda tilde, w tilde) with lambda tilde = (lambda, mu) and w tilde = (w, y)
 
 
 
-testargfunSSR <- function(z, dimx, dimlam,
+testargfunCER <- function(z, dimx, dimlam, 
 	grobj, arggrobj, 
 	constr, argconstr,  
 	grconstr, arggrconstr, 
-	compl, argcompl, 
 	dimmu, joint, argjoint,
 	grjoint, arggrjoint,
 	echo=FALSE)
@@ -44,13 +44,17 @@ testargfunSSR <- function(z, dimx, dimlam,
 	else if(!is.null(joint) && (missing(dimmu) || length(dimmu) != 1))
 		stop("argument dimmu must be a vector of length 1.")
 	
-	if(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
-		stop("SSR: incompatible dimension for dimlam, dimx, dimmu.")		
+	if(echo)
+	{
+		print(dimx)
+		print(dimlam)
+		print(length(z))
+	}
 	
-	if(!is.function(compl))
-		stop("argument compl must be a function.")
-	
-#objective gradient
+	if(length(z) != sum(dimx) + 2*sum(dimlam) + 2*sum(dimmu))
+		stop("CER: incompatible dimension for dimlam, dimx, dimmu.")		
+		
+	#objective gradient
 	if(!missing(arggrobj) && !is.null(arggrobj))
 		grobjfinal <- grobj
 	else
@@ -63,7 +67,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 	testfunc(grobjfinal, z, arg=arggrobj, echo=echo, errmess=str)
 	
 	
-#constraint	
+	#constraint	
 	if(!is.null(constr))
 	{
 		if(!missing(argconstr) && !is.null(argconstr))
@@ -92,21 +96,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 	{
 		constrfinal <- grconstrfinal <- argconstr <- arggrconstr <- NULL
 	}
-	
-	#complementarity function
-	if(!missing(argcompl) && !is.null(argcompl))
-	{
-		complfinal <- function(a, b, argcompl)
-		evalwitharglist(compl, a, c(list(b), argcompl))
-	}else
-	{
-		complfinal <- function(a, b, argcompl) compl(a, b)
-		argcompl <- list()
-	}
-	str <- paste("the call to complfinal(1, 1, argcompl) does not work.", "arguments are", 
-				 paste(names(formals(compl)), collapse=","), ".")
-	testfunc(complfinal, z, arg=argcompl, echo=echo, errmess=str)
-	
+		
 	
 	#joint constraint function
 	if(!is.null(joint))
@@ -141,15 +131,14 @@ testargfunSSR <- function(z, dimx, dimlam,
 	list(grobj=grobjfinal, arggrobj=arggrobj, constr=constrfinal, argconstr=argconstr,
 		 grconstr=grconstrfinal, arggrconstr=arggrconstr, joint=jointfinal, 
 		 argjoint=argjoint, grjoint=grjointfinal, arggrjoint=arggrjoint,
-		 compl=complfinal, argcompl=argcompl, dimx=dimx, dimlam=dimlam, dimmu=dimmu, nplayer=nplayer)
+		 dimx=dimx, dimlam=dimlam, dimmu=dimmu, nplayer=nplayer)
 }
 
-testargjacSSR <- function(z, dimx, dimlam,
+testargjacCER <- function(z, dimx, dimlam,
 	heobj, argheobj, 
 	constr, argconstr,  
 	grconstr, arggrconstr, 
 	heconstr, argheconstr,
-	gcompla, gcomplb, argcompl, 
 	dimmu, joint, argjoint,
 	grjoint, arggrjoint,
 	hejoint, arghejoint,
@@ -191,13 +180,8 @@ testargjacSSR <- function(z, dimx, dimlam,
 	else if(!is.null(joint) && (missing(dimmu) || length(dimmu) != 1))
 		stop("argument dimmu must be a vector of length 1.")
 	
-	if(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
+	if(length(z) != sum(dimx) + 2*sum(dimlam) + 2*sum(dimmu))
 		stop("incompatible dimension for dimlam, dimx, dimmu.")		
-	
-	if(!is.function(gcompla))
-		stop("argument gcompla must be a function.")
-	if(!is.function(gcomplb))
-		stop("argument gcomplb must be a function.")
 	
 	
 	#objective Hessian
@@ -254,27 +238,6 @@ testargjacSSR <- function(z, dimx, dimlam,
 		constrfinal <- grconstrfinal <- heconstrfinal <- argconstr <- arggrconstr <- argheconstr <- NULL
 	}	
 	
-	
-	
-	#complementarity function
-	if(!missing(argcompl) && !is.null(argcompl))
-	{
-		gcomplafinal <- function(a, b, argcompl)
-			evalwitharglist(gcompla, a, c(list(b), argcompl))
-		gcomplbfinal <- function(a, b, argcompl)
-			evalwitharglist(gcomplb, a, c(list(b), argcompl))
-	}else
-	{
-		gcomplafinal <- function(a, b, argcompl) gcompla(a, b)	
-		gcomplbfinal <- function(a, b, argcompl) gcomplb(a, b)	
-		argcompl <- list()
-	}
-	str <- paste("the call to gcompla(1, 1, argcompl) does not work.", "arguments are", 
-				 paste(names(formals(gcompla)), collapse=","), ".")
-	testfunc(gcomplafinal, z, arg=argcompl, echo=echo, errmess=str)
-	testfunc(gcomplbfinal, z, arg=argcompl, echo=echo, errmess=str)
-	
-	
 	#joint constraint function
 	if(!is.null(joint))
 	{
@@ -322,7 +285,6 @@ testargjacSSR <- function(z, dimx, dimlam,
 		 grconstr=grconstrfinal, arggrconstr=arggrconstr, heconstr=heconstrfinal, 
 		 argheconstr=argheconstr, joint=jointfinal, argjoint=argjoint, grjoint=grjointfinal, 
 		 arggrjoint=arggrjoint, hejoint=hejointfinal, arghejoint=arghejoint,
-		 gcompla=gcomplafinal, gcomplb=gcomplbfinal, argcompl=argcompl, 
 		 dimx=dimx, dimlam=dimlam, dimmu=dimmu, nplayer=nplayer)	
 }
 

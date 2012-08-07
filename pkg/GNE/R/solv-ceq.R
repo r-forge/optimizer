@@ -1,5 +1,5 @@
-ceq <- function(xinit, dimx, dimlam, dimw, 
-	Hfinal, jacHfinal, argH, argjac,  
+ceq <- function(xinit, dimx, dimlam, 
+	Hfinal, jacHfinal, argfun, argjac,  
 	method, control, global="gline", silent=TRUE, ...)	
 {
 	method <- match.arg(method, "IP")
@@ -11,8 +11,8 @@ ceq <- function(xinit, dimx, dimlam, dimw,
 	namc <- names(con)
 	con[namc <- names(control)] <- control
 	
-	test.try <- try( ceq.IP(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, 
-		argH, argjac, merit=psi.ce, gradmerit=gradpsi.ce, checkint=checkint.ce, 
+	test.try <- try( ceq.IP(xinit, dimx, dimlam, Hfinal, jacHfinal, 
+		argfun, argjac, merit=psi.ce, gradmerit=gradpsi.ce, checkint=checkint.ce, 
 		control= control, global=global, silent=silent), silent=silent)		
 	
 	if(class(test.try) == "try-error")
@@ -28,7 +28,7 @@ ceq <- function(xinit, dimx, dimlam, dimw,
 }	
 
 
-ceq.IP <- function(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH, argjac,
+ceq.IP <- function(xinit, dimx, dimlam, Hfinal, jacHfinal, argfun, argjac,
 	merit, gradmerit, checkint, control, global, silent=TRUE)	
 {	
 	global <- match.arg(global, c("gline", "qline", "none"))
@@ -41,7 +41,7 @@ ceq.IP <- function(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH, argjac,
 	
 	xk_1 <- xinit
 	xk <- xinit
-	fk <- Hfinal(xinit, argH=argH)
+	fk <- Hfinal(xinit, argfun=argfun)
 	sigmak <- con$forcingpar
 	
 	iter <- 0
@@ -62,8 +62,8 @@ ceq.IP <- function(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH, argjac,
 	while(termcd == 0 && iter < con$maxit) 
 	{
 		
-		dk <- ceq.IP.direction(xk, dimx, dimlam, dimw, Hfinal, jacHfinal, 
-			argH, argjac, sigmak, silent=silent)
+		dk <- ceq.IP.direction(xk, dimx, dimlam, Hfinal, jacHfinal, 
+			argfun, argjac, sigmak, silent=silent)
 		
 		if(class(dk) == "try-error")
 		{
@@ -84,20 +84,20 @@ ceq.IP <- function(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH, argjac,
 			inner.iter <- 0
 			minstep <- con$xtol / max( abs(dk) / pmax(xk, 1) )
 			
-			slopek <- crossprod( gradmerit(xk, dimx, dimlam, dimw, 
-				Hfinal, jacHfinal, argH, argjac, con$zeta), dk)
+			slopek <- crossprod( gradmerit(xk, dimx, dimlam,  
+				Hfinal, jacHfinal, argfun, argjac, con$zeta), dk)
 			stepk <- 1			
 			
 			if(global == "gline")
 				LSres <- try( linesearch.geom.cond(xk, dk, slopek, con, merit= merit, 
-					checkint=checkint, dimx=dimx, dimlam=dimlam, dimw=dimw, 
-					Hfinal=Hfinal, argH=argH, zeta=con$zeta) )
-			
+					checkint=checkint, dimx=dimx, dimlam=dimlam, 
+					Hfinal=Hfinal, argfun=argfun, zeta=con$zeta) )
 			
 			if(global == "qline")
 				LSres <- try( linesearch.quad.cond(xk, dk, slopek, con, merit= merit, 
-					checkint=checkint, dimx=dimx, dimlam=dimlam, dimw=dimw, 
-					Hfinal=Hfinal, argH=argH, zeta=con$zeta) )
+					checkint=checkint, dimx=dimx, dimlam=dimlam, 
+					Hfinal=Hfinal, argfun=argfun, zeta=con$zeta) )
+
 			if(class(LSres) == "try-error")
 				stop("internal error in line search function.")
 			
@@ -120,7 +120,7 @@ ceq.IP <- function(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH, argjac,
 		xk <- xkp1
 		
 		fk_1 <- fk	
-		fk <- Hfinal(xk, argH=argH)		
+		fk <- Hfinal(xk, argfun=argfun)		
 
 		if(any(is.nan(fk)))
 			termcd <- -10
@@ -176,8 +176,8 @@ ceq.IP <- function(xinit, dimx, dimlam, dimw, Hfinal, jacHfinal, argH, argjac,
 
 #z = (x, lam, w)
 #with size (n, m, m)
-ceq.IP.direction <- function(z, dimx, dimlam, dimw, Hfinal, jacHfinal, 
-	argH, argjac, sigma, silent=TRUE)
+ceq.IP.direction <- function(z, dimx, dimlam, Hfinal, jacHfinal, 
+	argfun, argjac, sigma, silent=TRUE)
 {
 	n <- sum(dimx)
 	m <- sum(dimlam)
@@ -186,7 +186,7 @@ ceq.IP.direction <- function(z, dimx, dimlam, dimw, Hfinal, jacHfinal,
 	lam <- z[(n+1):(n+m)]
 	w <- z[(n+m+1):(n+2*m)]
 		
-	Hz <- Hfinal(z, argH=argH)
+	Hz <- Hfinal(z, argfun=argfun)
 	Jz <- jacHfinal(z, argjac=argjac)
 	
 	a <- c( rep(0, n), rep(1, 2*m) )
@@ -235,14 +235,14 @@ gradpotential.ce <- function(u, n, zeta)
 #merit function for the constrained equation	
 #z = (x, lam, w)
 #with size (n, m, m)
-psi.ce <- function(z, dimx, dimlam, dimw, Hfinal, argH, zeta)
-	as.numeric( potential.ce( Hfinal(z, argH=argH), sum(dimx), zeta) )
+psi.ce <- function(z, dimx, dimlam, Hfinal, argfun, zeta)
+	as.numeric( potential.ce( Hfinal(z, argfun=argfun), sum(dimx), zeta) )
 
 #gradient of the merit function	
 #z = (x, lam, w)
 #with size (n, m, m)
-gradpsi.ce <- function(z, dimx, dimlam, dimw, Hfinal, jacHfinal, 
-	argH, argjac, zeta)
+gradpsi.ce <- function(z, dimx, dimlam, Hfinal, jacHfinal, 
+	argfun, argjac, zeta)
 {
 	n <- sum(dimx)
 	m <- sum(dimlam)
@@ -251,7 +251,7 @@ gradpsi.ce <- function(z, dimx, dimlam, dimw, Hfinal, jacHfinal,
 	lam <- z[(n+1):(n+m)]
 	w <- z[(n+m+1):(n+2*m)]
 	
-	Hz <- Hfinal(z, argH=argH)
+	Hz <- Hfinal(z, argfun=argfun)
 	Jz <- jacHfinal(z, argjac=argjac)
 
 #t(Jz) =
@@ -270,7 +270,7 @@ gradpsi.ce <- function(z, dimx, dimlam, dimw, Hfinal, jacHfinal,
 #check interior
 #z = (x, lam, w)
 #with size (n, m, m)
-checkint.ce <- function(z, dimx, dimlam, dimw)
+checkint.ce <- function(z, dimx, dimlam)
 {
 	n <- sum(dimx)
 	m <- sum(dimlam)

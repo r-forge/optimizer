@@ -65,19 +65,19 @@ This approach consists in solving the extended Karush-Kuhn-Tucker
 The root problem \eqn{\Phi(z)=0}{Phi(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
 where the direction \eqn{d_n} is computed in three different ways. Let \eqn{J(x)=Jac\Phi(x)}{J(x)=Jac Phi(x)}.
 \describe{
-	\item{(a) Newton:}{The direction solves the system \eqn{J(x_n) d = - \Phi(x_n)
-		}{J(x_n) d = - Phi(x_n)}, 
+	\item{(a) Newton:}{The direction solves the system \eqn{J(z_n) d = - \Phi(z_n)
+		}{J(z_n) d = - Phi(z_n)}, 
 		generally called the Newton equation.}
 	\item{(b) Broyden:}{It is a quasi-Newton method aiming to solve an approximate version
-		of the Newton equation \eqn{d = -\Phi(x_n) W_n}{d = -Phi(x_n) W_n} where \eqn{W_n} is computed
+		of the Newton equation \eqn{d = -\Phi(z_n) W_n}{d = -Phi(z_n) W_n} where \eqn{W_n} is computed
 		by an iterative scheme. In the current implementation, \eqn{W_n} is updated
 		by the Broyden method. }
 	\item{(c) Levenberg-Marquardt:}{The direction solves the system 
-		\deqn{ \left[ J(x_n)^T J(x_n) + \lambda_n^\delta I \right] d = - J(x_n)^T\Phi(x_n)
-			}{ [J(x_n)^T J(x_n) + lambda_n^delta I] d = - J(x_n)^T Phi(x_n),}
+		\deqn{ \left[ J(z_n)^T J(z_n) + \lambda_n^\delta I \right] d = - J(z_n)^T\Phi(x_n)
+			}{ [J(z_n)^T J(z_n) + lambda_n^delta I] d = - J(z_n)^T Phi(z_n),}
 		where \eqn{I} denotes the identity matrix, \eqn{\delta}{delta} is a parameter in [1,2] 
-		and \eqn{\lambda_n = ||\Phi(x_n)|| }{lambda_n = ||Phi(x_n)||} if \code{LM.param="merit"},
-		\eqn{||J(x_n)^T \Phi(x_n)|| }{||J(x_n)^T Phi(x_n)||} if \code{LM.param="jacmerit"},
+		and \eqn{\lambda_n = ||\Phi(z_n)|| }{lambda_n = ||Phi(z_n)||} if \code{LM.param="merit"},
+		\eqn{||J(z_n)^T \Phi(z_n)|| }{||J(z_n)^T Phi(z_n)||} if \code{LM.param="jacmerit"},
 		the minimum of both preceding quantities if \code{LM.param="min"}, or an adatpive
 		parameter according to Fan(2003).
 		}

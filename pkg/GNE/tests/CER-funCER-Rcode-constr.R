@@ -151,7 +151,7 @@ x <- z[1:n]
 lam <- z[(n+1):(n+m)]
 w <- z[(n+m+1):(n+m+m)]
 
-resphi <- funCER(z, dimx, dimlam, dimw, grobj=grfullob, constr=g, grconstr=grfullg)
+resphi <- funCER(z, dimx, dimlam, grobj=grfullob, constr=g, grconstr=grfullg, echo=TRUE)
 
 
 check <- c(grfullob(x, 1, 1) + lam[1] * grfullg(x, 1, 1),
@@ -183,8 +183,7 @@ if(sum(abs(check - resphi)) > .Machine$double.eps^(2/3))
 # (4) compute Jac H
 #
 	
-resjacphi <- jacCER(z, dimx, dimlam, dimw, 
-	heobj=hefullob, constr=g, grconstr=grfullg, 
+resjacphi <- jacCER(z, dimx, dimlam, heobj=hefullob, constr=g, grconstr=grfullg, 
 	heconstr=hefullg)
 
 	
@@ -366,7 +365,7 @@ checkI <- diag(lam)
 
 print(resjacphi[(n+m+1):(n+2*m), (n+m+1):(n+2*m)] - checkI)
 
+checkjack <- rbind(cbind(checkA, checkB, checkC), cbind(checkD, checkE, checkF), cbind(checkG, checkH, checkI))
 
-
-if(sum(abs(rbind(cbind(checkA, checkB, checkC), cbind(checkD, checkE, checkF), cbind(checkG, checkH, checkI)) - resjacphi)) > .Machine$double.eps^(2/3))
+if(sum(abs(checkjack - resjacphi)) > .Machine$double.eps^(2/3))
 	stop("wrong result")

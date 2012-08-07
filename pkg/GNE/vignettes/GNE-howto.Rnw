@@ -589,11 +589,75 @@ h(x)
 $$
 The extended KKT system is denoted by eKKTc($N, \theta_i, g_i, h$).
 \end{mydef}
-
 The generalized Jacobian is given in Appendix \ref{app:nseq:jointcase}.
 
 
 
+
+\subsection{Constrained-equation reformulation of the KKT system}
+This subsection aims to present methods specific to solve constrained (nonlinear) equations, first proposed by \cite{kanzowfacchetal11} in the GNEP context.
+The root function $H: \R^n \times \R^{2m} \mapsto  \R^n \times \R^{2m}$ is defined as
+$$
+H(x, \lambda, w) = 
+\left( 
+\begin{matrix}
+\tilde L(x, \lambda) \\
+g(x) + w \\
+\lambda \circ w 
+\end{matrix}
+\right) ,
+$$
+where the dimensions $n, m$ correspond to the GNEP notation ($ \lambda = (\lambda^1, \dots, \lambda^N)$) and $(a, \bar \sigma)$ is given by $((0_{n}, \II_{m}), 1)$. The potential function is given by
+$$
+p\left(u \right) = \zeta \log\left( ||x||_2^2 + ||\lambda ||_2^2+ ||w||_2^2 \right) - 
+\sum_{k=1}^{m} \log (\lambda_{k}) - \sum_{k=1}^{m} \log (w_{k}),
+$$
+where $u=(x, \lambda, w) \in \R^n \times \R_{+}^{m} \times \R_{+}^{m}$
+and $\zeta > m$. 
+The Jacobian is given in Appendix \ref{app:ceq:gencase}.
+
+When there is a constraint function $h$ shared by all players, the root function is given by
+$$
+\widetilde H(x, \tilde \lambda, \tilde w) = 
+\left( 
+\begin{matrix}
+\bar L(x, \tilde \lambda) \\
+\tilde g(x) + \tilde w \\
+\tilde \lambda \circ \tilde w 
+\end{matrix}
+\right) ,
+\txtm{with}
+\tilde \lambda = 
+\left( 
+\begin{matrix}
+\lambda^1 \\
+\vdots \\
+\lambda^N \\
+\mu
+\end{matrix}
+\right) 
+,
+\tilde w = 
+\left( 
+\begin{matrix}
+w^1 \\
+\vdots \\
+w^N \\
+y
+\end{matrix}
+\right) 
+\txtm{and}
+\tilde g(x) = 
+\left( 
+\begin{matrix}
+g^1(x) \\
+\vdots \\
+g^N(x) \\
+h(x)
+\end{matrix}
+\right) .
+$$
+The Jacobian is given in Appendix \ref{app:ceq:jointcase}.
 
 
 
@@ -602,9 +666,12 @@ The generalized Jacobian is given in Appendix \ref{app:nseq:jointcase}.
 \section{GNEP as a fixed point equation}
 %________________________________________________________________________
 
+
+
 %________________________________________________________________________
 \section{GNEP as a gap minimization problem}
 %________________________________________________________________________
+
 
 %________________________________________________________________________
 \section{List of examples}
@@ -940,7 +1007,7 @@ $$
 \section{Appendix for the nonsmooth reformulation}
 %________________________________________________________________________
 
-\subsection{General case\label{app:nseq:gencase}}
+\subsection{Semismooth reformulation -- General case\label{app:nseq:gencase}}
 
 The generalized Jacobian of the complementarity formulation has the following form
 $$
@@ -995,7 +1062,7 @@ $$
 where $\phi'_a$ (resp. $\phi'_b$) denotes the derivative of $\phi$ with respect to the first (second) argument $a$ ($b$)  and $(\xi_{ij} , \zeta_{ij} ) \in \bar B(p_\phi, c_\phi)$, the closed ball at $p_\phi$ of radius $c_\phi$. 
 
 
-\subsection{Shared constraint case\label{app:nseq:jointcase}}
+\subsection{Semismooth reformulation -- Shared constraint case\label{app:nseq:jointcase}}
 
 The generalized Jacobian of the complementarity formulation has the following form $J(z) =$
 $$
@@ -1074,6 +1141,78 @@ $$
 where $(\tilde \xi_{j} , \tilde \zeta_{j} ) \in \bar B(p_\phi, c_\phi)$. 
 
 
+
+\subsection{Semismooth reformulation -- General case\label{app:ceq:gencase}}
+
+
+For the line-search, the gradient $\nabla p$  is given by
+$$
+\nabla p(x, \lambda, w)=
+\left( \begin{matrix}
+ \frac{2 \zeta }{ ||x||_2^2 + ||\lambda ||_2^2+ ||w||_2^2 } x \\
+ \frac{2 \zeta }{ ||x||_2^2 + ||\lambda ||_2^2+ ||w||_2^2 } \lambda  - \lambda^{-1} \\
+ \frac{2 \zeta }{ ||x||_2^2 + ||\lambda ||_2^2+ ||w||_2^2 } w  - w^{-1} \\
+\end{matrix}
+\right),
+$$
+where  $\lambda$ and $w$ have positive components and  terms $\lambda^{-1}$ and $w^{-1}$ correspond to the component-wise inverse vector.
+Compared to the semismooth reformulation, the root function $H$ is now C\expo{1}. 
+The Jacobian is given by 
+$$
+\Jac H(x, \lambda, w) = 
+\left( 
+\begin{matrix}
+\Jac_x \tilde L(x, \lambda)  &  \diag\left[ \left( \nabla_{x_i} g^i(x) \right)_i \right]  & 0 \\
+\Jac_x g(x) & 0 & I \\
+0 & \diag[w] & \diag[\lambda]
+\end{matrix}
+\right).
+$$
+As reported in \cite{kanzowfacchetal11}, the computation of the direction $d_k = (d_{x, k}, d_{\lambda, k}, d_{w, k})$ can be simplified due to the special structure of the above Jacobian matrix. 
+The system reduces to a linear system of $n$ equations to find $d_{x, k}$ and the $2m$ components $d_{\lambda, k}, d_{w, k}$ are simple linear algebra.
+Using the classic chain rule, the gradient of the merit function is given by 
+$$
+\nabla \psi(x, \lambda, w) = \Jac H(x, \lambda, w)^T \nabla p(H(x, \lambda, w)).
+$$
+Again the computation of this gradient can be simplified due to the sparse structure of $\Jac H$.
+
+
+\subsection{Semismooth reformulation -- Shared constraint case\label{app:ceq:jointcase}}
+The Jacobian is given by 
+$$
+\Jac \widetilde H(x, \tilde \lambda, \tilde w) = 
+\left( 
+\begin{matrix}
+\Jac_x \bar L (x, \tilde \lambda)  & \Jac_{\tilde \lambda} \bar L (x, \tilde \lambda)    & 0 \\
+\Jac_x \tilde g(x) & 0 & I \\
+0 & \diag[\tilde w] & \diag[\tilde \lambda]
+\end{matrix}
+\right),
+$$
+where
+$$
+\Jac_{\tilde \lambda} \bar L (x, \tilde \lambda) 
+=
+\left( 
+\begin{matrix}
+\nabla_{x_1} g^1(x) & 0 &  & \nabla_{x_1} h(x) \\
+0 & \ddots & 0 & \vdots \\
+ & 0 & \nabla_{x_N} g^N(x) & \nabla_{x_N} h(x) \\
+\end{matrix}
+\right),
+$$
+and
+$$
+\Jac_x \tilde g(x) =
+\left( 
+\begin{matrix}
+\Jac_x \tilde g^1(x) \\ 
+\dots \\ 
+\Jac_x \tilde g^N(x) \\ 
+\Jac_x \tilde h(x) 
+\end{matrix}
+\right).
+$$
 
 
 \end{document}

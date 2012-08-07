@@ -3,265 +3,156 @@
 #with size (n, m, m)
 
 
-funCER <- function(z, dimx, dimlam, dimw,
-grobj, arggrobj, 
-constr, argconstr,  
-grconstr, arggrconstr)
+funCER <- function(z, dimx, dimlam, 
+	grobj, arggrobj, 
+	constr, argconstr,  
+	grconstr, arggrconstr, 
+	dimmu, joint, argjoint,
+	grjoint, arggrjoint,
+	echo=FALSE)
 {
-	n <- sum(dimx)
-	m <- sum(dimlam)
-	nplayer <- length(dimx)
+	arg <- testargfunCER(z, dimx, dimlam, grobj, arggrobj, constr, argconstr, grconstr, arggrconstr, 
+						 dimmu, joint, argjoint, grjoint, arggrjoint, echo)
+	
+	dimx <- arg$dimx
+	dimlam <- arg$dimlam
+	dimmu <- arg$dimmu	
+	n <- sum(arg$dimx)
+	m <- sum(arg$dimlam)
 	x <- z[1:n]
 	lam <- z[(n+1):(n+m)]
-	w <- z[(n+m+1):(n+2*m)]
+	mu <- z[(n+m+1):(n+m+dimmu)]
+	w <- z[-(1:(n+m+dimmu))]
+	
+	part1 <- funSSR(z[1:(n+m+dimmu)], dimx, dimlam, grobj, arggrobj, constr, argconstr, grconstr, arggrconstr, 
+					compl=phiFB, argcompl=NULL, dimmu, joint, argjoint, grjoint, arggrjoint)[1:n]
 
-	#sanity check	
-	if(nplayer != length(dimlam) || length(z) != sum(dimx) + sum(dimlam) + sum(dimw) || sum(dimlam) != sum(dimw))
-		stop("incompatible dimension for dimlam, dimx, dimw")
-	if(!is.function(grobj) || !is.function(constr) || !is.function(grconstr))
-		stop("one (at least) of these arguments is not a function grobj, constr, grconstr")
-	
-	#objective gradient
-	if(!missing(arggrobj) && !is.null(arggrobj))
+	Constri <- function(i) arg$constr(z, i, arg$argconstr)
+	if(!is.null(arg$grconstr))	
 	{
-		test.try <- try( grobj(z, 1, 1, arggrobj) , silent=FALSE)
-		strcall <- "grobj(z, 1, 1, arggrobj)"
-		grobjfinal <- grobj
+		part2a <- unlist(sapply(1:arg$nplayer, Constri)) + w[1:m]
+		part3a <- lam * w[1:m]
 	}else
+		part2a <- part3a <- NULL
+		
+	if(!is.null(arg$joint))	
 	{
-		test.try <- try( grobj(z, 1, 1) , silent=FALSE)
-		grobjfinal <- function(z, i, j, ...)
-			grobj(z, i, j)
-		arggrobj <- list()				   
-		strcall <- "grobj(z, 1, 1)"	
-	}	
-	if(class(test.try) == "try-error")
-	{
-		str <- paste("the call to", strcall,"does not work.", "arguments are", 
-					 paste(names(formals(grobj)), collapse=","), ".")
-		stop(str)
-	}
+		part2b <- arg$joint(x, arg$argjoint) + w[m+1:dimmu]
+		part3b <- mu * w[m+1:dimmu]
+	}else
+		part2b <- part3b <- NULL
 
-#constraint	
-	if(!missing(argconstr) && !is.null(argconstr))
-	{
-		test.try <- try( constr(z, 1, argconstr) , silent=FALSE)
-		strcall <- "constr(z, 1, argconstr)"
-		constrfinal <- constr
-	}else
-	{
-		test.try <- try( constr(z, 1) , silent=FALSE)
-		constrfinal <- function(z, i, ...)
-			constr(z, i)
-		argconstr <- list()	
-		strcall <- "constr(z, 1)"
-	}
-	
-	if(class(test.try) == "try-error")
-	{
-		str <- paste("the call to", strcall,"does not work.", "arguments are", 
-					 paste(names(formals(constr)), collapse=","), ".")
-		stop(str)
-	}
-	
-#constraint gradient
-	if(!missing(arggrconstr) && !is.null(arggrconstr))
-	{
-		test.try <- try( grconstr(z, 1, 1, arggrconstr) , silent=FALSE)
-		strcall <- "grconstr(z, 1, 1, arggrconstr)"
-		grconstrfinal <- grconstr
-	}else
-	{
-		test.try <- try( grconstr(z, 1, 1) , silent=FALSE)
-		grconstrfinal <- function(z, i, j, ...)
-			grconstr(z, i, j)
-		arggrconstr <- list()
-		strcall <- "grconstr(z, 1, 1)"
-	}
-	if(class(test.try) == "try-error")
-	{
-		str <- paste("the call to", strcall, "does not work.", "arguments are", 
-					 paste(names(formals(grconstr)), collapse=","), ".")
-		stop(str)
-	}
-	
-	
-#1st row is the begin index, 2nd row the end index
-	index4lam <- rbind( cumsum(dimlam) - dimlam + 1, cumsum(dimlam) )
-	index4x <- rbind( cumsum(dimx) - dimx + 1, cumsum(dimx) )
-
-	GrLagri <- function(i) 
-	{
-#i index for player, j index for x_ij
-		sapply(index4x[1,i]:index4x[2,i], function(j)			   
-			   grobjfinal(x, i, j, arggrobj) + lam[index4lam[1,i]:index4lam[2,i]] %*% grconstrfinal(x, i, j, arggrobj)
-			   ) 
-	}
-	Constri <- function(i)
-		constrfinal(z, i, argconstr)
-	
-	c(	unlist(sapply(1:nplayer, GrLagri)),
-		unlist(sapply(1:nplayer, Constri)) + w,
-		lam * w )
+	c( part1, part2a, part2b, part3a, part3b )
 }
 
 
 
 #z = (x, lam, w)
 #with size (n, m, m)
-jacCER <- function(z, dimx, dimlam, dimw,
-heobj, argheobj, 
-constr, argconstr, 
-grconstr, arggrconstr, 
-heconstr, argheconstr
-)
+jacCER <- function(z, dimx, dimlam,
+	heobj, argheobj, 
+	constr, argconstr,  
+	grconstr, arggrconstr, 
+	heconstr, argheconstr,
+	dimmu, joint, argjoint,
+	grjoint, arggrjoint,
+	hejoint, arghejoint,
+	echo=FALSE)
 {
-	n <- sum(dimx)
-	m <- sum(dimlam)
-	nplayer <- length(dimx)
+	arg <- testargjacCER(z, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
+						heconstr, argheconstr, dimmu, joint, argjoint, grjoint, arggrjoint, 
+						 hejoint, arghejoint, echo)
+									 
+	
+	dimx <- arg$dimx
+	dimlam <- arg$dimlam
+	dimmu <- arg$dimmu	
+	n <- sum(arg$dimx)
+	m <- sum(arg$dimlam)
+	p <- dimmu
 	x <- z[1:n]
 	lam <- z[(n+1):(n+m)]
-	w <- z[-(1:(n+m))]
+	mu <- z[(n+m+1):(n+m+p)]
+	w1 <- z[(n+m+p+1):(n+m+p+m)]
+	w2 <- z[(n+2*m+p+1):(n+2*m+2*p)]
+	nplayer <- arg$nplayer
 	
-	#sanity check	
-	nplayer <- length(dimx)
-	if(nplayer != length(dimlam) || length(z) != sum(dimx) + sum(dimlam) + sum(dimw))
-		stop("incompatible dimension for dimlam, dimx, dimw")
-	if(!is.function(heobj) || !is.function(constr) || !is.function(grconstr) || !is.function(heconstr))
-		stop("one (at least) of these arguments is not a function heobj, constr, grconstr, heconstr")
-	
-	
-	
-#objective hessian
-	if(!missing(argheobj) && !is.null(argheobj))
-	{
-		test.try <- try( heobj(z, 1, 1, 1, argheobj) , silent=FALSE)
-		strcall <- "heobj(z, 1, 1, 1, arggrobj)"
-		heobjfinal <- heobj
-	}else
-	{
-		test.try <- try( heobj(z, 1, 1, 1) , silent=FALSE)
-		heobjfinal <- function(z, i, j, k, ...) heobj(z, i, j, k)
-		argheobj <- list()				   
-		strcall <- "heobj(z, 1, 1, 1)"	
-	}	
-	if(class(test.try) == "try-error")
-	{
-		str <- paste("the call to", strcall,"does not work.", "arguments are", 
-					 paste(names(formals(argheobj)), collapse=","), ".")
-		stop(str)
-	}
-	
-#constraint	
-	if(!missing(argconstr) && !is.null(argconstr))
-	{
-		test.try <- try( constr(z, 1, argconstr) , silent=FALSE)
-		strcall <- "constr(z, 1, argconstr)"
-		constrfinal <- constr
-	}else
-	{
-		test.try <- try( constr(z, 1) , silent=FALSE)
-		constrfinal <- function(z, i, ...) constr(z, i)
-		argconstr <- list()	
-		strcall <- "constr(z, 1)"
-	}
-	
-	if(class(test.try) == "try-error")
-	{
-		str <- paste("the call to", strcall,"does not work.", "arguments are", 
-					 paste(names(formals(constr)), collapse=","), ".")
-		stop(str)
-	}
-	
-#constraint gradient
-	if(!missing(arggrconstr) && !is.null(arggrconstr))
-	{
-		test.try <- try( grconstr(z, 1, 1, arggrconstr) , silent=FALSE)
-		strcall <- "grconstr(z, 1, 1, arggrconstr)"
-		grconstrfinal <- grconstr
-	}else
-	{
-		test.try <- try( grconstr(z, 1, 1) , silent=FALSE)
-		grconstrfinal <- function(z, i, j, ...) grconstr(z, i, j)
-		arggrconstr <- list()
-		strcall <- "grconstr(z, 1, 1)"
-	}
-	if(class(test.try) == "try-error")
-	{
-		str <- paste("the call to", strcall, "does not work.", "arguments are", 
-					 paste(names(formals(grconstr)), collapse=","), ".")
-		stop(str)
-	}	
-	
-#constraint hessian
-	if(!missing(argheconstr) && !is.null(argheconstr))
-	{
-		test.try <- try( heconstr(z, 1, 1, 1, argheconstr) , silent=FALSE)
-		strcall <- "heconstr(z, 1, 1, 1, argheconstr)"
-		heconstrfinal <- heconstr
-	}else
-	{
-		test.try <- try( heconstr(z, 1, 1, 1) , silent=FALSE)
-		heconstrfinal <- function(z, i, j, k, ...) heconstr(z, i, j, k)
-		argheconstr <- list()				   
-		strcall <- "heconstr(z, 1, 1, 1)"	
-	}	
-	if(class(test.try) == "try-error")
-	{
-		str <- paste("the call to", strcall,"does not work.", "arguments are", 
-					 paste(names(formals(argheconstr)), collapse=","), ".")
-		stop(str)
-	}
 
 #1st row is the begin index, 2nd row the end index
 	index4lam <- rbind( cumsum(dimlam) - dimlam + 1, cumsum(dimlam) )
 	index4x <- rbind( cumsum(dimx) - dimx + 1, cumsum(dimx) )	
 	
-	
-	
-	GrjGriLagri <- function(i, j)
-	{
-#i index for player, j index for x_j, k for x_i_k		
-		sapply(index4x[1,i]:index4x[2,i], function(k) 
-			   heobjfinal(z, i, j, k, argheobj) + lam[index4lam[1,i]:index4lam[2,i]] %*% heconstrfinal(z, i, j, k, argheconstr)
-			   )
-	}
 	GrjConstri <- function(i) 
 	{
-#i index for player
-		sapply(index4x[1,i]:index4x[2,i], function(j) grconstrfinal(z, i, j, arggrconstr))
+		#i index for player
+		sapply(index4x[1,i]:index4x[2,i], function(j) arg$grconstr(z, i, j, arg$arggrconstr))
 	}
 	jacconstrij <- function(i, j)
 	{
-#i index for player, j index for x_j		
-		grconstrfinal(z, i, j, arggrconstr)
-		
+		#i index for player, j index for x_j		
+		arg$grconstr(z, i, j, arg$arggrconstr)
+	}
+	jacjointj <- function(j)
+	{
+		#j index for x_j		
+		arg$grjoint(z, j, arg$arggrjoint)
 	}
 	
-
+	partSSR <- jacSSR(z[1:(n+m+p)], dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
+					  heconstr, argheconstr, gcompla=GrAphiFB, gcomplb=GrBphiFB, argcompl=NULL, 
+					  dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint)
 	
 #Hessian matrix of the Lagrangian
-	ggL <- matrix(0, n, n)
-	for(i in 1:nplayer)
-		ggL[index4x[1,i]:index4x[2,i] , ] <- sapply(1:sum(dimx), function(j) GrjGriLagri(i,j))	
-	
-#gradient of the constraint function
-	gG <- matrix(0, n, m)
-	for(i in 1:nplayer)
-		gG[index4x[1,i]:index4x[2,i] , index4lam[1,i]:index4lam[2,i]] <- t( GrjConstri(i) )
-	
-#Jacobian of the constraint functin
-	jacG <- matrix(0, m, n)
-	for(i in 1:nplayer)
-	for(j in 1:sum(dimx))
-		jacG[index4lam[1,i]:index4lam[2,i] , j] <- jacconstrij(i,j) 	
-	
-	
-	rbind(cbind(ggL, gG, matrix(0, n, m)),
-		  cbind(jacG, diag(m)*0, diag(m)),
-		  cbind(matrix(0, m, n), diag(w), diag(lam)) )
+	ggL <- partSSR[1:n, 1:n]
 
 	
+#gradient of the constraint function
+	if(!is.null(arg$heconstr))
+		gG <- partSSR[1:n, n+ 1:m] 
+		
+#gradient of the joint function
+	if(!is.null(arg$hejoint))	
+		gH <- partSSR[1:n, n+m+ 1:p]
+	
+#Jacobian of the constraint function
+	jacG <- matrix(0, m, n)
+	if(!is.null(arg$heconstr))	
+	for(i in 1:nplayer)
+	for(j in 1:sum(dimx))
+		jacG[index4lam[1,i]:index4lam[2,i] , j] <- jacconstrij(i,j)
+	
+#Jacobian of the joint function	
+	jacH <- matrix(0, p, n)
+	if(!is.null(arg$hejoint))	
+	for(j in 1:sum(dimx))
+		jacH[, j] <- jacjointj(j) 	
+	
+	m0mm <- matrix(0, m, m)
+	m0pp <- matrix(0, p, p)
+	m0mp <- matrix(0, m, p)
+	m0mn <- matrix(0, m, n)
+	m0pn <- matrix(0, p, n)
+	
+	if(!is.null(arg$hejoint) && !is.null(arg$heconstr))
+		res <- rbind(cbind(ggL,	gG,			gH,		t(m0mn),	t(m0pn)),
+					cbind(jacG,	m0mm,		m0mp,	diag(m),	m0mp),
+					cbind(jacH,	t(m0mp),	m0pp,	t(m0mp),	diag(p)),
+					cbind(m0mn, diag(w1),		m0mp,	diag(lam),	m0mp),
+					cbind(m0pn, t(m0mp),	diag(w2),	t(m0mp),	diag(mu))
+					 )
+	else if(is.null(arg$hejoint) && !is.null(arg$heconstr))
+		res <- rbind(cbind(ggL,	gG,			t(m0mn)),
+				 cbind(jacG,	m0mm,		diag(m)),
+				 cbind(m0mn,	diag(w1),	diag(lam))
+				 )	
+	else if(!is.null(arg$hejoint) && is.null(arg$heconstr))
+		res <- rbind(cbind(ggL,	gH,			t(m0pn)),
+				 cbind(jacH,	m0pp,		diag(p)),
+				 cbind(m0pn,	diag(w2),	diag(mu))
+				 )	
+	else
+		res <- ggL
+	return(res)
 }
 
 

@@ -1,4 +1,4 @@
-nseq <- function(xinit, Phi, jacPhi, argPhi, argjac, method, control, global="gline", silent=TRUE, ...)	
+nseq <- function(xinit, Phi, jacPhi, argfun, argjac, method, control, global="gline", silent=TRUE, ...)	
 {
 	method <- match.arg(method, c("Newton", "Broyden", "Levenberg-Marquardt"))
 	global <- match.arg(global, c("dbldog", "pwldog", "qline", "gline", "none"))
@@ -9,7 +9,7 @@ nseq <- function(xinit, Phi, jacPhi, argPhi, argjac, method, control, global="gl
 	con[namc <- names(control)] <- control
 	
 	if(method != "Levenberg-Marquardt")
-	test.try <- try( nleqslv(xinit, Phi, jacPhi, argPhi, argjac,
+	test.try <- try( nleqslv(xinit, Phi, jacPhi, argfun, argjac,
 		method = method, global = global, control=con, ...), silent=silent)
 	
 	if(method == "Levenberg-Marquardt")
@@ -17,11 +17,11 @@ nseq <- function(xinit, Phi, jacPhi, argPhi, argjac, method, control, global="gl
 		LM.param <- match.arg(con$LM.param, c("merit", "jacmerit", "min", "adaptive"))
 		
 		if(LM.param == "adaptive")
-			test.try <- try( nseq.LM.adapt(xinit, Phi, jacPhi, argPhi=argPhi, argjac=argjac, 
+			test.try <- try( nseq.LM.adapt(xinit, Phi, jacPhi, argfun=argfun, argjac=argjac, 
 							global=global, control=con), silent=silent)	
 
 		if(LM.param != "adaptive")
-			test.try <- try( nseq.LM(xinit, Phi, jacPhi, argPhi=argPhi, argjac=argjac, 
+			test.try <- try( nseq.LM(xinit, Phi, jacPhi, argfun=argfun, argjac=argjac, 
 							global=global, control=con), silent=silent)
 	}	
 	
@@ -38,7 +38,7 @@ nseq <- function(xinit, Phi, jacPhi, argPhi, argjac, method, control, global="gl
 }	
 
 
-nseq.LM <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=TRUE)	
+nseq.LM <- function(xinit, Phi, jacPhi, argfun, argjac, control, global, silent=TRUE)	
 {	
 	global <- match.arg(global, c("gline", "qline", "none"))
 	control$LM.param <- match.arg(control$LM.param, c("merit", "jacmerit", "min"))
@@ -53,7 +53,7 @@ nseq.LM <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=
 	
 	xk_1 <- xinit
 	xk <- xinit
-	fk <- Phi(xinit, argPhi=argPhi)
+	fk <- Phi(xinit, argfun=argfun)
 	Jacfk <- jacPhi(xinit, argjac=argjac)
 	iter <- 0
 	inner.iter <- 0
@@ -111,13 +111,13 @@ nseq.LM <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=
 			if(global == "gline")
 			while(stepk > minstep)
 			{
-				normfp <- crossprod(Phi(xk + stepk*dk, argPhi=argPhi))/2
+				normfp <- crossprod(Phi(xk + stepk*dk, argfun=argfun))/2
 				
 				#traces in R console	
 				if(con$trace >= 3)
 				cat("i", inner.iter, "\tstep", stepk, "\tleft term", normfp, "\tright term\t", normfk + con$btol * stepk * slopek, "\n")			
 				
-				#cat("largest\t", max(abs(Phi(xk + stepk*dk, argPhi=argPhi))), "\n")	
+				#cat("largest\t", max(abs(Phi(xk + stepk*dk, argfun=argfun))), "\n")	
 				
 				#check Armijo condition
 				if(normfp <= normfk + con$btol * stepk * slopek)
@@ -132,7 +132,7 @@ nseq.LM <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=
 			if(global == "qline")
 			while(stepk > minstep)
 			{
-				normfp <- crossprod(Phi(xk + stepk*dk, argPhi=argPhi))/2
+				normfp <- crossprod(Phi(xk + stepk*dk, argfun=argfun))/2
 				
 				#traces in R console	
 				if(con$trace >= 3)
@@ -167,7 +167,7 @@ nseq.LM <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=
 		xk <- xkp1
 		
 		fk_1 <- fk	
-		fk <- Phi(xk, argPhi=argPhi)
+		fk <- Phi(xk, argfun=argfun)
 		Jacfk <- jacPhi(xk, argjac=argjac)
 		
 		if(any(is.nan(Jacfk)) || any(is.nan(fk)))
@@ -225,7 +225,7 @@ nseq.LM <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=
 
 
 
-nseq.LM.adapt <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, silent=TRUE)	
+nseq.LM.adapt <- function(xinit, Phi, jacPhi, argfun, argjac, control, global, silent=TRUE)	
 {	
 	global <- match.arg(global, c("none"))
 	
@@ -239,7 +239,7 @@ nseq.LM.adapt <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, s
 	
 	xk_1 <- xinit
 	xk <- xinit
-	fk <- Phi(xinit, argPhi=argPhi)
+	fk <- Phi(xinit, argfun=argfun)
 	Jacfk <- jacPhi(xinit, argjac=argjac)
 	muk <- con$muinit
 	iter <- 0
@@ -274,7 +274,7 @@ nseq.LM.adapt <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, s
 			break
 		}
 		
-		rhok <- normfk^2 - sum(Phi(xk + dk, argPhi=argPhi)^2)
+		rhok <- normfk^2 - sum(Phi(xk + dk, argfun=argfun)^2)
 		rhok <- rhok / ( normfk^2 - sum((fk + Jacfk%*%dk)^2) )
 		
 		#sufficient decrease
@@ -293,7 +293,7 @@ nseq.LM.adapt <- function(xinit, Phi, jacPhi, argPhi, argjac, control, global, s
 		xk <- xkp1
 		
 		fk_1 <- fk	
-		fk <- Phi(xk, argPhi=argPhi)
+		fk <- Phi(xk, argfun=argfun)
 		Jacfk <- jacPhi(xk, argjac=argjac)
 		
 		if(any(is.nan(Jacfk)) || any(is.nan(fk)))

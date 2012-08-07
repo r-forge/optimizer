@@ -3,7 +3,8 @@
 Version 0.97
 =============
 
-- change the arguments of GNE.nseq.
+- change the arguments of functions GNE.nseq and GNE.ceq.
+- update vignette, manuals and tests files.
 
 Version 0.96
 =============

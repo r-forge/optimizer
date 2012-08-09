@@ -144,11 +144,33 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 }
 
 
-GNE.fpeq <- function(xinit, yfunc, func2, argy=list(), argfunc2=list(), method, control=list(), ...)
+GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj, 
+	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
+	method = "default", problem = c("NIR", "VIR"), 
+	merit = c("NI", "VI", "FP"), order=1, control=list(), silent=TRUE, ...)
 {
-	stop("not yet implemented.")
-	if(method == "default")
-		method <- "MPE"
+
+	if(method == "default") method <- "MPE"
+	method <- match.arg(method, c("pure", "vH", "UR", "RRE", "MPE", "SqRRE", "SqMPE"))
+	problem <- match.arg(problem, c("NIR", "VIR"))
+	merit <- match.arg(merit, c("NI", "VI", "FP"))
+	
+	if(method %in% c("vH", "UR") && merit == "FP")
+		stop("incompatible method and merit arguments.")
+	if(method %in% c("vH", "UR") && merit %in% c("vH", "UR") && merit != method)
+		stop("inconsistent method and merit arguments.")
+	
+	if(order > 3 || order < 1)
+		stop("wrong order argument.")
+	if(problem == "NIR")
+	{
+		arggap <- testarggapNIR(init, dimx, obj, argobj)
+		arggradgap <- testarggradgapNIR(init, dimx, grobj, arggrobj)
+		argfp <- testargfpNIR(init, dimx, obj, argobj, joint, argjoint,  
+					 grobj, arggrobj, jacjoint, argjacjoint)
+	}
+	
+	stop("not yet implemented")
 		
 	res <- fpeq(xinit, yfunc, func2, argy, argfunc2, method, control, ...)
 	class(res) <- "GNE"

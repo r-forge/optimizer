@@ -6,5 +6,5 @@ Date: 2012-08-31
 Author: Christophe Dutang
 Maintainer: Christophe Dutang <christophe.dutang@ensimag.fr>
 Description: Nash Equilibrium computational methods
-Depends: R (>= 2.6.0), alabama, nleqslv, BB
+Depends: R (>= 2.6.0), alabama, nleqslv, BB, SQUAREM
 License: GPL (>= 2)

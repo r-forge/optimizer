@@ -662,6 +662,23 @@ The Jacobian is given in Appendix \ref{app:ceq:jointcase}.
 
 
 
+
+\subsubsection{A classic example}
+Using the classic example presented above, we get
+
+Therefore, to compute a generalized Nash equilibrium, we use
+%%% R code
+<<testGNEceq, fig=FALSE, echo=TRUE, eval=TRUE>>=
+z0 <- rexp(sum(dimx)+2*sum(dimlam))
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
+	constr=g, grconstr=grg, heconstr=heg, 
+	method="IP", control=list(trace=0))
+@
+%%%
+
+
+
+
 %________________________________________________________________________
 \section{GNEP as a fixed point equation}
 %________________________________________________________________________

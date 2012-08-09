@@ -193,13 +193,13 @@ heg <- function(x, i, j, k)
 	0
 
 
-x0 <- c(1, 0)
-z0 <- c(x0, 2^9, 6, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
+x0 <- c(2, 2)
+z0 <- c(x0, 15, 15, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 
 GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
 	constr=g, grconstr=grg, heconstr=heg, arggrobj=myarg, argheobj=myarg,
-	method="IP", control=list(trace=1, maxit=10))
+	method="IP", control=list(trace=0, maxit=10))
 
 
 

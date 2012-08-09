@@ -10,6 +10,7 @@ S3method(print, summary.GNE)
 ### template functions
 export(funSSR, jacSSR)
 export(funCER, jacCER)
+export(gapNIR, gradxgapNIR, gradygapNIR, fpNIR)
 ### depreciated functions
 #export(Phi, JacPhi, GNE.nseq.old)
 
@@ -25,7 +26,7 @@ export(phiFB, GrAphiFB, GrBphiFB, phiMin, GrAphiMin, GrBphiMin)
 export(phiMan, GrAphiMan, GrBphiMan, phiLT, GrAphiLT, GrBphiLT)
 export(phiKK, GrAphiKK, GrBphiKK)
 
-### aux - projection, rejection algol
+### aux - projection, rejection algo
 export(projector, rejection)
 
 ### aux - complementarity functions

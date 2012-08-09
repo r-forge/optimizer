@@ -1,4 +1,4 @@
-#functions of the SemiSmooth Reformulation of the GNEP
+#functions of the Constrained Equation Reformulation of the GNEP
 #z = (x, lambda, mu, w, y) 
 #or (x, lambda tilde, w tilde) with lambda tilde = (lambda, mu) and w tilde = (w, y)
 

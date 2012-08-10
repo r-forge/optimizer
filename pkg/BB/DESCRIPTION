@@ -1,5 +1,5 @@
 Package: BB
-Version: 2012.3-1
+Version: 2012.8-1
 Title: Solving and Optimizing Large-Scale Nonlinear Systems
 Description: Barzilai-Borwein spectral methods for solving nonlinear
         system of equations, and for optimizing nonlinear objective
@@ -13,6 +13,5 @@ BuildVignettes: false
 LazyLoad: yes
 License: GPL (>= 2)
 Author: Ravi Varadhan
-Maintainer: Ravi Varadhan and Paul Gilbert <pgilbert.ttv9z@ncf.ca>
-URL:
-        http://www.jhsph.edu/agingandhealth/People/Faculty_personal_pages/Varadhan.html
+Maintainer: Paul Gilbert <pgilbert.ttv9z@ncf.ca>
+URL: http://www.jhsph.edu/agingandhealth/People/Faculty_personal_pages/Varadhan.html

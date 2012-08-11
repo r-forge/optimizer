@@ -67,10 +67,10 @@ set to 1, and \code{huetstart} which was suggested in \cite{Huet1996}.
 Finally we load the routines in the package \code{nlmrt}.
 
 %% For knitR only
-<<setup, echo=FALSE, cache=FALSE>>=
-# size takes valid value of LaTeX font sizes like small, big, huge, ...
-opts_chunk$set(size = 'scriptsize')
-@
+%% <<setup, echo=FALSE, cache=FALSE>>=
+%% # size takes valid value of LaTeX font sizes like small, big, huge, ...
+%% opts_chunk$set(size = 'scriptsize')
+%% @
 
 
 %%Chunk01, 
@@ -506,8 +506,8 @@ ans1
 ans1n <- nlfb(start1, hobbs.res) 
 ans1n
 # Bounds -- infeasible start
-ans2i <- nlfb(start1, hobbs.res, hobbs.jac, 
-   lower=c(b1=0, b2=0, b3=0), upper=c(b1=500, b2=100, b3=.25))
+ans2i <- try(nlfb(start1, hobbs.res, hobbs.jac, 
+   lower=c(b1=0, b2=0, b3=0), upper=c(b1=500, b2=100, b3=.25)))
 ans2i
 # Bounds -- feasible start
 ans2f <- nlfb(startf1, hobbs.res, hobbs.jac, 
@@ -520,7 +520,7 @@ ansm2
 ansm3 <- nlfb(start1, hobbs.res, hobbs.jac, maskidx=c(3))
 ansm3
 # Mask all -- should fail
-ansma <- nlfb(start1, hobbs.res, hobbs.jac, maskidx=c(3,1,2))
+ansma <- try(nlfb(start1, hobbs.res, hobbs.jac, maskidx=c(3,1,2)))
 ansma
 # Bounds and mask
 ansmbm2 <- nlfb(startf1, hobbs.res, hobbs.jac, maskidx=c(2),
@@ -557,9 +557,9 @@ a1cg
 a1vm <- Rvmmin(start1, hobbs.f, hobbs.g)
 a1vm
 ## No jacobian - use internal approximation
-a1cgn <- Rcgmin(start1, hobbs.f)
+a1cgn <- try(Rcgmin(start1, hobbs.f))
 a1cgn
-a1vmn <- Rvmmin(start1, hobbs.f)
+a1vmn <- try(Rvmmin(start1, hobbs.f))
 a1vmn
 # But 
 grfwd <- function(par, userfn, fbase=NULL, eps=1.0e-7, ...) {
@@ -574,7 +574,7 @@ grfwd <- function(par, userfn, fbase=NULL, eps=1.0e-7, ...) {
    }
    df
 }
-a1vmn <- Rvmmin(start1, hobbs.f, gr="grfwd")
+a1vmn <- try(Rvmmin(start1, hobbs.f, gr="grfwd"))
 a1vmn
 # Bounds -- infeasible start
 # Note: These codes move start to nearest bound

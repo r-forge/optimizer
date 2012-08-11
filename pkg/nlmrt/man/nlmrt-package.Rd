@@ -129,16 +129,15 @@ print(anlxb1)
 anlxb2<-try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
 print(anlxb2)
 
-startp1<-c(b1=1, b2=1, b3=.1)
+startf1<-c(b1=1, b2=1, b3=.1)
 
-cat("WITH BOUNDS\n")
+## With BOUNDS
 
-anlxb1<-try(nlxb(eunsc, start=startp1, lower=c(b1=0, b2=0, b3=0), 
+anlxb1<-try(nlxb(eunsc, start=startf1, lower=c(b1=0, b2=0, b3=0), 
       upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1))
 print(anlxb1)
 
-tmp<-readline("next")
-
+# Check nls too
 anlsb1<-try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
      upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1, algorithm='port'))
 print(anlsb1)

@@ -14,5 +14,4 @@ Description: nlmrt provides tools for working with nonlinear least squares probl
       in nlmrt generally works more reliably to get a solution, though this may be 
       one of a set of possibilities, and may also be statistically unsatisfactory.
 License: GPL-2
-Depends: minpack.lm, optimx
-Vignette-depends: Rvmmin, Rcgmin
+Depends: minpack.lm, optimx, Rvmmin, Rcgmin

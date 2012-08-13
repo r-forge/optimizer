@@ -1,8 +1,8 @@
 Package: nlmrt
 Type: Package
 Title: Functions for nonlinear least squares solutions
-Version: 2012-8.11
-Date: 2012-08-11
+Version: 2012-8.12
+Date: 2012-08-12
 Author: John C. Nash
 Maintainer: <nashjc@uottawa.ca>
 Description: nlmrt provides tools for working with nonlinear least squares problems
@@ -14,4 +14,4 @@ Description: nlmrt provides tools for working with nonlinear least squares probl
       in nlmrt generally works more reliably to get a solution, though this may be 
       one of a set of possibilities, and may also be statistically unsatisfactory.
 License: GPL-2
-Depends: minpack.lm, optimx, Rvmmin, Rcgmin
+Depends: R (>= 2.15.0), minpack.lm, optimx, Rvmmin, Rcgmin, numDeriv

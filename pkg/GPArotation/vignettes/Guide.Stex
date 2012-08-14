@@ -9,14 +9,9 @@
 
 \section{GPArotation Functions}
 In R, the functions in this package are made available with
-
 \begin{Scode}
-library("GPArotation") 
- 
+library("GPArotation")  
 \end{Scode}
-
-Also, it should be possible to view the pdf version of the guide for this 
-package with \emph{print(vignette("GPArotation"))}.
 
 The most complete reference for the software is:
 Bernaards, C.A. and Jennrich, R.I. (in press) Gradient Projection Algorithms 

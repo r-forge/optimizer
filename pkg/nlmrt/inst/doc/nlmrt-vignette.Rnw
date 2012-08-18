@@ -119,8 +119,8 @@ In both cases, the \code{nls()} failed with a 'singular gradient'.
 This implies the Jacobian is effectively singular at some point. The
 Levenberg-Marquardt stabilization used in \code{nlxb} avoids this 
 particular issue by augmenting the Jacobian until it is non-singular.
-The details of this common approach may be found elsewhere \cite{cnm79}.
-?? Do we want a page ref?
+The details of this common approach may be found elsewhere \cite[Algorithm 23]{jncnm79}.
+
 
 There are some other tools for \R that aim to solve nonlinear least 
 squares problems. We have not yet been able to successfully use the INRA package 

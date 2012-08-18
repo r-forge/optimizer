@@ -5,18 +5,40 @@
 		Fixed point equation reformulation via the NI function of the GNE problem.
 	}
 \usage{
-GNE.fpeq(xinit,	yfunc, stepfunc, Vfunc, method=c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
-	control=list(), ...)
-
+GNE.fpeq(init, dimx, obj, argobj, grobj, arggrobj, 
+	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
+	method = "default", problem = c("NIR", "VIR"), 
+	merit = c("NI", "VI", "FP"), order=1, control.outer=list(), 
+	control.inner=list(), silent=TRUE, param=list(), stepfunc, argstep, ...)
 }
 \arguments{
-  \item{xinit}{initial point.}
-  \item{yfunc}{the y function.}
-  \item{stepfunc}{the step function, only needed when \code{method="UR"}.}
-  \item{Vfunc}{the value function used to compute the merit function.}
+  \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}
+  \item{dimx}{a vector of dimension for \eqn{x}.}
+  
+  \item{obj}{objective function, see details.}
+  \item{argobj}{a list of additional arguments.}
+  \item{grobj}{gradient of the objective function, see details.}
+  \item{arggrobj}{a list of additional arguments of the objective gradient.}
+
+  \item{joint}{joint function, see details.}
+  \item{argjoint}{a list of additional arguments of the joint function.}
+  \item{jacjoint}{Jacobian of the joint function, see details.}
+  \item{argjacjoint}{a list of additional arguments of the Jacobian.}  
+	  
   \item{method}{either \code{"pure"}, \code{"UR"}, \code{"vH"}, \code{"RRE"}, \code{"MPE"}, 
-	\code{"SqRRE"} or \code{"SqMPE"} method, see details.}
-  \item{control}{a list with control parameters.}
+	\code{"SqRRE"} or \code{"SqMPE"} method, see details. \code{"default"} 
+	corresponds to \code{"MPE"}.}
+
+  \item{problem}{either \code{"NIR"}, \code{"VIP"}, see details.}
+  \item{merit}{either \code{"NI"}, \code{"VI"}, \code{"FP"}, see details.}
+	
+	
+  \item{control.outer}{a list with control parameters for the fixed point algorithm.}
+  \item{control.inner}{a list with control parameters for the fixed point function.}  
+  
+  \item{stepfunc}{the step function, only needed when \code{method="UR"}.}
+  \item{argstep}{additional arguments for the step function.}
+    
   \item{\dots}{further arguments to be passed to the optimization routine. 
 	NOT to the functions.}
   
@@ -57,20 +79,27 @@ The fixed point approach consists in solving equation \eqn{y(x)=x}.
 }
 For details on fixed point methods, see Varadhan & Roland (2004).
 
-
-The \code{control} argument is a list that can supply any of the following components:
+The \code{control.outer} argument is a list that can supply any of the following components:
 \describe{
-	\item{\code{tol}}{The absolute convergence tolerance. Default to 1e-6.}
-	\item{\code{maxit}}{The maximum number of iterations. Default to 100.}
-	\item{\code{echo}}{A logical or an integer (0, 1, 2, 3) to print traces. 
-		Default to \code{FALSE}, i.e. 0.}
-	\item{\code{sigma, beta}}{parameters for von Heusinger algorithm. 
-		Default to 9/10 and 1/2 respectively.}
+	\item{\code{merit="FP"} and \code{method="pure"}}{see \code{\link{fpiter}}.
+		the default parameters are \code{list(tol=1e-6, maxiter=100, trace=TRUE)}.
+		}
+	\item{\code{merit="FP"} and \code{method!="pure"}}{see \code{\link{squarem}}.
+		the default parameters are \code{list(tol=1e-6, maxiter=100, trace=TRUE)}.
+		}
+	\item{\code{merit!="FP"}}{parameters are 
+		\describe{
+			\item{\code{tol}}{The absolute convergence tolerance. Default to 1e-6.}
+			\item{\code{maxit}}{The maximum number of iterations. Default to 100.}
+			\item{\code{echo}}{A logical or an integer (0, 1, 2, 3) to print traces. 
+				Default to \code{FALSE}, i.e. 0.}
+			\item{\code{sigma, beta}}{parameters for von Heusinger algorithm. 
+				Default to 9/10 and 1/2 respectively.}
+			}
+		}
+
 }
 
-Note that the \code{yfunc}, \code{Vfunc} functions can return a numeric or a list with computation details. In the
-latter case, the object return must be a list with the following components
-\code{value}, \code{counts}, \code{iter}, see the example below.
 
 		
 }
@@ -79,29 +108,22 @@ A list with components:
 	\describe{
 		\item{\code{par}}{The best set of parameters found.}
 		\item{\code{value}}{The value of the merit function.}
-		\item{\code{counts}}{A two-element integer vector giving the number of 
-			calls to \code{yfunc} and \code{Vfunc}/\code{stepfunc} respectively.}					
-		\item{\code{iter}}{The outer iteration number.}
+		\item{\code{outer.counts}}{A two-element integer vector giving the number of 
+			calls to fixed-point and merit functions respectively.}					
+		\item{\code{outer.iter}}{The outer iteration number.}
 		\item{\code{code}}{
 			         The values returned are
          \describe{
 			\item{\code{1}}{Function criterion is near zero.
 			Convergence of function values has been achieved.}
-			\item{\code{2}}{x-values within tolerance. This means that the relative distance between two
-			consecutive x-values is smaller than \code{xtol}.}
-			\item{\code{3}}{No better point found.
-			This means that the algorithm has stalled and cannot find an acceptable new point.
-			This may or may not indicate acceptably small function values.}
 			\item{\code{4}}{Iteration limit \code{maxit} exceeded.}
-			\item{\code{5}}{Jacobian is too ill-conditioned.}
-			\item{\code{6}}{Jacobian is singular.}
 			\item{\code{100}}{an error in the execution.}
 			}
 		}
-		\item{\code{inner.iter.fn}, \code{inner.iter.gr}}{The iteration number
+		\item{\code{inner.iter}}{The iteration number
 			for the function and the gradient when computing the gap function or
 			its gradient (if appropriate).}	
-		\item{\code{inner.counts.fn}, \code{inner.counts.gr}}{A two-element integer 
+		\item{\code{inner.counts}}{A two-element integer 
 			vector giving the number of calls to the function and the gradient 
 			when computing the gap function or its gradient (if appropriate).}			
 		\item{\code{message}}{a string describing the termination code}	

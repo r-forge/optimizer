@@ -112,7 +112,7 @@ gradygapNIR <- function(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
 
 fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,  
 	grobj, arggrobj, jacjoint, argjacjoint, param=list(), 
-	echo=FALSE, control=list(), yinit=NULL)
+	echo=FALSE, control=list(), yinit=NULL, optim.method="default")
 {
 	arg <- testargfpNIR(x, dimx, obj, argobj, joint, argjoint,  
 			grobj, arggrobj, jacjoint, argjacjoint, echo)
@@ -121,38 +121,91 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 	par <- list(alpha = 1e-1)
 	namp <- names(par)
 	par[namp <- names(param)] <- param
+	
+	if(optim.method == "default")
+		optim.method <- "BFGS"
 	#default control parameters
-	con <- list(trace = echo, eps=1e-6)
-	namc <- names(con)
-	con[namc <- names(control)] <- control
+	con1 <- list(trace = echo, eps=1e-6, method=optim.method)
+	namc1 <- names(con1)
+	con1[namc1 <- names(control)] <- control
+	con2 <- list(trace = echo, reltol=1e-6)
+	namc2 <- names(con2)
+	con2[namc2 <- names(control)] <- control
 	
 	
 	dimx <- arg$dimx
 	n <- sum(arg$dimx)
 	nplayer <- arg$nplayer
 	
-	if(is.null(yinit))
+	if(is.null(yinit) && !is.null(arg$joint))
 	{
 		yinit <- rejection(function(x) arg$joint(x, arg$argjoint), n, method="norm")
 		if(echo)
 			cat("initial point in fpNIR", yinit, "-", arg$joint(yinit, arg$argjoint), "\n")
+	}else if(is.null(yinit) && is.null(arg$joint))
+	{
+		yinit <- rnorm(n)
 	}else
 	{
 		yinit <- yinit[1:n]
 	}
 	
-	yofx <- function(x)
+	
+	if(is.null(arg$joint) && !is.null(arg$grobj))
 	{
-		fn <- function(y, x, param) -gapNIR(x, y, dimx, arg$obj, arg$argobj, param)
-		gr <- function(y, x, param) -gradygapNIR(x, y, dimx, arg$grobj, arg$arggrobj, param) 
-		hin <- function(y, x, param) -arg$joint(y, arg$argjoint)
-		hin.jac <- function(y, x, param) -arg$jacjoint(y, arg$argjacjoint)
-		
-		res <- constrOptim.nl(yinit, fn=fn, gr=gr, hin=hin, hin.jac=hin.jac, 
-					   x=x, param=par, control.outer=con)
-		list(par=res$par, value=res$value, counts=res$counts, 
-			 iter=res$outer.iterations, code=res$convergence, mess=res$message)
-	}
+		yofx <- function(x)
+		{
+			fn <- function(y, z, param) -gapNIR(z, y, dimx, arg$obj, arg$argobj, param)
+			gr <- function(y, z, param) -gradygapNIR(z, y, dimx, arg$grobj, arg$arggrobj, param) 
+			
+			res <- optim(yinit, fn=fn, gr=gr, method=optim.method, 
+								  z=x, param=par, control=con2)
+			if(echo && res$convergence != 0)
+				cat("Unsuccessful convergence.")
+			c(res, optim.function="optim", optim.method=optim.method)
+		}
+	}else if(is.null(arg$joint) && is.null(arg$grobj))
+	{
+		yofx <- function(x)
+		{
+			fn <- function(y, z, param) -gapNIR(z, y, dimx, arg$obj, arg$argobj, param)
+			
+			res <- optim(yinit, fn=fn, method=optim.method, 
+						 z=x, param=par, control=con2)
+			if(echo && res$convergence != 0)
+				cat("Unsuccessful convergence.")
+			c(res, optim.function="optim", optim.method=optim.method)
+		}
+	}else if(!is.null(arg$joint) && !is.null(arg$jacjoint))
+	{
+		yofx <- function(x)
+		{
+			fn <- function(y, z, param) -gapNIR(z, y, dimx, arg$obj, arg$argobj, param)
+			gr <- function(y, z, param) -gradygapNIR(z, y, dimx, arg$grobj, arg$arggrobj, param) 
+			hin <- function(y, z, param) -arg$joint(y, arg$argjoint)
+			hin.jac <- function(y, z, param) -arg$jacjoint(y, arg$argjacjoint)
+			
+			res <- constrOptim.nl(yinit, fn=fn, gr=gr, hin=hin, hin.jac=hin.jac, 
+						   z=x, param=par, control.outer=con1)
+			if(echo && res$convergence != 0)
+				cat("Unsuccessful convergence.")
+			c(res, optim.function="constrOptim.nl", optim.method=optim.method)
+		}
+	}else if(!is.null(arg$joint) && is.null(arg$jacjoint))
+	{
+		yofx <- function(x)
+		{
+			fn <- function(y, z, param) -gapNIR(z, y, dimx, arg$obj, arg$argobj, param)
+			hin <- function(y, z, param) -arg$joint(y, arg$argjoint)
+			
+			res <- constrOptim.nl(yinit, fn=fn, hin=hin, 
+								  z=x, param=par, control.outer=con1)
+			if(echo && res$convergence != 0)
+				cat("Unsuccessful convergence.")
+			c(res, optim.function="constrOptim.nl", optim.method=optim.method)
+		}
+	}else
+		stop("missing argument in obj, grobj, joint, jacjoint.")
 	yofx(x)
 }
 

@@ -76,7 +76,8 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	if(!silent)
 		print("init completed.")
 	
-	res <- nseq(init, myfunSSR, myjacSSR, argfun=arg1, argjac=arg2, method, control, ...)	
+	res <- nseq(init, myfunSSR, myjacSSR, argfun=arg1, argjac=arg2, method, 
+				control, silent=silent, ...)	
 	class(res) <- "GNE"
 	res
 }
@@ -138,7 +139,7 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 		print("init completed.")
 		
 	res <- ceq(init, dimx, dimlam, myfunCER, myjacCER, argfun=arg1, argjac=arg2,
-		method, control, global="gline", ...)	
+		method, control, global="gline", silent=silent, ...)	
 	class(res) <- "GNE"
 	res
 }
@@ -147,7 +148,8 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj, 
 	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
 	method = "default", problem = c("NIR", "VIR"), 
-	merit = c("NI", "VI", "FP"), order=1, control=list(), silent=TRUE, ...)
+	merit = c("NI", "VI", "FP"), order=1, control.outer=list(), 
+	control.inner=list(), silent=TRUE, param=list(), stepfunc, argstep, ...)
 {
 
 	if(method == "default") method <- "MPE"
@@ -155,35 +157,62 @@ GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj,
 	problem <- match.arg(problem, c("NIR", "VIR"))
 	merit <- match.arg(merit, c("NI", "VI", "FP"))
 	
-	if(method %in% c("vH", "UR") && merit == "FP")
+	if(method %in% c("vH") && merit == "FP")
 		stop("incompatible method and merit arguments.")
-	if(method %in% c("vH", "UR") && merit %in% c("vH", "UR") && merit != method)
-		stop("inconsistent method and merit arguments.")
 	
 	if(order > 3 || order < 1)
 		stop("wrong order argument.")
 	if(problem == "NIR")
 	{
 		arggap <- testarggapNIR(init, dimx, obj, argobj)
-		arggradgap <- testarggradgapNIR(init, dimx, grobj, arggrobj)
 		argfp <- testargfpNIR(init, dimx, obj, argobj, joint, argjoint,  
 					 grobj, arggrobj, jacjoint, argjacjoint)
-	}
-	
-	stop("not yet implemented")
 		
-	res <- fpeq(xinit, yfunc, func2, argy, argfunc2, method, control, ...)
+		yfun <- function(x)
+			fpNIR(x, argfp$dimx, argfp$obj, argfp$argobj, argfp$joint, 
+				  argfp$argjoint, argfp$grobj, argfp$arggrobj, argfp$jacjoint,
+				  argfp$argjacjoint, echo=!silent, control=control.inner, 
+				  param=param, ...)
+
+		if(merit == "FP")
+			merit <- NULL
+		else if(merit == "NI")
+		{
+			merit <- function(x, y=NULL)
+			{
+				if(is.null(y))
+				{
+					y <- yfun(x)
+					res <- gapNIR(x, y$par, arggap$dimx, arggap$obj, arggap$argobj, 
+								  param=param, echo=!silent)
+					y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+					list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+				}else
+					list(value=gapNIR(x, y, arggap$dimx, arggap$obj, arggap$argobj, 
+								  param=param, echo=!silent),
+						 counts=c(1,0), iter=0)
+			}
+		
+		}else
+			stop("wrong merit function")
+	}
+		
+	res <- fpeq(init, yfun, merit, method, control=control.outer, stepfunc=stepfunc,
+				argstep=argstep, silent=silent, order=order, ...)
 	class(res) <- "GNE"
 	res
 }
 
 
-GNE.min <- function(xinit, gap, gradgap, arggap=list(), arggrad=list(), method, control=list(), ...)
+GNE.min <- function(init, gap, gradgap, arggap=list(), arggrad=list(), method, 
+	control=list(), ...)
 {
 	if(method == "default")
 		method <- "BB"
 	
-	res <- minpb(xinit, gap, gradgap, arggap, arggrad, method, control, ...)
+	stop("not yet implemented")
+	
+	res <- minpb(init, gap, gradgap, arggap, arggrad, method, control, ...)
 	class(res) <- "GNE"
 	res
 }
@@ -292,8 +321,12 @@ print.GNE <- function(x, ...)
 	cat("GNE:", x$par, "\nwith optimal norm", x$value, "\n")
 	cat("after ", x$iter, "iterations with exit code", x$code, ".\n")
 	cat("Output message:", x$message, "\n")
-	cat("Function/grad/hessian calls:", x$counts, "\n")
-	cat("Optimal (vector) value:", x$fvec, "\n")
+	if(!is.null(x$counts))	
+		cat("Function/grad/hessian calls:", x$counts, "\n")
+	if(!is.null(x$outer.counts))	
+		cat("Function/grad/hessian calls:", x$outer.counts, x$inner.counts, "\n")	
+	if(!is.null(x$fvec))
+		cat("Optimal (vector) value:", x$fvec, "\n")
 }
 
 

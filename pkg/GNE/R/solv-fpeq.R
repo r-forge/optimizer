@@ -1,142 +1,143 @@
-fpeq <- function(xinit,	yfunc, stepfunc, Vfunc, method=c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
-	control=list(), ...)
+fpeq <- function(xinit,	fn, merit, 
+	method=c("pure", "UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
+	control=list(), stepfunc, argstep, silent=TRUE, order=1, ...)
 {
 	method <- match.arg(method, c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"))
+	if(method %in% c("SqRRE", "SqMPE"))
+	{
+		order <- ifelse(order== 1, 2, order)
+		method <- substr(method, 3, 5)
+	}
+	
+	
 	
 	if(method == "UR")
-		if(missing(yfunc) || missing(xinit) || missing(stepfunc) || missing(Vfunc))
+	{
+		if(missing(fn) || missing(xinit) || missing(stepfunc) || missing(merit))
 			stop("missing parameters for UR method")
+		if(!missing(argstep))
+			finalstep <- function(x) stepfunc(x, argstep)
+		else
+			finalstep <- stepfunc
+	}
 	
 	if(method == "vH")
-		if(missing(yfunc) || missing(xinit) || missing(Vfunc))
+		if(missing(fn) || missing(xinit) || missing(merit))
 			stop("missing parameters for vH method")
 	
-	
-	testmyfunc <- yfunc(xinit, ...)
-
-	testVfunc <- Vfunc(xinit, ...)
-	
-	if(class(testmyfunc) %in% c("integer", "numeric"))
-	{	
-		inner.counts.fn <- inner.counts.vh <- NULL
-		inner.iter.fn <- inner.iter.vh <- NULL
-		noitercount <- TRUE
-	}else if(class(testmyfunc) == "list")
+	noitercount <- FALSE
+		
+	inner.counts.fn <- c(0, 0)
+	inner.iter.fn <- 0
+		
+	wrapfn <- function(x) 
 	{
-		noitercount <- FALSE
-		
-		inner.counts.fn <- c(0, 0)
-		inner.iter.fn <- 0
-		
-		wrapyfunc <- function(x, ...) 
-		{
-			fx <- yfunc(x, ...)
-			inner.counts.fn <<- inner.counts.fn + fx$counts
-			inner.iter.fn <<- inner.iter.fn + fx$iter
-			fx$par
-		}
+		fx <- fn(x)
+		inner.counts.fn <<- inner.counts.fn + fx$counts
+		inner.iter.fn <<- inner.iter.fn + fx$iter
+		fx$par
+	}
 	
-		if(class(testVfunc) == "list")
+	if(!is.null(merit))
+	{
+		inner.counts.vh <- c(0, 0)
+		inner.iter.vh <- 0
+		wrapmerit <- function(x, ...) 
 		{
-			inner.counts.vh <- c(0, 0)
-			inner.iter.vh <- 0
-			wrapVfunc <- function(x, ...) 
-			{
-				vx <- Vfunc(x, ...)
-				inner.counts.vh <<- inner.counts.vh + vx$counts
-				inner.iter.vh <<- inner.iter.vh + vx$iter
-				vx$value
-			}			
-		}else
-		{
-			inner.counts.vh <- NULL
-			inner.iter.vh <- NULL			
-		}	
-		
+			vx <- merit(x, ...)
+			inner.counts.vh <<- inner.counts.vh + vx$counts
+			inner.iter.vh <<- inner.iter.vh + vx$iter
+			vx$value
+		}
 	}else
-		stop("Unsupported class for argument functions.")
-		
+	{
+		wrapmerit <- NULL
+		inner.counts.vh <- inner.iter.vh <- NULL
+	}	
 	
 	#default control parameters
-	con <- list(sigma=9/10, beta=1/2, tol=1e-6, maxit=100, echo=TRUE)
+	con <- list(sigma=9/10, beta=1/2, tol=1e-6, maxit=100, echo=0)
 	namc <- names(con)
 	con[namc <- names(control)] <- control
+	confpiter <- list(tol=1e-6, maxiter=100, trace=TRUE)
+	namc <- names(confpiter)
+	confpiter[namc <- names(control)] <- control
+	consquarem <- list(tol=1e-6, maxiter=100, trace=TRUE, K=order, 
+		method=ifelse(order==1, 1*(method == "RRE")+2*(method == "MPE"), method))
+	namc <- names(consquarem)
+	consquarem[namc <- names(control)] <- control
 	
-	if(method == "pure")
+	if(method == "pure" && !is.null(wrapmerit))
 	{
-		if(noitercount)
-			myGNE <- try( pureFP(xinit, yfunc, Vfunc, control=con, ...), silent=FALSE)
-		else
-			myGNE <- try( pureFP(xinit, wrapyfunc, wrapVfunc, control=con, ...), silent=FALSE)
+		myGNE <- try( pureFP(xinit, wrapfn, wrapmerit, control=con, ...), 
+					 silent=silent)
+	}
+	if(method == "pure" && is.null(wrapmerit))
+	{
+		myGNE <- try( fpiter(xinit, wrapfn, wrapmerit, control=confpiter, ...), 
+					 silent=silent)
 		
-		if(class(myGNE) == "try-error")
+		if(class(myGNE) != "try-error")
 		{
-			cat("\n")	
-			stop("Pure fixed-point method does not converge.")
+			if(!silent)
+				print(myGNE)
+			myGNE$value <- max(abs(fn(myGNE$par)$par))
+			myGNE$counts <- c(fn=myGNE$fpevals, merit=myGNE$objfevals)
+			myGNE$code <- 1*(myGNE$convergence == 0) + 4*(myGNE$fpevals[1] >= confpiter$maxiter) 
 		}	
 	}
 	
 	
 	if(method == "UR")
 	{
-		if(noitercount)
-			myGNE <- try( relaxationAlgoUR(xinit, stepfunc, yfunc, Vfunc, control=con, ...), silent=FALSE)
-		else
-			myGNE <- try( relaxationAlgoUR(xinit, stepfunc, wrapyfunc, wrapVfunc, control=con, ...), silent=FALSE)
-
-		if(class(myGNE) == "try-error")
-		{
-			cat("\n")	
-			stop("Relaxation algorithm UR for the fixed-point pb does not converge.")
-		}	
+		myGNE <- try( relaxationAlgoUR(xinit, finalstep, wrapfn, wrapmerit, 
+					control=con, ...), silent=silent)
 	}
 	
 	if(method == "vH")
 	{
-		if(noitercount)
-			myGNE <- try( relaxationAlgoVH(xinit, yfunc, Vfunc, control=con, ...), silent=FALSE)
-		else
-			myGNE <- try( relaxationAlgoVH(xinit, wrapyfunc, wrapVfunc, control=con, ...), silent=FALSE)
-
-		if(class(myGNE) == "try-error")
-		{
-			cat("\n")	
-			stop("Relaxation algorithm vH for the fixed-point pb does not converge.")
-		}	
+		myGNE <- try( relaxationAlgoVH(xinit, wrapfn, wrapmerit, 
+					control=con, ...), silent=silent)
 	}
 	
-	if(method == "RRE" || method == "MPE" || method == "SqRRE" || method == "SqMPE")
+	if(method %in% c("RRE","MPE","SqRRE","SqMPE") && !is.null(wrapmerit))
 	{
-		if(noitercount)
-			myGNE <- try( extrapolFP(xinit, yfunc, Vfunc, control=con, method=method, ...), silent=FALSE)
-		else
-			myGNE <- try( extrapolFP(xinit, wrapyfunc, wrapVfunc, control=con, method=method, ...), silent=FALSE)
-		
-		if(class(myGNE) == "try-error")
-		{
-			cat("\n")	
-			stop("Relaxation algorithm vH for the fixed-point pb does not converge.")
-		}	
+		myGNE <- try( extrapolFP(xinit, wrapfn, wrapmerit, 
+					control=con, method=method, ...), silent=FALSE)
 	}
 	
-#	extrapolFP <- function(xinit, yfunc, Vfunc, control, method, ...)
+	if(method %in% c("RRE","MPE","SqRRE","SqMPE") && is.null(wrapmerit))
+	{
+		myGNE <- try( squarem(xinit, wrapfn, control=consquarem, ...), silent=FALSE)
+		
+		if(class(myGNE) != "try-error")
+		{
+			if(!silent)
+				print(myGNE)
+			
+			myGNE$value <- max(abs(fn(myGNE$par)$par))
+			myGNE$counts <- c(fn=myGNE$fpevals, merit=myGNE$objfevals)
+			myGNE$code <- 1*(myGNE$convergence == 0) + 4*(myGNE$fpevals[1] > consquarem$maxiter) 
+		}			
+	}
 	
 	
-	k <- myGNE$iter
-	xk <- myGNE$par
-	f_xk <- myGNE$value
-	counts <- myGNE$counts
-
-	list(par=xk, outer.counts=counts, outer.iter=k, code=(k >= con$maxit)*1 + (abs(f_xk) > con$tol)*10, 
-		 inner.iter.fn=inner.iter.fn, inner.iter.vh=inner.iter.vh, 
-		 inner.counts.fn=inner.counts.fn, inner.counts.vh=inner.counts.vh)
-
-	
+	if(class(myGNE) != "try-error")
+		res <- list(par=myGNE$par, value=myGNE$value,
+			outer.counts=myGNE$counts, outer.iter=myGNE$counts[1], 
+			code=myGNE$code, inner.iter=inner.iter.fn+inner.iter.vh, 
+			inner.counts=inner.counts.fn+inner.counts.vh,
+			message=myGNE$message)
+	else 
+		res <- list(par= NA, value=NA, outer.counts=NA, outer.iter=NA, code=100, 
+			message=paste("Error in the fixed-point problem:", myGNE, "."), 
+			inner.counts=NA, inner.iter=NA)
+	res
 }	
 
 
-#pure fixed point iteration
-pureFP <- function(xinit, yfunc, Vfunc, control, ...)
+#pure fixed point iteration with a merit function
+pureFP <- function(xinit, fn, merit, control, ...)
 {
 	echo <- control$echo
 	maxit <- control$maxit
@@ -144,89 +145,88 @@ pureFP <- function(xinit, yfunc, Vfunc, control, ...)
 	
 	k <- 1
 	xk_1 <- xinit
-	xk <- yfunc(xk_1, ...)
-	V_xk <- Vfunc( xk, ... )
-	counts <- c(1, 1)
-	names(counts) <- c("yfunc", "Vfunc")
+	xk <- fn(xk_1)
+	xkp1 <- fn(xk)
+	merit_xk <- merit(xk, y=xkp1)
 
 	if(echo >= 1)
 		cat("**** k", k, "\n x_k", xk, "\n")
 	if(echo >= 2)
-		cat(" ||V(x_k)||", abs(V_xk),  "\n", "||y(x_k) - x_k||", 
-			sqrt(sum( (xk - xk_1)^2 )),  "\n")
+		cat(" m(x_k)", merit_xk,  "\n")
 	
 	
-	while( (abs( V_xk ) > tol || sqrt( sum( (xk - xk_1)^2 ) ) > tol) && k < maxit) 
+	while( abs( merit_xk ) > tol && k < maxit) 
 	{
 		xk_1 <- xk
 		k <- k+1
 	
-		xk <- yfunc(xk_1, ...)
-		V_xk <- Vfunc( xk, ... )
-		
+		xk <- xkp1
+		xkp1 <- fn(xk)
+		merit_xk <- merit(xk, y=xkp1)
 		
 		if(echo >= 1)
 			cat("**** k", k, "\n x_k", xk, "\n")
 		if(echo >= 2)
-			cat(" ||V(x_k)||", abs(V_xk),  "\n", "||y(x_k) - x_k||", 
-				sqrt(sum( (xk - xk_1)^2 )),  "\n")
-	
-		counts <- counts+1
+			cat(" m(x_k)", merit_xk,  "\n")
 	}
 	
-	list(par = xk, value=V_xk , counts=counts, iter = k, code=(k >= maxit)*1 + (abs(V_xk) > tol)*10)
+	list(par = xk, value=merit_xk , counts=c(fn=k+1, merit=k+1), iter = k, 
+		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
 }
 
 
-#Uryasev and Rubinstein
-relaxationAlgoUR <- function(xinit, stepfunc, yfunc, Vfunc, control, ...)
+#Uryasev and Rubinstein (non optimized stepsize)
+relaxationAlgoUR <- function(xinit, stepfunc, fn, merit, control, ...)
 {
 	echo <- control$echo
 	maxit <- control$maxit
-	tol <- control$tol
+	tol <- control$to
+		
 	
 	k <- 1
 	xk_1 <- xinit
-	xk <- yfunc(xk_1, ...)
-	V_xk <- Vfunc( xk, ... )
-	
-	counts <- c(1, 1)
-	names(counts) <- c("yfunc", "stepfunc")
-	
+	alphak <- stepfunc(k)
+	xk <- (1-alphak) * xk_1 + alphak * fn(xk_1)
+	if(!is.null(merit))
+		merit_xk <- merit(xk)
+	else
+		merit_xk <- max(abs(xk - xk_1))
+		
 	if(echo >= 1)
 		cat("**** k", k, "\n x_k", xk, "\n")
 	if(echo >= 2)
-		cat(" ||V(x_k)||", abs(V_xk),  "\n", "||y(x_k) - x_k||", 
-			sqrt(sum( (xk - xk_1)^2 )),  "\n")
-
-	while( (abs( V_xk ) > tol || sqrt( sum( (xk - xk_1)^2 ) ) > tol) && k < maxit)
+		cat(" m(x_k)", merit_xk,  "\n")
+	if(echo >= 3)
+		cat("step size", alphak, "\n")
+	
+	while( abs( merit_xk ) > tol && k < maxit)
 	{
 		xk_1 <- xk
 		k <- k+1
 		
 		alphak <- stepfunc(k)
-		xk <- (1-alphak) * xk_1 + alphak * yfunc(xk_1, ...)
+		xk <- (1-alphak) * xk_1 + alphak * fn(xk_1)
+		if(!is.null(merit))
+			merit_xk <- merit(xk)
+		else
+			merit_xk <- max(abs(xk - xk_1))
 		
-		V_xk <- Vfunc( xk, ... )
-
+		
 		if(echo >= 1)
 			cat("**** k", k, "\n x_k", xk, "\n")
 		if(echo >= 2)
-			cat(" ||V(x_k)||", abs(V_xk),  "\n", "||y(x_k) - x_k||", 
-				sqrt(sum( (xk - xk_1)^2 )),  "\n")
+			cat(" m(x_k)", merit_xk,  "\n")
 		if(echo >= 3)
 			cat("step size", alphak, "\n")
-		
-		counts <- counts+1
 	}
 	
-	list(par = xk, value=V_xk , counts=counts, iter = k, 
-		 code=(k >= maxit)*1 + (abs( V_xk ) > tol || sqrt( sum( (xk - xk_1)^2 ) ) > tol) * 10)
+	list(par = xk, value=merit_xk , counts=c(fn=k+1, merit=k+1), iter = k, 
+		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
 }
 
 
 #von Heusinger 
-relaxationAlgoVH <- function(xinit, yfunc, Vfunc, control, ...)
+relaxationAlgoVH <- function(xinit, fn, merit, control, ...)
 {
 	sigma <- control$sigma
 	beta <- control$beta
@@ -236,72 +236,63 @@ relaxationAlgoVH <- function(xinit, yfunc, Vfunc, control, ...)
 	
 	k <- 0
 	xk_1 <- xinit
-	xk <- yfunc(xk_1, ...)
-	V_xk <- Vfunc( xk, ... )
+	xk <- fn(xk_1)
+	merit_xk <- merit(xk)
 	
-	counts <- c(1, 1)
-	names(counts) <- c("yfunc", "Vfunc")
+	counts <- c(fn=1, merit=1)
 
 	if(echo >= 1)
 		cat("**** k", k, "\n x_k", xk, "\n")
 	if(echo >= 2)
-		cat(" ||V(x_k)||", abs(V_xk),  "\n")
+		cat(" m(x_k)", merit_xk,  "\n")
 
-	
-	if(echo) 
-		cat("**** k", k, "\n", "||y(x_k) - x_k||", sqrt( sum( (xk - xk_1)^2 ) ),  "\n", "||V(x_k)||", abs(V_xk), "\n", "y(x_k)\t", xk, "\n")
-
-	while( abs( V_xk ) > tol && k < maxit)
+	while( abs( merit_xk ) > tol && k < maxit)
 	{
 		k <- k+1
 		xk_1 <- xk
 		
-		dk <- yfunc(xk, ...) - xk
+		dk <- fn(xk) - xk
 		normdk <- sqrt(sum(dk^2))
-		V_xk <- Vfunc(xk, ...)
+		merit_xk <- merit(xk)
 		
-		
-		for(l in 0:16)
+		#backtracking line search
+		tk <- 1
+		l <- 0
+		merit_xktkdk <- merit(xk + tk*dk)
+		# use remark 4.32 
+		while( merit_xktkdk > merit_xk - sigma * tk^2 * normdk^2 )
 		{
-			tk <- beta^l
-			
+			tk <- tk * beta
+			merit_xktkdk <- merit(xk + tk*dk)
 			if(echo >= 3)
 			{
-				cat(l, "\t", Vfunc(xk + tk * dk, ...) , "\t <= ")
-				cat(V_xk - control$sigma * tk^2 * normdk^2, "?\t")
+				cat(l, "\t", merit_xktkdk, "\t <= ")
+				cat(merit_xk - sigma * tk^2 * normdk^2, "?\t")
 				cat("tk", tk, "\n")
 			}
-			
-			# use remark 4.32 			
-			if(Vfunc(xk + tk * dk, ...) <= V_xk - sigma * tk^2 * normdk^2)
-				break
-			
+			l <- l+1
 		}
-				
+						
 		xk <- xk_1 + tk * dk
+		merit_xk <- merit_xktkdk
 		
-		V_xk <- Vfunc(xk, ...)
-
 		if(echo >= 1)
 			cat("**** k", k, "\n x_k", xk, "\n")
 		if(echo >= 2)
-			cat(" ||V(x_k)||", abs(V_xk),  "\n")
+			cat(" m(x_k)", merit_xk,  "\n")
 
-		
-		if(echo) 
-			cat("\n\n**** k", k, "\n", "||y(x_k) - x_k||", sqrt( sum( (xk - xk_1)^2 ) ),  "\n", "||V(x_k)||", abs(V_xk), "\n", "y(x_k)\t", xk, "\n")		
-		
 		counts <- counts+1
 		counts[2] <- counts[2]+l
 	}	
 	
-	list(par = xk, value=V_xk, counts=counts, iter = k, code=(k >= maxit)*1 + (abs(V_xk) > tol)*10 )
+	list(par = xk, value=merit_xk , counts=counts, iter = k, 
+		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
 }
 
 
 
 #extrapolation method for fixed point iteration
-extrapolFP <- function(xinit, yfunc, Vfunc, control, method, ...)
+extrapolFP <- function(xinit, fn, merit, control, method, ...)
 {
 	echo <- control$echo
 	maxit <- control$maxit
@@ -309,26 +300,23 @@ extrapolFP <- function(xinit, yfunc, Vfunc, control, method, ...)
 	
 	k <- 1
 	xk_1 <- xinit
-	xk <- yfunc(xk_1, ...)
-	V_xk <- Vfunc(xk, ...)
+	xk <- fn(xk_1)
+	merit_xk <- merit(xk)
 	
-	counts <- c(1, 1)
-	names(counts) <- c("yfunc", "Vfunc")
+	counts <- c(fn=1, merit=1)
 
 	if(echo >= 1)
 		cat("**** k", k, "\n x_k", xk, "\n")
 	if(echo >= 2)
-		cat(" ||V(x_k)||", abs(V_xk),  "\n", "||y(x_k) - x_k||", 
-			sqrt(sum( (xk - xk_1)^2 )),  "\n")
+		cat(" m(x_k)", merit_xk,  "\n")
 	
-	
-	while( (abs( V_xk ) > tol || sqrt( sum( (xk - xk_1)^2 ) ) > tol) && k < maxit) 
+	while( abs( merit_xk ) > tol && k < maxit) 
 	{
 		xk_1 <- xk
 		k <- k+1
 		
-		xk <- yfunc(xk_1, ...)
-		xkp1 <- yfunc(xk, ...)
+		xk <- fn(xk_1)
+		xkp1 <- fn(xk)
 		#RRE/MPE cycle of order 1, equivalent to Aitken Delta process when xk is univariate
 		Delta1_xk <- xk - xk_1
 		Delta2_xk <- xkp1 - 2*xk + xk_1
@@ -350,20 +338,20 @@ extrapolFP <- function(xinit, yfunc, Vfunc, control, method, ...)
 			xk <- xk_1 - Delta1_xk * mystep
 		}
 		
-		V_xk <- Vfunc(xk, ...)
+		merit_xk <- merit(xk)
 		
 		if(echo >= 1)
 			cat("**** k", k, "\n x_k", xk, "\n")
 		if(echo >= 2)
-			cat(" ||V(x_k)||", abs(V_xk),  "\n", "||y(x_k) - x_k||", 
-				sqrt(sum( (xk - xk_1)^2 )),  "\n")
+			cat(" m(x_k)", merit_xk,  "\n")
 		if(echo >= 3)		
 			cat(" Delta(xk)", Delta1_xk, "\n", "Delta^2(xk)", Delta2_xk, "\n")
 		
 		counts <- counts + c(2,1)
 	}
 	
-	list(par = xk, value=V_xk , counts=counts, iter = k, 
-		 code=(k >= maxit)*1 + (abs( V_xk ) > tol || sqrt( sum( (xk - xk_1)^2 ) ) > tol)*10 )
+	list(par = xk, value=merit_xk , counts=counts, iter = k, 
+		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
 }
+
 

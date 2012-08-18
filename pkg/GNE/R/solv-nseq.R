@@ -1,4 +1,5 @@
-nseq <- function(xinit, Phi, jacPhi, argfun, argjac, method, control, global="gline", silent=TRUE, ...)	
+nseq <- function(xinit, Phi, jacPhi, argfun, argjac, method, control, 
+	global="gline", silent=TRUE, ...)	
 {
 	method <- match.arg(method, c("Newton", "Broyden", "Levenberg-Marquardt"))
 	global <- match.arg(global, c("dbldog", "pwldog", "qline", "gline", "none"))

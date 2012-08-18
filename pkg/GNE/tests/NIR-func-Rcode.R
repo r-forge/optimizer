@@ -61,14 +61,65 @@ if(sum(abs(resgrgap - grcheck)) > .Machine$double.eps^(2/3))
 	
 	
 fpNIR(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, echo=FALSE, control=list(eps=1e-10))	
-fpNIR(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, echo=FALSE, yinit=runif(2, max=1/2))		
-
-GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach)
+fpNIR(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, echo=FALSE, yinit=runif(2, max=1/2))
 
 
 
+fpNIR(x0, dimx, obj=obj, grobj=grobj, echo=FALSE)		
+fpNIR(x0, dimx, obj=obj, joint=h, echo=FALSE)		
+fpNIR(x0, dimx, obj=obj, echo=FALSE)		
+
+res1 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="pure", merit="FP", control.outer=list(maxiter=10, trace=1))
+res1$inner.counts
+res1$outer.counts
 
 
+res2 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="pure", merit="NI", control.outer=list(maxit=10, echo=2))
+res2$inner.counts
+res2$outer.counts
+
+
+res3 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="UR", merit="FP", control.outer=list(maxit=10), stepfunc=decrstep, argstep=5)
+
+res3 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="UR", merit="FP", control.outer=list(maxit=10, echo=3), stepfunc=decrstep5)
+res3$inner.counts
+res3$outer.counts
+
+res4 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="UR", merit="NI", control.outer=list(maxit=10, echo=3), stepfunc=decrstep5)
+res4$inner.counts
+res4$outer.counts
+
+res5 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="RRE", merit="NI", control.outer=list(maxit=10, echo=3))
+res5$inner.counts
+res5$outer.counts
+
+res5 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="RRE", merit="FP", control.outer=list(maxiter=10, trace=1), order=1)
+res5$inner.counts
+res5$outer.counts
+
+res6 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="MPE", merit="NI", control.outer=list(maxit=10, echo=3))
+res6$inner.counts
+res6$outer.counts
+
+res6 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="MPE", merit="FP", control.outer=list(maxiter=10, trace=1), order=1)
+res6$inner.counts
+res6$outer.counts
+
+res7 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="SqMPE", merit="NI", control.outer=list(maxit=10, echo=3))
+res7$inner.counts
+res7$outer.counts
+
+res7 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="SqMPE", merit="FP", control.outer=list(maxiter=10, trace=1), order=1)
+res7$inner.counts
+res7$outer.counts
+
+res8 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="SqRRE", merit="NI", control.outer=list(maxit=10, echo=3))
+res8$inner.counts
+res8$outer.counts
+
+res8 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="SqRRE", merit="FP", control.outer=list(maxiter=10, trace=1))
+res8$inner.counts
+res8$outer.counts
 
 
 

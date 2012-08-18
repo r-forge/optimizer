@@ -15,7 +15,7 @@ export(gapNIR, gradxgapNIR, gradygapNIR, fpNIR)
 #export(Phi, JacPhi, GNE.nseq.old)
 
 ### aux - step functions
-export(decrstep, decrstep10, decrstep20, decrstep30, purestep)
+export(decrstep, decrstep5, decrstep10, decrstep20, purestep)
 
 ### aux - complementarity functions
 export(compl.par)

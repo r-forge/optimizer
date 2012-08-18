@@ -102,8 +102,8 @@ testargfpNIR <- function(z, dimx,
 		grobj <- NULL
 	if(missing(jacjoint))
 		jacjoint <- NULL
-	if(is.null(jacjoint) && !is.null(grobj))
-		stop("missing jacjoint argument.")
+#	if(is.null(jacjoint) && !is.null(grobj))
+#		stop("missing jacjoint argument.")
 	if(!is.null(jacjoint) && is.null(grobj))
 		stop("missing grobj argument.")
 	
@@ -165,7 +165,7 @@ testargfpNIR <- function(z, dimx,
 					 paste(names(formals(jacjoint)), collapse=","), ".")
 		testfunc(jacjointfinal, z, arg=argjacjoint, echo=echo, errmess=str)				
 	}else
-		jacjoint <- argjacjoint <- NULL
+		jacjointfinal <- argjacjoint <- NULL
 	
 	list(obj=objfinal, argobj=argobj, 
 		 grobj=grobjfinal, arggrobj=arggrobj, 

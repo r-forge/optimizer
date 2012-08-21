@@ -52,6 +52,7 @@ echo $contents; } ?>
 <li>- sequential quadratic programming with box constraints</li>
 <li>- conjugate gradient optimization with box constraints</li>
 <li>- fixed point methods</li>
+<li>- a Levenberg-Marquardt approach to nonlinear least squares</li>
 <li>- large scale equation solving via Barzilai-Borwein Spectral Methods for solving nonlinear system of 
  equations</li>
 <li>- multi-objective optimization for Nash equilibrium</li>
@@ -65,6 +66,17 @@ echo $contents; } ?>
 <li>- a common interface for optimization methods</li>
 </ul> 
  
+
+<h3>Extra documentation</h3>
+
+<p>There is an attempt to build an evolving "handbook" or "cheatsheet" 
+for nonlinear least squares computations for <strong>R</strong>. The 
+source file is of type .Rnw and can be processed with the <strong>knitR</strong>
+tools. This is <a href="file://nlshb.Rnw">nlshb.Rnw</a>, with the latest
+output file uploaded as <a href="file://nlshb.pdf">nlshb.pdf</a>
+
+
+
 
 </body>
 </html>

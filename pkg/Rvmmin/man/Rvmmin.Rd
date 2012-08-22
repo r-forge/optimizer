@@ -35,7 +35,7 @@ the method terminates.
 
    Note that a gradient function MUST be provided. However, there is the
    option of using the routines grfwd(), grback(), grcentral() or grnd()
-   from package optfntools. The last of these calls the grad() function 
+   from package optextras. The last of these calls the grad() function 
    from package numDeriv. These are called by putting the name of the
    numerical gradient function in quotation marks, e.g.,
 
@@ -43,7 +43,7 @@ the method terminates.
 
    to use the standard forward difference numerical approximation.
 
-   The use of numerical gradients for Rcgmin is STRONGLY discouraged.}
+   The use of numerical gradients for Rvmmin is STRONGLY discouraged.}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or
@@ -188,19 +188,11 @@ upper<-NULL
 bdmsk<-NULL
 genrosea<-Rvmmin(xx,genrose.f, genrose.g, gs=10)
 genrosenf<-Rvmmin(xx,genrose.f, gr="grfwd", gs=10) # use local numerical gradient
-genrosenb<-Rvmmin(xx,genrose.f, gr="grback", gs=10) # use local numerical gradient
-genrosenc<-Rvmmin(xx,genrose.f, gr="grcentral", gs=10) # use local numerical gradient
-genrosenn<-Rvmmin(xx,genrose.f, gr="grnd", gs=10) # use numDeriv for gradients
 cat("genrosea uses analytic gradient\n")
 print(genrosea)
 cat("genrosenf uses grfwd standard numerical gradient\n")
 print(genrosenf)
-cat("genrosenb uses grback numerical gradient\n")
-print(genrosenb)
-cat("genrosenc uses grcentral numerical gradient\n")
-print(genrosenc)
-cat("genrosenn uses numDeriv gradient\n")
-print(genrosenn)
+cat("If optextras is loaded, then other numerical gradients can be used.\n")
 
 cat("timings B vs U\n")
 lo<-rep(-100,10)

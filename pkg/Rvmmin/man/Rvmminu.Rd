@@ -22,7 +22,7 @@ See the manual Rvmmin.Rd for details.
 
    Note that a gradient function MUST be provided. However, there is the
    option of using the routines grfwd(), grback(), grcentral() or grnd()
-   from package optfntools. The last of these calls the grad() function 
+   from package optextras. The last of these calls the grad() function 
    from package numDeriv. These are called by putting the name of the
    numerical gradient function in quotation marks, e.g.,
 
@@ -30,7 +30,7 @@ See the manual Rvmmin.Rd for details.
 
    to use the standard forward difference numerical approximation.
 
-   The use of numerical gradients for Rcgmin is STRONGLY discouraged.}
+   The use of numerical gradients for Rvmmin is STRONGLY discouraged.}
  \item{control}{
     An optional list of control settings.
  }

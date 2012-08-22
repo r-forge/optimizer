@@ -23,7 +23,7 @@ of nonlinear functions subject to bounds (box) constraints and masks
 
    Note that a gradient function MUST be provided. However, there is the
    option of using the routines grfwd(), grback(), grcentral() or grnd()
-   from package optfntools. The last of these calls the grad() function 
+   from package . The last of these calls the grad() function 
    from package numDeriv. These are called by putting the name of the
    numerical gradient function in quotation marks, e.g.,
 
@@ -31,7 +31,7 @@ of nonlinear functions subject to bounds (box) constraints and masks
 
    to use the standard forward difference numerical approximation.
 
-   The use of numerical gradients for Rcgmin is STRONGLY discouraged.}
+   The use of numerical gradients for Rvmmin is STRONGLY discouraged.}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or

@@ -1,5 +1,7 @@
 export(
   "Rvmmin",
   "Rvmminb",
-  "Rvmminu"
+  "Rvmminu",
+  "bmchk",
+  "grfwd"
 )

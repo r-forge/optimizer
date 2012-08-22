@@ -347,11 +347,440 @@ the syntax that may make it awkward to "just change the name", but overall
 this is a useful tool. ?? need to put in the example from nls2 and try with
 nlmrt??
 
+\subsection{\code{nls2} examples}
+
+
+
+
+<<nls2x0, echo=TRUE, cache=TRUE>>=
+require(nls2)
+y <- c(44,36,31,39,38,26,37,33,34,48,25,22,44,5,9,13,17,15,21,10,16,22,
+13,20,9,15,14,21,23,23,32,29,20,26,31,4,20,25,24,32,23,33,34,23,28,30,10,29,
+40,10,8,12,13,14,56,47,44,37,27,17,32,31,26,23,31,34,37,32,26,37,28,38,35,27,
+34,35,32,27,22,23,13,28,13,22,45,33,46,37,21,28,38,21,18,21,18,24,18,23,22,
+38,40,52,31,38,15,21)
+
+x <- c(26.22,20.45,128.68,117.24,19.61,295.21,31.83,30.36,13.57,60.47,
+205.30,40.21,7.99,1.18,5.40,13.37,4.51,36.61,7.56,10.30,7.29,9.54,6.93,12.60,
+2.43,18.89,15.03,14.49,28.46,36.03,38.52,45.16,58.27,67.13,92.33,1.17,
+29.52,84.38,87.57,109.08,72.28,66.15,142.27,76.41,105.76,73.47,1.71,305.75,
+325.78,3.71,6.48,19.26,3.69,6.27,1689.67,95.23,13.47,8.60,96.00,436.97,
+472.78,441.01,467.24,1169.11,1309.10,1905.16,135.92,438.25,526.68,88.88,31.43,
+21.22,640.88,14.09,28.91,103.38,178.99,120.76,161.15,137.38,158.31,179.36,
+214.36,187.05,140.92,258.42,85.86,47.70,44.09,18.04,127.84,1694.32,34.27,
+75.19,54.39,79.88,63.84,82.24,88.23,202.66,148.93,641.76,20.45,145.31,
+27.52,30.70)
+@
+
+
+<<nls2x1, echo=TRUE, cache=TRUE>>=
+## Example 1
+## brute force followed by nls optimization
+
+fo <- y ~ Const + B * (x ^ A)
+
+# pass our own set of starting values
+# returning result of brute force search as nls object
+st1 <- expand.grid(Const = seq(-100, 100, len = 4), 
+	B = seq(-100, 100, len = 4), A = seq(-1, 1, len = 4))
+mod1 <- nls2(fo, start = st1, algorithm = "brute-force")
+mod1
+# use nls object mod1 just calculated as starting value for 
+# nls optimization.  Same as: nls(fo, start = coef(mod1))
+nls2(fo, start = mod1) 
+
+<<nls2x2, echo=TRUE, cache=TRUE>>=
+## Example 2
+
+# pass a 2-row data frame and let nls2 calculate grid
+st2 <- data.frame(Const = c(-100, 100), B = c(-100, 100), A = c(-1, 1))
+mod2 <- nls2(fo, start = st2, algorithm = "brute-force")
+mod2
+# use nls object mod1 just calculated as starting value for 
+# nls optimization.  Same as: nls(fo, start = coef(mod2))
+nls2(fo, start = mod2)
+
+<<nls2x3, echo=TRUE, cache=TRUE>>=
+## Example 3
+
+# Create same starting values as in Example 2
+# running an nls optimization from each one and picking best.
+# This one does an nls optimization for every random point
+# generated whereas Example 2 only does a single nls optimization
+nls2(fo, start = st2, control = nls.control(warnOnly = TRUE))
+
+<<nls2x4, echo=TRUE, cache=TRUE>>=
+## Example 4
+
+# Investigate singular gradient.
+# Note that this cannot be done with nls since the singular gradient at
+#  the initial conditions would stop it with an error.
+
+DF1 <- data.frame(y=1:9, one=rep(1,9))
+xx <- nls2(y~(a+2*b)*one, DF1, start = c(a=1, b=1), algorithm = "brute-force")
+svd(xx$m$Rmat())[-2]
+
+<<nls2x5, echo=TRUE, cache=TRUE>>=
+## Example 5
+
+# Use plinear algorithm to reduce a 4 parameter model to a model with 
+# 2 linear and 2 nonlinear parameters
+
+## Fixed spelling error in example that is "don't run"
+## data(Ratkowsky, package = "NISTnls") # Ratkowsky2 data set
+data(Ratkowsky2, package = "NISTnls") # Ratkowsky2 data set
+# fo corresponds to the model on page 13 of Huet et al.
+fo <- y ~ cbind(rep(1, 9), exp(- exp(p3+p4*log(x))))
+st <- data.frame(p3 = c(-100,100), p4 = c(-100, 100))
+## Fixed spelling error in example that is "don't run"
+## rat.nls <- nls2(fo, Ratkwosky2, start = st,
+##	control = nls.control(maxiter = 200), algorithm = "plinear")
+rat.nls <- nls2(fo, Ratkowsky2, start = st,
+	control = nls.control(maxiter = 200), algorithm = "plinear")
+rat.nls
+rat2.nls <- nls2(fo, Ratkowsky2, start = rat.nls, algorithm = "plinear")
+rat2.nls
+@
+
+
+
+
+
+\subsection{\code{as.lm.nls}}
+
+<<aslmnls01, echo=TRUE, cache=TRUE>>=
+# data is from ?nls
+DNase1 <- subset(DNase, Run == 1)
+fm1DNase1 <- nls(density ~ SSlogis(log(conc), Asym, xmid, scal), DNase1)
+
+# these give same result
+vcov(fm1DNase1)
+## NOTE: had to change as.lm to as.lm.nls 
+vcov(as.lm.nls(fm1DNase1))
+
+# nls confidence and prediction intervals based on asymptotic approximation
+# are same as as.lm confidence intervals.
+## NOTE: had to change as.lm to as.lm.nls 
+predict(as.lm.nls(fm1DNase1), interval = "confidence")
+## NOTE: had to change as.lm to as.lm.nls 
+predict(as.lm.nls(fm1DNase1), interval = "prediction")
+@
 
 
 
 \section{nlmrt}
 
+\subsection{Problems using a model formula -- \code{nlxb()}}
+
+<<nlmrt00, echo=TRUE, cache=TRUE>>=
+rm(list=ls())
+library(nlmrt)
+# traceval set TRUE to debug or give full history
+traceval  <-  FALSE
+# Data for Hobbs problem
+ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+y  <-  ydat  # for testing
+tdat  <-  seq_along(ydat) # for testing
+# WARNING -- using T can get confusion with TRUE
+tt  <-  tdat
+# A simple starting vector -- must have named parameters for nlxb, nls, wrapnls.
+start1  <-  c(b1=1, b2=1, b3=1)
+startf1  <-  c(b1=1, b2=1, b3=.1)
+eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
+# set up data in data frames
+weeddata1  <-  data.frame(y=ydat, tt=tdat)
+weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
+@
+
+\pkg{nlmrt} is not intended to be used with global data i.e., data in the
+environment in which the user is working. (??should this be changed??) So
+the calls here should fail.
+
+<<nlmrt01, echo=TRUE, cache=TRUE>>=
+cat("GLOBAL DATA -- nls -- SHOULD WORK\n")
+anls1g  <-  try(nls(eunsc, start=start1, trace=traceval))
+print(anls1g)
+cat("GLOBAL DATA -- nlxb -- SHOULD FAIL\n")
+anlxb1g  <-  try(nlxb(eunsc, start=start1, trace=traceval))
+print(anlxb1g)
+rm(y)
+rm(tt)
+@
+
+<<nlmrt02, echo=TRUE, cache=TRUE>>=
+cat("LOCAL DATA IN DATA FRAMES\n")
+anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
+print(anlxb1)
+anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
+print(anlxb2)
+@
+
+<<nlmrt03, echo=TRUE, cache=TRUE>>=
+## With BOUNDS
+anlxb1  <-  try(nlxb(eunsc, start=startf1, lower=c(b1=0, b2=0, b3=0), 
+      upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1))
+print(anlxb1)
+# Check nls too
+anlsb1  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
+     upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1, algorithm='port'))
+print(anlsb1)
+cat("Another case -- hard upper bound\n")
+anlxb2  <-  try(nlxb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), upper=c(b1=500, b2=100, b3=.25), trace=traceval, data=weeddata1))
+print(anlxb2)
+anlsb2  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), upper=c(b1=500, b2=100, b3=.25), trace=traceval, data=weeddata1, algorithm='port'))
+print(anlsb2)
+@
+
+
+<<nlmrt04, echo=TRUE, cache=TRUE>>=
+cat("TEST MASKS\n")
+anlsmnqm  <-  try(nlxb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
+   upper=c(b1=500, b2=100, b3=5), masked=c("b2"), trace=traceval, data=weeddata1))
+print(anlsmnqm)
+
+cat("UNCONSTRAINED\n")
+an1q  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
+print(an1q)
+
+cat("MASKED\n")
+an1qm3  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, masked=c("b3")))
+print(an1qm3)
+
+# Note that the parameters are put in out of order to test code.
+an1qm123  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, masked=c("b2","b1","b3")))
+print(an1qm123)
+@
+
+
+<<nlmrt05, echo=TRUE, cache=TRUE>>=
+cat("BOUNDS")
+start2  <-  c(b1=100, b2=10, b3=0.1)
+an1qb1  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, lower=c(0,0,0), upper=c(200, 60, .3)))
+print(an1qb1)
+
+cat("BOUNDS and MASK")
+an1qbm2  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, lower=c(0,0,0), upper=c(200, 60, .3), masked=c("b2")))
+print(an1qbm2)
+@
+
+<<nlmrt06, echo=TRUE, cache=TRUE>>=
+
+cat("Try with scaled model\n")
+escal  <-   y ~ 100*b1/(1+10*b2*exp(-0.1*b3*tt))
+suneasy  <-  c(b1=200, b2=50, b3=0.3)
+ssceasy  <-  c(b1=2, b2=5, b3=3)
+st1scal  <-  c(b1=100, b2=10, b3=0.1)
+
+
+cat("EASY start -- unscaled")
+anls01  <-  try(nls(eunsc, start=suneasy, trace=traceval, data=weeddata1))
+print(anls01)
+anlmrt01  <-  try(nlxb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
+print(anlmrt01)
+
+cat("All 1s start -- unscaled")
+anls02  <-  try(nls(eunsc, start=start1, trace=traceval, data=weeddata1))
+if (class(anls02) == "try-error") {
+   cat("FAILED:")
+   print(anls02)
+} else {
+   print(anls02)
+}
+anlmrt02  <-  nlxb(eunsc, start=start1, trace=traceval, data=weeddata1)
+print(anlmrt02)
+
+cat("ones start -- scaled")
+anls03  <-  try(nls(escal, start=start1, trace=traceval, data=weeddata1))
+print(anls03)
+anlmrt03  <-  nlxb(escal, start=start1, trace=traceval, data=weeddata1)
+print(anlmrt03)
+
+cat("HARD start -- scaled")
+anls04  <-  try(nls(escal, start=st1scal, trace=traceval, data=weeddata1))
+print(anls04)
+anlmrt04  <-  nlxb(escal, start=st1scal, trace=traceval, data=weeddata1)
+print(anlmrt04)
+
+cat("EASY start -- scaled")
+anls05  <-  try(nls(escal, start=ssceasy, trace=traceval, data=weeddata1))
+print(anls05)
+anlmrt05  <-  nlxb(escal, start=ssceasy, trace=traceval, data=weeddata1)
+print(anlmrt03)
+@
+
+\subsection{Problems using an objective or residual function -- \code{nlfb()}}
+
+<<nlmrtf01, echo=TRUE, cache=TRUE>>=
+shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
+# This variant uses looping
+    if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
+    y  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
+         75.995, 91.972)
+    tt  <-  1:12
+    res  <-  100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*tt)) - y
+}
+
+shobbs.jac  <-  function(x) { # scaled Hobbs weeds problem -- Jacobian
+    jj  <-  matrix(0.0, 12, 3)
+    tt  <-  1:12
+    yy  <-  exp(-0.1*x[3]*tt)
+    zz  <-  100.0/(1+10.*x[2]*yy)
+    jj[tt,1]   <-   zz
+    jj[tt,2]   <-   -0.1*x[1]*zz*zz*yy
+    jj[tt,3]   <-   0.01*x[1]*zz*zz*yy*x[2]*tt
+    return(jj)
+}
+
+cat("try nlfb\n")
+st  <-  c(b1=1, b2=1, b3=1)
+low  <-  -Inf
+up <- Inf
+
+ans1 <- nlfb(st, shobbs.res, shobbs.jac, trace=traceval)
+ans1
+cat("No jacobian function -- use internal approximation\n")
+ans1n <- nlfb(st, shobbs.res, trace=TRUE, control=list(watch=TRUE)) # NO jacfn
+ans1n
+
+# tmp <- readline("Try with bounds at 2")
+time2 <- system.time(ans2 <- nlfb(st, shobbs.res, shobbs.jac, upper=c(2,2,2), trace=traceval))
+ans2
+time2
+@
+
+<<nlmrtf02, echo=TRUE, cache=TRUE>>=
+cat("BOUNDS")
+st2s <- c(b1=1, b2=1, b3=1)
+an1qb1 <- try(nlxb(escal, start=st2s, trace=traceval, data=weeddata1, 
+  lower=c(0,0,0), upper=c(2, 6, 3), control=list(watch=FALSE)))
+print(an1qb1)
+tmp <- readline("next")
+ans2 <- nlfb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
+   trace=traceval, control=list(watch=FALSE))
+print(ans2)
+
+cat("BUT ... nls() seems to do better from the TRACE information\n")
+anlsb <- nls(escal, start=st2s, trace=traceval, data=weeddata1, lower=c(0,0,0),
+     upper=c(2,6,3), algorithm='port')
+cat("However, let us check the answer\n")
+print(anlsb)
+cat("BUT...crossprod(resid(anlsb))=",crossprod(resid(anlsb)),"\n")
+@
+
+<<nlmrtf03, echo=TRUE, cache=TRUE>>=
+cat("Try wrapnls\n")
+traceval <- FALSE
+# Data for Hobbs problem
+ydat <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+tdat <- seq_along(ydat) # for testing
+start1 <- c(b1=1, b2=1, b3=1)
+escal <-  y ~ 100*b1/(1+10*b2*exp(-0.1*b3*tt))
+up1 <- c(2,6,3)
+up2 <- c(1, 5, 9)
+## weeddata1 <- data.frame(y=ydat, tt=tdat)
+an1w <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1))
+print(an1w)
+
+cat("BOUNDED wrapnls\n")
+an1wb <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up1))
+print(an1wb)
+
+cat("BOUNDED wrapnls\n")
+an2wb <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up2))
+print(an2wb)
+
+cat("TRY MASKS ONLY\n")
+an1xm3 <- try(nlxb(escal, start1, trace=traceval, data=weeddata1, masked=c("b3")))
+print(an1xm3)
+an1fm3 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, data=weeddata1, maskidx=c(3)))
+print(an1fm3)
+
+an1xm1 <- try(nlxb(escal, start1, trace=traceval, data=weeddata1, masked=c("b1")))
+print(an1xm1)
+an1fm1 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, data=weeddata1, maskidx=c(1)))
+print(an1fm1)
+
+# Need to check when all parameters masked.??
+@
+
+\subsection{Transforming a model formula to objective function form}
+
+<<nlmrtk01, echo=TRUE, cache=TRUE>>=
+
+cat("\n\n Now check conversion of expression to function\n\n")
+cat("K Vandepoel function\n")
+
+x <- c(1,3,5,7) # data
+y <- c(37.98,11.68,3.65,3.93)
+penetrationks28 <- data.frame(x=x,y=y)
+
+cat("Try nls() -- note the try() function!\n")
+
+fit0  <-  try(nls(y ~ (a+b*exp(1)^(-c * x)), data = penetrationks28, 
+    start = c(a=0,b = 1,c=1), trace = TRUE))
+print(fit0)
+
+cat("\n\n")
+
+
+fit1  <-  nlxb(y ~ (a+b*exp(-c*x)), data = penetrationks28, 
+   start = c(a=0,b=1,c=1), trace = TRUE) 
+print(fit1)
+
+mexprn <- "y ~ (a+b*exp(-c*x))"
+pvec <- c(a=0,b=1,c=1)
+bnew <- c(a=10,b=3,c=4)
+
+k.r <- model2resfun(mexprn , pvec)
+k.j <- model2jacfun(mexprn , pvec)
+k.f <- model2ssfun(mexprn , pvec)
+k.g <- model2grfun(mexprn , pvec)
+
+
+cat("At pvec:")
+print(pvec)
+rp <- k.r(pvec, x=x, y=y)
+cat(" rp=")
+print(rp)
+rf <- k.f(pvec, x=x, y=y)
+cat(" rf=")
+print(rf)
+rj <- k.j(pvec, x=x, y=y)
+cat(" rj=")
+print(rj)
+rg <- k.g(pvec, x=x, y=y)
+cat(" rg=")
+print(rg)
+cat("modss at pvec gives ")
+print(modss(pvec, k.r, x=x, y=y))
+cat("modgr at pvec gives ")
+print(modgr(pvec, k.r, k.j, x=x, y=y))
+cat("\n\n")
+
+
+
+cat("At bnew:")
+print(bnew)
+rb <- k.r(bnew, x=x, y=y)
+cat(" rb=")
+print(rb)
+rf <- k.f(bnew, x=x, y=y)
+cat(" rf=")
+print(rf)
+rj <- k.j(bnew, x=x, y=y)
+cat(" rj=")
+print(rj)
+rg <- k.g(bnew, x=x, y=y)
+cat(" rg=")
+print(rg)
+cat("modss at bnew gives ")
+print(modss(bnew, k.r, x=x, y=y))
+cat("modgr at bnew gives ")
+print(modgr(bnew, k.r, k.j, x=x, y=y))
+cat("\n\n")
+@
 
 \subsection{nlmrt TODOS}
 
@@ -365,12 +794,6 @@ nlmrt??
 
   guessed starting values
 
-
-\subsection{Problems using a model formula -- \code{nlxb()}}
-
-\subsection{Transforming a model formula to objective function form}
-
-\subsection{Problems using an objective or residual function -- \code{nlfb()}}
 
 
 \section{minpack.lm}
@@ -404,9 +827,196 @@ print(strwrap(anlslmh))
 
 ?? include minpack.lm failure example and explain why things go wrong
 
+\subsection{Examples \code{nls.lm}}
+
+
+<<nls.lm01, echo=TRUE, cache=TRUE>>=
+###### example 1
+
+## values over which to simulate data 
+x <- seq(0,5,length=100)
+
+## model based on a list of parameters 
+getPred <- function(parS, xx) parS$a * exp(xx * parS$b) + parS$c 
+
+## parameter values used to simulate data
+pp <- list(a=9,b=-1, c=6) 
+
+## simulated data, with noise  
+simDNoisy <- getPred(pp,x) + rnorm(length(x),sd=.1)
+ 
+## plot data
+plot(x,simDNoisy, main="data")
+
+## residual function 
+residFun <- function(p, observed, xx) observed - getPred(p,xx)
+
+## starting values for parameters  
+parStart <- list(a=3,b=-.001, c=1)
+
+## perform fit 
+nls.out <- nls.lm(par=parStart, fn = residFun, observed = simDNoisy,
+xx = x, control = nls.lm.control(nprint=1))
+
+## plot model evaluated at final parameter estimates  
+lines(x,getPred(as.list(coef(nls.out)), x), col=2, lwd=2)
+
+## summary information on parameter estimates
+summary(nls.out) 
+
+###### example 2 
+
+## function to simulate data 
+f <- function(TT, tau, N0, a, f0) {
+    expr <- expression(N0*exp(-TT/tau)*(1 + a*cos(f0*TT)))
+    eval(expr)
+}
+
+## helper function for an analytical gradient 
+j <- function(TT, tau, N0, a, f0) {
+    expr <- expression(N0*exp(-TT/tau)*(1 + a*cos(f0*TT)))
+    c(eval(D(expr, "tau")), eval(D(expr, "N0" )),
+      eval(D(expr, "a"  )), eval(D(expr, "f0" )))
+}
+
+## values over which to simulate data 
+TT <- seq(0, 8, length=501)
+
+## parameter values underlying simulated data  
+p <- c(tau = 2.2, N0 = 1000, a = 0.25, f0 = 8)
+
+## get data 
+Ndet <- do.call("f", c(list(TT = TT), as.list(p)))
+## with noise
+N <- Ndet +  rnorm(length(Ndet), mean=Ndet, sd=.01*max(Ndet))
+
+## plot the data to fit
+par(mfrow=c(2,1), mar = c(3,5,2,1))  
+plot(TT, N, bg = "black", cex = 0.5, main="data")
+
+## define a residual function 
+fcn     <- function(p, TT, N, fcall, jcall)
+    (N - do.call("fcall", c(list(TT = TT), as.list(p))))
+
+## define analytical expression for the gradient 
+fcn.jac <- function(p, TT, N, fcall, jcall) 
+    -do.call("jcall", c(list(TT = TT), as.list(p)))
+
+## starting values 
+guess <- c(tau = 2.2, N0 = 1500, a = 0.25, f0 = 10)
+
+## to use an analytical expression for the gradient found in fcn.jac
+## uncomment jac = fcn.jac
+out <- nls.lm(par = guess, fn = fcn, jac = fcn.jac,
+              fcall = f, jcall = j,
+              TT = TT, N = N, control = nls.lm.control(nprint=1))
+
+## get the fitted values 
+N1 <- do.call("f", c(list(TT = TT), out$par))   
+
+## add a blue line representing the fitting values to the plot of data 
+lines(TT, N1, col="blue", lwd=2)
+
+## add a plot of the log residual sum of squares as it is made to
+## decrease each iteration; note that the RSS at the starting parameter
+## values is also stored
+plot(1:(out$niter+1), log(out$rsstrace), type="b",
+main="log residual sum of squares vs. iteration number",
+xlab="iteration", ylab="log residual sum of squares", pch=21,bg=2) 
+
+## get information regarding standard errors
+summary(out) 
+@
+
+\subsection{Examples for \code{nlsLM}}
+
+<<nlsLM11, echo=TRUE, cache=TRUE>>=
+### Examples from 'nls' doc ###
+DNase1 <- subset(DNase, Run == 1)
+## using a selfStart model
+fm1DNase1 <- nlsLM(density ~ SSlogis(log(conc), Asym, xmid, scal), DNase1)
+## using logistic formula
+fm2DNase1 <- nlsLM(density ~ Asym/(1 + exp((xmid - log(conc))/scal)),
+                 data = DNase1, 
+                 start = list(Asym = 3, xmid = 0, scal = 1))
+
+## all generics are applicable
+coef(fm1DNase1)
+confint(fm1DNase1)
+deviance(fm1DNase1)
+df.residual(fm1DNase1)
+fitted(fm1DNase1)
+formula(fm1DNase1)
+logLik(fm1DNase1)
+predict(fm1DNase1)
+print(fm1DNase1)
+profile(fm1DNase1)
+residuals(fm1DNase1)
+summary(fm1DNase1)
+update(fm1DNase1)
+vcov(fm1DNase1)
+weights(fm1DNase1)
+
+## weighted nonlinear regression using 
+## inverse squared variance of the response
+## gives same results as original 'nls' function
+Treated <- Puromycin[Puromycin$state == "treated", ]
+var.Treated <- tapply(Treated$rate, Treated$conc, var)
+var.Treated <- rep(var.Treated, each = 2)
+Pur.wt1 <- nls(rate ~ (Vm * conc)/(K + conc), data = Treated, 
+               start = list(Vm = 200, K = 0.1), weights = 1/var.Treated^2)
+Pur.wt2 <- nlsLM(rate ~ (Vm * conc)/(K + conc), data = Treated, 
+               start = list(Vm = 200, K = 0.1), weights = 1/var.Treated^2)
+all.equal(coef(Pur.wt1), coef(Pur.wt2))
+
+## 'nlsLM' can fit zero-noise data
+## in contrast to 'nls'
+x <- 1:10
+y <- 2*x + 3
+
+try(nls(y ~ a + b * x, start = list(a = 0.12345, b = 0.54321)))
+
+nlsLM(y ~ a + b * x, start = list(a = 0.12345, b = 0.54321))
+
+### Examples from 'nls.lm' doc
+## values over which to simulate data 
+x <- seq(0,5, length = 100)
+## model based on a list of parameters 
+getPred <- function(parS, xx) parS$a * exp(xx * parS$b) + parS$c 
+## parameter values used to simulate data
+pp <- list(a = 9,b = -1, c = 6) 
+## simulated data with noise  
+simDNoisy <- getPred(pp, x) + rnorm(length(x), sd = .1)
+## make model
+mod <- nlsLM(simDNoisy ~ a * exp(b * x) + c, 
+             start = c(a = 3, b = -0.001, c = 1), 
+             trace = TRUE)     
+## plot data
+plot(x, simDNoisy, main = "data")
+## plot fitted values
+lines(x, fitted(mod), col = 2, lwd = 2)
+
+## create declining cosine
+## with noise
+TT <- seq(0, 8, length = 501)
+tau <- 2.2
+N0 <- 1000
+a <- 0.25
+f0 <- 8
+Ndet <- N0 * exp(-TT/tau) * (1 + a * cos(f0 * TT))
+N <- Ndet +  rnorm(length(Ndet), mean = Ndet, sd = .01 * max(Ndet))
+## make model
+mod <- nlsLM(N ~ N0 * exp(-TT/tau) * (1 + a * cos(f0 * TT)), 
+             start = c(tau = 2.2, N0 = 1500, a = 0.25, f0 = 10), 
+             trace = TRUE)  
+
+## plot data
+plot(TT, N, main = "data")
+## plot fitted values
+lines(TT, fitted(mod), col = 2, lwd = 2)
+@
 
 \section{nls2 - INRIA}
-
 
 There are some other tools for \R that aim to solve nonlinear least 
 squares problems. We have not yet been able to successfully use the INRA package 

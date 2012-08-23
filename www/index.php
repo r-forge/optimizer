@@ -74,8 +74,8 @@ for nonlinear least squares computations for <strong>R</strong>. The
 source file is of type .Rnw and can be processed with the <strong>knitR</strong>
 tools. This is <a href="file://nlshb.Rnw">nlshb.Rnw</a>, with the latest
 output file uploaded as <a href="file://nlshb.pdf">nlshb.pdf</a>
-
-
+Note: If the Rnw file does not download, try the following link:
+<a href="file://nlshb.rnw">nlshb.rnw</a>
 
 
 </body>

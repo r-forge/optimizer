@@ -72,10 +72,10 @@ echo $contents; } ?>
 <p>There is an attempt to build an evolving "handbook" or "cheatsheet" 
 for nonlinear least squares computations for <strong>R</strong>. The 
 source file is of type .Rnw and can be processed with the <strong>knitR</strong>
-tools. This is <a href="file://nlshb.Rnw">nlshb.Rnw</a>, with the latest
-output file uploaded as <a href="file://nlshb.pdf">nlshb.pdf</a>
+tools. This is <a href="http://optimizer.r-forge.r-project.org/nlshb.Rnw">nlshb.Rnw</a>, with the latest
+output file uploaded as <a href="http://optimizer.r-forge.r-project.org/nlshb.pdf">nlshb.pdf</a>
 Note: If the Rnw file does not download, try the following link:
-<a href="file://nlshb.rnw">nlshb.rnw</a>
+<a href="http://optimizer.r-forge.r-project.org//nlshb.rnw">nlshb.rnw</a>
 
 
 </body>

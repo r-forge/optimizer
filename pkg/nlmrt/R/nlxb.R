@@ -106,12 +106,12 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
     pnum <- start  # may simplify later??
     pnames <- names(pnum)
     bdmsk <- rep(1, npar)  # set all params free for now
-    mskdx <- which(pnames %in% masked)  # NOTE: %in% not == or order gives trouble
-    if (length(mskdx) > 0 && trace) {
+    maskidx <- which(pnames %in% masked)  # NOTE: %in% not == or order gives trouble
+    if (length(maskidx) > 0 && trace) {
         cat("The following parameters are masked:")
-        print(pnames[mskdx])
+        print(pnames[maskidx])
     }
-    bdmsk[mskdx] <- 0  # fixed parameters
+    bdmsk[maskidx] <- 0  # fixed parameters
     if (trace) {
         parpos <- match(pnames, vn)
         datvar <- vn[-parpos]  # NOT the parameters
@@ -152,7 +152,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
         if (watch) 
             tmp <- readline("Continue")
     }
-    if (length(mskdx) == npar) 
+    if (length(maskidx) == npar) 
         stop("All parameters are masked")  # Should we return?
     ssquares <- .Machine$double.xmax  # make it big
     newjac <- TRUE  # set control for computing Jacobian
@@ -162,7 +162,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
         if (newjac) 
             {
                 bdmsk <- rep(1, npar)
-                bdmsk[mskdx] <- 0
+                bdmsk[maskidx] <- 0
                 bdmsk[which(pnum - lower < epstol * (abs(lower) + 
                   epstol))] <- -3
                 bdmsk[which(upper - pnum < epstol * (abs(upper) + 
@@ -236,7 +236,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
                   eqcount <- npar  # force stop on big lamda
             } else {
                 # downhill
-                delta[mskdx] <- 0
+                delta[maskidx] <- 0
                 delta <- as.numeric(delta)
                 if (trace && watch) {
                   cat("delta:")
@@ -317,6 +317,9 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
             tmp <- readline("Cycle")
     }  # end main while loop
     pnum <- as.vector(pnum)
+    names(pnum) <- pnames
     result <- list(resid = resbest, jacobian = Jac, feval = feval, 
-        jeval = jeval, coeffs = pnum, ssquares = ssbest)
+        jeval = jeval, coeffs = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
+    class(result) <- "nlmrt"
+    result
 }

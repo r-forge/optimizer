@@ -1,13 +1,17 @@
 To do
 
-   o    summary() for output from different functions.
-        Should display constraints if possible as per JNMWS codes.
-
-   o    Sort out display in vignette
-
    o    Origin of NaN's in bounded examples. Can they be avoided?
 
    o    Weighted least squares, especially in nlxb.
+
+Changes in nlmrt version 2012-9.03
+
+   o    summary() for output from different functions.
+        Should display constraints if possible as per JNMWS codes.
+        Warnings / Notes fixed re: dependencies in vignette, methods.
+
+   o    Sort out display in vignette
+        Note warning "unstated dependencies in vignette"
 
 Changes in nlmrt version 2012-8.12
 

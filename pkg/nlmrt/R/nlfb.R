@@ -42,7 +42,7 @@ showprms<-function(SS, pnum){
 # ensure params in vector
 pnames<-names(start)
 start<-as.numeric(start)
-names(start)<-pnames
+names(start)<-pnames # ?? needed
 # bounds
 npar<-length(start) # number of parameters
 if (length(lower)==1) lower<-rep(lower,npar)
@@ -263,8 +263,10 @@ if (trace) {
         if (watch) tmp<-readline("Cycle")
      } # end main while loop 
     pnum<-as.vector(pnum)
-    result<-list(resid=resbest, jacobian=Jac, feval=feval, jeval=jeval, 
-            coeffs=pnum, ssquares=ssbest)
+    names(pnum) <- pnames
+    result <- list(resid = resbest, jacobian = Jac, feval = feval, 
+        jeval = jeval, coeffs = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
+    class(result) <- "nlmrt"
+    result
 }
-
 

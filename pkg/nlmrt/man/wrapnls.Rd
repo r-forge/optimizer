@@ -69,7 +69,7 @@ John C Nash <nashjc@uottawa.ca>
 \examples{
 cat("See examples in nlmrt-package.Rd\n")
 cat("kvanderpoel.R test\n")
-require(nlmrt)
+# require(nlmrt)
 x<-c(1,3,5,7)
 y<-c(37.98,11.68,3.65,3.93)
 pks28<-data.frame(x=x,y=y)

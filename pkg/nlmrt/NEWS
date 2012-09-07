@@ -6,6 +6,10 @@ To do
 
 Changes in nlmrt version 2012-9.03
 
+   o    More features in summary().
+
+Changes in nlmrt version 2012-9.03
+
    o    summary() for output from different functions.
         Should display constraints if possible as per JNMWS codes.
         Warnings / Notes fixed re: dependencies in vignette, methods.

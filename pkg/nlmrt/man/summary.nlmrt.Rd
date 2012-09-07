@@ -29,8 +29,8 @@
     for columns where a parameter is masked or at (or very close to) a bound. See the \code{R}
     code for the determination of whether we are at a bound.
 
-    ?? what should be done -- get Hessian or jacobian from numDeriv, and give all three versions
-    possibly in an extended "summary".
+    There is a script \code{seboundsnlmrtx.R} that computes the \code{nls()} standard
+    errors for comparison on a simple problem. 
 
 }
 \value{
@@ -42,7 +42,6 @@ John C Nash <nashjc@uottawa.ca>
 \note{
    Special notes, if any, will appear here.
 }
-
 \seealso{
     Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
 }

@@ -12,6 +12,11 @@ funSSR <- function(z, dimx, dimlam,
 	grjoint, arggrjoint,
 	echo=FALSE)
 {
+#	cat("funSSR\n")
+#	print(z)
+#	print(dimx)
+#	print(dimlam)
+	
 	arg <- testargfunSSR(z, dimx, dimlam, grobj, arggrobj, constr, argconstr,  grconstr, arggrconstr, 
 				  compl, argcompl, dimmu, joint, argjoint, grjoint, arggrjoint, echo)
 

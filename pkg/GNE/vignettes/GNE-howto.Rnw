@@ -683,11 +683,83 @@ GNE.ceq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg,
 \section{GNEP as a fixed point equation}
 %________________________________________________________________________
 
+We present a last reformulation of the GNEP, which was originally introduced in the context of standard Nash equilibrium problem. 
+We define the Nikaido-Isoda function as the function $\psi$ from $\R^{2n}$ to  $\R$ by
+\begin{equation}
+\psi(x, y) = \sum_{\nu = 1}^N [ \theta(x_\nu, x_{-\nu}) -  \theta(y_\nu, x_{-\nu}) ].
+\label{eq:NIF}
+\end{equation}
+This function represents the unilateral player  improvement of the objective function between actions $x$ and $y$. 
+Let $\hat V$ be the gap function 
+$$
+\hat V(x) = \underset{ y \in X(x) }{\sup}~ \psi(x,y).
+$$
+Theorem 3.2 of \cite{facchkanz09b} shows the relation between GNEPs and the Nikaido-Isoda function. 
+If objective functions $\theta_i$ are continuous, then  $x^\star$ solves the GNEP if and only if $x^\star$ solves the equation 
+\begin{equation}
+\hat V(x) = 0
+\txtm{and} 
+x \in X(x),
+\label{eq:NIF:general}
+\end{equation}
+where the set $X(x) = \{y \in \R^n, \forall i, g^i(y_i, x_{-i}) \leq 0 \}$ and $\hat V$ defined in (\ref{eq:NIF}). Furthermore, the function $\hat V$ is such that $\forall x \in X(x), \hat V(x) \geq 0$.
+There is no particular algorithm able to solve this problem for a general constrained set $X(x)$. But a simplification will occur in a special case.
+
+
+
+\subsection{The jointly convex case}
+
+In this subsection, we present reformulations for a subclass of GNEP called jointly convex case. 
+Firstly, the jointly convex setting requires that the constraint function is common to all players $g^1=\dots =g^N= g$.
+Then, we assume, there exists a closed convex subset $X \subset \R^n$ such that for all player $i$, 
+$$
+\{y_i \in \R^{n_i},  g(y_i, x_{-i}) \leq 0 \} 
+=
+\{y_i \in \R^{n_i},  (y_i, x_{-i}) \in X \} .  
+$$ 
+The convexity of $X$ implies that the constraint function $g$ is  quasiconvex with respect to all variables.
+However, we generally assume that $g$ is convex with respect to all variables.
+
+
+%**************
+\subsubsection{NIF formulation for the jointly convex case}
+
+
+
+Recalling that for the Nikaido-Isoda function (\ref{eq:NIF}), the gap function is
+$$
+\hat V(x) = \underset{ y \in X(x) }{\sup}~ \psi(x,y).
+$$
+In the jointly convex case, we get
+\begin{equation}
+\hat V(x) = 0
+\txtm{and} 
+x \in X(x),
+\label{eq:NIF:joint}
+\end{equation}
+where the set $X(x) = \{y \in \R^n, g(y_i, x_{-i}) \leq 0 \}$. Still the computation of $\hat V$ is a complex optimization over a constrained set $X(x)$.
+As in the previous subsection, the class of GNE called variational equilibrium can be characterized by the NI formulation.  We have the folllowing theorem.
+
+
+Assuming $\theta_i$ and $g$ are C\expo{1} functions and $g$ is convex and $\theta_i$ player-convex. $x^\star$ is a variational equilibrium if and only if $x^\star \in X$ and $V(x^\star)=0$ with $V$ defined as
+$$
+V(x) = \underset{ y \in X }{\sup}~ \psi(x,y).
+$$
+
+
+
+
+
+
 
 
 %________________________________________________________________________
 \section{GNEP as a gap minimization problem}
 %________________________________________________________________________
+
+
+
+
 
 
 %________________________________________________________________________

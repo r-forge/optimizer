@@ -7,6 +7,8 @@ S3method(summary, GNE)
 S3method(print, summary.GNE)
 #export(bench.GNE.nseq, bench.GNE.nseq.LM)
 
+export(SE.nseq)
+
 ### template functions
 export(funSSR, jacSSR)
 export(funCER, jacCER)

@@ -1,5 +1,6 @@
 require(GNE)
 
+
 try(funSSR("x"))
 
 try(funSSR(rep(1, 2) , 1, grobj=function(x) x))

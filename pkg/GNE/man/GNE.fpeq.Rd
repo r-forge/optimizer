@@ -19,6 +19,8 @@ GNE.fpeq(init, dimx, obj, argobj, grobj, arggrobj,
   \item{argobj}{a list of additional arguments.}
   \item{grobj}{gradient of the objective function, see details.}
   \item{arggrobj}{a list of additional arguments of the objective gradient.}
+  \item{heobj}{Hessian of the objective function, see details.}
+  \item{argheobj}{a list of additional arguments of the objective Hessian.}
 
   \item{joint}{joint function, see details.}
   \item{argjoint}{a list of additional arguments of the joint function.}
@@ -31,10 +33,12 @@ GNE.fpeq(init, dimx, obj, argobj, grobj, arggrobj,
 
   \item{problem}{either \code{"NIR"}, \code{"VIP"}, see details.}
   \item{merit}{either \code{"NI"}, \code{"VI"}, \code{"FP"}, see details.}
-	
+  \item{order}{the order of the extrapolation method.}
 	
   \item{control.outer}{a list with control parameters for the fixed point algorithm.}
   \item{control.inner}{a list with control parameters for the fixed point function.}  
+  \item{silent}{a logical to show some traces.}
+  \item{param}{a list of parameters for the computation of the fixed point function.}
   
   \item{stepfunc}{the step function, only needed when \code{method="UR"}.}
   \item{argstep}{additional arguments for the step function.}

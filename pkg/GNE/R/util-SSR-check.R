@@ -7,9 +7,9 @@ funSSRcheck <- function(z, dimx, dimlam,
 	grobj, arggrobj, 
 	constr, argconstr,  
 	grconstr, arggrconstr, 
+	compl, argcompl, 
 	dimmu, joint, argjoint,
 	grjoint, arggrjoint,
-	compl, argcompl,
 	echo=FALSE)
 {
 	arg <- testargfunSSR(z, dimx, dimlam, grobj, arggrobj, constr, argconstr,  grconstr, arggrconstr, 

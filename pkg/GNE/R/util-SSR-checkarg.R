@@ -47,10 +47,12 @@ testargfunSSR <- function(z, dimx, dimlam,
 	if(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
 		stop("SSR: incompatible dimension for dimlam, dimx, dimmu.")		
 	
+	if(missing(compl))
+		stop("missing compl argument.")
 	if(!is.function(compl))
 		stop("argument compl must be a function.")
 	
-#objective gradient
+	#objective gradient
 	if(!missing(arggrobj) && !is.null(arggrobj))
 		grobjfinal <- grobj
 	else
@@ -63,7 +65,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 	testfunc(grobjfinal, z, arg=arggrobj, echo=echo, errmess=str)
 	
 	
-#constraint	
+	#constraint	
 	if(!is.null(constr))
 	{
 		if(!missing(argconstr) && !is.null(argconstr))
@@ -96,8 +98,11 @@ testargfunSSR <- function(z, dimx, dimlam,
 	#complementarity function
 	if(!missing(argcompl) && !is.null(argcompl))
 	{
+		if(!is.list(argcompl))
+			argcompl <- list(argcompl)
 		complfinal <- function(a, b, argcompl)
-		evalwitharglist(compl, a, c(list(b), argcompl))
+			evalwitharglist(compl, a, c(list(b), argcompl))
+		
 	}else
 	{
 		complfinal <- function(a, b, argcompl) compl(a, b)
@@ -105,7 +110,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 	}
 	str <- paste("the call to complfinal(1, 1, argcompl) does not work.", "arguments are", 
 				 paste(names(formals(compl)), collapse=","), ".")
-	testfunc(complfinal, z, arg=argcompl, echo=echo, errmess=str)
+	testfunc(complfinal, z, arg=argcompl, echo=echo, errmess=str, tobelisted=length(argcompl)==0)
 	
 	
 	#joint constraint function
@@ -194,6 +199,8 @@ testargjacSSR <- function(z, dimx, dimlam,
 	if(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
 		stop("incompatible dimension for dimlam, dimx, dimmu.")		
 	
+	if(missing(gcompla) || missing(gcomplb))
+		stop("missing gcompla or gcomplb.")
 	if(!is.function(gcompla))
 		stop("argument gcompla must be a function.")
 	if(!is.function(gcomplb))
@@ -271,8 +278,8 @@ testargjacSSR <- function(z, dimx, dimlam,
 	}
 	str <- paste("the call to gcompla(1, 1, argcompl) does not work.", "arguments are", 
 				 paste(names(formals(gcompla)), collapse=","), ".")
-	testfunc(gcomplafinal, z, arg=argcompl, echo=echo, errmess=str)
-	testfunc(gcomplbfinal, z, arg=argcompl, echo=echo, errmess=str)
+	testfunc(gcomplafinal, z, arg=argcompl, echo=echo, errmess=str, tobelisted=length(argcompl)==0)
+	testfunc(gcomplbfinal, z, arg=argcompl, echo=echo, errmess=str, tobelisted=length(argcompl)==0)
 	
 	
 	#joint constraint function

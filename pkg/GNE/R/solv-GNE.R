@@ -79,6 +79,9 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	res <- nseq(init, myfunSSR, myjacSSR, argfun=arg1, argjac=arg2, method, 
 				control, silent=silent, ...)	
 	class(res) <- "GNE"
+	if(!silent)
+		print("computation completed.")
+	
 	res
 }
 
@@ -141,6 +144,10 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	res <- ceq(init, dimx, dimlam, myfunCER, myjacCER, argfun=arg1, argjac=arg2,
 		method, control, global="gline", silent=silent, ...)	
 	class(res) <- "GNE"
+	if(!silent)
+		print("computation completed.")
+	
+	
 	res
 }
 
@@ -197,9 +204,13 @@ GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj,
 			stop("wrong merit function")
 	}
 		
-	res <- fpeq(init, yfun, merit, method, control=control.outer, stepfunc=stepfunc,
+	if(!silent)
+		print("init completed.")
+	res <- fpeq(init, yfun, merit, method, control.outer=control.outer, stepfunc=stepfunc,
 				argstep=argstep, silent=silent, order=order, ...)
 	class(res) <- "GNE"
+	if(!silent)
+		print("computation completed.")
 	res
 }
 

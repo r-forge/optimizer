@@ -26,7 +26,7 @@ array(unlist(x),
 	dimnames=c(dimnames(x[[1]]), list(listname))
 ) 
 
-testfunc <- function(f, x=NULL, arg=NULL, echo=TRUE, errmess="")
+testfunc <- function(f, x=NULL, arg=NULL, echo=TRUE, errmess="", tobelisted=TRUE)
 {
 	nbtotarg <- length(formals(f))
 	if(is.logical(echo))
@@ -34,20 +34,23 @@ testfunc <- function(f, x=NULL, arg=NULL, echo=TRUE, errmess="")
 	if(echo >= 2)
 		print(formals(f))
 	
+	if(!is.null(arg) && tobelisted)
+		arg <- list(arg)
+	
 	if(!is.null(x))
 	{
 		if(!is.null(arg))
 		{
 			if(nbtotarg < 2)
-				stop(errmess)
+				stop("wrong number of arguments.")
 			else if(nbtotarg == 2)
-				arglist <- list(x, arg)
+				arglist <- c(list(x), arg)
 			else if(nbtotarg >= 3)
-				arglist <- c(list(x), as.list(rep(1, nbtotarg-2)), list(arg))
+				arglist <- c(list(x), as.list(rep(1, nbtotarg-2)), arg)
 		}else
 		{
 			if(nbtotarg < 1)
-				stop(errmess)
+				stop("wrong number of arguments.")
 			else if(nbtotarg == 1)
 				arglist <- list(x)
 			else if(nbtotarg >= 2)
@@ -58,11 +61,11 @@ testfunc <- function(f, x=NULL, arg=NULL, echo=TRUE, errmess="")
 		if(!is.null(arg))
 		{
 			if(nbtotarg < 1)
-				stop(errmess)
+				stop("wrong number of arguments.")
 			else if(nbtotarg == 1)
-				arglist <- list(arg)
+				arglist <- arg
 			else if(nbtotarg >= 2)
-				arglist <- c(as.list(rep(1, nbtotarg-1)), list(arg))
+				arglist <- c(as.list(rep(1, nbtotarg-1)), arg)
 		}else
 		{
 			if(nbtotarg == 0)
@@ -71,6 +74,15 @@ testfunc <- function(f, x=NULL, arg=NULL, echo=TRUE, errmess="")
 				arglist <- as.list(rep(1, nbtotarg))
 		}		
 	}
+	if(echo >= 2)
+	{
+		print(is.function(f))
+		print(f)
+		print(arglist)
+	}
+	if(length(arglist) != nbtotarg)
+		stop("wrong number of arguments when testing function.")
+	
 	test.try <- try(do.call(f, arglist), silent=echo >= 2)
 					
 	if(class(test.try) == "try-error")
@@ -83,7 +95,9 @@ testfunc <- function(f, x=NULL, arg=NULL, echo=TRUE, errmess="")
 			print(arglist)
 			stop(errmess)
 		}
-	}
+	}else if (echo >= 2)
+		print(test.try)
+	
 	invisible()
 }
 

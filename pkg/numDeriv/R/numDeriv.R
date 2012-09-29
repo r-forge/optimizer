@@ -8,8 +8,7 @@ grad <- function (func, x, method="Richardson", method.args=list(), ...)
    UseMethod("grad")
 
 grad.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001,
-      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE), ...){
+      method.args=list(), ...){
   # modified by Paul Gilbert from code by Xingqiao Liu.
   # case 1/ scalar arg, scalar result (case 2/ or 3/ code should work)
   # case 2/ vector arg, scalar result (same as special case jacobian)
@@ -33,13 +32,29 @@ grad.default <- function(func, x, method="Richardson",
      }
     return(df)
     } else
+  if(method=="complex"){ # Complex step gradient
+    args <- list(eps=.Machine$double.eps)
+    args[names(method.args)] <- method.args
+    eps <- args$eps
+    if(case1or3) return(Im(func(x + eps * 1i, ...))/eps) 
+    # now case 2
+    n <- length(x)
+    h0 <- rep(0, n)
+    g  <- rep(NA, n)
+    for (i in 1:n) {
+      h0[i] <- eps * 1i
+      g[i] <- Im(func(x+h0, ...))/eps 
+      h0[i]  <- 0
+      }
+    return(g)
+    } else
   if(method=="Richardson"){
     args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d
     r <- args$r
-    v <- args$v		 
+    v <- args$v
     show.details <- args$show.details
     n <- length(x)	 #number of variables.
     a <- matrix(NA, r, n) 
@@ -103,8 +118,7 @@ jacobian <- function (func, x, method="Richardson",
                               method.args=list(), ...) UseMethod("jacobian")
 
 jacobian.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, 
-      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE), ...){
+      method.args=list(), ...){
   f <- func(x, ...)
   n <- length(x)	 #number of variables.
   if(method=="simple"){
@@ -120,8 +134,23 @@ jacobian.default <- function(func, x, method="Richardson",
      }
     return(df)
     } else
+  if(method=="complex"){ # Complex step gradient
+    # Complex step Jacobian
+    args <- list(eps=.Machine$double.eps)
+    args[names(method.args)] <- method.args
+    eps <- args$eps
+    jac <- matrix(NA, n, n)
+    h0  <-  rep(0, n)
+    for (i in 1:n) {
+      h0[i] <- eps * 1i
+      jac[, i] <- Im(func(x+h0, ...))/eps 
+      h0[i]  <- 0
+      }
+    return(jac)
+    } else
   if(method=="Richardson"){
-    args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE) # default
+    args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), 
+                r=4, v=2, show.details=FALSE) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d
@@ -151,13 +180,25 @@ hessian <- function (func, x, method="Richardson",
                               method.args=list(), ...) UseMethod("hessian")
 
 hessian.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.1, 
-      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2), ...){  
+      method.args=list(), ...){  
 
-   if(method != "Richardson")  stop("method not implemented.")
+ if(method=="complex"){ # Complex step hessian
+   args <- list(eps=1e-4, d=0.1, 
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2)
+   args[names(method.args)] <- method.args
+   # the CSD part of this uses eps=.Machine$double.eps
+   # but the outer jacobian is Richardson
+   return(jacobian(func=function(fn, x, ...){grad(func=fn, x=x, 
+           method="complex", method.args=list(eps=.Machine$double.eps), ...)}, 
+         x=x, fn=func, method.args=args, ...))
+   } else 
+ if(method != "Richardson")  stop("method not implemented.")
+   args <- list(eps=1e-4, d=0.1, 
+      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2)
+   args[names(method.args)] <- method.args
    if(1!=length(func(x, ...)))
        stop("hessian.default assumes a scalar real valued function.")
-   D <- genD(func, x, method=method, method.args=method.args, ...)$D
+   D <- genD(func, x, method=method, method.args=args, ...)$D
    if(1!=nrow(D)) stop("BUG! should not get here.")
    H <- diag(NA,length(x))
    u <- length(x)
@@ -182,8 +223,7 @@ genD <- function(func, x, method="Richardson",
                    method.args=list(), ...)UseMethod("genD")
 
 genD.default <- function(func, x, method="Richardson",
-      method.args=list(eps=1e-4, d=0.0001, 
-      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2), ...){
+      method.args=list(), ...){
   #   additional cleanup by Paul Gilbert (March, 2006)
   #   modified substantially by Paul Gilbert (May, 1992)
   #    from original code by Xingqiao Liu,   May, 1991.
@@ -195,7 +235,8 @@ genD.default <- function(func, x, method="Richardson",
   #	 be a parameter but the way the formula is coded it is assumed to be 2.
  
     if(method != "Richardson")  stop("method not implemented.")
-    args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2) # default
+    args <- list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7),
+              r=4, v=2) # default
     args[names(method.args)] <- method.args
     eps <- args$eps
     d <- args$d

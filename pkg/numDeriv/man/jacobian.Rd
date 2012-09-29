@@ -10,8 +10,7 @@ m-vector valued function with n-vector argument.
     jacobian(func, x, method="Richardson", method.args=list(), ...) 
 
     \method{jacobian}{default}(func, x, method="Richardson",
-       method.args=list(eps=1e-4, d=0.0001, 
-       zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE), ...)
+       method.args=list(), ...)
 }
 \arguments{
     \item{func}{a function with a real (vector) result.}
@@ -32,13 +31,27 @@ m-vector valued function with n-vector argument.
    first derivative of \code{func} at the point \code{x}. Any additional 
    arguments in \dots are also passed to \code{func}, but the gradient is not
    calculated with respect to these additional arguments.
-   
-   If method is "simple", the calculation is done using a simple epsilon
-   difference. For this case, only the \code{methods.args} element \code{eps}
-   is used. If method is "Richardson", the calculation is done by 
-   Richardson's extrapolation. See \code{link{grad}} for more details.
-}
 
+   If method is "Richardson", the calculation is done by 
+   Richardson's extrapolation. See \code{link{grad}} for more details.
+   For this method  \code{methods.args=list(eps=1e-4, d=0.0001, 
+   zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE)} 
+   is set as the default.
+
+   If method is "simple", the calculation is done using a simple epsilon
+   difference. 
+   For method "simple" \code{methods.args=list(eps=1e-4)} is the
+   default. Only \code{eps} is used by this method.
+
+   If method is "complex", the calculation is done using the complex step
+   derivative approach described in Lyness and Moler. This method requires
+   that the function be able to handle complex valued arguments and return the
+   appropriate complex valued result, even though the user may only be
+   interested in the real case. For cases where it can be used, it is faster and
+   often more accurate than Richardson's extrapolation.   
+   For method "complex" \code{methods.args=list(eps=.Machine$double.eps)} is the
+   default. Only \code{eps} is used by this method.
+}
 \seealso{
   \code{\link{grad}},
   \code{\link{hessian}},

@@ -37,9 +37,9 @@ grad.default <- function(func, x, method="Richardson",
     eps <- .Machine$double.eps
     v <- try(func(x + eps * 1i, ...))
     if(inherits(v, "try-error")) 
-         stop("function does not except complex argument.")
+      stop("function does not accept complex argument as required by method 'complex'.")
     if(!is.complex(v)) 
-          stop("function does return a complex value.")
+      stop("function does not return a complex value as required by method 'complex'.")
    
     if(case1or3) return(Im(v)/eps) 
     # now case 2
@@ -144,10 +144,10 @@ jacobian.default <- function(func, x, method="Richardson",
     h0[1] <- eps * 1i
     v <- try(func(x+h0, ...))
     if(inherits(v, "try-error")) 
-         stop("function does not except complex argument.")
+      stop("function does not accept complex argument as required by method 'complex'.")
     if(!is.complex(v)) 
-          stop("function does return a complex value.")
-   
+      stop("function does not return a complex value as required by method 'complex'.")
+  
     h0[1]  <- 0
     jac <- matrix(NA, length(v), n)
     jac[, 1] <- Im(v)/eps

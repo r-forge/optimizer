@@ -1,5 +1,27 @@
 require("numDeriv")
 
+##### Example 0
+set.seed(123)
+f <- function(x) {
+  n <- length(x)
+  f <- rep(NA, n)
+  vec <- 1:(n-1)
+  f[vec] <- x[vec]^2 + (-1)^vec * x[vec]*exp(x[vec+1])
+  f[n] <- x[n]*exp(x[n])
+  f
+  }
+
+x0 <- runif(5)
+ans1 <- jacobian(func=f, x=x0,  method="complex")
+print(ans1, digits=18)
+#max.diff1:  3.571277e-11 
+ans2 <- jacobian(func=f, x=x0)
+
+err <- max(abs(ans1 - ans2))
+cat("max.diff1: ", err, "\n")
+if (1e-10 < err ) stop("Example 0 jacobian test failed.")
+
+
 ###### Example 1
 broydt <- function(x, h=0.5) {
         n <- length(x)

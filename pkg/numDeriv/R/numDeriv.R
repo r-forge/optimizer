@@ -14,9 +14,10 @@ grad.default <- function(func, x, method="Richardson",
   # case 2/ vector arg, scalar result (same as special case jacobian)
   # case 3/ vector arg, vector result (of same length, really 1/ applied multiple times))
   f <- func(x, ...)
-  case1or3 <- length(x) == length(f)
+  n <- length(x)	 #number of variables in argument
+  case1or3 <- n == length(f)
   if((1 != length(f)) & !case1or3)
-  	 stop("grad assumes a scalar real valued function.")
+  	 stop("grad assumes a scalar valued function.")
   if(method=="simple"){
     #  very simple numerical approximation
     args <- list(eps=1e-4) # default
@@ -24,8 +25,8 @@ grad.default <- function(func, x, method="Richardson",
     eps <- args$eps
     if(case1or3) return((func(x+eps, ...)-f)/eps) 
     # now case 2
-    df <- rep(NA,length(x))
-    for (i in 1:length(x)) {
+    df <- rep(NA,n)
+    for (i in 1:n) {
       dx <- x
       dx[i] <- dx[i] +eps 
       df[i] <- (func(dx, ...)-f)/eps
@@ -36,9 +37,14 @@ grad.default <- function(func, x, method="Richardson",
     args <- list(eps=.Machine$double.eps)
     args[names(method.args)] <- method.args
     eps <- args$eps
-    if(case1or3) return(Im(func(x + eps * 1i, ...))/eps) 
+    v <- try(func(x + eps * 1i, ...))
+    if(inherits(v, "try-error")) 
+         stop("function does not except complex argument.")
+    if(!is.complex(v)) 
+          stop("function does return a complex value.")
+   
+    if(case1or3) return(Im(v)/eps) 
     # now case 2
-    n <- length(x)
     h0 <- rep(0, n)
     g  <- rep(NA, n)
     for (i in 1:n) {
@@ -56,7 +62,6 @@ grad.default <- function(func, x, method="Richardson",
     r <- args$r
     v <- args$v
     show.details <- args$show.details
-    n <- length(x)	 #number of variables.
     a <- matrix(NA, r, n) 
     #b <- matrix(NA, (r - 1), n)
   
@@ -139,9 +144,19 @@ jacobian.default <- function(func, x, method="Richardson",
     args <- list(eps=.Machine$double.eps)
     args[names(method.args)] <- method.args
     eps <- args$eps
-    jac <- matrix(NA, n, n)
     h0  <-  rep(0, n)
-    for (i in 1:n) {
+    h0[1] <- eps * 1i
+    v <- try(func(x+h0, ...))
+    if(inherits(v, "try-error")) 
+         stop("function does not except complex argument.")
+    if(!is.complex(v)) 
+          stop("function does return a complex value.")
+   
+    h0[1]  <- 0
+    jac <- matrix(NA, length(v), n)
+    jac[, 1] <- Im(v)/eps
+    if (n == 1) return(jac)
+    for (i in 2:n) {
       h0[i] <- eps * 1i
       jac[, i] <- Im(func(x+h0, ...))/eps 
       h0[i]  <- 0
@@ -197,7 +212,7 @@ hessian.default <- function(func, x, method="Richardson",
       zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2)
    args[names(method.args)] <- method.args
    if(1!=length(func(x, ...)))
-       stop("hessian.default assumes a scalar real valued function.")
+       stop("Richardson method for hessian assumes a scalar real valued function.")
    D <- genD(func, x, method=method, method.args=args, ...)$D
    if(1!=nrow(D)) stop("BUG! should not get here.")
    H <- diag(NA,length(x))

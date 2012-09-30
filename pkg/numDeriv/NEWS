@@ -1,7 +1,6 @@
 Known BUGS
 
-   o	the hessian function in numDeriv does not accept method="simple".  Only 
-	"Richardson" is implemented there. 
+   o	the hessian function in numDeriv does not accept method="simple". 
  
    o	When method="Richardson", it does not work when r=1, because of 
 	subscripting issues.  Should fix this such that it does 

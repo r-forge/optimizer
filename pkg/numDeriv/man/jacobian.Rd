@@ -16,8 +16,8 @@ m-vector valued function with n-vector argument.
     \item{func}{a function with a real (vector) result.}
     \item{x}{a real or real vector argument to func, indicating the point 
        at which the gradient is to be calculated.}
-    \item{method}{one of \code{"Richardson"} or \code{"simple"} indicating 
-    the method to use for the approximation.}
+    \item{method}{one of \code{"Richardson"}, \code{"simple"}, or 
+       \code{"complex"} indicating the method to use for the approximation.}
     \item{method.args}{arguments passed to method. See \code{\link{grad}}. 
        (Arguments not specified remain with their default values.)}
     \item{...}{any additional arguments passed to \code{func}.

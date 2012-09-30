@@ -51,7 +51,10 @@ if (1e-8 < err ) stop("broydt gradient test failed.")
 h1 <- hessian(func=broydt, x=p0, method="complex")
 #print(h1, digits=18)
 h2 <- hessian(func=broydt, x=p0)
+#print(h2, digits=18)
 err <- max(abs(h1 - h2))
+#print(err, digits=18)
+
 cat("max.diff1: ", err , "\n")
 #max.diff1:  9.386859e-09 
 ##max.diff1:  8.897979e-08 

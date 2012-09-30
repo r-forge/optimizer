@@ -26,7 +26,7 @@ genD	  to calculate the gradient and second derivative of a
 }
 
 }
-\author{Paul Gilbert, based on work by Xingqiao Liu, and Ravi Varadhan}
+\author{Paul Gilbert, based on work by Xingqiao Liu, and Ravi Varadhan (who wrote complex-step derivative codes)}
 \references{
    Linfield, G. R. and Penny, J. E. T. (1989) \emph{Microcomputers in Numerical 
    Analysis}. New York: Halsted Press.

@@ -47,10 +47,11 @@ m-vector valued function with n-vector argument.
    derivative approach described in Lyness and Moler. This method requires
    that the function be able to handle complex valued arguments and return the
    appropriate complex valued result, even though the user may only be
-   interested in the real case. For cases where it can be used, it is faster and
-   often more accurate than Richardson's extrapolation.   
-   For method "complex" \code{methods.args=list(eps=.Machine$double.eps)} is the
-   default. Only \code{eps} is used by this method.
+   interested in the real case. For cases where it can be used, it is faster than Richardson's extrapolation, and
+   it also provides gradients that are correct to machine precision (16 digits).   
+   For method "complex", \code{methods.args} is ignored.
+   The algorithm uses an \code{eps} of \code{.Machine$double.eps} which cannot
+   (and should not) be modified. 
 }
 \seealso{
   \code{\link{grad}},
@@ -61,5 +62,6 @@ m-vector valued function with n-vector argument.
    func2 <- function(x) c(sin(x), cos(x))
    x <- (0:1)*2*pi
    jacobian(func2, x)
+   jacobian(func2, x, "complex")
 }
 \keyword{multivariate}

@@ -34,9 +34,7 @@ grad.default <- function(func, x, method="Richardson",
     return(df)
     } else
   if(method=="complex"){ # Complex step gradient
-    args <- list(eps=.Machine$double.eps)
-    args[names(method.args)] <- method.args
-    eps <- args$eps
+    eps <- .Machine$double.eps
     v <- try(func(x + eps * 1i, ...))
     if(inherits(v, "try-error")) 
          stop("function does not except complex argument.")
@@ -141,9 +139,7 @@ jacobian.default <- function(func, x, method="Richardson",
     } else
   if(method=="complex"){ # Complex step gradient
     # Complex step Jacobian
-    args <- list(eps=.Machine$double.eps)
-    args[names(method.args)] <- method.args
-    eps <- args$eps
+    eps <- .Machine$double.eps
     h0  <-  rep(0, n)
     h0[1] <- eps * 1i
     v <- try(func(x+h0, ...))
@@ -197,22 +193,23 @@ hessian <- function (func, x, method="Richardson",
 hessian.default <- function(func, x, method="Richardson",
       method.args=list(), ...){  
 
+ if(1!=length(func(x, ...)))
+       stop("Richardson method for hessian assumes a scalar valued function.")
+
  if(method=="complex"){ # Complex step hessian
    args <- list(eps=1e-4, d=0.1, 
       zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2)
    args[names(method.args)] <- method.args
    # the CSD part of this uses eps=.Machine$double.eps
-   # but the outer jacobian is Richardson
+   # but the jacobian is Richardson and uses method.args
    return(jacobian(func=function(fn, x, ...){grad(func=fn, x=x, 
            method="complex", method.args=list(eps=.Machine$double.eps), ...)}, 
          x=x, fn=func, method.args=args, ...))
    } else 
  if(method != "Richardson")  stop("method not implemented.")
-   args <- list(eps=1e-4, d=0.1, 
-      zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2)
+   args <- list(eps=1e-4, d=0.1, zero.tol=sqrt(.Machine$double.eps/7e-7), 
+                r=4, v=2, show.details=FALSE) # default
    args[names(method.args)] <- method.args
-   if(1!=length(func(x, ...)))
-       stop("Richardson method for hessian assumes a scalar real valued function.")
    D <- genD(func, x, method=method, method.args=args, ...)$D
    if(1!=nrow(D)) stop("BUG! should not get here.")
    H <- diag(NA,length(x))

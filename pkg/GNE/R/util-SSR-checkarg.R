@@ -44,6 +44,19 @@ testargfunSSR <- function(z, dimx, dimlam,
 	else if(!is.null(joint) && (missing(dimmu) || length(dimmu) != 1))
 		stop("argument dimmu must be a vector of length 1.")
 	
+	if(echo)
+	{
+		cat("z\n")
+		print(z)
+		cat("dimx\n")
+		print(dimx)
+		cat("dimlam\n")
+		print(dimlam)
+		cat("dimmu\n")
+		print(dimmu)
+		print(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
+	}
+	
 	if(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
 		stop("SSR: incompatible dimension for dimlam, dimx, dimmu.")		
 	
@@ -195,6 +208,19 @@ testargjacSSR <- function(z, dimx, dimlam,
 		dimmu <- 0
 	else if(!is.null(joint) && (missing(dimmu) || length(dimmu) != 1))
 		stop("argument dimmu must be a vector of length 1.")
+	
+	if(echo)
+	{
+		cat("z\n")
+		print(z)
+		cat("dimx\n")
+		print(dimx)
+		cat("dimlam\n")
+		print(dimlam)
+		cat("dimmu\n")
+		print(dimmu)
+		print(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
+	}
 	
 	if(length(z) != sum(dimx) + sum(dimlam) + sum(dimmu))
 		stop("incompatible dimension for dimlam, dimx, dimmu.")		

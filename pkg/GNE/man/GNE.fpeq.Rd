@@ -15,14 +15,14 @@ GNE.fpeq(init, dimx, obj, argobj, grobj, arggrobj,
   \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}
   \item{dimx}{a vector of dimension for \eqn{x}.}
   
-  \item{obj}{objective function, see details.}
+  \item{obj}{objective function (to be minimized), see details.}
   \item{argobj}{a list of additional arguments.}
   \item{grobj}{gradient of the objective function, see details.}
   \item{arggrobj}{a list of additional arguments of the objective gradient.}
   \item{heobj}{Hessian of the objective function, see details.}
   \item{argheobj}{a list of additional arguments of the objective Hessian.}
 
-  \item{joint}{joint function, see details.}
+  \item{joint}{joint function (\eqn{h(x)<=0}), see details.}
   \item{argjoint}{a list of additional arguments of the joint function.}
   \item{jacjoint}{Jacobian of the joint function, see details.}
   \item{argjacjoint}{a list of additional arguments of the Jacobian.}  

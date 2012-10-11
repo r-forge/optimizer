@@ -205,7 +205,7 @@ Regrouping the $N$ subproblems, we get the following system.
 For the $N$ optimization subproblems for the functions $\theta_i: \R^{n} \mapsto \R$, with constraints $g_i: \R^{n} \mapsto \R^{m_i}$, the KKT conditions can be regrouped such that
 there exists $\lambda \in \R^m$ and 
 $$
-\tilde L(x, \lambda) = 0 \txtm{and} 0 \leq \lambda \perp - G(x) \leq  0,
+\tilde L(x, \lambda) = 0 \txtm{and} 0 \leq \lambda \perp  G(x) \leq  0,
 $$
 where $L$ and $G$ are given by
 $$
@@ -562,7 +562,7 @@ $$
 For the $N$ optimization subproblems for the functions $\theta_i: \R^{n} \mapsto \R$, with constraints $g_i: \R^{n} \mapsto \R^{m_i}$ and shared constraint $h:\R^n \mapsto \R^l$, the KKT conditions can be regrouped such that
 there exists $\lambda \in \R^m$ and 
 $$
-\bar L(x, \lambda, \mu) = 0 \txtm{and} 0 \leq \lambda, 0 \leq \mu \perp - g(x) \leq  0,
+\bar L(x, \lambda, \mu) = 0 \txtm{and} 0 \leq \lambda, 0 \leq \mu \perp g(x) \leq  0,
 $$
 where $L$ and $G$ are given by
 $$

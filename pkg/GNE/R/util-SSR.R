@@ -31,8 +31,8 @@ funSSR <- function(z, dimx, dimlam,
 				 arg$grobj, arg$arggrobj, 
 				 arg$constr, arg$argconstr, 
 				 arg$grconstr, arg$arggrconstr, 
-				 arg$joint, arg$argconstr, 
-				 arg$grjoint, arg$arggrconstr, 
+				 arg$joint, arg$argjoint, 
+				 arg$grjoint, arg$arggrjoint, 
 				 arg$compl, arg$argcompl, new.env())
 	
 	res

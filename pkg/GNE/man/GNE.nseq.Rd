@@ -20,12 +20,12 @@ GNE.nseq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
   \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}
   \item{dimx}{a vector of dimension for \eqn{x}.}
   \item{dimlam}{a vector of dimension for \eqn{lambda}.}
-  \item{grobj}{gradient of the objective function, see details.}
+  \item{grobj}{gradient of the objective function (to be minimized), see details.}
   \item{arggrobj}{a list of additional arguments of the objective gradient.}
   \item{heobj}{Hessian of the objective function, see details.}
   \item{argheobj}{a list of additional arguments of the objective Hessian.}	
 
-  \item{constr}{constraint function, see details.}
+  \item{constr}{constraint function (\eqn{g^i(x)<=0}), see details.}
   \item{argconstr}{a list of additional arguments of the constraint function.}
   \item{grconstr}{gradient of the constraint function, see details.}
   \item{arggrconstr}{a list of additional arguments of the constraint gradient.}
@@ -38,7 +38,7 @@ GNE.nseq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
   \item{gcomplb}{derivative of the complementarity function w.r.t. the second argument.}   
   
   \item{dimmu}{a vector of dimension for \eqn{mu}.}
-  \item{joint}{joint function, see details.}
+  \item{joint}{joint function (\eqn{h(x)<=0}), see details.}
   \item{argjoint}{a list of additional arguments of the joint function.}
   \item{grjoint}{gradient of the joint function, see details.}
   \item{arggrjoint}{a list of additional arguments of the joint gradient.}

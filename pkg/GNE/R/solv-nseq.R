@@ -8,6 +8,22 @@ nseq <- function(xinit, Phi, jacPhi, argfun, argjac, method, control,
 	con <- list(ftol=1e-6, maxit=100, trace=0)
 	namc <- names(con)
 	con[namc <- names(control)] <- control
+
+	test.try <- try( Phi(xinit, argfun, argjac), silent=silent )
+	if(class(test.try) == "try-error")
+		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
+				 message="Can't evalate Phi(init).", fvec=NA) )
+	if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
+		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
+				 message="Phi(init) has infinite, NA or NaN values.", fvec=NA) )
+	
+	test.try <- try( jacPhi(xinit, argfun, argjac), silent=silent )
+	if(class(test.try) == "try-error")
+	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
+				 message="Can't evalate jacPhi(init).", fvec=NA) )
+	if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
+	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
+				 message="jacPhi(init) has infinite, NA or NaN values.", fvec=NA) )
 	
 	if(method != "Levenberg-Marquardt")
 	test.try <- try( nleqslv(xinit, Phi, jacPhi, argfun, argjac,
@@ -29,7 +45,8 @@ nseq <- function(xinit, Phi, jacPhi, argfun, argjac, method, control,
 	
 	if(class(test.try) == "try-error")
 		res <- list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
-					message=paste("Error in the non smooth problem:", test.try, "."), fvec=NA)
+					message=paste("Error in the non smooth problem:", test.try, "."), 
+					fvec=NA)
 	if(class(test.try) != "try-error")
 		res <- list(par = test.try$x, value = sqrt(sum( test.try$fvec^2 )), 
 					counts = c(phicnt = test.try$nfcnt, jaccnt = test.try$njcnt), 

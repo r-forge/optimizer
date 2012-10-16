@@ -6,9 +6,10 @@ xmax <- 10
 x <- seq(-xmax, xmax, length=31)
 
 
-a3Dplot <- function(x, phi, ..., main)
+a3Dplot <- function(x, phi, main, ...)
 {
-	
+	if(!is.function(phi))
+		stop("wrong argument phi.")
 z <- outer(x, x, phi, ...)
 nrz <- nrow(z)
 ncz <- ncol(z)
@@ -40,3 +41,17 @@ a3Dplot(x, GrBphiFB, main="Grad b phiFB(a,b)")
 sum( outer(x, x, GrAphiFB) <= 0 )/(31^2)
 
 max(abs(outer(x, x, GrAphiFB)))
+
+
+par(mfrow=c(1, 3))
+a3Dplot(x, phiFB, main="phiFB(a,b)")
+a3Dplot(x, phi=phipFB, main="phipFB(a,b), p=1/4", p=1/4)
+a3Dplot(x, phi=phipFB, main="phipFB(a,b), p=1", p=1)
+
+
+par(mfrow=c(1, 3))
+a3Dplot(x, GrAphiFB, main="phiFB(a,b)")
+a3Dplot(x, phi=GrAphipFB, main="phipFB(a,b), p=1/4", p=1/4)
+a3Dplot(x, phi=GrAphipFB, main="phipFB(a,b), p=1", p=1)
+
+

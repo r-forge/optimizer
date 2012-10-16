@@ -9,6 +9,23 @@ GrAphiFB <- function(a, b)
 GrBphiFB <- function(a, b) 
 	ifelse(a == 0 & b == 0, -1/2, b / sqrt(a^2+b^2) - 1)
 
+#penalized Fischer-Burmeister
+phipFB <- function(a, b, p) 
+	sqrt(a^2+b^2) - (a+b) - p*pmax(a,0)*pmax(b,0)
+GrAphipFB <- function(a, b, p) 
+	ifelse(a == 0 & b == 0, -1/2, a / sqrt(a^2+b^2) - 1 - p*b*(a >= 0 & b >= 0))
+GrBphipFB <- function(a, b, p) 
+	ifelse(a == 0 & b == 0, -1/2, b / sqrt(a^2+b^2) - 1 - p*a*(a >= 0 & b >= 0))
+
+#relaxed Fischer-Burmeister
+phirFB <- function(a, b) 
+	sqrt(a^2+b^2) - (a+b) - sqrt(sqrt(.Machine$double.eps))
+GrAphirFB <- function(a, b) 
+	ifelse(a == 0 & b == 0, -1/2, a / sqrt(a^2+b^2) - 1)
+GrBphirFB <- function(a, b) 
+	ifelse(a == 0 & b == 0, -1/2, b / sqrt(a^2+b^2) - 1)
+
+
 
 #minimum
 phiMin <- function(a, b) 
@@ -64,13 +81,17 @@ GrBphiKK <- function(a, b, lambda)
 
 
 #complementarity parameter class
-compl.par <- function(type=c("FB", "Min", "Man", "LT", "KK"), 
-f, fprime, q, lambda)
+compl.par <- function(type=c("FB", "pFB", "rFB", "Min", "Man", "LT", "KK"), 
+	p, f, fprime, q, lambda)
 {
-	type <- match.arg(type, c("FB", "Min", "Man", "LT", "KK"))
+	type <- match.arg(type, c("FB", "pFB", "rFB", "Min", "Man", "LT", "KK"))
 	
 	if(type == "FB")
 		res <- list(type=type, fun=phiFB, grA=GrAphiFB, grB=GrBphiFB)
+	else if(type == "pFB")
+		res <- list(type=type, fun=phipFB, grA=GrAphipFB, grB=GrBphipFB, p=p)
+	else if(type == "rFB")
+		res <- list(type=type, fun=phirFB, grA=GrAphirFB, grB=GrBphirFB)
 	else if(type == "Min")
 		res <- list(type=type, fun=phiMin, grA=GrAphiMin, grB=GrBphiMin)
 	else if(type == "Man")
@@ -94,7 +115,11 @@ print.compl.par <- function(x, ...)
 	cat("with derivatives:\n")
 	print(x$grA)
 	print(x$grB)
-	print(x[!names(x) %in% c("fun", "grA", "grB", "type")])
+	if(length(names(x)) > 4)
+	{
+		cat("with additional arguments:\n")
+		print(x[!names(x) %in% c("fun", "grA", "grB", "type")])
+	}
 }
 
 

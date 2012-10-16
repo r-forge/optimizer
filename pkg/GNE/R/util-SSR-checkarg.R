@@ -74,7 +74,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 		arggrobj <- list()				   
 	}	
 	str <- paste("the call to grobj(z, 1, 1, arggrobj) does not work.", "arguments are", 
-				 paste(names(formals(grobj)), collapse=","), ".")
+				 paste(names(formals(grobj)), collapse=", "), ".")
 	testfunc(grobjfinal, z, arg=arggrobj, echo=echo, errmess=str)
 	
 	
@@ -89,7 +89,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 			argconstr <- list()	
 		}
 		str <- paste("the call to constr(z, 1, argconstr) does not work.", "arguments are", 
-					 paste(names(formals(constr)), collapse=","), ".")
+					 paste(names(formals(constr)), collapse=", "), ".")
 		testfunc(constrfinal, z, arg=argconstr, echo=echo, errmess=str)
 		
 		#constraint gradient
@@ -101,7 +101,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 			arggrconstr <- list()
 		}
 		str <- paste("the call to grconstr(z, 1, 1, arggrconstr) does not work.", "arguments are", 
-					 paste(names(formals(grconstr)), collapse=","), ".")
+					 paste(names(formals(grconstr)), collapse=", "), ".")
 		testfunc(grconstrfinal, z, arg=arggrconstr, echo=echo, errmess=str)
 	}else
 	{
@@ -113,8 +113,9 @@ testargfunSSR <- function(z, dimx, dimlam,
 	{
 		if(!is.list(argcompl))
 			argcompl <- list(argcompl)
-		complfinal <- function(a, b, argcompl)
-			evalwitharglist(compl, a, c(list(b), argcompl))
+		complfinal <- function(a, b, ...)
+			evalwitharglist(compl, a, c(list(b), ...))
+		
 		
 	}else
 	{
@@ -122,7 +123,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 		argcompl <- list()
 	}
 	str <- paste("the call to complfinal(1, 1, argcompl) does not work.", "arguments are", 
-				 paste(names(formals(compl)), collapse=","), ".")
+				 paste(names(formals(compl)), collapse=", "), ".")
 	testfunc(complfinal, z, arg=argcompl, echo=echo, errmess=str, tobelisted=length(argcompl)==0)
 	
 	
@@ -137,7 +138,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 			argjoint <- list()	
 		}
 		str <- paste("the call to joint(z, argconstr) does not work.", "arguments are", 
-					 paste(names(formals(joint)), collapse=","), ".")
+					 paste(names(formals(joint)), collapse=", "), ".")
 		testfunc(jointfinal, z, arg=argjoint, echo=echo, errmess=str)
 		
 		#gradient
@@ -149,7 +150,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 			arggrjoint <- list()
 		}
 		str <- paste("the call to grjoint(z, 1, arggrjoint) does not work.", "arguments are", 
-					 paste(names(formals(grjoint)), collapse=","), ".")
+					 paste(names(formals(grjoint)), collapse=", "), ".")
 		testfunc(grjointfinal, z, arg=arggrjoint, echo=echo, errmess=str)
 	}else
 	{
@@ -242,7 +243,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 		argheobj <- list()				   
 	}	
 	str <- paste("the call to heobj(z, 1, 1, 1, argheobj) does not work.", "arguments are", 
-				 paste(names(formals(heobj)), collapse=","), ".")
+				 paste(names(formals(heobj)), collapse=", "), ".")
 	testfunc(heobjfinal, z, arg=argheobj, echo=echo, errmess=str)
 	
 	#constraint	
@@ -256,7 +257,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 			argconstr <- list()	
 		}
 		str <- paste("the call to constr(z, 1, argconstr) does not work.", "arguments are", 
-					 paste(names(formals(constr)), collapse=","), ".")
+					 paste(names(formals(constr)), collapse=", "), ".")
 		testfunc(constrfinal, z, arg=argconstr, echo=echo, errmess=str)
 		
 		#constraint gradient
@@ -268,7 +269,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 			arggrconstr <- list()
 		}
 		str <- paste("the call to grconstr(z, 1, 1, arggrconstr) does not work.", "arguments are", 
-					 paste(names(formals(grconstr)), collapse=","), ".")
+					 paste(names(formals(grconstr)), collapse=", "), ".")
 		testfunc(grconstrfinal, z, arg=arggrconstr, echo=echo, errmess=str)
 
 		#constraint hessian
@@ -280,7 +281,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 			argheconstr <- list()
 		}
 		str <- paste("the call to heconstr(z, 1, 1, 1, argheconstr) does not work.", "arguments are", 
-					 paste(names(formals(heconstr)), collapse=","), ".")
+					 paste(names(formals(heconstr)), collapse=", "), ".")
 		testfunc(heconstrfinal, z, arg=argheconstr, echo=echo, errmess=str)
 	}else
 	{
@@ -292,10 +293,10 @@ testargjacSSR <- function(z, dimx, dimlam,
 	#complementarity function
 	if(!missing(argcompl) && !is.null(argcompl))
 	{
-		gcomplafinal <- function(a, b, argcompl)
-			evalwitharglist(gcompla, a, c(list(b), argcompl))
-		gcomplbfinal <- function(a, b, argcompl)
-			evalwitharglist(gcomplb, a, c(list(b), argcompl))
+		gcomplafinal <- function(a, b, ...)
+			evalwitharglist(gcompla, a, c(list(b), ...))
+		gcomplbfinal <- function(a, b, ...)
+			evalwitharglist(gcomplb, a, c(list(b), ...))
 	}else
 	{
 		gcomplafinal <- function(a, b, argcompl) gcompla(a, b)	
@@ -303,7 +304,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 		argcompl <- list()
 	}
 	str <- paste("the call to gcompla(1, 1, argcompl) does not work.", "arguments are", 
-				 paste(names(formals(gcompla)), collapse=","), ".")
+				 paste(names(formals(gcompla)), collapse=", "), ". ")
 	testfunc(gcomplafinal, z, arg=argcompl, echo=echo, errmess=str, tobelisted=length(argcompl)==0)
 	testfunc(gcomplbfinal, z, arg=argcompl, echo=echo, errmess=str, tobelisted=length(argcompl)==0)
 	
@@ -319,7 +320,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 			argjoint <- list()	
 		}
 		str <- paste("the call to joint(z, argconstr) does not work.", "arguments are", 
-					 paste(names(formals(joint)), collapse=","), ".")
+					 paste(names(formals(joint)), collapse=", "), ".")
 		testfunc(jointfinal, z, arg=argjoint, echo=echo, errmess=str)
 		
 		#gradient
@@ -331,7 +332,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 			arggrjoint <- list()
 		}
 		str <- paste("the call to grjoint(z, 1, arggrjoint) does not work.", "arguments are", 
-					 paste(names(formals(grjoint)), collapse=","), ".")
+					 paste(names(formals(grjoint)), collapse=", "), ".")
 		testfunc(grjointfinal, z, arg=arggrjoint, echo=echo, errmess=str)
 		
 		#hessian
@@ -343,7 +344,7 @@ testargjacSSR <- function(z, dimx, dimlam,
 			arghejoint <- list()
 		}
 		str <- paste("the call to hejoint(z, 1, 1, arghejoint) does not work.", "arguments are", 
-					 paste(names(formals(hejoint)), collapse=","), ".")
+					 paste(names(formals(hejoint)), collapse=", "), ".")
 		testfunc(hejointfinal, z, arg=arghejoint, echo=echo, errmess=str)
 
 	}else

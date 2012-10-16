@@ -7,14 +7,12 @@ S3method(summary, GNE)
 S3method(print, summary.GNE)
 #export(bench.GNE.nseq, bench.GNE.nseq.LM)
 
-export(SE.nseq, SE.objleaders)
+export(SE.nseq, SE.objleaders, SE.bestresponse)
 
 ### template functions
 export(funSSR, jacSSR)
 export(funCER, jacCER)
 export(gapNIR, gradxgapNIR, gradygapNIR, fpNIR)
-### depreciated functions
-#export(Phi, JacPhi, GNE.nseq.old)
 
 ### aux - step functions
 export(decrstep, decrstep5, decrstep10, decrstep20, purestep)
@@ -26,7 +24,7 @@ S3method(summary, compl.par)
 S3method(print, summary.compl.par)
 export(phiFB, GrAphiFB, GrBphiFB, phiMin, GrAphiMin, GrBphiMin)
 export(phiMan, GrAphiMan, GrBphiMan, phiLT, GrAphiLT, GrBphiLT)
-export(phiKK, GrAphiKK, GrBphiKK)
+export(phiKK, GrAphiKK, GrBphiKK, phipFB, GrAphipFB, GrBphipFB)
 
 ### aux - projection, rejection algo
 export(projector, rejection)
@@ -34,13 +32,21 @@ export(projector, rejection)
 ### aux - complementarity functions
 export(potential.ce, gradpotential.ce, psi.ce, gradpsi.ce)
 
+
+### when debugging
+#export(testargfunSSR, testargjacSSR)
+
+
 ### depreciated functions
 #export(NewtonKKT, fixedpoint, minGap)
+#export(Phi, JacPhi, GNE.nseq.old)
+
 
 ### test functions
 #export(NewtonNext, LevenMarqNext)
 #export(eqsolve, graphContourOneIter)
 #export(graphContourMultIter)
+
 
 ### C code
 useDynLib(GNE, .registration = TRUE)

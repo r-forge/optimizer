@@ -15,6 +15,9 @@
 \alias{GrBphiKK}
 \alias{GrAphiLT}
 \alias{GrBphiLT}
+\alias{compl.par}
+\alias{print.compl.par}
+\alias{summary.compl.par}
 \title{Complementarity functions}
 \description{
 		Classic Complementarity functions
@@ -41,6 +44,15 @@ phiLT(a, b, q)
 GrAphiLT(a, b, q)
 GrBphiLT(a, b, q)
 
+compl.par(type=c("FB", "Min", "Man", "LT", "KK"), 
+f, fprime, q, lambda)
+
+\method{print}{compl.par}(x, \dots)
+
+\method{summary}{compl.par}(object, \dots)
+
+
+
 }
 \arguments{
   \item{a}{first parameter.}
@@ -48,6 +60,13 @@ GrBphiLT(a, b, q)
   \item{f, fprime}{a univariate function and its derivative.}
   \item{lambda}{a parameter in [0, 2[.}
   \item{q}{a parameter >1.}
+  
+  \item{type}{a character string for the complementarity
+	function type: either \code{"FB"}, \code{"Min"}, \code{"Man"}, 
+	\code{"LT"} or \code{"KK"}.}
+  \item{x,object}{an object of class \code{"compl.par"}.}		
+  \item{\dots}{further arguments to pass to \code{print}, 
+		or \code{summary}.}			  
 }
 \details{
 
@@ -63,13 +82,18 @@ We implement 5 complementarity functions From Facchinei & Pang (2003).
 	\item{(v) \code{phiLT}}{ the Luo-Tseng complementarity function \eqn{(a^q + b^q)^(1/q) - (a+b)}.}
 }				
 
-
 \code{GrAXXX} and \code{GrBXXX} implements the derivative of the complementarity 
 function \code{XXX} with respect to \eqn{a} and \eqn{b} respectively.
+
+\code{compl.par} creates an object of class \code{"compl.par"} with attributes
+\code{"type"} a character string and \code{"fun","grA","grB"} the corresponding 
+functions for a given type. 
+Optional arguments are also available, e.g. lambda for the KK complementarity 
+function.
 	
 }
 \value{
-A numeric.
+A numeric or an object of class \code{"compl.par"}.
 }
 \references{
 	F. Facchinei and J.S. Pang,
@@ -91,6 +115,14 @@ phiKK(1, 2, 1)
 -2*phiMin(1, 2)
 phiMan(1, 2, function(t) t)
 
+complFB <- compl.par("FB") 
+summary(complFB)
+
+complKK <- compl.par("KK", lambda=1) 
+summary(complKK)
+
+complKK$fun(1, 1, complKK$lambda)
+complFB$fun(1, 1)
 
 }
 \keyword{nonlinear}

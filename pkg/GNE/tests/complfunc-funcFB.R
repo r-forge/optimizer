@@ -28,3 +28,16 @@ GrAphiFB(a, b)
 a == 0 & b == 0
 a / sqrt(a^2+b^2) - 1
 GrBphiFB(a, b)
+
+
+xmax <- 10
+x <- seq(-xmax, xmax, length=31)
+p <- 0
+
+sapply(x, function(x) phipFB(x, 1, p) - phiFB(x, 1))
+
+p <- pi
+
+sapply(x, function(x) phipFB(x, 1, p) - (sqrt(x^2+1) - (x+1) - p*pmax(x, 0)*max(1,0)))
+sapply(x, function(x) phipFB(x, -1, p) - (sqrt(x^2+1) - (x-1) - p*pmax(x, 0)*max(-1,0)))
+

@@ -843,7 +843,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
       }  ## end if using newuoa
 ## --------------------------------------------
 #      else 
-      if (meth == "nmkb") {# Use nmkb routine from minqa package
+      if (meth == "nmkb") {# Use nmkb routine from dfoptim package
          mcontrol$maxit<-NULL # and null out control that is NOT used
          if (mcontrol$trace > 0) {
             mcontrol$trace<-NULL
@@ -884,7 +884,7 @@ if (length(opxfn$dots)<1) opxfn$dots<-NULL # ensure null
       }  ## end if using nmkb
 ## --------------------------------------------
 #      else 
-      if (meth == "hjkb") {# Use hjkb routine from minqa package
+      if (meth == "hjkb") {# Use hjkb routine from dfoptim package
          if (mcontrol$trace > 0) {
             mcontrol$trace<-NULL
             mcontrol$info<-TRUE # logical needed, not integer         

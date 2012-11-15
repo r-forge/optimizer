@@ -1,16 +1,13 @@
 \name{Rcgminu}
 \alias{Rcgminu}
 \encoding{UTF-8}
-\title{An R implementation of a bounded nonlinear conjugate gradient algorithm 
+\title{An R implementation of an unconstrained nonlinear conjugate gradient algorithm 
    with the Dai / Yuan update and restart. Based on Nash (1979) Algorithm 22 
    for its main structure.  CALL THIS VIA \code{Rcgmin} AND DO NOT USE DIRECTLY.}
 \description{
-  The purpose of \code{Rcgminu} is to minimize a bounds (box) and mask 
-  constrained function 
+  The purpose of \code{Rcgminu} is to minimize an unconstrained function 
   of many parameters by a nonlinear conjugate gradients method. This code is
-  entirely in R to allow users to explore and understand the method. It 
-  allows bounds (or box) constraints and masks (equality constraints) to be
-  imposed on parameters. 
+  entirely in R to allow users to explore and understand the method. 
 
   This code should be called through \code{Rcgmin} which selects \code{Rcgminb}
   or \code{Rcgminu} according to the presence of bounds and masks.
@@ -27,16 +24,6 @@
    supplied set of parameters \code{par} using auxiliary data in \dots.
    The first argument of \code{fn} must be \code{par}. This function 
    returns the gradient as a numeric vector.
-
-   Note that a gradient function MUST be provided. However, there is the
-   option of using the routines grfwd(), grback(), grcentral() or grnd()
-   from package optfntools. The last of these calls the grad() function 
-   from package numDeriv. These are called by putting the name of the
-   numerical gradient function in quotation marks, e.g.,
-
-      gr="grfwd"
-
-   to use the standard forward difference numerical approximation.
 
    The use of numerical gradients for Rcgminu is STRONGLY discouraged.}
  \item{control}{

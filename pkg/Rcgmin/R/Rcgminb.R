@@ -99,22 +99,18 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     #############################################
     # gr MUST be provided
     if (grNULL) {
+       require(numDeriv)
        if (control$dowarn) 
-          warning("A NULL gradient function is being replaced with fwd diff for Rcgmin")
-       mygr  <-function(par, ...) {
-          df <- rep(NA,length(par))
-    	  for (i in 1:length(par)) {
-    	    dx <- par
-    	    dx[i] <- dx[i] + eps 
-    	    df[i] <- (fn(dx, ...) - f)/eps
-    	  }
-    	  df
+          warning("A NULL gradient function is being replaced numDeriv 'grad()'for Rcgmin")
+       if (ctrl$trace > 1) {
+           cat("Using following function in numDeriv grad()\n")
+           print(fn)
        }
+       mygr<-function(prm, func=fn, ...){
+           gv<-grad(func=func, x=prm, ...)
+       }    # gr MUST be provided
   #############################################
-    } else  
-      if ( is.character(gr) ) {
-         stop("gr cannot be character string at moment (see however optfntools)")
-      } else { mygr <- gr }
+    } else { mygr <- gr }
   ############# end test gr ####################
     ## Set working parameters (See CNM Alg 22)
     if (trace > 0) {
@@ -134,12 +130,6 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
     fail <- as.logical(FALSE)  # Method hasn't yet failed on us!
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
-    #!! getting rid of limit makes it work on negstart BUT
-    #   inefficient
-    # This does not appear to be in Y H Dai & Y Yuan, Annals of
-    #   Operations Research 103, 33–47, 2001 aor01.pdf
-    # in Alg 22 pascal, we can set this as user. Do we wish to
-    #   allow that?
     fargs <- list(...)  # function arguments
     if (trace > 2) {
         cat("Extra function arguments:")
@@ -172,11 +162,8 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     if (noupper) 
         upper <- rep(Inf, n)
     ######## check bounds and masks #############
-    ## NOTE: do this inline to avoid call (??should change
-    ##?? use bmchk, also be able to turn off?
-    #   this?)
+    ## NOTE: do this inline to avoid call to external routine
     if (bounds) {
-        ## tmp<-readline('There are bounds ')
         # Make sure to expand lower and upper
         if (!nolower & (length(lower) < n)) 
             {
@@ -190,7 +177,6 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             }  # else lower OK
         if (!noupper & (length(upper) < n)) 
             {
-                ## tmp<-readline('Check length upper ')
                 if (length(upper) == 1) {
                   upper <- rep(upper, n)
                 }
@@ -204,7 +190,6 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             #       cat('i = ',i,'\n')
             if (bdmsk[i] == 0) {
                 # NOTE: we do not change masked parameters, even if out of bounds
-                ## tmp<-readline('Masked parameter ')
                 if (!nolower) {
                   if (bvec[i] < lower[i]) {
                     wmsg <- paste(bvec[i], " = MASKED x[", i, 
@@ -224,7 +209,6 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             }
             else {
                 # not masked, so must be free or active constraint
-                ## tmp<-readline(' Not masked parameter ')
                 if (!nolower) {
                   if (bvec[i] <= lower[i]) {
                     # changed 090814 to ensure bdmsk is set
@@ -251,16 +235,13 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
         }  # end loop for bound/mask check
     } else stop("Do not call Rcgminb without bounds")
     ############## end bounds check #############
-    
     # Initial function value -- may NOT be at initial point
     #   specified by user.
     if (trace > 2) {
         cat("Try function at initial point:")
         print(bvec)
     }
-#?? Why do the following
-#    f <- try(do.call("fn", append(list(bvec), fargs)), silent = TRUE)  # Compute the function at initial point.
-     f <- try(fn(bvec, ...), silent = TRUE)  # Compute the function at initial point.
+    f <- try(fn(bvec, ...), silent = TRUE)  # Compute the function at initial point.
     if (trace > 0) {
         cat("Initial function value=", f, "\n")
     }
@@ -368,12 +349,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             if (trace > 1) {
                 cat("Gradsqr = ", gradsqr, " g1, g2 ", g1, " ", 
                   g2, " fmin=", fmin, "\n")
-                #!! tmp<-readline()
             }
-            #!! gtc<-sum(g*c) #!! to check below -- but remove later
-            #!! cat('t2=',sum(t*t),'\n')
-            #!! if (gtc > 0.2*gradsqr) cat('Powell restart FLAGGED
-            #   g*c=',gtc,'\n') #!!
             c <- g  # save last gradient
             g3 <- 1  # !! Default to 1 to ensure it is defined -- t==0 on first cycle
             if (gradsqr > tol * (abs(fmin) + reltest)) {
@@ -403,9 +379,6 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                 fdiff <- NA
                 cycle <- 0
                 break  #!!
-                #!! oldstep<-1 # !!
-                #!! don't reset stepsize ## oldstep<-1 #!! reset
-                #!! break # to quit inner loop
             }
             else {
                 # drop through if not Yuan/Dai cycle reset

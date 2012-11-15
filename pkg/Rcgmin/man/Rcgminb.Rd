@@ -28,16 +28,6 @@
    The first argument of \code{fn} must be \code{par}. This function 
    returns the gradient as a numeric vector.
 
-   Note that a gradient function MUST be provided. However, there is the
-   option of using the routines grfwd(), grback(), grcentral() or grnd()
-   from package optfntools. The last of these calls the grad() function 
-   from package numDeriv. These are called by putting the name of the
-   numerical gradient function in quotation marks, e.g.,
-
-      gr="grfwd"
-
-   to use the standard forward difference numerical approximation.
-
    The use of numerical gradients for Rcgminb is STRONGLY discouraged.}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
@@ -97,7 +87,8 @@
          or upper bound using -1.}
 }
 \references{
-   See \code{Rcgmin} documentation.
+   See \code{Rcgmin} documentation. Note that bounds and masks were adapted 
+   from the work by Nash and Walker-Smith(1987).
 }
 \seealso{\code{\link{optim}}}
 \keyword{nonlinear}

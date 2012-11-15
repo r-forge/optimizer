@@ -6,6 +6,10 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2012-8-08
+
+   o    Minor edits and addition of references.
+
 2012-6-09
 
    o    User-tolerance for gradient size.

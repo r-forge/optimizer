@@ -58,7 +58,8 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
     npar<-length(par)
-    if (ctrl$tol == 0) tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  Note -- integer overflow if n*n*d.eps
+    if (ctrl$tol == 0) tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  
+    # Note -- integer overflow if npar*npar*.Machine$double.eps
     else tol<-ctrl$tol
     maxit <- ctrl$maxit  # limit on function evaluations
     maximize <- ctrl$maximize  # TRUE to maximize the function
@@ -81,29 +82,20 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     if (grNULL) {
        require(numDeriv)
        if (control$dowarn) 
-          warning("A NULL gradient function is being replaced with fwd diff for Rcgmin")
-#       mygr  <-function(par, ...) {
-#          df <- rep(NA,length(par))
-#    	  for (i in 1:length(par)) {
-#    	    dx <- par
-#    	    dx[i] <- dx[i] + eps 
-#    	    df[i] <- (fn(dx, ...) - f)/eps
-#    	  }
-#    	  df
-#       }
-       print(fn)
+          warning("A NULL gradient function is being replaced numDeriv 'grad()'for Rcgmin")
+       if (ctrl$trace > 1) {
+           cat("Using following function in numDeriv grad()\n")
+           print(fn)
+       }
        mygr<-function(prm, func=fn, ...){
            gv<-grad(func=func, x=prm, ...)
        }
   #############################################
-    } else  
-      if ( is.character(gr) ) {
-         stop("gr cannot be character string at moment (see however optfntools)")
-      } else { mygr <- gr }
+    } else { mygr <- gr }
   ############# end test gr ####################
   ## Set working parameters (See CNM Alg 22)
     if (trace > 0) {
-        cat("Rcgminu -- J C Nash 2009 - unconstrained version of new CG\n")
+        cat("Rcgminu -- J C Nash 2009 - unconstrained version CG min\n")
         cat("an R implementation of Alg 22 with Yuan/Dai modification\n")
     }
     bvec <- par  # copy the parameter vector
@@ -119,13 +111,12 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
     fail <- as.logical(FALSE)  # Method hasn't yet failed on us!
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
-    #!! getting rid of limit makes it work on negstart BUT
-    #   inefficient
+    #!! getting rid of limit makes it work on negstart BUT inefficient
     # This does not appear to be in Y H Dai & Y Yuan, Annals of
     #   Operations Research 103, 33–47, 2001 aor01.pdf
-    # in Alg 22 pascal, we can set this as user. Do we wish to
-    #   allow that?
-##    tol <- n * (n * .Machine$double.eps)  # # for gradient test.  Note -- integer overflow if n*n*d.eps
+    # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
+    ##    tol <- n * (n * .Machine$double.eps)  # # for gradient test.  
+    ## Note -- integer overflow if n*n*d.eps
     fargs <- list(...)  # function arguments
     if (trace > 2) {
         cat("Extra function arguments:")
@@ -159,7 +150,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     keepgoing <- TRUE
     notconv <- TRUE
     msg <- "not finished"  # in case we exit somehow
-    oldstep <- 0.8  #!! 2/3 #!!?? WHY?
+    oldstep <- 0.8  #!! 2/3 #!!?? Why this choice?
     ####################################################################
     fdiff <- NA  # initially no decrease
     cycle <- 0  # !! cycle loop counter
@@ -206,7 +197,6 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
             if (trace > 1) {
                 cat("Gradsqr = ", gradsqr, " g1, g2 ", g1, " ", 
                   g2, " fmin=", fmin, "\n")
-                #!! tmp<-readline()
             }
             c <- g  # save last gradient
             g3 <- 1  # !! Default to 1 to ensure it is defined -- t==0 on first cycle

@@ -17,7 +17,7 @@
 \author{John C. Nash}
 \usepackage{Sweave}
 \usepackage{fancyvrb}
-\usepackage{chicago}
+%% \usepackage{chicago}
 
 \DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1em}
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1em}
@@ -654,7 +654,7 @@ print(strwrap(anlslmh))
 
 
 \bibliography{nlpd}
-\bibliographystyle{chicago}
+\bibliographystyle{amsplain}
 
 \end{document}
 

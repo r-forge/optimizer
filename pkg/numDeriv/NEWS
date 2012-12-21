@@ -7,6 +7,11 @@ Known BUGS
 	a central difference approximation, without any extrapolation. 
  
 
+Changes in numDeriv version 2012.12-1
+
+   o	added flag in DESCRIPTION to ByteComple.
+ 
+
 Changes in numDeriv version 2012.9-1
 
    o	added complex step derivatives (from Ravi Varadhan) and related tests.

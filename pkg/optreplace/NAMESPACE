@@ -1,0 +1,8 @@
+##
+##  NAMESPACE
+##
+
+# Public routines
+export(optim)
+
+# S4 Methods

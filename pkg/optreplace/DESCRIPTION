@@ -3,11 +3,11 @@ Type: Package
 Title: Trial package to replace optim() function with better codes
 Description: Nelder-Mead in optim() has some deficiencies. Can we overload
         the function with a better one?
-Depends: R (>= 2.10.1), dfoptim, Rvmmin, Rcgmin, numDeriv
-Version: 2012.10-1
-Date: 2012-10-01
-Author: John Nash
-Maintainer: John Nash <nashjc@uottawa.ca>
+Depends: R (>= 2.15.1), dfoptim, Rvmmin, Rcgmin, numDeriv
+Version: 2013.1-6
+Date: 2013-01-06
+Author: John C. Nash
+Maintainer: John C. Nash <nashjc@uottawa.ca>
 License: GPL (>= 2)
 LazyLoad: yes
 Repository: CRAN

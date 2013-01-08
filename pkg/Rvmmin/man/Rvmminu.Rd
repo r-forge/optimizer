@@ -21,8 +21,8 @@ See the manual Rvmmin.Rd for details.
    returns the gradient as a numeric vector.
 
    Note that a gradient function MUST be provided. However, there is the
-   option of using the routines grfwd(), grback(), grcentral() or grnd()
-   from package optextras. The last of these calls the grad() function 
+   option of using the routines \code{grfwd}, \code{grback}, \code{grcentral} or \code{grnd}
+   from package optextras. The last of these calls the \code{grad} function 
    from package numDeriv. These are called by putting the name of the
    numerical gradient function in quotation marks, e.g.,
 
@@ -30,13 +30,20 @@ See the manual Rvmmin.Rd for details.
 
    to use the standard forward difference numerical approximation.
 
-   The use of numerical gradients for Rvmmin is STRONGLY discouraged.}
+   The use of numerical gradients for Rvmmin is STRONGLY discouraged
+   for reasons given in the manual Rvmmin.Rd.}
  \item{control}{
     An optional list of control settings.
  }
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }
 \details{
+
+  This routine is intended to be called from \code{Rvmmin}, which will, if
+  necessary, supply a gradient approximation. However, some users will want
+  to avoid the extra overhead, in which case it is important to provide an
+  appropriate and high-accuracy gradient routine.
+
   Functions \code{fn} must return a numeric value.
   The \code{control} argument is a list.
     Successful completion.

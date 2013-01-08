@@ -125,6 +125,8 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
           warning("A gradient calculation (analytic or numerical) MUST be provided for Rvmmin")
        msg<-"No gradient function provided for Rvmmin"
        ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
+       names(ans) <- c("par", "value", "counts", "convergence", 
+                       "message", "bdmsk")
        return(ans)
     }  # grNULL
     if ( is.character(gr) ) {
@@ -160,7 +162,7 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
         conv <- 20
         if (trace > 0) 
             cat(msg, "\n") # change NA to dblmax 110524
-        ans <- list(bvec, dblmax, c(ifn, 0), 0, conv, msg, bdmsk)  #
+        ans <- list(bvec, dblmax, c(ifn, 0), conv, msg, bdmsk)  #
         names(ans) <- c("par", "value", "counts", "convergence", 
             "message", "bdmsk")
         return(ans)
@@ -428,8 +430,8 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
         cat("Seem to be done VM\n")
     if (maximize) 
         fmin <- (-1) * fmin
+    msg <- "Rvmminb appears to have converged"
     ans <- list(par, fmin, c(ifn, ig), convergence=conv, msg, bdmsk)
-    ## ?? need to fix up message
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message", "bdmsk")
     #return(ans)

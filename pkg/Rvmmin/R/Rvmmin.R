@@ -81,7 +81,10 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     if (control$trace > 1) 
         cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
             " bounds = ", bounds, "\n")
-    grNULL <- is.null(gr)
+    if (is.null(gr)) {
+       gr <- "grfwd" # use forward gradient approximation if no gradient code provided
+       if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
+    }   
     if (is.null(control$dowarn)) control$dowarn<-TRUE
     #############################################
     if (bounds) {
@@ -90,5 +93,5 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     } else {
        ans<-Rvmminu(par, fn, gr, control = control, ...)
     }
-    return(ans) # ?? is this needed
+#    return(ans) # commented 130108
 }  ## end of Rvmmin

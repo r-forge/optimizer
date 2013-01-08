@@ -31,7 +31,8 @@ of nonlinear functions subject to bounds (box) constraints and masks
 
    to use the standard forward difference numerical approximation.
 
-   The use of numerical gradients for Rvmmin is STRONGLY discouraged.}
+   The use of numerical gradients for Rvmminb is STRONGLY discouraged.
+   See the manual Rvmmin.Rd for more explanation.}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or
@@ -43,6 +44,11 @@ of nonlinear functions subject to bounds (box) constraints and masks
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }
 \details{
+  This routine is intended to be called from \code{Rvmmin}, which will, if
+  necessary, supply a gradient approximation. However, some users will want
+  to avoid the extra overhead, in which case it is important to provide an
+  appropriate and high-accuracy gradient routine.
+
   Functions \code{fn} must return a numeric value.
   The \code{control} argument is a list.
     Successful completion.

@@ -15,7 +15,7 @@ acceptable point can be found, we reset B to the identity i.e., the search direc
 becomes the negative gradient. If the search along the negative gradient is unsuccessful,
 the method terminates. 
 
-  This codes are
+  This set of codes is
   entirely in R to allow users to explore and understand the method. It also
   allows bounds (or box) constraints and masks (equality constraints) to be
   imposed on parameters. 
@@ -33,17 +33,30 @@ the method terminates.
    The first argument of \code{fn} must be \code{par}. This function 
    returns the gradient as a numeric vector.
 
-   Note that a gradient function MUST be provided. However, there is the
-   option of using the routines grfwd(), grback(), grcentral() or grnd()
-   from package optextras. The last of these calls the grad() function 
-   from package numDeriv. These are called by putting the name of the
-   numerical gradient function in quotation marks, e.g.,
+   Note that a gradient function must generally be provided. However, 
+   to ensure compatibility with other optimizers, if \code{gr} is NULL,
+   the forward gradient approximation from routine \code{grfwd} will
+   be used. 
+
+   The use of numerical gradients for Rvmmin is STRONGLY discouraged.
+   First, the termination
+   test uses a size measure on the gradient, and numerical gradient 
+   approximations can sometimes give results that are too large. Second,
+   if there are bounds constraints, the step(s) taken to calculate the
+   approximation to the derivative are NOT checked to see if they are
+   out of bounds, and the function may be undefined at the evaluation
+   point. 
+
+   There is also the option of using the routines \code{grfwd}, \code{grback}, 
+   \code{grcentral} or \code{grnd} from package \code{optextras}. The last 
+   of these calls the \code{grad()} function from package numDeriv. These 
+   are called by putting the name of the (numerical) gradient function in 
+   quotation marks, e.g.,
 
       gr="grfwd"
 
    to use the standard forward difference numerical approximation.
-
-   The use of numerical gradients for Rvmmin is STRONGLY discouraged.}
+}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or

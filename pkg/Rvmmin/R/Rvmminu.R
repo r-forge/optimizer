@@ -45,6 +45,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           warning("A gradient calculation (analytic or numerical) MUST be provided for Rvmmin")
        msg<-"No gradient function provided for Rvmmin"
        ans <- list(par, NA, c(0, 0), 9999, msg)
+       names(ans) <- c("par", "value", "counts", "convergence", 
+                       "message")
        return(ans)
     }  # grNULL
     if ( is.character(gr) ) {
@@ -233,8 +235,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         cat("Seem to be done VM\n")
     if (maximize) 
         fmin <- (-1) * fmin
+    msg <- "Rvmminu appears to have converged"
     ans <- list(par, fmin, c(ifn, ig), convergence=conv, msg)
-    ## ?? need to fix up message
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message")
     #return(ans)

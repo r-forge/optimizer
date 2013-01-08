@@ -1,0 +1,12 @@
+86c11e67c0155b1fd5983ed60e248dda *DESCRIPTION
+6cfb3f6c05fb0cfa09e0c6a3900f90b0 *NAMESPACE
+62d97ead58f424af64454024e9e50abb *NEWS
+ba18e2fa1e543c13a29cef4d5604aab7 *R/hjk.R
+4c69b3bd37042e9dac347284fa94db93 *R/hjkb.R
+d450bc8fdb75afd4a3ad1defe6dd71da *R/nmk.R
+1a3dc356f1e635b3726978338b3d702f *R/nmkb.R
+28d4e9ca263c97509eea042d2912f0d1 *demo/00Index
+82464e8d86f12ab2f3a76c99a07c2fa6 *demo/dfoptim.R
+3bc4fa3c1666f974ad96fcbbf6a1035d *man/dfoptim-package.Rd
+087d0d63cd6e4b8408ccb796b401cfe4 *man/hookejeeves.Rd
+d58a43216146eaa1b9f331fa2dff1d61 *man/nmkb.Rd

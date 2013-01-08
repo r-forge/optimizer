@@ -1,0 +1,25 @@
+------------------------------------------------------------------------------
+  dfoptim                                                               NEWS
+------------------------------------------------------------------------------
+
+
+Changes in version 2011.8-1 (2011-08-12)
+
+    o Bounds constrained Hooke-Jeeves hjkb()
+
+Changes in version 2011.7-2 (2011-07-26)
+
+    o Bounds constrained Nelder-Mead nmkb().
+
+Changes in version 2011.7-1
+
+    o Hooke-Jeeves minimization routine hjk().
+
+Changes in version 2011.5-1
+  
+    o Fixed minor bug in the re-definition of objective function inside
+      for maximization.
+
+Initial version
+
+    o Nelder-Mead minimization routine nmk().

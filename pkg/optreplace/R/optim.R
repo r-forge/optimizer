@@ -168,13 +168,16 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
   ufn<-fn
   ugr<-gr
 # reset the function if we are maximizing
+  if (! is.null(control$fnscale))  
+        stop("Control fnscale is not available in optreplace. Use maximize with relevant optimizers.")
   if ((! is.null(control$maximize)) && control$maximize ) { 
         cat("Maximizing -- use negfn and neggr\n")
 	ufn <- negfn 
 	ugr <- neggr
-        if (! is.null(control$fnscale)) { 
- 		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
-        } # moved up 091216
+  }
+# Check parscale not used
+  if (! is.null(control$parscale)) {
+        stop("Control parscale is NOT available in optreplace. Please use explicit scaling.")
   }
 
 # Restrict list of methods if we have bounds

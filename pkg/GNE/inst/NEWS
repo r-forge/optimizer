@@ -7,6 +7,8 @@ Version 0.97
 - update vignette, manuals and tests files.
 - depends now the SQUAREM package.
 - update the benchmark functions for GNE.nseq.
+- add new constrained equation algorithms.
+- start Stackelberg equilibrium (experimental stage).
 
 Version 0.96
 =============

@@ -62,9 +62,6 @@ gradxgapVIR <- function(x, y, dimx, grobj, arggrobj,
 
 	stop("not yet implemented")
 	
-	res <- rowSums(sapply(1:nplayer, deltagrad)) 
-	res <- res + unlist(sapply(1:nplayer, gradi_obji))
-	res - par$alpha*(x-y)
 }
 
 gradygapVIR <- function(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
@@ -116,6 +113,6 @@ fpVIR <- function(x, dimx, obj, argobj, joint, argjoint,
 	
 		stop("not yet implemented")
 		
-	yofx(x)
+	
 }
 

@@ -11,7 +11,7 @@ GNE <- function(approach =
 		res <- GNE.ceq(xinit, method=method, control=control, ...)
 	
 	if(approach == "fixed point")
-		res <- GNE.fpeq(xinit, method=method, control=control, ...)
+		res <- GNE.fpeq(xinit, method=method, control.outer=control, ...)
 	
 	if(approach == "minimization")
 		res <- GNE.min(xinit, method=method, control=control, ...)
@@ -76,8 +76,8 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	if(!silent)
 		print("init completed.")
 	
-	res <- nseq(init, myfunSSR, myjacSSR, argfun=arg1, argjac=arg2, method, 
-				control, silent=silent, ...)	
+	res <- nseq(init, myfunSSR, myjacSSR, argfun=arg1, argjac=arg2, method=method, 
+				control=control, silent=silent, ...)	
 	class(res) <- "GNE"
 	if(!silent)
 		print("computation completed.")
@@ -88,9 +88,9 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
 	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr,
 	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
-	method="IP", control=list(), silent=TRUE, ...)
+	method="PR", control=list(), silent=TRUE, ...)
 {
-	if(method == "default") method <- "IP"
+	if(method == "default") method <- "PR"
 	
 	argtest1 <- testargfunCER(init, dimx, dimlam, grobj, arggrobj, constr, argconstr, 
 							  grconstr, arggrconstr, dimmu, joint, argjoint, grjoint, arggrjoint)
@@ -141,12 +141,12 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	if(!silent)
 		print("init completed.")
 		
-	res <- ceq(init, dimx, dimlam, myfunCER, myjacCER, argfun=arg1, argjac=arg2,
-		method, control, global="gline", silent=silent, ...)	
+	res <- ceq(init, dimx, dimlam, Hfinal=myfunCER, jacHfinal=myjacCER, 
+			   argfun=arg1, argjac=arg2, method=method, control=control, 
+			   silent=silent, ...)	
 	class(res) <- "GNE"
 	if(!silent)
 		print("computation completed.")
-	
 	
 	res
 }
@@ -206,7 +206,7 @@ GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj,
 		
 	if(!silent)
 		print("init completed.")
-	res <- fpeq(init, yfun, merit, method, control.outer=control.outer, stepfunc=stepfunc,
+	res <- fpeq(init, yfun, merit, method, control=control.outer, stepfunc=stepfunc,
 				argstep=argstep, silent=silent, order=order, ...)
 	class(res) <- "GNE"
 	if(!silent)
@@ -230,98 +230,6 @@ GNE.min <- function(init, gap, gradgap, arggap=list(), arggrad=list(), method,
 
 
 
-bench.GNE.nseq <- function(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
-{
-	
-methods <- c("Newton", "Broyden")
-globals <- c("none", "gline", "qline", "pwldog", "dbldog")
-globnames <- c("pure", "geom. line search", "quad. line search", "Powell trust region", "Dbl. trust region")
-
-fullnames <- paste(rep(methods, each=length(globals)), rep(globnames, length(methods)), sep=" - ")
-
-
-times <- vector("numeric", length(methods) * length(globals) )
-reslist <- list()
-
-for(m in methods)
-for(g in globals)
-{
-mytime <- system.time(
-	 res <- GNE.nseq(xinit, Phi, jacPhi, argPhi, argjac, ..., method=m, global=g) 
-, gcFirst = TRUE)
-	res <- c(res, method=m, global=g, time= mytime[3], name=paste(m,g))
-	if(echo)
-		print(res)
-	reslist <- c(reslist, list(res))
-}	
-
-fctcall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[1] )
-jaccall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[2] )
-x <- t(sapply(1:length(reslist), function(i) reslist[[i]]$par ))
-normFx <- sapply(1:length(reslist), function(i) reslist[[i]]$value )
-comptime <- sapply(1:length(reslist), function(i) reslist[[i]]$time )
-checknam <- sapply(1:length(reslist), function(i) reslist[[i]]$name )	
-codes <- sapply(1:length(reslist), function(i) reslist[[i]]$code )		
-
-list(compres = data.frame( method= fullnames, fctcall, jaccall, comptime, x, normFx, codes ),
-	reslist = reslist)
-}
-
-
-bench.GNE.nseq.LM <- function(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), 
-	echo=FALSE, control=list())
-{
-	
-	method <- "Levenberg-Marquardt"
-	LM.Params <- "min"  #c("merit", "jacmerit", "min")
-	globals <- c("none", "gline", "qline")
-	globnames <- c("pure", "geom. line search", "quad. line search")
-	
-	fullnames <- paste("LM", paste(rep(LM.Params, each=length(globals)), rep(globnames, length(LM.Params)), sep=" - "))
-		
-	
-	times <- vector("numeric", length(LM.Params) * length(globals) )
-	reslist <- list()
-	
-	
-	for(l in LM.Params)
-	for(g in globals)
-	{
-		
-		mytime <- system.time(
-			res <- nseq(xinit, Phi, jacPhi, argPhi, argjac, method=method, 
-						control=c(control, list(LM.param=l)), global=g) 
-							  , gcFirst = TRUE)
-		res <- c(res, method=method, global=g, LM.param=l, time= mytime[3], name=paste(g,l))
-		if(echo)
-			print(res)
-		reslist <- c(reslist, list(res))
-	}	
-	
-	print(c(control, list(LM.param="adaptive")))
-	
-	mytime <- system.time(
-		res <- nseq(xinit, Phi, jacPhi, argPhi, argjac, method=method, 
-					  control=c(control, list(LM.param="adaptive")), global="none") 
-						  , gcFirst = TRUE)
-	res <- c(res, method=method, global="none", LM.param="adaptive", time= mytime[3], name=paste("none", "adaptive"))
-	if(echo)
-		print(res)
-	reslist <- c(reslist, list(res))
-	fullnames <- c(fullnames, paste("LM", paste("adaptive", "pure", sep=" - ")) )
-	
-	
-	fctcall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[1] )
-	jaccall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[2] )
-	x <- t(sapply(1:length(reslist), function(i) reslist[[i]]$par ))
-	normFx <- sapply(1:length(reslist), function(i) reslist[[i]]$value )
-	comptime <- sapply(1:length(reslist), function(i) reslist[[i]]$time )
-	checknam <- sapply(1:length(reslist), function(i) reslist[[i]]$name )
-	codes <- sapply(1:length(reslist), function(i) reslist[[i]]$code )	
-	
-	list(compres = data.frame( method= fullnames, fctcall, jaccall, comptime, x, normFx, codes ),
-		 reslist = reslist )
-}
 
 
 #print function

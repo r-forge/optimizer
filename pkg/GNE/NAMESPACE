@@ -5,7 +5,7 @@ export(GNE, GNE.nseq, GNE.ceq, GNE.fpeq, GNE.min)
 S3method(print, GNE)
 S3method(summary, GNE)
 S3method(print, summary.GNE)
-#export(bench.GNE.nseq, bench.GNE.nseq.LM)
+export(bench.GNE.nseq, bench.GNE.ceq)
 
 export(SE.nseq, SE.objleaders, SE.bestresponse)
 

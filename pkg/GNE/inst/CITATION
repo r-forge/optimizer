@@ -1,4 +1,4 @@
-citHeader("To cite NE in publications use:")
+citHeader("To cite GNE in publications use:")
 
 
 citEntry(entry="Manual",
@@ -9,6 +9,6 @@ citEntry(entry="Manual",
          textVersion =
 	 paste(	"C. Dutang",
 		"(2012),",
-	       	"GNE: computation of Nash Equilibria")
+	       	"GNE: computation of generalized Nash Equilibria")
 )
 

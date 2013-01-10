@@ -8,7 +8,7 @@
 GNE.ceq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj, 
 	constr, argconstr, grconstr, arggrconstr, heconstr, argheconstr,
 	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
-	method="IP", control=list(), silent=TRUE, ...)
+	method="PR", control=list(), silent=TRUE, ...)
 
 }
 \arguments{
@@ -36,8 +36,8 @@ GNE.ceq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
   \item{hejoint}{Hessian of the joint function, see details.}
   \item{arghejoint}{a list of additional arguments of the joint Hessian.}
 
-  \item{method}{a character string specifying the method \code{"Newton"},
-	\code{"Broyden"}, \code{"Levenberg-Marquardt"}. }
+  \item{method}{a character string specifying the method 
+	\code{"PR"} or \code{"AS"}. }
   \item{control}{a list with control parameters.}
   \item{\dots}{further arguments to be passed to the optimization routine. 
 	NOT to the functions \code{H} and \code{jacH}.}
@@ -47,25 +47,42 @@ GNE.ceq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 \code{GNE.ceq} solves the GNE problem via a constrained equation reformulation of the KKT system. 
 
 This approach consists in solving the extended Karush-Kuhn-Tucker 
-(KKT) system denoted by \eqn{H(z)=0}, where eqn{z} is formed by the players strategy 
+(KKT) system denoted by \eqn{H(z)=0}, for \eqn{z \in \Omega} where eqn{z} is formed by the players strategy 
 \eqn{x}, the Lagrange multiplier \eqn{\lambda}{lambda} and the slate variable \eqn{w}.
 The root problem \eqn{H(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
 where the direction \eqn{d_n} is computed in two different ways. Let \eqn{J(x)=Jac H(x)}.
+There are two possible methods either \code{"PR"} for potential reduction algorithm
+or \code{"AS"} for affine scaled trust reduction algorithm.
 \describe{
-	\item{(a) modified Newton:}{The direction solves the system \eqn{H(z_n) + J(x_n) d = sigma_n a^T H(z_n) / ||a||_2^2 a
-		}.}
-	\item{(b) ?:}{}
+	\item{(a) potential reduction algorithm:}{The direction solves the system 
+		\eqn{H(z_n) + J(z_n) d = sigma_n a^T H(z_n) / ||a||_2^2 a}.
+		}
+	\item{(b) bound-constrained trust region algorithm:}{The direction solves the system
+		\eqn{\min_p ||J(z_n)^T p + H(z_n)||^2 },
+		for \eqn{p} such that \eqn{||p|| <= Delta_n||}.
+		}
 }
 
-In addition to the computation method, a globalization scheme can be choosed using the \code{global}
-argument, via the \code{\dots} argument. Available schemes are 
+\code{\dots} are further arguments to be passed to the optimization routine, 
+that is \code{global}, \code{xscalm}, \code{silent}. 
+A globalization scheme can be choosed using the \code{global} argument. 
+Available schemes are 
 \describe{
 	\item{(1) Line search:}{ if \code{global} is set to \code{"qline"} or \code{"gline"}, a line search
 		is used with the merit function being half of the L2 norm of \eqn{Phi}, respectively with a
 		quadratic or a geometric implementation.}
+	\item{(3) Trust-region:}{ if  \code{global} is set to \code{"pwldog"}, the Powell dogleg method
+		is used. }
 	\item{(2) None:}{ if  \code{global} is set to \code{"none"}, no globalization is done. }
 }	
-The default value of \code{global} is \code{"gline"}. 
+The default value of \code{global} is \code{"gline"} when \code{method="PR"} and 
+\code{"pwldog"} when \code{method="AS"}.
+The \code{xscalm} is a scaling parameter to used, either \code{"fixed"} (default)
+or \code{"auto"}, for which scaling factors are calculated from the euclidean norms of the 
+columns of the jacobian matrix. 
+The \code{silent} argument is a logical to report or not the optimization process, default
+to \code{FALSE}.
+
 
 The \code{control} argument is a list that can supply any of the following components:
 \describe{
@@ -85,8 +102,14 @@ The \code{control} argument is a list that can supply any of the following compo
 	\item{\code{trace}}{Non-negative integer. A value of 1 will give a detailed report of the
 	progress of the iteration, default 0.}
 	\item{\code{sigma}, \code{delta}, \code{zeta}}{Parameters initialized to \code{1/2}, 
-	\code{1}, \code{length(init)/2}.}
-	\item{\code{forcingpar}}{Forcing parameter set to 0.1.}
+		\code{1}, \code{length(init)/2}, respectively, when \code{method="PR"}.}
+	\item{\code{forcingpar}}{Forcing parameter set to 0.1, when \code{method="PR"}.}
+	
+	\item{\code{theta}, \code{radiusmin}, \code{reducmin}, \code{radiusmax}, 
+		\code{radiusred}, \code{reducred}, \code{radiusexp}, \code{reducexp}}{
+		Parameters initialized to \code{0.99995}, \code{1}, \code{0.1}, \code{1e10}, 
+		\code{1/2}, \code{1/4}, \code{2}, \code{3/4}, when \code{method="AS"}.}
+	
 }
 
 }
@@ -124,11 +147,19 @@ The \code{control} argument is a list that can supply any of the following compo
  J.E. Dennis and J.J. Moree (1977), 
  \emph{Quasi-Newton methods, Motivation and Theory},
  SIAM review.
+ 
+ Monteiro, R. and Pang, J.-S. (1999), 
+ \emph{A Potential Reduction Newton Method for Constrained equations}, 
+ SIAM Journal on Optimization 9(3), 729-754.
+
+ S. Bellavia, M. Macconi, B. Morini (2003),
+ \emph{An affine scaling trust-region approach to bound-constrained nonlinear systems},
+ Applied Numerical Mathematics 44, 257-280
 
  A. Dreves, F. Facchinei, C. Kanzow and S. Sagratella (2011), 
  \emph{On the solutions of the KKT conditions of generalized Nash equilibrium problems}, 
- SIAM Journal on Optimization 21(3), 1082–1108.
-
+ SIAM Journal on Optimization 21(3), 1082-1108.
+ 
 
 }
 \seealso{
@@ -179,10 +210,13 @@ z0 <- c(x0, 2, 2, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 #true value is (3/4, 1/4, 1/2, 1/2)
 GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
-	constr=g, grconstr=grg, heconstr=heg, method="IP", 
+	constr=g, grconstr=grg, heconstr=heg, method="PR", 
 	control=list(trace=0, maxit=10))
 
 
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
+	constr=g, grconstr=grg, heconstr=heg, method="AS", global="pwldog", 
+	xscalm="auto", control=list(trace=0, maxit=100))
 
 
 #-------------------------------------------------------------------------------
@@ -226,8 +260,11 @@ z0 <- c(x0, 2, 2, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, arggrobj=myarg, 
 	argheobj=myarg, constr=g, grconstr=grg, heconstr=heg,
-	method="IP", control=list(trace=0, maxit=10))
+	method="PR", control=list(trace=0, maxit=10))
 
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, arggrobj=myarg, 
+	argheobj=myarg, constr=g, grconstr=grg, heconstr=heg, 
+	method="AS", global="pwldog", xscalm="auto", control=list(trace=0, maxit=100))
 
 	
 

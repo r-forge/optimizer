@@ -217,7 +217,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 			foll <- bestresponse(xlead, arg1, arg2, leaders, followers,
 								 id4xfoll, id4lamfoll, id4mufoll, init, 
 								 follfun, method.follower, control.follower,
-								 maxit.follower)
+								 maxit.follower=maxit.follower)
 			bestrespcount$phicnt <<- bestrespcount$phicnt + foll$counts["phicnt"]
 			bestrespcount$jaccnt <<- bestrespcount$jaccnt + foll$counts["jaccnt"]
 		
@@ -530,7 +530,7 @@ SE.objleaders <- function(x, leaders, init, dimx, dimlam,
 	compl, gcompla, gcomplb, argcompl, 
 	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
 	method.follower="default", control.follower=list(), 
-	maxit.follower, silent=TRUE, ...)
+	maxit.follower=10, silent=TRUE, ...)
 {
 	if(method.follower == "default") method.follower <- "Newton"
 

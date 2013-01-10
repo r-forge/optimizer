@@ -1,6 +1,6 @@
-
 library(GNE)	
 
+itermax <- 10
 
 #-------------------------------------------------------------------------------
 # (1) Example 5 of von Facchinei et al. (2007)
@@ -47,12 +47,12 @@ jacSSR(z0, dimx, dimlam, heobj=heobj, constr=g, grconstr=grg,
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, NULL, heobj=heobj, NULL, 
 	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, NULL, heobj=heobj, NULL, 
 	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Broyden", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 
 
@@ -102,12 +102,12 @@ jacSSR(z0, dimx, dimlam, heobj=heobj, myarg, constr=g, grconstr=grg,
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Broyden", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 
 #-------------------------------------------------------------------------------
@@ -166,12 +166,12 @@ heconstr=heg, myarg, gcompla=GrAphiFB, gcomplb=GrBphiFB)
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, myarg, grconstr=grg, myarg, heconstr=heg, myarg, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, myarg, grconstr=grg, myarg, heconstr=heg, myarg, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Broyden", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 
 
@@ -224,12 +224,12 @@ jacSSR(z0, dimx, dimlam, heobj=heobj, myarg, constr=g, grconstr=grg,
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, grconstr=grg, heconstr=heg, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, grconstr=grg, heconstr=heg, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Broyden", 
-	control=list(trace=1))
+	control=list(trace=1, maxit=itermax))
 
 
 #-------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ jacSSR(z, dimx, dimlam, heobj=hefullob, constr=g, grconstr=grfullg,
 x <- GNE.nseq(z, dimx, dimlam, grobj=grfullob, NULL, heobj=hefullob, NULL, 
 	constr=g, NULL, grconstr=grfullg, NULL, heconstr=hefullg, NULL, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=0))
+	control=list(trace=0, maxit=itermax))
 
 print(x)
 summary(x)

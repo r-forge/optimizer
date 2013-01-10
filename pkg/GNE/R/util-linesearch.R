@@ -26,7 +26,7 @@ linesearch.geom <- function(xk, dk, slopek, con, merit, ...)
 		stepk <- con$sigma * stepk
 	}
 	if(con$trace >= 3)
-		cat("xk, dk, stepk, normfk, normfp", xk, dk, stepk, normfk, normfp, "\n")
+		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
 	
 	list(stepk=stepk, xk=xk, dk=dk, slopek=slopek, inner.iter=inner.iter, 
 		normfp=normfp, normfk=normfk)
@@ -39,8 +39,7 @@ linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dim
 	stepk <- 1
 	inner.iter <- 0
 	minstep <- con$xtol / max( abs(dk) / pmax(xk, 1) )		
-	
-	normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
+
 	normfk <- merit(xk, dimx, dimlam, ...)	
 			
 	while(stepk > minstep)
@@ -50,7 +49,7 @@ linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dim
 			cat("i", inner.iter, "\tstep", stepk, "\n")			
 
 		if(checkint(xk + stepk*dk, dimx, dimlam))
-		{
+		{	
 			normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
 			
 			#traces in R console	
@@ -69,7 +68,12 @@ linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dim
 		stepk <- con$sigma * stepk
 	}
 	if(con$trace >= 3)
-		cat("xk, dk, stepk, normfk, normfp", xk, dk, stepk, normfk, normfp, "\n")
+		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
+	
+	if(checkint(xk + stepk*dk, dimx, dimlam))
+		normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
+	else
+		normfp <- Inf
 	
 	list(stepk=stepk, xk=xk, dk=dk, slopek=slopek, inner.iter=inner.iter, 
 		normfp=normfp, normfk=normfk)
@@ -102,11 +106,11 @@ linesearch.quad <- function(xk, dk, slopek, con, merit, ...)
 			break
 		
 		inner.iter <- inner.iter + 1	
-		stepk <- - as.numeric( (stepk)^2 * slopek / 2 / (normfp - normfk - slopek)	)	
+		stepk <- - as.numeric( (stepk)^2 * slopek / 2 / (normfp - normfk - slopek*stepk)	)	
 
 	}	
 	if(con$trace >= 3)
-		cat("xk, dk, stepk, normfk, normfp", xk, dk, stepk, normfk, normfp, "\n")
+		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
 	
 	list(stepk=stepk, xk=xk, dk=dk, slopek=slopek, inner.iter=inner.iter, 
 		normfp=normfp, normfk=normfk)
@@ -115,11 +119,12 @@ linesearch.quad <- function(xk, dk, slopek, con, merit, ...)
 # quadratic backtracking line search customized for interior point methods
 linesearch.quad.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dimlam, ...)
 {
+	stop("not yet implemented.")
+	
 	stepk <- 1
 	inner.iter <- 0
 	minstep <- con$xtol / max( abs(dk) / pmax(xk, 1) )		
 	
-	normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
 	normfk <- merit(xk, dimx, dimlam, ...)	
 	
 	while(stepk > minstep)
@@ -138,15 +143,20 @@ linesearch.quad.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dim
 		
 			#check Armijo condition
 			if(normfp <= normfk + con$btol * stepk * slopek)
-				break
+				break			
 		}
 		
 		inner.iter <- inner.iter + 1	
-		stepk <- - as.numeric( (stepk)^2 * slopek / 2 / (normfp - normfk - slopek)	)	
+		stepk <- - as.numeric( (stepk)^2 * slopek / 2 / (normfp - normfk - slopek*stepk) )	
 		
 	}	
 	if(con$trace >= 3)
-		cat("xk, dk, stepk, normfk, normfp", xk, dk, stepk, normfk, normfp, "\n")
+		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
+
+	if(checkint(xk + stepk*dk, dimx, dimlam))
+		normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
+	else
+		normfp <- Inf
 	
 	list(stepk=stepk, xk=xk, dk=dk, slopek=slopek, inner.iter=inner.iter, 
 		 normfp=normfp, normfk=normfk)

@@ -1,12 +1,18 @@
 \name{compl}
 \alias{complementarity}
 \alias{phiFB}
+\alias{phipFB}
+\alias{phirFB}
 \alias{phiMin}
 \alias{phiMan}
 \alias{phiKK}
 \alias{phiLT}
 \alias{GrAphiFB}
 \alias{GrBphiFB}
+\alias{GrAphipFB}
+\alias{GrBphipFB}
+\alias{GrAphirFB}
+\alias{GrBphirFB}
 \alias{GrAphiMin}
 \alias{GrBphiMin}
 \alias{GrAphiMan}
@@ -27,6 +33,14 @@ phiFB(a, b)
 GrAphiFB(a, b) 
 GrBphiFB(a, b) 
 
+phipFB(a, b, p) 
+GrAphipFB(a, b, p) 
+GrBphipFB(a, b, p) 
+
+phirFB(a, b) 
+GrAphirFB(a, b) 
+GrBphirFB(a, b) 
+
 phiMin(a, b) 
 GrAphiMin(a, b) 
 GrBphiMin(a, b)
@@ -44,8 +58,8 @@ phiLT(a, b, q)
 GrAphiLT(a, b, q)
 GrBphiLT(a, b, q)
 
-compl.par(type=c("FB", "Min", "Man", "LT", "KK"), 
-f, fprime, q, lambda)
+compl.par(type=c("FB", "pFB", "rFB", "Min", "Man", "LT", "KK"), 
+	p, f, fprime, q, lambda)
 
 \method{print}{compl.par}(x, \dots)
 
@@ -60,11 +74,12 @@ f, fprime, q, lambda)
   \item{f, fprime}{a univariate function and its derivative.}
   \item{lambda}{a parameter in [0, 2[.}
   \item{q}{a parameter >1.}
-  
+  \item{p}{a parameter >0.}
+    
   \item{type}{a character string for the complementarity
 	function type: either \code{"FB"}, \code{"Min"}, \code{"Man"}, 
 	\code{"LT"} or \code{"KK"}.}
-  \item{x,object}{an object of class \code{"compl.par"}.}		
+  \item{x, object}{an object of class \code{"compl.par"}.}		
   \item{\dots}{further arguments to pass to \code{print}, 
 		or \code{summary}.}			  
 }
@@ -73,7 +88,9 @@ f, fprime, q, lambda)
 We implement 5 complementarity functions From Facchinei & Pang (2003). 
 \describe{
 	\item{(i) \code{phiFB}}{ the Fischer-Burmeister complementarity function 
-		\eqn{\sqrt{a^2+b^2} - (a+b)}{sqrt(a^2+b^2) - (a+b)}.}
+		\eqn{\sqrt{a^2+b^2} - (a+b)}{sqrt(a^2+b^2) - (a+b)}.
+		The penalized version is \eqn{phiFB(a,b) - p*max(a,0)*max(b,0)}, whereas
+		the regularized version is \eqn{phiFB(a,b) - epsilon}.}
 	\item{(ii) \code{phiMin}}{ the minimum complementarity function \eqn{\min(a,b)}{min(a,b)}.}
 	\item{(iii) \code{phiMan}}{ the Mangasarian's family of complementarity function \eqn{f(|a-b|) - f(a) - f(b)}, 
 	typically \eqn{f(t)=t} or \eqn{f(t)=t^3}.}

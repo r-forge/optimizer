@@ -119,7 +119,7 @@ testargfunSSR <- function(z, dimx, dimlam,
 		
 	}else
 	{
-		complfinal <- function(a, b, argcompl) compl(a, b)
+		complfinal <- function(a, b, ...) compl(a, b)
 		argcompl <- list()
 	}
 	str <- paste("the call to complfinal(1, 1, argcompl) does not work.", "arguments are", 
@@ -299,8 +299,8 @@ testargjacSSR <- function(z, dimx, dimlam,
 			evalwitharglist(gcomplb, a, c(list(b), ...))
 	}else
 	{
-		gcomplafinal <- function(a, b, argcompl) gcompla(a, b)	
-		gcomplbfinal <- function(a, b, argcompl) gcomplb(a, b)	
+		gcomplafinal <- function(a, b, ...) gcompla(a, b)	
+		gcomplbfinal <- function(a, b, ...) gcomplb(a, b)	
 		argcompl <- list()
 	}
 	str <- paste("the call to gcompla(1, 1, argcompl) does not work.", "arguments are", 

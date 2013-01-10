@@ -3,8 +3,10 @@
 Version 0.97
 =============
 
-- change the arguments of functions GNE.nseq and GNE.ceq.
+- add new algorithms and change the arguments of functions GNE.nseq and GNE.ceq.
 - update vignette, manuals and tests files.
+- depends now the SQUAREM package.
+- update the benchmark functions for GNE.nseq.
 
 Version 0.96
 =============

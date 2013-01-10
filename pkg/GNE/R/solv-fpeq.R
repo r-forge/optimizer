@@ -197,7 +197,7 @@ relaxationAlgoUR <- function(xinit, stepfunc, fn, merit, control, ...)
 	if(echo >= 2)
 		cat(" m(x_k)", merit_xk,  "\n")
 	if(echo >= 3)
-		cat("step size", alphak, "\n")
+		cat("step size", alphak, "\n\n")
 	
 	while( abs( merit_xk ) > tol && k < maxit)
 	{
@@ -217,7 +217,7 @@ relaxationAlgoUR <- function(xinit, stepfunc, fn, merit, control, ...)
 		if(echo >= 2)
 			cat(" m(x_k)", merit_xk,  "\n")
 		if(echo >= 3)
-			cat("step size", alphak, "\n")
+			cat("step size", alphak, "\n\n")
 	}
 	
 	list(par = xk, value=merit_xk , counts=c(fn=k+1, merit=k+1), iter = k, 
@@ -268,7 +268,7 @@ relaxationAlgoVH <- function(xinit, fn, merit, control, ...)
 			{
 				cat(l, "\t", merit_xktkdk, "\t <= ")
 				cat(merit_xk - sigma * tk^2 * normdk^2, "?\t")
-				cat("tk", tk, "\n")
+				cat("tk", tk, "\n\n")
 			}
 			l <- l+1
 		}
@@ -345,7 +345,7 @@ extrapolFP <- function(xinit, fn, merit, control, method, ...)
 		if(echo >= 2)
 			cat(" m(x_k)", merit_xk,  "\n")
 		if(echo >= 3)		
-			cat(" Delta(xk)", Delta1_xk, "\n", "Delta^2(xk)", Delta2_xk, "\n")
+			cat(" Delta(xk)", Delta1_xk, "\n", "Delta^2(xk)", Delta2_xk, "\n\n")
 		
 		counts <- counts + c(2,1)
 	}

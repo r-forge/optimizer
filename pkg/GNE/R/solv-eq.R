@@ -125,7 +125,7 @@ eqsolve <- function(xinit, f, jac, method=c("Newton", "Levenberg-Marquardt","Bro
 					break
 				}
 				
-				cat("\tnorm stepk*dk\t", sqrt(sum(stepk*dk^2)), "\n")
+				cat("\tnorm stepk*dk\t", sqrt(sum(stepk*dk^2)), "\n\n")
 				i <- i+1	
 					
 			}

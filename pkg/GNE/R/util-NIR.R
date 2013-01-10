@@ -150,7 +150,6 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 		yinit <- yinit[1:n]
 	}
 	
-	
 	if(is.null(arg$joint) && !is.null(arg$grobj))
 	{
 		yofx <- function(x)

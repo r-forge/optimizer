@@ -1,6 +1,6 @@
-
 require(GNE)	
 
+itermax <- 10
 
 #-------------------------------------------------------------------------------
 # (1) Example 5 of von Facchinei et al. (2007)
@@ -37,8 +37,12 @@ z0 <- c(x0, 2, 2, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 #true value is (3/4, 1/4, 1/2, 1/2)
 GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
-	constr=g, grconstr=grg, heconstr=heg, method="IP", 
-	control=list(trace=0, maxit=10))
+	constr=g, grconstr=grg, heconstr=heg, method="PR",
+	control=list(trace=0, maxit=itermax))
+
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
+	constr=g, grconstr=grg, heconstr=heg, method="AS", global="pwldog", 
+	xscalm="auto", control=list(trace=0, maxit=itermax))
 
 
 
@@ -84,7 +88,12 @@ z0 <- c(x0, 2, 2, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, arggrobj=myarg, 
 	argheobj=myarg, constr=g, grconstr=grg, heconstr=heg,
-	method="IP", control=list(trace=0, maxit=10))
+	method="PR", control=list(trace=0, maxit=itermax))
+
+
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, arggrobj=myarg, 
+	argheobj=myarg, constr=g, grconstr=grg, heconstr=heg, 
+	method="AS", global="pwldog", xscalm="auto", control=list(trace=1, maxit=itermax))
 
 
 
@@ -137,22 +146,27 @@ x0 <- rep(0, sum(dimx))
 z0 <- c(x0, rep(2, sum(dimlam)), pmax(10, 5-g(x0, 1, myarg) ), 
 	pmax(10, 5-g(x0, 2, myarg) ), pmax(10, 5-g(x0, 3, myarg) ) )
 
-funCER(z0, dimx, dimlam, grobj=grobj, 
-	constr=g, grconstr=grg, 
-	arggrobj=myarg, argconstr=myarg, 
-	arggrconstr=myarg)
+# funCER(z0, dimx, dimlam, grobj=grobj, 
+	# constr=g, grconstr=grg, 
+	# arggrobj=myarg, argconstr=myarg, 
+	# arggrconstr=myarg)
 
-jacCER(z0, dimx, dimlam, heobj=heobj, 
-	constr=g, grconstr=grg, heconstr=heg, 
-	argheobj=myarg, argconstr=myarg, 
-	arggrconstr=myarg, argheconstr=myarg)
+# jacCER(z0, dimx, dimlam, heobj=heobj, 
+	# constr=g, grconstr=grg, heconstr=heg, 
+	# argheobj=myarg, argconstr=myarg, 
+	# arggrconstr=myarg, argheconstr=myarg)
 
 GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
-	constr=g, grconstr=grg, heconstr=heg, method="IP", 
+	constr=g, grconstr=grg, heconstr=heg, method="PR", global="gline",
 	arggrobj=myarg, argheobj=myarg, argconstr=myarg, 
-	arggrconstr=myarg, argheconstr=myarg, control=list(trace=1, maxit=10),
-	silent=FALSE)
+	arggrconstr=myarg, argheconstr=myarg, control=list(trace=1, maxit=itermax),
+	silent=TRUE)
 
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
+	constr=g, grconstr=grg, heconstr=heg, 
+	arggrobj=myarg, argheobj=myarg, argconstr=myarg, 
+	arggrconstr=myarg, argheconstr=myarg, method="AS", global="pwldog", 
+	xscalm="auto", control=list(trace=1, maxit=itermax))
 
 
 
@@ -194,12 +208,18 @@ heg <- function(x, i, j, k)
 
 
 x0 <- c(2, 2)
-z0 <- c(x0, 15, 15, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
+z0 <- c(x0, 10, 10, max(10, 5-g(x0, 1) ), max(10, 5-g(x0, 2) ) )
 
 
 GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
 	constr=g, grconstr=grg, heconstr=heg, arggrobj=myarg, argheobj=myarg,
-	method="IP", control=list(trace=0, maxit=10))
+	method="PR", control=list(trace=0, maxit=itermax))
+
+GNE.ceq(z0, dimx, dimlam, grobj=grobj, heobj=heobj, 
+	constr=g, grconstr=grg, heconstr=heg, arggrobj=myarg, argheobj=myarg,
+	method="AS", global="pwldog", 
+	xscalm="auto", control=list(trace=0, maxit=itermax))
+
 
 
 
@@ -327,8 +347,14 @@ z0 <- c(x0, rep(2, sum(dimlam)), max(10, 5-g(x0, 1) ),
 
 GNE.ceq(z0, dimx, dimlam, grobj=grfullob, heobj=hefullob, 
 	constr=g, grconstr=grfullg, heconstr=hefullg,
-	method="IP", control=list(trace=1, maxit=10))
+	method="PR", control=list(trace=0, maxit=itermax))
 
+
+
+GNE.ceq(z0, dimx, dimlam, grobj=grfullob, heobj=hefullob, 
+	constr=g, grconstr=grfullg, heconstr=hefullg,
+	method="AS", global="pwldog", 
+	xscalm="auto", control=list(trace=3, maxit=itermax))
 
 
 

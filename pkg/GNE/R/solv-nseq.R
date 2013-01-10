@@ -1,8 +1,10 @@
-nseq <- function(xinit, Phi, jacPhi, argfun, argjac, method, control, 
-	global="gline", silent=TRUE, ...)	
+nseq <- function(xinit, Phi, jacPhi, argfun, argjac, 
+	method=c("Newton", "Broyden", "Levenberg-Marquardt"), 
+	global=c("gline", "qline", "dbldog", "pwldog", "none"), 
+	control, silent=TRUE, ...)	
 {
 	method <- match.arg(method, c("Newton", "Broyden", "Levenberg-Marquardt"))
-	global <- match.arg(global, c("dbldog", "pwldog", "qline", "gline", "none"))
+	global <- match.arg(global, c("gline", "qline", "dbldog", "pwldog", "none"))
 	
 	#default control parameters
 	con <- list(ftol=1e-6, maxit=100, trace=0)
@@ -165,6 +167,9 @@ nseq.LM <- function(xinit, Phi, jacPhi, argfun, argjac, control, global, silent=
 				stepk <- - as.numeric( (stepk)^2 * slopek / 2 / (normfp -  normfk - slopek)	)	
 
 			}
+			#traces in R console	
+			if(con$trace >= 3)
+				cat("\n")	
 			
 			if(stepk <= minstep)
 			{	

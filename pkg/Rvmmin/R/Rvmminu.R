@@ -9,7 +9,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     # control defaults
     # NOT yet in control set ??    #  ?? put keepinputpar into controls??
     ctrl <- list(maxit = 500, maxfeval = 3000, maximize = FALSE, 
-        trace = 0, eps = 1e-07, dowarn = TRUE)
+        trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -19,6 +19,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     maximize <- ctrl$maximize  # TRUE to maximize the function
     trace <- ctrl$trace  #
     eps <- ctrl$eps  #
+    acctol <- ctrl$acctol # 130125
     dowarn <- ctrl$dowarn  #
     grNULL <- is.null(gr)  # if gr function is not provided, we want to use approximations
     fargs <- list(...)  # the ... arguments that are extra function / gradient data

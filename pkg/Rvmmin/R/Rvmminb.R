@@ -88,7 +88,7 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
     # control defaults
     # NOT yet in control set ??    #  ?? put keepinputpar into controls??
     ctrl <- list(maxit = 500, maxfeval = 3000, maximize = FALSE, 
-        trace = 0, eps = 1e-07, dowarn = TRUE, keepinputpar = FALSE)
+        trace = 0, eps = 1e-07, dowarn = TRUE, keepinputpar = FALSE, acctol = 0.0001)
     # keepinputpar TRUE => Do not let bmchk change parameters to nearest bound
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
@@ -99,6 +99,7 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
     maximize <- ctrl$maximize  # TRUE to maximize the function
     trace <- ctrl$trace  #
     eps <- ctrl$eps  #
+    acctol <- ctrl$acctol
     dowarn <- ctrl$dowarn  #
     grNULL <- is.null(gr)  # if gr function is not provided, we want to use approximations
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
@@ -114,7 +115,7 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
     }
     ifn <- 1  # count function evaluations
     stepredn <- 0.2  # Step reduction in line search
-    acctol <- 1e-04  # acceptable point tolerance
+#    acctol <- 1e-04  # acceptable point tolerance
     reltest <- 100  # relative equality test
     ceps <- .Machine$double.eps * reltest
     dblmax <- .Machine$double.xmax  # used to flag bad function

@@ -71,6 +71,8 @@ of nonlinear functions subject to bounds (box) constraints and masks
      FALSE.}
    \item{maximize}{To maximize user_function, supply a function that computes (-1)*user_function.
        An alternative is to call Rvmmin via the package optimx.}
+   \item{acctol}{To adjust the acceptable point tolerance (default 0.0001) in the test
+       f <= fmin + gradproj * steplength * acctol }
   }
 
   As of 2011-11-21 the following controls have been REMOVED

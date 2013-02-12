@@ -1,5 +1,5 @@
 Package: numDeriv
-Version: 2012.12-1
+Version: 2013.2-1
 Title: Accurate Numerical Derivatives
 Description: This package provide methods for calculating (usually) accurate
 	numerical first and second order derivatives. Accurate calculations 
@@ -9,11 +9,11 @@ Description: This package provide methods for calculating (usually) accurate
 	but is much quicker than Richardson's extrapolation and provides a 
 	useful cross-check. 
 	Methods are provided for real scalar and vector valued functions. 
-Depends: R (>= 1.8.1)
+Depends: R (>= 2.11.1)
 LazyLoad: yes
 ByteCompile: yes
 License: GPL-2
-Copyright: 2006-2011, Bank of Canada. 2012, Paul Gilbert
+Copyright: 2006-2011, Bank of Canada. 2012-2013, Paul Gilbert
 Author: Paul Gilbert and Ravi Varadhan
 Maintainer: Paul Gilbert <pgilbert.ttv9z@ncf.ca>
 URL: http:http://optimizer.r-forge.r-project.org/

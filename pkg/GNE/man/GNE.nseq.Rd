@@ -54,6 +54,24 @@ GNE.nseq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
   \item{silent}{a logical to get some traces. Default to \code{FALSE}.}	
 }
 \details{
+
+Functions in argument must respect the following template:
+\itemize{
+  \item{\code{constr} must have arguments the current iterate \code{z}, the player number \code{i} 
+  and optionnally additional arguments given in a list.}
+  \item{\code{grobj}, \code{grconstr} must have arguments the current iterate \code{z}, the player number \code{i}, 
+  the derivative index \code{j} and optionnally additional arguments given in a list.}
+  \item{\code{heobj}, \code{heconstr} must have arguments the current iterate \code{z}, the player number \code{i}, 
+  the derivative indexes \code{j}, \code{k} and optionnally additional arguments given in a list.}
+  \item{\code{compl}, \code{gcompla}, \code{gcomplb} must have two arguments \code{a}, \code{b} and optionnally additional arguments given in a list.}
+  \item{\code{joint} must have arguments the current iterate \code{z}
+  and optionnally additional arguments given in a list.}
+  \item{\code{grjoint} must have arguments the current iterate \code{z},
+  the derivative index \code{j} and optionnally additional arguments given in a list.}
+  \item{\code{hejoint} must have arguments the current iterate \code{z}, 
+  the derivative indexes \code{j}, \code{k} and optionnally additional arguments given in a list.}
+}
+
 \code{GNE.nseq} solves the GNE problem via a non smooth reformulation of the KKT system. 
 \code{bench.GNE.nseq} carries out a benchmark of the computation methods (Newton and Broyden 
 direction with all possible global schemes) for a given initial point.
@@ -79,7 +97,7 @@ where the direction \eqn{d_n} is computed in three different ways. Let \eqn{J(x)
 		and \eqn{\lambda_n = ||\Phi(z_n)|| }{lambda_n = ||Phi(z_n)||} if \code{LM.param="merit"},
 		\eqn{||J(z_n)^T \Phi(z_n)|| }{||J(z_n)^T Phi(z_n)||} if \code{LM.param="jacmerit"},
 		the minimum of both preceding quantities if \code{LM.param="min"}, or an adatpive
-		parameter according to Fan(2003).
+		parameter according to Fan(2003) if \code{LM.param="adaptive"}.
 		}
 }
 
@@ -134,7 +152,7 @@ or \code{"auto"}, for which scaling factors are calculated from the euclidean no
 columns of the jacobian matrix. See \code{\link{nleqslv}} for details.
 The \code{silent} argument is a logical to report or not the optimization process, default
 to \code{FALSE}.
-
+ 
 
 }
 \value{

@@ -211,32 +211,51 @@ ceq.PR.direction <- function(z, dimx, dimlam, Hfinal, jacHfinal,
 	blam <- btot[(n+1):(n+m)]
 	bw <- btot[(n+m+1):(n+2*m)]
 	
-	Ex <- Jz[1:n, (n+1):(n+m)] 
-	Jacgx <- Jz[(n+1):(n+m), 1:n]
-	
-	mat4x <- Jz[1:n, 1:n] + Ex %*% diag(lam/w) %*% Jacgx
-	vec4x <- bx - Ex %*% diag(1/w) %*% bw + Ex %*% diag(lam/w) %*% blam
-	
-	d4x <- try( qr.solve(mat4x, vec4x), silent=silent)
-	if(class(d4x) != "try-error")
+	if(m > 0)
 	{
-		d4w <- blam - Jacgx %*% d4x
-		d4lam <- diag(1/w) %*% (bw - diag(lam) %*% d4w)
-		return(c(d4x, d4lam, d4w))
+		Ex <- Jz[1:n, (n+1):(n+m)] 
+		Jacgx <- Jz[(n+1):(n+m), 1:n]
+		
+		mat4x <- Jz[1:n, 1:n] + Ex %*% diag(lam/w) %*% Jacgx
+		vec4x <- bx - Ex %*% diag(1/w) %*% bw + Ex %*% diag(lam/w) %*% blam
+		
+		d4x <- try( qr.solve(mat4x, vec4x), silent=silent)
+		if(class(d4x) != "try-error")
+		{
+			d4w <- blam - Jacgx %*% d4x
+			d4lam <- diag(1/w) %*% (bw - diag(lam) %*% d4w)
+			return(c(d4x, d4lam, d4w))
+		}else
+		{
+			d4x.LU <- try( solve(mat4x, vec4x), silent=silent)
+			if(class(d4x.LU) != "try-error")
+			{
+				d4w <- blam - Jacgx %*% d4x.LU
+				d4lam <- diag(1/w) %*% (bw - diag(lam) %*% d4w)
+				return(c(d4x.LU, d4lam, d4w))
+			}			
+	#		print(mat4x, digits=15)
+	#		print(vec4x, digits=15)
+	#		print(d4x)
+	#		cat("\n\n")
+			return(d4x)	
+		}
 	}else
 	{
-		d4x.LU <- try( solve(mat4x, vec4x), silent=silent)
-		if(class(d4x.LU) != "try-error")
+		mat4x <- Jz
+		vec4x <- -Hz
+		
+		d4x <- try( qr.solve(mat4x, vec4x), silent=silent)
+		if(class(d4x) != "try-error")
+			return(d4x)
+		else
 		{
-			d4w <- blam - Jacgx %*% d4x.LU
-			d4lam <- diag(1/w) %*% (bw - diag(lam) %*% d4w)
-			return(c(d4x.LU, d4lam, d4w))
-		}			
-#		print(mat4x, digits=15)
-#		print(vec4x, digits=15)
-#		print(d4x)
-#		cat("\n\n")
-		return(d4x)	
+			d4x.LU <- try( solve(mat4x, vec4x), silent=silent)
+			if(class(d4x.LU) != "try-error")
+				return(d4x.LU)
+			else
+				return(d4x)
+		}
 	}
 }
 

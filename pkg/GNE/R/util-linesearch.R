@@ -41,13 +41,12 @@ linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dim
 	minstep <- con$xtol / max( abs(dk) / pmax(xk, 1) )		
 
 	normfk <- merit(xk, dimx, dimlam, ...)	
-			
+	
 	while(stepk > minstep)
 	{
 		#traces in R console	
 		if(con$trace >= 3)
 			cat("i", inner.iter, "\tstep", stepk, "\n")			
-
 		if(checkint(xk + stepk*dk, dimx, dimlam))
 		{	
 			normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
@@ -67,13 +66,12 @@ linesearch.geom.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dim
 		inner.iter <- inner.iter + 1	
 		stepk <- con$sigma * stepk
 	}
-	if(con$trace >= 3)
-		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
-	
 	if(checkint(xk + stepk*dk, dimx, dimlam))
 		normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
 	else
 		normfp <- Inf
+	if(con$trace >= 3)
+		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
 	
 	list(stepk=stepk, xk=xk, dk=dk, slopek=slopek, inner.iter=inner.iter, 
 		normfp=normfp, normfk=normfk)
@@ -150,13 +148,12 @@ linesearch.quad.cond <- function(xk, dk, slopek, con, merit, checkint, dimx, dim
 		stepk <- - as.numeric( (stepk)^2 * slopek / 2 / (normfp - normfk - slopek*stepk) )	
 		
 	}	
-	if(con$trace >= 3)
-		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
-
 	if(checkint(xk + stepk*dk, dimx, dimlam))
 		normfp <- merit(xk + stepk*dk, dimx, dimlam, ...)
 	else
 		normfp <- Inf
+	if(con$trace >= 3)
+		cat("xk", xk, "\ndk", dk, "stepk", stepk, "normfk", normfk, "normfp", normfp, "\n")
 	
 	list(stepk=stepk, xk=xk, dk=dk, slopek=slopek, inner.iter=inner.iter, 
 		 normfp=normfp, normfk=normfk)

@@ -4,7 +4,7 @@ bench.GNE.nseq <- function(xinit, ..., echo=FALSE, control=list())
 	
 	methods <- c("Newton", "Broyden")
 	globals <- c("none", "gline", "qline", "pwldog", "dbldog")
-	globnames <- c("pure", "geom. line search", "quad. line search", "Powell trust region", "Dbl. trust region")
+	globnames <- c("pure", "geom. line search", "quad. line search", "Powell trust region", "dbl. trust region")
 	
 	fullnames1 <- paste(rep(methods, each=length(globals)), rep(globnames, length(methods)), sep=" - ")
 	
@@ -35,7 +35,7 @@ bench.GNE.nseq <- function(xinit, ..., echo=FALSE, control=list())
 	for(g in globals)
 	{
 		if(echo)
-			cat("Begin", paste(m,g), "\n")
+			cat("Begin", paste(g,l), "\n")
 		
 		mytime <- system.time(
 							  res <- GNE.nseq(xinit, ..., method=method, 
@@ -47,6 +47,22 @@ bench.GNE.nseq <- function(xinit, ..., echo=FALSE, control=list())
 		reslist <- c(reslist, list(res))
 	}	
 	
+	fullnames2 <- c(fullnames2, "LM - adaptive")
+	g <- "none"
+	l <- "adaptive"
+	if(echo)
+		cat("Begin", paste(g,l), "\n")
+	
+	mytime <- system.time(
+						  res <- GNE.nseq(xinit, ..., method=method, 
+										  control=c(control, list(LM.param=l)), global=g) 
+						  , gcFirst = TRUE)
+	res <- c(res, method=method, global=g, LM.param=l, time= mytime[3], name=paste(g,l))
+	if(echo)
+		cat("End\n")
+	reslist <- c(reslist, list(res))
+	
+	
 	fctcall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[1] )
 	jaccall <- sapply(1:length(reslist), function(i) reslist[[i]]$counts[2] )
 	x <- t(sapply(1:length(reslist), function(i) reslist[[i]]$par ))
@@ -56,10 +72,8 @@ bench.GNE.nseq <- function(xinit, ..., echo=FALSE, control=list())
 	codes <- sapply(1:length(reslist), function(i) reslist[[i]]$code )
 	localmethods <- sapply(1:length(reslist), function(i) reslist[[i]]$method )
 	globalmethods <- sapply(1:length(reslist), function(i) reslist[[i]]$global )
+
 	
-#	list(compres = data.frame( method= c(fullnames1, fullnames2), fctcall, jaccall, 
-#							  comptime, normFx, codes, localmethods, globalmethods, 
-#							  x ), reslist = reslist)
 	
 	data.frame( method= c(fullnames1, fullnames2), fctcall, jaccall, comptime, normFx, codes, 
 			   localmethods, globalmethods, x )

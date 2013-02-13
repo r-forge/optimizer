@@ -49,6 +49,22 @@ GNE.fpeq(init, dimx, obj, argobj, grobj, arggrobj,
 }
 \details{
 
+
+Functions in argument must respect the following template:
+\itemize{
+  \item{\code{obj} must have arguments the current iterate \code{z}, the player number \code{i} 
+  and optionnally additional arguments given in a list.}
+  \item{\code{grobj} must have arguments the current iterate \code{z}, the player number \code{i}, 
+  the derivative index \code{j} and optionnally additional arguments given in a list.}
+  \item{\code{heobj} must have arguments the current iterate \code{z}, the player number \code{i}, 
+  the derivative indexes \code{j}, \code{k} and optionnally additional arguments given in a list.}
+  \item{\code{joint} must have arguments the current iterate \code{z}
+  and optionnally additional arguments given in a list.}
+  \item{\code{jacjoint} must have arguments the current iterate \code{z},
+  the derivative index \code{j} and optionnally additional arguments given in a list.}
+}
+
+
 The fixed point approach consists in solving equation \eqn{y(x)=x}.
 
 \describe{

@@ -1,0 +1,19 @@
+=== GNE: computation of Nash Equilibria ===
+
+Version 0.97
+=============
+
+- semismooth equation
+	- local methods are Newton, Broyden, Levenberg-Marquardt.
+	- global methods are dbldog, pwldog, qline, gline, none.
+	- for Levenberg-Marquardt, none is mandatory and LM.param=adaptive is possible
+- constrained equation
+	- local methods are IP
+	- global methods are qline, gline, none
+- minimisation problem
+	- classic optim
+	- contrained optimization by alabama
+	- needed BB, CG method?
+- fixed-point problem
+	- methods are pure, UR, vH, RRE, MPE
+	- squaring SqRRE and SqMPE

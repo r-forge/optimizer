@@ -106,10 +106,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     stepredn <- 0.15  # Step reduction in line search
     acctol <- 1e-04  # acceptable point tolerance
     reltest <- 100  # relative equality test
-    ceps <- .Machine$double.eps * reltest
-    setstep <- 1.75  # step increase factor
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
-    fail <- as.logical(FALSE)  # Method hasn't yet failed on us!
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     #!! getting rid of limit makes it work on negstart BUT inefficient
     # This does not appear to be in Y H Dai & Y Yuan, Annals of
@@ -148,13 +145,12 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
         print(bvec)
     # Start the minimization process
     keepgoing <- TRUE
-    notconv <- TRUE
     msg <- "not finished"  # in case we exit somehow
     oldstep <- 0.8  #!! 2/3 #!!?? Why this choice?
     ####################################################################
     fdiff <- NA  # initially no decrease
     cycle <- 0  # !! cycle loop counter
-    while (keepgoing && notconv) {
+    while (keepgoing) {
         # main loop -- must remember to break out of it!!
         t <- as.vector(rep(0, n))  # zero step vector
         c <- t  # zero 'last' gradient
@@ -333,7 +329,6 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                     if (trace > 0) 
                       cat("\n", msg, "\n")
                     keekpgoing <- FALSE
-                    notconv <- FALSE  # mark as converged
                     break  #!!
                   }
                 }  # end else
@@ -343,7 +338,6 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
         if (oldstep < acctol) {
             oldstep <- acctol
         }
-        #!!  oldstep = setstep * newstep # change to newstep for
         #   steplength
         if (oldstep > 1) {
             oldstep <- 1

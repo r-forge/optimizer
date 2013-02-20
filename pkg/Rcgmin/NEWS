@@ -6,6 +6,10 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2013-2-20
+
+   o    Removed fail, setstep (not used), ceps from Rcgminu (not used)
+
 2012-8-08
 
    o    Minor edits and addition of references.

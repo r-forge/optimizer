@@ -163,7 +163,8 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 		
 		foll <- bestresponse(xlead, arg1, arg2, leaders, followers,
 							 id4xfoll, id4lamfoll, id4mufoll, init2, 
-							 follfun, method.follower, control.follower, 
+							 follfun, method.follower=method.follower, 
+							 control.follower=control.follower, 
 							 maxit.follower=maxit.follower, ...)
 		bestrespcount$phicnt <<- bestrespcount$phicnt + foll$counts["phicnt"]
 		bestrespcount$jaccnt <<- bestrespcount$jaccnt + foll$counts["jaccnt"]
@@ -216,7 +217,8 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 			nfoll <- sum(arg1$dimx[followers])
 			foll <- bestresponse(xlead, arg1, arg2, leaders, followers,
 								 id4xfoll, id4lamfoll, id4mufoll, init, 
-								 follfun, method.follower, control.follower,
+								 follfun, method.follower=method.follower, 
+								 control.follower=control.follower,
 								 maxit.follower=maxit.follower)
 			bestrespcount$phicnt <<- bestrespcount$phicnt + foll$counts["phicnt"]
 			bestrespcount$jaccnt <<- bestrespcount$jaccnt + foll$counts["jaccnt"]
@@ -269,8 +271,9 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 			nfoll <- sum(arg1$dimx[followers])
 			foll <- bestresponse(xlead, arg1, arg2, leaders, followers,
 								 id4xfoll, id4lamfoll, id4mufoll, init, 
-								 follfun, method.follower, control.follower,
-								 maxit.follower)
+								 follfun, method.follower=method.follower, 
+								 control.follower=control.follower,
+								 maxit.follower=maxit.follower)
 			bestrespcount$phicnt <<- bestrespcount$phicnt + foll$counts["phicnt"]
 			bestrespcount$jaccnt <<- bestrespcount$jaccnt + foll$counts["jaccnt"]
 
@@ -296,8 +299,9 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 			nfoll <- sum(arg1$dimx[followers])
 			foll <- bestresponse(xlead, arg1, arg2, leaders, followers,
 								 id4xfoll, id4lamfoll, id4mufoll, init, 
-								 follfun, method.follower, control.follower,
-								 maxit.follower)
+								 follfun, method.follower=method.follower, 
+								 control.follower=control.follower,
+								 maxit.follower=maxit.follower)
 			bestrespcount$phicnt <<- bestrespcount$phicnt + foll$counts["phicnt"]
 			bestrespcount$jaccnt <<- bestrespcount$jaccnt + foll$counts["jaccnt"]
 
@@ -329,7 +333,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 		
 		
 		reslead <- minpb(init[index4xlead], fn=objleaders, method=method.leader, 
-			control=control.leader, argfn=argfnlist)
+			control=control.leader, argfn=argfnlist, ...)
 		if(reslead$code == 100)
 			return(reslead)
 		else if(reslead$code != 0)
@@ -341,8 +345,9 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 		resfoll <- bestresponse(parlead, argtest1, argtest2, leaders, followers,
 								id4xfoll=index4xfoll, id4lamfoll=index4lamfoll, 
 								id4mufoll=index4mufoll, init, listfollfunc, 
-								method.follower, control.follower,
-								maxit.follower)
+								method.follower=method.follower, 
+								control.follower=control.follower,
+								maxit.follower=maxit.follower)
 		bestrespcount$phicnt <- bestrespcount$phicnt + resfoll$counts["phicnt"]
 		bestrespcount$jaccnt <- bestrespcount$jaccnt + resfoll$counts["jaccnt"]
 		
@@ -364,7 +369,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 		
 		reslead <- minpb(init[index4xlead], fn=objleaders, method=method.leader, 
 						 hin=constrleaders, arghin=argconstrlist, 
-						 control=control.leader, argfn=argfnlist, silent=silent)
+						 control=control.leader, argfn=argfnlist, silent=silent, ...)
 		if(reslead$code == 100)
 			return(reslead)
 		else if(reslead$code != 0)
@@ -375,8 +380,9 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 		resfoll <- bestresponse(parlead, argtest1, argtest2, leaders, followers,
 								id4xfoll=index4xfoll, id4lamfoll=index4lamfoll, 
 								id4mufoll=index4mufoll, init, listfollfunc, 
-								method.follower, control.follower,
-								maxit.follower)
+								method.follower=method.follower, 
+								control.follower=control.follower,
+								maxit.follower=maxit.follower)
 		bestrespcount$phicnt <- bestrespcount$phicnt + resfoll$counts["phicnt"]
 		bestrespcount$jaccnt <- bestrespcount$jaccnt + resfoll$counts["jaccnt"]
 		
@@ -655,8 +661,9 @@ SE.objleaders <- function(x, leaders, init, dimx, dimlam,
 		z <- rep(NA, n)
 		foll <- bestresponse(xlead, argtest1, argtest2, leaders, followers,
 							 index4xfoll, index4lamfoll, index4mufoll, init, 
-							 listfollfunc, method.follower, control.follower, 
-							 maxit.follower, ...)
+							 listfollfunc, method.follower=method.follower, 
+							 control.follower=control.follower,
+							 maxit.follower=maxit.follower, ...)
 		
 		z[index4xlead] <- xlead
 		z[index4xfoll] <- foll$par[1:nfoll]
@@ -804,9 +811,10 @@ SE.bestresponse <- function(x, leaders, init, dimx, dimlam,
 	{
 		foll <- bestresponse(x[i], argtest1, argtest2, leaders, followers,
 							 index4xfoll, index4lamfoll, index4mufoll, init[i,], 
-							 listfollfunc, method.follower, control.follower, 
-							 maxit.follower, ...)
-		c(par=foll$par[1:nfoll], code=foll$code, value=foll$value)
+							 listfollfunc, method.follower=method.follower, 
+							 control.follower=control.follower,
+							 maxit.follower=maxit.follower, ...)
+		c(par=foll$par[1:nfoll], code=foll$code, value=foll$value, lagrmult=foll$par[-(1:nfoll)])
 	}
 	
 	sapply(1:length(x), bestresp)

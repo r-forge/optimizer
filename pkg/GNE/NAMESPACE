@@ -1,11 +1,11 @@
 
 
 ### Exports of main R functions
-export(GNE, GNE.nseq, GNE.ceq, GNE.fpeq, GNE.min)
+export(GNE, GNE.nseq, GNE.ceq, GNE.fpeq, GNE.minpb)
 S3method(print, GNE)
 S3method(summary, GNE)
 S3method(print, summary.GNE)
-export(bench.GNE.nseq, bench.GNE.ceq)
+export(bench.GNE.nseq, bench.GNE.ceq, bench.GNE.fpeq, bench.GNE.minpb)
 
 export(SE.nseq, SE.objleaders, SE.bestresponse)
 
@@ -13,6 +13,7 @@ export(SE.nseq, SE.objleaders, SE.bestresponse)
 export(funSSR, jacSSR)
 export(funCER, jacCER)
 export(gapNIR, gradxgapNIR, gradygapNIR, fpNIR)
+export(gapVIR, gradxgapVIR, gradygapVIR, fpVIR)
 
 ### aux - step functions
 export(decrstep, decrstep5, decrstep10, decrstep20, purestep)

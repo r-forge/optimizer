@@ -107,7 +107,7 @@ gradygapNIR <- function(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
 		xy[idx_i] <- y[idx_i]
 		sapply(idx_i, function(j) arg$grobj(xy, i, j, arg$arggrobj))
 	}
-	- unlist(sapply(1:nplayer, gradi_obji)) - par$alpha*(x-y)
+	- unlist(sapply(1:nplayer, gradi_obji)) + par$alpha*(x-y)
 }
 
 fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,  
@@ -125,13 +125,15 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 	if(optim.method == "default")
 		optim.method <- "BFGS"
 	#default control parameters
-	con1 <- list(trace = echo, eps=1e-6, method=optim.method)
-	namc1 <- names(con1)
-	con1[namc1 <- names(control)] <- control
-	con2 <- list(trace = echo, reltol=1e-6)
-	namc2 <- names(con2)
-	con2[namc2 <- names(control)] <- control
-	
+	con1.nl <- list(trace = echo, eps=1e-6, method=optim.method, itmax=100, NMinit=FALSE)
+	namc1 <- names(con1.nl)
+	con1.nl[namc1 <- names(control)] <- control
+	con2.un <- list(trace = echo, fnscale = 1, parscale = rep.int(1, length(x)),
+					ndeps = rep.int(1e-3, length(x)), maxit = 100L, abstol = -Inf, 
+					reltol = 1e-6, alpha = 1.0, beta = 0.5, gamma = 2.0, REPORT = 1,
+					type = 1, lmm = 5, factr = 1e7, pgtol = 0, tmax = 10, temp = 10.0)
+	namc2 <- names(con2.un)
+	con2.un[namc2 <- names(control)] <- control
 	
 	dimx <- arg$dimx
 	n <- sum(arg$dimx)
@@ -158,9 +160,9 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 			gr <- function(y, z, param) -gradygapNIR(z, y, dimx, arg$grobj, arg$arggrobj, param) 
 			
 			res <- optim(yinit, fn=fn, gr=gr, method=optim.method, 
-								  z=x, param=par, control=con2)
+								  z=x, param=par, control=con2.un)
 			if(echo && res$convergence != 0)
-				cat("Unsuccessful convergence.")
+				cat("Unsuccessful convergence.\n")
 			c(res, optim.function="optim", optim.method=optim.method)
 		}
 	}else if(is.null(arg$joint) && is.null(arg$grobj))
@@ -170,9 +172,9 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 			fn <- function(y, z, param) -gapNIR(z, y, dimx, arg$obj, arg$argobj, param)
 			
 			res <- optim(yinit, fn=fn, method=optim.method, 
-						 z=x, param=par, control=con2)
+						 z=x, param=par, control=con2.un)
 			if(echo && res$convergence != 0)
-				cat("Unsuccessful convergence.")
+				cat("Unsuccessful convergence.\n")
 			c(res, optim.function="optim", optim.method=optim.method)
 		}
 	}else if(!is.null(arg$joint) && !is.null(arg$jacjoint))
@@ -185,9 +187,11 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 			hin.jac <- function(y, z, param) -arg$jacjoint(y, arg$argjacjoint)
 			
 			res <- constrOptim.nl(yinit, fn=fn, gr=gr, hin=hin, hin.jac=hin.jac, 
-						   z=x, param=par, control.outer=con1)
+						   z=x, param=par, control.outer=con1.nl)
 			if(echo && res$convergence != 0)
-				cat("Unsuccessful convergence.")
+				cat("Unsuccessful convergence.\n")
+			if(echo)
+				print(res)
 			c(res, optim.function="constrOptim.nl", optim.method=optim.method)
 		}
 	}else if(!is.null(arg$joint) && is.null(arg$jacjoint))
@@ -198,9 +202,9 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 			hin <- function(y, z, param) -arg$joint(y, arg$argjoint)
 			
 			res <- constrOptim.nl(yinit, fn=fn, hin=hin, 
-								  z=x, param=par, control.outer=con1)
+								  z=x, param=par, control.outer=con1.nl)
 			if(echo && res$convergence != 0)
-				cat("Unsuccessful convergence.")
+				cat("Unsuccessful convergence.\n")
 			c(res, optim.function="constrOptim.nl", optim.method=optim.method)
 		}
 	}else

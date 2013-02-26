@@ -140,12 +140,11 @@ A list with components:
 			\item{\code{100}}{an error in the execution.}
 			}
 		}
-		\item{\code{inner.iter}}{The iteration number
-			for the function and the gradient when computing the gap function or
-			its gradient (if appropriate).}	
+		\item{\code{inner.iter}}{The iteration number when 
+			computing the fixed-point function.}	
 		\item{\code{inner.counts}}{A two-element integer 
-			vector giving the number of calls to the function and the gradient 
-			when computing the gap function or its gradient (if appropriate).}			
+			vector giving the number of calls to the gap function and its gradient 
+			when computing the fixed-point function.}			
 		\item{\code{message}}{a string describing the termination code}	
 	}
 }

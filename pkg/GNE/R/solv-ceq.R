@@ -2,7 +2,7 @@ ceq <- function(xinit, dimx, dimlam,
 	Hfinal, jacHfinal, argfun, argjac,  
 	method=c("PR", "AS"), global=c("gline", "qline", "pwldog", "none"), 
 	xscalm=c("fixed", "auto"), 
-	control, silent=TRUE, ...)	
+	control=list(), silent=TRUE, ...)	
 {
 	#currently, the analytical Jacobian is mandatory
 	

@@ -5,36 +5,78 @@
 		Non smooth equation reformulation via the extended KKT system of the GNE problem.
 	}
 \usage{
-GNE.min(xinit, gap, gradgap, arggap=list(), arggrad=list(), method, control=list(), ...)
+GNE.min(init, dimx, obj, argobj, grobj, arggrobj, 
+	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
+	method="default", problem = c("NIR", "VIR"), control.outer=list(), 
+	control.inner=list(), silent=TRUE, param=list(), optim.type=c("free","constr"), ...)
 }
 \arguments{
-  \item{xinit}{initial point.}
-  \item{gap}{the gap/value function.}
-  \item{gradgap}{the gradient of the gap/value function.}
-  \item{arggap}{further arguments to be passed to \code{phi}.}
-  \item{arggrad}{further arguments to be passed to \code{jacphi}.}
-  \item{method}{either \code{"BB"} or \code{BFGS}.}
-  \item{control}{a list with control parameters.}
+  \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}
+  \item{dimx}{a vector of dimension for \eqn{x}.}
+  
+  \item{obj}{objective function (to be minimized), see details.}
+  \item{argobj}{a list of additional arguments.}
+  \item{grobj}{gradient of the objective function, see details.}
+  \item{arggrobj}{a list of additional arguments of the objective gradient.}
+  \item{heobj}{Hessian of the objective function, see details.}
+  \item{argheobj}{a list of additional arguments of the objective Hessian.}
+
+  \item{joint}{joint function (\eqn{h(x)<=0}), see details.}
+  \item{argjoint}{a list of additional arguments of the joint function.}
+  \item{jacjoint}{Jacobian of the joint function, see details.}
+  \item{argjacjoint}{a list of additional arguments of the Jacobian.}  
+
+  \item{method}{either \code{"BB"}, \code{"CG"} or \code{"BFGS"}, see details.}
+  \item{problem}{either \code{"NIR"}, \code{"VIP"}, see details.}
+  \item{optim.type}{either \code{"free"}, \code{"constr"}, see details.}
+  
+  \item{control.outer}{a list with control parameters for the minimization algorithm.}
+  \item{control.inner}{a list with control parameters for the minimization function.}  
+
   \item{\dots}{further arguments to be passed to the optimization routine. 
 	NOT to the functions \code{phi} and \code{jacphi}.}
+
+  \item{silent}{a logical to show some traces.}
+  \item{param}{a list of parameters for the computation of the minimization function.}
   
 }
 \details{
+
+
+Functions in argument must respect the following template:
+\itemize{
+  \item{\code{obj} must have arguments the current iterate \code{z}, the player number \code{i} 
+  and optionnally additional arguments given in a list.}
+  \item{\code{grobj} must have arguments the current iterate \code{z}, the player number \code{i}, 
+  the derivative index \code{j} and optionnally additional arguments given in a list.}
+  \item{\code{heobj} must have arguments the current iterate \code{z}, the player number \code{i}, 
+  the derivative indexes \code{j}, \code{k} and optionnally additional arguments given in a list.}
+  \item{\code{joint} must have arguments the current iterate \code{z}
+  and optionnally additional arguments given in a list.}
+  \item{\code{jacjoint} must have arguments the current iterate \code{z},
+  the derivative index \code{j} and optionnally additional arguments given in a list.}
+}
+
+
 
 The gap function minimization consists in minimizing a gap function \eqn{min V(x)}. The function \code{minGap}
 provides two optimization methods to solve this minimization problem.
 \describe{
 	\item{Barzilai-Borwein algorithm}{when \code{method = "BB"}, we use Barzilai-Borwein iterative scheme
 	to find the minimum.}
+	\item{Conjugate gradient algorithm}{when \code{method = "CG"}, we use the CG iterative
+	scheme implemented in \code{R}, an Hessian-free method. }	
 	\item{Broyden-Fletcher-Goldfarb-Shanno algorithm}{when \code{method = "BFGS"}, we use the BFGS iterative
 	scheme implemented in \code{R}, a quasi-Newton method with line search. }	
 }
 In the game theory literature, there are two main gap functions: the regularized 
-Nikaido-Isoda (NI) function and the QVI regularized gap function. See von Heusinger & Kanzow (2009) 
-for details on the NI function and Kubota & Fukushima (2009) for the QVI regularized gap function.
+Nikaido-Isoda (NI) function and the regularized QVI gap function.
+This correspond to \code{type="NI"} and \code{type="VI"}, respectively. 
+See von Heusinger & Kanzow (2009) for details on the NI function and 
+Kubota & Fukushima (2009) for the QVI regularized gap function.
 
 
-The \code{control} argument is a list that can supply any of the following components:
+The \code{control.outer} argument is a list that can supply any of the following components:
 \describe{
 	\item{\code{tol}}{The absolute convergence tolerance. Default to 1e-6.}
 	\item{\code{maxit}}{The maximum number of iterations. Default to 100.}
@@ -74,12 +116,11 @@ A list with components:
 			\item{\code{100}}{an error in the execution.}
 			}
 		}
-		\item{\code{inner.iter.fn}, \code{inner.iter.gr}}{The iteration number
-			for the function and the gradient when computing the gap function or
-			its gradient (if appropriate).}	
-		\item{\code{inner.counts.fn}, \code{inner.counts.gr}}{A two-element integer 
-			vector giving the number of calls to the function and the gradient 
-			when computing the gap function or its gradient (if appropriate).}			
+		\item{\code{inner.iter}}{The iteration number when 
+			computing the minimization function.}	
+		\item{\code{inner.counts}}{A two-element integer 
+			vector giving the number of calls to the gap function and its gradient 
+			when computing the minimization function.}			
 		\item{\code{message}}{a string describing the termination code}	
 	}
 }

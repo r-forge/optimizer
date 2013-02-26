@@ -1,11 +1,11 @@
 fpeq <- function(xinit,	fn, merit, 
 	method=c("pure", "UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
-	control=list(), stepfunc, argstep, silent=TRUE, order=1, ...)
+	control=list(), stepfunc, argstep, silent=TRUE, order.method=1, ...)
 {
 	method <- match.arg(method, c("pure","UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"))
 	if(method %in% c("SqRRE", "SqMPE"))
 	{
-		order <- ifelse(order== 1, 2, order)
+		order.method <- ifelse(order.method == 1, 2, order.method)
 		method <- substr(method, 3, 5)
 	}
 	
@@ -27,45 +27,60 @@ fpeq <- function(xinit,	fn, merit,
 	
 	noitercount <- FALSE
 		
-	inner.counts.fn <- c(0, 0)
-	inner.iter.fn <- 0
+	#inner iterations to compute fixed point function fn
+	inner.counts.fpfn <- c(0, 0) #call to gap and grad gap
+	inner.iter.fpfn <- 0 #iter number
 		
+	#fixed point function
 	wrapfn <- function(x) 
 	{
 		fx <- fn(x)
-		inner.counts.fn <<- inner.counts.fn + fx$counts
-		inner.iter.fn <<- inner.iter.fn + fx$iter
+		inner.counts.fpfn <<- inner.counts.fpfn + fx$counts
+		inner.iter.fpfn <<- inner.iter.fpfn + fx$iter
 		fx$par
 	}
 	
 	if(!is.null(merit))
 	{
-		inner.counts.vh <- c(0, 0)
-		inner.iter.vh <- 0
+		#inner iterations to compute merit function merit
+		inner.counts.merit <- c(0, 0) #call to gap and grad gap
+		inner.iter.merit <- 0 #iter number
 		wrapmerit <- function(x, ...) 
 		{
 			vx <- merit(x, ...)
-			inner.counts.vh <<- inner.counts.vh + vx$counts
-			inner.iter.vh <<- inner.iter.vh + vx$iter
+			inner.counts.merit <<- inner.counts.merit + vx$counts
+			inner.iter.merit <<- inner.iter.merit + vx$iter
 			vx$value
 		}
 	}else
 	{
 		wrapmerit <- NULL
-		inner.counts.vh <- inner.iter.vh <- NULL
+		inner.counts.merit <- inner.iter.merit <- 0
 	}	
 	
 	#default control parameters
-	con <- list(sigma=9/10, beta=1/2, tol=1e-6, maxit=100, echo=0)
+	#for relaxationAlgoVH()
+	con <- list(sigma=9/10, beta=1/2, tol=1e-6, maxit=100, echo=0) 
 	namc <- names(con)
 	con[namc <- names(control)] <- control
-	confpiter <- list(tol=1e-6, maxiter=100, trace=TRUE)
-	namc <- names(confpiter)
-	confpiter[namc <- names(control)] <- control
-	consquarem <- list(tol=1e-6, maxiter=100, trace=TRUE, K=order, 
-		method=ifelse(order==1, 1*(method == "RRE")+2*(method == "MPE"), method))
-	namc <- names(consquarem)
-	consquarem[namc <- names(control)] <- control
+	#for fpiter()
+	confpiter <- list(tol=1e-6, maxiter=100, trace=FALSE) 
+	if(!is.null(control$tol))
+		confpiter$tol <- control$tol
+	if(!is.null(control$maxit))
+		confpiter$maxiter <- control$maxit
+	if(!is.null(control$trace))
+		confpiter$trace <- control$trace
+	#for squarem()
+	consquarem <- list(tol=1e-6, maxiter=100, trace=FALSE, K=order.method, 
+		method=ifelse(order.method==1, 1*(method == "RRE")+2*(method == "MPE"), method))
+	if(!is.null(control$tol))
+		consquarem$tol <- control$tol
+	if(!is.null(control$maxit))
+		consquarem$maxiter <- control$maxit
+	if(!is.null(control$trace))
+		consquarem$trace <- control$trace
+	
 	
 	if(method == "pure" && !is.null(wrapmerit))
 	{
@@ -125,8 +140,8 @@ fpeq <- function(xinit,	fn, merit,
 	if(class(myGNE) != "try-error")
 		res <- list(par=myGNE$par, value=myGNE$value,
 			outer.counts=myGNE$counts, outer.iter=myGNE$counts[1], 
-			code=myGNE$code, inner.iter=inner.iter.fn+inner.iter.vh, 
-			inner.counts=inner.counts.fn+inner.counts.vh,
+			code=myGNE$code, inner.iter=inner.iter.fpfn+inner.iter.merit, 
+			inner.counts=inner.counts.fpfn+inner.counts.merit,
 			message=myGNE$message)
 	else 
 		res <- list(par= NA, value=NA, outer.counts=NA, outer.iter=NA, code=100, 

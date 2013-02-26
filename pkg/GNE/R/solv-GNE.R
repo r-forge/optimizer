@@ -155,19 +155,20 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj, 
 	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
 	method = "default", problem = c("NIR", "VIR"), 
-	merit = c("NI", "VI", "FP"), order=1, control.outer=list(), 
+	merit = c("NI", "VI", "FP"), order.method=1, control.outer=list(), 
 	control.inner=list(), silent=TRUE, param=list(), stepfunc, argstep, ...)
 {
 
-	if(method == "default") method <- "MPE"
+	if(method == "default") 
+		method <- "MPE"
 	method <- match.arg(method, c("pure", "vH", "UR", "RRE", "MPE", "SqRRE", "SqMPE"))
-	problem <- match.arg(problem, c("NIR", "VIR"))
-	merit <- match.arg(merit, c("NI", "VI", "FP"))
+	problem <- match.arg(problem)
+	merit <- match.arg(merit)
 	
 	if(method %in% c("vH") && merit == "FP")
 		stop("incompatible method and merit arguments.")
 	
-	if(order > 3 || order < 1)
+	if(order.method > 3 || order.method < 1)
 		stop("wrong order argument.")
 	if(problem == "NIR")
 	{
@@ -203,11 +204,50 @@ GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj,
 		}else
 			stop("wrong merit function")
 	}
+	if(problem == "VIR")
+	{
+		arggap <- testarggapVIR(init, dimx, grobj, arggrobj)
+		argfp <- testargfpVIR(init, dimx, obj, argobj, joint, argjoint,  
+							  grobj, arggrobj, jacjoint, argjacjoint)
+		
+		yfun <- function(x)
+			fpVIR(x, argfp$dimx, argfp$obj, argfp$argobj, argfp$joint, 
+				  argfp$argjoint, argfp$grobj, argfp$arggrobj, argfp$jacjoint,
+				  argfp$argjacjoint, echo=!silent, control=control.inner, 
+				  param=param, ...)
+		if(merit == "FP")
+			merit <- NULL
+		else if(merit == "VI")
+		{
+			merit <- function(x, y=NULL)
+			{
+				if(is.null(y))
+				{
+					y <- yfun(x)
+					res <- gapVIR(x, y$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+								  param=param, echo=!silent)
+					y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+					list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+				}else
+					list(value=gapVIR(x, y, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+								  param=param, echo=!silent),
+						 counts=c(1,0), iter=0)
+			}
+			
+		}else
+			stop("wrong merit function")
+		
+	}	
 		
 	if(!silent)
+	{
 		print("init completed.")
+		cat("control parameters for fpeq.\n")
+		print(control.inner)
+		print(control.outer)
+	}
 	res <- fpeq(init, yfun, merit, method, control=control.outer, stepfunc=stepfunc,
-				argstep=argstep, silent=silent, order=order, ...)
+				argstep=argstep, silent=silent, order.method=order.method, ...)
 	class(res) <- "GNE"
 	if(!silent)
 		print("computation completed.")
@@ -215,15 +255,110 @@ GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj,
 }
 
 
-GNE.min <- function(init, gap, gradgap, arggap=list(), arggrad=list(), method, 
-	control=list(), ...)
+GNE.minpb <- function(init, dimx, obj, argobj, grobj, arggrobj, 
+	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
+	method="default", problem = c("NIR", "VIR"), control.outer=list(), 
+	control.inner=list(), silent=TRUE, param=list(), optim.type=c("free","constr"), ...)
 {
 	if(method == "default")
-		method <- "BB"
+		method <- "BFGS"
+	method <- match.arg(method, c("BB","BFGS", "CG"))
+	problem <- match.arg(problem)
+	optim.type <- match.arg(optim.type)
 	
-	stop("not yet implemented")
+	if(problem == "NIR")
+	{
+		arggap <- testarggapNIR(init, dimx, obj, argobj)
+		arggradgap <- testarggradgapNIR(init, dimx, grobj, arggrobj)
+		argfp <- testargfpNIR(init, dimx, obj, argobj, joint, argjoint,  
+							  grobj, arggrobj, jacjoint, argjacjoint)
+		
+		yfun <- function(x)
+			fpNIR(x, argfp$dimx, argfp$obj, argfp$argobj, argfp$joint, 
+			  argfp$argjoint, argfp$grobj, argfp$arggrobj, argfp$jacjoint,
+			  argfp$argjacjoint, echo=!silent, control=control.inner, 
+			  param=param, ...)
+		
+		merit <- function(x, y=NULL)
+		{
+			if(is.null(y))
+			{
+				y <- yfun(x)
+				res <- gapNIR(x, y$par, arggap$dimx, arggap$obj, arggap$argobj, 
+							  param=param, echo=!silent)
+				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+			}else
+				list(value=gapNIR(x, y, arggap$dimx, arggap$obj, arggap$argobj, 
+							  param=param, echo=!silent), counts=c(1,0), iter=0)
+		}
+		gradmerit <- function(x, y=NULL)
+		{
+			if(is.null(y))
+			{
+				y <- yfun(x)
+				res <- gradxgapNIR(x, y$par, arggradgap$dimx, arggradgap$grobj, 
+								   arggradgap$arggrobj, param=param, echo=!silent)
+				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+			}else
+				list(value=gradxgapNIR(x, y, arggradgap$dimx, arggradgap$grobj, 
+					arggradgap$arggrobj, param=param, echo=!silent), counts=c(1,0), iter=0)
+		}
+			
+	}
+	if(problem == "VIR")
+	{
+		arggap <- testarggapVIR(init, dimx, grobj, arggrobj)
+		arggradgap <- testarggradxgapVIR(init, dimx, grobj, arggrobj, heobj, argheobj)
+		argfp <- testargfpVIR(init, dimx, obj, argobj, joint, argjoint,  
+							  grobj, arggrobj, jacjoint, argjacjoint)
+		
+		yfun <- function(x)
+			fpVIR(x, argfp$dimx, argfp$obj, argfp$argobj, argfp$joint, 
+			  argfp$argjoint, argfp$grobj, argfp$arggrobj, argfp$jacjoint,
+			  argfp$argjacjoint, echo=!silent, control=control.inner, 
+			  param=param, ...)
+		
+		merit <- function(x, y=NULL)
+		{
+			if(is.null(y))
+			{
+				y <- yfun(x)
+				res <- gapVIR(x, y$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+							  param=param, echo=!silent)
+				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+			}else
+				list(value=gapVIR(x, y, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+							  param=param, echo=!silent), counts=c(1,0), iter=0)
+		}
+		gradmerit <- function(x, y=NULL)
+		{
+			if(is.null(y))
+			{
+				y <- yfun(x)
+				res <- gradxgapVIR(x, y$par, arggradgap$dimx, arggradgap$grobj, 
+								   arggradgap$arggrobj, arggradgap$heobj, 
+								   arggradgap$argheobj, param=param, echo=!silent)
+				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+			}else
+				list(value=gradxgapVIR(x, y, arggradgap$dimx, arggradgap$grobj, 
+								   arggradgap$arggrobj, arggradgap$heobj, 
+								   arggradgap$argheobj, param=param, echo=!silent), counts=c(1,0), iter=0)
+		}
+		
+	}
 	
-	res <- minpb(init, gap, gradgap, arggap, arggrad, method, control, ...)
+	if(optim.type == "constr")
+		res <- minpb(init, merit, gr=gradmerit, hin=joint, arghin=argjoint, 
+			hin.jac=jacjoint, arghin.jac=argjacjoint, method=method, 
+			control=control.outer, silent=silent, ...)
+	if(optim.type == "free")
+		res <- minpb(init, merit, gr=gradmerit, method=method, 
+				 control=control.outer, silent=silent, ...)
+	
 	class(res) <- "GNE"
 	res
 }
@@ -243,7 +378,9 @@ print.GNE <- function(x, ...)
 	if(!is.null(x$counts))	
 		cat("Function/grad/hessian calls:", x$counts, "\n")
 	if(!is.null(x$outer.counts))	
-		cat("Function/grad/hessian calls:", x$outer.counts, x$inner.counts, "\n")	
+		cat("Outer Function/grad/hessian calls:", x$outer.counts, "\n")	
+	if(!is.null(x$inner.counts))	
+		cat("Inner Function/grad/hessian calls:", x$inner.counts, "\n")	
 	if(!is.null(x$fvec))
 		cat("Optimal (vector) value:", x$fvec, "\n")
 }

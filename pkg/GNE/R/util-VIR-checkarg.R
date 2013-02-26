@@ -38,20 +38,16 @@ testarggapVIR <- function(z, dimx,
 }
 
 
-testarggradgapVIR <- function(z, dimx, 
+testarggradygapVIR <- function(z, dimx, 
 	grobj, arggrobj, 
-	heobj, argheobj, 
 	echo=FALSE)
 {
-
-
 	
 	#sanity check	
 	nplayer <- length(dimx)	
 	if(!is.function(grobj))
 		stop("argument grobj must be a function.")
 	
-
 	if(echo)
 	{
 		print(dimx)
@@ -59,9 +55,44 @@ testarggradgapVIR <- function(z, dimx,
 	}
 	
 	if(length(z) != sum(dimx))
-	stop("CER: incompatible dimension for dimx.")		
-
+		stop("CER: incompatible dimension for dimx.")		
 	
+	
+	#objective gradient
+	if(!missing(arggrobj) && !is.null(arggrobj))
+		grobjfinal <- grobj
+	else
+	{
+		grobjfinal <- function(z, i, j, ...) grobj(z, i, j)
+		arggrobj <- list()				   
+	}	
+	str <- paste("the call to grobj(z, 1, 1, arggrobj) does not work.", "arguments are", 
+				 paste(names(formals(grobj)), collapse=","), ".")
+	testfunc(grobjfinal, z, arg=arggrobj, echo=echo, errmess=str)
+	
+	list(grobj=grobjfinal, arggrobj=arggrobj, dimx=dimx, nplayer=nplayer)
+}
+
+testarggradxgapVIR <- function(z, dimx, 
+	grobj, arggrobj, 
+	heobj, argheobj, 
+	echo=FALSE)
+{
+
+	#sanity check	
+	nplayer <- length(dimx)	
+	if(!is.function(grobj))
+		stop("argument grobj must be a function.")
+	
+	if(echo)
+	{
+		print(dimx)
+		print(length(z))
+	}
+	
+	if(length(z) != sum(dimx))
+		stop("CER: incompatible dimension for dimx.")		
+
 	
 	#objective gradient
 	if(!missing(arggrobj) && !is.null(arggrobj))

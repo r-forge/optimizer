@@ -1,8 +1,10 @@
 nseq <- function(xinit, Phi, jacPhi, argfun, argjac, 
 	method=c("Newton", "Broyden", "Levenberg-Marquardt"), 
 	global=c("gline", "qline", "dbldog", "pwldog", "none"), 
-	control, silent=TRUE, ...)	
+	control=list(), silent=TRUE, ...)	
 {
+#	print(method)
+	
 	method <- match.arg(method, c("Newton", "Broyden", "Levenberg-Marquardt"))
 	global <- match.arg(global, c("gline", "qline", "dbldog", "pwldog", "none"))
 	

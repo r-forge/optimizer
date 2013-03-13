@@ -1,3 +1,8 @@
+Changes in BB version 2013.3-2
+
+   o	Adjustment to DESCRIPTION file to mention LICENSE file, as caught by
+   	new CRAN checks.
+
 Changes in BB version 2013.3-1
 
    o	Changed checkGrad default in spg skip the check if, based on the first 

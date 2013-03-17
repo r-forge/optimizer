@@ -34,7 +34,7 @@ wrapnls <- function(formula, start, trace = FALSE, data, lower = -Inf,
     # Should check this has worked, but ...
     if (trace) 
         print(first)
-    newstart <- first$coeffs
+    newstart <- first$coefficients
     names(newstart) <- names(start)
     # Should put this in a try(), but let's see it work first
     if (trace) {

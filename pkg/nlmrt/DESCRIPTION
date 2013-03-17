@@ -1,8 +1,8 @@
 Package: nlmrt
 Type: Package
 Title: Functions for nonlinear least squares solutions
-Version: 2012-12.16
-Date: 2012-12-16
+Version: 2013-03.16
+Date: 2013-03-16
 Author: John C. Nash
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: nlmrt provides tools for working with nonlinear least squares problems

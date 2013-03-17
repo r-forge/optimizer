@@ -4,6 +4,13 @@ To do
 
    o    Weighted least squares, especially in nlxb.
 
+   o    Issue when npar = 1
+
+Changes in nlmrt version 2013-3.16
+
+   o    Result element coeffs changed to coefficients. 
+        This alters wrapnls.R code also.
+
 Changes in nlmrt version 2012-9.03
 
    o    More features in summary().

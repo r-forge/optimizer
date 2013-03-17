@@ -95,6 +95,18 @@ rm(list=ls())
 # traceval set TRUE to debug or give full history
 traceval  <-  FALSE
 
+## Problem in 1 parameter to ensure methods work in trivial case
+
+nobs<-8
+tt <- seq(1,nobs)
+dd <- 1.23*tt + 4*runif(nobs)
+
+df <- data.frame(tt, dd)
+
+a1par<-nlxb(dd ~ a*tt, start=c(a=1), data=df)
+a1par
+
+
 # Data for Hobbs problem
 
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 

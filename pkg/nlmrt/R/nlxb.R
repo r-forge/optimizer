@@ -177,6 +177,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
                 if (any(is.na(Jac))) 
                   stop("NaN in Jacobian")
                 JTJ <- crossprod(Jac)
+                tmp<-readline("cont.")
                 gjty <- t(Jac) %*% resbest  # raw gradient
                 for (i in 1:npar) {
                   bmi <- bdmsk[i]
@@ -201,7 +202,9 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
                       }
                     }  # bmi
                 }  # end for loop
-                dee <- diag(sqrt(diag(crossprod(Jac))))  # to append to Jacobian
+                JTJnew<-crossprod(Jac)
+                if (npar == 1) dee <- diag(as.matrix(sqrt(diag(crossprod(Jac)))))
+                else dee <- diag(sqrt(diag(crossprod(Jac))))  # to append to Jacobian
             }  # end newjac
         lamroot <- sqrt(lamda)
         JJ <- rbind(Jac, lamroot * dee, lamroot * phiroot * diag(npar))  # build the matrix
@@ -209,6 +212,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
         rplus <- c(resbest, rep(0, 2 * npar))
         delta <- try(qr.coef(JQR, -rplus))  # Note appended rows of y)
         if (class(delta) == "try-error") {
+            stop("qr.coef failed")
             if (lamda < 1000 * .Machine$double.eps) 
                 lamda <- 1000 * .Machine$double.eps
             lamda <- laminc * lamda
@@ -319,7 +323,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
     pnum <- as.vector(pnum)
     names(pnum) <- pnames
     result <- list(resid = resbest, jacobian = Jac, feval = feval, 
-        jeval = jeval, coeffs = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
+        jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
     class(result) <- "nlmrt"
     result
 }

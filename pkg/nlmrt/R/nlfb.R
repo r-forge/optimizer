@@ -150,8 +150,6 @@ if (trace) {
           }
           if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
           else Jac<-jacfn(pbest, ...)
-##          cat("Jac:")
-##          print(Jac)
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
           JTJ<-crossprod(Jac)
@@ -173,7 +171,8 @@ if (trace) {
                 }
              } # bmi
           } # end for loop
-          dee<-diag(sqrt(diag(crossprod(Jac)))) # to append to Jacobian
+          if (npar == 1) dee <- diag(as.matrix(sqrt(diag(crossprod(Jac)))))
+          else dee <- diag(sqrt(diag(crossprod(Jac))))  # to append to Jacobian
        } # end newjac
        lamroot<-sqrt(lamda)
        JJ<-rbind(Jac,lamroot*dee, lamroot*phiroot*diag(npar)) # build the matrix
@@ -265,7 +264,7 @@ if (trace) {
     pnum<-as.vector(pnum)
     names(pnum) <- pnames
     result <- list(resid = resbest, jacobian = Jac, feval = feval, 
-        jeval = jeval, coeffs = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
+        jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
     class(result) <- "nlmrt"
     result
 }

@@ -1,3 +1,8 @@
+Changes in BB version 2013.3-4
+
+   o	Further adjustment to DESCRIPTION and moved LICENSE to LICENSE.note
+   	file, after discussions about appropriate place for various statements.
+
 Changes in BB version 2013.3-3
 
    o	Further adjustment to DESCRIPTION and LICENSE file, as caught by 

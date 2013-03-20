@@ -86,7 +86,8 @@
 \details{
 R adaptation, with significant modifications, by Ravi Varadhan, Johns
 Hopkins University (March 25, 2008), from the original FORTRAN code of
-Birgin, Martinez, and Raydan (2001). 
+Birgin, Martinez, and Raydan (2001). The original is available at the 
+TANGO project \url{http://www.ime.usp.br/~egbirgin/tango/downloads.php}
 
 A major modification in our R adaptation of the original FORTRAN code is the 
 availability of 3 different options for Barzilai-Borwein (BB) 

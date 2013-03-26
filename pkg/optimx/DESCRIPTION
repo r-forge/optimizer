@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2013.03-25
-Date: 2012-03-25
+Version: 2013.03-26
+Date: 2012-03-26
 Title: A Replacement and Extension of the optim() Function -- CRAN
         version
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =

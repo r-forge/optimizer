@@ -1,18 +1,22 @@
 Package: optimx
-Version: 2012.5.24
-Date: 2012-05-24
-Title: REMOVED: A replacement and extension of the optim() function
-Author: John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
+Version: 2013.03-25
+Date: 2012-03-25
+Title: A Replacement and Extension of the optim() Function -- CRAN
+        version
+Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
+        c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
+        "Ravi", family = "Varadhan", role = "aut", email =
+        "RVaradhan@jhmi.edu"), person(given = "Gabor", family =
+        "Grothendieck", role = "ctb", email =
+        "ggrothendieck@gmail.com") )
+Author: John C Nash [aut, cre], Ravi Varadhan [aut], Gabor Grothendieck [ctb]
 Maintainer: John C Nash <nashjc@uottawa.ca>
-Description: REMOVED. See optplus for R-forge version of optimx. This allows
-        you to have both development and distribution versions of optimx 
-        installed at the same time. Use require( [name] ) to choose which one.
-        Provides a replacement and extension of the optim() function to unify
-	and streamline optimization capabilities in R for smooth, possibly box 
-	constrained functions of several or many parameters. The package wraps a
-        number of tools for function minimization available as contributed R packages.
+Description: Provides a replacement and extension of the optim()
+        function to unify and streamline optimization capabilities in R
+        for smooth, possibly box constrained functions of several or
+        many parameters. This is the CRAN version of the package.
 License: GPL-2
 Lazyload: Yes
-Depends: optfntools (>= 2012.05.21), numDeriv
+Depends: numDeriv
 Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim
-
+Packaged: 2013-03-21 11:24:18 UTC; Louis

@@ -26,9 +26,6 @@ sum(f*f)
 
 p0 <- rnorm(303, sd=1)
 
-system.time(ansvalley <- optimx(par=p0, fn=valley.f, control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
-optansout(ansvalley,filename="./ansvalley.txt")
-ansvalley
-
-cat("================== end valley_test ===================\n")
+system.time(ans.optx <- optimx(par=p0, fn=valley.f, control=list(all.methods=TRUE,save.failures=TRUE,maxit=2500)))[1]
+print(ans.optx)
 

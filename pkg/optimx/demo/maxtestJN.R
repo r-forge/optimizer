@@ -19,15 +19,24 @@ negmaxfn<-function(x) {
 }
 
 x0<-rep(pi,4)
-ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=1))
-optansout(ans.mx, filename="./ansmx.txt")
+ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=TRUE))
+print(ans.mx)
+print(ans.mx, best.only=TRUE)
+
+ans.mxn<-optimx(x0,negmaxfn,control=list(all.methods=TRUE,save.failures=TRUE,trace=TRUE))
+print(ans.mxn)
+print(ans.mxn, best.only=TRUE)
+
 
 x00<-c(1,2,3,4)
 # Test if things work when we provide the solution!
-ans.mx0<-optimx(x0,maxfn,control=list(all.methods=TRUE,maximize=TRUE,save.failures=TRUE,trace=1))
-optansout(ans.mx0, filename="./ansmx0.txt")
+ans.mx0<-optimx(x0,maxfn,control=list(all.methods=TRUE,maximize=TRUE,save.failures=TRUE,trace=TRUE))
+print(ans.mx0)
+print(ans.mx0, best.only=TRUE)
 
+ans.mx0n<-optimx(x0,negmaxfn,control=list(all.methods=TRUE,save.failures=TRUE,trace=TRUE))
+print(ans.mx0n)
+print(ans.mx0n, best.only=TRUE)
 
-cat("====================== end maxtestJN ========================\n")
 
 

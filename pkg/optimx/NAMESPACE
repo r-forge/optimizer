@@ -1,6 +1,7 @@
 export(
-  "optimx",
-  "optansout",
-  "get.result",
-  "get.best"
+  "optimx"
 )
+S3method("print", "optimx")
+S3method("coef", "optimx")
+
+

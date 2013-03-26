@@ -1,40 +1,148 @@
-Changes in optimx 
+NEWS about R package optimx
 
-Changes before 2012-4-30 not recorded 
+Work 20130322
+  - note that we should inform users that convcode used in place of convergence
 
-TODOS
-   o    Entire code needs to be checked for vestiges of earlier
-	changes and diagnostic output, as well as being better
-	formatted.
+VERSION 2013-03-25
 
-2012-5-18
-   o	The structure for passing information into and out of ufn, 
-	ugr and uhess has been updated to allow for matrix arguments.
-	This has been tested and appears to work, but the full set
-	of tests still needs to be suitably tidied and documented,
-	then shortened to put in the Examples. 
+      o [.optimx and as.data.frame.optimx added
 
-   o    Axial search has been tested but suitable examples need to 
-	be tidied. NOTE: axsearch ONLY uses minimization. 
+      o coef.optimx fixed to reflect new ans.ret
 
-   o    get.best adjusted as min(fs*fv) failed.
-        This prompted addition of as.numeric() to all function values
-	returned.
+VERSION 2013-03-22
 
-   o    Axial search is available. control list element 
-	axsearch.tries will attempt that number of axial searches 
-  	and will restart one fewer times. The axial search reports
-	tilt angles and radii of curvature along axial directions.
+      o TODO: inform users that conv used in place of convergence
 
-	   
-2012-5-6
-   o	Changed to use new structure opxfn which is an environment
-	created with list2env. This environment allows the passing
-	of scaling information as well as recording of function,
-	gradient and hessian counts. Note that the structure may
-	be extended later, and that it also affects package
-	optfntools.
+      o ans.ret structure changed
 
-   o	Control axsearch.tries = 0 should suppress axial search.
+VERSION 2013-03-21
 
+      o maximize works with print(x, best.only=TRUE)
 
+      o KKT checks can be switched off. Decided to NOT separate the code from
+        optimx.run  UNTESTED
+
+      o optimx.setup, optimx.run, optimx.check are NOT exported in NAMESPACE,
+        but a knowledgeable user could use these codes directly, either from
+        the source code or by modifying the package locally.
+
+VERSION 2013-03-18
+
+      o removed method= and columns= arguments from print.optimx and added
+        best.only
+
+      o removed print.optimx help page and moved it to the optimx help page
+
+      o the row names of the optimx output now show the method and the method
+        column has been removed
+
+VERSION 2013-03-18
+
+      o Removed all user accessible functions except optimx and added
+        print.optimx.
+
+VERSION 2013-3-16
+
+      TODOS: Check the maximize flag works in all routines, 
+            especially get.best.
+
+            Splitting of optimx so preparation and loading
+            is separate from running.
+
+            all.methods = TRUE ??
+
+      o  get.result now emits a warning if method requested is not in
+         optimx solution
+
+      o  attempt 2013-3-17 to include summary() in methods to replace
+         trimpars()
+
+##### OPEN ISSUES: (any date order)
+# 091220 -- ?? kkt1 tolerance. Do we want to let this be an input control?
+# 090612 -- ?? (Similar to above) Better choices for the tolerances in tests of equality for gradient / kkt tests?
+# 091018 -- ?? masks?
+# 090929 -- ?? control structure could use simplification 
+# 090729 -- ?? simplify structure of answers -- avoid repetition and make easier to access
+# 090531 -- ?? like SNewton back in to keep Ramsay and Co. on side
+# 090601 -- ?? Do we want hessevals to count Hessian evaluations?
+
+##### IMPLEMENTED: (reverse date order)
+# 110212 -- & to && and | to || for controls
+# 110212 -- Hessian changed from NULL to FALSE default
+# 100328 -- check if maximize works for Powell (minqa) routines -- 100415
+# 100329 -- make sure spg fixed on CRAN -- 100415
+# 100329 -- maximize tested for all but minqa, though spg needs fixup on CRAN.
+# 100215 -- Add newuoa and uobyqa to test minqa
+# 100212 -- ?? setting scaletol in controls ??
+# 091018 -- new control "starttest" so we can skip them DONE 091220
+# 091218 -- scaling checks (before computing rhobeg) and warning
+# 091215 -- mcontrol omission in nlm() call fixed
+# 091026 -- Remove SANN because no real conv indicator
+# 091018 - 090531 Use function code joint with funtest and funcheck in initial checks -- not fully possible
+# 091018 -- decided not to Put optimx.dev into package to provide for local source packages etc.
+# 090923 -- add bobyqa (from minqa)
+# 090923 -- add Rcgmin for large scale problems
+# 090729 -- put hessian argument back as an alternate for kkt
+# 090729 -- should have kkt only carried out for n<50 (no gradient), n<500 (with gradient and Jacobian
+#            of gradient to get Hessian)
+# 090531 -- KKT stuff
+# 090531 -- control for keeping failed runs (save.failures)
+# 090531 Decided to omit 'trust' from package methods for the time being.
+# 090527 -- added follow.on
+# 090511 What should be default method(s)? 
+#         090601: to provide compatibility with optim(), Nelder-Mead is put first. 
+#                 The choice of BFGS second is open to discussion. JN
+#  A wrapper function to integrate major optimization packages in R
+#  For now, we only consider algorithms for unconstrained and box-constrained optimization
+#  This function can implement "multiple" algorithms
+#
+# Input:
+#  par = a single vector of starting values
+#  fn = objective function (assumed to be sufficeintly differentiable)
+#  gr = name of a function to compute the (analytic) gradient of the objective function
+#  hess = name of a function to compute the (analytic) Hessian of the objective function
+#         Editorial note: Capitalize Hessian after the name of Otto Hesse. JN
+#  method = a character vector denoting all the algorithms to be executed (in the specified order)
+#      Complete names are not needed. A partial matching is attempted.
+#  hessian = logical variable that, if present, is equivalent to control$kkt. If TRUE, it causes
+#      optimx to try to compute an approximation to the Hessian matrix at the final set of parameters.
+#  control = list of control information, in particular
+#      trace = an integer controlling output (note different methods may use logicals
+#         trace = 0 gives no output, positive numbers give more output for greater values
+#      follow.on = TRUE or FALSE. If TRUE, and there are multiple methods, then the last set of 
+#         parameters from one method is used as the starting set for the next. 
+#      save.failures = TRUE if we wish to keep "answers" from runs where the method does not 
+#         return conv==0. FALSE otherwise (default).
+#      maximize = TRUE if we want to maximize rather than minimize a function. (Default FALSE)
+#         090601: Not yet implemented for nlm, nlminb, ucminf. However, there is a check to avoid
+#                 usage of these codes when maximize is TRUE.
+#      all.methods = TRUE if we want to use all available (and suitable) methods
+#      sort.result=TRUE, that is, we sort the results in decreasing order of the final function value
+#      kkt=TRUE to run Kuhn, Karush, Tucker tests of results unless problem large
+#      kkttol=0.001 (was .Machine$double.eps^(1/4)) Default value to check for small gradient and negative
+#               Hessian eigenvalues
+#      kkt2tol=1E-6 (default WAS 10* default for kkttol) Tolerance for eigenvalue ratio in KKT test of 
+#               positive definite Hessian
+#      all.methods=FALSE By default we do NOT run all methods
+#      starttests=TRUE  By default we run tests of the function and parameters: feasibility relative to
+#               bounds, analytic vs numerical gradient, scaling tests) before we try optimization methods
+#      dowarn=TRUE By default we leave warnings generated by optimx.
+#      badval=(0.5)*.Machine$double.xmax The value to set for the function value when try(fn()) fails.
+#      scaletol=3 To check parameters or their bounds we take logs of absolute values and find the range 
+#               i.e., max - min. This should not exceed scaletol. A value of 3 gives magnitudes between 
+#               1 and 20 approximately.  
+#
+# Output:
+# ans = an object containing two sets of information:
+# essential output = a data frame of converged parameters, function value at convergence, 
+#    name of algorithm, convergence indicator, and function evaluation and gradient evaluation counts
+# detailed output = this is a list with one component for each algorithm, and contains parameters, 
+#    function values, convergence code, number of function and gradient evals, numerical gradient 
+#    and hessian at convergence, eigenvalues of that hessian approximation, cpu time, and other 
+#    information returned by algorithms, and name of the algorithm.
+# detailed output can be accessed via the attribute called `details'
+#
+#  Authors:  Ravi Varadhan & John Nash
+#  Date:  February 17, 2008
+#  Changes: Ravi Varadhan - Date: May 29, 2009, John Nash - Latest: Oct 18, 2009
+#

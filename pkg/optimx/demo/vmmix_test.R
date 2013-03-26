@@ -72,10 +72,8 @@ lo <- rep(0.001,5)
 hi <- c(Inf, Inf, Inf, Inf, 0.999)
 
 p <- c(runif(5,c(0,0.1,0,0.1,0.2),c(2*pi,5,2*pi,5,0.8)))
-ansvmmix <- optimx(par=p, fn=vmmix.loglik, y=y, lower=lo, upper=hi, control=list(all.methods=TRUE,save.failures=TRUE, maxit=2500))
+ans.optx <- optimx(par=p, fn=vmmix.loglik, y=y, lower=lo, upper=hi, control=list(all.methods=TRUE,save.failures=TRUE, maxit=2500))
 
-optansout(ansvmmix,filename="./ansvmmix.txt")
-ansvmmix
+print(ans.optx)
 
-cat("================== end vmmix_test ===================\n")
 

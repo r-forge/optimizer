@@ -273,23 +273,22 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 }
 \value{
 
-	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
-                        itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
-
+	ansout <- data.frame(cbind(par=par, value=value, fevals=fevals,
+               gevals=gevals, nitns=nitns, convcode=convcode, kkt1=kkt1,
+               kkt2=kkt2, xtimes=xtimes))
 
   A dataframe with the following columns, each having one element (row) for each
   each of the methods that has returned an answer. In each row the columne elements
   give:
   \item{par}{The best set of parameters found.}
-  \item{fvalues}{The value of \code{fn} corresponding to \code{par}.}
-  \item{method}{The name of the method used for this answer.}
-  \item{fns}{The number of calls to \code{fn}.}
-  \item{grs}{The number of calls to \code{gr}. This excludes those calls needed
+  \item{value}{The value of \code{fn} corresponding to \code{par}.}
+  \item{fevals}{The number of calls to \code{fn}.}
+  \item{gevals}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
     compute a finite-difference approximation to the gradient.}
-  \item{itns}{For those methods where it is reported, the number of ``iterations''. See
+  \item{nitns}{For those methods where it is reported, the number of ``iterations''. See
     the documentation or code for particular methods for the meaning of such counts.}
-  \item{conv}{An integer code. \code{0} indicates successful
+  \item{convcode}{An integer code. \code{0} indicates successful
     convergence. Various methods may or may not return sufficient information
 	to allow all the codes to be specified. An incomplete list of codes includes
     \describe{
@@ -305,8 +304,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
     }
   }
-  \item{KKT1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
-  \item{KKT2}{A logical value returned TRUE if the solution reported appears to have a 
+  \item{kkt1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
+  \item{kkt2}{A logical value returned TRUE if the solution reported appears to have a 
   positive-definite Hessian.}
   \item{xtimes}{The reported execution time of the calculations for the particular method.}
 
@@ -317,8 +316,10 @@ returned by the computation.
 If the returned object from optimx() is \code{ans}, this is accessed 
 via the construct
     \code{attr(ans, "details")}
-This object is a list of lists, one list for each method that has been successful 
-or that has been forced by save.failures=TRUE. 
+This object is a list of lists, one list for each method that has been successful or that has been forced by save.failures=TRUE. 
+
+The "details" contain the computed gradient and Hessian and the Hessian
+eigenvalues for each method, if these have been computed.
 
 }
 \note{

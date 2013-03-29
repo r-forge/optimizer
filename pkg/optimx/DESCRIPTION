@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2013.03-27
-Date: 2012-03-27
+Version: 2013.03-29
+Date: 2012-03-29
 Title: A Replacement and Extension of the optim() Function -- CRAN
         version
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
@@ -18,5 +18,5 @@ Description: Provides a replacement and extension of the optim()
 License: GPL-2
 Lazyload: Yes
 Depends: numDeriv
-Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim
-
+Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, svUnit
+Packaged: 2013-03-28 05:15:04 UTC; Louis

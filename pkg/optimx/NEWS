@@ -1,7 +1,37 @@
 NEWS about R package optimx
 
-Work 20130322
-  - note that we should inform users that convcode used in place of convergence
+TODO 2013-03-28
+
+      o optimx, [.optimx and summary.optimx check whether details attribute
+        is list or matrix and act accordingly.  This should be cleaned up
+        so that its always a matrix.
+
+TODO 2013-03-22
+
+      o inform users that convcode used in place of convergence
+
+VERSION 2013-03-28
+
+      o print.optimx dropped. Not needed as print defaults to print.data.frame.
+
+      o added summary.optimx which has order= and par.select= arguments
+
+      o order= is an expression or list of expressions using the column names 
+        of the "optimx" object as variables (plus the variable rownames).
+
+      o par.select = FALSE now has same meaning as par.select = 0 (rather than 
+        being an error)
+
+      o [.optimx now subsets details attribute too
+
+      o method column from details attribute dropped and moved to row names
+
+
+VERSION 2013-03-27
+
+      o created unit test framework with 2 unit tests in 
+          inst/unitTests/runit.all.R.  
+        To run: demo("unitTests")
 
 VERSION 2013-03-25
 
@@ -11,7 +41,6 @@ VERSION 2013-03-25
 
 VERSION 2013-03-22
 
-      o TODO: inform users that conv used in place of convergence
 
       o ans.ret structure changed
 

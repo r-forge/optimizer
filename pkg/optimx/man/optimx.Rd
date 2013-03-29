@@ -5,8 +5,10 @@
 
 \name{optimx}
 \alias{optimx}
+\alias{[.optimx}
+\alias{as.data.frame.optimx}
 \alias{coef.optimx}
-\alias{print.optimx}
+\alias{summary.optimx}
 \encoding{UTF-8}
 \title{General-purpose optimization}
 \concept{minimization}
@@ -28,7 +30,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
-\method{print}{optimx}(x, best.only = FALSE, par.select = TRUE, ...)
+\method{summary}{optimx}(object, order = rownames, par.select = TRUE, ...)
 \method{coef}{optimx}(object, ...)
 
 }
@@ -70,18 +72,17 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        This setting is provided primarily for compatibility with optim().}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
  \item{object}{An \code{"optimx"} object.}
- \item{x}{An \code{"optimx"} object.}
- \item{par.select}{an index vector selecting
+ \item{par.select}{a numeric or character index vector selecting
    those \code{par} values to display. For example, \code{par=1:5} means
    display only the first 5 parameters. Character names of the parameters
    may also be specified, as well as \code{"none"}.}
- \item{best.only}{If \code{TRUE} then only the method with the best value
-    for the objective function will be shown.  If there are ties one will
-    be chosen arbitrarily.}
+ \item{order}{An expression or list of expressions in terms of the column
+    names of \code{object}.  Also the special name \code{rownames} may be used.
+    The result is ordered by these, each in ascending order (except for 
+    \code{value} which is in descending order if the optimization problem is a 
+    maximization problem).}
  \item{\dots}{For \code{optimx} further arguments to be passed to \code{fn} 
-    and \code{gr}. For \code{print.optimx} further arguments are passed to 
-    \code{print.data.frame}. Further arguments are not used for 
-    \code{coef.optimx}.}
+    and \code{gr}; otherwise, further arguments are not used.}
 }
 \details{
   Note that arguments after \code{\dots} must be matched exactly.
@@ -270,23 +271,27 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
   are copied over. (We have not verified this as at 2009-07-29.)
 
+  There are \code{[}, \code{as.data.frame}, \code{coef} and \code{summary}
+  \code{"optimx"} methods available.
+
 }
 \value{
 
-	ansout <- data.frame(cbind(par=par, value=value, fevals=fevals,
-               gevals=gevals, nitns=nitns, convcode=convcode, kkt1=kkt1,
-               kkt2=kkt2, xtimes=xtimes))
+	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
+                        itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
+
 
   A dataframe with the following columns, each having one element (row) for each
   each of the methods that has returned an answer. In each row the columne elements
   give:
   \item{par}{The best set of parameters found.}
-  \item{value}{The value of \code{fn} corresponding to \code{par}.}
-  \item{fevals}{The number of calls to \code{fn}.}
-  \item{gevals}{The number of calls to \code{gr}. This excludes those calls needed
+  \item{fvalues}{The value of \code{fn} corresponding to \code{par}.}
+  \item{method}{The name of the method used for this answer.}
+  \item{fns}{The number of calls to \code{fn}.}
+  \item{grs}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
     compute a finite-difference approximation to the gradient.}
-  \item{nitns}{For those methods where it is reported, the number of ``iterations''. See
+  \item{itns}{For those methods where it is reported, the number of ``iterations''. See
     the documentation or code for particular methods for the meaning of such counts.}
   \item{convcode}{An integer code. \code{0} indicates successful
     convergence. Various methods may or may not return sufficient information
@@ -304,8 +309,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
     }
   }
-  \item{kkt1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
-  \item{kkt2}{A logical value returned TRUE if the solution reported appears to have a 
+  \item{KKT1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
+  \item{KKT2}{A logical value returned TRUE if the solution reported appears to have a 
   positive-definite Hessian.}
   \item{xtimes}{The reported execution time of the calculations for the particular method.}
 
@@ -316,10 +321,8 @@ returned by the computation.
 If the returned object from optimx() is \code{ans}, this is accessed 
 via the construct
     \code{attr(ans, "details")}
-This object is a list of lists, one list for each method that has been successful or that has been forced by save.failures=TRUE. 
-
-The "details" contain the computed gradient and Hessian and the Hessian
-eigenvalues for each method, if these have been computed.
+This object is a list of lists, one list for each method that has been successful 
+or that has been forced by save.failures=TRUE. 
 
 }
 \note{
@@ -437,23 +440,32 @@ grr <- function(x) { ## Gradient of 'fr'
        200 *      (x2 - x1 * x1))
 }
 ans1<-optimx(c(-1.2,1), fr)
-print(ans1)
-print(attr(ans1,"details"))
-cat("\n\n")
+ans1
+attr(ans1,"details")
+
+####
+
 ans2<-optimx(c(-1.2,1), fr, grr, method = "BFGS")
-print(ans2)
+ans2
 ## The next line will fail if executed because 'hessian = TRUE' no longer allowed
 # ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
-cat("\n\n")
+
+####
+
 ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=1))
-print(ans4)
-cat("\n\n")
+ans4
+
+####
+
 ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
-print(ans5)
-cat("\n\n")
+ans5
+
+####
+
 ans6<-optimx(c(-1.2,1), fr, grr, method = "L-BFGS-B")
-print(ans6)
-cat("\n\n")
+ans6
+
+####
 
 flb <- function(x)
     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
@@ -516,48 +528,65 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 
 startx<-4*seq(1:10)/3.
 ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
-print(ans8)
-print(ans8[, "gevals"])
-print(ans8["spg", ])
-print(ans8, par.select = 1:3)
-print(ans8, best.only = TRUE)
+ans8
+ans8[, "gevals"]
+ans8["spg", ]
+summary(ans8, par.select = 1:3)
+summary(ans8, order = value)[1, ] # show best value
+head(summary(ans8, order = value)) # best few
 
-cat("Test missing methods\n")
+## order by value.  Within those values the same to 3 decimals order by fevals.
+summary(ans8, order = list(round(value, 3), fevals), par.select = FALSE)
+
+summary(ans8, order = rownames, par.select = FALSE) # order by method name
+summary(ans8, par.select = FALSE) # same
+
+## Test missing methods
 ans8missmeth<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("spg", "Rcgmin"),
      control=list(save.failures=TRUE, trace=0), gs=10)
-print(ans8missmeth["Rvmmin", ])
+# this should give an error
+# ans8missmeth["Rvmmin", ]
 
 startx<-4*seq(1:10)/3.
-cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf\n")
+
+####
+
+## "Polyalgorithm with 200 steps NM followed by up to 75 of ucminf
 ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
              itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
-print(ans9)
+ans9
+
+####
 
 startx<-4*seq(1:10)/3.
-cat("200 steps NM is not enough to terminate\n")
+## 200 steps NM is not enough to terminate
 ans10<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("Nelder-Mead"),
              itnmax=c(200), control=list(trace=0, save.failures=FALSE), gs=10)
-cat("The answer should be NULL\n")
-print(ans10)
+## The answer should be NULL
+ans10
 
+####
 
 startx<-4*seq(1:10)/3.
-cat("Try getting hessian but not kkt tests\n")
+## Try getting hessian but not kkt tests
 ans11<-optimx(startx,fn=genrose.f,gr=genrose.g, hessian=TRUE,  
 	control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
-print(ans11)
-cat("Method 7 should be Rvmmin\n")
-print(attr(ans11,"details")[7])
+ans11
+## Method 7 should be Rvmmin
+attr(ans11,"details")[7]
 
+####
 
 startx<-4*seq(1:10)/3.
-cat("Use analytic hessian and no KKT tests\n")
+## Use analytic hessian and no KKT tests
 ans12<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
       control=list(trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
-print(ans12)
-print(attr(ans12,"details"))
+ans12
+attr(ans12,"details")
 
-cat("Maximization test\n")
+#### 
+
+## Maximization test
 
 maxfn<-function(x) {
       	n<-length(x)
@@ -569,11 +598,11 @@ maxfn<-function(x) {
 
 x0<-rep(pi,4)
 ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=TRUE))
-print(ans.mx)
-best.mx<-print(ans.mx, best.only=TRUE)
-cat("Check that hessian eigenvalues are negative\n")
-print(attr(best.mx,"details")["hev"])
-print(attr(best.mx,"details")$nhatend)
+ans.mx
+best.mx<-summary(ans.mx, order = value)[1, ]
+## Check that hessian eigenvalues are negative
+attr(best.mx,"details")["hev"]
+attr(best.mx,"details")$nhatend
 
 }
 \keyword{nonlinear}

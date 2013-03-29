@@ -12,8 +12,9 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   }
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
             optcfg$method, itnmax, hessian, optcfg$ctrl, ...)
-  details <- attr(ansout, "details")
-  attr(ansout, "details") <- NULL ## Not sure this necessary
+  print(ansout)
+    details <- attr(ansout, "details")
+  attr(ansout, "details") <- NULL ## Not sure this necessary, but null here and replace below
   if (optcfg$ctrl$maximize) {
      if (control$trace) cat("Reversing sign on objective, gradient, & hessian\n")
      ansout$value <- - ansout$value
@@ -24,6 +25,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         details[[i,"hev"]] <- - details[[i,"hev"]] 
      }
   }
+	  rownames(details) <- details[, "method"]
+	  details <- details[, colnames(details) != "method", drop=FALSE]
   structure(ansout, details = details, maximize = optcfg$ctrl$maximize,
             npar = optcfg$npar, class = c("optimx", "data.frame"))
 } ## end of optimx

@@ -261,6 +261,7 @@ tmpin<-readline("cont?")
 str(ans.mx)
 tmpin<-readline("cont?")
 best.mx<-summary(ans.mx, order = value)[1, ]
+best.mx
 ## Check that hessian eigenvalues are negative
 attr(best.mx,"details")["hev"]
 tmpin<-readline("cont?")

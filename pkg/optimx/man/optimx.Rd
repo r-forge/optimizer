@@ -30,7 +30,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
-\method{summary}{optimx}(object, order = rownames, par.select = TRUE, ...)
+\method{summary}{optimx}(object, order = NULL, par.select = TRUE, ...)
 \method{coef}{optimx}(object, ...)
 
 }
@@ -72,13 +72,19 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        This setting is provided primarily for compatibility with optim().}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
  \item{object}{An \code{"optimx"} object.}
- \item{par.select}{a numeric or character index vector selecting
+ \item{par.select}{a numeric, character or logical vector selecting
    those \code{par} values to display. For example, \code{par=1:5} means
-   display only the first 5 parameters. Character names of the parameters
-   may also be specified, as well as \code{"none"}.}
- \item{order}{An expression or list of expressions in terms of the column
-    names of \code{object}.  Also the special name \code{rownames} may be used.
-    The result is ordered by these, each in ascending order (except for 
+   display only the first 5 parameters.  Recycled so \code{par.select=FALSE}
+   selects no parameters.}
+ \item{order}{An R expression, list of R expressions in terms of the column
+    names of \code{object} or a character vector of names or an R expression or
+    list of R expressions as a string.  
+    \code{rownames} can be used to 
+    alphabetic ordering by method name. \code{NULL}, the default, causes
+    it not to be reordered.  Note that if 
+    \code{follow.on} is TRUE re-ordering likely makes no sense. 
+    The result is ordered by the \code{order}
+    specification, each specified column in ascending order (except for 
     \code{value} which is in descending order if the optimization problem is a 
     maximization problem).}
  \item{\dots}{For \code{optimx} further arguments to be passed to \code{fn} 
@@ -203,8 +209,6 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       is TRUE, then \code{KKT1} is generated, but \code{KKT2} is not.}
     \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
       methods.}
-    \item{\code{sort.result}}{= TRUE if we want to have the results table sorted 
-      into reverse order of final objective function.}
     \item{\code{kkttol}}{= value to use to check for small gradient and negative
       Hessian eigenvalues. Default = .Machine$double.eps^(1/3) }
     \item{\code{kkt2tol}}{= Tolerance for eigenvalue ratio in KKT test of positive 
@@ -428,63 +432,12 @@ out production calculations where the setup and checks could be run once.
 \examples{
 require(graphics)
 
-fr <- function(x) {   ## Rosenbrock Banana function
-    x1 <- x[1]
-    x2 <- x[2]
-    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
-}
-grr <- function(x) { ## Gradient of 'fr'
-    x1 <- x[1]
-    x2 <- x[2]
-    c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1),
-       200 *      (x2 - x1 * x1))
-}
-ans1<-optimx(c(-1.2,1), fr)
-ans1
-attr(ans1,"details")
-
-####
-
-ans2<-optimx(c(-1.2,1), fr, grr, method = "BFGS")
-ans2
-## The next line will fail if executed because 'hessian = TRUE' no longer allowed
-# ans3<-optimx(c(-1.2,1), fr, NULL, method = "BFGS", hessian = TRUE)
-
-####
-
-ans4<-optimx(c(-1.2,1), fr, grr, method = "CG",control=list(trace=1))
-ans4
-
-####
-
-ans5<-optimx(c(-1.2,1), fr, grr, method = "CG", control=list(type=2))
-ans5
-
-####
-
-ans6<-optimx(c(-1.2,1), fr, grr, method = "L-BFGS-B")
-ans6
-
-####
-
+cat("Bounded problem with solution par[24] not on boundary\n")
 flb <- function(x)
     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
 ## 25-dimensional box constrained
-optimx(rep(3, 25), flb, NULL, method = "L-BFGS-B",
-      lower=rep(2, 25), upper=rep(4, 25)) # par[24] is *not* at boundary
-
-## "wild" function , global minimum at about -15.81515
-fw <- function (x)
-    10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
-
-## Suppressed for optimx() ans7 <- optimx(50, fw, method="SANN",
-##             control=list(maxit=20000, temp=20, parscale=20))
-## ans7
-## Now improve locally {typically only by a small bit}:
-## newpar<-unlist(ans7$par) # NOTE: you need to unlist the parameters as optimx() has multiple outputs
-##(r2 <- optimx(newpar, fw, method="BFGS"))
-##points(r2$par, r2$value, pch = 8, col = "red", cex = 2)
+optimx(rep(3, 25), flb, NULL, lower=rep(2, 25), upper=rep(4, 25),
+       control=list(all.methods=TRUE)) # par[24] is *not* at boundary
 
 ## Show multiple outputs of optimx using all.methods
 # genrose function code
@@ -534,16 +487,21 @@ ans8["spg", ]
 summary(ans8, par.select = 1:3)
 summary(ans8, order = value)[1, ] # show best value
 head(summary(ans8, order = value)) # best few
+## head(summary(ans8, order = "value")) # best few -- alternative syntax
 
 ## order by value.  Within those values the same to 3 decimals order by fevals.
-summary(ans8, order = list(round(value, 3), fevals), par.select = FALSE)
+## summary(ans8, order = list(round(value, 3), fevals), par.select = FALSE)
+summary(ans8, order = "list(round(value, 3), fevals)", par.select = FALSE)
 
-summary(ans8, order = rownames, par.select = FALSE) # order by method name
-summary(ans8, par.select = FALSE) # same
+## summary(ans8, order = rownames, par.select = FALSE) # order by method name
+summary(ans8, order = "rownames", par.select = FALSE) # same
+
+summary(ans8, order = NULL, par.select = FALSE) # use input order
+## summary(ans8, par.select = FALSE) # same
 
 ## Test missing methods
-ans8missmeth<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("spg", "Rcgmin"),
-     control=list(save.failures=TRUE, trace=0), gs=10)
+## ans8missmeth<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("spg", "Rcgmin"),
+##     control=list(save.failures=TRUE, trace=0), gs=10)
 # this should give an error
 # ans8missmeth["Rvmmin", ]
 
@@ -551,7 +509,7 @@ startx<-4*seq(1:10)/3.
 
 ####
 
-## "Polyalgorithm with 200 steps NM followed by up to 75 of ucminf
+cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf -- follow.on=TRUE\n")
 ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
              itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
 ans9
@@ -572,8 +530,8 @@ startx<-4*seq(1:10)/3.
 ans11<-optimx(startx,fn=genrose.f,gr=genrose.g, hessian=TRUE,  
 	control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
 ans11
-## Method 7 should be Rvmmin
-attr(ans11,"details")[7]
+## Method should be Rvmmin
+attr(ans11,"details")["Rvmmin"]
 
 ####
 
@@ -597,12 +555,12 @@ maxfn<-function(x) {
 }
 
 x0<-rep(pi,4)
-ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=TRUE))
+ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=0))
 ans.mx
 best.mx<-summary(ans.mx, order = value)[1, ]
 ## Check that hessian eigenvalues are negative
-attr(best.mx,"details")["hev"]
-attr(best.mx,"details")$nhatend
+attr(best.mx,"details")[1, "hev"]
+attr(best.mx,"details")[1, "nhatend"]
 
 }
 \keyword{nonlinear}

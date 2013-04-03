@@ -1,14 +1,64 @@
 NEWS about R package optimx
 
-TODO 2013-03-28
+TODO
+      o check that names on parameters survive the various calls and returns
+        (Note work on optplus to get this to work.)  130403
 
-      o optimx, [.optimx and summary.optimx check whether details attribute
-        is list or matrix and act accordingly.  This should be cleaned up
-        so that its always a matrix.
+      o UOBYQA -- allow or not? (seems to be present in methods, but not in
+         list of allowed methods)  130403
 
-TODO 2013-03-22
+      o Rcgminb (warning msg needs " by" added re: numDeriv) 130403
 
-      o inform users that convcode used in place of convergence
+      o Use have.bounds to select bounds and unconstrained methods where there
+        is a choice to avoid duplication of tests.
+
+VERSION 2013-04-03
+
+      o in summary.optimx no re-ordering is now specified using order = NULL
+
+      o Fixup of examples -- simplified, corrected call to details
+
+VERSION 2013-04-02
+
+      o in summary.optimx the order= argument may now be an unevaluated 
+        expression (as before), a string representation of that expression or 
+        a character vector of names, e.g. these all work:
+           order = value # unevaluated expression
+           order = "value" # character string containing column name
+	   order = list(fevals, gevals) # unevaluated list
+           order = c("fevals", "gevals") # character vector of column names
+           order = list(round(value,3), fevals) # unevaluated list
+           order = "list(round(value,3),fevals)" # expression as string
+
+VERSION 2013-03-29
+
+      o Note that asking for a method that is NOT in the results will return
+        a row with rowname (the method name) as "NA". Note that this will NOT
+        test TRUE with is.na() on the rowname. Use instead a test like
+
+               (row.names(ans8missmeth["Rvmmin",])[[1]] == "NA")
+
+      o kkt1 and kkt2 in results now returned TRUE/FALSE as in 2012 versions
+
+      o Fixed error in kkt2 test (using old name evnhatend rather than hev)
+
+      o Results are no longer sorted by optimx, but can be using the 'summary()'
+        function. This can be called in a variety of ways. ?? see examples in??
+
+      o The 'details' are always kept in a matrix form, even when only one
+        method has been used.
+
+      o 'convcode' is used in place of 'convergence' in result structure
+
+      o There is a directory inst/interactive-test that contains ox.R test
+        script that pauses so user can see interim results. 
+
+      o As a result of several issues, the result structure is changed from
+        that of optimx 2012 versions. It is now a data frame with a `details'
+        attribute. Also an 'npar' attribute to give the number of parameters,
+        and a 'maximize' attribute that is TRUE when the function is to be
+        maximized.
+
 
 VERSION 2013-03-28
 

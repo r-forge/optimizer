@@ -1,5 +1,4 @@
 
-rm(list=ls())
 library(optimx)
 ### ** Examples
 
@@ -104,9 +103,9 @@ str(ans7)
 tmpin<-readline("cont?")
 
 ## "wild" function , global minimum at about -15.81515
-fw <- function (x)
-    10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
-plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
+## fw <- function (x)
+##    10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
+## plot(fw, -50, 50, n=1000, main = "optim() minimising 'wild function'")
 
 ## Suppressed for optimx() ans7 <- optimx(50, fw, method="SANN",
 ##             control=list(maxit=20000, temp=20, parscale=20))
@@ -172,6 +171,10 @@ summary(ans8, order = value)[1, ] # show best value
 tmpin<-readline("cont?")
 head(summary(ans8, order = value)) # best few
 tmpin<-readline("cont?")
+ans8.best<-summary(ans8, order = value)[1,]
+print(ans8.best)
+attr(ans8.best,"details")
+tmpin<-readline("cont?")
 
 ## order by value.  Within those values the same to 3 decimals order by fevals.
 summary(ans8, order = list(round(value, 3), fevals), par.select = FALSE)
@@ -184,12 +187,16 @@ tmpin<-readline("cont?")
 ## Test missing methods
 ans8missmeth<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("spg", "Rcgmin"),
      control=list(save.failures=TRUE, trace=0), gs=10)
-# this should give an error
+# There are just 2 methods here
 ans8missmeth
 tmpin<-readline("cont?")
 # ans8missmeth["Rvmmin", ]
-# this should give an error
+# When we try for a method that is not there in the structure
+# the rowname (that is, the method) comes back "NA"
 ans8missmeth["Rvmmin", ]
+cat("Is method Rvmmin missing? ", (row.names(ans8missmeth["Rvmmin",])[[1]] == "NA"),"\n")
+
+
 tmpin<-readline("cont?")
 
 startx<-4*seq(1:10)/3.

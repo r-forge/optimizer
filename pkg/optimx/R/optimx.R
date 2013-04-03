@@ -10,10 +10,12 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     optchk <- optimx.check(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower,
            upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds, ...)
   }
+  optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
+  cat("optcfg:")
+  print(optcfg)
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
             optcfg$method, itnmax, hessian, optcfg$ctrl, ...)
-  print(ansout)
-    details <- attr(ansout, "details")
+  details <- attr(ansout, "details")
   attr(ansout, "details") <- NULL ## Not sure this necessary, but null here and replace below
   if (optcfg$ctrl$maximize) {
      if (control$trace) cat("Reversing sign on objective, gradient, & hessian\n")
@@ -25,9 +27,15 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         details[[i,"hev"]] <- - details[[i,"hev"]] 
      }
   }
-	  rownames(details) <- details[, "method"]
-	  details <- details[, colnames(details) != "method", drop=FALSE]
+  rownames(details) <- details[, "method"]
+  ##JN -- don't remove method: 
+  ##JN  details <- details[, colnames(details) != "method", drop=FALSE]
+  # Fix kkt test output to logical
+    ansout[ , "kkt1"] <- as.logical(ansout[ , "kkt1"])
+    ansout[ , "kkt2"] <- as.logical(ansout[ , "kkt2"])
+
   structure(ansout, details = details, maximize = optcfg$ctrl$maximize,
-            npar = optcfg$npar, class = c("optimx", "data.frame"))
+            npar = optcfg$npar, follow.on=optcfg$ctrl$follow.on,
+            class = c("optimx", "data.frame"))
 } ## end of optimx
 

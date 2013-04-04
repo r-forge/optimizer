@@ -1,7 +1,8 @@
-Prior versions of the spg algorithm are licensed under GPL version 2 or later 
-and are available at the TANGO project 
+Prior versions of the spg algorithm, written in Fortan, are licensed under GPL 
+version 2 or later and are available at the TANGO project 
 <http://www.ime.usp.br/~egbirgin/tango/downloads.php>
 
-The sane and dfsane algorithms are release under GPL version 3 with the
-agreement of Marcos Raydan and co-authors, who retain copyright on the
-original work. 
+The original sane and dfsane algorithms were published in Fortran by Marcos Raydan 
+and co-authors, who have release their Fortran code under GPL version 3. 
+
+(The BB package implements all algorithms in R and contains none of the original Fortan.)

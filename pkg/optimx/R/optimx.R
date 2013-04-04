@@ -11,8 +11,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds, ...)
   }
   optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
-  cat("optcfg:")
-  print(optcfg)
+#  cat("optcfg:")
+#  print(optcfg)
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
             optcfg$method, itnmax, hessian, optcfg$ctrl, ...)
   details <- attr(ansout, "details")

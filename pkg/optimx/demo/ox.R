@@ -1,6 +1,4 @@
-
-library(optimx)
-### ** Examples
+## ox - interactive example
 
 require(graphics)
 
@@ -27,7 +25,7 @@ print(dim(coef(ans1)))
 tmpin<-readline("cont?")
 summary(ans1)
 tmpin<-readline("cont?")
-best1<-summary(ans1, order=value)[1, ]
+best1<-summary(ans1, sort.order=value)[1, ]
 best1
 dim(best1)
 
@@ -167,19 +165,19 @@ ans8["spg", ]
 tmpin<-readline("cont?")
 summary(ans8, par.select = 1:3)
 tmpin<-readline("cont?")
-summary(ans8, order = value)[1, ] # show best value
+summary(ans8, sort.order = value)[1, ] # show best value
 tmpin<-readline("cont?")
-head(summary(ans8, order = value)) # best few
+head(summary(ans8, sort.order = value)) # best few
 tmpin<-readline("cont?")
-ans8.best<-summary(ans8, order = value)[1,]
+ans8.best<-summary(ans8, sort.order = value)[1,]
 print(ans8.best)
 attr(ans8.best,"details")
 tmpin<-readline("cont?")
 
 ## order by value.  Within those values the same to 3 decimals order by fevals.
-summary(ans8, order = list(round(value, 3), fevals), par.select = FALSE)
+summary(ans8, sort.order = list(round(value, 3), fevals), par.select = FALSE)
 
-summary(ans8, order = rownames, par.select = FALSE) # order by method name
+summary(ans8, sort.order = rownames, par.select = FALSE) # order by method name
 tmpin<-readline("cont?")
 
 summary(ans8, par.select = FALSE) # same
@@ -267,7 +265,7 @@ ans.mx
 tmpin<-readline("cont?")
 str(ans.mx)
 tmpin<-readline("cont?")
-best.mx<-summary(ans.mx, order = value)[1, ]
+best.mx<-summary(ans.mx, sort.order = value)[1, ]
 best.mx
 ## Check that hessian eigenvalues are negative
 attr(best.mx,"details")["hev"]
@@ -275,6 +273,71 @@ tmpin<-readline("cont?")
 attr(best.mx,"details")$nhatend
 tmpin<-readline("cont?")
 
+cat("test names on parameters\n")
+
+## Bates model: y = Asym/(1+exp((xmid-t)/scal))
+##      = b1 / (1 + exp(xmid/scal)*exp(-t/scal))
+##      = b1 / (1 + b2 * exp(-b3*t))
+##  where b2 = exp(xmid/scal)
+##        b3 = 1/scal        b1 = Asym
+##    So Asym = b1,  scal = 1/b3, xmid = log(b2) * scal = log(b2)/b3
+
+
+
+hbates.res<-function(x) { 
+    if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
+    y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+         38.558, 50.156, 62.948, 75.995, 91.972)
+    t<-1:12
+#    if(abs(12*x[3])>50) {
+#       res<-rep(Inf,12)
+#    } else {
+       res<-x[1]/(1+exp((x[2]-t)/x[3])) - y
+#    }
+}
+
+hbates.f<- function(x){ # # Hobbs weeds problem -- function
+#    if (abs(12*x[3]) > 500) { # check computability
+#       fbad<-.Machine$double.xmax
+#       return(fbad)
+#    }
+    res<-hbates.res(x)
+    f<-sum(res*res)
+}
+
+hbates.jac<-function(x){ # Jacobian of Hobbs weeds problem
+   jj<-matrix(0.0, 12, 3)
+   t<-1:12
+    yy<-exp((x[2]-t)/x[3])
+    zz<-1.0/(1+yy)
+     jj[ ,1] <- zz
+     jj[ ,2] <- -x[1]*zz*zz*yy/x[3]
+     jj[ ,3] <- x[1]*zz*zz*yy*(x[2]-t)/(x[3]*x[3])
+   return(jj)
+}
+
+hbates.g<-function(x){ # gradient of Hobbs weeds problem
+    # NOT EFFICIENT TO CALL AGAIN
+    jj<-hbates.jac(x)
+    res<-hbates.res(x)
+    gg<-as.vector(2.*t(jj) %*% res)
+    return(gg)
+}
+
+start<-c(200,10,10)
+names(start)<-NULL # just to be safe
+# no names
+anoname<-optimx(start, hbates.f, hbates.g, control=list(all.methods=TRUE))
+print(summary(anoname))
+
+names(start)<-c("Asym", "xmid", "scal")
+
+anames<-optimx(start, hbates.f, hbates.g, control=list(all.methods=TRUE))
+print(summary(anames))
+
+tmpin<-readline("cont?")
+
+cat("DONE!")
 
 
 

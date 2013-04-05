@@ -7,8 +7,6 @@
 \alias{optimx}
 \alias{[.optimx}
 \alias{as.data.frame.optimx}
-\alias{coef.optimx}
-\alias{summary.optimx}
 \encoding{UTF-8}
 \title{General-purpose optimization}
 \concept{minimization}
@@ -30,24 +28,16 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
-\method{summary}{optimx}(object, order = NULL, par.select = TRUE, ...)
-\method{coef}{optimx}(object, ...)
-
 }
 \arguments{
  \item{par}{a vector of initial values for the parameters 
-   for which optimal 
-   values are to be found.}  
+   for which optimal values are to be found. Names on the elements
+   of this vector are preserved and used in the results data frame.}  
  \item{fn}{A function to be minimized (or maximized), with first
    argument the vector of parameters over which minimization is to take
    place.  It should return a scalar result.}
  \item{gr}{A function to return (as a vector) the gradient for those methods that 
    can use this information.
-   This includes the following methods:
-		\code{"BFGS"}
-		\code{"CG"}
-		\code{"L-BFGS-B"}
-
 
    If 'gr' is \code{NULL}, a finite-difference approximation will be used.
    An open question concerns whether the SAME approximation code used for all methods, 
@@ -71,22 +61,6 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        \sQuote{Details} for the \code{control} list).
        This setting is provided primarily for compatibility with optim().}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
- \item{object}{An \code{"optimx"} object.}
- \item{par.select}{a numeric, character or logical vector selecting
-   those \code{par} values to display. For example, \code{par=1:5} means
-   display only the first 5 parameters.  Recycled so \code{par.select=FALSE}
-   selects no parameters.}
- \item{order}{An R expression, list of R expressions in terms of the column
-    names of \code{object} or a character vector of names or an R expression or
-    list of R expressions as a string.  
-    \code{rownames} can be used to 
-    alphabetic ordering by method name. \code{NULL}, the default, causes
-    it not to be reordered.  Note that if 
-    \code{follow.on} is TRUE re-ordering likely makes no sense. 
-    The result is ordered by the \code{order}
-    specification, each specified column in ascending order (except for 
-    \code{value} which is in descending order if the optimization problem is a 
-    maximization problem).}
  \item{\dots}{For \code{optimx} further arguments to be passed to \code{fn} 
     and \code{gr}; otherwise, further arguments are not used.}
 }
@@ -99,7 +73,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   use both methods. 
 
   Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
-  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', and 'ucminf'.
+  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa',
+  'nmkb', 'hjkb', 'Rcgmin', or 'Rvmmin'.
 
   The default methods for unconstrained problems (no \code{lower} or
   \code{upper} specified) are an implementation of the Nelder and Mead
@@ -172,7 +147,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   routines of the similar names due to M J D Powell (2009). See package minqa 
   for details. Note that \code{"uobyqa"} and \code{"newuoa"} are for 
   unconstrained minimization, while \code{"bobyqa"} is for box constrained
-  problems.
+  problems. While \code{"uobyqa"} may be specified, it is NOT part of the 
+  \code{all.methods = TRUE} set.
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -188,7 +164,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       methods, then the last set of 
       parameters from one method is used as the starting set for the next. }
     \item{\code{save.failures}}{ = TRUE if we wish to keep "answers" from runs 
-      where the method does not return conv==0. FALSE otherwise (default).}
+      where the method does not return convcode==0. FALSE otherwise (default).}
     \item{\code{maximize}}{ = TRUE if we want to maximize rather than minimize 
       a function. (Default FALSE). Methods nlm, nlminb, ucminf cannot maximize a
       function, so the user must explicitly minimize and carry out the adjustment
@@ -281,21 +257,22 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 }
 \value{
 
-	ansout <- data.frame(cbind(par=pars, fvalues=vals, method=meths, fns=fevals, grs=gevals, 
-                        itns=nitns, conv=convcode, KKT1=kkt1, KKT2=kkt2, xtimes=xtimes))
+   If there are \code{npar} parameters, then the result is a dataframe having one row
+   for each method for which results are reported, using the method as the row name,
+   with columns
 
+   \code{par_1, .., par_npar, value, fevals, gevals, niter, convcode, kkt1, kkt2, xtimes}
 
-  A dataframe with the following columns, each having one element (row) for each
-  each of the methods that has returned an answer. In each row the columne elements
-  give:
-  \item{par}{The best set of parameters found.}
-  \item{fvalues}{The value of \code{fn} corresponding to \code{par}.}
-  \item{method}{The name of the method used for this answer.}
-  \item{fns}{The number of calls to \code{fn}.}
-  \item{grs}{The number of calls to \code{gr}. This excludes those calls needed
+  where
+  \describe{
+  \item{par_1}{ .. }
+  \item{par_npar}{The best set of parameters found.}
+  \item{value}{The value of \code{fn} corresponding to \code{par}.}
+  \item{fevals}{The number of calls to \code{fn}.}
+  \item{gevals}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
     compute a finite-difference approximation to the gradient.}
-  \item{itns}{For those methods where it is reported, the number of ``iterations''. See
+  \item{niter}{For those methods where it is reported, the number of ``iterations''. See
     the documentation or code for particular methods for the meaning of such counts.}
   \item{convcode}{An integer code. \code{0} indicates successful
     convergence. Various methods may or may not return sufficient information
@@ -313,29 +290,39 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
     }
   }
-  \item{KKT1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
-  \item{KKT2}{A logical value returned TRUE if the solution reported appears to have a 
+  \item{kkt1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
+  \item{kkt2}{A logical value returned TRUE if the solution reported appears to have a 
   positive-definite Hessian.}
   \item{xtimes}{The reported execution time of the calculations for the particular method.}
+  }
+
 
 The attribute "details" to the returned answer object contains information,
-if computed, on the gradient and Hessian matrix at the supposed optimum, 
-and the eigenvalues of the Hessian, as well as the \code{message}, if any, 
-returned by the computation. 
+if computed, on the gradient (\code{ngatend}) and Hessian matrix (\code{nhatend}) 
+at the supposed optimum, along with the eigenvalues of the Hessian (\code{hev}), 
+as well as the \code{message}, if any, returned by the computation for each \code{method},
+which is included for each row of the \code{details}. 
 If the returned object from optimx() is \code{ans}, this is accessed 
 via the construct
     \code{attr(ans, "details")}
 This object is a list of lists, one list for each method that has been successful 
 or that has been forced by save.failures=TRUE. 
 
+There are also attributes
+   \describe{
+   \item{maximize}{to indicate we have been maximizing the objective}
+   \item{npar}{to provide the number of parameters, thereby facilitating easy
+        extraction of the parameters from the results data frame}
+   \item{follow.on}{to indicate that the results have been computed sequentially,
+        using the order provided by the user, with the best parameters from one
+        method used to start the next.}
+   }
 }
 \note{
-  \code{optimx} will work with one-dimensional \code{par}s, but the
-  default methods do not work well (and will warn).  Use
-  \code{\link{optimize}} instead.
+  Most methods in \code{optimx} will work with one-dimensional \code{par}s, but such
+  use is NOT recommended. Use \code{\link{optimize}} or other one-dimensional methods instead.
 
-  There are a series of demos available. These were set up as tests, but take quite
-  a long time to execute. Once the package is loaded (via \code{require(optimx)} or
+  There are a series of demos available. Once the package is loaded (via \code{require(optimx)} or
   \code{library(optimx)}, you may see available demos via 
 
   demo(package="optimx")
@@ -360,60 +347,13 @@ out production calculations where the setup and checks could be run once.
 
 }
 \source{
-  The code for methods \code{"Nelder-Mead"}, \code{"BFGS"} and
-  \code{"CG"} was based originally on Pascal code in Nash (1990) that was
-  translated by \code{p2c} and then hand-optimized.  Dr Nash has agreed
-  that the code can be made freely available.
 
-  The code for method \code{"L-BFGS-B"} is based on Fortran code by Zhu,
-  Byrd, Lu-Chen and Nocedal obtained from Netlib (file
-  \file{opt/lbfgs\_bcm.shar}: another version is in \file{toms/778}).
+See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
-  See documentation for \code{"nlm"} and \code{"nlminb"} for those
-  methods, package \code{"ucminf"} for the funciton of the same
-  name, and package BB for method \code{"spg"}.
 }
 \references{
-  Belisle, C. J. P. (1992) Convergence theorems for a class of simulated
-  annealing algorithms on \eqn{R^d}{Rd}. \emph{J Applied Probability},
-  \bold{29}, 885--895.
 
-   Birgin EG, Martinez JM, and Raydan M (2001): SPG: software for
-     convex-constrained optimization, \emph{ACM Transactions on Mathematical
-     Software}. ??incomplete reference??
-
-
-  Byrd, R. H., Lu, P., Nocedal, J. and Zhu, C.  (1995) A limited
-  memory algorithm for bound constrained optimization.
-  \emph{SIAM J. Scientific Computing}, \bold{16}, 1190--1208.
-
-  Dennis, J. E. and Schnabel, R. B. (1983) _Numerical Methods for
-     Unconstrained Optimization and Nonlinear Equations._
-     Prentice-Hall, Englewood Cliffs, NJ.
-
-  Fletcher, R. and Reeves, C. M. (1964) Function minimization by
-  conjugate gradients. \emph{Computer Journal} \bold{7}, 148--154.
-
-  Fletcher, R (1970) A new approach to variable metric algorithms,
-  \emph{Computer Journal}, \bold{13}, 317-322.
-
-  Nash, J. C. (1979, 1990) \emph{Compact Numerical Methods for
-    Computers. Linear Algebra and Function Minimisation.} Adam Hilger.
-
-  Nelder, J. A. and Mead, R. (1965) A simplex algorithm for function
-  minimization. \emph{Computer Journal} \bold{7}, 308--313.
-
-  Nocedal, J. and Wright, S. J. (1999) \emph{Numerical Optimization}.
-  Springer.
-
-  Schnabel, R. B., Koontz, J. E. and Weiss, B. E. (1985) A modular
-     system of algorithms for unconstrained minimization. _ACM Trans.
-     Math. Software_, *11*, 419-440.
-
- Varadhan, R. and Gilbert, P.D. (2009) \bold{BB}: An R Package for Solving a Large System of
-      Nonlinear Equations and for Optimizing a High-Dimensional
-      Nonlinear Objective Function. \emph{Journal of Statistical Software}, 
-      \bold{32}, 1--26.
+ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: \bold{optimx} for R.,
         \emph{Journal of Statistical Software}, 43(9), 1-14.,  URL http://www.jstatsoft.org/v43/i09/.
@@ -423,8 +363,9 @@ out production calculations where the setup and checks could be run once.
 \seealso{
   \code{\link[BB]{spg}}, \code{\link{nlm}}, \code{\link{nlminb}},
   \code{\link[minqa]{bobyqa}}, \code{\link[Rcgmin]{Rcgmin}}, 
-  \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}}.
-
+  \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}}, 
+  \code{\link[dfoptim]{nmkb}},
+  \code{\link[dfoptim]{hjkb}}.
   \code{\link{optimize}} for one-dimensional minimization;
   \code{\link{constrOptim}} or \code{\link[BB]{spg}} for linearly constrained optimization.
 }

@@ -75,39 +75,37 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }
     }
     optcfg$ctrl <- ctrl
-
-# 091216 for maximization
-  neggr <- NULL
-  neghess <- NULL # initialize
-  negfn <- function (par, ...) { # negate the function for maximizing
-	val<-(-1.)*fn(par,...)
-	# return(val)
-  } # end of negfn
-  if (! is.null(gr) ) {
-    neggr <- function (par, ...) { # negate the function for maximizing
-	ngr<-(-1.)*gr(par,...)
-	# return(ngr)
-    } # end of neggr
-  }
-  if (! is.null(hess) ) {
-    neghess <- function (par, ...) { # negate the function for maximizing
-	nhess<-(-1.)*gr(par,...)
-	# return(nhess)
-    } # end of neghess
-  } else { neggr<-NULL }
-  ufn <- fn
-  ugr <- gr # if NULL, stay null
-  uhess <- hess
 # reset the function if we are maximizing
+  ufn <- fn
+  ugr <- gr
+  uhess <- hess
   if ((! is.null(control$maximize)) && control$maximize ) { 
         cat("Maximizing -- use negfn and neggr\n")
-	ufn <- negfn 
-	ugr <- neggr
-        uhess <- neghess
-        optcfg$ctrl$maximize<-TRUE
         if (! is.null(control$fnscale)) { 
  		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
         } # moved up 091216
+        optcfg$ctrl$maximize<-TRUE
+        ufn <- function (par, ...) { # negate the function for maximizing
+	   val<-(-1.)*fn(par,...)
+        } # end of ufn = negfn
+        if (! is.null(gr)) { 
+           ugr <- function(par, userfn=ufn, ...) {
+               gg <- (-1)*gr(par, ...)
+           }
+        }
+        if (! is.null(hess) ) {
+           uhess <- function(par, ...) {
+               hh <- (-1)*hess(par, ...)
+           }
+        } else { uhess <- NULL } # ensure it is defined
+  } else { 
+     optcfg$ctrl$maximize <- FALSE # ensure defined
+  } # define maximize if NULL
+  if (is.null(gr)) {
+     warning("Replacing NULL gr with 'numDeriv' approximation")
+     ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
+        tryg<-grad(userfn, par, ...)
+     } # Already have negation in ufn if maximizing
   }
   optcfg$ufn <- ufn
   optcfg$ugr <- ugr
@@ -197,8 +195,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     print(method)
   }
   optcfg$method <- method
-## ?? put together the things we need
-  optcfg
+  optcfg # return the structure
 } ## end of optimx.setup
 
 

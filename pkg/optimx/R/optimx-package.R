@@ -65,7 +65,12 @@ summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {
 coef.optimx <- function(object, ...) {
 	npar <- attr(object, "npar")
 	ix <- seq_len(npar)
-        object[, ix]
+        cc <- object[, ix]
+        attr(cc,"details") <- NULL
+        attr(cc,"maximize") <- NULL
+        attr(cc,"npar") <- NULL
+##         attr(cc,"follow.on") <- NULL # leave follow.on?
+        cc
 }
 
 "[.optimx" <- function(x, ...) {
@@ -127,3 +132,4 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 }
 # -------------- end scalecheck ----------------- #
 #################################################################
+

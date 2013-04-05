@@ -248,7 +248,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	bdmsk<-rep(1,npar)
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
-        time <- system.time(ans <- try(Rcgmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+	if (have.bounds) {
+   	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
+		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+	} else {
+   	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=ugr, 
+		control=mcontrol, ...), silent=TRUE))[1]
+	}
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
@@ -266,9 +272,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         }
        	ans$nitns<-NA
         ans$convergence<-NULL
-##	if (ctrl$maximize) {
-##		ans$value= -ans$value
-##	}
       }  ## end if using Rcgmin
 ## --------------------------------------------
 ###### progress point #########
@@ -276,7 +279,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	bdmsk<-rep(1,npar)
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
-        time <- system.time(ans <- try(Rvmmin(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+	if (have.bounds) {
+   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
+		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+	} else {
+   	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=ugr, 
+		control=mcontrol, ...), silent=TRUE))[1]
+	}
         if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
@@ -478,8 +487,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
-         time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
+         if (have.bounds) {
+            time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
                 upper = upper, control=mcontrol), silent=TRUE))[1]
+         } else {
+            time <- system.time(ans <- try(hjk(par=par, fn=ufn, 
+                control=mcontrol), silent=TRUE))[1]
+         }
          if (class(ans)[1] != "try-error") {
             ans$convcode <- ans$convergence
             if (ans$convcode == 1) ans$convcode=9999
@@ -620,9 +634,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
     ansout <- NULL # default if no answers
     if (length(ans$par) > 0) { # cannot save if no answers
 	ansout <- data.frame(ans.ret)# Don't seem to need drop=FALSE
-##JN?        attr(ansout, "details")<-subset(ans.details, TRUE, ,drop=FALSE)
         attr(ansout, "details")<-ans.details
-        #JN: subset seems to preserve structure with drop=FALSE
     }
     ansout # return(ansout)
 } ## end of optimx.run

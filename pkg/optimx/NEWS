@@ -7,10 +7,11 @@ TODO
 
       o Rcgminb (warning msg needs " by" added re: numDeriv) 130403
 
-      o Use have.bounds to select bounds and unconstrained methods where there
-        is a choice to avoid duplication of tests.
-
 VERSION 2013-04-04
+
+      o Use have.bounds to select bounds and unconstrained methods where there
+        is a choice to avoid duplication of tests. This has been done for 
+	hjk, nmk, Rcgmin, Rvmmin
 
       o Revision of output description in optimx.Rd; some simplifications.
 

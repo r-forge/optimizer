@@ -1,8 +1,6 @@
 NEWS about R package optimx
 
 TODO
-      o check that names on parameters survive the various calls and returns
-        (Note work on optplus to get this to work.)  130403
 
       o UOBYQA -- allow or not? (seems to be present in methods, but not in
          list of allowed methods)  130403
@@ -11,6 +9,13 @@ TODO
 
       o Use have.bounds to select bounds and unconstrained methods where there
         is a choice to avoid duplication of tests.
+
+VERSION 2013-04-04
+
+      o Revision of output description in optimx.Rd; some simplifications.
+
+      o Parameter names preserved from starting vector, or "p1", "p2", etc. used.
+        There is a test for these in the ox demo().
 
 VERSION 2013-04-03
 

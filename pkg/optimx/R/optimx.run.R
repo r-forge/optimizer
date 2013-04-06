@@ -579,15 +579,37 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                    ngatend[bset]<-0 # "project" the gradient
                    nhatend[bset,] <-0
                    nhatend[, bset] <-0 # and the Hessian
+                   if (!isSymmetric(nhatend, tol=sqrt(.Machine$double.eps))) {
+                      hessOK<-FALSE
+                      asym <- sum(abs(t(nhatend) - nhatend))/sum(abs(nhatend))
+                      asw <- paste("Hessian is reported non-symmetric with asymmetry ratio ", 
+                      asym, sep = "")
+                      if (ctrl$trace > 1) cat(asw, "\n")
+                      if (ctrl$dowarn) warning(asw)
+                      ### if (asym > ctrl$asymtol) stop("Hessian too asymmetric") ##??as yet don't stop
+                      if (ctrl$trace > 1) cat("Force Hessian symmetric\n")
+                      if (ctrl$dowarn) warning("Hessian forced symmetric", call. = FALSE)
+                      nhatend <- 0.5 * (t(nhatend) + nhatend)
+                   }  # end symmetry test
                    hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble
                    if (ctrl$kkt){
    	              if (class(hev) != "try-error") {# answers are OK, check Hessian properties
-                         negeig<-(hev[npar] <= (-1)*ctrl$kkt2tol*(1.0+abs(ans$value))) 
-                         evratio<-hev[npar-nbds]/hev[1]
-                         # If non-positive definite, then there have zero evs (from the projection)
-                         # in the place of the "last" eigenvalue and we'll have singularity.
-                         # WARNING: Could have a weak minimum if semi-definite.
-                         ans$kkt2<- (evratio > ctrl$kkt2tol) && (! negeig)
+                         if (any(is.complex(hev))){
+                            hessOK<-FALSE
+                            cat("Complex eigenvalues found for method =",meth,"\n")
+                            cat("coefficients for function value", ans$value," :\n")
+                            print(ans$par)
+                            dput(nhatend, file="badhess.txt")
+                            warning("Complex eigenvalues found for method =",meth)
+                         }
+                         if (hessOK) {
+                            negeig<-(hev[npar] <= (-1)*ctrl$kkt2tol*(1.0+abs(ans$value))) 
+                            evratio<-hev[npar-nbds]/hev[1]
+                            # If non-positive definite, then there have zero evs (from the projection)
+                            # in the place of the "last" eigenvalue and we'll have singularity.
+                            # WARNING: Could have a weak minimum if semi-definite.
+                            ans$kkt2<- (evratio > ctrl$kkt2tol) && (! negeig)
+                         }
                       } else {
                          warnstr<-paste("Eigenvalue failure after method ",method[i],sep='')
                          if (ctrl$dowarn) warning(warnstr)

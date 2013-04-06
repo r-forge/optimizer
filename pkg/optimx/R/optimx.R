@@ -18,7 +18,7 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   details <- attr(ansout, "details")
   attr(ansout, "details") <- NULL ## Not sure this necessary, but null here and replace below
   if (optcfg$ctrl$maximize) {
-     if (control$trace) cat("Reversing sign on objective, gradient, & hessian\n")
+     if (optcfg$ctrl$trace>0) cat("Reversing sign on objective, gradient, & hessian\n")
      ansout$value <- - ansout$value
      nlist<-dim(details)[[1]]
      for (i in 1:nlist) {

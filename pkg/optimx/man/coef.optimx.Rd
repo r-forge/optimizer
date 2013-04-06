@@ -22,8 +22,6 @@
 }
 \examples{
 ans <- optimx(fn = function(x) sum(x*x), par = 1:2)
-
-# order by method name.
 coef(ans)
 }
 \keyword{nonlinear}

@@ -70,6 +70,7 @@ coef.optimx <- function(object, ...) {
         attr(cc,"maximize") <- NULL
         attr(cc,"npar") <- NULL
 ##         attr(cc,"follow.on") <- NULL # leave follow.on?
+        cc<-as.matrix(cc) # coerce to matrix to accord with other uses 130406
         cc
 }
 

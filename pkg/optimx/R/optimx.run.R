@@ -70,15 +70,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		if (ctrl$trace>0) cat("optim function evaluation failure\n")
 		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
+	        ans$fevals<-NA # save function and gradient count information
+	        ans$gevals<-NA
         }
       	ans$nitns<-NA # not used
-##	if (ctrl$maximize) {
-##		ans$value= -ans$value
-##                if (ctrl$trace>0) {
-##                   cat("optim reversed answer sign:\n")
-##		   print(ans)
-##                }
-##	}
       }   # end if using optim() methods
 ## --------------------------------------------
       else if (meth == "nlminb") {
@@ -427,20 +422,20 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
 	 }
          mcontrol$maxit<-NULL # and null out control that is NOT used
+         mcontrol$trace<-FALSE
          if (mcontrol$trace > 0) {
             mcontrol$trace<-TRUE # logical needed, not integer         
-         } else { mcontrol$trace<-FALSE }
+         }
 ##         mcontrol$usenumDeriv<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
-##         nampar<-names(par) # save names 110508
          if (have.bounds) {
             time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
-              upper = upper, control=mcontrol), silent=TRUE))[1]
+              upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
             time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
-              control=mcontrol), silent=TRUE))[1]
+              control=mcontrol, ...), silent=TRUE))[1]
          }
          if (class(ans)[1] != "try-error") {
             ans$convcode <- ans$convergence
@@ -472,27 +467,32 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else 
       if (meth == "hjkb") {# Use hjkb routine from dfoptim package
-        if (! is.null(mcontrol$maxit)) { 
+         if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfeval<-mcontrol$maxit
-	} else {
+         } else {
 		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
-	}
+	 }
+         mcontrol$info<-FALSE # no trace printed
          if (mcontrol$trace > 0) {
             mcontrol$info<-TRUE # logical needed, not integer         
-         } else { 
-            mcontrol$info<-FALSE 
          }
          mcontrol$trace<-NULL
 ##         mcontrol$usenumDeriv<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
+         if (! is.null(mcontrol$maxit)) { 
+		mcontrol$maxfeval<-mcontrol$maxit
+ 	 } else {
+		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+	 }
+         mcontrol$maxit<-NULL # and null out control that is NOT used
          if (have.bounds) {
             time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
-                upper = upper, control=mcontrol), silent=TRUE))[1]
+                upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
             time <- system.time(ans <- try(hjk(par=par, fn=ufn, 
-                control=mcontrol), silent=TRUE))[1]
+                control=mcontrol, ...), silent=TRUE))[1]
          }
          if (class(ans)[1] != "try-error") {
             ans$convcode <- ans$convergence
@@ -636,7 +636,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		cat("Save results from method ",meth,"\n") 
 	  	print(ans)
 	  }
-          if (ctrl$trace>0) { cat("Assemble the answers\n") }
+	  if (ctrl$trace>0) { cat("Assemble the answers\n") }
           ans.ret[meth, ] <- c(ans$par, ans$value, ans$fevals, ans$gevals, ans$nitns,
                               ans$convcode, ans$kkt1, ans$kkt2, ans$xtimes)
           if (! gradOK) ngatend <- NA

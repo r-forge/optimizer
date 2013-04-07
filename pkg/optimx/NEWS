@@ -7,6 +7,13 @@ TODO
 
       o Rcgminb (warning msg needs " by" added re: numDeriv) 130403
 
+VERSION 2013-04-06
+
+      o nmkb and hjkb had no ... arguments in call. Fixed.
+
+      o L-BFGS-B (and possibly other optim() methods) return no gevals (count[[2]])
+        on failure. Forced to NA in case of try-error.
+
 VERSION 2013-04-05
 
       o Fixed maximize of function without gradient function. Also glitch

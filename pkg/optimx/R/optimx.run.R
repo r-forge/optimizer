@@ -290,16 +290,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
 ##		ans$value<-ans$fvalue 
-##		ans$value= ctrl$badval
+		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
                 ans$convcode<-9999 # failed in run
         	ans$gevals<-NA 
         }
        	ans$nitns<-NA # not used
         ans$convergence<-NULL
-##	if (ctrl$maximize) {
-##		ans$value= -ans$value
-##	}
       }  ## end if using Rvmmin
 ## --------------------------------------------
       else if (meth == "bobyqa") {# Use bobyqa routine from minqa package

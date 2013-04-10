@@ -27,8 +27,7 @@ get.best <- function(optimx.obj, maximize=FALSE) {
               value=value,
               counts=counts,
               convergence=convergence,
-              message=message,
-              hessian=hessian,
-              method=method)
+              message=paste(message," | Method:",method,""),
+              hessian=hessian)
 }
 ##################################################################

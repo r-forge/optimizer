@@ -28,7 +28,8 @@
   \item{counts}{A vector of length 2 with the number of function and 
        gradient calls respectively.}
   \item{convergence}{A code indicating the status of the result. See relevant optimizer.}
-  \item{message}{A message, if any, returned by the optimizer}
+  \item{message}{A message, if any, returned by the optimizer. To allow the user to know
+     which method was used to obtain this result, the method is appended to this message.}
   \item{hessian}{If available, the (approximate) Hessian matrix at the returned parameters.}
 }
 \keyword{nonlinear}

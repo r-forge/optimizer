@@ -7,6 +7,8 @@ TODO
 
       o Rcgminb (warning msg needs " by" added re: numDeriv) 130403
 
+      o Rvmmin with no bounds gives warning when called with no gradient. 130411
+
 VERSION 2013-04-06
 
       o nmkb and hjkb had no ... arguments in call. Fixed.

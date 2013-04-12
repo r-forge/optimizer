@@ -243,10 +243,10 @@ shobbs.g <- function(x){
 }
 require(optimx)
 aopx <- optimx(st, shobbs.f, shobbs.g, control=list(all.methods=TRUE))
-optansout(aopx, NULL) # no file output
+summary(aopx)
 cat("\nNow with numerical gradient approximation or derivative free methods\n")
 aopxn <- optimx(st, shobbs.f, control=list(all.methods=TRUE))
-optansout(aopxn, NULL) # no file output
+summary(aopxn) # no file output
 @
 
 We see that most of the minimizers work with either the analytic or approximated

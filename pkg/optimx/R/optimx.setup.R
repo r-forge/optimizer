@@ -101,7 +101,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   } else { 
      optcfg$ctrl$maximize <- FALSE # ensure defined
   } # define maximize if NULL
-  if (is.null(gr)) {
+  if (is.null(gr) && ctrl$dowarn) {
      warning("Replacing NULL gr with 'numDeriv' approximation")
      ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
         tryg<-grad(userfn, par, ...)
@@ -178,7 +178,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   } # JN 2011-1-17 fix for default when there are bounds
   if ((nmeth==0) && have.bounds) {
       method="L-BFGS-B"
-      warning("Default method when bounds specified is L-BFGS-B to match optim()")
+      if (ctrl$dowarn) warning("Default method when bounds specified is L-BFGS-B to match optim()")
       nmeth<-1
   }
   ## Check that methods are indeed available and loaded

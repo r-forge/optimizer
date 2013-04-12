@@ -15,3 +15,4 @@ trig_test       Test optimx on the trigonometric test function
 valley_test       Test optimx on the valley function
 vmmix_test       Test optimx on the mixture function
 ox               Try interactivity
+

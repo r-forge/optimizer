@@ -74,6 +74,14 @@ coef.optimx <- function(object, ...) {
         cc
 }
 
+"coef<-" <- function(x, value) UseMethod("coef<-")
+"coef<-.optimx" <- function(x, value) {
+	npar <- attr(x, "npar")
+	ix <- seq_len(npar)
+	x[, ix] <- value
+	x
+}
+
 "[.optimx" <- function(x, ...) {
 	xx <- NextMethod()
 	if (is.data.frame(xx)) {

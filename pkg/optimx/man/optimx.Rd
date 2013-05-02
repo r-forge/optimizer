@@ -251,8 +251,7 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
   are copied over. (We have not verified this as at 2009-07-29.)
 
-  There are \code{[}, \code{as.data.frame}, \code{coef} and \code{summary}
-  \code{"optimx"} methods available.
+  There are \code{[.optimx}, \code{as.data.frame.optimx}, \code{\link{coef.optimx}} and \code{\link{summary.optimx}} methods available.
 
 }
 \value{

@@ -5,29 +5,13 @@
 A replacement and extension of the optim() function
 }
 \description{
-Provides a replacement and extension of the optim() function to unify
-and streamline optimization capabilities in R for smooth, possibly box
+\code{\link{optimx}}
+provides a replacement and extension of the \code{link{optim()}} function to 
+unify and streamline optimization capabilities in R for smooth, possibly box
 constrained functions of several or many parameters
-}
-\details{
-\tabular{ll}{
-Package: \tab optimx\cr
-Version: \tab 2012-2.202\cr
-Date: \tab 2012-03-16\cr
-License: \tab GPL-2\cr
-Lazyload: \tab Yes\cr
-Depends: \tab numDeriv, optfntools\cr
-Suggests: \tab BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim\cr
-Repository: \tab R-Forge\cr
-Repository/R-Forge/Project: \tab optimizer\cr
-}
 
-Index:
-\preformatted{
-get.result              Result extraction tool for answers from optimx
-optansout               Output tool for answers from optimx
-optimx                  General-purpose optimization
-}
+Examples can be found on the \code{\link{optimx}} help page and in the 
+demo directory, \code{demo(package = "optimx")}.
 }
 \author{
 John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>

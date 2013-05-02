@@ -1,5 +1,7 @@
 \name{coef.optimx}
 \alias{coef.optimx}
+\alias{coef<-.optimx}
+\alias{coef<-}
 \encoding{UTF-8}
 \title{Summarize optimx object}
 \concept{minimization}
@@ -9,11 +11,14 @@
 }
 \usage{
   \method{coef}{optimx}(object, ...) 
+  \method{coef}{optimx}(x) <- value 
 }
 \arguments{
  \item{object}{Object returned by \code{optimx}.}
  \item{\dots}{Further arguments to be passed to the function. Currently not
    used.}
+ \item{x}{An \code{optimx} object.}
+ \item{value}{Set parameters equal to this value.}
 }
 \value{
   \code{coef.optimx} returns the best parameters found by each method that
@@ -23,6 +28,16 @@
 \examples{
 ans <- optimx(fn = function(x) sum(x*x), par = 1:2)
 coef(ans)
+
+\dontrun{
+proj <- function(x) x/sum(x)
+f <- function(x) -prod(proj(x))
+ans <- optimx(1:2, f)
+ans
+coef(ans) <- apply(coef(ans), 1, proj)
+ans
+}
+
 }
 \keyword{nonlinear}
 \keyword{optimize}

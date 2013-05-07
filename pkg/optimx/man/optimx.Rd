@@ -371,13 +371,8 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
 \examples{
 require(graphics)
+cat("Note demo(ox) for extended examples\n")
 
-cat("Bounded problem with solution par[24] not on boundary\n")
-flb <- function(x)
-    { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
-## 25-dimensional box constrained
-optimx(rep(3, 25), flb, NULL, lower=rep(2, 25), upper=rep(4, 25),
-       control=list(all.methods=TRUE)) # par[24] is *not* at boundary
 
 ## Show multiple outputs of optimx using all.methods
 # genrose function code
@@ -438,69 +433,6 @@ summary(ans8, order = "rownames", par.select = FALSE) # same
 
 summary(ans8, order = NULL, par.select = FALSE) # use input order
 ## summary(ans8, par.select = FALSE) # same
-
-## Test missing methods
-## ans8missmeth<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("spg", "Rcgmin"),
-##     control=list(save.failures=TRUE, trace=0), gs=10)
-# this should give an error
-# ans8missmeth["Rvmmin", ]
-
-startx<-4*seq(1:10)/3.
-
-####
-
-cat("Polyalgorithm with 200 steps NM followed by up to 75 of ucminf -- follow.on=TRUE\n")
-ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
-             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
-ans9
-
-####
-
-startx<-4*seq(1:10)/3.
-## 200 steps NM is not enough to terminate
-ans10<-optimx(startx,fn=genrose.f,gr=genrose.g, method=c("Nelder-Mead"),
-             itnmax=c(200), control=list(trace=0, save.failures=FALSE), gs=10)
-## The answer should be NULL
-ans10
-
-####
-
-startx<-4*seq(1:10)/3.
-## Try getting hessian but not kkt tests
-ans11<-optimx(startx,fn=genrose.f,gr=genrose.g, hessian=TRUE,  
-	control=list(all.methods=TRUE, trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
-ans11
-## Method should be Rvmmin
-attr(ans11,"details")["Rvmmin"]
-
-####
-
-startx<-4*seq(1:10)/3.
-## Use analytic hessian and no KKT tests
-ans12<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
-      control=list(trace=0, save.failures=FALSE, kkt=FALSE), gs=10)
-ans12
-attr(ans12,"details")
-
-#### 
-
-## Maximization test
-
-maxfn<-function(x) {
-      	n<-length(x)
-	ss<-seq(1,n)
-	f<-10-(crossprod(x-ss))^2
-	f<-as.numeric(f)
-	return(f)
-}
-
-x0<-rep(pi,4)
-ans.mx<-optimx(x0,maxfn,control=list(maximize=TRUE,all.methods=TRUE,save.failures=TRUE,trace=0))
-ans.mx
-best.mx<-summary(ans.mx, order = value)[1, ]
-## Check that hessian eigenvalues are negative
-attr(best.mx,"details")[1, "hev"]
-attr(best.mx,"details")[1, "nhatend"]
 
 }
 \keyword{nonlinear}

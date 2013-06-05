@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2013.05.04
-Date: 2012-05-04
+Version: 2013.6.4
+Date: 2012-06-04
 Title: A Replacement and Extension of the optim() Function
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -15,6 +15,6 @@ Description: Provides a replacement and extension of the optim()
         for smooth, possibly box constrained functions of several or
         many parameters. This is the CRAN version of the package.
 License: GPL-2
-Lazyload: Yes
+LazyLoad: Yes
 Depends: numDeriv
 Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, svUnit

@@ -75,11 +75,13 @@ coef.optimx <- function(object, ...) {
 }
 
 "coef<-" <- function(x, value) UseMethod("coef<-")
+
 "coef<-.optimx" <- function(x, value) {
 	npar <- attr(x, "npar")
 	ix <- seq_len(npar)
-	x[, ix] <- value
-	x
+	structure(cbind(value, x[, -ix, drop = FALSE]), 
+		npar = NCOL(value),
+		class = class(x))
 }
 
 "[.optimx" <- function(x, ...) {

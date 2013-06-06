@@ -23,7 +23,9 @@
 \value{
   \code{coef.optimx} returns the best parameters found by each method that
   returned such parameters. The returned coefficients are in the form of a
-  data frame with the rows named by the relevant methods. 
+  matrix with the rows named by the relevant methods and the columns named
+  according to parameter names provided by the user in the vector of starting
+  values, or else by "p1", "p2", ..., if names are not provided.
 }
 \examples{
 ans <- optimx(fn = function(x) sum(x*x), par = 1:2)

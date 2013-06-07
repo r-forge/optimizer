@@ -9,6 +9,10 @@ TODO
 
       o Rvmmin with no bounds gives warning when called with no gradient. 130411
 
+VERSION 2013-06-04 
+
+      o improved coef() function to extract parameters
+
 VERSION 2013-05-03
 
       o removed optansout.R, get.result.R, get.best.R (no longer needed)

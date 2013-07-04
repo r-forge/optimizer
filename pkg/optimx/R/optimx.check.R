@@ -1,5 +1,5 @@
 optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf, 
-             hessian=FALSE, ctrl, have.bounds=FALSE, ...) {
+             hessian=FALSE, ctrl, have.bounds=FALSE, usenumDeriv=FALSE, ...) {
 ##            method=NULL, itnmax=NULL, hessian=FALSE,
 ##            ctrl=list(),...) {
 
@@ -68,7 +68,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 
   if (ctrl$starttests) {
      optchk$grbad <- FALSE
-     if (! is.null(ugr)){ # check gradient
+     if (! is.null(ugr) && ! usenumDeriv){ # check gradient
        gname <- deparse(substitute(ugr))
        if (ctrl$trace>0) cat("Analytic gradient from function ",gname,"\n\n")
           fval <- ufn(par,...) 

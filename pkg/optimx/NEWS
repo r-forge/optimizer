@@ -9,6 +9,10 @@ TODO
 
       o Rvmmin with no bounds gives warning when called with no gradient. 130411
 
+VERSION 2013-07-03 
+
+      o added control usenumDeriv
+
 VERSION 2013-06-04 
 
       o improved coef() function to extract parameters

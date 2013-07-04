@@ -27,6 +27,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	starttests=TRUE,
 	maximize=FALSE,
 	dowarn=TRUE, 
+        usenumDeriv=FALSE,
 	kkttol=0.001,
 	kkt2tol=1.0E-6,
 	badval=(0.5)*.Machine$double.xmax,
@@ -92,7 +93,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            ugr <- function(par, userfn=ufn, ...) {
                gg <- (-1)*gr(par, ...)
            }
-        }
+        } else { ugr <- NULL } # ensure it is defined
         if (! is.null(hess) ) {
            uhess <- function(par, ...) {
                hh <- (-1)*hess(par, ...)
@@ -101,8 +102,10 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   } else { 
      optcfg$ctrl$maximize <- FALSE # ensure defined
   } # define maximize if NULL
-  if (is.null(gr) && ctrl$dowarn) {
+  optcfg$usenumDeriv<-FALSE # JN130703
+  if (is.null(gr) && ctrl$dowarn && ctrl$usenumDeriv) {
      warning("Replacing NULL gr with 'numDeriv' approximation")
+     optcfg$usenumDeriv<-TRUE
      ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
         tryg<-grad(userfn, par, ...)
      } # Already have negation in ufn if maximizing

@@ -196,6 +196,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       TRUE.}
     \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.
       Default is (0.5)*.Machine$double.xmax }
+    \item{\code{usenumDeriv}}{= TRUE if the \code{numDeriv} function \code{grad()} is
+      to be used to compute gradients when the argument \code{gr} is NULL or not supplied.}
   }
 
   The following \code{control} elements apply only to some of the methods. The list

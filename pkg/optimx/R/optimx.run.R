@@ -35,6 +35,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       # create local control list for a single method -- this is one of the key issues for optimx
       mcontrol<-ctrl
       mcontrol$follow.on<-NULL # And make sure that controls NOT in method are deleted (nulled)
+      mcontrol$usenumDeriv<-NULL # JN130207
       mcontrol$save.failures<-NULL
 ##      mcontrol$sort.result<-NULL
       mcontrol$kkt<-NULL

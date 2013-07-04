@@ -8,7 +8,8 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # Parse and use optcfg
   if (optcfg$ctrl$starttests) {
     optchk <- optimx.check(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower,
-           upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds, ...)
+           upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds,
+           usenumDeriv=optcfg$usenumDeriv, ...)
   }
   optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
 #  cat("optcfg:")

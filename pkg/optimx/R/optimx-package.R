@@ -83,12 +83,14 @@ coef.optimx <- function(object, ...) {
 		npar = NCOL(value),
 		class = class(x))
 }
-
 "[.optimx" <- function(x, ...) {
 	xx <- NextMethod()
 	if (is.data.frame(xx)) {
 		details <- attr(x, "details")
-		if (is.matrix(details)) details <- details[..1, , drop=FALSE]
+		# temporarily convert to data.frame so missing ..1 acts as
+		#  in data frames rather than as in matrices
+		if (is.matrix(details)) details <- 
+			as.matrix(as.data.frame(details)[..1, , drop=FALSE])
 		structure(xx,
 			details = details,
 			maximize = attr(x, "maximize"),

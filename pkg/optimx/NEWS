@@ -9,6 +9,12 @@ TODO
 
       o Rvmmin with no bounds gives warning when called with no gradient. 130411
 
+VERSION 2013-07-09
+
+      o patch for missing "details" behaviour
+
+      o point to example of use of "follow.on" control 
+
 VERSION 2013-07-03 
 
       o added control usenumDeriv

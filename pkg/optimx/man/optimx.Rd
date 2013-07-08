@@ -316,7 +316,8 @@ There are also attributes
         extraction of the parameters from the results data frame}
    \item{follow.on}{to indicate that the results have been computed sequentially,
         using the order provided by the user, with the best parameters from one
-        method used to start the next.}
+        method used to start the next. There is an example (\code{ans9}) in 
+        the script \code{ox.R} in the demo directory of the package.}
    }
 }
 \note{

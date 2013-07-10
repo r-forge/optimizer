@@ -178,7 +178,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
                 if (any(is.na(Jac))) 
                   stop("NaN in Jacobian")
                 JTJ <- crossprod(Jac)
-                tmp<-readline("cont.")
+                # tmp<-readline("cont.")
                 gjty <- t(Jac) %*% resbest  # raw gradient
                 for (i in 1:npar) {
                   bmi <- bdmsk[i]

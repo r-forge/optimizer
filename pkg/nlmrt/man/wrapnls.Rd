@@ -42,7 +42,7 @@
      parameters. Default Inf.
 } 
   \item{control}{ 
-     A list of controls for the algorithm. These are as for \code{nlxb()}.}
+     A list of controls for the algorithm. These are as for \code{nlxb()}.
 
 }
   \item{\dots}{

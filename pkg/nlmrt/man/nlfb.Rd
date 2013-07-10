@@ -50,8 +50,21 @@
 } 
   \item{control}{ 
      A list of controls for the algorithm. These are:
-%%     ~~Describe \code{control} here~~
+     \describe{
+      \item{\code{watch}}{Monitor progress if TRUE. Default is FALSE.}
+      \item{\code{phi}}{Default is phi=1, which adds phi*Identity to Jacobian inner product.}
+      \item{\code{lamda}}{Initial Marquardt adjustment (Default 0.0001). Odd spelling is deliberate.}
+      \item{\code{offset}}{Shift to test for floating-point equality. Default is 100.}
+      \item{\code{laminc}}{Factor to use to increase lamda. Default is 10.}
+      \item{\code{lamdec}}{Factor to use to decrease lamda is lamdec/laminc. Default lamdec=4.}
+      \item{\code{femax}}{Maximum function (sum of squares) evaluations. Default is 10000, which
+            is extremely aggressive.}
+      \item{\code{jemax}}{Maximum number of Jacobian evaluations. Default is 5000.}
+      \item{\code{ndstep}}{Stepsize to use to computer numerical Jacobian approximatin. Default
+            is 1e-7.}
+     }
 }
+
   \item{\dots}{
      Any data needed for computation of the residual vector from the expression
        rhsexpression - lhsvar. Note that this is the negative of the usual residual,

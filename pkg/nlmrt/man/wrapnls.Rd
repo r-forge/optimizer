@@ -42,8 +42,8 @@
      parameters. Default Inf.
 } 
   \item{control}{ 
-     A list of controls for the algorithm. These are:
-%%     ~~Describe \code{control} here~~
+     A list of controls for the algorithm. These are as for \code{nlxb()}.}
+
 }
   \item{\dots}{
      Any data needed for computation of the residual vector from the expression

@@ -77,8 +77,8 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
     }
     # controls
     ctrl <- list(watch = FALSE, phi = 1, lamda = 1e-04, offset = 100, 
-        laminc = 10, lamdec = 4, femax = 10000, jemax = 5000, 
-        maxlamda <- 1e+60)
+        laminc = 10, lamdec = 4, femax = 10000, jemax = 5000)
+     ##   maxlamda <- 1e+60) ## dropped 130709
     epstol <- (.Machine$double.eps) * ctrl$offset
     ncontrol <- names(control)
     nctrl <- names(ctrl)
@@ -142,6 +142,7 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
     gradexp <- deriv(parse(text = resexp), names(start))  # gradient expression
     resbest <- with(data, eval(parse(text = resexp)))
     ssbest <- crossprod(resbest)
+    ssminval <- ssbest * epstol^4
     feval <- 1
     pbest <- pnum
     feval <- 1  # number of function evaluations
@@ -157,8 +158,8 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
     ssquares <- .Machine$double.xmax  # make it big
     newjac <- TRUE  # set control for computing Jacobian
     eqcount <- 0
-    while ((eqcount < npar) && (feval <= femax) && (jeval <= 
-        jemax)) {
+    while ((ssbest > ssminval) && (eqcount < npar) && (feval <= femax) 
+             && (jeval <= jemax)) {
         if (newjac) 
             {
                 bdmsk <- rep(1, npar)
@@ -236,8 +237,8 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
                 newjac <- FALSE  # increasing lamda -- don't re-evaluate
                 if (trace) 
                   cat(" Uphill search direction\n")
-                if (lamda > maxlamda) 
-                  eqcount <- npar  # force stop on big lamda
+                ## if (lamda > maxlamda) 
+                ##   eqcount <- npar  # force stop on big lamda
             } else {
                 # downhill
                 delta[maskidx] <- 0

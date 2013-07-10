@@ -6,6 +6,13 @@ To do
 
    o    Issue when npar = 1
 
+Changes in nlmrt version 2013-7.9
+
+   o    Added control list elements to .Rd files for nlxb and nlfb, 
+        with reference in wrapnls.
+
+   o    Put in a test for very small sum of squares in nlfb and nlxb.
+
 Changes in nlmrt version 2013-3.16
 
    o    Result element coeffs changed to coefficients. 

@@ -420,10 +420,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
 	 }
          mcontrol$maxit<-NULL # and null out control that is NOT used
-         mcontrol$trace<-FALSE
          if (mcontrol$trace > 0) {
             mcontrol$trace<-TRUE # logical needed, not integer         
-         }
+         } else { mcontrol$trace<-FALSE }
          mcontrol$usenumDeriv<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -473,8 +472,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          mcontrol$info<-FALSE # no trace printed
          if (mcontrol$trace > 0) {
             mcontrol$info<-TRUE # logical needed, not integer         
-         }
-         mcontrol$trace<-NULL
+         } else { mcontrol$trace<-FALSE }
          mcontrol$usenumDeriv<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL

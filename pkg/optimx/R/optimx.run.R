@@ -424,7 +424,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          if (mcontrol$trace > 0) {
             mcontrol$trace<-TRUE # logical needed, not integer         
          }
-##         mcontrol$usenumDeriv<-NULL
+         mcontrol$usenumDeriv<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
@@ -475,7 +475,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             mcontrol$info<-TRUE # logical needed, not integer         
          }
          mcontrol$trace<-NULL
-##         mcontrol$usenumDeriv<-NULL
+         mcontrol$usenumDeriv<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL

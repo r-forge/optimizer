@@ -393,12 +393,11 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
             c <- as.vector(g - c)
             D1 <- sum(t * c)
             if (D1 > 0) {
-                y <- as.vector(B %*% c)
-                D2 <- as.double(1 + (t(c) %*% y)/D1)  # as.double because D2 is a 1 by 1 matrix otherwise
+                y <- as.vector(crossprod(B, c))
+                D2 <- as.double(1+crossprod(c,y)/D1)  # as.double because D2 is a 1 by 1 matrix otherwise
                 # May be able to be more efficient below -- need to use
                 #   outer function
-                B <- B - (outer(t, y) + outer(y, t) - D2 * outer(t, 
-                  t))/D1
+                B <- B - (outer(t, y) + outer(y, t) - D2 * outer(t, t))/D1
             }
             else {
                 if (trace > 0) 

@@ -10,6 +10,10 @@ TODOS
 
    o    Restore numerical gradient with warning.
 
+2013-7-20
+   o    Minor improvements to timing by use of crossprod() in 
+        computing y and D2
+
 2012-7-9
    o    Removed optansout to avoid conflicts with optplus/optimx
 

@@ -253,7 +253,8 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
   are copied over. (We have not verified this as at 2009-07-29.)
 
-  There are \code{[.optimx}, \code{as.data.frame.optimx}, \code{\link{coef.optimx}} and \code{\link{summary.optimx}} methods available.
+  There are \code{[.optimx}, \code{as.data.frame.optimx}, \code{\link{coef.optimx}} 
+  and \code{\link{summary.optimx}} methods available.
 
 }
 \value{
@@ -357,8 +358,9 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
  See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
- Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: \bold{optimx} for R.,
-        \emph{Journal of Statistical Software}, 43(9), 1-14.,  URL http://www.jstatsoft.org/v43/i09/.
+ Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
+    \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
+     URL http://www.jstatsoft.org/v43/i09/.
 
 }
 
@@ -418,7 +420,8 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 }
 
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
+ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+   control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
 ans8
 ans8[, "gevals"]
 ans8["spg", ]

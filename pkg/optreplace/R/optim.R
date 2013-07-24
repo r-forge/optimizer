@@ -317,7 +317,7 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 	}
     }
 # end scaling check
- cat("end topstuff in optimxCRAN\n") # 120713
+# cat("end topstuff in optimxCRAN\n") # 120713
 # Run methods
 #  times <- rep(0, nmeth)  # figure out how many methods and reserve that many times to record.
 #  names(times) <- method  # And label these times appropriately with the method.

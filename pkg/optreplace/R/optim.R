@@ -325,7 +325,6 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 
    meth <- method # extract the method name
    conv <- -1 # indicate that we have not yet converged
-##   ctrl$maxit<-maxititnmax[i] }
    if (ctrl$trace>0) cat("Method: ", method, "\n") # display the method being used
       # Extract control information e.g., trace
       # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
@@ -374,10 +373,11 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
       }  ## end if using Rcgmin
 ## --------------------------------------------
       else if (method == "Nelder-Mead") {# Use nmkb routine from dfoptim package
+         mcontrol$maxfeval<-mcontrol$maxit
          mcontrol$maxit<-NULL # and null out control that is NOT used
          if (mcontrol$trace > 0) {
             mcontrol$trace<-NULL
-            mcontrol$trace<-TRUE # logical needed, not integer         
+            mcontrol$trace<-TRUE # logical needed, not integer
          } else { mcontrol$trace<-FALSE }
 #         mcontrol$usenumDeriv<-NULL
 #         mcontrol$maximize<-NULL

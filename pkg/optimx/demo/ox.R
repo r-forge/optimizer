@@ -194,8 +194,19 @@ tmpin<-readline("cont?")
 ans8missmeth["Rvmmin", ]
 cat("Is method Rvmmin missing? ", (row.names(ans8missmeth["Rvmmin",])[[1]] == "NA"),"\n")
 
+tmp<-readline("Getting items in attributes")
+abest<-summary(ans8, order=value)[1,]
+print(abest)
+attributes(abest)
+abestdetails<-attr(abest, "details")
+abestdetails[2]
+abestdetails[3]
+abestdetails[,"ngatend"]
+abestdetails[,"hev"]
 
-tmpin<-readline("cont?")
+
+
+tmpin<-readline("Polyalgorithm")
 
 startx<-4*seq(1:10)/3.
 
@@ -205,9 +216,9 @@ startx<-4*seq(1:10)/3.
 ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
              itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=0), gs=10)
 ans9
-tmpin<-readline("cont?")
-str(ans9)
-tmpin<-readline("cont?")
+tmpin<-readline("cont? Again, but with trace on")
+ans9<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, method=c("Nelder-Mead","ucminf"),
+             itnmax=c(200,75), control=list(follow.on=TRUE, save.failures=TRUE,trace=1), gs=10)
 
 ####
 

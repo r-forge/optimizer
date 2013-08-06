@@ -1,13 +1,16 @@
 NEWS about R package optimx
 
 TODO
-
-      o UOBYQA -- allow or not? (seems to be present in methods, but not in
-         list of allowed methods)  130403
-
-      o Rcgminb (warning msg needs " by" added re: numDeriv) 130403
-
       o Rvmmin with no bounds gives warning when called with no gradient. 130411
+
+VERSION 2013-08-02
+
+      o Change startup to avoid warning messages for missing methods.
+        Add function to check which methods available.
+
+      o UOBYQA is present in optimx.run.R, but is not included in the list of
+        "all.methods" in optimx.setup.R. It should be possible to run UOBYQA
+        by including "uobyqa" in the list of methods in a direct call to optimx.run.R.
 
 VERSION 2013-07-09
 

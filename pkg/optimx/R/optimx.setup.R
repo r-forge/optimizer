@@ -133,29 +133,28 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    allmeth <- bmeth # start with base methods
    testload <- suppressWarnings(require(BB, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"spg")
-   else warning("Package `BB' Not installed", call.=FALSE)
+   else if (ctrl$trace>0) { warning("Package `BB' Not installed", call.=FALSE) }
 
    testload <- suppressWarnings(require(ucminf, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"ucminf")
-   else warning("Package `ucminf' Not installed", call.=FALSE)
+   else if (ctrl$trace>0) { warning("Package `ucminf' Not installed", call.=FALSE) }
    
    testload <- suppressWarnings(require(Rcgmin, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"Rcgmin")
-   else warning("Package `Rcgmin' Not installed", call.=FALSE)
+   else if (ctrl$trace>0) { warning("Package `Rcgmin' Not installed", call.=FALSE) }
    
    testload <- suppressWarnings(require(Rvmmin, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"Rvmmin")
-   else warning("Package `Rvmmin' Not installed", call.=FALSE)
+   else if (ctrl$trace>0) { warning("Package `Rvmmin' Not installed", call.=FALSE) }
    
    testload <- suppressWarnings(require(minqa, quietly=TRUE))
-   if (testload) allmeth<-c(allmeth, "newuoa", "bobyqa") 
+   if (testload) { allmeth<-c(allmeth, "newuoa", "bobyqa")  }
+   else if (ctrl$trace>0) { warning("Package `minqa' (for uobyqa, newuoa, and bobyqa) Not installed", call.=FALSE) }
    # leave out uobyqa in CRAN version 120421 (from earlier 1104 change)
-   else  warning("Package `minqa' (for uobyqa, newuoa, and bobyqa) Not installed", call.=FALSE)
 
    testload <- suppressWarnings(require(dfoptim, quietly=TRUE))
    if (testload)  allmeth<-c(allmeth,"nmkb", "hjkb")
-   else warning("Package `dfoptim' Not installed", call.=FALSE)
-   
+   else if (ctrl$trace>0) { warning("Package `dfoptim' Not installed", call.=FALSE) }
    
    bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb")
   # Restrict list of methods if we have bounds

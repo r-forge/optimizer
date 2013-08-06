@@ -27,7 +27,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		stop("Length of itnmax =",length(itnmax)," but should be ",nmeth) }
               else { ctrl$maxit<-itnmax[i] }
         }
-        if (ctrl$follow.on) cat("Do ",ctrl$maxit," steps of ",meth,"\n")
+        if (ctrl$follow.on && (ctrl$trace>0)) cat("Do ",ctrl$maxit," steps of ")
       }
       if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
       # Extract control information e.g., trace
@@ -646,7 +646,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       row.names(ans.details)[[i]]>=meth
       	if (ctrl$follow.on) {
 		par <- ans$par # save parameters for next method
-		if (i < nmeth && ctrl$dowarn) cat("FOLLOW ON!\n") # NOT trace ??
+		if (i < nmeth && (ctrl$trace>0)) cat("FOLLOW ON!\n") # NOT trace ??
 	}
     } ## end loop over method (index i)
     ansout <- NULL # default if no answers

@@ -307,8 +307,12 @@ which is included for each row of the \code{details}.
 If the returned object from optimx() is \code{ans}, this is accessed 
 via the construct
     \code{attr(ans, "details")}
-This object is a list of lists, one list for each method that has been successful 
-or that has been forced by save.failures=TRUE. 
+
+This object is a  matrix based on a list so that if ans is the output of optimx
+then attr(ans, "details")[1, ] gives the first row and 
+attr(ans,"details")["Nelder-Mead", ] gives the Nelder-Mead row. There is 
+one row for each method that has been successful 
+or that has been forcibly saved by save.failures=TRUE. 
 
 There are also attributes
    \describe{

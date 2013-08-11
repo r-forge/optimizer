@@ -12,7 +12,8 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   nlxb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, masked=NULL, control, ...)
+   nlxb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, 
+        masked=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -52,22 +53,27 @@
      A list of controls for the algorithm. These are:
      \describe{
       \item{\code{watch}}{Monitor progress if TRUE. Default is FALSE.}
-      \item{\code{phi}}{Default is phi=1, which adds phi*Identity to Jacobian inner product.}
-      \item{\code{lamda}}{Initial Marquardt adjustment (Default 0.0001). Odd spelling is deliberate.}
-      \item{\code{offset}}{Shift to test for floating-point equality. Default is 100.}
+      \item{\code{phi}}{Default is phi=1, which adds phi*Identity to 
+             Jacobian inner product.}
+      \item{\code{lamda}}{Initial Marquardt adjustment (Default 0.0001). 
+             Odd spelling is deliberate.}
+      \item{\code{offset}}{Shift to test for floating-point equality. 
+             Default is 100.}
       \item{\code{laminc}}{Factor to use to increase lamda. Default is 10.}
-      \item{\code{lamdec}}{Factor to use to decrease lamda is lamdec/laminc. Default lamdec=4.}
-      \item{\code{femax}}{Maximum function (sum of squares) evaluations. Default is 10000, which
-            is extremely aggressive.}
-      \item{\code{jemax}}{Maximum number of Jacobian evaluations. Default is 5000.}
+      \item{\code{lamdec}}{Factor to use to decrease lamda is lamdec/laminc. 
+             Default lamdec=4.}
+      \item{\code{femax}}{Maximum function (sum of squares) evaluations. 
+             Default is 10000, which is extremely aggressive.}
+      \item{\code{jemax}}{Maximum number of Jacobian evaluations. 
+             Default is 5000.}
      }
 }
 
 
   \item{\dots}{
-     Any data needed for computation of the residual vector from the expression
-       rhsexpression - lhsvar. Note that this is the negative of the usual residual,
-     but the sum of squares is the same.
+     Any data needed for computation of the residual vector from the 
+       expression rhsexpression - lhsvar. Note that this is the negative 
+       of the usual residual, but the sum of squares is the same.
 }
 }
 \details{
@@ -86,8 +92,8 @@
   \item{coeffs}{A named vector giving the parameter values at the supposed solution.}
   \item{ssquares}{The sum of squared residuals at this set of parameters.}
   \item{resid}{The residual vector at the returned parameters.}
-  \item{jacobian}{The jacobian matrix (partial derivatives of residuals w.r.t. the parameters)
-           at the returned parameters.}
+  \item{jacobian}{The jacobian matrix (partial derivatives of residuals 
+           w.r.t. the parameters) at the returned parameters.}
   \item{feval}{The number of residual evaluations (sum of squares computations) used.}
   \item{jeval}{The number of Jacobian evaluations used.}
 }

@@ -12,7 +12,8 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, maskidx=NULL, control, ...)
+   nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
+         maskidx=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

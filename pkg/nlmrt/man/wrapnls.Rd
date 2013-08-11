@@ -12,7 +12,8 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   wrapnls(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, control=list(), ...)
+   wrapnls(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, 
+           control=list(), ...)
 }
 \arguments{
   \item{formula}{
@@ -73,15 +74,15 @@ cat("kvanderpoel.R test\n")
 x<-c(1,3,5,7)
 y<-c(37.98,11.68,3.65,3.93)
 pks28<-data.frame(x=x,y=y)
-fit0<-try(nls(y~(a+b*exp(1)^(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace=TRUE))
+fit0<-try(nls(y~(a+b*exp(1)^(-c*x)), data=pks28, start=c(a=0,b=1,c=1), 
+          trace=TRUE))
 print(fit0)
 cat("\n\n")
 fit1<-nlxb(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace = TRUE)
 print(fit1) 
 cat("\n\nor better\n")
-fit2<-wrapnls(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), lower=-Inf, upper=Inf, trace = TRUE)
-
-
+fit2<-wrapnls(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), 
+              lower=-Inf, upper=Inf, trace = TRUE)
 
 }
 \keyword{ nonlinear least squares }

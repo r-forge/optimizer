@@ -1,8 +1,8 @@
 Package: nlmrt
 Type: Package
 Title: Functions for nonlinear least squares solutions
-Version: 2013-7.9
-Date: 2013-07-09
+Version: 2013-8.10
+Date: 2013-08-10
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca"))
 Maintainer: John C. Nash <nashjc@uottawa.ca>

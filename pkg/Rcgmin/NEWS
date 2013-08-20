@@ -6,6 +6,14 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2013-8-20
+
+   o    Allow quoted gradient names to bring in different gradient 
+        routines. Also to allow gradient approximation step to be
+	adjusted.
+
+   o    Dependency on optextras rather than numDeriv
+
 2013-2-20
 
    o    Removed fail, setstep (not used), ceps from Rcgminu (not used)

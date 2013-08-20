@@ -1,5 +1,6 @@
-grcentral <- function(par, userfn, eps=1.0e-7, ...) {
+grcentral <- function(par, userfn, ...) {
    # Central difference gradient approximation
+   eps <- .Machine$deriv.eps # DANGER: R core may use name
    df <- rep(NA, length(par))
    teps <- 0.5 * eps * (abs(par) + eps)
    for (i in 1:length(par)) {

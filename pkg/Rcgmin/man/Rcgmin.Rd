@@ -27,9 +27,36 @@
    The first argument of \code{fn} must be \code{par}. This function 
    returns the gradient as a numeric vector.
 
-   If \code{gr} is not provided or is NULL, then \code{grad()} from 
-   package \code{numDeriv} is used. However, we strongly recommend
-   carefully coded and checked analytic derivatives for Rcgmin.}
+   If \code{gr} is not provided or is NULL, then the simple forward 
+   gradient code \code{grfwd} from package \code{optextras} is used. However, 
+   we recommend
+   carefully coded and checked analytic derivatives for Rcgmin.
+
+   The use of numerical gradients for Rcgmin is discouraged.
+   First, the termination
+   test uses a size measure on the gradient, and numerical gradient 
+   approximations can sometimes give results that are too large. Second,
+   if there are bounds constraints, the step(s) taken to calculate the
+   approximation to the derivative are NOT checked to see if they are
+   out of bounds, and the function may be undefined at the evaluation
+   point. 
+
+   There is also the option of using the routines \code{grfwd}, \code{grback}, 
+   \code{grcentral} or \code{grnd} from package \code{optextras}. The last 
+   of these calls the \code{grad()} function from package numDeriv. These 
+   are called by putting the name of the (numerical) gradient function in 
+   quotation marks, e.g.,
+
+      gr="grfwd"
+
+   to use the standard forward difference numerical approximation.
+
+   Note that all but the \code{grnd} routine use a stepsize parameter that
+   can be redefined in a special scratchpad storage variable \code{deps}.
+   See package \code{optextras}. The default is \code{deps = 1e-07}. 
+   However, redefining this is discouraged unless you understand what
+   you are doing. 
+}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or
@@ -118,7 +145,6 @@
 \seealso{\code{\link{optim}}}
 \examples{
 #####################
-require(numDeriv)
 ## Rosenbrock Banana function
 fr <- function(x) {
     x1 <- x[1]
@@ -198,7 +224,7 @@ genrosea<-Rcgmin(xx,genrose.f, genrose.g, gs=10)
 genrosenn<-Rcgmin(xx,genrose.f, gs=10) # use local numerical gradient
 cat("genrosea uses analytic gradient\n")
 print(genrosea)
-cat("genrosenn uses numDeriv gradient\n")
+cat("genrosenn uses default gradient approximation\n")
 print(genrosenn)
 
 

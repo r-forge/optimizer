@@ -98,20 +98,16 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     }
     #############################################
     # gr MUST be provided
-    if (grNULL) {
-       require(numDeriv)
-       if (control$dowarn) 
-          warning("A NULL gradient function is being replaced numDeriv 'grad()'for Rcgmin")
-       if (ctrl$trace > 1) {
-           cat("Using following function in numDeriv grad()\n")
-           print(fn)
+    if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
+       stop("A gradient calculation (analytic or numerical) MUST be provided for Rvmminb") 
+    }
+    if ( is.character(gr) ) {
+       # Convert string to function call, assuming it is a numerical gradient function
+       mygr<-function(par=par, userfn=fn, ...){
+           do.call(gr, list(par, userfn, ...))
        }
-       mygr<-function(prm, func=fn, ...){
-           gv<-grad(func=func, x=prm, ...)
-       }    # gr MUST be provided
-  #############################################
-    } else { mygr <- gr }
-  ############# end test gr ####################
+    } else { mygr<-gr }
+   ############# end test gr ####################
     ## Set working parameters (See CNM Alg 22)
     if (trace > 0) {
         cat("Rcgmin -- J C Nash 2009 - bounds constraint version of new CG\n")

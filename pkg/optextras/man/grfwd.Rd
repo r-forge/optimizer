@@ -1,5 +1,6 @@
 \name{grfwd}
 \alias{grfwd}
+\alias{optsp}
 
 \title{Forward difference numerical gradient approximation.}
 
@@ -8,7 +9,7 @@
           user function \code{userfn}. 
 }
 \usage{
-   grfwd(par, userfn, fbase=NULL, ...)
+   grfwd(par, userfn, fbase=NULL, env=optsp, ...)
 }
 \arguments{
      
@@ -21,6 +22,10 @@
     \item{fbase}{
         The value of the function at the parameters, else NULL. This is to save
         recomputing the function at this point.
+        }
+    \item{env}{
+        Environment for scratchpad items (like \code{deps} for approximation 
+        control in this routine). Default \code{optsp}.
         }
     \item{\dots}{
         optional arguments passed to the objective function.

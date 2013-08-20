@@ -4,11 +4,23 @@ Changes before 2012-5-26 not recorded
 
 TODOS
 
+   o    The optsp environment is only currently used
+        with the simple numerical gradient approximations.
+        It needs to be added to ufn, ugr, uhess and some
+        other routines. 
+
+   o    Need to check that other packages can use the
+        optsp environment, e.g., Rtn.
 
 Changes
 
-2013-8-18
-   o    ?? about optderiveps setting
+2013-8-20
+   o    optsp scratchpad environment added. Note that it
+        is aliased in grfwd to avoid a warning in R CMD
+        check.
+
+   o    Can change this in numerical derivative routines
+        in case of parallel running.
 
 2012-7-18
    o    Extracted helper routines from optplus to 

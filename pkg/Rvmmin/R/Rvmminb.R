@@ -34,8 +34,6 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
     #           maximize = TRUE to maximize the function (default FALSE)
     #           trace = 0 (default) for no output,
     #                  >0 for output (bigger => more output)
-    # eps=1.0e-7 (default) for use in computing numerical
-    #   gradient approximations.
     #
     # dowarn=TRUE by default. Set FALSE to suppress warnings.
     #
@@ -101,7 +99,6 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
     eps <- ctrl$eps  #
     acctol <- ctrl$acctol
     dowarn <- ctrl$dowarn  #
-    grNULL <- is.null(gr)  # if gr function is not provided, we want to use approximations
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     #################################################################
     ## Set working parameters (See CNM Alg 22)
@@ -115,21 +112,14 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
     }
     ifn <- 1  # count function evaluations
     stepredn <- 0.2  # Step reduction in line search
-#    acctol <- 1e-04  # acceptable point tolerance
     reltest <- 100  # relative equality test
     ceps <- .Machine$double.eps * reltest
     dblmax <- .Machine$double.xmax  # used to flag bad function
     #############################################
     # gr MUST be provided
-    if (grNULL) {
-       if (dowarn) 
-          warning("A gradient calculation (analytic or numerical) MUST be provided for Rvmmin")
-       msg<-"No gradient function provided for Rvmmin"
-       ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
-       names(ans) <- c("par", "value", "counts", "convergence", 
-                       "message", "bdmsk")
-       return(ans)
-    }  # grNULL
+    if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
+       stop("A gradient calculation (analytic or numerical) MUST be provided for Rvmminb") 
+    }
     if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
        mygr<-function(par=par, userfn=fn, ...){
@@ -137,26 +127,6 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
        }
     } else { mygr<-gr }
     ############# end test gr ####################
-    btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
-        trace = trace)
-    if (!btest$admissible) 
-        stop("Inadmissible bounds: one or more lower>upper")
-    if (btest$parchanged) {
-        if (ctrl$keepinputpar) 
-            stop("Parameter out of bounds")
-        else warning("Parameter out of bounds has been moved to nearest bound")
-    }
-    nolower <- btest$nolower
-    noupper <- btest$noupper
-    bounds <- btest$bounds
-    bdmsk <- btest$bdmsk  # change bdmsk to values set in bmchk
-    if (trace > 3) {
-        cat("Adjusted bdmsk vector:")
-        print(bdmsk)
-    }
-    lower <- btest$lower
-    upper <- btest$upper
-    ############## end bounds check #############
     f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
     if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
         msg <- "Initial point gives inadmissible function value"
@@ -198,40 +168,40 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
         c <- g  # save gradient
         ## Bounds and masks adjustment of gradient ##
         ## current version with looping -- later try to vectorize
-        if (bounds) 
-            {   if (trace > 3) {
-                  cat("bdmsk:")
-                  print(bdmsk)
-                }
-                for (i in 1:n) {
-                  if ((bdmsk[i] == 0)) {
-                    g[i] <- 0
+        ##         if (bounds) 
+        if (trace > 3) {
+             cat("bdmsk:")
+             print(bdmsk)
+        }
+        for (i in 1:n) {
+            if ((bdmsk[i] == 0)) {
+               g[i] <- 0
+            }
+            else {
+               if (bdmsk[i] == 1) {
+                  if (trace > 2) 
+                     cat("Parameter ", i, " is free\n")
+               }
+               else {
+                  if ((bdmsk[i] + 2) * g[i] < 0) {
+                     g[i] <- 0  # active mask or constraint
                   }
                   else {
-                    if (bdmsk[i] == 1) {
-                      if (trace > 2) 
-                        cat("Parameter ", i, " is free\n")
-                    }
-                    else {
-                      if ((bdmsk[i] + 2) * g[i] < 0) {
-                        g[i] <- 0  # active mask or constraint
-                      }
-                      else {
-                        bdmsk[i] <- 1  # freeing parameter i
-                        if (trace > 1) 
-                          cat("freeing parameter ", i, "\n")
-                      }
-                    }
+                     bdmsk[i] <- 1  # freeing parameter i
+                     if (trace > 1) 
+                       cat("freeing parameter ", i, "\n")
                   }
-                }  # end masking loop on i
-                if (trace > 3) {
+               }
+            }
+        }  # end masking loop on i
+               if (trace > 3) {
                   cat("bdmsk adj:")
                   print(bdmsk)
                   cat("proj-g:")
                   print(g)
-                }
-                ## end bounds and masks adjustment of gradient
-            }  # if bounds
+               }
+               ## end bounds and masks adjustment of gradient
+        ###    }  # if bounds
         t <- as.vector(-B %*% g)  # compute search direction
         if (!all(is.numeric(t))) 
             t <- rep(0, n)  # 110619
@@ -260,35 +230,30 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
                 changed <- TRUE  # Need to set so loop will start
                 steplength <- oldstep
                 while ((f >= fmin) && changed && (!accpoint)) {
-                  # We seek a lower point, but must change parameters too
-                  if (bounds) 
-                    {
-                      # Box constraint -- adjust step length for free parameters
-                      for (i in 1:n) {
-                        # loop on parameters -- vectorize??
-                        if ((bdmsk[i] == 1) && (t[i] != 0)) 
-                          {
-                            # only concerned with free parameters and non-zero search
-                            #   dimension
-                            if (t[i] < 0) {
-                              # going down. Look at lower bound
-                              trystep <- (lower[i] - par[i])/t[i]  # t[i] < 0 so this is positive
-                            }
-                            else {
-                              # going up, check upper bound
-                              trystep <- (upper[i] - par[i])/t[i]  # t[i] > 0 so this is positive
-                            }
-                            if (trace > 2) 
-                              cat("steplength, trystep:", steplength, 
-                                trystep, "\n")
+                   # We seek a lower point, but must change parameters too
+                   ###if (bounds) {
+                   # Box constraint -- adjust step length for free parameters
+                   for (i in 1:n) {
+                      # loop on parameters -- vectorize??
+                      if ((bdmsk[i] == 1) && (t[i] != 0)) {
+                         # only concerned with free parameters and non-zero search
+                         #   dimension
+                         if (t[i] < 0) {
+                            # going down. Look at lower bound
+                            trystep <- (lower[i] - par[i])/t[i]  # t[i] < 0 so this is positive
+                         }
+                         else {
+                            # going up, check upper bound
+                            trystep <- (upper[i] - par[i])/t[i]  # t[i] > 0 so this is positive
+                         }
+                         if (trace > 2) 
+                            cat("steplength, trystep:", steplength, trystep, "\n")
                             steplength <- min(steplength, trystep)  # reduce as necessary
-                          }  # end steplength reduction
-                      }  # end loop on i to reduce step length
-                      # end box constraint adjustment of step length
-                      if (trace > 1) 
-                        cat("reset steplength=", steplength, 
-                          "\n")
-                    }  # end if bounds
+                         }  # end steplength reduction
+                   }  # end loop on i to reduce step length
+                   # end box constraint adjustment of step length
+                   if (trace > 1) cat("reset steplength=", steplength, "\n")
+                  ###  }  # end if bounds
                   # end box constraint adjustment of step length
                   bvec <- par + steplength * t
                   if (trace > 2) {
@@ -344,35 +309,24 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
             }  # end if gradproj<0
         if (accpoint) {
             # matrix update if acceptable point.
-            if (bounds) 
-                {
-                  ## Reactivate constraints??
-                  for (i in 1:n) {
-                    if (bdmsk[i] == 1) 
-                      {
-                        # only interested in free parameters
-                        # make sure < not <= below to avoid Inf comparisons
-                        if ((bvec[i] - lower[i]) < ceps * (abs(lower[i]) + 
-                          1)) 
-                          {
-                            # are we near or lower than lower bd
-                            if (trace > 2) 
-                              cat("(re)activate lower bd ", i, 
-                                " at ", lower[i], "\n")
-                            bdmsk[i] <- -3
-                          }  # end lower bd reactivate
-                        if ((upper[i] - bvec[i]) < ceps * (abs(upper[i]) + 
-                          1)) 
-                          {
-                            # are we near or above upper bd
-                            if (trace > 2) 
-                              cat("(re)activate upper bd ", i, 
-                                " at ", upper[i], "\n")
-                            bdmsk[i] <- -1
-                          }  # end lower bd reactivate
-                      }  # end test on free params
-                  }  # end reactivate constraints
-                }  # if bounds
+            ### if (bounds) {
+            for (i in 1:n) { ## Reactivate constraints??
+                if (bdmsk[i] == 1) {
+                    # only interested in free parameters
+                    # make sure < not <= below to avoid Inf comparisons
+                    if ((bvec[i] - lower[i]) < ceps * (abs(lower[i]) + 1)) {
+                       # are we near or lower than lower bd
+                       if (trace > 2) cat("(re)activate lower bd ", i, " at ", lower[i], "\n")
+                       bdmsk[i] <- -3
+                    }  # end lower bd reactivate
+                    if ((upper[i] - bvec[i]) < ceps * (abs(upper[i]) + 1)) {
+                        # are we near or above upper bd
+                        if (trace > 2) cat("(re)activate upper bd ", i," at ", upper[i], "\n")
+                        bdmsk[i] <- -1
+                    }  # end lower bd reactivate
+                }  # end test on free params
+             }  # end reactivate constraints
+             ###   }  # if bounds
             test <- try(g <- mygr(bvec, ...), silent = TRUE)  # ?? use try()
             if (class(test) == "try-error") 
                 stop("Bad gradient!!")

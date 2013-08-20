@@ -26,9 +26,11 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     #           maximize = TRUE to maximize the function (default FALSE)
     #           trace = 0 (default) for no output,
     #                  >0 for output (bigger => more output)
-    # eps=1.0e-7 (default) for use in computing numerical
-    #   gradient approximations.
-    # dowarn=TRUE by default. Set FALSE to suppress warnings.
+    #           dowarn=TRUE by default. Set FALSE to suppress warnings.
+    #           checkgrad = TRUE by default. Check analytic gradient 
+    #                  against numDeriv results.
+    #           checkbounds = TRUE by default. Check parameters and bounds
+    #                  for addmissible bounds and feasible start.
     #
     # Output:
     #    A list with components:
@@ -66,6 +68,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     #  Author:  John C Nash
     #  Date:  April 2, 2009; revised July 28, 2009, May 21, 2012
     #################################################################
+    #
     # control defaults -- idea from spg
     if (is.null(control$trace)) control$trace=0
     # check if there are bounds
@@ -84,10 +87,47 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     if (is.null(gr)) {
        gr <- "grfwd" # use forward gradient approximation if no gradient code provided
        if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
-    }   
+    } else {
+       if (is.character(gr)) { # assume numerical gradient
+           if (control$trace > 0) cat("WARNING: using gradient approximation ",gr,"\n")
+       } else { # analytic gradient, so check if requested
+           if (is.null(control$checkgrad)) control$checkgrad <- TRUE
+           if (control$checkgrad) { # check gradient
+              testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
+              if (! testgrad) warning("Gradient code for Rvmmin may be faulty - check it!")
+           }
+       } # end else
+    }
+    control$checkgrad<-NULL # to avoid problems in subsidiary routines
     if (is.null(control$dowarn)) control$dowarn<-TRUE
     #############################################
-    if (bounds) {
+    if (bounds) { 
+       if (is.null(control$checkbounds)) { control$checkbounds <- TRUE }
+       ### Check bounds feasible
+       if (control$checkbounds) {
+          btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
+             trace = control$trace)
+          if (!btest$admissible) 
+             stop("Inadmissible bounds: one or more lower>upper")
+          if (btest$parchanged) {
+             if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
+                 warning("Parameter out of bounds has been moved to nearest bound")
+                 control$keepinputpar<-NULL # avoid problems in subsidiary routines
+             } else stop("Parameter out of bounds")
+          }
+       }
+       nolower <- btest$nolower
+       noupper <- btest$noupper
+       bounds <- btest$bounds
+       bdmsk <- btest$bdmsk  # change bdmsk to values set in bmchk
+       if (control$trace > 3) {
+          cat("Adjusted bdmsk vector:")
+          print(bdmsk)
+       }
+       lower <- btest$lower
+       upper <- btest$upper
+       control$checkbounds<-NULL # to avoid problems in subsidiary routines
+       ############## end bounds check #############
        ans<-Rvmminb(par, fn, gr, lower = lower, 
           upper = upper, bdmsk = bdmsk, control = control, ...)
     } else {

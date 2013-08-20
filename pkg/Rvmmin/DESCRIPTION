@@ -1,12 +1,15 @@
 Package: Rvmmin
 Type: Package
-Title: Variable metric nonlinear function minimization with bounds constraints
-Version: 2013-7.20
-Date: 2013-07-20
+Title: Variable metric nonlinear function minimization with bounds
+        constraints
+Version: 2013-8.19
+Date: 2013-08-19
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca") )
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Variable metric nonlinear function minimization with bounds constraints
+Depends: optextras
 LazyLoad: Yes
 License: GPL (>= 2)
-
+Packaged: 2013-08-20 01:53:53 UTC; john
+Author: John C. Nash [aut, cre]

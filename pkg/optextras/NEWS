@@ -7,6 +7,9 @@ TODOS
 
 Changes
 
+2013-8-18
+   o    ?? about optderiveps setting
+
 2012-7-18
    o    Extracted helper routines from optplus to 
         create optextras package to put on CRAN.

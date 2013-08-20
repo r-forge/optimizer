@@ -10,7 +10,7 @@
 
 
 \usage{
-   grcentral(par, userfn, eps=1.0e-7, ...)
+   grcentral(par, userfn, ...)
 }
 
 
@@ -21,9 +21,6 @@
         }
     \item{userfn}{
         User-supplied objective function
-        }
-    \item{eps}{
-        a small number used to generate the finite difference step
         }
     \item{\dots}{
         optional arguments passed to the objective function.
@@ -42,7 +39,8 @@ License: \tab GPL Version 2.\cr
 
 \value{
 \code{grcentral} returns a single vector object \code{df} which approximates the 
-gradient of userfn at the parameters par.
+gradient of userfn at the parameters par. The approximation is controlled by a
+global value \code{optderiveps} that is set when the package is attached.
 
 }
 
@@ -53,7 +51,7 @@ gradient of userfn at the parameters par.
 }
 
 \examples{
-cat("Example of use of grfwd\n")
+cat("Example of use of grcentral\n")
 
 myfn<-function(xx, shift=100){
     ii<-1:length(xx)

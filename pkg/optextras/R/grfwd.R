@@ -1,6 +1,6 @@
 grfwd <- function(par, userfn, fbase=NULL, ...) {
    # Forward different gradient approximation
-   eps<-.Machine$deriv.eps # DANGER: R core may reuse name
+   eps<-getval("deps")
    if (is.null(fbase)) fbase <- userfn(par, ...)  # ensure we have function value at par
    df <- rep(NA, length(par))
    teps <- eps * (abs(par) + eps)

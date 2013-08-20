@@ -8,7 +8,7 @@
           user function \code{userfn}. 
 }
 \usage{
-   grfwd(par, userfn, fbase=NULL, eps=1.0e-7, ...)
+   grfwd(par, userfn, fbase=NULL, ...)
 }
 \arguments{
      
@@ -21,9 +21,6 @@
     \item{fbase}{
         The value of the function at the parameters, else NULL. This is to save
         recomputing the function at this point.
-        }
-    \item{eps}{
-        a small number used to generate the finite difference step
         }
     \item{\dots}{
         optional arguments passed to the objective function.
@@ -41,7 +38,8 @@ License: \tab GPL Version 2.\cr
 
 \value{
 \code{grfwd} returns a single vector object \code{df} which approximates the 
-gradient of userfn at the parameters par.
+gradient of userfn at the parameters par. The approximation is controlled by a
+global value \code{optderiveps} that is set when the package is attached.
 }
 \author{
     John C. Nash

@@ -16,6 +16,8 @@ export(
   "bmchk",
   "bmstep",
   "scalecheck",
-  "grnd"
+  "grnd",
+  "getval",
+  "setval"
 )
 

@@ -1,6 +1,6 @@
 Package: optextras
-Version: 2012-07.18
-Date: 2012-07-18
+Version: 2013-8.18
+Date: 2013-08-18
 Title: A set of tools to support optimization methods
       (function minimization with at most bounds and masks).
 Author: John C Nash <nashjc@uottawa.ca>

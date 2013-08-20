@@ -10,7 +10,7 @@
 
 
 \usage{
-   grback(par, userfn, fbase=NULL, eps=1.0e-7, ...)
+   grback(par, userfn, fbase=NULL,  ...)
 }
 
 
@@ -25,9 +25,6 @@
     \item{fbase}{
         The value of the function at the parameters, else NULL. This is to save
         recomputing the function at this point.
-        }
-    \item{eps}{
-        a small number used to generate the finite difference step
         }
     \item{\dots}{
         optional arguments passed to the objective function.
@@ -46,7 +43,8 @@ License: \tab GPL Version 2.\cr
 
 \value{
 \code{grback} returns a single vector object \code{df} which approximates the 
-gradient of userfn at the parameters par.
+gradient of userfn at the parameters par. The approximation is controlled by a
+global value \code{optderiveps} that is set when the package is attached.
 
 }
 
@@ -57,7 +55,7 @@ gradient of userfn at the parameters par.
 }
 
 \examples{
-cat("Example of use of grfwd\n")
+cat("Example of use of grback\n")
 
 myfn<-function(xx, shift=100){
     ii<-1:length(xx)
@@ -70,11 +68,14 @@ print(xx)
 gn<-grback(xx,myfn, shift=0)
 print(gn)
 ga<-ii*xx^(ii-1)
-cat("compare to\n")
+cat("compare to analytic gradient:\n")
 print(ga)
 
+cat("change the step parameter to 1e-4\n")
+setval("deps", 1e-4)
+gn2<-grback(xx,myfn, shift=0)
+print(gn2)
 
 }
 
 \keyword{optimize}
-

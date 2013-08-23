@@ -6,6 +6,12 @@ To do
 
    o    Issue when npar = 1
 
+   o    Relative offset convergence test? -- put feval/jeval in summary/printqc
+
+   o    coef() method in nlmrt.R so names carried through
+
+   o    check and fix examples
+
 Changes in nlmrt version 2013-8.22
 
    o    summary() and print() cleanup

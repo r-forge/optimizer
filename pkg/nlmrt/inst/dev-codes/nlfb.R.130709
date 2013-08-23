@@ -68,7 +68,6 @@ if (trace) {
     lamdec=4, # use decreased_lamda<-lamda*lamdec/laminc
     femax=10000,
     jemax=5000,
-    rofftest = TRUE,
     ndstep=1e-7 # numerical jacobian step
    )
    epstol<-(.Machine$double.eps)*ctrl$offset
@@ -126,7 +125,6 @@ if (trace) {
 #    cat("resbest:")
 #    print(resbest)
     ssbest<-crossprod(resbest)
-    ss0 <- ssbest # reference value for rofftest
     ssminval <- ssbest*epstol^4
     feval<-1
     pbest<-pnum
@@ -141,9 +139,7 @@ if (trace) {
     ssquares<-.Machine$double.xmax # make it big
     newjac<-TRUE # set control for computing Jacobian
     eqcount<-0
-    roffstop <- FALSE
-    while ((! roffstop) && (ssbest > ssminval) && (eqcount < npar) 
-             && (feval <= femax) && (jeval <= jemax)) {
+    while ((ssbest > ssminval) && (eqcount < npar) && (feval<=femax) && (jeval<=jemax)) {
        if (newjac) {
           bdmsk<-rep(1,npar)
           bdmsk[maskidx]<-0
@@ -187,10 +183,6 @@ if (trace) {
        }
        JQR<-qr(JJ)# ??try
        rplus<-c(resbest, rep(0,2*npar))
-       roff <- max(abs(as.numeric(crossprod(qr.Q(JQR), rplus))))/ss0
-       if (trace) cat("roff =", roff,"  converged = ",(roff <= sqrt(epstol)),"\n")
-       if (ctrl$rofftest && (roff <= sqrt(epstol))) roffstop <- TRUE
-#        tmp <- readline('cont')
        delta<-try(qr.coef(JQR,-rplus)) # Note appended rows of y)
        if (class(delta)=="try-error") {
           if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps

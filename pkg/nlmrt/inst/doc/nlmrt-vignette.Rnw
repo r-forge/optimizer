@@ -136,7 +136,7 @@ solution using \code{nlxb}. Package \code{nlmrt} has function \code{wrapnls}
 to allow this to be carried out automatically. Thus,
 
 <<chunk06, echo=TRUE>>=
-awnls <- wrapnls(regmod, start=ones, data=pastured)
+awnls <- wrapnls(regmod, start=ones, data=pastured, control=list(rofftest=FALSE))
 print(awnls)
 cat("Note that the above is just the nls() summary result.\n")
 @

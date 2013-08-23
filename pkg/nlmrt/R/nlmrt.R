@@ -8,7 +8,7 @@ print.nlmrt <- function(x, ...) {
     options(digits = 7) # ??this is default
     resname <- deparse(substitute(x))
     cat("nlmrt class object:",resname,"\n")
-    coef <- x$coeffs
+    coef <- x$coefficients
     pname<-names(coef)
     npar <- length(coef)
     lo <- x$lower
@@ -58,12 +58,12 @@ summary.nlmrt <- function(object, ...) {
     cat("Summary of nlmrt class object ",resname,"\n")
 #    cat("coeffs:")
 #    print(object$coeffs)
-#    cat("ssquares = ",object$ssquares,"\n")
+    cat("residual sumsquares = ",object$ssquares,"\n")
     JJ <- object$jacobian
     res <- object$resid
-    coef <- object$coeffs
+    coef <- object$coefficients
     resname <- deparse(substitute(x))
-    cat("nlmrt class object:",resname,"\n")
+#    cat("nlmrt class object:",resname,"\n")
     pname<-names(coef)
     npar <- length(coef)
     lo <- object$lower
@@ -75,8 +75,8 @@ summary.nlmrt <- function(object, ...) {
     mt[mi] <- "M" # Put in the masks
     bdmsk <- rep(1, npar) # bounds and masks indicator ?? should it be 1L
     bdmsk[mi] <- 0 # masked
-    cat("bdmsk:")
-    print(bdmsk)
+#    cat("bdmsk:")
+#    print(bdmsk)
     ct <- rep(" ",npar) # start with all "free"
     for (i in seq_along(coef)){
        if (lo[[i]] - coef[[i]] > 0) {
@@ -98,10 +98,10 @@ summary.nlmrt <- function(object, ...) {
           }
        }
     }
-    cat("ct:")
-    print(ct)
-    cat("new bdmsk:")
-    print(bdmsk)
+#    cat("ct:")
+#    print(ct)
+#    cat("new bdmsk:")
+#    print(bdmsk)
     ss <- object$ssquares
     nobs <- length(res)
     ndof <- nobs - npar
@@ -122,11 +122,11 @@ summary.nlmrt <- function(object, ...) {
 #    } else {
        Sinv <- 1/Sd
        Sinv[which(bdmsk != 1)] <- 0
-       cat("Sinv:")
-       print(Sinv)
+#       cat("Sinv:")
+#       print(Sinv)
        VS <- crossprod(t(V), diag(Sinv))
-       cat("VS:")
-       print(VS)
+#       cat("VS:")
+#       print(VS)
        Jinv <- crossprod(t(VS))
        var <- Jinv * sighat2
        SEs <- sqrt(diag(var))
@@ -135,7 +135,8 @@ summary.nlmrt <- function(object, ...) {
     tstat <- coef/SEs
     pval<-2*(1-pt(tstat, df=ndof))
     # object digits??
-    cat("  name    ","  coeff        ","    SE    "," gradient   ","  tstat  ","   pval   ","\n")
+    cat("  name    ","  coeff        ","     SE      ","  tstat  ",
+        "   pval   "," gradient   "," JSingval  ","\n")
     for (i in seq_along(coef)){
        pc <- pname[[i]]
        # ?? adjust length of pc to 8 ?? chars (not needed in print, but in summary
@@ -143,18 +144,13 @@ summary.nlmrt <- function(object, ...) {
        cat(format(pc, width=8),"  ")
        cat(format(coef[[i]], width=8)," ")
        cat(ct[[i]],mt[[i]],"  ")
-       cat(format(SEs[[i]], width=8)," ")
+       cat(format(SEs[[i]], width=11)," ")
        cat(format(gr[[i]], width=11)," ")
        cat(format(tstat[[i]], width=8)," ")
        cat(format(pval[[i]], digits=4, width=8)," ")
+       cat(format(Sd[[i]], digits=4, width=8)," ")
        cat("\n")
     }
     invisible(object)
 }
-
-## To add 
-#    gradients
-#    tstats
-#    significance
-#    bounds/masks -- will require return in nlmrt class objects
 

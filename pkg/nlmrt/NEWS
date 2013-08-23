@@ -2,9 +2,19 @@ To do
 
    o    Origin of NaN's in bounded examples. Can they be avoided?
 
-   o    Weighted least squares, especially in nlxb.
+   o    Weighted least squares example, especially in nlxb.
 
    o    Issue when npar = 1
+
+Changes in nlmrt version 2013-8.22
+
+   o    summary() and print() cleanup
+
+   o    partial and minor documentation improvement
+
+Changes in nlmrt version 2013-8.10
+
+   o    fix line length issue in examples
 
 Changes in nlmrt version 2013-7.9
 

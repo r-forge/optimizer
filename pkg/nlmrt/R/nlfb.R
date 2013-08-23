@@ -69,6 +69,7 @@ if (trace) {
     femax=10000,
     jemax=5000,
     rofftest = TRUE,
+    smallsstest = TRUE,
     ndstep=1e-7 # numerical jacobian step
    )
    epstol<-(.Machine$double.eps)*ctrl$offset
@@ -128,6 +129,7 @@ if (trace) {
     ssbest<-crossprod(resbest)
     ss0 <- ssbest # reference value for rofftest
     ssminval <- ssbest*epstol^4
+    if (trace) cat("ssminval =",ssminval,"\n")
     feval<-1
     pbest<-pnum
     feval<-1 # number of function evaluations
@@ -142,8 +144,10 @@ if (trace) {
     newjac<-TRUE # set control for computing Jacobian
     eqcount<-0
     roffstop <- FALSE
-    while ((! roffstop) && (ssbest > ssminval) && (eqcount < npar) 
-             && (feval <= femax) && (jeval <= jemax)) {
+    smallstop <- FALSE
+    while ((! roffstop) && (eqcount < npar) 
+             && (feval <= femax) && (jeval <= jemax)
+             && (! smallstop) ) {
        if (newjac) {
           bdmsk<-rep(1,npar)
           bdmsk[maskidx]<-0
@@ -258,6 +262,7 @@ if (trace) {
                   showprms(ssquares, pnum)
                 }
                 ssbest<-ssquares
+                if (ctrl$smallsstest) { smallstop<-(ssbest <= ssminval) }
                 resbest<-resid
                 pbest<-pnum
                 newjac<-TRUE

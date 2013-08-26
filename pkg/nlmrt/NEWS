@@ -2,17 +2,26 @@ To do
 
    o    Origin of NaN's in bounded examples. Can they be avoided?
 
+   o    Option for numerical Jacobian -- control numJac = TRUE?, with
+	routine in nlmrt.R ?? elsewhere.
+
+   o    Way of using a "gradient" attribute when the model formula is
+        specified like  
+           y ~ SpecialFn(xx, zz)
+        which would allow functions not differentiable by deriv()
+
    o    Weighted least squares example, especially in nlxb.
 
    o    Issue when npar = 1
 
-   o    Relative offset convergence test? -- put feval/jeval in summary/printqc
+   o    check and fix examples?
+
+Changes in nlmrt version 2013-8.26
+
+   o    Relative offset convergence test (not exactly as in nls())
+        residual and jacobian in summary & print methods
 
    o    coef() method in nlmrt.R so names carried through
-
-   o    check and fix examples
-
-Changes in nlmrt version 2013-8.22
 
    o    summary() and print() cleanup
 

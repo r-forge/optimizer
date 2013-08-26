@@ -1,6 +1,6 @@
 # nlmrt.R -- print and summary methods
 #   result <- list(resid = resbest, jacobian = Jac, feval = feval, 
-#        jeval = jeval, coeffs = pnum, ssquares = ssbest)
+#        jeval = jeval, coefficients = pnum, ssquares = ssbest)
 #    class(result) <- "nlmrt"
 
 print.nlmrt <- function(x, ...) {
@@ -44,7 +44,7 @@ print.nlmrt <- function(x, ...) {
        cat(ct[[i]],mt[[i]]," ")
        cat("\n")
     }
-    cat("ssquares = ",x$ssquares,"\n")
+    cat("ssquares = ",x$ssquares," after ",x$jeval,"Jac/",x$feval,"Res\n")
     invisible(x)
 }
 # working 120901
@@ -62,7 +62,7 @@ summary.nlmrt <- function(object, ...) {
     JJ <- object$jacobian
     res <- object$resid
     coef <- object$coefficients
-    resname <- deparse(substitute(x))
+    resname <- deparse(substitute(object))
 #    cat("nlmrt class object:",resname,"\n")
     pname<-names(coef)
     npar <- length(coef)
@@ -103,6 +103,8 @@ summary.nlmrt <- function(object, ...) {
 #    cat("new bdmsk:")
 #    print(bdmsk)
     ss <- object$ssquares
+    cat("ssquares = ",object$ssquares," after ",
+        object$jeval,"Jac/",object$feval,"Res\n")
     nobs <- length(res)
     ndof <- nobs - npar
     if (ndof <= 0) stop(paste("Inadmissible degrees of freedom =",ndof,sep=''))
@@ -145,12 +147,19 @@ summary.nlmrt <- function(object, ...) {
        cat(format(coef[[i]], width=8)," ")
        cat(ct[[i]],mt[[i]],"  ")
        cat(format(SEs[[i]], width=11)," ")
-       cat(format(gr[[i]], width=11)," ")
        cat(format(tstat[[i]], width=8)," ")
        cat(format(pval[[i]], digits=4, width=8)," ")
+       cat(format(gr[[i]], width=11)," ")
        cat(format(Sd[[i]], digits=4, width=8)," ")
        cat("\n")
     }
     invisible(object)
 }
 
+# ?? coef() function
+coef.nlmrt <- function(object, ...) {
+       out <- object$coefficients
+       print(object$coefficients)
+       attr(out,"pkgname")<-"nlmrt"
+       out
+}

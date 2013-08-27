@@ -83,8 +83,7 @@
     \code{nlfb} attempts to solve the nonlinear sum of squares problem by using
     a variant of Marquardt's approach to stabilizing the Gauss-Newton method using
     the Levenberg-Marquardt adjustment. This is explained in Nash (1979 or 1990) in
-    the sections that discuss Algorithm 23. (?? do we want a vignette. Yes, because
-    folk don't have access to book easily, but finding time.)
+    the sections that discuss Algorithm 23.
 
     In this code, we solve the (adjusted) Marquardt equations by use of the 
     \code{qr.solve()}. Rather than forming the J'J + lambda*D matrix, we augment
@@ -92,7 +91,7 @@
 }
 \value{
   A list of the following items
-  \item{coeffs}{A named vector giving the parameter values at the supposed solution.}
+  \item{coefficients}{A named vector giving the parameter values at the supposed solution.}
   \item{ssquares}{The sum of squared residuals at this set of parameters.}
   \item{resid}{The residual vector at the returned parameters.}
   \item{jacobian}{The jacobian matrix (partial derivatives of residuals w.r.t. the parameters)

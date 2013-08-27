@@ -89,7 +89,7 @@
 }
 \value{
   A list of the following items
-  \item{coeffs}{A named vector giving the parameter values at the supposed solution.}
+  \item{coefficients}{A named vector giving the parameter values at the supposed solution.}
   \item{ssquares}{The sum of squared residuals at this set of parameters.}
   \item{resid}{The residual vector at the returned parameters.}
   \item{jacobian}{The jacobian matrix (partial derivatives of residuals 

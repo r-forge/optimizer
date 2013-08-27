@@ -5,7 +5,7 @@
 
 print.nlmrt <- function(x, ...) {
     smalltol <- .Machine$double.eps * 1000
-    options(digits = 7) # ??this is default
+    options(digits = 5) # ??this is default
     resname <- deparse(substitute(x))
     cat("nlmrt class object:",resname,"\n")
     coef <- x$coefficients
@@ -135,7 +135,7 @@ summary.nlmrt <- function(object, ...) {
 #    }
     gr <- crossprod(JJ, res)
     tstat <- coef/SEs
-    pval<-2*(1-pt(tstat, df=ndof))
+    pval<-2*(1-pt(abs(tstat), df=ndof))
     # object digits??
     cat("  name    ","  coeff        ","     SE      ","  tstat  ",
         "   pval   "," gradient   "," JSingval  ","\n")
@@ -143,14 +143,14 @@ summary.nlmrt <- function(object, ...) {
        pc <- pname[[i]]
        # ?? adjust length of pc to 8 ?? chars (not needed in print, but in summary
        # add index i??
-       cat(format(pc, width=8),"  ")
-       cat(format(coef[[i]], width=8)," ")
+       cat(format(pc, width=9),"  ")
+       cat(format(coef[[i]], width=9)," ")
        cat(ct[[i]],mt[[i]],"  ")
-       cat(format(SEs[[i]], width=11)," ")
-       cat(format(tstat[[i]], width=8)," ")
-       cat(format(pval[[i]], digits=4, width=8)," ")
-       cat(format(gr[[i]], width=11)," ")
-       cat(format(Sd[[i]], digits=4, width=8)," ")
+       cat(format(SEs[[i]], width=9)," ")
+       cat(format(tstat[[i]], width=9)," ")
+       cat(format(pval[[i]], digits=4, width=9)," ")
+       cat(format(gr[[i]], digits=4, width=9)," ")
+       cat(format(Sd[[i]], digits=4, width=9)," ")
        cat("\n")
     }
     invisible(object)
@@ -159,7 +159,7 @@ summary.nlmrt <- function(object, ...) {
 # ?? coef() function
 coef.nlmrt <- function(object, ...) {
        out <- object$coefficients
-       print(object$coefficients)
+       # print(object$coefficients)
        attr(out,"pkgname")<-"nlmrt"
-       out
+       invisible(out)
 }

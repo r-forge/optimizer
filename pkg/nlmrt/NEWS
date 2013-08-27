@@ -2,6 +2,8 @@ To do
 
    o    Origin of NaN's in bounded examples. Can they be avoided?
 
+   o    Handling of NaN in Jacfun
+
    o    Option for numerical Jacobian -- control numJac = TRUE?, with
 	routine in nlmrt.R ?? elsewhere.
 

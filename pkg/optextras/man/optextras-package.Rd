@@ -1,5 +1,5 @@
 \name{optextras-package}
-\alias{optextras-package}
+\alias{optextras}
 \docType{package}
 \title{
 A replacement and extension of the optim() function, plus various optimization
@@ -38,23 +38,23 @@ Repository/R-Forge/Project: \tab optimizer\cr
 Index:
 \preformatted{
 axsearch     Perform an axial search optimality check
-bmchk        ???
-bmstep       ???
+bmchk        Check bounds and masks for parameter constraints
+bmstep       Compute the maximum step along a search direction.
 fnchk        Test validity of user function
 gHgen        Compute gradient and Hessian as a given 
              set of parameters
 gHgenb       Compute gradient and Hessian as a given 
              set of parameters appying bounds and masks
-grback       ???
-grcentral    ???
+grback       Backward numerical gradient approximation
+grcentral    Central numerical gradient approximation
 grchk        Check that gradient function evaluation 
              matches numerical gradient
-grfwd        ???
-grnd         ???
+grfwd        Forward numerical gradient approximation
+grnd         Gradient approximation using \code{numDeriv}
 hesschk      Check that Hessian function evaluation 
              matches numerical approximation
 kktc         Check the Karush-Kuhn-Tucker optimality conditions
-scalecheck   ??
+scalecheck   Check scale of initial parameters and bounds
 ufn          Wrapper for user objective function
 ugr          Wrapper for user gradient function
 ugHgenb      Compute gradient and Hessian as a given 

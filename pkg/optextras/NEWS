@@ -14,6 +14,10 @@ TODOS
 
 Changes
 
+2013-9-11
+   o    Fixed some elements of manual. Alias optextras-package
+        to optextras.
+
 2013-8-20
    o    optsp scratchpad environment added. Note that it
         is aliased in grfwd to avoid a warning in R CMD

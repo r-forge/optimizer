@@ -248,23 +248,23 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
                          }
                          if (trace > 2) 
                             cat("steplength, trystep:", steplength, trystep, "\n")
-                            steplength <- min(steplength, trystep)  # reduce as necessary
-                         }  # end steplength reduction
+                         steplength <- min(steplength, trystep)  # reduce as necessary
+                       }  # end steplength reduction
                    }  # end loop on i to reduce step length
                    # end box constraint adjustment of step length
                    if (trace > 1) cat("reset steplength=", steplength, "\n")
-                  ###  }  # end if bounds
-                  # end box constraint adjustment of step length
-                  bvec <- par + steplength * t
-                  if (trace > 2) {
-                    cat("new bvec:")
-                    print(bvec)
-                  }
-                  changed <- (!identical((bvec + reltest), (par + 
-                    reltest)))
-                  if (changed) {
-                    # compute new step, if possible
-                    f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
+                   ###  }  # end if bounds
+                   # end box constraint adjustment of step length
+                   bvec <- par + steplength * t
+                   if (trace > 2) {
+                     cat("new bvec:")
+                     print(bvec)
+                   }
+                   changed <- (!identical((bvec + reltest), (par + 
+                     reltest)))
+                   if (changed) {
+                     # compute new step, if possible
+                     f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
                     # instead preferring to fail out, which will hopefully be unlikely.
                     if (maximize) f <- -f
                     ifn <- ifn + 1

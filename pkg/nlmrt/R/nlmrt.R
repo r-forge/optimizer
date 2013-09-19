@@ -3,69 +3,17 @@
 #        jeval = jeval, coefficients = pnum, ssquares = ssbest)
 #    class(result) <- "nlmrt"
 
-print.nlmrt <- function(x, ...) {
-    smalltol <- .Machine$double.eps * 1000
-    options(digits = 5) # ??this is default
-    resname <- deparse(substitute(x))
-    cat("nlmrt class object:",resname,"\n")
-    coef <- x$coefficients
-    pname<-names(coef)
-    npar <- length(coef)
-    lo <- x$lower
-    if (is.null(lo)) lo <- rep( -Inf, npar)
-    up <- x$upper
-    if (is.null(up)) up <- rep( Inf, npar)
-    mi <- x$maskidx
-    mt <- rep(" ",npar) # start with all "unmasked"
-    mt[mi] <- "M" # Put in the masks
-    ct <- rep(" ",npar) # start with all "free"
-    for (i in seq_along(coef)){
-       if (lo[[i]] - coef[[i]] > 0) {
-          ct[[i]] <- "-" # lower bound violation
-       } else { 
-          if (coef[[i]] - lo[[i]] < smalltol*(abs(coef[[i]])+smalltol) ) ct[[i]] <- "L" # "at" lower bound
-       }
-       if (coef[[i]] - up[[i]] > 0) {
-          ct[[i]] <- "+" # lower bound violation
-       } else { 
-          if (up[[i]] - coef[[i]] < smalltol*(abs(coef[[i]])+smalltol) ) ct[[i]] <- "U" # "at" upper bound
-       }
-    }
-#    cat("  name    ","  coeff      ","    SE    "," gradient ","  tstat  ","  pval   ","\n")
-    cat("  name    ","  coeff      ","\n")
-    # separate entries so they can be played with      
-#    cat("coeffs:")
-    for (i in seq_along(coef)){
-       pc <- pname[[i]]
-       # ?? adjust length of pc to 8 ?? chars (not needed in print, but in summary
-       # add index i??
-       cat(format(pc, width=8),"  ")
-       cat(format(coef[[i]], width=8)," ")
-       cat(ct[[i]],mt[[i]]," ")
-       cat("\n")
-    }
-    cat("ssquares = ",x$ssquares," after ",x$jeval,"Jac/",x$feval,"Res\n")
-    invisible(x)
-}
-# working 120901
-## add
-#  bounds and masks
 
 summary.nlmrt <- function(object, ...) {
+    sumnlmrt<-list() # set up the stub
     smalltol <- .Machine$double.eps * 1000
     options(digits = 5) # 7 is default
     resname <- deparse(substitute(object))
-    cat("Summary of nlmrt class object ",resname,"\n")
-#    cat("coeffs:")
-#    print(object$coeffs)
-    cat("residual sumsquares = ",object$ssquares,"\n")
     JJ <- object$jacobian
     res <- object$resid
-    coef <- object$coefficients
-    resname <- deparse(substitute(object))
-#    cat("nlmrt class object:",resname,"\n")
-    pname<-names(coef)
-    npar <- length(coef)
+    coeff <- object$coefficients
+    pname<-names(coeff)
+    npar <- length(coeff)
     lo <- object$lower
     if (is.null(lo)) lo <- rep( -Inf, npar)
     up <- object$upper
@@ -75,84 +23,63 @@ summary.nlmrt <- function(object, ...) {
     mt[mi] <- "M" # Put in the masks
     bdmsk <- rep(1, npar) # bounds and masks indicator ?? should it be 1L
     bdmsk[mi] <- 0 # masked
-#    cat("bdmsk:")
-#    print(bdmsk)
     ct <- rep(" ",npar) # start with all "free"
-    for (i in seq_along(coef)){
-       if (lo[[i]] - coef[[i]] > 0) {
+    for (i in seq_along(coeff)){
+       if (lo[[i]] - coeff[[i]] > 0) {
           ct[[i]] <- "-" # lower bound violation
           if (bdmsk[[i]] == 1) bdmsk[[i]] <- -3
        } else { 
-          if (coef[[i]] - lo[[i]] < smalltol*(abs(coef[[i]])+smalltol) ) {
+          if (coeff[[i]] - lo[[i]] < smalltol*(abs(coeff[[i]])+smalltol) ) {
              ct[[i]] <- "L" # "at" lower bound
              if (bdmsk[[i]] != 0) bdmsk[[i]] <- -3 # leave mask indication intact
           }
        }
-       if (coef[[i]] - up[[i]] > 0) {
+       if (coeff[[i]] - up[[i]] > 0) {
           ct[[i]] <- "+" # lower bound violation
           if (bdmsk[[i]] == 1) bdmsk[[i]] <- -1
        } else { 
-          if (up[[i]] - coef[[i]] < smalltol*(abs(coef[[i]])+smalltol) ) {
+          if (up[[i]] - coeff[[i]] < smalltol*(abs(coeff[[i]])+smalltol) ) {
              ct[[i]] <- "U" # "at" upper bound
              if (bdmsk[[i]] != 0) bdmsk[[i]] <- -1 # leave mask indication intact
           }
        }
     }
-#    cat("ct:")
-#    print(ct)
-#    cat("new bdmsk:")
-#    print(bdmsk)
     ss <- object$ssquares
-    cat("ssquares = ",object$ssquares," after ",
-        object$jeval,"Jac/",object$feval,"Res\n")
     nobs <- length(res)
     ndof <- nobs - npar
-    if (ndof <= 0) stop(paste("Inadmissible degrees of freedom =",ndof,sep=''))
-    sighat2 <- ss/(ndof)
+    if (ndof <= 0) {
+          if (ndof < 0) { stop(paste("Inadmissible degrees of freedom =",ndof,sep='')) }
+          else { sighat2 <- Inf }
+    } else {
+       sighat2 <- ss/(ndof)
+    }
     dec <- svd(JJ)
     U <- dec$u
-#    cat("U:")
-#    print(U)
     V <- dec$v
-#    cat("V:")
-#    print(V)
     Sd <- dec$d
-#    cat("Sd:")
-#    print(Sd)
-#    if (min(Sd) <= smalltol * max(Sd)) { # singular
-#       SEs <- rep(Inf, npar)
-#    } else {
+    if (min(Sd) <= smalltol * max(Sd)) { # singular
+       SEs <- rep(NA, npar) # ?? Inf or NA
+    } else {
        Sinv <- 1/Sd
        Sinv[which(bdmsk != 1)] <- 0
-#       cat("Sinv:")
-#       print(Sinv)
        VS <- crossprod(t(V), diag(Sinv))
-#       cat("VS:")
-#       print(VS)
        Jinv <- crossprod(t(VS))
        var <- Jinv * sighat2
        SEs <- sqrt(diag(var))
-#    }
-    gr <- crossprod(JJ, res)
-    tstat <- coef/SEs
-    pval<-2*(1-pt(abs(tstat), df=ndof))
-    # object digits??
-    cat("  name    ","  coeff        ","     SE      ","  tstat  ",
-        "   pval   "," gradient   "," JSingval  ","\n")
-    for (i in seq_along(coef)){
-       pc <- pname[[i]]
-       # ?? adjust length of pc to 8 ?? chars (not needed in print, but in summary
-       # add index i??
-       cat(format(pc, width=9),"  ")
-       cat(format(coef[[i]], width=9)," ")
-       cat(ct[[i]],mt[[i]],"  ")
-       cat(format(SEs[[i]], width=9)," ")
-       cat(format(tstat[[i]], width=9)," ")
-       cat(format(pval[[i]], digits=4, width=9)," ")
-       cat(format(gr[[i]], digits=4, width=9)," ")
-       cat(format(Sd[[i]], digits=4, width=9)," ")
-       cat("\n")
     }
+    gr <- crossprod(JJ, res)
+    if (any(is.na(SEs))) {
+        tstat<-rep(NA, npar)
+    } else {
+        tstat <- coeff/SEs
+    }
+    pval<-2*(1-pt(abs(tstat), df=ndof)) # This will carry through NAs
+    object<-list(resname=resname, ssquares=ss, nobs=nobs, coeff=coeff, ct=ct, mt=mt, 
+           SEs=SEs, tstat=tstat, pval=pval, Sd=Sd, gr=gr, jeval=object$jeval,
+           feval=object$feval)
+##? LEAVE OUT: JJ  res 
+##? Sd
+##? gr
     invisible(object)
 }
 
@@ -163,3 +90,29 @@ coef.nlmrt <- function(object, ...) {
        attr(out,"pkgname")<-"nlmrt"
        invisible(out)
 }
+
+printsum.nlmrt <- function(object, ...) {
+    xx<-summary(object)
+    with(xx, { 
+	cat("nlmrt class object:",resname,"\n")
+	pname<-names(coeff)
+	npar <- length(coeff)
+        cat("residual sumsquares = ",x$ssquares," on ",nobs,"observations\n")
+        cat("    after ",jeval,"   Jacobian and ",feval,"function evaluations\n")
+        cat("  name     ","      coeff    ","     SE    ","   tstat   ",
+             "   pval   ","   gradient  "," JSingval  ","\n")
+        for (i in seq_along(coeff)){
+            cat(format(pname[i], width=10)," ")
+            cat(format(coeff[[i]], digits=6, width=12))
+            cat(ct[[i]],mt[[i]]," ")
+            cat(format(SEs[[i]], digits=4, width=10)," ")
+            cat(format(tstat[[i]], digits=4, width=10)," ")
+            cat(format(pval[[i]], digits=4, width=10)," ")
+            cat(format(gr[[i]], digits=4, width=10)," ")
+            cat(format(Sd[[i]], digits=4, width=10)," ")
+            cat("\n")
+        }
+    }) # remember to close with()
+    invisible(object)
+}
+

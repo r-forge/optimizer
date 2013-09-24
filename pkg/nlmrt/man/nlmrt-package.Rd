@@ -128,11 +128,11 @@ start1  <-  c(b1=1, b2=1, b3=1)
 cat("GLOBAL DATA\n")
 
 anls1g  <-  try(nls(eunsc, start=start1, trace=traceval))
-summary(anls1g)
+print(anls1g)
 
 cat("GLOBAL DATA AND EXPRESSION -- SHOULD FAIL\n")
 anlxb1g  <-  try(nlxb(eunsc, start=start1, trace=traceval))
-summary(anlxb1g)
+print(anlxb1g)
 
 } # end dontrun
 
@@ -143,10 +143,10 @@ cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
 anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
-summary(anlxb1)
+print(anlxb1)
 
 anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
-summary(anlxb2)
+print(anlxb2)
 
 startf1  <-  c(b1=1, b2=1, b3=.1)
 
@@ -157,7 +157,7 @@ startf1  <-  c(b1=1, b2=1, b3=.1)
 
 anlxb1  <-  try(nlxb(eunsc, start=startf1, lower=c(b1=0, b2=0, b3=0), 
       upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1))
-summary(anlxb1)
+print(anlxb1)
 
 } # end dontrun
 
@@ -168,7 +168,7 @@ summary(anlxb1)
 anlsb1  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
      upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1, 
              algorithm='port'))
-summary(anlsb1)
+print(anlsb1)
 
 tmp  <-  readline("next")
 } # end dontrun
@@ -177,13 +177,13 @@ tmp  <-  readline("next")
 
 anlxb2  <-  try(nlxb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
         upper=c(b1=500, b2=100, b3=.25), trace=traceval, data=weeddata1))
-summary(anlxb2)
+print(anlxb2)
 
 
 anlsb2  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
                 upper=c(b1=500, b2=100, b3=.25), trace=traceval, 
                 data=weeddata1, algorithm='port'))
-summary(anlsb2)
+print(anlsb2)
 
 tmp  <-  readline("next")
 } # end dontrun
@@ -195,13 +195,13 @@ cat("TEST MASKS\n")
 
 anlsmnqm  <-  try(nlxb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
    upper=c(b1=500, b2=100, b3=5), masked=c("b2"), trace=traceval, data=weeddata1))
-summary(anlsmnqm)
+print(anlsmnqm)
 } # end dontrun
 
 cat("UNCONSTRAINED\n")
 \dontrun{
 an1q  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
-summary(an1q)
+print(an1q)
 tmp  <-  readline("next")
 } # end dontrun
 
@@ -212,13 +212,13 @@ cat("MASKED\n")
 
 an1qm3  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, 
                 masked=c("b3")))
-summary(an1qm3)
+print(an1qm3)
 tmp  <-  readline("next")
 
 # Note that the parameters are put in out of order to test code.
 an1qm123  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, 
                   masked=c("b2","b1","b3")))
-summary(an1qm123)
+print(an1qm123)
 tmp  <-  readline("next")
 
 } # end dontrun
@@ -228,7 +228,7 @@ cat("BOUNDS")
 start2  <-  c(b1=100, b2=10, b3=0.1)
 an1qb1  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, 
                      lower=c(0,0,0), upper=c(200, 60, .3)))
-summary(an1qb1)
+print(an1qb1)
 tmp  <-  readline("next")
 
 
@@ -238,7 +238,7 @@ cat("BOUNDS and MASK")
 
 an1qbm2  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, 
                       lower=c(0,0,0), upper=c(200, 60, .3), masked=c("b2")))
-summary(an1qbm2)
+print(an1qbm2)
 tmp  <-  readline("next")
 
 } # end dontrun
@@ -252,9 +252,9 @@ st1scal  <-  c(b1=100, b2=10, b3=0.1)
 
 cat("EASY start -- unscaled")
 anls01  <-  try(nls(eunsc, start=suneasy, trace=traceval, data=weeddata1))
-summary(anls01)
+print(anls01)
 anlmrt01  <-  try(nlxb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
-summary(anlmrt01)
+print(anlmrt01)
 
 \dontrun{
 
@@ -262,30 +262,30 @@ cat("All 1s start -- unscaled")
 anls02  <-  try(nls(eunsc, start=start1, trace=traceval, data=weeddata1))
 if (class(anls02) == "try-error") {
    cat("FAILED:")
-   summary(anls02)
+   print(anls02)
 } else {
-   summary(anls02)
+   print(anls02)
 }
 anlmrt02  <-  nlxb(eunsc, start=start1, trace=traceval, data=weeddata1)
-summary(anlmrt02)
+print(anlmrt02)
 
 cat("ones start -- scaled")
 anls03  <-  try(nls(escal, start=start1, trace=traceval, data=weeddata1))
-summary(anls03)
+print(anls03)
 anlmrt03  <-  nlxb(escal, start=start1, trace=traceval, data=weeddata1)
-summary(anlmrt03)
+print(anlmrt03)
 
 cat("HARD start -- scaled")
 anls04  <-  try(nls(escal, start=st1scal, trace=traceval, data=weeddata1))
-summary(anls04)
+print(anls04)
 anlmrt04  <-  nlxb(escal, start=st1scal, trace=traceval, data=weeddata1)
-summary(anlmrt04)
+print(anlmrt04)
 
 cat("EASY start -- scaled")
 anls05  <-  try(nls(escal, start=ssceasy, trace=traceval, data=weeddata1))
-summary(anls05)
+print(anls05)
 anlmrt05  <-  nlxb(escal, start=ssceasy, trace=traceval, data=weeddata1)
-summary(anlmrt03)
+print(anlmrt03)
 
 } # end dontrun
 
@@ -341,17 +341,17 @@ st2s <- c(b1=1, b2=1, b3=1)
 
 an1qb1 <- try(nlxb(escal, start=st2s, trace=traceval, data=weeddata1, 
   lower=c(0,0,0), upper=c(2, 6, 3), control=list(watch=FALSE)))
-summary(an1qb1)
+print(an1qb1)
 tmp <- readline("next")
 ans2 <- nlfb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
    trace=traceval, control=list(watch=FALSE))
-summary(ans2)
+print(ans2)
 
 cat("BUT ... nls() seems to do better from the TRACE information\n")
 anlsb <- nls(escal, start=st2s, trace=traceval, data=weeddata1, lower=c(0,0,0),
      upper=c(2,6,3), algorithm='port')
 cat("However, let us check the answer\n")
-summary(anlsb)
+print(anlsb)
 cat("BUT...crossprod(resid(anlsb))=",crossprod(resid(anlsb)),"\n")
 
 } # end dontrun
@@ -375,20 +375,20 @@ weeddata1 <- data.frame(y=ydat, tt=tdat)
 \dontrun{
 
 an1w <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1))
-summary(an1w)
+print(an1w)
 
 
 
 cat("BOUNDED wrapnls\n")
 
 an1wb <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up1))
-summary(an1wb)
+print(an1wb)
 
 
 cat("BOUNDED wrapnls\n")
 
 an2wb <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up2))
-summary(an2wb)
+print(an2wb)
 
 cat("TRY MASKS ONLY\n")
 
@@ -424,7 +424,7 @@ cat("Try nls() -- note the try() function!\n")
 
 fit0  <-  try(nls(y ~ (a+b*exp(1)^(-c * x)), data = penetrationks28, 
     start = c(a=0,b = 1,c=1), trace = TRUE))
-summary(fit0)
+print(fit0)
 
 cat("\n\n")
 

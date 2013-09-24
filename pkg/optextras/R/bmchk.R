@@ -101,20 +101,16 @@ bmchk <- function(par, lower = NULL, upper = NULL,
         # At this point, we have full bounds in play
         ######## check admissibility ########
         if (any(lower[which(bdmsk != 0)] > upper[which(bdmsk != 0)])) admissible <- FALSE
-        if (trace > 0) 
-            cat("admissible = ", admissible, "\n")
+        if (trace > 0) cat("admissible = ", admissible, "\n")
         tol <- .Machine$double.eps * max(abs(upper), abs(lower), 1)
-        if (any((upper - lower) < tol)) {
-            # essentially masked
+        if (any((upper - lower) < tol)) { # essentially masked
             warning("One or more lower bounds equals an upper bound, imposing mask")
             bdmsk[which(upper - lower < tol)] = 0
             maskadded <- TRUE
         }
-        if (trace > 0) 
-            cat("maskadded = ", maskadded, "\n")
+        if (trace > 0) cat("maskadded = ", maskadded, "\n")
         ######## check feasibility ########
-        if (admissible) {
-            # This implementation as a loop, but try later to vectorize
+        if (admissible) {# This implementation as a loop, but try later to vectorize
             for (i in 1:n) {
                 if (bdmsk[i] == 0) {
                   # NOTE: we do not change masked parameters, even if out of
@@ -132,37 +128,37 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                     }
                   }
                 }
-                else {
-                  # not masked, so must be free or active constraint
+                else { # not masked, so must be free or active constraint
                   if (!nolower) {
                     if (bvec[i] <= lower[i]) {
                       # Gave trouble 130924 -- <= not < -- bmtest in nlpor
                       # changed 090814 to ensure bdmsk is set; 110105 < not <=
-                      if ((trace > 0) && (bvec[i] != lower[i])){
-                        cat("WARNING: x[", i, "], set ", bvec[i], 
-                          " to lower bound = ", lower[i], "\n")
+                      if (bvec[i] != lower[i]){
+                         if (trace > 0) cat("WARNING: x[", i, "], set ", bvec[i], 
+                                 " to lower bound = ", lower[i], "\n")
+                         parchanged <- TRUE
+                         bvec[i] <- lower[i]
                       }
-                      bvec[i] <- lower[i]
-                      parchanged <- TRUE
                       bdmsk[i] <- -3  # active lower bound
                     }
-                  }
+                  } # nolower
                   if (!noupper) {
                     if (bvec[i] >= upper[i]) {
                       # changed 090814 to ensure bdmsk is set; 110105 > not >=
-                      if ((trace > 0) && (bvec[i] != lower[i])) {
-                        cat("WARNING: x[", i, "], set ", bvec[i], 
-                          " to upper bound = ", upper[i], "\n")
+                      if (bvec[i] != upper[i]){
+                         if (trace > 0) cat("WARNING: x[", i, "], set ", bvec[i], 
+                                 " to upper bound = ", upper[i], "\n")
+                         parchanged <- TRUE
+                         bvec[i] <- upper[i]
                       }
-                      bvec[i] <- upper[i]
-                      parchanged <- TRUE
-                      bdmsk[i] <- -1  # active upper bound
+                      bdmsk[i] <- -1   # active upper bound
                     }
-                  }
-                }  # end not masked
+                  } # noupper
+               }  # end not masked
+              
             }  # end loop for bound/mask check
-        }
-    }
+        } # if admissible
+    } # if bounds
     if (trace > 0) 
         cat("parchanged = ", parchanged, "\n")
     if (any(bvec == lower) || any(bvec == upper)){

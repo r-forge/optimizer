@@ -17,6 +17,18 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   row.names(ans.ret)<-method
   ans.details <- list()
   ansout <- NULL # ensure NULL if we have no parameters or no successes
+
+  nullgr<-is.null(ugr) # save these as we redefine functions so NOT null later
+  numgrad<-FALSE
+  tgr<-ugr # save object
+  if (nullgr) ugr<-"grfwd" # The default numerical gradient
+  if (is.character(ugr)) { # we are calling an approximation to the gradient
+       numgrad<-TRUE # set flag; need to check all info there eg ...
+       tgr<-function(par=par, userfn=ufn){
+          do.call(ugr, list(par, userfn))
+       }
+  }
+
   for (i in 1:nmeth) { # loop over the methods
       meth <- method[i] # extract the method name
       conv <- -1 # indicate that we have not yet converged

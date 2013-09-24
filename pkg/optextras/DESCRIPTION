@@ -1,6 +1,6 @@
 Package: optextras
-Version: 2013-9.11
-Date: 2013-09-11
+Version: 2013-9.24
+Date: 2013-09-24
 Title: A set of tools to support optimization methods
       (function minimization with at most bounds and masks).
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =

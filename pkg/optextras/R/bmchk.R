@@ -135,9 +135,10 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                 else {
                   # not masked, so must be free or active constraint
                   if (!nolower) {
-                    if (bvec[i] < lower[i]) {
+                    if (bvec[i] <= lower[i]) {
+                      # Gave trouble 130924 -- <= not < -- bmtest in nlpor
                       # changed 090814 to ensure bdmsk is set; 110105 < not <=
-                      if (trace > 0) {
+                      if ((trace > 0) && (bvec[i] != lower[i])){
                         cat("WARNING: x[", i, "], set ", bvec[i], 
                           " to lower bound = ", lower[i], "\n")
                       }
@@ -147,9 +148,9 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                     }
                   }
                   if (!noupper) {
-                    if (bvec[i] > upper[i]) {
+                    if (bvec[i] >= upper[i]) {
                       # changed 090814 to ensure bdmsk is set; 110105 > not >=
-                      if (trace > 0) {
+                      if ((trace > 0) && (bvec[i] != lower[i])) {
                         cat("WARNING: x[", i, "], set ", bvec[i], 
                           " to upper bound = ", upper[i], "\n")
                       }

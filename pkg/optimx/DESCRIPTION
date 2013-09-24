@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2013.8.6
-Date: 2013-08-06
+Version: 2013.9.24
+Date: 2013-09-24
 Title: A Replacement and Extension of the optim() Function
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -17,5 +17,5 @@ Description: Provides a replacement and extension of the optim()
 License: GPL-2
 LazyLoad: Yes
 Depends: numDeriv
-Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, svUnit
+Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, svUnit, optextras
 Packaged: 2013-07-03 20:44:03 UTC; john

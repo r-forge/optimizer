@@ -272,7 +272,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
 ###### progress point #########
       else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
-	bdmsk<-rep(1,npar)
+	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
 	if (have.bounds) {

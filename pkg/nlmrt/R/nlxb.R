@@ -234,8 +234,8 @@ nlxb <- function(formula, start, trace = FALSE, data = NULL,
         } else {
             # solution OK
             gproj <- crossprod(delta, gjty)
-            gangle <- 180 * acos(gproj/sqrt(crossprod(gjty) * 
-                crossprod(delta)))/pi
+            gangle <- gproj/sqrt(crossprod(gjty) * crossprod(delta))
+            gangle <- 180 * acos(sign(gangle)*min(1, abs(gangle)))/pi
             if (trace) 
                 cat("gradient projection = ", gproj, " g-delta-angle=", 
                   gangle, "\n")

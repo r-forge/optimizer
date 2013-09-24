@@ -1,7 +1,10 @@
 NEWS about R package optimx
 
 TODO
-      o Rvmmin with no bounds gives warning when called with no gradient. 130411
+      o Rvmmin gives warning when called with no gradient. 
+        Use control "usenumDeriv=TRUE" to overcome this. 130411
+
+      o The bdmsk vector is set clumsily for Rvmmin.
 
 VERSION 2013-08-02
 

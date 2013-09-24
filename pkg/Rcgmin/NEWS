@@ -6,6 +6,10 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2013-9-24 
+   o    Warning that parameter moved to bound suppressed when start
+        is on the bound.
+
 2013-8-20
 
    o    Allow quoted gradient names to bring in different gradient 

@@ -3,7 +3,7 @@
 \title{Print method for an object of class nlmrt.
 }
 \description{
-    Provide a summary output (but involving some serious computations!) of
+    Print summary output (but involving some serious computations!) of
     an object of class nlmrt from \code{nlxb} or \code{nlfb} from package
     \code{nlmrt}.
 }
@@ -20,12 +20,12 @@
 }
 }
 \details{
-    \code{print.nlmrt} performs a print method for an object of class 'nlmrt' that
+    \code{printsum.nlmrt} performs a print method for an object of class 'nlmrt' that
     has been created by a routine such as \code{nlfb} or \code{nlxb} for nonlinear
     least squares problems.
 }
 \value{
-    The numeric value of the sum of squares at the paramters.
+    Invisibly returns the input object.
 }
 \author{
 John C Nash <nashjc@uottawa.ca>

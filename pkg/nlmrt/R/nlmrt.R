@@ -62,7 +62,11 @@ summary.nlmrt <- function(object, ...) {
     } else {
        Sinv <- 1/Sd
        Sinv[which(bdmsk != 1)] <- 0
-       VS <- crossprod(t(V), diag(Sinv))
+       if (npar > 1) {
+           VS <- crossprod(t(V), diag(Sinv))
+       } else {
+           VS <- V/Sinv
+       }
        Jinv <- crossprod(t(VS))
        var <- Jinv * sighat2
        SEs <- sqrt(diag(var))
@@ -91,28 +95,28 @@ coef.nlmrt <- function(object, ...) {
        invisible(out)
 }
 
-printsum.nlmrt <- function(object, ...) {
-    xx<-summary(object)
+print.nlmrt <- function(x, ...) {
+    xx<-summary(x)
     with(xx, { 
 	cat("nlmrt class object:",resname,"\n")
 	pname<-names(coeff)
 	npar <- length(coeff)
-        cat("residual sumsquares = ",x$ssquares," on ",nobs,"observations\n")
+        cat("residual sumsquares = ",ssquares," on ",nobs,"observations\n")
         cat("    after ",jeval,"   Jacobian and ",feval,"function evaluations\n")
-        cat("  name     ","      coeff    ","     SE    ","   tstat   ",
-             "   pval   ","   gradient  "," JSingval  ","\n")
+        cat("  name     ","      coeff    ","     SE   ","   tstat  ",
+             "   pval  ","   gradient  "," JSingval  ","\n")
         for (i in seq_along(coeff)){
             cat(format(pname[i], width=10)," ")
             cat(format(coeff[[i]], digits=6, width=12))
             cat(ct[[i]],mt[[i]]," ")
-            cat(format(SEs[[i]], digits=4, width=10)," ")
-            cat(format(tstat[[i]], digits=4, width=10)," ")
-            cat(format(pval[[i]], digits=4, width=10)," ")
+            cat(format(SEs[[i]], digits=4, width=9)," ")
+            cat(format(tstat[[i]], digits=4, width=9)," ")
+            cat(format(pval[[i]], digits=4, width=9)," ")
             cat(format(gr[[i]], digits=4, width=10)," ")
             cat(format(Sd[[i]], digits=4, width=10)," ")
             cat("\n")
         }
     }) # remember to close with()
-    invisible(object)
+    invisible(x)
 }
 

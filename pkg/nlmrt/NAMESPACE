@@ -13,7 +13,7 @@ export(
    model2jacfun,
    model2resfun,
    model2ssfun, 
-   printsum.nlmrt,
+   print.nlmrt,
    summary.nlmrt,
    coef.nlmrt
 )

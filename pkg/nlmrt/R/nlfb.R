@@ -204,7 +204,8 @@ if (trace) {
           feval<-feval+1 # count as a function evaluation to force stop
        } else { # solution OK
           gproj<-crossprod(delta,gjty)
-          gangle<-180*acos(gproj/sqrt(crossprod(gjty)*crossprod(delta)))/pi
+          gangle <- gproj/sqrt(crossprod(gjty) * crossprod(delta))
+          gangle <- 180 * acos(sign(gangle)*min(1, abs(gangle)))/pi
           if (trace) cat("gradient projection = ",gproj," g-delta-angle=",gangle,"\n")
           if (is.na(gproj) || (gproj >= 0) ) { # uphill direction -- should NOT be possible
             if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps

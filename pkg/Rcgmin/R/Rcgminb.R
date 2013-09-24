@@ -208,7 +208,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     # changed 090814 to ensure bdmsk is set
                     wmsg <- paste("x[", i, "], set ", bvec[i], 
                       " to lower bound = ", lower[i], sep = "")
-                    if (dowarn) 
+                    if (dowarn && (bvec[i] != lower[i])) 
                       warning(wmsg)
                     bvec[i] <- lower[i]
                     bdmsk[i] <- -3  # active lower bound
@@ -219,7 +219,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     # changed 090814 to ensure bdmsk is set
                     wmsg <- paste("x[", i, "], set ", bvec[i], 
                       " to upper bound = ", upper[i], sep = "")
-                    if (dowarn) 
+                    if (dowarn && (bvec[i] != upper[i])) 
                       warning(wmsg)
                     bvec[i] <- upper[i]
                     bdmsk[i] <- -1  # active upper bound

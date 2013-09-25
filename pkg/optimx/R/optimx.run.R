@@ -475,7 +475,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          mcontrol$info<-FALSE # no trace printed
          if (mcontrol$trace > 0) {
             mcontrol$info<-TRUE # logical needed, not integer         
-         } else { mcontrol$trace<-FALSE }
+         } else { mcontrol$info<-FALSE }
+         mcontrol$trace=NULL
          mcontrol$usenumDeriv<-NULL
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
@@ -490,8 +491,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
+            cat("call hjk with function ",deparse(substitute(ufn)),"\n")
+            cat("F(par)=",ufn(par, ...), " for par =")
+            print(par)
+            print(mcontrol)
             time <- system.time(ans <- try(hjk(par=par, fn=ufn, 
                 control=mcontrol, ...), silent=TRUE))[1]
+            print(ans)
          }
          if (class(ans)[1] != "try-error") {
             ans$convcode <- ans$convergence

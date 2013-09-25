@@ -20,12 +20,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 
   nullgr<-is.null(ugr) # save these as we redefine functions so NOT null later
   numgrad<-FALSE
-  tgr<-ugr # save object
+  # 130924 -- need to fix
   if (nullgr) ugr<-"grfwd" # The default numerical gradient
   if (is.character(ugr)) { # we are calling an approximation to the gradient
+       savegr<-ugr # in case we need to save it
        numgrad<-TRUE # set flag; need to check all info there eg ...
-       tgr<-function(par=par, userfn=ufn){
-          do.call(ugr, list(par, userfn))
+       ugr<-function(par=par, userfn=ufn){
+          do.call(savegr, list(par, userfn, ...))
        }
   }
 

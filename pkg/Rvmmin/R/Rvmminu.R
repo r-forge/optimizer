@@ -2,7 +2,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     ## Unconstrained version -- 120521
     ## An R version of the Nash version of Fletcher's Variable
     #   Metric minimization
-    # See comments in Rvmmin
+    # See comments in vm
     #  Author:  John C Nash
     #  Date:  May 21, 2012
     #################################################################
@@ -41,8 +41,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     dblmax <- .Machine$double.xmax  # used to flag bad function
     #############################################
     # gr MUST be provided
-    if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
-       stop("A gradient calculation (analytic or numerical) MUST be provided for Rvmminb") 
+    if (is.null(gr)) {  # if gr function is not provided STOP (vm has definition)
+       stop("A gradient calculation (analytic or numerical) MUST be provided for vmb") 
     }
     if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
@@ -50,9 +50,9 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
            do.call(gr, list(par, userfn, ...))
        }
     } else { mygr<-gr }
-    cat(deparse(substitute(gr)),"\n")
-    tmp<-readline("mygr:")
-    print(mygr)
+#    cat(deparse(substitute(mygr)),"\n")
+#    tmp<-readline("mygr:")
+#    print(mygr)
     ############# end test gr ####################
     f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
     if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
@@ -119,7 +119,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
                 ####      Backtrack only Line search                ####
                 changed <- TRUE  # Need to set so loop will start
                 steplength <- oldstep
-                while ((f >= fmin) && changed && (!accpoint)) {
+                accpoint <- (f <= fmin + gradproj * steplength * acctol)
+                while (changed && (!accpoint)) {
                   # We seek a lower point, but must change parameters too
                   # end box constraint adjustment of step length
                   bvec <- par + steplength * t
@@ -127,13 +128,15 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
                     cat("new bvec:")
                     print(bvec)
                   }
-                  changed <- (!identical((bvec + reltest), (par + 
-                    reltest)))
+                  changed <- (!identical((bvec + reltest), (par + reltest)))
                   if (changed) {
                     # compute new step, if possible
                     f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
                     # instead preferring to fail out, which will hopefully be unlikely.
                     if (maximize) f <- -f
+                    if (trace > 2) {
+                       cat("New f=",f,"\n")
+                    }
                     ifn <- ifn + 1
                     if (ifn > maxfeval) {
                       msg <- "Too many function evaluations"
@@ -155,13 +158,9 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
                       #               break
                       f <- dblmax  # try big function to escape
                     }
-                    if (f < fmin) {
-                      # We have a lower point. Is it 'low enough' i.e.,
-                      #   acceptable
-                      accpoint <- (f <= fmin + gradproj * steplength * 
-                        acctol)
-                    }
-                    else {
+#                    tmp<-readline("Test the function")
+                    accpoint <- (f <= fmin + gradproj * steplength * acctol)
+                    if (! accpoint) {
                       steplength <- steplength * stepredn
                       if (trace > 0) 
                         cat("*")
@@ -232,10 +231,10 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         cat("Seem to be done VM\n")
     if (maximize) 
         fmin <- (-1) * fmin
-    msg <- "Rvmminu appears to have converged"
+    msg <- "vmu appears to have converged"
     ans <- list(par, fmin, c(ifn, ig), convergence=conv, msg)
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message")
     #return(ans)
     ans
-}  ## end of Rvmminu
+}  ## end of vmu

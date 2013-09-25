@@ -103,11 +103,17 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      optcfg$ctrl$maximize <- FALSE # ensure defined
   } # define maximize if NULL
   optcfg$usenumDeriv<-FALSE # JN130703
-  if (is.null(gr) && ctrl$dowarn && ctrl$usenumDeriv) {
-     warning("Replacing NULL gr with 'numDeriv' approximation")
+  if (is.null(gr) && ctrl$usenumDeriv) {
+     if (ctrl$dowarn) warning("Replacing NULL gr with 'numDeriv' approximation")
      optcfg$usenumDeriv<-TRUE
      ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
         tryg<-grad(userfn, par, ...)
+     } # Already have negation in ufn if maximizing
+  }
+  if (is.character(gr)) {
+     if (ctrl$dowarn) warning("Replacing NULL gr with '",gr,"' approximation")
+     ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
+        tryg<- do.call(gr, list(par, userfn, ...))
      } # Already have negation in ufn if maximizing
   }
   optcfg$ufn <- ufn
@@ -159,6 +165,9 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb")
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
+  if (! ctrl$all.methods) { # Changes method vector!
+      if ((length(method) == 1) && (method=="all"))ctrl$all.methods <- TRUE
+  }             
   if (ctrl$all.methods) { # Changes method vector!
 	method<-allmeth
         if (ctrl$trace>0) {

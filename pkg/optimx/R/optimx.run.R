@@ -17,19 +17,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   row.names(ans.ret)<-method
   ans.details <- list()
   ansout <- NULL # ensure NULL if we have no parameters or no successes
-
-  nullgr<-is.null(ugr) # save these as we redefine functions so NOT null later
+# if (is.null(ugr)) stop("Cannot have null ugr() in optimx.run")
   numgrad<-FALSE
-  # 130924 -- need to fix
-  if (nullgr) ugr<-"grfwd" # The default numerical gradient
-  if (is.character(ugr)) { # we are calling an approximation to the gradient
-       savegr<-ugr # in case we need to save it
-       numgrad<-TRUE # set flag; need to check all info there eg ...
-       ugr<-function(par=par, userfn=ufn){
-          do.call(savegr, list(par, userfn, ...))
-       }
-  }
-
+  # 130924 -- need to fix -- some methods can handle null gradient
   for (i in 1:nmeth) { # loop over the methods
       meth <- method[i] # extract the method name
       conv <- -1 # indicate that we have not yet converged

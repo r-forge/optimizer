@@ -50,6 +50,9 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
            do.call(gr, list(par, userfn, ...))
        }
     } else { mygr<-gr }
+    cat(deparse(substitute(gr)),"\n")
+    tmp<-readline("mygr:")
+    print(mygr)
     ############# end test gr ####################
     f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
     if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {

@@ -89,7 +89,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
        if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
     } else {
        if (is.character(gr)) { # assume numerical gradient
-           if (control$trace > 0) cat("WARNING: using gradient approximation ",gr,"\n")
+           if (control$trace > 0) cat("WARNING: using gradient approximation '",gr,"'\n")
        } else { # analytic gradient, so check if requested
            if (is.null(control$checkgrad)) control$checkgrad <- TRUE
            if (control$checkgrad) { # check gradient

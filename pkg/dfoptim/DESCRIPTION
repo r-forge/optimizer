@@ -5,8 +5,8 @@ Description: Derivative-Free optimization algorithms. These algorithms
         do not require gradient information. More importantly, they can
         be used to solve non-smooth optimization problems.
 Depends: R (>= 2.10.1)
-Version: 2011.8-1
-Date: 2011-08-04
+Version: 2013.9-24
+Date: 2013-09-24
 Author: Ravi Varadhan, Johns Hopkins University, and Hans W. Borchers,
         ABB Corporate Research.
 Maintainer: Ravi Varadhan <rvaradhan@jhmi.edu>

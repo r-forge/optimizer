@@ -125,21 +125,26 @@ hjk <- function(par, fn, control = list(), ...) {
     dirh <- h * dir
     fbold <- fx
     for (k in sample.int(n, n)) {       # resample orthogonal directions
-        p <- xt + dirh[, k]
-        ft <- f(p)
+        p1 <- xt + dirh[, k]
+        ft1 <- f(p1)
         numf <- numf + 1
 
-        if (ft >= fb) {
-            p <- xt - dirh[, k]
-            ft <- f(p)
-            numf <- numf + 1
-        }
-        if (ft < fb) {
+        p2 <- xt - dirh[, k]
+        ft2 <- f(p2)
+        numf <- numf + 1
+
+        if (min(ft1, ft2) < fb) {
             sf <- 1
-            xt <- p
-            fb <- ft
+            if (ft1 < ft2) {
+                xt <- p1
+                fb <- ft1
+            } else {
+                xt <- p2
+                fb <- ft2
+            }
         }
     }
+
     if (sf == 1) {
         x <- xt
         fx <- fb

@@ -97,6 +97,7 @@ hjkb <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...) {
         d  <- x-xb
         xb <- x
         xc <- x+d
+        xc <- pmax(pmin(xc, up), lo)
         fb <- fx
         hje  <- .hjbexplore(xb, xc, f, lo, up, h, dir, fb)
         x    <- hje$x
@@ -136,29 +137,36 @@ hjkb <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...) {
     dirh <- h * dir
     fbold <- fx
     for (k in sample.int(n, n)) {       # resample orthogonal directions
-        p <- xt + dirh[, k]
-        if (all(p <= up)) {
-            ft <- f(p)
+        p1 <- xt + dirh[, k]
+        if ( p1[k] <= up[k] ) {
+            ft1 <- f(p1)
             numf <- numf + 1
         } else {
-            ft <- fb
+            ft1 <- fb
         }
 
-        if (ft >= fb) {
-            p <- xt - dirh[, k]
-            if (all(p >= lo)) {
-                ft <- f(p)
-                numf <- numf + 1
+        p2 <- xt - dirh[, k]
+        if ( lo[k] <= p2[k] ) {
+            ft2 <- f(p2)
+            numf <- numf + 1
+        } else {
+            ft2 <- fb
+        }
+
+        if (min(ft1, ft2) < fb) {
+            sf <- 1
+            if (ft1 < ft2) {
+                xt <- p1
+                fb <- ft1
+            } else {
+                xt <- p2
+                fb <- ft2
             }
         }
-        if (ft < fb) {
-            sf <- 1
-            xt <- p
-            fb <- ft
-        }
     }
+
     if (sf == 1) {
-        x <- xt
+        x  <- xt
         fx <- fb
     }
 

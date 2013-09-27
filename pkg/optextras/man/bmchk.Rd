@@ -20,7 +20,7 @@ The package bmchk is essentially a test of the R function bmchk(), which is like
 incorporated within optimization codes.
 }
 \usage{
-   bmchk(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0)   
+   bmchk(par, lower=NULL, upper=NULL, bdmsk=NULL, trace=0, tol=NULL, shift2bound=TRUE)   
 }
 \arguments{
  \item{par}{A numeric vector of starting values of the optimization function parameters.}
@@ -33,14 +33,16 @@ incorporated within optimization codes.
      parameter is at a lower bound (bdmsk element set to -3) or upper bound (-1).}
  \item{trace}{An integer that controls whether diagnostic information is displayed.
               A positive value displays information, 0 (default) does not.}
+ \item{tol}{If provided, is used to detect a MASK, that is, lower=upper for some
+     parameter.}
+ \item{shift2bound}{If TRUE, non-masked paramters outside bounds are adjusted 
+     to the nearest bound. We then set parchanged = TRUE which implies the 
+     original parameters were infeasible.
+}
 }
 \details{
      The bmchk function will check that the bounds exist and are admissible, 
      that is, that there are no lower bounds that exceed upper bounds. 
-
-     NOTE: Free paramters outside bounds are adjusted to the nearest bound.
-     We then set parchanged = TRUE which implies the original parameters
-     were infeasible.
 
      There is a check if lower and upper bounds are very close together, in 
      which case a mask is imposed and maskadded is set TRUE. NOTE: it is 
@@ -67,6 +69,7 @@ incorporated within optimization codes.
   \item{parchanged}{TRUE if parameters are changed by bounds, FALSE otherswise.
         Note that parchanged = TRUE implies the input parameter values were infeasible, 
         that is, violated the bounds constraints.}
+  \item{feasible}{TRUE if parameters are within or on bounds, FALSE otherswise.}
   \item{onbound}{TRUE if any parameter is on a bound, FALSE otherswise.
         Note that parchanged = TRUE implies onbound = TRUE, but this is not used inside
         the function. This output value may be important, for example, in using the

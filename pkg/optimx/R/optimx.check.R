@@ -67,7 +67,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 
   if (ctrl$starttests) {
      optchk$grbad <- FALSE
-     if (! is.null(ugr) && ! usenumDeriv){ # check gradient
+     if (! is.null(ugr) && ! usenumDeriv && ! is.character(ugr)){ # check gradient
        gname <- deparse(substitute(ugr))
        if (ctrl$trace>0) cat("Analytic gradient from function ",gname,"\n\n")
           fval <- ufn(par,...) 
@@ -82,7 +82,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
        } else if (ctrl$trace>0) cat("Analytic gradient not made available.\n")
 
        optchk$hessbad <- FALSE
-       if (! is.null(uhess)){ # check Hessian
+       if (! is.null(uhess) && ! is.character(uhess)){ # check Hessian - if character then numeric
           hname <- deparse(substitute(uhess))
           if (ctrl$trace>0) cat("Analytic hessian from function ",hname,"\n\n")
           hn <- hessian(func=ufn, x=par,...) # ?? should we use dotdat

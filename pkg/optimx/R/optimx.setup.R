@@ -126,7 +126,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   optcfg$have.bounds <- have.bounds
 
   # Check that we have the functions we need
-   if (! require(numDeriv, quietly=TRUE) ) stop("Install package `numDeriv'", call.=FALSE)
+#   if (! require(numDeriv, quietly=TRUE) ) stop("Install package `numDeriv'", call.=FALSE)
 
   # List of methods in base or stats, namely those in optim(), nlm(), nlminb()
   bmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb")

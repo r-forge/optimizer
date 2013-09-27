@@ -35,7 +35,7 @@ summary.nlmrt <- function(object, ...) {
           }
        }
        if (coeff[[i]] - up[[i]] > 0) {
-          ct[[i]] <- "+" # lower bound violation
+          ct[[i]] <- "+" # upper bound violation
           if (bdmsk[[i]] == 1) bdmsk[[i]] <- -1
        } else { 
           if (up[[i]] - coeff[[i]] < smalltol*(abs(coeff[[i]])+smalltol) ) {

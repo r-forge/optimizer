@@ -16,6 +16,6 @@ Description: Provides a replacement and extension of the optim()
         many parameters. This is the CRAN version of the package.
 License: GPL-2
 LazyLoad: Yes
-Depends: numDeriv
-Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, svUnit, optextras
-Packaged: 2013-07-03 20:44:03 UTC; john
+Imports: optextras, numDeriv
+Suggests: BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, svUnit
+

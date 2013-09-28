@@ -117,9 +117,15 @@ bmchk <- function(par, lower = NULL, upper = NULL,
         if (any(lower[which(bdmsk != 0)] > upper[which(bdmsk != 0)])) admissible <- FALSE
         if (trace > 0) cat("admissible = ", admissible, "\n")
         if (any((upper - lower) < tol)) { # essentially masked
-            if (trace > 0) cat("Imposing mask as lower ~= upper for at least one parameter\n")
-            bdmsk[which(upper - lower < tol)] <- 0
-            bchar[which(upper - lower < tol)] <- "M"
+            makemask<-which(upper - lower < tol)
+            if (trace > 0) {
+               cat("Imposing mask as lower ~= upper for following parameters\n")
+               print(makemask)
+            }
+            bdmsk[makemask] <- 0
+            bchar[makemask] <- "M"
+            # lower[makemask]<- -Inf
+            # upper[makemask]<-  Inf
             maskadded <- TRUE
         }
         if (trace > 0) cat("maskadded = ", maskadded, "\n")

@@ -57,6 +57,15 @@ incorporated within optimization codes.
   A list with components:
   \item{bvec}{The vector of parameters, possibly adjusted for bounds. Parameters 
          outside bounds are adjusted to the nearest bound.}
+  \item{bdmsk}{adjusted input masks}
+  \item{bchar}{indicator for humans -- "-","L","F","U","+","M"
+               for out-of-bounds-low, lower bound, free, 
+               upper bound, out-of-bounds-high, masked (fixed)}
+  \item{lower}{(adjusted) lower bounds. If upper-lower<tol, we create a mask
+         rather than leave bounds. In this case we could eliminate the bounds.
+         At the moment, this change is NOT made, but a commented line of code
+         is present in the file \code{bmchk.R}.}
+  \item{upper}{(adjusted) upper bounds}
   \item{nolower}{TRUE if no lower bounds, FALSE otherwise}
   \item{noupper}{TRUE if no upper bounds, FALSE otherwise}
   \item{bounds}{TRUE if there are any bounds, FALSE otherwise}

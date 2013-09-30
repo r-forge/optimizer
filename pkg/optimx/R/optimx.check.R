@@ -73,6 +73,8 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
           fval <- ufn(par,...) 
           gn <- grad(func=ufn, x=par,...) # 
           ga <- ugr(par, ...)
+#130929          badgrad<-TRUE
+#130929          if (all(! is.na(ga)) & all(is.finite(ga))) badgrad<-FALSE
           # Now test for equality (090612: ?? There may be better choices for the tolerances.
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(gn-ga))/(1 + abs(fval)) >= teps) {

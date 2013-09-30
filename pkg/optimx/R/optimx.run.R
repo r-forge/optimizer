@@ -109,6 +109,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		ans$value= ctrl$badval
 		ans$par<-rep(NA,npar)
         	ans$nitns<-NA # not used
+                ans$gevals<-NA ## ?? missing 130929
         }
         ans$convergence<-NULL
 ##	if (ctrl$maximize) {
@@ -118,6 +119,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ##		        print(ans)
 ##                }
 ##	}
+##          ans.ret[meth, ] <- c(ans$par, ans$value, ans$fevals, ans$gevals, ans$nitns,
+##                              ans$convcode, ans$kkt1, ans$kkt2, ans$xtimes)
+
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (meth == "nlm") { # Use stats package nlm routine

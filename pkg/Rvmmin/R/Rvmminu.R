@@ -231,7 +231,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         cat("Seem to be done VM\n")
     if (maximize) 
         fmin <- (-1) * fmin
-    msg <- "vmu appears to have converged"
+    msg <- "Rvmminu appears to have converged"
     ans <- list(par, fmin, c(ifn, ig), convergence=conv, msg)
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message")

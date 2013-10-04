@@ -289,7 +289,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=ugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
-        if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
+##        if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
+        if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]

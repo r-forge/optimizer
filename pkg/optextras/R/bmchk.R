@@ -54,9 +54,9 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     bvec <- par
     ############# bounds and masks ################
     # set default masks if not defined
+    bchar <- rep("F",n) # make sure these are defined
     if (is.null(bdmsk)) {
         bdmsk <- rep(1, n)
-        bchar <- rep("F",n)
     }
     if (trace > 2) {
         cat("bdmsk:")

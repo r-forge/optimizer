@@ -66,6 +66,12 @@
              Default is 10000, which is extremely aggressive.}
       \item{\code{jemax}}{Maximum number of Jacobian evaluations. 
              Default is 5000.}
+      \item{\code{rofftest}}{Default is TRUE. Use a termination test of the relative offset 
+            orthogonality type. Useful for nonlinear regression problems.}
+      \item{\code{smallsstest}}{Default is TRUE. Exit the function if the sum of squares falls
+            below (100 * .Machine$double.eps)^4 times the initial sumsquares. This is a test
+            for a ``small'' sum of squares, but there are problems which are very extreme 
+            for which this control needs to be set FALSE.}
      }
 }
 

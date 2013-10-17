@@ -58,8 +58,8 @@
       \item{\code{offset}}{Shift to test for floating-point equality. Default is 100.}
       \item{\code{laminc}}{Factor to use to increase lamda. Default is 10.}
       \item{\code{lamdec}}{Factor to use to decrease lamda is lamdec/laminc. Default lamdec=4.}
-      \item{\code{femax}}{Maximum function (sum of squares) evaluations. Default is 10000, which
-            is extremely aggressive.}
+      \item{\code{femax}}{Maximum function (sum of squares) evaluations. Default is 10000,
+            which is extremely aggressive.}
       \item{\code{jemax}}{Maximum number of Jacobian evaluations. Default is 5000.}
       \item{\code{ndstep}}{Stepsize to use to computer numerical Jacobian approximatin. Default
             is 1e-7.}

@@ -252,9 +252,11 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
 	if (have.bounds) {
+           if (is.null(ugr)) ugr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
 		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
+           if (is.null(ugr)) ugr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=ugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
@@ -278,14 +280,18 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rcgmin
 ## --------------------------------------------
 ###### progress point #########
-      else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
+      else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
 	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk
 	mcontrol$trace<-NULL
+        cat("Rvmmin with ugr =") ##??
+        print(ugr) ##??
 	if (ctrl$trace>0) mcontrol$trace<-1
 	if (have.bounds) {
+           if (is.null(ugr)) ugr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
 		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
+           if (is.null(ugr)) ugr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=ugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
@@ -590,7 +596,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                    nhatend[bset,] <-0
                    nhatend[, bset] <-0 # and the Hessian
                    if (!isSymmetric(nhatend, tol=sqrt(.Machine$double.eps))) {
-                      hessOK<-FALSE
+                      # hessOK<-FALSE ## Assume we will keep hessian after symmetrizing
                       asym <- sum(abs(t(nhatend) - nhatend))/sum(abs(nhatend))
                       asw <- paste("Hessian is reported non-symmetric with asymmetry ratio ", 
                       asym, sep = "")

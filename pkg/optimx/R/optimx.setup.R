@@ -208,5 +208,3 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   optcfg$method <- method
   optcfg # return the structure
 } ## end of optimx.setup
-
-

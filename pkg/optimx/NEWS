@@ -6,6 +6,12 @@ TODO
 
       o The bdmsk vector is set clumsily for Rvmmin.
 
+VERSION 2013-10-21
+      
+      o Keep hessOK TRUE even if we must symmetrize Hessian.
+
+      o Fix issue that gr=NULL did not use "grfwd" for Rvmmin, Rcgmin
+
 VERSION 2013-08-02
 
       o Change startup to avoid warning messages for missing methods.

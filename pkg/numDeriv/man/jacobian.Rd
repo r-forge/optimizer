@@ -7,9 +7,9 @@ Calculate the m by n numerical approximation of the gradient of a real
 m-vector valued function with n-vector argument.
 }
 \usage{
-    jacobian(func, x, method="Richardson", method.args=list(), ...) 
+    jacobian(func, x, method="Richardson", side=NULL, method.args=list(), ...) 
 
-    \method{jacobian}{default}(func, x, method="Richardson",
+    \method{jacobian}{default}(func, x, method="Richardson", side=NULL,
        method.args=list(), ...)
 }
 \arguments{
@@ -22,6 +22,8 @@ m-vector valued function with n-vector argument.
        (Arguments not specified remain with their default values.)}
     \item{...}{any additional arguments passed to \code{func}.
           WARNING: None of these should have names matching other arguments of this function.}
+    \item{side}{an indication of whether one-sided derivatives should be
+       attempted (see details in function \code{\link{grad}}).}
 }
 \value{A real m by n matrix.}
 \details{

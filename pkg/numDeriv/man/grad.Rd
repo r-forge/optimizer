@@ -4,9 +4,9 @@
 \title{Numerical Gradient of a Function}
 \description{Calculate the gradient of a function by numerical approximation.}
 \usage{
-     grad(func, x, method="Richardson", method.args=list(), ...) 
+     grad(func, x, method="Richardson", side=NULL, method.args=list(), ...) 
 
-    \method{grad}{default}(func, x, method="Richardson",
+    \method{grad}{default}(func, x, method="Richardson", side=NULL,
       method.args=list(), ...)
  }
 \arguments{
@@ -17,6 +17,8 @@
        \code{"complex"} indicating the method to use for the approximation.}
     \item{method.args}{arguments passed to method. Arguments not specified 
        remain with their default values as specified in details}
+    \item{side}{an indication of whether one-sided derivatives should be
+       attempted (see details).}
     \item{...}{an additional arguments passed to \code{func}.
           WARNING: None of these should have names matching other arguments of this function.}
 }
@@ -102,6 +104,27 @@
   default \code{zero.tol=sqrt(.Machine$double.eps/7e-7)} is set to ensure the
   interval is bigger than \code{.Machine$double.eps} with the default \code{d},
   \code{r}, and \code{v}.
+  
+  If \code{side} is \code{NULL} then it is assumed that the point at which the
+  calculation is being done is interior to the domain of the function. If the
+  point is on the boundary of the domain then \code{side} can be used to 
+  indicate which side of the point \code{x} should be used for the calculation.
+  If not \code{NULL} then it should be a vector of the same length as \code{x}
+  and have values \code{NA}, \code{+1}, or \code{-1}. \code{NA} indicates that
+  the usual calculation will be done, while \code{+1}, or \code{-1} indicate
+  adding or subtracting from the parameter point \code{x}. The argument
+  \code{side} is not supported for all methods.
+  
+  Since usual calculation with method "simple" uses only a small \code{eps} 
+  step to one side, the only effect of argument \code{side} is to determine the
+  direction of the step. The usual calculation with method "Richardson" is 
+  symmetric, using steps to both sides. The effect of argument \code{side} 
+  is to take a double sized step to one side, and no step to the other side.
+  This means that the center of the Richardson extrapolation steps is moving
+  slightly in the reduction, and is not exactly on the boundary. 
+  (Warning: I am not aware of theory or published
+  experimental evidence to support this, but the results in my limited testing
+  seem good.)
 }
 \references{ 
    Linfield, G. R. and Penny, J. E. T. (1989) \emph{Microcomputers in Numerical 
@@ -159,5 +182,8 @@
 
   gc <- grad(func=sc2.f, x=x0, method="complex")
   max(abs(exact - gc)/(1 + abs(exact)))
+
+  f <- function(x) if(x[1]<=0) sum(sin(x)) else  NA
+  grad(f, x=c(0,0), method="Richardson", side=c(-1,  1))
 }
 \keyword{multivariate}

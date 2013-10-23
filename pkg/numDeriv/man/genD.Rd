@@ -50,14 +50,16 @@ A list with elements as follows:
    See \code{\link{grad}}
    for more details on the Richardson's extrapolation parameters. 
 
-   The the first order derivative with respect to \eqn{x_i}{x_i} is 
+   A simple approximation to the first order derivative with respect 
+   to \eqn{x_i}{x_i} is 
 
    \deqn{f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
                f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}{%
  	 f'_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
                f(x_{1},\dots,x_{i}-d,\dots,x_{n})>/(2*d)}
 
-   The second order derivative with respect to \eqn{x_i}{x_i} is 
+  A simple approximation to the second order derivative with respect 
+  to \eqn{x_i}{x_i} is 
 
   \deqn{f''_{i}(x) = <f(x_{1},\dots,x_{i}+d,\dots,x_{n}) -
                    2 *f(x_{1},\dots,x_{n}) +
@@ -78,6 +80,10 @@ A list with elements as follows:
         f(x_{1},\dots,x_{i}-d,\dots,x_{j}-d,\dots,x_{n})>/(2*d^2) -
 		      (f''_{i}(x) + f''_{j}(x))/2 }
 
+
+   Richardson's extrapolation is based on these formula with the \code{d} 
+   being reduced in the extrapolation iterations. In the code, \code{d} is
+   scaled to accommodate parameters of different magnitudes. 
 }
 
 \references{ 

@@ -6,6 +6,10 @@ TODO
 
       o The bdmsk vector is set clumsily for Rvmmin.
 
+VERSION 2013-10-27
+      
+      o Fix obscure bug when Inf specified for one bound only for Rvmmin.
+
 VERSION 2013-10-21
       
       o Keep hessOK TRUE even if we must symmetrize Hessian.

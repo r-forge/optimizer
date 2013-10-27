@@ -5,6 +5,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   have.bounds<-ctrl$have.bounds
   ctrl$have.bounds<-NULL ## or we get errors in optim()
   npar<-length(par)
+## 131027
+  if (length(lower) == 1) lower<-rep(lower,npar)
+  if (length(upper) == 1) upper<-rep(upper,npar)
+## end 131027
   nmeth<-length(method)
   pstring<-names(par)
   if (is.null(pstring)) {
@@ -248,13 +252,14 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
 ###### progress point #########
       else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
-	bdmsk<-rep(1,npar)
+##	bdmsk<-rep(1,npar)
+	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
 	if (have.bounds) {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
-		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+   	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=ugr, lower=lower,
+                upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=ugr, 
@@ -281,13 +286,18 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
 ###### progress point #########
       else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
-	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk
+##	bdmsk<-rep(1,npar) ## 131027
+	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
+## 131027
+        print(upper)
+        tmp<-readline("continue after disp upper")
+## end 131027        
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
 	if (have.bounds) {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
-		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=ugr, lower=lower,
+                upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=ugr, 

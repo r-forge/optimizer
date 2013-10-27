@@ -346,6 +346,13 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
             t <- as.vector(steplength * t)
             c <- as.vector(g - c)
             D1 <- sum(t * c)
+## 131027
+##            cat("D1, t, c:",D1," -- ")
+##            print(t)
+##            print(c)
+##            tmp<-readline("continue")
+## 131027
+
             if (D1 > 0) {
                 y <- as.vector(crossprod(B, c))
                 D2 <- as.double(1+crossprod(c,y)/D1)  # as.double because D2 is a 1 by 1 matrix otherwise

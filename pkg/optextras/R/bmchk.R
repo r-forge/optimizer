@@ -161,7 +161,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                       # Gave trouble 130924 -- <= not < -- bmtest in nlpor
                       # changed 090814 to ensure bdmsk is set; 110105 < not <=
                       if (bvec[i] != lower[i]){
-                         bdmsk <- -3.5 # OUT OF BOUNDS LOW
+                         bdmsk[i] <- -3.5 # OUT OF BOUNDS LOW
                          bchar[i] <- "-"
                          feasible<-FALSE
                          if (shift2bound) {

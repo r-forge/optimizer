@@ -8,6 +8,10 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2013-10-27 
+   
+   o    Added maxfevals to control. (It had been there some time.)
+
 2013-8-19
 
    o    Numerical gradient from optextras, remove bmchk from package,

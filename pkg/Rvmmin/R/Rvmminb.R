@@ -1,5 +1,5 @@
 Rvmminb <- function(par, fn, gr=NULL, lower = NULL, 
-    upper = NULL, bdmsk = NULL, control = list(), ...) {
+    upper = NULL, bdmsk, control = list(), ...) {
     #1
     ## Bounds constrained version -- 090408, 090814
     # 20101031 -- issue of bounds not working correctly

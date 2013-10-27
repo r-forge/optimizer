@@ -70,7 +70,6 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     #################################################################
     #
     # control defaults -- idea from spg
-    ## 131027 -- bmchk should do this:    if (is.null(bdmsk)) bdmsk <- rep(1, length(par))
     if (is.null(control$trace)) control$trace=0
     # check if there are bounds
     if (is.null(lower) || !any(is.finite(lower))) 
@@ -106,14 +105,11 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
        if (is.null(control$checkbounds)) { control$checkbounds <- TRUE }
        ### Check bounds feasible
        if (control$checkbounds) {
-          cat("CHECKING BOUNDS\n")
           btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
              trace = control$trace)
-          print(btest)
           if (!btest$admissible) 
              stop("Inadmissible bounds: one or more lower>upper")
           if (btest$parchanged) {
-             cat("PARAMETER CHANGED!\n")
              if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
                  warning("Parameter out of bounds has been moved to nearest bound")
                  control$keepinputpar<-NULL # avoid problems in subsidiary routines

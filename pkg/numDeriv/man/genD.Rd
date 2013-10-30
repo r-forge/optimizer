@@ -45,7 +45,7 @@ A list with elements as follows:
    For a vector valued function the first derivative is the Jacobian matrix 
    (see \code{\link{jacobian}}). 
    For the Richardson method 
-   \code{methods.args=list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), 
+   \code{method.args=list(eps=1e-4, d=0.0001, zero.tol=sqrt(.Machine$double.eps/7e-7), 
    r=4, v=2)} is set as the default.
    See \code{\link{grad}}
    for more details on the Richardson's extrapolation parameters. 

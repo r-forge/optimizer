@@ -36,13 +36,13 @@ m-vector valued function with n-vector argument.
 
    If method is "Richardson", the calculation is done by 
    Richardson's extrapolation. See \code{link{grad}} for more details.
-   For this method  \code{methods.args=list(eps=1e-4, d=0.0001, 
+   For this method  \code{method.args=list(eps=1e-4, d=0.0001, 
    zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE)} 
    is set as the default.
 
    If method is "simple", the calculation is done using a simple epsilon
    difference. 
-   For method "simple" \code{methods.args=list(eps=1e-4)} is the
+   For method "simple" \code{method.args=list(eps=1e-4)} is the
    default. Only \code{eps} is used by this method.
 
    If method is "complex", the calculation is done using the complex step
@@ -51,7 +51,7 @@ m-vector valued function with n-vector argument.
    appropriate complex valued result, even though the user may only be
    interested in the real case. For cases where it can be used, it is faster than Richardson's extrapolation, and
    it also provides gradients that are correct to machine precision (16 digits).   
-   For method "complex", \code{methods.args} is ignored.
+   For method "complex", \code{method.args} is ignored.
    The algorithm uses an \code{eps} of \code{.Machine$double.eps} which cannot
    (and should not) be modified. 
 }

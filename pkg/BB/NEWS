@@ -1,3 +1,7 @@
+Changes in BB version 2013.11-1
+
+   o	Changed quadprog from Depends to Imports.
+
 Changes in BB version 2013.5-1
 
    o	Removed contact email addresses from BB-package.Rd (which were 

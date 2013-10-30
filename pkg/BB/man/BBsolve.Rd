@@ -58,7 +58,7 @@ If \code{control} is specified as an argument, only values which are different
 need to be given in the list. See \code{dfsane} for more details.
 }
 \seealso{
-  \code{\link{BBsolve}},
+  \code{\link{BBoptim}},
   \code{\link{dfsane}},
   \code{\link{sane}}
   \code{\link{multiStart}}

@@ -1,3 +1,5 @@
+importFrom("quadprog", "solve.QP")
+
 export(
   "multiStart",
   "BBsolve",

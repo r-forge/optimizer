@@ -47,8 +47,9 @@ f0<-myxp(x0, A=aa)
 print(f0)
 
 npar<-2
-opxfn<-list2env(list(fn=myxp, gr=NULL, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=list(A=aa)))
+opxargs<-list(fn=myxp, gr=NULL, hess=NULL, MAXIMIZE=FALSE, 
+       PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=list(A=aa))
+opxfn<-list2env(opxargs)
 axp1<-optim(x0, ufn, control=list(trace=2), fnuser=opxfn)
 print(axp1)
 
@@ -79,8 +80,9 @@ badlogg<-function(x, skale=10){# This is the gradient of badlogf
 
 x0<-rep(20, 4)
 npar<-4
-opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=NULL))
+opxargs<-list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, 
+    PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=NULL)
+opxfn<-list2env(opxargs)
 
 ps1<-rep(1,4)
 cat("skale= NULL, parameters:")
@@ -97,8 +99,9 @@ cat("======================================\n")
 tmp<-readline("change parameter scaling")
 x0<-rep(20, 4)
 npar<-4
-opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=NULL))
+opxargs<-list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, 
+    PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=NULL)
+opxfn<-list2env(opxargs)
 
 ps1<-1:4
 opxfn$PARSCALE<-ps1
@@ -116,8 +119,9 @@ cat("======================================\n")
 tmp<-readline("set skale=1 AND reset opxfn")
 skale<-1
 npar<-length(x0)
-opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=list(skale=skale)))
+opxargs<-list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE,
+     PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=list(skale=skale))
+opxfn<-list2env(opxargs)
 cat("prior to call, opxfn$dots:")
 print(opxfn$dots)
 
@@ -141,9 +145,9 @@ print(x0)
 tfval0<-try(badlogf(x0))
 print(tfval0)
 
-
-opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=NULL))
+opxargs<-list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, 
+   PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=NULL)
+opxfn<-list2env(opxargs)
 fval<-ufn(x0, opxfn)
 print("result:")
 print(fval)
@@ -154,8 +158,9 @@ tmp<-readline("now bad params")
 x0<-rep(2, 4)
 npar<-length(x0)
 cat("Bad parameters:")
-opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=NULL))
+opxargs<-list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, 
+  PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=NULL)
+opxfn<-list2env(opxargs)
 print(x0)
 tfval0<-try(badlogf(x0))
 print(tfval0)

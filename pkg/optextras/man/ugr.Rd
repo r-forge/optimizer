@@ -97,8 +97,9 @@ badlogg<-function(x, skale=10){# This is the gradient of badlogf
 
 x0<-rep(20, 4)
 npar<-4
-opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=NULL))
+opxargs<-list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, 
+ PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=NULL)
+opxfn<-list2env(opxargs)
 
 ps1<-rep(1,4)
 cat("skale= NULL, parameters:")
@@ -140,8 +141,9 @@ tmp<-readline("change parameter scaling")
 
 x0<-rep(20, 4)
 npar<-4
-opxfn<-list2env(list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=NULL))
+opxargs<-list(fn=badlogf, gr=badlogg, hess=NULL, MAXIMIZE=FALSE,
+    PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=NULL)
+opxfn<-list2env(opxargs)
 
 ps1<-1/(1:4)
 opxfn$PARSCALE<-ps1

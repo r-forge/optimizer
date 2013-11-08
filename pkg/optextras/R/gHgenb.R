@@ -51,7 +51,6 @@ gHgenb <- function(par, fn, gr = NULL, hess = NULL, bdmsk = NULL,
     #    side of the constraint only. JN 2011-6-25
     #
     #################################################################
-    require(numDeriv)
     ctrl <- list(asymtol = 1e-07, ktrace = 0, dowarn=TRUE, stoponerror = FALSE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 

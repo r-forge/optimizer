@@ -33,7 +33,6 @@ gHgen <- function(par, fn, gr = NULL, hess = NULL, control = list(ktrace=0),
     #  Date:  January 14, 2011; updated June 25, 2011
     #
     #################################################################
-    require(numDeriv)
     ctrl <- list(asymtol = 1e-07, ktrace = FALSE, stoponerror = FALSE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 

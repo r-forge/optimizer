@@ -191,8 +191,9 @@ print(gval)
 print(Ahess)
 cat("\n\n By ufn etc.\n")
 
-myfn<-list2env(list(fn=genrose.f, gr=genrose.g, hess=genrose.h, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0))
+mylist<-list(fn=genrose.f, gr=genrose.g, hess=genrose.h, MAXIMIZE=FALSE, 
+    PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0)
+myfn<-list2env(mylist)
 
 
 uf<-ufn(trad, fnuser=myfn)
@@ -218,8 +219,9 @@ print(fvala)
 print(gvala)
 print(Ahessa)
 cat("\n\n By ufn etc.\n")
-myfna<-list2env(list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0))
+mylist<-list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h, MAXIMIZE=FALSE, 
+    PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0)
+myfna<-list2env(mylist)
 ufa<-ufn(trad, fnuser=myfna)
 ugHa<-ugHgenb(trad, fnuser=myfna)
 print(ufa)
@@ -245,8 +247,9 @@ fval<-genrosa.f(trad, gs=1)
 gval<-genrosa.g(trad, gs=1)
 Ahess<-genrosa.h(trad, gs=1)
 
-myfna<-list2env(list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=list(gs=1)))
+mylist<-list(fn=genrosa.f, gr=genrosa.g, hess=genrosa.h, MAXIMIZE=FALSE, 
+  PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=list(gs=1))
+myfna<-list2env(mylist)
 cat("Traditional start\n")
 print(trad)
 cat("f, g, H\n")
@@ -274,8 +277,9 @@ fval<-genrose.f(parx)
 gval<-genrose.g(parx)
 Ahess<-genrose.h(parx)
 
-myfn<-list2env(list(fn=genrose.f, gr=genrose.g, hess=genrose.h, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0))
+mylist<-list(fn=genrose.f, gr=genrose.g, hess=genrose.h, MAXIMIZE=FALSE, 
+   PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0)
+myfn<-list2env(mylist)
 gennog<-ugHgenb(parx,fnuser=myfn, control=list(ktrace=1))
 cat("results of ugHgenb for genrose without gradient code at \n")
 print(parx)
@@ -294,8 +298,9 @@ rm(myfn)
 
 tmp<-readline("try with hessian set to NULL")
 
-myfn2<-list2env(list(fn=genrose.f, gr=genrose.g, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0))
+mylist<-list(fn=genrose.f, gr=genrose.g, hess=NULL, MAXIMIZE=FALSE, 
+           PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0)
+myfn2<-list2env(mylist)
 geng<-ugHgenb(parx,fnuser=myfn2, control=list(ktrace=1))
 cat("results of ugHgenb for genrose at ")
 print(parx)
@@ -325,8 +330,9 @@ Ahess<-genrose.h(parx, gs=9.4)
 cat("Hess =\n")
 print(Ahess)
 
-myfn3<-list2env(list(fn=genrose.f, gr=genrose.g, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=list(gs=9.4)))
+myfnargs<-list(fn=genrose.f, gr=genrose.g, hess=NULL, MAXIMIZE=FALSE, 
+   PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=list(gs=9.4))
+myfn3<-list2env(myfnargs)
 
 gennog<-ugHgenb(parx,fnuser=myfn3, control=list(ktrace=1))
 
@@ -340,8 +346,9 @@ cat("\n\n")
 rm(myfn3)
 
 tmp<-readline("Change gs to 5")
-myfn4<-list2env(list(fn=genrose.f, gr=genrose.g, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=list(gs=5)))
+myfnargs<-list(fn=genrose.f, gr=genrose.g, hess=NULL, MAXIMIZE=FALSE, 
+   PARSCALE=rep(1,npar), FNSCALE=1, KFN=0, KGR=0, KHESS=0, dots=list(gs=5))
+myfn4<-list2env(myfnargs)
 
 cat("\n\nTest with masks and gs=",5,"\n")
 msk<-c(1,1,0,1) # masked parameter 3

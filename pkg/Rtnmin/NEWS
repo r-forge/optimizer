@@ -1,0 +1,9 @@
+Changes in Rtnmin
+
+TODOS
+   o    Simplification and streamlining of code to mesh
+	better with other R optimization tools.
+
+2013-11-11 
+   
+   o    First version of Rtn.

@@ -1,0 +1,12 @@
+Package: Rtnmin
+Type: Package
+Title: Truncated Newton function minimization with bounds constraints
+Version: 2013-11.11
+Date: 2013-11-11
+Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
+        c("aut", "cre"), email = "nashjc@uottawa.ca") )
+Author: John C. Nash <nashjc@uottawa.ca>
+Maintainer: John C. Nash <nashjc@uottawa.ca>
+Description: Truncated Newton function minimization with bounds constraints
+LazyLoad: Yes
+License: GPL (>= 2)

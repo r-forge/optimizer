@@ -228,7 +228,7 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
                 ########################################################
                 ####      Backtrack only Line search                ####
                 changed <- TRUE  # Need to set so loop will start
-                steplength <- oldstep
+                steplength <- oldstep # 131202 - 1 seems best value (Newton step)
                 while ((f >= fmin) && changed && (!accpoint)) {
                    # We seek a lower point, but must change parameters too
                    ###if (bounds) {
@@ -316,12 +316,16 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
                     # make sure < not <= below to avoid Inf comparisons
                     if ((bvec[i] - lower[i]) < ceps * (abs(lower[i]) + 1)) {
                        # are we near or lower than lower bd
-                       if (trace > 2) cat("(re)activate lower bd ", i, " at ", lower[i], "\n")
+##                       if (trace > 2) cat("(re)activate lower bd ", i, " at ", lower[i], "\n")
+                         if (trace > 0) cat("(re)activate lower bd ", i, " at ", lower[i], "\n")
+                       tmp <- readline("continue")
                        bdmsk[i] <- -3
                     }  # end lower bd reactivate
                     if ((upper[i] - bvec[i]) < ceps * (abs(upper[i]) + 1)) {
                         # are we near or above upper bd
-                        if (trace > 2) cat("(re)activate upper bd ", i," at ", upper[i], "\n")
+##                        if (trace > 2) cat("(re)activate upper bd ", i," at ", upper[i], "\n")
+                        if (trace > 0) cat("(re)activate upper bd ", i," at ", upper[i], "\n")
+                       tmp <- readline("continue")
                         bdmsk[i] <- -1
                     }  # end lower bd reactivate
                 }  # end test on free params
@@ -343,6 +347,14 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
                 break
             }
             g[which(bdmsk == 0)] <- 0  # active mask or constraint
+## JN131202 
+	    gnorm <- sqrt(sum(g*g))
+                if (trace > 0) cat("gnorm=",gnorm,"  ")
+            if (gnorm < (1 + abs(fmin))*eps*eps ) {
+                keepgoing <- FALSE
+                conv <- 2
+                break
+            }
             t <- as.vector(steplength * t)
             c <- as.vector(g - c)
             D1 <- sum(t * c)
@@ -356,6 +368,7 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
             else {
                 if (trace > 0) 
                   cat("UPDATE NOT POSSIBLE\n")
+                if (ig == ilast+1) keepgoing=FALSE # stop when failure on steepest descent 131202
                 ilast <- ig  # note gradient evaluation when update failed
             }  # D1 > 0 test
         }

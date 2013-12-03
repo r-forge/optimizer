@@ -1,16 +1,67 @@
 Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
-    ## Unconstrained version -- 120521
+    # Unconstrained vn derived from constrained vn.
     ## An R version of the Nash version of Fletcher's Variable
     #   Metric minimization
-    # See comments in vm
+    # This uses a simple backtracking line search.
+    # Input:
+    #  par = a vector containing the starting point
+    # fn = objective function (assumed to be sufficeintly
+    #   differentiable)
+    #  gr = gradient of objective function
+    #  control = list of control parameters
+    # maxit = a limit on the gradient evaluations (default
+    #   1500)
+    # ?? do we want to make it vary with n??
+    # maxfeval = a limit on the function evaluations (default
+    #   10000)
+    #           maximize = TRUE to maximize the function (default FALSE)
+    #           trace = 0 (default) for no output,
+    #                  >0 for output (bigger => more output)
+    #
+    # dowarn=TRUE by default. Set FALSE to suppress warnings.
+    #
+    ##
+    # Output:
+    #    A list with components:
+    #
+    #     par: The best set of parameters found.
+    #
+    #   value: The value of 'fn' corresponding to 'par'.
+    #
+    # counts: A two-element integer vector giving the number of
+    #   calls to
+    # 'fn' and 'gr' respectively. This excludes those calls
+    #   needed
+    # to compute the Hessian, if requested, and any calls to
+    #   'fn'
+    # to compute a finite-difference approximation to the
+    #   gradient.
+    #
+    # convergence: An integer code. '0' indicates successful
+    #   convergence.
+    #          Error codes are
+    #
+    # '1' indicates that the iteration limit 'maxit' or the
+    #   function
+    #               evaluation limit mafeval have been reached.
+    # '20' indicates inadmissible input parameters for function
+    #   (bounds may be OK)
+    # '21' indicates inadmissible intermediate parameters for
+    #   function
+    #
+    # message: A character string giving any additional
+    #   information returned
+    #          by the optimizer, or 'NULL'.
+    #
+    #
     #  Author:  John C Nash
-    #  Date:  May 21, 2012
+    #  Date:  May 14, 2012
     #################################################################
     # control defaults
     # NOT yet in control set ??    #  ?? put keepinputpar into controls??
     ctrl <- list(maxit = 500, maxfeval = 3000, maximize = FALSE, 
-        trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, checkgrad=TRUE)
-    # checkgrad not needed, but here to avoid error
+        trace = 0, eps = 1e-07, dowarn = TRUE, keepinputpar = FALSE, acctol = 0.0001)
+    # keepinputpar TRUE => Do not let bmchk change parameters to nearest bound
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -20,13 +71,13 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     maximize <- ctrl$maximize  # TRUE to maximize the function
     trace <- ctrl$trace  #
     eps <- ctrl$eps  #
-    acctol <- ctrl$acctol # 130125
+    acctol <- ctrl$acctol
     dowarn <- ctrl$dowarn  #
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     #################################################################
     ## Set working parameters (See CNM Alg 22)
     if (trace > 0) 
-        cat("Rvmminu -- J C Nash 2009, 2011, 2012 - an R implementation of Alg 21\n")
+        cat("Rvmminu -- J C Nash 2012 - unconstrained R version of Alg 21\n")
     bvec <- par  # copy the parameter vector
     n <- length(bvec)  # number of elements in par vector
     if (trace > 0) {
@@ -35,14 +86,13 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     }
     ifn <- 1  # count function evaluations
     stepredn <- 0.2  # Step reduction in line search
-    acctol <- 1e-04  # acceptable point tolerance
     reltest <- 100  # relative equality test
     ceps <- .Machine$double.eps * reltest
     dblmax <- .Machine$double.xmax  # used to flag bad function
     #############################################
     # gr MUST be provided
-    if (is.null(gr)) {  # if gr function is not provided STOP (vm has definition)
-       stop("A gradient calculation (analytic or numerical) MUST be provided for vmb") 
+    if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
+       stop("A gradient calculation (analytic or numerical) MUST be provided for Rvmminu") 
     }
     if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
@@ -50,9 +100,6 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
            do.call(gr, list(par, userfn, ...))
        }
     } else { mygr<-gr }
-#    cat(deparse(substitute(mygr)),"\n")
-#    tmp<-readline("mygr:")
-#    print(mygr)
     ############# end test gr ####################
     f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
     if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
@@ -60,7 +107,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         conv <- 20
         if (trace > 0) 
             cat(msg, "\n") # change NA to dblmax 110524
-        ans <- list(bvec, dblmax, c(ifn, 0), 0, conv, msg)  #
+        ans <- list(bvec, dblmax, c(ifn, 0), conv, msg)  #
         names(ans) <- c("par", "value", "counts", "convergence", 
             "message")
         return(ans)
@@ -100,10 +147,6 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
             cat("t:")
             print(t)
         }
-        if (trace > 2) {
-            cat("adj-t:")
-            print(t)
-        }
         gradproj <- sum(t * g)  # gradient projection
         if (trace > 1) 
             cat("Gradproj =", gradproj, "\n")
@@ -118,25 +161,21 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
                 ########################################################
                 ####      Backtrack only Line search                ####
                 changed <- TRUE  # Need to set so loop will start
-                steplength <- oldstep
-                accpoint <- (f <= fmin + gradproj * steplength * acctol)
-                while (changed && (!accpoint)) {
-                  # We seek a lower point, but must change parameters too
-                  # end box constraint adjustment of step length
-                  bvec <- par + steplength * t
-                  if (trace > 2) {
-                    cat("new bvec:")
-                    print(bvec)
-                  }
-                  changed <- (!identical((bvec + reltest), (par + reltest)))
-                  if (changed) {
-                    # compute new step, if possible
-                    f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
+                steplength <- oldstep # 131202 - 1 seems best value (Newton step)
+                while ((f >= fmin) && changed && (!accpoint)) {
+                   # We seek a lower point, but must change parameters too
+                   bvec <- par + steplength * t
+                   if (trace > 2) {
+                     cat("new bvec:")
+                     print(bvec)
+                   }
+                   changed <- (!identical((bvec + reltest), (par + 
+                     reltest)))
+                   if (changed) {
+                     # compute new step, if possible
+                     f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
                     # instead preferring to fail out, which will hopefully be unlikely.
                     if (maximize) f <- -f
-                    if (trace > 2) {
-                       cat("New f=",f,"\n")
-                    }
                     ifn <- ifn + 1
                     if (ifn > maxfeval) {
                       msg <- "Too many function evaluations"
@@ -158,9 +197,13 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
                       #               break
                       f <- dblmax  # try big function to escape
                     }
-#                    tmp<-readline("Test the function")
-                    accpoint <- (f <= fmin + gradproj * steplength * acctol)
-                    if (! accpoint) {
+                    if (f < fmin) {
+                      # We have a lower point. Is it 'low enough' i.e.,
+                      #   acceptable
+                      accpoint <- (f <= fmin + gradproj * steplength * 
+                        acctol)
+                    }
+                    else {
                       steplength <- steplength * stepredn
                       if (trace > 0) 
                         cat("*")
@@ -190,6 +233,15 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
                 conv <- 1
                 break
             }
+## JN131202 
+	    gnorm <- sqrt(sum(g*g))
+                if (trace > 0) cat("gnorm=",gnorm,"  ")
+            if (gnorm < (1 + abs(fmin))*eps*eps ) {
+                if (trace > 0) cat("Small gradient norm\n")
+                keepgoing <- FALSE
+                conv <- 2
+                break
+            }
             t <- as.vector(steplength * t)
             c <- as.vector(g - c)
             D1 <- sum(t * c)
@@ -203,6 +255,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
             else {
                 if (trace > 0) 
                   cat("UPDATE NOT POSSIBLE\n")
+                if (ig == ilast+1) keepgoing=FALSE # stop when failure on steepest descent 131202
                 ilast <- ig  # note gradient evaluation when update failed
             }  # D1 > 0 test
         }
@@ -231,10 +284,10 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         cat("Seem to be done VM\n")
     if (maximize) 
         fmin <- (-1) * fmin
-    msg <- "Rvmminu appears to have converged"
+    msg <- "Rvmminb appears to have converged"
     ans <- list(par, fmin, c(ifn, ig), convergence=conv, msg)
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message")
     #return(ans)
     ans
-}  ## end of vmu
+}  ## end of Rvmminb

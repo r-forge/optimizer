@@ -1,11 +1,11 @@
-\name{GNE.min}
-\alias{GNE.min}
+\name{GNE.minpb}
+\alias{GNE.minpb}
 \title{Non smooth equation reformulation of the GNE problem.}
 \description{
 		Non smooth equation reformulation via the extended KKT system of the GNE problem.
 	}
 \usage{
-GNE.min(init, dimx, obj, argobj, grobj, arggrobj, 
+GNE.minpb(init, dimx, obj, argobj, grobj, arggrobj, 
 	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
 	method="default", problem = c("NIR", "VIR"), control.outer=list(), 
 	control.inner=list(), silent=TRUE, param=list(), optim.type=c("free","constr"), ...)
@@ -139,7 +139,7 @@ A list with components:
 }
 \seealso{
 
-See \code{\link{GNE.fpeq}} and \code{\link{GNE.nseq}} 
+See \code{\link{GNE.fpeq}}, \code{\link{GNE.ceq}} and \code{\link{GNE.nseq}} 
 for other approaches.
 
 }

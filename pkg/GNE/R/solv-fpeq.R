@@ -1,3 +1,27 @@
+#############################################################################
+#   Copyright (c) 2012 Christophe Dutang                                                                                                  
+#                                                                                                                                                                        
+#   This program is free software; you can redistribute it and/or modify                                               
+#   it under the terms of the GNU General Public License as published by                                         
+#   the Free Software Foundation; either version 2 of the License, or                                                   
+#   (at your option) any later version.                                                                                                            
+#                                                                                                                                                                         
+#   This program is distributed in the hope that it will be useful,                                                             
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of                                          
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                 
+#   GNU General Public License for more details.                                                                                    
+#                                                                                                                                                                         
+#   You should have received a copy of the GNU General Public License                                           
+#   along with this program; if not, write to the                                                                                           
+#   Free Software Foundation, Inc.,                                                                                                              
+#   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA                                                             
+#                                                                                                                                                                         
+#############################################################################
+### fixed-point equations in GNE
+###
+###         R functions
+### 
+
 fpeq <- function(xinit,	fn, merit, 
 	method=c("pure", "UR", "vH", "RRE", "MPE", "SqRRE", "SqMPE"), 
 	control=list(), stepfunc, argstep, silent=TRUE, order.method=1, ...)
@@ -99,6 +123,8 @@ fpeq <- function(xinit,	fn, merit,
 			myGNE$value <- max(abs(fn(myGNE$par)$par))
 			myGNE$counts <- c(fn=myGNE$fpevals, merit=myGNE$objfevals)
 			myGNE$code <- 1*(myGNE$convergence == 0) + 4*(myGNE$fpevals[1] >= confpiter$maxiter) 
+			myGNE$code <- myGNE$code + 2*(myGNE$convergence != 0 & myGNE$fpevals[1] <= consquarem$maxiter)
+			
 		}	
 	}
 	
@@ -133,6 +159,7 @@ fpeq <- function(xinit,	fn, merit,
 			myGNE$value <- max(abs(fn(myGNE$par)$par))
 			myGNE$counts <- c(fn=myGNE$fpevals, merit=myGNE$objfevals)
 			myGNE$code <- 1*(myGNE$convergence == 0) + 4*(myGNE$fpevals[1] > consquarem$maxiter) 
+			myGNE$code <- myGNE$code + 2*(myGNE$convergence != 0 & myGNE$fpevals[1] <= consquarem$maxiter)
 		}			
 	}
 	
@@ -186,7 +213,7 @@ pureFP <- function(xinit, fn, merit, control, ...)
 	}
 	
 	list(par = xk, value=merit_xk , counts=c(fn=k+1, merit=k+1), iter = k, 
-		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
+		 code=(k >= maxit)*4 + (abs(merit_xk) <= tol)*1 + (max(abs(xk - xk_1)/abs(xk)) <= tol)*2)
 }
 
 
@@ -195,7 +222,7 @@ relaxationAlgoUR <- function(xinit, stepfunc, fn, merit, control, ...)
 {
 	echo <- control$echo
 	maxit <- control$maxit
-	tol <- control$to
+	tol <- control$tol
 		
 	
 	k <- 1
@@ -236,7 +263,7 @@ relaxationAlgoUR <- function(xinit, stepfunc, fn, merit, control, ...)
 	}
 	
 	list(par = xk, value=merit_xk , counts=c(fn=k+1, merit=k+1), iter = k, 
-		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
+		 code=(k >= maxit)*4 + (abs(merit_xk) <= tol)*1 + (max(abs(xk - xk_1)/abs(xk)) <= tol)*2)
 }
 
 
@@ -301,7 +328,7 @@ relaxationAlgoVH <- function(xinit, fn, merit, control, ...)
 	}	
 	
 	list(par = xk, value=merit_xk , counts=counts, iter = k, 
-		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
+		 code=(k >= maxit)*4 + (abs(merit_xk) <= tol)*1 + (max(abs(xk - xk_1)/abs(xk)) <= tol)*2)
 }
 
 
@@ -366,7 +393,7 @@ extrapolFP <- function(xinit, fn, merit, control, method, ...)
 	}
 	
 	list(par = xk, value=merit_xk , counts=counts, iter = k, 
-		 code=(k >= maxit)*1 + (abs(merit_xk) > tol)*4)
+		 code=(k >= maxit)*4 + (abs(merit_xk) <= tol)*1 + (max(abs(xk - xk_1)/abs(xk)) <= tol)*2)
 }
 
 

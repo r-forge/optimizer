@@ -1,7 +1,5 @@
 \name{GNE.nseq}
 \alias{GNE.nseq}
-\alias{bench.GNE.nseq}
-\alias{bench.GNE.nseq.LM}
 \title{Non smooth equation reformulation of the GNE problem.}
 \description{
 		Non smooth equation reformulation via the extended KKT system of the GNE problem.
@@ -12,9 +10,6 @@ GNE.nseq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	compl, gcompla, gcomplb, argcompl, 
 	dimmu, joint, argjoint, grjoint, arggrjoint, hejoint, arghejoint, 
 	method="default", control=list(), silent=TRUE, ...)
-	
-#bench.GNE.nseq(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, ...)
-#bench.GNE.nseq.LM(xinit, Phi, jacPhi, argPhi=list(), argjac=list(), echo=FALSE, control=list())
 }
 \arguments{
   \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}
@@ -224,7 +219,7 @@ to \code{FALSE}.
 }
 \seealso{
 
-See \code{\link{GNE.fpeq}} and \code{\link{GNE.min}} 
+See \code{\link{GNE.fpeq}}, \code{\link{GNE.ceq}} and \code{\link{GNE.minpb}} 
 for other approaches; \code{\link{funSSR}} and
 \code{\link{jacSSR}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi} and
 \code{\link{complementarity}} for complementarity functions.

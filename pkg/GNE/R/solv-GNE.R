@@ -1,3 +1,27 @@
+#############################################################################
+#   Copyright (c) 2012 Christophe Dutang                                                                                                  
+#                                                                                                                                                                        
+#   This program is free software; you can redistribute it and/or modify                                               
+#   it under the terms of the GNU General Public License as published by                                         
+#   the Free Software Foundation; either version 2 of the License, or                                                   
+#   (at your option) any later version.                                                                                                            
+#                                                                                                                                                                         
+#   This program is distributed in the hope that it will be useful,                                                             
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of                                          
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                 
+#   GNU General Public License for more details.                                                                                    
+#                                                                                                                                                                         
+#   You should have received a copy of the GNU General Public License                                           
+#   along with this program; if not, write to the                                                                                           
+#   Free Software Foundation, Inc.,                                                                                                              
+#   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA                                                             
+#                                                                                                                                                                         
+#############################################################################
+### GNE computation in GNE
+###
+###         R functions
+### 
+
 GNE <- function(approach = 
 	c("non smooth", "fixed point", "minimization", "constrained equation"), 
 	method = "default", xinit, control=list(), ...)
@@ -14,7 +38,7 @@ GNE <- function(approach =
 		res <- GNE.fpeq(xinit, method=method, control.outer=control, ...)
 	
 	if(approach == "minimization")
-		res <- GNE.min(xinit, method=method, control=control, ...)
+		res <- GNE.minpb(xinit, method=method, control.outer=control, ...)
 	
 	c(res, list(approach=approach))
 }
@@ -246,7 +270,7 @@ GNE.fpeq <- function(init, dimx, obj, argobj, grobj, arggrobj,
 		print(control.inner)
 		print(control.outer)
 	}
-	res <- fpeq(init, yfun, merit, method, control=control.outer, stepfunc=stepfunc,
+	res <- fpeq(init, fn=yfun, merit=merit, method=method, control=control.outer, stepfunc=stepfunc,
 				argstep=argstep, silent=silent, order.method=order.method, ...)
 	class(res) <- "GNE"
 	if(!silent)
@@ -265,6 +289,9 @@ GNE.minpb <- function(init, dimx, obj, argobj, grobj, arggrobj,
 	method <- match.arg(method, c("BB","BFGS", "CG"))
 	problem <- match.arg(problem)
 	optim.type <- match.arg(optim.type)
+	if(length(param) != 0)
+		if(any(!names(param) %in% c("alpha", "beta")))
+			stop("argument param should be a named list with alpha and optionnaly beta")
 	
 	if(problem == "NIR")
 	{
@@ -273,39 +300,77 @@ GNE.minpb <- function(init, dimx, obj, argobj, grobj, arggrobj,
 		argfp <- testargfpNIR(init, dimx, obj, argobj, joint, argjoint,  
 							  grobj, arggrobj, jacjoint, argjacjoint)
 		
-		yfun <- function(x)
+		yfun <- function(x, param=param)
 			fpNIR(x, argfp$dimx, argfp$obj, argfp$argobj, argfp$joint, 
 			  argfp$argjoint, argfp$grobj, argfp$arggrobj, argfp$jacjoint,
 			  argfp$argjacjoint, echo=!silent, control=control.inner, 
 			  param=param, ...)
 		
-		merit <- function(x, y=NULL)
+		if(length(param) <= 1)
 		{
-			if(is.null(y))
+			merit <- function(x, y=NULL)
 			{
-				y <- yfun(x)
-				res <- gapNIR(x, y$par, arggap$dimx, arggap$obj, arggap$argobj, 
-							  param=param, echo=!silent)
-				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
-				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
-			}else
-				list(value=gapNIR(x, y, arggap$dimx, arggap$obj, arggap$argobj, 
-							  param=param, echo=!silent), counts=c(1,0), iter=0)
-		}
-		gradmerit <- function(x, y=NULL)
+				if(is.null(y))
+				{
+					y <- yfun(x)
+					res <- gapNIR(x, y$par, arggap$dimx, arggap$obj, arggap$argobj, 
+								  param=param, echo=!silent)
+					y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+					list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+				}else
+					list(value=gapNIR(x, y, arggap$dimx, arggap$obj, arggap$argobj, 
+								  param=param, echo=!silent), counts=c(1,0), iter=0)
+			}
+			gradmerit <- function(x, y=NULL)
+			{
+				if(is.null(y))
+				{
+					y <- yfun(x)
+					res <- gradxgapNIR(x, y$par, arggradgap$dimx, arggradgap$grobj, 
+									   arggradgap$arggrobj, param=param, echo=!silent)
+					y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+					list(value=res, counts=y$counts+c(0,1), iter=y$iter)
+				}else
+					list(value=gradxgapNIR(x, y, arggradgap$dimx, arggradgap$grobj, 
+						arggradgap$arggrobj, param=param, echo=!silent), counts=c(0,1), iter=0)
+			}
+		}else if(length(param) == 2)
 		{
-			if(is.null(y))
+			merit <- function(x, y=NULL)
 			{
-				y <- yfun(x)
-				res <- gradxgapNIR(x, y$par, arggradgap$dimx, arggradgap$grobj, 
-								   arggradgap$arggrobj, param=param, echo=!silent)
-				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
-				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
-			}else
-				list(value=gradxgapNIR(x, y, arggradgap$dimx, arggradgap$grobj, 
-					arggradgap$arggrobj, param=param, echo=!silent), counts=c(1,0), iter=0)
-		}
+				yalpha <- yfun(x, param["alpha"])
+				Valpha <- gapNIR(x, yalpha$par, arggap$dimx, arggap$obj, arggap$argobj, 
+								  param=param["alpha"], echo=!silent)
+				yalpha$iter <- ifelse(!is.na(yalpha$counts[2]), yalpha$counts[2], yalpha$counts[1])
+				
+				ybeta <- yfun(x, param["beta"])
+				Vbeta <- gapNIR(x, ybeta$par, arggap$dimx, arggap$obj, arggap$argobj, 
+								 param=param["beta"], echo=!silent)
+				ybeta$iter <- ifelse(!is.na(ybeta$counts[2]), ybeta$counts[2], ybeta$counts[1])
+				
+				list(value=(Valpha-Vbeta)^2, counts=yalpha$counts+ybeta$counts+c(1,0), iter=yalpha$iter+ybeta$iter)
+			}
+			gradmerit <- function(x, y=NULL)
+			{
+				yalpha <- yfun(x, param["alpha"])
+				Valpha <- gapNIR(x, yalpha$par, arggap$dimx, arggap$obj, arggap$argobj, 
+								 param=param["alpha"], echo=!silent)
+				grValpha <- gradxgapNIR(x, yalpha$par, arggradgap$dimx, arggradgap$grobj, 
+									   arggradgap$arggrobj, param=param["alpha"], echo=!silent)
+				yalpha$iter <- ifelse(!is.na(yalpha$counts[2]), yalpha$counts[2], yalpha$counts[1])
+
+				ybeta <- yfun(x, param["beta"])
+				Vbeta <- gapNIR(x, ybeta$par, arggap$dimx, arggap$obj, arggap$argobj, 
+								param=param["beta"], echo=!silent)
+				grVbeta <- gradxgapNIR(x, ybeta$par, arggradgap$dimx, arggradgap$grobj, 
+										arggradgap$arggrobj, param=param["beta"], echo=!silent)
+				ybeta$iter <- ifelse(!is.na(ybeta$counts[2]), ybeta$counts[2], ybeta$counts[1])
+				
+				list(value=2*(grValpha-grVbeta)*(Valpha-Vbeta), counts=yalpha$counts+ybeta$counts+c(1,1), iter=yalpha$iter+ybeta$iter)
+			}
 			
+		}else
+			stop("wrong argument param.")
 	}
 	if(problem == "VIR")
 	{
@@ -313,43 +378,88 @@ GNE.minpb <- function(init, dimx, obj, argobj, grobj, arggrobj,
 		arggradgap <- testarggradxgapVIR(init, dimx, grobj, arggrobj, heobj, argheobj)
 		argfp <- testargfpVIR(init, dimx, obj, argobj, joint, argjoint,  
 							  grobj, arggrobj, jacjoint, argjacjoint)
-		
-		yfun <- function(x)
+
+		yfun <- function(x, param=param)
 			fpVIR(x, argfp$dimx, argfp$obj, argfp$argobj, argfp$joint, 
-			  argfp$argjoint, argfp$grobj, argfp$arggrobj, argfp$jacjoint,
-			  argfp$argjacjoint, echo=!silent, control=control.inner, 
-			  param=param, ...)
+				  argfp$argjoint, argfp$grobj, argfp$arggrobj, argfp$jacjoint,
+				  argfp$argjacjoint, echo=!silent, control=control.inner, 
+				  param=param, ...)
 		
-		merit <- function(x, y=NULL)
+		if(length(param) <= 1)
 		{
-			if(is.null(y))
+			
+			merit <- function(x, y=NULL)
 			{
-				y <- yfun(x)
-				res <- gapVIR(x, y$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
-							  param=param, echo=!silent)
-				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
-				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
-			}else
-				list(value=gapVIR(x, y, arggap$dimx, arggap$grobj, arggap$arggrobj, 
-							  param=param, echo=!silent), counts=c(1,0), iter=0)
-		}
-		gradmerit <- function(x, y=NULL)
+				if(is.null(y))
+				{
+					y <- yfun(x)
+					res <- gapVIR(x, y$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+								  param=param, echo=!silent)
+					y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+					list(value=res, counts=y$counts+c(1,0), iter=y$iter)
+				}else
+					list(value=gapVIR(x, y, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+								  param=param, echo=!silent), counts=c(1,0), iter=0)
+			}
+			gradmerit <- function(x, y=NULL)
+			{
+				if(is.null(y))
+				{
+					y <- yfun(x)
+					res <- gradxgapVIR(x, y$par, arggradgap$dimx, arggradgap$grobj, 
+									   arggradgap$arggrobj, arggradgap$heobj, 
+									   arggradgap$argheobj, param=param, echo=!silent)
+					y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
+					list(value=res, counts=y$counts+c(0,1), iter=y$iter)
+				}else
+					list(value=gradxgapVIR(x, y, arggradgap$dimx, arggradgap$grobj, 
+									   arggradgap$arggrobj, arggradgap$heobj, 
+									   arggradgap$argheobj, param=param, echo=!silent), counts=c(0,1), iter=0)
+			}
+		}else if(length(param) == 2)
 		{
-			if(is.null(y))
+			merit <- function(x, y=NULL)
 			{
-				y <- yfun(x)
-				res <- gradxgapVIR(x, y$par, arggradgap$dimx, arggradgap$grobj, 
+				yalpha <- yfun(x, param["alpha"])
+				Valpha <- gapVIR(x, yalpha$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+							  param=param["alpha"], echo=!silent)
+				yalpha$iter <- ifelse(!is.na(yalpha$counts[2]), yalpha$counts[2], yalpha$counts[1])
+				
+				ybeta <- yfun(x, param["beta"])
+				Vbeta <- gapVIR(x, ybeta$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+								 param=param["beta"], echo=!silent)
+				ybeta$iter <- ifelse(!is.na(ybeta$counts[2]), ybeta$counts[2], ybeta$counts[1])
+				
+				list(value=(Valpha-Vbeta)^2, counts=yalpha$counts+ybeta$counts+c(1,1), iter=yalpha$iter+ybeta$iter)
+			}
+			gradmerit <- function(x, y=NULL)
+			{
+				yalpha <- yfun(x, param["alpha"])
+				Valpha <- gapVIR(x, yalpha$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+								 param=param["alpha"], echo=!silent)
+				grValpha <- gradxgapVIR(x, yalpha$par, arggradgap$dimx, arggradgap$grobj, 
 								   arggradgap$arggrobj, arggradgap$heobj, 
-								   arggradgap$argheobj, param=param, echo=!silent)
-				y$iter <- ifelse(!is.na(y$counts[2]), y$counts[2], y$counts[1])
-				list(value=res, counts=y$counts+c(1,0), iter=y$iter)
-			}else
-				list(value=gradxgapVIR(x, y, arggradgap$dimx, arggradgap$grobj, 
-								   arggradgap$arggrobj, arggradgap$heobj, 
-								   arggradgap$argheobj, param=param, echo=!silent), counts=c(1,0), iter=0)
-		}
-		
+								   arggradgap$argheobj, param=param["alpha"], echo=!silent)
+				
+				yalpha$iter <- ifelse(!is.na(yalpha$counts[2]), yalpha$counts[2], yalpha$counts[1])
+
+				ybeta <- yfun(x, param["beta"])
+				Vbeta <- gapVIR(x, ybeta$par, arggap$dimx, arggap$grobj, arggap$arggrobj, 
+								param=param["beta"], echo=!silent)
+				grVbeta <- gradxgapVIR(x, ybeta$par, arggradgap$dimx, arggradgap$grobj, 
+										arggradgap$arggrobj, arggradgap$heobj, 
+										arggradgap$argheobj, param=param["beta"], echo=!silent)
+				
+				ybeta$iter <- ifelse(!is.na(ybeta$counts[2]), ybeta$counts[2], ybeta$counts[1])
+
+				list(value=2*(grValpha-grVbeta)*(Valpha-Vbeta), counts=yalpha$counts+ybeta$counts+c(1,1), iter=yalpha$iter+ybeta$iter)
+			}
+			
+		}else
+			stop("wrong argument param.")	
 	}
+	
+
 	
 	if(optim.type == "constr")
 		res <- minpb(init, merit, gr=gradmerit, hin=joint, arghin=argjoint, 

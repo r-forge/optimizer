@@ -1,3 +1,27 @@
+#############################################################################
+#   Copyright (c) 2012 Christophe Dutang                                                                                                  
+#                                                                                                                                                                        
+#   This program is free software; you can redistribute it and/or modify                                               
+#   it under the terms of the GNU General Public License as published by                                         
+#   the Free Software Foundation; either version 2 of the License, or                                                   
+#   (at your option) any later version.                                                                                                            
+#                                                                                                                                                                         
+#   This program is distributed in the hope that it will be useful,                                                             
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of                                          
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                 
+#   GNU General Public License for more details.                                                                                    
+#                                                                                                                                                                         
+#   You should have received a copy of the GNU General Public License                                           
+#   along with this program; if not, write to the                                                                                           
+#   Free Software Foundation, Inc.,                                                                                                              
+#   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA                                                             
+#                                                                                                                                                                         
+#############################################################################
+### benchmark GNE functions in GNE
+###
+###         R functions
+### 
+
 
 bench.GNE.nseq <- function(xinit, ..., echo=FALSE, control=list())
 {
@@ -165,9 +189,9 @@ bench.GNE.fpeq <- function(xinit, ..., echo=FALSE, control.outer=list(),
 	for(p in problems)
 	for(mer in merits)
 	{
-		if(echo)
-			cat("Begin", paste(met, p, mer), "\n")
 		incompat <- (p == "NIR" && mer == "VI")||(p == "VIR" && mer == "NI")||(met == "vH" && mer == "FP")
+		if(echo & !incompat)
+			cat("Begin", paste(met, p, mer), "\n")
 		if(!incompat)
 		{
 			idname <- c(idname, TRUE)
@@ -180,16 +204,16 @@ bench.GNE.fpeq <- function(xinit, ..., echo=FALSE, control.outer=list(),
 			}else
 			{
 				mytime <- system.time(
-					res <- GNE.fpeq(xinit, ..., method=met, problem=p, merit=mer, stepfun=decrstep5,
+					res <- GNE.fpeq(xinit, ..., method=met, problem=p, merit=mer, stepfunc=decrstep5,
 									control.outer=control.outer, control.inner=control.inner) 
 									  , gcFirst = TRUE)
 			}
 			res <- c(res, problem=p, method=met, merit=mer, time= mytime[3], 
-					 name=paste(p, mer, met))
+					 name=paste(met, p, mer))
 			reslist <- c(reslist, list(res))
 		}else
 			idname <- c(idname, FALSE)		
-		if(echo)
+		if(echo & !incompat)
 			cat("End\n")
 
 	}	
@@ -208,7 +232,7 @@ bench.GNE.fpeq <- function(xinit, ..., echo=FALSE, control.outer=list(),
 	
 	
 	data.frame( method= fullnames1[idname], fpfncall.outer, merfncall.outer, 
-			   gapfncall.inner, grgapfncall.inner, comptime, normFx, codes, x )
+			   gapfncall.inner, grgapfncall.inner, comptime, normFx, codes, x, checknam)
 }
 
 
@@ -232,24 +256,19 @@ bench.GNE.minpb <- function(xinit, ..., echo=FALSE, control.outer=list(),
 	for(p in problems)
 	{
 		if(echo)
-		cat("Begin", paste(met, p), "\n")
+			cat("Begin", paste(met, p), "\n")
 		mytime <- system.time(
 			res <- GNE.minpb(xinit, ..., method=met, problem=p, 
 				control.outer=control.outer, control.inner=control.inner) 
 							  , gcFirst = TRUE)
 		
 		res <- c(res, problem=p, method=met, time= mytime[3], name=paste(p, met))
-			
-		if(met == "BB")
-			print(res)
 	
 		reslist <- c(reslist, list(res))
 		if(echo)
 			cat("End\n")
 		
 	}	
-	
-	
 	
 	minfncall.outer <- sapply(1:length(reslist), function(i) reslist[[i]]$outer.counts[1] )
 	grminfncall.outer <- sapply(1:length(reslist), function(i) reslist[[i]]$outer.counts[2] )
@@ -259,22 +278,8 @@ bench.GNE.minpb <- function(xinit, ..., echo=FALSE, control.outer=list(),
 	normFx <- sapply(1:length(reslist), function(i) reslist[[i]]$value )
 	comptime <- sapply(1:length(reslist), function(i) reslist[[i]]$time )
 	checknam <- sapply(1:length(reslist), function(i) reslist[[i]]$name )	
-	codes <- sapply(1:length(reslist), function(i) reslist[[i]]$code )
-	
-	
-	print(sapply(1:length(reslist), function(i) reslist[[i]]$outer.counts))
-	print(length(fullnames1))
-	print(minfncall.outer)
-	print(grminfncall.outer)
-	print(unlist(minfncall.outer))
-	print(unlist(grminfncall.outer))
-	print(length(gapfncall.inner))
-	print(length(grgapfncall.inner))
-	print(length(comptime))
-	print(length(normFx))
-	print(length(codes))
-	print(length(x))
-	
+	codes <- sapply(1:length(reslist), function(i) reslist[[i]]$code )	
+
 	data.frame( method= fullnames1, minfncall.outer, grminfncall.outer, 
 			   gapfncall.inner, grgapfncall.inner, comptime, 
 			   normFx, codes, x )

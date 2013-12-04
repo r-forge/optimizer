@@ -1,6 +1,5 @@
 \name{rejection}
 \alias{rejection}
-\alias{Rejection}
 \title{Rejection method for random generation.}
 \description{
 		Generate random variate satisfying the constraint function by the Rejection algorithm.
@@ -15,10 +14,12 @@ rejection(constr, nvars, LB=0, UB=1, ..., echo=FALSE,
   \item{nvars}{Number of variables}
   \item{LB}{Lower bound}
   \item{UB}{Upper bound}
-  \item{...}{further arguments to pass to \code{constr} function.}
+  \item{\dots}{further arguments to pass to \code{constr} function.}
   \item{echo}{a logical to plot traces.}
   \item{method}{the distribution to draw random variates, either \code{"unif"},
 	\code{"norm"}, \code{"normcap"}.}
+  \item{control}{a named list containing the mean and the standard deviation
+  of the normal distribution used if \code{method!="unif"}.}	
 }
 \details{
 Draw random variates \code{x} until all the components of \code{constr(x)} are negative. The distribution

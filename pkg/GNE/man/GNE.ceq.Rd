@@ -164,7 +164,7 @@ The \code{control} argument is a list that can supply any of the following compo
 }
 \seealso{
 
-See \code{\link{GNE.fpeq}} and \code{\link{GNE.min}} 
+See \code{\link{GNE.fpeq}}, \code{\link{GNE.minpb}} and \code{\link{GNE.nseq}} 
 for other approaches; \code{\link{funCER}} and
 \code{\link{jacCER}} for template functions of \eqn{H} and \eqn{Jac H}.
 

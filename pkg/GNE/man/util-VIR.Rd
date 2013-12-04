@@ -1,18 +1,18 @@
-\name{NIR}
-\alias{gapNIR}
-\alias{gradxgapNIR}
-\alias{gradygapNIR}
-\alias{fpNIR}
+\name{VIR}
+\alias{gapVIR}
+\alias{gradxgapVIR}
+\alias{gradygapVIR}
+\alias{fpVIR}
 \title{Nikaido Isoda Reformulation}
 \description{
 		functions of the Nikaido Isoda Reformulation of the GNEP
 	}
 \usage{
 
-gapNIR(x, y, dimx, obj, argobj, param=list(), echo=FALSE)
-gradxgapNIR(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
-gradygapNIR(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
-fpNIR(x, dimx, obj, argobj, joint, argjoint,  
+gapVIR(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
+gradxgapVIR(x, y, dimx, grobj, arggrobj, heobj, argheobj, param=list(), echo=FALSE)
+gradygapVIR(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
+fpVIR(x, dimx, obj, argobj, joint, argjoint,  
 	grobj, arggrobj, jacjoint, argjacjoint, param=list(), 
 	echo=FALSE, control=list(), yinit=NULL, optim.method="default")
 
@@ -26,6 +26,8 @@ fpNIR(x, dimx, obj, argobj, joint, argjoint,
   \item{argobj}{a list of additional arguments.}
   \item{grobj}{gradient of the objective function, see details.}
   \item{arggrobj}{a list of additional arguments of the objective gradient.}
+  \item{heobj}{Hessian of the objective function, see details.}
+  \item{argheobj}{a list of additional arguments of the objective Hessian.}
 
   \item{joint}{joint function, see details.}
   \item{argjoint}{a list of additional arguments of the joint function.}
@@ -40,9 +42,9 @@ fpNIR(x, dimx, obj, argobj, joint, argjoint,
   \item{echo}{a logical to show some traces.}    
 }
 \details{
-\code{gapNIR} computes the Nikaido Isoda function of the GNEP, while \code{gradxgapNIR} 
-and \code{gradygapNIR} give its gradient with respect to \eqn{x} and \eqn{y}.
-\code{fpNIR} computes the fixed-point function.
+\code{gapVIR} computes the Nikaido Isoda function of the GNEP, while \code{gradxgapVIR} 
+and \code{gradygapVIR} give its gradient with respect to \eqn{x} and \eqn{y}.
+\code{fpVIR} computes the fixed-point function.
 	
 }
 \value{

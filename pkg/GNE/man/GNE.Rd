@@ -1,6 +1,5 @@
 \name{GNE}
 \alias{GNE}
-\alias{GNE}
 \title{GNE package}
 \description{
 		Generalized Nash Equilibrium computational methods.
@@ -12,28 +11,29 @@ GNE(approach =
 
 }
 \arguments{
-  \item{approach}{a character string for the approach: either \code{"non smooth"}, \code{"fixed point"}, or 
-	\code{"minimization"}.}
+  \item{approach}{a character string for the approach: either \code{"non smooth"}, 
+    \code{"fixed point"}, \code{"minimization"} or \code{"constrained equation"}.}
   \item{method}{a character string for the computation method: either \code{"default"} or the name
 	of the method.}
   \item{xinit}{a numeric vector for the initial point.}
-  \item{\dots}{further arguments to be passed to \code{GNE.nseq}, \code{GNE.fpeq} or \code{GNE.min}. 
-	NOT to the functions \code{func1} and \code{func2}.}
+  \item{\dots}{further arguments to be passed to \code{GNE.nseq}, \code{GNE.fpeq} or \code{GNE.minpb}.}
   \item{control}{a list with control parameters.}
 }	
 \details{
 Computing generalized Nash Equilibrium can be done in three different approaches.
 \describe{
 	\item{(i) extended KKT system}{It consists in solving the non smooth extended Karush-Kuhn-Tucker 
-		(KKT) system \eqn{\Phi(z)=0}. \code{func1} is \eqn{Phi} and \code{func2} is \eqn{Jac Phi}.}
-	\item{(ii) fixed point approach}{It consists in solving equation \eqn{y(x)=x}. \code{func1} is \eqn{y} and 
-		\code{func2} is ?}
-	\item{(iii) gap function minimization}{It consists in minimizing a gap function \eqn{min V(x)}. 
-		\code{func1} is \eqn{V} and \code{func2} is \eqn{Grad V}.}
+		(KKT) system \eqn{\Phi(z)=0}.}
+	\item{(ii) fixed point approach}{It consists in solving equation \eqn{y(x)=x}.}
+	\item{(iii) gap function minimization}{It consists in minimizing a gap function \eqn{min V(x)}.}
+	\item{(iv) constrained equation}{It consists in solving \eqn{F(x)} such that \eqn{x}
+	belongs to a specific set.}
 }
 
 The \code{GNE} function is a global function calling the appropriate function \code{\link{GNE.nseq}}, 
-\code{\link{GNE.fpeq}} or \code{\link{GNE.min}}.
+\code{\link{GNE.fpeq}}, \code{\link{GNE.ceq}} or \code{\link{GNE.minpb}}.
+Benchmark functions comparing all methods for a given reformulation are 
+available: see \code{\link{bench.GNE}}.
 
 
 Additionnal utitilty functions are also available:
@@ -44,7 +44,6 @@ Additionnal utitilty functions are also available:
 TODO:
 \describe{
 \item{-}{write a pdf vignette.}
-\item{-}{write the headers for all files, in particuler C files.}
 }
 
 }
@@ -95,7 +94,8 @@ A list with components:
 }
 \seealso{
 
-See \code{\link{GNE.nseq}}, \code{\link{GNE.fpeq}} and \code{\link{GNE.min}}.
+See \code{\link{GNE.fpeq}}, \code{\link{GNE.minpb}}, \code{\link{GNE.ceq}} 
+and \code{\link{GNE.nseq}} for other approaches.
 
 }
 \author{

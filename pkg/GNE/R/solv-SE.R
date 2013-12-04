@@ -1,3 +1,27 @@
+#############################################################################
+#   Copyright (c) 2012 Christophe Dutang                                                                                                  
+#                                                                                                                                                                        
+#   This program is free software; you can redistribute it and/or modify                                               
+#   it under the terms of the GNU General Public License as published by                                         
+#   the Free Software Foundation; either version 2 of the License, or                                                   
+#   (at your option) any later version.                                                                                                            
+#                                                                                                                                                                         
+#   This program is distributed in the hope that it will be useful,                                                             
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of                                          
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                 
+#   GNU General Public License for more details.                                                                                    
+#                                                                                                                                                                         
+#   You should have received a copy of the GNU General Public License                                           
+#   along with this program; if not, write to the                                                                                           
+#   Free Software Foundation, Inc.,                                                                                                              
+#   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA                                                             
+#                                                                                                                                                                         
+#############################################################################
+### SE computation in GNE
+###
+###         R functions
+### 
+
 #Stackelberg equilibrium computation
 
 
@@ -201,6 +225,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 #				 method.follower, control.follower, ...)
 	
 	#create the constraint function of leaders given best response of followers
+#such that constr(x) <= 0 as in input we have constr(x) <= 0
 	if(is.null(argtest1$joint) && is.null(argtest1$constr))
 	{
 		constrleaders <- NULL
@@ -227,7 +252,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 			x <- rep(NA, n)
 			x[index4xlead] <- xlead
 			x[id4xfoll] <- foll$par[1:nfoll]	
-			-sapply(leaders, function(i) arg1$constr(x, i, arg1$argconstr))
+			sapply(leaders, function(i) arg1$constr(x, i, arg1$argconstr))
 			}	
 			argconstrlist <- list(arg1=argtest1, arg2=argtest2, 
 							  leaders=leaders, followers=followers,
@@ -250,7 +275,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 				x <- rep(NA, n)
 				x[index4xlead] <- xlead
 				x[id4xfoll] <- rep(1, nfoll)	
-				-sapply(leaders, function(i) arg1$constr(x, i, arg1$argconstr))
+				sapply(leaders, function(i) arg1$constr(x, i, arg1$argconstr))
 			}	
 			argconstrlist <- list(arg1=argtest1, arg2=argtest2, 
 								  leaders=leaders, followers=followers,
@@ -280,7 +305,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 			x <- rep(NA, n)
 			x[index4xlead] <- xlead
 			x[id4xfoll] <- foll$par[1:nfoll]	
-			-arg1$joint(x, arg1$argjoint)
+			arg1$joint(x, arg1$argjoint)
 		}
 		argconstrlist <- list(arg1=argtest1, arg2=argtest2, 
 							  leaders=leaders, followers=followers,
@@ -308,8 +333,8 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 			x <- rep(NA, n)
 			x[index4xlead] <- xlead
 			x[id4xfoll] <- foll$par[1:nfoll]	
-			y <- -arg1$joint(x, arg1$argjoint)
-			z <- -sapply(leaders, function(i) arg1$constr(x, i, arg1$argconstr))
+			y <- arg1$joint(x, arg1$argjoint)
+			z <- sapply(leaders, function(i) arg1$constr(x, i, arg1$argconstr))
 			c(y, z)
 		}
 		argconstrlist <- list(arg1=argtest1, arg2=argtest2, 
@@ -492,7 +517,7 @@ bestresponse <- function(xlead, arg1, arg2, leaders, followers,
 		if(iter > 0)
 			initfoll <- initfoll*(1+rnorm(length(initfoll), 0, .1))
 		res2 <- nseq(initfoll, myfunSSR, myjacSSR, argfun=arg1SE, argjac=arg2SE, 
-				method.follower, control.follower, ...)	
+				method=method.follower, control=control.follower, ...)	
 		iter <- iter + 1 
 		if(res2$code == 100)
 			stop(res2$message)

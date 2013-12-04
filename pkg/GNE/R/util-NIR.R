@@ -1,3 +1,29 @@
+#############################################################################
+#   Copyright (c) 2012 Christophe Dutang                                                                                                  
+#                                                                                                                                                                        
+#   This program is free software; you can redistribute it and/or modify                                               
+#   it under the terms of the GNU General Public License as published by                                         
+#   the Free Software Foundation; either version 2 of the License, or                                                   
+#   (at your option) any later version.                                                                                                            
+#                                                                                                                                                                         
+#   This program is distributed in the hope that it will be useful,                                                             
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of                                          
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                 
+#   GNU General Public License for more details.                                                                                    
+#                                                                                                                                                                         
+#   You should have received a copy of the GNU General Public License                                           
+#   along with this program; if not, write to the                                                                                           
+#   Free Software Foundation, Inc.,                                                                                                              
+#   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA                                                             
+#                                                                                                                                                                         
+#############################################################################
+### utility functions for Nikaido Isoda reformulation in GNE
+###
+###         R functions
+### 
+
+
+
 #functions of the Nikaido Isoda Reformulation of the GNEP
 
 
@@ -10,6 +36,8 @@ gapNIR <- function(x, y, dimx, obj, argobj, param=list(), echo=FALSE)
 	par <- list(alpha = 1e-1)
 	namp <- names(par)
 	par[namp <- names(param)] <- param
+	if(is.null(param$alpha) & !is.null(param$beta))
+		par$alpha <- param$beta
 	
 	dimx <- arg$dimx
 	n <- sum(arg$dimx)
@@ -44,6 +72,8 @@ gradxgapNIR <- function(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
 	par <- list(alpha = 1e-1)
 	namp <- names(par)
 	par[namp <- names(param)] <- param
+	if(is.null(param$alpha) & !is.null(param$beta))
+		par$alpha <- param$beta
 	
 	dimx <- arg$dimx
 	n <- sum(arg$dimx)
@@ -87,6 +117,8 @@ gradygapNIR <- function(x, y, dimx, grobj, arggrobj, param=list(), echo=FALSE)
 	par <- list(alpha = 1e-1)
 	namp <- names(par)
 	par[namp <- names(param)] <- param
+	if(is.null(param$alpha) & !is.null(param$beta))
+		par$alpha <- param$beta
 	
 	dimx <- arg$dimx
 	n <- sum(arg$dimx)
@@ -121,6 +153,9 @@ fpNIR <- function(x, dimx, obj, argobj, joint, argjoint,
 	par <- list(alpha = 1e-1)
 	namp <- names(par)
 	par[namp <- names(param)] <- param
+	if(is.null(param$alpha) & !is.null(param$beta))
+		par$alpha <- param$beta
+	
 	
 	if(optim.method == "default")
 		optim.method <- "BFGS"

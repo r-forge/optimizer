@@ -8,7 +8,7 @@
 GNE.fpeq(init, dimx, obj, argobj, grobj, arggrobj, 
 	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
 	method = "default", problem = c("NIR", "VIR"), 
-	merit = c("NI", "VI", "FP"), order=1, control.outer=list(), 
+	merit = c("NI", "VI", "FP"), order.method=1, control.outer=list(), 
 	control.inner=list(), silent=TRUE, param=list(), stepfunc, argstep, ...)
 }
 \arguments{
@@ -33,7 +33,7 @@ GNE.fpeq(init, dimx, obj, argobj, grobj, arggrobj,
 
   \item{problem}{either \code{"NIR"}, \code{"VIP"}, see details.}
   \item{merit}{either \code{"NI"}, \code{"VI"}, \code{"FP"}, see details.}
-  \item{order}{the order of the extrapolation method.}
+  \item{order.method}{the order of the extrapolation method.}
 	
   \item{control.outer}{a list with control parameters for the fixed point algorithm.}
   \item{control.inner}{a list with control parameters for the fixed point function.}  
@@ -170,7 +170,7 @@ A list with components:
 
 \seealso{
 
-See \code{\link{GNE.nseq}} and \code{\link{GNE.min}} 
+See \code{\link{GNE.ceq}}, \code{\link{GNE.minpb}} and \code{\link{GNE.nseq}} 
 for other approaches.
 
 

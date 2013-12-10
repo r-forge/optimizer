@@ -72,6 +72,10 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    argvec <- c(accrcy, gnorm, xnorm) 
    mres  <- modlnp (d, x, g, maxit, upd1, ireset, bounds=FALSE, ipivot, argvec, sfun, ...) 
    p <- mres$p
+   cat("p from first call to modlnp\n")
+   print(p)
+   tmp<-readline("cont.")
+
    gtp <- mres$gtp
    ncg1<-mres$ncg1
    d <- mres$dnew
@@ -100,7 +104,10 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
       nf1 <- reslin$nf1
       ierror <- reslin$ierror
       alpha <- reslin$alpha1
-      nf <- nf + nf1 
+      cat("after lin1, alpha=",alpha,"\n")
+   tmp<-readline("cont.")
+
+     nf <- nf + nf1 
 ## ---------------------------------------------------------
       nit <- nit + 1 
       gnorm <- max(abs(g)) # norm(g,'inf') 

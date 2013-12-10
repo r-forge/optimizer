@@ -318,14 +318,12 @@ Rvmminb <- function(par, fn, gr=NULL, lower = NULL,
                        # are we near or lower than lower bd
 ##                       if (trace > 2) cat("(re)activate lower bd ", i, " at ", lower[i], "\n")
                          if (trace > 0) cat("(re)activate lower bd ", i, " at ", lower[i], "\n")
-                       tmp <- readline("continue")
                        bdmsk[i] <- -3
                     }  # end lower bd reactivate
                     if ((upper[i] - bvec[i]) < ceps * (abs(upper[i]) + 1)) {
                         # are we near or above upper bd
 ##                        if (trace > 2) cat("(re)activate upper bd ", i," at ", upper[i], "\n")
                         if (trace > 0) cat("(re)activate upper bd ", i," at ", upper[i], "\n")
-                       tmp <- readline("continue")
                         bdmsk[i] <- -1
                     }  # end lower bd reactivate
                 }  # end test on free params

@@ -71,8 +71,8 @@ Y1 <- getsensiobj(X1)
 
 d1 <- data.frame(y=Y1, X1)
 
-plot(y~., data=d1)
-plot(d1)
+# plot(y~., data=d1)
+# plot(d1)
 
 scr1 <- src(X1, Y1)
 pcc1 <- pcc(data.frame(X1), Y1)
@@ -233,8 +233,4 @@ rownames(paramranks) <- paste("top", 1:length(paramname))
 paramranks[, 1:6]
 paramranks[, 1:6+6]
 
-source("/Users/dutangc/Documents/These/code/R/print2tex.R")
-print2tex(paramranks[, 1:6])
-print2tex(paramranks[, 1:6+6])
-print2tex(paramranks[, 1:6+12])
 

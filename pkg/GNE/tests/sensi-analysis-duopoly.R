@@ -94,7 +94,7 @@ plot(sensid[,"d"], sensid[,"ne1"])
 sensirho <- rsensiNE(10, "rho", myarg)
 plot(sensid[,"rho"], sensid[,"ne1"])
 
-sensiall <- rsensiNE(1000, c("d", "lambda", "rho"), myarg)
+sensiall <- rsensiNE(10, c("d", "lambda", "rho"), myarg)
 
 par(mfrow=c(1,3))
 plot(sensiall[,"d"], sensiall[,"ne1"])
@@ -182,13 +182,12 @@ ressrc
 ressrrc <- src(data.frame(x1, x2, x3), y, rank=TRUE)
 ressrrc
 
-n <- 100
+n <- 10
 X1 <- data.frame(x1 = runif(n, 10, 30), x2 = runif(n, 2, 6), x3 = runif(n, 1/2, 3))
 X2 <- data.frame(x1 = runif(n, 10, 30), x2 = runif(n, 2, 6), x3 = runif(n, 1/2, 3))
 
-res1 <- sobol(getNE4sobol, X1, X2, order=3)
 
-system.time(res1 <- sobol(getNE4sobol, X1, X2, order=3))
+system.time(res1 <- sobol(getNE4sobol, X1, X2, order=2))
 
 plot(res1, ylim=c(-.25, 1), main="Sobol indices")
 

@@ -6,6 +6,7 @@ Date: 2013-12-13
 Author: Christophe Dutang
 Maintainer: Christophe Dutang <christophe.dutang@ensimag.fr>
 Description: Nash Equilibrium computational methods
-Depends: R (>= 2.6.0), alabama, nleqslv, BB, SQUAREM, sensitivity
+Depends: R (>= 2.6.0), alabama, nleqslv, BB, SQUAREM
+Suggests: sensitivity
 License: GPL (>= 2)
-url: http://optimizer.r-forge.r-project.org/
+URL: http://optimizer.r-forge.r-project.org/

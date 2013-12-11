@@ -51,13 +51,27 @@ gapcheck <- obj(x0, 1) - obj(c(y[1], x0[2]), 1) - alpha/2*(x0[1]-y[1])^2 + obj(x
 if(abs(resgap - gapcheck) > .Machine$double.eps^(2/3))
 	stop("wrong result")
 
-resgrgap <- gradxgapNIR(x0, y, dimx, grobj=grobj) + gradygapNIR(x0, y, dimx, grobj=grobj)
+resgrgap <- gradxgapNIR(x0, y, dimx, grobj=grobj) 
 
-grcheck <- c( grobj(x0, 1, 1) - grobj(xy1, 1, 1), grobj(x0, 2, 2) - grobj(xy2, 2, 2) )- 2*alpha*(x0-y)
+grcheck <- c(grobj(x0, 1, 1) - grobj(xy1, 1, 1) + grobj(x0, 2, 1) - grobj(xy2, 2, 1),
+grobj(x0, 1, 2) - grobj(xy1, 1, 2) + grobj(x0, 2, 2) - grobj(xy2, 2, 2))
+grcheck <- grcheck + c(grobj(xy1, 1, 1),  grobj(xy2, 2, 2))- alpha*(x0-y)
 
 
 if(sum(abs(resgrgap - grcheck)) > .Machine$double.eps^(2/3))
 	stop("wrong result")
+	
+
+resgrgap <- gradygapNIR(x0, y, dimx, grobj=grobj)
+
+grcheck <- c( - grobj(xy1, 1, 1)  - grobj(xy2, 2, 1),
+ - grobj(xy1, 1, 2) - grobj(xy2, 2, 2)) + alpha*(x0-y)
+
+
+if(sum(abs(resgrgap - grcheck)) > .Machine$double.eps^(2/3))
+	stop("wrong result")
+	
+	 
 	
 	
 fpNIR(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, echo=FALSE, control=list(eps=1e-10))	
@@ -78,7 +92,8 @@ res2 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method=
 res2$inner.counts
 res2$outer.counts
 
-
+if(FALSE)
+{
 res3 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="UR", merit="FP", control.outer=list(maxit=10), stepfunc=decrstep, argstep=5)
 
 res3 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="UR", merit="FP", control.outer=list(maxit=10, echo=3), stepfunc=decrstep5)
@@ -120,7 +135,7 @@ res8$outer.counts
 res8 <- GNE.fpeq(x0, dimx, obj=obj, grobj=grobj, joint=h, jacjoint=jach, method="SqRRE", merit="FP", control.outer=list(maxiter=10, trace=1))
 res8$inner.counts
 res8$outer.counts
-
+}
 
 
 #-------------------------------------------------------------------------------
@@ -212,7 +227,7 @@ if(sum(abs(resgrxgap - grxcheck)) > .Machine$double.eps^(2/3))
 resgrygap <- gradygapNIR(x0, y, dimx, grobj=grfullob)
 
 grycheck <- - c(sapply(1:2, function(j) grfullob(xy1, 1, j)), sapply(3:4, function(j) grfullob(xy2, 2, j)), sapply(5:7, function(j) grfullob(xy3, 3, j)))
-grycheck <- grycheck - alpha*(x0-y) 
+grycheck <- grycheck + alpha*(x0-y) 
 
 if(sum(abs(resgrygap - grycheck)) > .Machine$double.eps^(2/3))
 	stop("wrong result")

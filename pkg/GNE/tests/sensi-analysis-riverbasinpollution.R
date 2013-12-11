@@ -86,14 +86,15 @@ Youtputs <- t(getNE(Xinputmatrix))
 idx <- rowSums(is.na(Youtputs)) == 0
 Youtputs <- Youtputs[idx, ]
 Xinputmatrix <- Xinputmatrix[idx, ]
+X2inputmatrix <- X2inputmatrix[idx, ]
 
 Yarithmean <- apply(Youtputs, 1, mean)
 Ygeomean <- apply(Youtputs, 1, function(x) prod(x^(1/3)))
 
-plot(Yarithmean)
-points(Ygeomean, col="red")
-hist(Ygeomean)
-hist(Yarithmean)
+# plot(Yarithmean)
+# points(Ygeomean, col="red")
+# hist(Ygeomean)
+# hist(Yarithmean)
 
 
 
@@ -109,4 +110,5 @@ respccGeo$PCCC
 ressrcArith <- src(data.frame(Xinputmatrix), Yarithmean)
 ressrcGeo <- src(data.frame(Xinputmatrix), Ygeomean)
 
-resobol <- sobol(getNE, Xinputmatrix, X2inputmatrix, check=FALSE)
+# resobol <- sobol(getNE, Xinputmatrix, X2inputmatrix, check=FALSE)
+

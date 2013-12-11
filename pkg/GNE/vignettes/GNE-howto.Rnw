@@ -325,6 +325,7 @@ heg <- function(x, i, j, k) 0
 Therefore, to compute a generalized Nash equilibrium, we use
 %%% R code
 <<testGNE, fig=FALSE, echo=TRUE, eval=TRUE>>=
+set.seed(1234)
 z0 <- rexp(sum(dimx)+sum(dimlam))
 GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, grconstr=grg, heconstr=heg, 
@@ -594,8 +595,10 @@ The generalized Jacobian is given in Appendix \ref{app:nseq:jointcase}.
 
 
 
+%________________________________________________________________________
+\section{Constrained-equation reformulation of the KKT system}
+%________________________________________________________________________
 
-\subsection{Constrained-equation reformulation of the KKT system}
 This subsection aims to present methods specific to solve constrained (nonlinear) equations, first proposed by \cite{kanzowfacchetal11} in the GNEP context.
 The root function $H: \R^n \times \R^{2m} \mapsto  \R^n \times \R^{2m}$ is defined as
 $$
@@ -681,10 +684,19 @@ GNE.ceq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg,
 
 
 %________________________________________________________________________
-\section{GNEP as a fixed point equation}
+\section{GNEP as a fixed point equation or a minimization problem}
 %________________________________________________________________________
 
-We present a last reformulation of the GNEP, which was originally introduced in the context of standard Nash equilibrium problem. 
+We present another reformulation of the GNEP, which was originally introduced in the context of standard Nash equilibrium problem. 
+The fixed-point reformulation arise from two different problem: either using the Nikaido-Isoda (NI) function
+ or the quasi-varational inequaltiy (QVI) problem. We present both here.
+We also present a reformulation of the GNEP through a minimization problem.
+The gap minimization reformulation is closed linked to the fixed-equation reformulation.
+
+
+
+\subsection{NI reformulation}
+
 We define the Nikaido-Isoda function as the function $\psi$ from $\R^{2n}$ to  $\R$ by
 \begin{equation}
 \psi(x, y) = \sum_{\nu = 1}^N [ \theta(x_\nu, x_{-\nu}) -  \theta(y_\nu, x_{-\nu}) ].
@@ -696,7 +708,8 @@ $$
 \hat V(x) = \underset{ y \in X(x) }{\sup}~ \psi(x,y).
 $$
 Theorem 3.2 of \cite{facchkanz09b} shows the relation between GNEPs and the Nikaido-Isoda function. 
-If objective functions $\theta_i$ are continuous, then  $x^\star$ solves the GNEP if and only if $x^\star$ solves the equation 
+If objective functions $\theta_i$ are continuous, then  $x^\star$ solves the GNEP if and only if $x^\star$ 
+is a minimimum of $\hat V$ such that
 \begin{equation}
 \hat V(x) = 0
 \txtm{and} 
@@ -704,7 +717,55 @@ x \in X(x),
 \label{eq:NIF:general}
 \end{equation}
 where the set $X(x) = \{y \in \R^n, \forall i, g^i(y_i, x_{-i}) \leq 0 \}$ and $\hat V$ defined in (\ref{eq:NIF}). Furthermore, the function $\hat V$ is such that $\forall x \in X(x), \hat V(x) \geq 0$.
-There is no particular algorithm able to solve this problem for a general constrained set $X(x)$. But a simplification will occur in a special case.
+There is no particular algorithm able to solve this problem for a general constrained set $X(x)$. But a simplification will occur in a special case: the jointly convex case.
+
+\subsection{QVI reformulation}
+
+Assuming the differentiability of objective functions, the GNEP in  (\ref{eq:GNEP:sub}) can be reformulated as a QVI problem  
+\begin{equation}
+\forall y \in X(x), (y-x)^T F(x) \geq 0,
+\txtm{with}
+F(x) = 
+\left( 
+\begin{matrix}
+\nabla_{x_1} \theta_1(x) \\
+\vdots \\
+\nabla_{x_N} \theta_N(x) \\
+\end{matrix}
+\right),
+\label{eq:QVI:general}
+\end{equation}
+and a constrained set $X(x) = \{y \in \R^n, \forall i,~ g^i(y_i, x_{-i}) \leq 0 \}$.
+The following theorem states the equivalence between the GNEP and the QVI, see Theorem 3.3 of \cite{facchkanz09b}. 
+
+\cite{fukubo10} propose to refomulate the QVI problem as a minimization of a (regularized) gap function. 
+The regularized gap function of the QVI (\ref{eq:QVI:general}) is
+$$
+V_{QVI}(x) = \underset{y\in X(x)}{\sup}~\psi_{\alpha VI}(x, y),
+$$
+where $\psi_{\alpha VI}$ is given by
+\begin{equation}
+\psi_{\alpha VI}(x, y) = \left( 
+\begin{matrix}
+\nabla_{x_1} \theta_1(x) \\
+\vdots \\
+\nabla_{x_N} \theta_N(x) \\
+\end{matrix}
+\right)^T (x-y) - \frac{\alpha}{2} ||x-y||^2,
+\label{eq:psiVI}
+\end{equation}
+for a regularization parameter $\alpha>0$. 
+Note that the minimisation problem appearing in the definition of $V_{QVI}$ is a quadratic problem. 
+The  theorem of \cite{fukubo10} given below shows the equivalence a minimizer of $V_{QVI}$ and the GNEP.
+
+For each $x\in X(x)$, the regularized gap function $V_{QVI}$ is non-negative $V_{QVI}(x) \geq 0$.
+If objective functions are continuous, then $x^\star$ solves the GNEP if and only if $x^\star$ is a minimum of $V_{QVI}$ such that
+\begin{equation}
+V_{QVI}(x^\star)=0
+\text{ and }
+x^\star \in X(x^\star).
+\label{eq:gapVI:general}
+\end{equation}
 
 
 
@@ -718,45 +779,116 @@ $$
 =
 \{y_i \in \R^{n_i},  (y_i, x_{-i}) \in X \} .  
 $$ 
-The convexity of $X$ implies that the constraint function $g$ is  quasiconvex with respect to all variables.
-However, we generally assume that $g$ is convex with respect to all variables.
+In our context parametrized context, the jointly convex setting requires that the constraint function is common to all players $g^1=\dots =g^N= g$ and
+\begin{equation}
+X= \{x \in \R^{n}, \forall i=1,\dots, N, ~ g(x_i, x_{-i}) \leq 0 \}
+\label{eq:feasibleset:joint}
+\end{equation}
+is convex.
+
+
+
+We consider the following example based on the previous example.
+Let $N=2$. The objective functions are defined as
+$$
+\theta_1(x) = (x_1-2)^2 (x_2-4)^4 \txtm{and} \theta_2(x) = (x_2-3)^2 (x_1)^4,
+$$
+for $x\in \R^2$, while the constraint function $g(x)=(g_1(x), g_2(x))$ is given by
+$$
+g_1(x) = x_1+x_2-1 \leq 0 \txtm{and} g_2(x) = 2x_1+x_2-2 \leq 0.
+$$
+Objective functions can be rewritten as $\theta_i(x) = (x_i - c_i)^2 (x_{-i} - d_i)^4$, with $c = (2, 3)$ and
+$d=(4,0)$.
+First-order and second-order derivatives are given in the introduction. 
+
+
+and
+$$
+\nabla_j g_1(x) = 1
+\txtm{and}
+\nabla_j g_2(x) = 2 \delta_{j1} + \delta_{j2}.
+$$
+
+
+%%% R code
+<<testNI, fig=FALSE, echo=TRUE, eval=TRUE>>=
+#O_i(x)
+obj <- function(x, i, arg)
+  (x[i] - arg$C[i])^2*(x[-i] - arg$D[i])^4
+#g(x)
+gtot <- function(x)
+  sum(x[1:2]) - 1
+#Gr_x_j g(x)
+jacgtot <- function(x)
+	cbind(1, 1)
+
+z0 <- rexp(sum(dimx))
+
+GNE.fpeq(z0, dimx, obj, myarg, grobj, myarg, heobj, myarg, gtot, NULL, 
+         jacgtot, NULL, silent=TRUE, control.outer=list(maxit=10), 
+         problem="NIR", merit="NI")
+
+
+GNE.fpeq(z0, dimx, obj, myarg, grobj, myarg, heobj, myarg, gtot, NULL, 
+         jacgtot, NULL, silent=TRUE, control.outer=list(maxit=10), 
+         problem="VIR", merit="VI")
+@
+%%%
 
 
 %**************
 \subsubsection{NIF formulation for the jointly convex case}
 
-
-
-Recalling that for the Nikaido-Isoda function (\ref{eq:NIF}), the gap function is
+In the jointly convex case, the gap function becomes
 $$
-\hat V(x) = \underset{ y \in X(x) }{\sup}~ \psi(x,y).
+V_{\alpha NI}(x)= \underset{ y \in X }{\max}~ \psi_{\alpha NI}(x,y).
 $$
-In the jointly convex case, we get
+Since $y\mapsto \psi_{\alpha NI}(x,y)$ is strictly concave as long as objective functions $\theta_i$ are player-convex, the supremum is replaced by the maximum. 
+Using two regularization parameters $0<\alpha<\beta$, the constrained minimization problem can be further simplified to the unconstrained problem
 \begin{equation}
-\hat V(x) = 0
-\txtm{and} 
-x \in X(x),
-\label{eq:NIF:joint}
+\underset{x\in\R^n}{\min} V_{\alpha NI}(x)-V_{\beta NI}(x),
+\label{eq:gapNIab:joint}
 \end{equation}
-where the set $X(x) = \{y \in \R^n, g(y_i, x_{-i}) \leq 0 \}$. Still the computation of $\hat V$ is a complex optimization over a constrained set $X(x)$.
-As in the previous subsection, the class of GNE called variational equilibrium can be characterized by the NI formulation.  We have the folllowing theorem.
+see \cite{heusingerkanzow}.
 
 
-Assuming $\theta_i$ and $g$ are C\expo{1} functions and $g$ is convex and $\theta_i$ player-convex. $x^\star$ is a variational equilibrium if and only if $x^\star \in X$ and $V(x^\star)=0$ with $V$ defined as
+Furthermore, a generalized equilibrium also solves a fixed-point equation, see Property 3.4 of \cite{heusingerkanzow}.
+Assuming $\theta_i$ and $g$ are C\expo{1} functions and $g$ is convex and $\theta_i$ player-convex. $x^\star$ is a normalized equilibrium if and only if $x^\star$ is a fixed-point of the function
+\begin{equation}
+x \mapsto y_{NI}(x) = \underset{y\in X}{\arg\max}~ \psi_{\alpha NI}(x, y).
+\label{eq:fpNIa:joint}
+\end{equation}
+where $X$ is defined in (\ref{eq:feasibleset:joint}) and $\psi_{\alpha NI}$ called the regularized Nikaido-Isoda function is defined as
+\begin{equation}
+\psi_{\alpha NI}(x, y) = \sum_{\nu = 1}^N [ \theta_\nu(x_\nu, x_{-\nu}) -  \theta_\nu(y_\nu, x_{-\nu}) ] - \frac{\alpha}{2} ||x-y||^2,
+\label{eq:psiregNI}
+\end{equation}
+for a regularization parameter $\alpha>0$.
+
+%**************
+\subsubsection{QVI formulation for the jointly convex case}
+
+The regularized gap function also simplifies and becomes
 $$
-V(x) = \underset{ y \in X }{\sup}~ \psi(x,y).
+V_{\alpha VI}(x) = \underset{y\in X}{\sup}~\psi_{\alpha VI}(x, y),
 $$
+where $\psi_{\alpha VI}$ is in (\ref{eq:psiVI}).
+Constrained equation (\ref{eq:gapVI:general}) simplifies to a nonlinear equation
+$V_{\alpha VI}(x^\star)=0$ and $x^\star \in X$.
+Using two regularization parameters $0<\alpha<\beta$, $x^\star$ is the global minimum of the unconstrained minimization problem 
+\begin{equation}
+\underset{x\in\R^n}{\min} V_{\alpha VI}(x)-V_{\beta VI}(x).
+\label{eq:gapVIab:joint}
+\end{equation}
 
+Furthermore, the VI reformulation leads to a fixed-point problem as shown in the following proposition.
+Assuming that $\theta_i$ and $g$ are C\expo{1} functions, $g$ is convex and $\theta_i$ player-convex, then $x^\star$ solves the VI (\ref{eq:VI}) if and only if $x^\star$ is a fixed point of the function 
+\begin{equation}
+x \mapsto y_{VI}(x) = \underset{y\in X}{\arg\max}~ \psi_{\alpha VI}(x, y).
+\label{eq:fpVIa:joint}
+\end{equation}
+where $X$ is defined in (\ref{eq:feasibleset:joint}) and $\psi_{\alpha VI}$ is defined in (\ref{eq:psiVI}).
 
-
-
-
-
-
-
-%________________________________________________________________________
-\section{GNEP as a gap minimization problem}
-%________________________________________________________________________
 
 
 

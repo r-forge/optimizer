@@ -30,6 +30,9 @@ The user can define other projection functions, which allows for arbitrary nonli
 \code{par} and any other arguments should be passed to \code{spg} using its
 argument \code{projectArgs}.  
 }
+
+\note{We are grateful to Berwin Turlach for creating a special version of solve.QP function that is specifically tailored to solving the projection problem.}
+
 \seealso{
   \code{\link{spg}}
 }  

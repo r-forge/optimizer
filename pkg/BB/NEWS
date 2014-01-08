@@ -1,3 +1,7 @@
+Changes in BB version 2014.01-1
+
+   o	Added a special version of solve.QP and removed quadprog from Imports.
+
 Changes in BB version 2013.11-1
 
    o	Changed quadprog from Depends to Imports.

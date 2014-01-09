@@ -60,11 +60,8 @@ projectLinear <- function(par, A, b, meq) {
 
 n <- length(par)
 if (meq > 0 | any(b - c(A %*% par) > 0)){
-   #ans <- solve.QP(Dmat=diag(1,n), dvec=rep(0, n), Amat=t(A), 
-   #                  bvec = b - c(A %*% par), meq=meq, factorized=TRUE)
-   #par <- par + ans$solution 
    par <- par +  solve.QP(dvec=rep(0, n), Amat=t(A),
-                      bvec = b - c(A %*% par), meq=meq)
+                      bvec = b - c(A %*% par), meq=meq, EPS=1e-07)
 }
 par
 }

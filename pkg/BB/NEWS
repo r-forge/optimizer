@@ -1,4 +1,4 @@
-Changes in BB version 2014.01-1
+Changes in BB version 2014.1-1
 
    o	Added a special version of solve.QP and removed quadprog from Imports.
 

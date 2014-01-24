@@ -108,7 +108,7 @@ proj <- function(x){
 x / sum(x) 
 } 
 
-p0 <- c(2,1)  
+p0 <- c(0.93, 0.94)  
 
 # Note, the starting value is infeasible so the next 
 #   result is "Maximum function evals exceeded"

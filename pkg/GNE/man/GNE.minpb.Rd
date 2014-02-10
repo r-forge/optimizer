@@ -8,7 +8,8 @@
 GNE.minpb(init, dimx, obj, argobj, grobj, arggrobj, 
 	heobj, argheobj, joint, argjoint, jacjoint, argjacjoint, 
 	method="default", problem = c("NIR", "VIR"), control.outer=list(), 
-	control.inner=list(), silent=TRUE, param=list(), optim.type=c("free","constr"), ...)
+	control.inner=list(), silent=TRUE, param=list(), 
+	optim.type=c("free","constr"), ...)
 }
 \arguments{
   \item{init}{Initial values for the parameters to be optimized over: \eqn{z=(x, lambda, mu)}.}

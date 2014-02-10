@@ -192,7 +192,7 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 		}
 	}else 
 	{
-		require(alabama)
+		
 		if(!silent)
 			cat("optimization carried out by constrOptim.nl\n")
 		test.try <- try( constrOptim.nl(par=xinit, fn=Fn, gr=Gr, hin=Hin, 

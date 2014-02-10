@@ -366,7 +366,8 @@ checkB <-
 rbind(
 cbind(c(grfullg(x, 1, 1), grfullg(x, 1, 2)), c(0, 0), c(0, 0), c(0, 0), c(0, 0)),
 cbind(c(0, 0), rbind(grfullg(x, 2, 3), grfullg(x, 2, 4)), c(0, 0), c(0, 0)),
-cbind(c(0, 0, 0), c(0, 0, 0), c(0, 0, 0), rbind(grfullg(x, 3, 5), grfullg(x, 3, 6), grfullg(x, 3, 7)))
+cbind(c(0, 0, 0), c(0, 0, 0), c(0, 0, 0), 
+ rbind(grfullg(x, 3, 5), grfullg(x, 3, 6), grfullg(x, 3, 7)))
 )
 
 

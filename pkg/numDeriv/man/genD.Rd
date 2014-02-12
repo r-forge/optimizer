@@ -84,6 +84,9 @@ A list with elements as follows:
    Richardson's extrapolation is based on these formula with the \code{d} 
    being reduced in the extrapolation iterations. In the code, \code{d} is
    scaled to accommodate parameters of different magnitudes. 
+
+   \code{genD} does \code{1 + r (N^2 + N)} evaluations of the function
+   \code{f}, where \code{N} is the length of \code{x}.
 }
 
 \references{ 

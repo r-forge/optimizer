@@ -7,7 +7,7 @@ Known BUGS
 	a central difference approximation, without any extrapolation. 
  
 
-Changes in numDeriv version 2013.11-1
+Changes in numDeriv version 2014.2-1
 
    o	added argument 'side' to allow one-sided first derivatives (grad and 
    	jacobian) for simple and Richardson  methods. 

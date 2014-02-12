@@ -1,5 +1,5 @@
 Package: numDeriv
-Version: 2013.11-1
+Version: 2014.2-1
 Title: Accurate Numerical Derivatives
 Description: This package provide methods for calculating (usually) accurate
 	numerical first and second order derivatives. Accurate calculations 

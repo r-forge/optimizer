@@ -35,7 +35,7 @@ function at a parameter value.}
   For method \code{"complex"} the Hessian matrix is calculated as the Jacobian
   of the gradient. The function \code{grad} with method "complex" is used, 
   and \code{method.args} is ignored for this (an \code{eps} of 
-  \code{.Machine$double.eps} is used - see \code{\link{grad}} for more details). 
+  \code{.Machine$double.eps} is used). 
   However,  \code{jacobian} is used in the second step, with method 
   \code{"Richardson"} and argument \code{method.args} is used for this. 
   The default is
@@ -43,11 +43,16 @@ function at a parameter value.}
    r=4, v=2, show.details=FALSE)}. (These are the defaults for \code{hessian} 
    with method \code{"Richardson"}, which are slightly different from the defaults 
    for \code{jacobian} with method \code{"Richardson"}.)
+  See addition comments in \code{\link{grad}} before choosing 
+  method \code{"complex"}.
   
   Methods \code{"Richardson"} uses \code{\link{genD}} and extracts the 
   second derivative. For this method 
    \code{method.args=list(eps=1e-4, d=0.1, zero.tol=sqrt(.Machine$double.eps/7e-7), 
-   r=4, v=2, show.details=FALSE)} is set as the default.
+   r=4, v=2, show.details=FALSE)} is set as the default. \code{hessian} does
+   one evaluation of \code{func} in order to do some error checking before
+   calling \code{genD}, so the number of function evaluations will be one more
+   than indicated for \code{\link{genD}}.
 }
 \seealso{
     \code{\link{jacobian}},

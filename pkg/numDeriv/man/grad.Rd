@@ -47,10 +47,18 @@
    default. Only \code{eps} is used by this method.
 
    If method is "complex", the calculation is done using the complex step
-   derivative approach described in Lyness and Moler. This method requires
-   that the function be able to handle complex valued arguments and return the
-   appropriate complex valued result, even though the user may only be
-   interested in the real-valued derivatives. For cases where it can be used,
+   derivative approach of Lyness and Moler, described in  Squire and Trapp. 
+   This method requires that the function be able to handle complex valued 
+   arguments and return the appropriate complex valued result, 
+   even though the user may only be interested in the real-valued derivatives. 
+   It also requires that the complex function be analytic. (This might be thought 
+   of as the complex equivalent of the requirement for continuity and smoothness 
+   of a real valued function.) 
+   So, while this method is extremely powerful it is applicable to
+   a very restricted class of functions. \emph{Avoid this method if you do not 
+   know that your function is suitable. Your mistake may not be caught and the
+   results will be spurious.}
+   For cases where it can be used,
    it is faster than Richardson's extrapolation, and
    it also provides gradients that are correct to machine precision (16 digits).   
    For method "complex", \code{method.args} is ignored.
@@ -136,6 +144,10 @@
   Lyness, J. N. and Moler, C. B. (1967) ``Numerical Differentiation of Analytic 
    Functions.'' \emph{SIAM Journal for Numerical Analysis},
     4(2), 202-210.
+
+  Squire, William and Trapp, George (1998) ``Using Complex Variables to Estimate
+   Derivatives of Real Functions.'' \emph{SIAM Rev},
+    40(1), 110-112.
 }
 \seealso{
   \code{\link{jacobian}},

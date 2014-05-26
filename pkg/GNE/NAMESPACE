@@ -1,4 +1,8 @@
-
+### Imports
+import(BB)
+import(SQUAREM)
+import(alabama)
+import(nleqslv)
 
 ### Exports of main R functions
 export(GNE, GNE.nseq, GNE.ceq, GNE.fpeq, GNE.minpb)

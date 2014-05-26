@@ -76,12 +76,12 @@ d1 <- data.frame(y=Y1, X1)
 
 scr1 <- src(X1, Y1)
 pcc1 <- pcc(data.frame(X1), Y1)
-pcc1$PCCC
+pcc1$PCC
 
 r1 <- sobol(getsensiobj, X1, X2, order=1)
 
 
-playcomp <- cbind(scr1$SRC, pcc1$PCCC, r1$S)
+playcomp <- cbind(scr1$SRC, pcc1$PCC, r1$S)
 colnames(playcomp) <- paste("Play. Comp.", c("SCR", "PCC", "Sobol"), sep="-")
 
 
@@ -104,11 +104,11 @@ Y1 <- getsensiNE(X1)
 
 scr2 <- src(X1, Y1)
 pcc2 <- pcc(data.frame(X1), Y1)
-pcc2$PCCC
+pcc2$PCC
 
 r2 <- sobol(getsensiNE, X1, X2, order=1)
 
-playobj <- cbind(scr2$SRC, pcc2$PCCC, r2$S)
+playobj <- cbind(scr2$SRC, pcc2$PCC, r2$S)
 colnames(playobj) <- paste("Play. Obj.", c("SCR", "PCC", "Sobol"), sep="-")
 
 
@@ -138,18 +138,18 @@ Y1geo <- getsensindex(X1, type="geo")
 scr3 <- src(X1, Y1bar)
 scr3
 pcc3 <- pcc(data.frame(X1), Y1bar)
-pcc3$PCCC
+
 
 r3 <- sobol(getsensindex, X1, X2, order=1)
 
-indexarith <- cbind(scr3$SRC, pcc3$PCCC, r3$S)
+indexarith <- cbind(scr3$SRC, pcc3$PCC, r3$S)
 colnames(indexarith) <- paste("Arith. Index.", c("SCR", "PCC", "Sobol"), sep="-")
 
 scr4 <- src(X1, Y1geo)
 pcc4 <- pcc(data.frame(X1), Y1bar)
 r4 <- sobol(getsensindex, X1, X2, order=1, type="geo")
 
-indexgeo <- cbind(scr4$SRC, pcc4$PCCC, r4$S)
+indexgeo <- cbind(scr4$SRC, pcc4$PCC, r4$S)
 colnames(indexgeo) <- paste("Arith. Geo.", c("SCR", "PCC", "Sobol"), sep="-")
 
 #--------------------------------
@@ -179,12 +179,11 @@ Y1 <- getsensiNIF(X1)
 scr5 <- src(X1, Y1)
 scr5
 pcc5 <- pcc(data.frame(X1), Y1)
-pcc5$PCCC
 
 r5 <- sobol(getsensiNIF, X1, X2, order=1)
 
 
-funcNIF <- cbind(scr5$SRC, pcc5$PCCC, r5$S)
+funcNIF <- cbind(scr5$SRC, pcc5$PCC, r5$S)
 colnames(funcNIF) <- paste("Func. NIF", c("SCR", "PCC", "Sobol"), sep="-")
 
 
@@ -213,7 +212,7 @@ pcc6 <- pcc(data.frame(X1), Y1)
 
 r6 <- sobol(getsensiNIF, X1, X2, order=1)
 
-funcSumObj <- cbind(scr6$SRC, pcc6$PCCC, r6$S)
+funcSumObj <- cbind(scr6$SRC, pcc6$PCC, r6$S)
 colnames(funcSumObj) <- paste("Func. Sum. Obj", c("SCR", "PCC", "Sobol"), sep="-")
 
 

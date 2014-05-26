@@ -1,4 +1,5 @@
-require(GNE)
+if(!require("GNE"))stop("this test requires package GNE.")
+
 
 
 # (1) associated objective functions

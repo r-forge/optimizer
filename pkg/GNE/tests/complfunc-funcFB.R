@@ -1,5 +1,5 @@
+if(!require("GNE"))stop("this test requires package GNE.")
 
-library(GNE)
 GrAphiFB(0, 1)
 GrAphiFB(0, 0)
 library(GNE)

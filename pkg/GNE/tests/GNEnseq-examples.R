@@ -1,4 +1,4 @@
-library(GNE)	
+if(!require("GNE"))stop("this test requires package GNE.")
 
 itermax <- 10
 

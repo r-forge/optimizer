@@ -1,3 +1,4 @@
+if(!require("GNE"))stop("this test requires package GNE.")
 
 limphiFB <- function(x, ab) 
 	( sqrt(x^2*ab[1]^2 + x^2*ab[2]^2) - x*(ab[1]+ab[2]) )/x

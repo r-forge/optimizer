@@ -1,4 +1,4 @@
-library(GNE)
+if(!require("GNE"))stop("this test requires package GNE.")
 
 #-------------------------------------------------------------------------------
 # (4) Example of GNE with 4 solutions(!)

@@ -1,4 +1,4 @@
-library(GNE)
+if(!require("GNE"))stop("this test requires package GNE.")
 
 #-------------------------------------------------------------------------------
 # (3) River basin pollution game of Krawczyk and Stanislav Uryasev (2000)

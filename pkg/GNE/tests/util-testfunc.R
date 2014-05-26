@@ -1,4 +1,4 @@
-library(GNE)
+if(!require("GNE"))stop("this test requires package GNE.")
 
 f <- function(x) x
 f2 <- function(x, y) x+y

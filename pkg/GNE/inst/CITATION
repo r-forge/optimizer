@@ -1,14 +1,14 @@
 citHeader("To cite GNE in publications use:")
 
 
-citEntry(entry="Manual",
-         title = "GNE: computation of Nash Equilibria",
-         author = "Christophe Dutang",
-	 year = 2013,
-         note = "R package version 0.97",
-         textVersion =
-	 paste(	"C. Dutang",
-		"(2013),",
-	       	"GNE: computation of generalized Nash Equilibria")
-)
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
+bibentry(bibtype = "Manual",
+         title = "{GNE}: computation of generalized Nash Equilibria",
+         author = c(person("Dutang", "Christophe")),
+         year = year,
+         note = note,
+         url = "http://CRAN.R-project.org/package=GNE")
+
 

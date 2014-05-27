@@ -89,6 +89,10 @@ A list with components:
  A. von Heusinger & J. Kanzow (2009),
  \emph{Optimization reformulations of the generalized Nash equilibrium problem using Nikaido-Isoda-type functions},
  Comput Optim Appl .
+ 
+ C. Dutang (2013), 
+ \emph{A survey of GNE computation methods: theory and algorithms},
+preprint on HAL, \url{http://hal.archives-ouvertes.fr/hal-00813531}.
 
 
 }

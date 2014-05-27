@@ -1,5 +1,11 @@
 === GNE: computation of Nash Equilibria ===
 
+Version 0.98
+=============
+
+- first release on CRAN after removing unnecessary file/directory.
+
+
 Version 0.97
 =============
 

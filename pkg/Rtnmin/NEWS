@@ -4,6 +4,12 @@ TODOS
    o    Simplification and streamlining of code to mesh
 	better with other R optimization tools.
 
+   o    Put maxit, maxfun in control list.
+
+2013-06-03
+
+   o    Properly packaged version of Rtnmin. 
+
 2013-11-11 
    
    o    First version of Rtn.

@@ -5,7 +5,6 @@ Version: 2014-6.3
 Date: 2014-06-03
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca") )
-Author: John C Nash <nashjc@uottawa.ca>
 Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Truncated Newton function minimization with bounds constraints
 	based on the Matlab/Octave codes of Stephen Nash

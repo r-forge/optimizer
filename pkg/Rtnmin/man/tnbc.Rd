@@ -37,11 +37,12 @@ of nonlinear functions subject to bounds (box) constraints and masks
    more than \code{maxfun} (default 150*n, where there are n parameters);
    \code{3} if the line search appears to have failed (which may not be serious);
    and \code{-1} if there appears to be an error in the input parameters.}
-  \item{nfngr}{A description of the situation on termination of the function.}
+  \item{nfngr}{A number giving a measure of how many conjugate gradient solutions
+	were used during the minimization process.}
 }
 \seealso{\code{\link{optim}}}
 \examples{
-## See Rvmmin.Rd
+## See tn.Rd
 
 }
 

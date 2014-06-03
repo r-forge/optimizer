@@ -13,7 +13,7 @@ tnbc <- function (x, fgfun, lower, upper, ...) {
 ##             ( 3 => line search failed (may not be serious)
 ##             (-1 => error in input parameters
 ## x        -> initial estimate of the solution; 
-## fgfun     -> function routine: [f,g] = fgfun(x)
+## fgfun     -> function routine: in Matlab [f,g] = fgfun(x)
 ## xstar   <-  the computed solution.
 ## g       <-  final value of the gradient
 ## f       <-  final value of the objective function

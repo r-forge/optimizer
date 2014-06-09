@@ -157,7 +157,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   #  Initialization
   lmin <- 1.e-30
   lmax <- 1.e30
-  iter <-  geval <- 0
+  iter <-  0
   lastfv <- rep(-1.e99, M)
   fbest <- NA
   fchg <- Inf          # RV change on 02-06-2011
@@ -179,8 +179,6 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
   pbest <- par
  
   g <- try(grad(par, ...),silent=TRUE)
-  
-  geval <- geval + 1
  
   if (class(g)=="try-error" ) 
         stop("Failure in initial gradient evaluation!", g)
@@ -242,7 +240,6 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
       lastfv[(iter %% M) + 1] <- f
  
       gnew <- try(grad(pnew, ...),silent=TRUE)     
-      geval <- geval + 1
  
       if (class(gnew)=="try-error" | any(is.nan(gnew)) ){
         lsflag <- 3

@@ -1,3 +1,8 @@
+Changes in BB version 2014.6-1
+
+   o	Removed unused geval from spg() and documented that geval is equal 
+   	to iter.
+
 Changes in BB version 2014.1-1
 
    o	Added a special version of solve.QP and removed quadprog from Imports.

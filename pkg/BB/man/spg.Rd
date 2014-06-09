@@ -67,7 +67,7 @@
 
 \item{fn.reduction}{Reduction in the value of the function from its initial value. This is negative in maximization.}
 
-\item{iter}{Number of iterations taken by the algorithm.}
+\item{iter}{Number of iterations taken by the algorithm. The gradient is evaluated once each iteration, so the number of gradient evaluations will also be equal to \code{iter}, plus any evaluations necessary for \code{checkGrad}.}
 
 \item{feval}{Number of times the objective \code{fn} was evaluated.}
 

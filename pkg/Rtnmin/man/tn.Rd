@@ -40,10 +40,12 @@ minimization. The algorithm is based on Nash (1979)
   \item{nfngr}{A number giving a measure of how many conjugate gradient solutions
 	were used during the minimization process.}
 }
-\references{ ???
-  Nash, S G (??) ...
+\references{
 
-To be added.
+   Stephen G. Nash (1984) "Newton-type minimization via the Lanczos method",
+   SIAM J Numerical Analysis, vol. 21, no. 4, pages 770-788.
+
+   For Matlab code, see http://www.netlib.org/opt/tn
 }
 \seealso{\code{\link{optim}}}
 \examples{

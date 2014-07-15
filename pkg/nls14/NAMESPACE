@@ -1,0 +1,21 @@
+##
+##  NAMESPACE
+##
+
+# Public routines
+export(
+   nlxbx,
+   nlfb,
+   wrapnls,
+   modss,
+   modgr,
+   model2grfun,
+   model2jacfun,
+   model2resfun,
+   model2ssfun, 
+   print.nlmrt,
+   summary.nlmrt,
+   coef.nlmrt
+)
+
+# S4 Methods

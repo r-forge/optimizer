@@ -42,7 +42,11 @@ model2resfun <- function(modelformula, pvec, funname = "myres",
     lhs <- parts[1]
     rhs <- parts[2]
     # And build the residual at the parameters
-    resexp <- paste(rhs, "-", lhs, collapse = " ")  # build the residuals
+    if (lhs == "") { # we allow 1-sided expressions 140716
+       resexp <- paste(rhs, collapse = " ")
+    } else {
+       resexp <- paste(rhs, "-", lhs, collapse = " ")
+    }
     fnexp <- paste("resids<-as.numeric(eval(", resexp, "))", 
         sep = "")  ##3
     pparse <- ""

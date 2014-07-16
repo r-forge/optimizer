@@ -1,17 +1,17 @@
-nlxbx <- function(formula, start, trace = FALSE, data = NULL, 
-    lower = -Inf, upper = Inf, masked = NULL, control = list(), 
+nls14xb <- function(formula, start, trace = FALSE, data = NULL, 
+    lower = -Inf, upper = Inf, masked = NULL, 
+    weights=NULL, control = list(), 
     ...) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes
     # 'formula' to give a minimal residual sum of squares.
     # 
-    # nls.mn is particularly intended to allow for the
+    # nls14xb is particularly intended to allow for the
     # resolution of very ill-conditioned or else near
     # zero-residual problems for which the regular nls()
-    # function is ill-suited. It may also be a useful
-    # pre-processor for nls().
+    # function is ill-suited. 
     # 
-    # J C Nash 2012-3-4 nashjc _at_ uottawa.ca
+    # J C Nash 2014-7-16   nashjc _at_ uottawa.ca
     # 
     # formula looks like 'y~b1/(1+b2*exp(-b3*T))' start MUST be
     # a vector where all the elements are named: e.g.,
@@ -26,7 +26,7 @@ nlxbx <- function(formula, start, trace = FALSE, data = NULL,
     # 
     # ... will need to contain data for other variables that
     # appear in the formula and are defined in a parent frame
-    # (Not sure how needed??)
+    # (Not sure how needed??) ?? need to fix.
     # 
     # This variant uses a qr solution without forming the sum
     # of squares and cross products t(J)%*%J
@@ -42,6 +42,12 @@ nlxbx <- function(formula, start, trace = FALSE, data = NULL,
         cat(" ", feval, "/", jeval)
         cat("\n")
     }
+# ?? need to sort out and maybe build a dataframe.
+# ?? get names of any data in args or ...
+# ?? No data, then create frame
+# ?? else if data in args, add to data frame
+# ?? or should we make user do this?
+# ?? and put in the weights
     ######### get data from data frame if exists
     ######### print(str(data))
     if (!is.null(data)) {
@@ -79,7 +85,7 @@ nlxbx <- function(formula, start, trace = FALSE, data = NULL,
     ctrl <- list(watch = FALSE, phi = 1, lamda = 1e-04, offset = 100, 
         laminc = 10, lamdec = 4, femax = 10000, jemax = 5000, rofftest = TRUE, 
         smallsstest = TRUE)
-     ##   maxlamda <- 1e+60) ## dropped 130709
+     ##   maxlamda <- 1e+60) ## dropped 130709 ??why?
     epstol <- (.Machine$double.eps) * ctrl$offset
     ncontrol <- names(control)
     nctrl <- names(ctrl)
@@ -135,7 +141,7 @@ nlxbx <- function(formula, start, trace = FALSE, data = NULL,
     lhs <- parts[1]
     rhs <- parts[2]
     # And build the residual at the parameters
-    if (lhs == "") { 
+    if (lhs == "") { # we allow 1-sided expressions 140716
        resexp <- paste(rhs, collapse = " ")
     } else {
        resexp <- paste(rhs, "-", lhs, collapse = " ")
@@ -145,6 +151,13 @@ nlxbx <- function(formula, start, trace = FALSE, data = NULL,
         joe <- paste(pnames[[i]], "<-", pnum[[i]])
         eval(parse(text = joe))
     }
+### NEWNLS -- 140716
+## ?? Build resfn, jacfn, call nlfb, reporting?
+    tresfn<-model2resfun(modelformula, pvec, funname = "nls14myres") {
+    tjacfn<-model2jacfun(modelformula, pvec, funname = "nls14myjac") {
+
+
+
     gradexp <- deriv(parse(text = resexp), names(start))  # gradient expression
 	## ?? nls() somehow can do better. Possibly builds in numerical gradients
 	## if this fails??
@@ -297,7 +310,7 @@ nlxbx <- function(formula, start, trace = FALSE, data = NULL,
                 } else {
                   # continue
                   pnum <- pbest + stepsize * delta  # adjust (note POSITIVE here, but not in nlsmn0
-                  names(pnum) <- pnames  # NOT inherited through %*% !!!
+                  names(pnum) <- pnames  # NOT inherited through %*% !!!??
                   eqcount <- length(which((offset + pbest) == 
                     (offset + pnum)))
                   if (eqcount < npar) {

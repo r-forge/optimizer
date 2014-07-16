@@ -32,17 +32,17 @@ named in the start vector.
 The main functions in \code{nlmrt} are:
 
 \preformatted{
-   nlfb - Nash variant of the Marquardt procedure for nonlinear least squares,
+   nls14fb - Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using a residual and optionally Jacobian
 	described as \code{R} functions. 
-    20120803: Todo: Make masks more consistent between nlfb and nlxb.
+    20120803: Todo: Make masks more consistent between nls14fb and nls14xb.
 
-   nlxb - Nash variant of the Marquardt procedure for nonlinear least squares,
+   nls14xb - Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using an expression to describe the residual via
         an \code{R} modeling expression. The Jacobian is computed via symbolic
 	differentiation.
             
-   wrapnls - Uses nlxb to solve nonlinear least squares then calls nls() to
+   wrapnls - Uses nls14xb to solve nonlinear least squares then calls nls() to
             create an object of type nls.
 
    model2grfun.R - Generate a gradient vector function from a nonlinear 
@@ -103,7 +103,7 @@ dd <- 1.23*tt + 4*runif(nobs)
 
 df <- data.frame(tt, dd)
 
-a1par<-nlxb(dd ~ a*tt, start=c(a=1), data=df)
+a1par<-nls14xb(dd ~ a*tt, start=c(a=1), data=df)
 a1par
 
 
@@ -122,7 +122,7 @@ eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
 
 # WARNING -- using T can get confusion with TRUE
 tt  <-  tdat
-# A simple starting vector -- must have named parameters for nlxb, nls, wrapnls.
+# A simple starting vector -- must have named parameters for nls14xb, nls, wrapnls.
 start1  <-  c(b1=1, b2=1, b3=1)
 
 cat("GLOBAL DATA\n")
@@ -131,8 +131,8 @@ anls1g  <-  try(nls(eunsc, start=start1, trace=traceval))
 print(anls1g)
 
 cat("GLOBAL DATA AND EXPRESSION -- SHOULD FAIL\n")
-anlxb1g  <-  try(nlxb(eunsc, start=start1, trace=traceval))
-print(anlxb1g)
+anls14xb1g  <-  try(nls14xb(eunsc, start=start1, trace=traceval))
+print(anls14xb1g)
 
 } # end dontrun
 
@@ -142,11 +142,11 @@ rm(tt)
 cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
-anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
-print(anlxb1)
+anls14xb1  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1))
+print(anls14xb1)
 
-anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
-print(anlxb2)
+anls14xb2  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata2))
+print(anls14xb2)
 
 startf1  <-  c(b1=1, b2=1, b3=.1)
 
@@ -155,9 +155,9 @@ startf1  <-  c(b1=1, b2=1, b3=.1)
 
 \dontrun{
 
-anlxb1  <-  try(nlxb(eunsc, start=startf1, lower=c(b1=0, b2=0, b3=0), 
+anls14xb1  <-  try(nls14xb(eunsc, start=startf1, lower=c(b1=0, b2=0, b3=0), 
       upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1))
-print(anlxb1)
+print(anls14xb1)
 
 } # end dontrun
 
@@ -175,9 +175,9 @@ tmp  <-  readline("next")
 
 \dontrun{
 
-anlxb2  <-  try(nlxb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
+anls14xb2  <-  try(nls14xb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
         upper=c(b1=500, b2=100, b3=.25), trace=traceval, data=weeddata1))
-print(anlxb2)
+print(anls14xb2)
 
 
 anlsb2  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
@@ -193,14 +193,14 @@ cat("TEST MASKS\n")
 
 \dontrun{
 
-anlsmnqm  <-  try(nlxb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
+anlsmnqm  <-  try(nls14xb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
    upper=c(b1=500, b2=100, b3=5), masked=c("b2"), trace=traceval, data=weeddata1))
 print(anlsmnqm)
 } # end dontrun
 
 cat("UNCONSTRAINED\n")
 \dontrun{
-an1q  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
+an1q  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1))
 print(an1q)
 tmp  <-  readline("next")
 } # end dontrun
@@ -210,13 +210,13 @@ cat("MASKED\n")
 
 \dontrun{
 
-an1qm3  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, 
+an1qm3  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1, 
                 masked=c("b3")))
 print(an1qm3)
 tmp  <-  readline("next")
 
 # Note that the parameters are put in out of order to test code.
-an1qm123  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, 
+an1qm123  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1, 
                   masked=c("b2","b1","b3")))
 print(an1qm123)
 tmp  <-  readline("next")
@@ -226,7 +226,7 @@ tmp  <-  readline("next")
 
 cat("BOUNDS")
 start2  <-  c(b1=100, b2=10, b3=0.1)
-an1qb1  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, 
+an1qb1  <-  try(nls14xb(eunsc, start=start2, trace=traceval, data=weeddata1, 
                      lower=c(0,0,0), upper=c(200, 60, .3)))
 print(an1qb1)
 tmp  <-  readline("next")
@@ -236,7 +236,7 @@ cat("BOUNDS and MASK")
 
 \dontrun{
 
-an1qbm2  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, 
+an1qbm2  <-  try(nls14xb(eunsc, start=start2, trace=traceval, data=weeddata1, 
                       lower=c(0,0,0), upper=c(200, 60, .3), masked=c("b2")))
 print(an1qbm2)
 tmp  <-  readline("next")
@@ -253,7 +253,7 @@ st1scal  <-  c(b1=100, b2=10, b3=0.1)
 cat("EASY start -- unscaled")
 anls01  <-  try(nls(eunsc, start=suneasy, trace=traceval, data=weeddata1))
 print(anls01)
-anlmrt01  <-  try(nlxb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
+anlmrt01  <-  try(nls14xb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
 print(anlmrt01)
 
 \dontrun{
@@ -266,25 +266,25 @@ if (class(anls02) == "try-error") {
 } else {
    print(anls02)
 }
-anlmrt02  <-  nlxb(eunsc, start=start1, trace=traceval, data=weeddata1)
+anlmrt02  <-  nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1)
 print(anlmrt02)
 
 cat("ones start -- scaled")
 anls03  <-  try(nls(escal, start=start1, trace=traceval, data=weeddata1))
 print(anls03)
-anlmrt03  <-  nlxb(escal, start=start1, trace=traceval, data=weeddata1)
+anlmrt03  <-  nls14xb(escal, start=start1, trace=traceval, data=weeddata1)
 print(anlmrt03)
 
 cat("HARD start -- scaled")
 anls04  <-  try(nls(escal, start=st1scal, trace=traceval, data=weeddata1))
 print(anls04)
-anlmrt04  <-  nlxb(escal, start=st1scal, trace=traceval, data=weeddata1)
+anlmrt04  <-  nls14xb(escal, start=st1scal, trace=traceval, data=weeddata1)
 print(anlmrt04)
 
 cat("EASY start -- scaled")
 anls05  <-  try(nls(escal, start=ssceasy, trace=traceval, data=weeddata1))
 print(anls05)
-anlmrt05  <-  nlxb(escal, start=ssceasy, trace=traceval, data=weeddata1)
+anlmrt05  <-  nls14xb(escal, start=ssceasy, trace=traceval, data=weeddata1)
 print(anlmrt03)
 
 } # end dontrun
@@ -309,7 +309,7 @@ shobbs.jac  <-  function(x) { # scaled Hobbs weeds problem -- Jacobian
     return(jj)
 }
 
-cat("try nlfb\n")
+cat("try nls14fb\n")
 st  <-  c(b1=1, b2=1, b3=1)
 low  <-  -Inf
 up <- Inf
@@ -317,14 +317,14 @@ up <- Inf
 
 \dontrun{
 
-ans1 <- nlfb(st, shobbs.res, shobbs.jac, trace=traceval)
+ans1 <- nls14fb(st, shobbs.res, shobbs.jac, trace=traceval)
 ans1
 cat("No jacobian function -- use internal approximation\n")
-ans1n <- nlfb(st, shobbs.res, trace=TRUE, control=list(watch=TRUE)) # NO jacfn
+ans1n <- nls14fb(st, shobbs.res, trace=TRUE, control=list(watch=TRUE)) # NO jacfn
 ans1n
 
 # tmp <- readline("Try with bounds at 2")
-time2 <- system.time(ans2 <- nlfb(st, shobbs.res, shobbs.jac, upper=c(2,2,2), 
+time2 <- system.time(ans2 <- nls14fb(st, shobbs.res, shobbs.jac, upper=c(2,2,2), 
                                   trace=traceval))
 ans2
 time2
@@ -339,11 +339,11 @@ st2s <- c(b1=1, b2=1, b3=1)
 
 \dontrun{
 
-an1qb1 <- try(nlxb(escal, start=st2s, trace=traceval, data=weeddata1, 
+an1qb1 <- try(nls14xb(escal, start=st2s, trace=traceval, data=weeddata1, 
   lower=c(0,0,0), upper=c(2, 6, 3), control=list(watch=FALSE)))
 print(an1qb1)
 tmp <- readline("next")
-ans2 <- nlfb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
+ans2 <- nls14fb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
    trace=traceval, control=list(watch=FALSE))
 print(ans2)
 
@@ -392,17 +392,18 @@ print(an2wb)
 
 cat("TRY MASKS ONLY\n")
 
-an1xm3 <- try(nlxb(escal, start1, trace=traceval, data=weeddata1, 
+an1xm3 <- try(nls14xb(escal, start1, trace=traceval, data=weeddata1, 
                    masked=c("b3")))
 printsum(an1xm3)
-an1fm3 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
+an1fm3 <- try(nls14fb(start1, shobbs.res, shobbs.jac, trace=traceval, 
                    data=weeddata1, maskidx=c(3)))
 printsum(an1fm3)
 
-an1xm1 <- try(nlxb(escal, start1, trace=traceval, data=weeddata1, 
+an1xm1 <- try(nls14xb
+(escal, start1, trace=traceval, data=weeddata1, 
                    masked=c("b1")))
 printsum(an1xm1)
-an1fm1 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
+an1fm1 <- try(nls14fb(start1, shobbs.res, shobbs.jac, trace=traceval, 
                    data=weeddata1, maskidx=c(1)))
 printsum(an1fm1)
 
@@ -428,7 +429,7 @@ print(fit0)
 
 cat("\n\n")
 
-fit1  <-  nlxb(y ~ (a+b*exp(-c*x)), data = penetrationks28, 
+fit1  <-  nls14xb(y ~ (a+b*exp(-c*x)), data = penetrationks28, 
    start = c(a=0,b=1,c=1), trace = TRUE) 
 printsum(fit1)
 

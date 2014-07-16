@@ -1,14 +1,13 @@
-nlfb <-function(start, resfn, jacfn=NULL, trace=FALSE, 
+nls14fb <-function(start, resfn, jacfn=NULL, trace=FALSE, 
             lower=-Inf, upper=Inf, maskidx=NULL, control=list(), ...){
 #
 #  A simplified and hopefully robust alternative to finding the 
 #  nonlinear least squares minimizer that causes 'formula' to 
 #  give a minimal residual sum of squares. 
 #
-#  nls.mn is particularly intended to allow for the resolution of 
+#  nls14fb is particularly intended to allow for the resolution of 
 #  very ill-conditioned or else near zero-residual problems for 
-#  which the regular nls() function is ill-suited. It may also be
-#  a useful pre-processor for nls().
+#  which the regular nls() function is ill-suited. 
 #  
 #  J C Nash  2012-3-4   nashjc _at_  uottawa.ca
 #

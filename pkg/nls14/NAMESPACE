@@ -4,8 +4,8 @@
 
 # Public routines
 export(
-   nlxbx,
-   nlfb,
+   nls14xb,
+   nls14fb,
    wrapnls,
    modss,
    modgr,

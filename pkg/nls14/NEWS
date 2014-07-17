@@ -4,6 +4,8 @@ To do
 
    o    Handling of NaN in Jacfun
 
+   o    Does it make sense to have unconstrained version of nlfb?
+
    o    Rename modss, modgr to res2ss, res2gr
 
    o    Option for numerical Jacobian -- control numJac = TRUE?, with

@@ -1,7 +1,5 @@
-nls14xb <- function(formula, start, trace = FALSE, data = NULL, 
-    lower = -Inf, upper = Inf, masked = NULL, 
-    weights=NULL, control = list(), 
-    ...) {
+nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
+                 upper = Inf, masked = NULL, control, ...) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes
     # 'formula' to give a minimal residual sum of squares.
@@ -31,17 +29,6 @@ nls14xb <- function(formula, start, trace = FALSE, data = NULL,
     # This variant uses a qr solution without forming the sum
     # of squares and cross products t(J)%*%J
     # 
-    # Function to display SS and point
-    showpoint <- function(SS, pnum) {
-        pnames <- names(pnum)
-        npar <- length(pnum)
-        cat("lamda:", lamda, " SS=", SS, " at")
-        for (i in 1:npar) {
-            cat(" ", pnames[i], "=", pnum[i])
-        }
-        cat(" ", feval, "/", jeval)
-        cat("\n")
-    }
 # ?? need to sort out and maybe build a dataframe.
 # ?? get names of any data in args or ...
 # ?? No data, then create frame
@@ -59,7 +46,7 @@ nls14xb <- function(formula, start, trace = FALSE, data = NULL,
     # ensure params in vector
     pnames <- names(start)
     start <- as.numeric(start)
-    names(start) <- pnames
+    names(start) <- pnames ## ?? do we need this for safety??
     # bounds
     npar <- length(start)  # number of parameters
     if (length(lower) == 1) 
@@ -153,15 +140,17 @@ nls14xb <- function(formula, start, trace = FALSE, data = NULL,
     }
 ### NEWNLS -- 140716
 ## ?? Build resfn, jacfn, call nlfb, reporting?
-    tresfn<-model2resfun(modelformula, pvec) 
-    tjacfn<-model2jacfun(modelformula, pvec) 
+    tresfn<-model2resfun(resexp, pnum) 
+    tjacfn<-model2jacfun(resexp, pnum) 
 
+    ## Call the nlfb function here
+    resfb <- nlfb(start=pnum, resfn=tresfn, jacfn=tjacfn, trace=trace, 
+            lower=lower, upper=upper, maskidx=maskidx, control=ctrl, ...)
 
-
-    pnum <- as.vector(pnum)
-    names(pnum) <- pnames
-    result <- list(resid = resbest, jacobian = Jac, feval = feval, 
-        jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
+    pnum <- as.vector(resfb$coefficients)
+    names(pnum) <- pnames # Make sure names re-attached. ??Is this needed??
+    resfb$coefficients <- pnum
+    result <- resfb
     class(result) <- "nlmrt"
     result
 }

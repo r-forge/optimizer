@@ -1,8 +1,12 @@
 To do
 
+   o    1-sided model expressions -- easy to do, but needs to be done.
+
    o    Origin of NaN's in bounded examples. Can they be avoided?
 
    o    Handling of NaN in Jacfun
+
+   o    Fixup inst/examples/. Maybe create tests.
 
    o    Option for numerical Jacobian -- control numJac = TRUE?, with
 	routine in nlmrt.R ?? elsewhere.
@@ -15,8 +19,6 @@ To do
    o    Weighted least squares example, especially in nlxb.
 
    o    Issue when npar = 1
-
-   o    check and fix examples?
 
 Changes in nlmrt version 2013-8.26
 

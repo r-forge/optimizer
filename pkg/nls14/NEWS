@@ -4,6 +4,8 @@ To do
 
    o    Handling of NaN in Jacfun
 
+   o    Rename modss, modgr to res2ss, res2gr
+
    o    Option for numerical Jacobian -- control numJac = TRUE?, with
 	routine in nlmrt.R ?? elsewhere.
 
@@ -13,6 +15,8 @@ To do
         which would allow functions not differentiable by deriv()
 
    o    Weighted least squares example, especially in nlxb.
+
+   o    1-sided models
 
    o    Issue when npar = 1
 

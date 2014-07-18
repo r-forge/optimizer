@@ -6,6 +6,10 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2014-7-17
+   o    Changed default of control$checkgrad to FALSE. Changed error message
+	that mentions Rvmmin to Rcgmin.
+
 2013-9-24 
    o    Warning that parameter moved to bound suppressed when start
         is on the bound.

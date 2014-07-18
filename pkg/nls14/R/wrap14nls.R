@@ -1,4 +1,4 @@
-wrapnls <- function(formula, start, trace = FALSE, data, lower = -Inf, 
+wrap14nls <- function(formula, start, trace = FALSE, data, lower = -Inf, 
     upper = Inf, control = list(), ...) {
     # A wrapper to call nlsmnq() and then call nls() with the
     # solution.  The calling sequence matches that of nlsmnq()

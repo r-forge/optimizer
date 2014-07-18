@@ -1,5 +1,5 @@
-\name{wrapnls}
-\alias{wrapnls}
+\name{wrap14nls}
+\alias{wrap14nls}
 \title{Nash variant of Marquardt nonlinear least squares solution via
      qr linear solver.
 }
@@ -12,7 +12,7 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   wrapnls(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, 
+   wrap14nls(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, 
            control=list(), ...)
 }
 \arguments{
@@ -68,9 +68,9 @@ John C Nash <nashjc@uottawa.ca>
     Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
 }
 \examples{
-cat("See examples in nlmrt-package.Rd\n")
-cat("kvanderpoel.R test\n")
-# require(nlmrt)
+cat("See more examples in nlmrt-package.Rd\n")
+cat("kvanderpoel.R test of wrapnls\n")
+# require(nls14)
 x<-c(1,3,5,7)
 y<-c(37.98,11.68,3.65,3.93)
 pks28<-data.frame(x=x,y=y)

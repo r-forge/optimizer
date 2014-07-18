@@ -6,7 +6,7 @@
 export(
    nls14xb,
    nls14fb,
-   wrapnls,
+   wrap14nls,
    modss,
    modgr,
    model2grfun,

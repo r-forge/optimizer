@@ -101,7 +101,8 @@ nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
     pnum <- start  # may simplify later??
     pnames <- names(pnum)
     bdmsk <- rep(1, npar)  # set all params free for now
-    maskidx <- which(pnames %in% masked)  # NOTE: %in% not == or order gives trouble
+    maskidx <- which(pnames %in% masked)  
+          # NOTE: %in% not == or order gives trouble
     if (length(maskidx) > 0 && trace) {
         cat("The following parameters are masked:")
         print(pnames[maskidx])
@@ -143,13 +144,18 @@ nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
 ## ?? Build resfn, jacfn, call nlfb, reporting?
     tresfn<-model2resfun(resexp, pnum) 
     cat("tresfn:\n")
-    print(tresfn) 
+    print(tresfn)
     tjacfn<-model2jacfun(resexp, pnum)
     cat("tjacfn:\n")
     print(tjacfn) 
 
     ## Call the nlfb function here
+    ctrl$watch<-TRUE
+## ?? problem is getting the data into the tresfn and tjacfn?? How?
+## ?? This is really how to deal with the vstr of model2??.R functions
+## which gets data into the functions
     resfb <- nlfb(start=pnum, resfn=tresfn, jacfn=tjacfn, trace=trace, 
+            data=data, 
             lower=lower, upper=upper, maskidx=maskidx, control=ctrl, ...)
 
     pnum <- as.vector(resfb$coefficients)

@@ -125,7 +125,7 @@ John C Nash <nashjc@uottawa.ca>
 
 \examples{
 
-cat("See examples in nlmrt-package.Rd\n")
+cat("See examples in nls14-package.Rd\n")
 
 
 }

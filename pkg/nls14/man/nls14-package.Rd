@@ -90,40 +90,25 @@ Maintainer:  <nashjc@uottawa.ca>
 \seealso{\code{nls} }
 \examples{
 rm(list=ls())
-# library(nlmrt)
+# require(nls14)
 
 # traceval set TRUE to debug or give full history
-traceval  <-  FALSE
-
-## Problem in 1 parameter to ensure methods work in trivial case
-
-nobs<-8
-tt <- seq(1,nobs)
-dd <- 1.23*tt + 4*runif(nobs)
-
-df <- data.frame(tt, dd)
-
-a1par<-nls14xb(dd ~ a*tt, start=c(a=1), data=df)
-a1par
-
+traceval  <-  TRUE
 
 # Data for Hobbs problem
-
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 y  <-  ydat  # for testing
 tdat  <-  seq_along(ydat) # for testing
-eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
-
-
-
-\dontrun{
-
-
 # WARNING -- using T can get confusion with TRUE
 tt  <-  tdat
 # A simple starting vector -- must have named parameters for nls14xb, nls, wrapnls.
 start1  <-  c(b1=1, b2=1, b3=1)
+
+eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
+
+\dontrun{
+
 
 cat("GLOBAL DATA\n")
 
@@ -149,6 +134,21 @@ anls14xb2  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata2))
 print(anls14xb2)
 
 startf1  <-  c(b1=1, b2=1, b3=.1)
+
+
+
+## Problem in 1 parameter to ensure methods work in trivial case
+cat("1 parameter problem\n")
+nobs<-8
+tt <- seq(1,nobs)
+dd <- 1.23*tt + 4*runif(nobs)
+
+df <- data.frame(tt, dd)
+print(df)
+a1par<-nls14xb(dd ~ a*tt, start=c(a=1), data=df)
+a1par
+
+
 
 
 ## With BOUNDS
@@ -359,7 +359,7 @@ cat("BUT...crossprod(resid(anlsb))=",crossprod(resid(anlsb)),"\n")
 
 tmp <- readline("next")
 cat("Try wrapnls\n")
-traceval <- FALSE
+traceval <- TRUE
 # Data for Hobbs problem
 ydat <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing

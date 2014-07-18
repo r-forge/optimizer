@@ -42,7 +42,11 @@ model2jacfun <- function(modelformula, pvec, funname = "myjac",
     lhs <- parts[1]
     rhs <- parts[2]
     # And build the residual at the parameters
-    resexp <- paste(rhs, "-", lhs, collapse = " ")  # build the residuals
+    if (lhs == "") { # we allow 1-sided expressions 140716, but drop ~ for jacobian
+       resexp <- paste(rhs, collapse = " ")
+    } else {
+       resexp <- paste(rhs, "-", lhs, collapse = " ")
+    }
     jacexp <- deriv(parse(text = resexp), pnames)  # gradient expression
     dvstr <- ""
     if (nvar > 0) {

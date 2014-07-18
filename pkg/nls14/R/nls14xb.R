@@ -1,5 +1,5 @@
 nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
-                 upper = Inf, masked = NULL, control, ...) {
+                 upper = Inf, masked = NULL, control=list(), ...) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes
     # 'formula' to give a minimal residual sum of squares.
@@ -129,10 +129,11 @@ nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
     rhs <- parts[2]
     # And build the residual at the parameters
     if (lhs == "") { # we allow 1-sided expressions 140716
-       resexp <- paste(rhs, collapse = " ")
+       resexp <- paste("~",rhs, collapse = " ")
     } else {
-       resexp <- paste(rhs, "-", lhs, collapse = " ")
+       resexp <- paste("~",rhs, "-", lhs, collapse = " ")
     }
+    print(resexp)
     for (i in 1:npar) {
         # put parameters in separate variables
         joe <- paste(pnames[[i]], "<-", pnum[[i]])
@@ -141,7 +142,11 @@ nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
 ### NEWNLS -- 140716
 ## ?? Build resfn, jacfn, call nlfb, reporting?
     tresfn<-model2resfun(resexp, pnum) 
-    tjacfn<-model2jacfun(resexp, pnum) 
+    cat("tresfn:\n")
+    print(tresfn) 
+    tjacfn<-model2jacfun(resexp, pnum)
+    cat("tjacfn:\n")
+    print(tjacfn) 
 
     ## Call the nlfb function here
     resfb <- nlfb(start=pnum, resfn=tresfn, jacfn=tjacfn, trace=trace, 

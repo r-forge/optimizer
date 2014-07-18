@@ -1,4 +1,4 @@
-nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
+nls14xb <- function(formula, start, trace = FALSE, data=data, lower = -Inf,
                  upper = Inf, masked = NULL, control=list(), ...) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes
@@ -155,9 +155,9 @@ nls14xb <- function(formula, start, trace = FALSE, data, lower = -Inf,
 ## ?? This is really how to deal with the vstr of model2??.R functions
 ## which gets data into the functions
     resfb <- nlfb(start=pnum, resfn=tresfn, jacfn=tjacfn, trace=trace, 
-            data=data, 
-            lower=lower, upper=upper, maskidx=maskidx, control=ctrl, ...)
-
+            data=data, lower=lower, upper=upper, maskidx=maskidx, 
+	    control=ctrl, ...)
+# ?? should there be any ... arguments
     pnum <- as.vector(resfb$coefficients)
     names(pnum) <- pnames # Make sure names re-attached. ??Is this needed??
     resfb$coefficients <- pnum

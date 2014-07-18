@@ -28,7 +28,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     # eps=1.0e-7 (default) for use in computing numerical
     #   gradient approximations.
     # dowarn=TRUE by default. Set FALSE to suppress warnings.
-    # checkgrad = TRUE by default. Check analytic gradient 
+    # checkgrad = FALSE by default. Check analytic gradient 
     #             against numDeriv results.
     # checkbounds = TRUE by default. Check parameters and bounds
     #             for addmissible bounds and feasible start.
@@ -77,6 +77,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
     # control defaults -- idea from spg
+cat("At top\n")
     if (is.null(control$trace)) control$trace=0
     # check if there are bounds
     if (is.null(lower) || !any(is.finite(lower))) 
@@ -99,10 +100,10 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
            if (control$trace > 0) cat("WARNING: using gradient approximation ",gr,"\n")
 
        } else { # analytic gradient, so check if requested
-           if (is.null(control$checkgrad)) control$checkgrad <- TRUE
+           if (is.null(control$checkgrad)) control$checkgrad <- FALSE
            if (control$checkgrad) { # check gradient
               testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
-              if (! testgrad) warning("Gradient code for Rvmmin may be faulty - check it!")
+              if (! testgrad) warning("Gradient code for Rcgmin may be faulty - check it!")
            }
        } # end else
     }
@@ -136,9 +137,11 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
        upper <- btest$upper
        control$checkbounds<-NULL # to avoid problems in subsidiary routines
        ############## end bounds check #############
+       cat("bounds: trace=",control$trace,"\n")
        ans<-Rcgminb(par, fn, gr, lower = lower, 
           upper = upper, bdmsk = bdmsk, control = control, ...)
     } else {
+       cat("unconstrained: trace=",control$trace,"\n")
        ans<-Rcgminu(par, fn, gr, control = control, ...)
     }
 #    return(ans) # ?? is this needed

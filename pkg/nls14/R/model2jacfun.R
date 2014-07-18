@@ -26,10 +26,10 @@ model2jacfun <- function(modelformula, pvec, funname = "myjac",
     pstr <- paste(pstr, ")", sep = "")
     xxvars <- xx[-rp]
     nvar <- length(xxvars)
-    vstr <- ""
+    vstr <- "" # Revision 140718 to include data$name form
     if (nvar > 0) {
-        for (i in 1:nvar) {
-            vstr <- paste(vstr, xxvars[i], " = NULL", sep = "")
+        for (i in 1:nvar) { ## 140718 change in next line
+            vstr <- paste(vstr, xxvars[i], " = data[,",xxvars[i],"]", sep = "")
             if (i < nvar) 
                 vstr <- paste(vstr, ", ", sep = "")
         }

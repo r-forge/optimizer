@@ -13,7 +13,7 @@
 }
 \usage{
    nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
-         maskidx=NULL, control, ...)
+         maskidx=NULL, data=data, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -49,6 +49,10 @@
      which uses the names of the parameters.
 
 } 
+  \item{data}{
+     Data frame of variables used by resfn and jacfn to compute the
+     required residuals and Jacobian.
+}
   \item{control}{ 
      A list of controls for the algorithm. These are:
      \describe{

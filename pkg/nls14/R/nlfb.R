@@ -1,5 +1,6 @@
-nlfb <-function(start, resfn, jacfn = NULL, trace = FALSE, lower =
-                 -Inf, upper = Inf, maskidx = NULL, control, ...){
+nlfb <-function(start, resfn, jacfn = NULL, trace = FALSE, 
+		lower = -Inf, upper = Inf, maskidx = NULL, 
+		data=data, control, ...){
 #
 #  A stripped down nlfb (nls14fb does the checking of inputs).
 showprms<-function(SS, pnum){

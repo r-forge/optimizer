@@ -92,6 +92,10 @@
      Note that the scale of the gradient means that tests for a small gradient can
      easily be mismatched to a given problem. The defaults in Rcgmin are a "best 
      guess".}
+   \item{\code{checkgrad}}{= TRUE if we want gradient function checked against 
+	numerical approximations. Default is FALSE.}
+   \item{\code{checkbounds}}{= TRUE if we want bounds verified. Default is 
+     TRUE.}
    \item{}{The source code \code{Rcgmin} for R is likely to remain a work in progress 
     for some time, so users should watch the console output.}
   }

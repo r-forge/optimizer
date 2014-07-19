@@ -1,8 +1,7 @@
 To do
 
    o    Origin of NaN's in bounded examples. Can they be avoided?
-
-   o    Handling of NaN in Jacfun
+	Handling of NaN in Jacfun ?? Need an example.
 
    o    Does it make sense to have unconstrained version of nlfb
 	when there are no masks or bounds?
@@ -11,19 +10,23 @@ To do
 
    o    Option for numerical Jacobian -- control numJac = TRUE?, with
 	routine in nlmrt.R ?? elsewhere.
-
-   o    Way of using a "gradient" attribute when the model formula is
+	Way of using a "gradient" attribute when the model formula is
         specified like  
            y ~ SpecialFn(xx, zz)
         which would allow functions not differentiable by deriv()
 
    o    Weighted least squares example, especially in nlxb.
 
-   o    Issue when npar = 1
+   o    Issue when npar = 1 -- does it work?
 
-   o    check and fix examples?
+   o    check and fix examples?  Partly done 140719
+	tests?
 
-Changes in nls14 version 2014-7.13
+Changes in nls14 version 2014-7.19
+
+   o    The parameters MUST be named when setting up model2resfun etc.,
+	but the resulting function can be called with an un-named
+	vector of parameters.
 
    o    Name reset to reflect intent to substitute for nls()
 
@@ -32,10 +35,7 @@ Changes in nls14 version 2014-7.13
    o    use of ... args replaced with data = mydata (dataframe)
 
    o    1-sided models which start with the tilde are now allowed in
-	nls14xb().
-
-
-
+	nls14 functions.
 
 Changes in nlmrt version 2013-8.26
 

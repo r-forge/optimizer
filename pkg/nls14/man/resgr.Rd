@@ -71,7 +71,7 @@ John C Nash <nashjc@uottawa.ca>
   myres <- model2resfun(f, p)
   myjac <- model2jacfun(f, p)
   mygr  <- model2grfun(f, p)
-  gr <- mygr(p, tt = tt, y = y)
+  gr <- mygr(p, data = mydata)
   grm <- resgr(p, myres, myjac, data = mydata)
   cat("max(abs(grm - gr)) =",max(abs(grm-gr)),"\n")
 }

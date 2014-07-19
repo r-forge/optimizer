@@ -7,7 +7,11 @@ model2grfun <- function(modelformula, pvec, funname = "mygr",
         es <- modelformula
     } else {
         tstr <- as.character(modelformula)  # note ordering of terms!
-        es <- paste(tstr[[2]], "~", tstr[[3]], "")
+        if (length(tstr) == 2) { # 1-sided formula
+             es <- paste("~", tstr[[2]], "")
+	} else {
+	     es <- paste(tstr[[2]], "~", tstr[[3]], sep="")
+        }
     }
     xx <- all.vars(parse(text = es))
     rp <- match(pnames, xx)  # Match names to parameters
@@ -25,44 +29,28 @@ model2grfun <- function(modelformula, pvec, funname = "mygr",
     pstr <- paste(pstr, ")", sep = "")
     xxvars <- xx[-rp]
     nvar <- length(xxvars)
-    vstr <- ""
-    if (nvar > 0) {
-        for (i in 1:nvar) {
-            vstr <- paste(vstr, xxvars[i], " = NULL", sep = "")
-            if (i < nvar) 
-                vstr <- paste(vstr, ", ", sep = "")
-        }
-    }
-    ff <- vector("list", length(xx2))
-    names(ff) <- xx2
     parts <- strsplit(as.character(es), "~")[[1]]
     if (length(parts) != 2) 
         stop("Model expression is incorrect!")
     lhs <- parts[1]
     rhs <- parts[2]
     # And build the residual at the parameters
-    resexp <- paste(rhs, "-", lhs, collapse = " ")  # build the residuals
+    if (lhs == "") { # we allow 1-sided expressions 140716, but drop ~ for jacobian
+       resexp <- paste(rhs, collapse = " ")
+    } else {
+       resexp <- paste(rhs, "-", lhs, collapse = " ")
+    }
     resval <- paste("resids<-as.numeric(eval(", resexp, "))", 
         sep = "")  ##3
     resexp <- paste(rhs, "-", lhs, collapse = " ")  # build the residuals
     jacexp <- deriv(parse(text = resexp), pnames)  # gradient expression
-    dvstr <- ""
-    if (nvar > 0) {
-        for (i in 1:nvar) {
-            dvstr <- paste(dvstr, xxvars[i], sep = "")
-            if (i < nvar) 
-                dvstr <- paste(dvstr, ", ", sep = "")
-        }
-    }
-    jfstr <- paste("localdf<-data.frame(", dvstr, ");\n", sep = "")
-    jfstr <- paste(jfstr, "jstruc<-with(localdf,eval(", jacexp, 
-        "))", sep = "")  ##3
+    jfstr <- paste("jstruc<-with(data,eval(", jacexp,"))", sep = "")  ##3
     pparse <- ""
     for (i in 1:npar) {
         pparse <- paste(pparse, "   ", pnames[[i]], "<-prm[[", 
             i, "]]\n", sep = "")
     }
-    mygstr <- paste(funname, "<-function(prm, ", vstr, ") {\n", 
+    mygstr <- paste(funname, "<-function(prm, data=NULL) {\n", 
         pparse, "\n ", jfstr, " \n", "jacmat<-attr(jstruc,'gradient')\n ", 
         resval, "\n", "grj<-as.vector(2.0*crossprod(jacmat, resids)) \n", 
         "}", sep = "")

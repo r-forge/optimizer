@@ -35,10 +35,9 @@ model2jacfun <- function(modelformula, pvec, funname = "myjac",
        resexp <- paste(rhs, "-", lhs, collapse = " ")
     }
     jacexp <- deriv(parse(text = resexp), pnames)  # gradient expression
-    jfstr<-"" # start with null
-    jfstr <- paste(jfstr, "jstruc<-with(data,eval(", jacexp,"))", sep = "")  ##3
-    cat("jfstr:")
-    print(jfstr)
+    jfstr <- paste("jstruc<-with(data,eval(", jacexp,"))", sep = "")  ##3
+#?    cat("jfstr:")
+#?    print(jfstr)
     pparse <- ""
     for (i in 1:npar) {
         pparse <- paste(pparse, "   ", pnames[[i]], "<-prm[[", 

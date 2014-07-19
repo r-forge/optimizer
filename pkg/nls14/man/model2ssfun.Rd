@@ -61,21 +61,22 @@ John C Nash <nashjc@uottawa.ca>
   y <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 
       50.156, 62.948, 75.995, 91.972)  # for testing
   tt <- seq_along(y)  # for testing
+  mydata <- data.frame(tt = tt, y = y)
   f <- y ~ b1/(1 + b2 * exp(-1 * b3 * tt))
   p <- c(b1 = 1, b2 = 1, b3 = 1)
   myfn <- model2ssfun(f, p)
   cat("myfn: \n")
   print(myfn) # list the function
   cat("Compute the function at several points\n")
-  ans <- myfn(p, tt = tt, y = y)
+  ans <- myfn(p, data = mydata)
   print(ans) # should be  23520.58
   bnew <- c(b1 = 200, b2 = 50, b3 = 0.3)
-  anew <- myfn(prm = bnew, tt = tt, y = y)
+  anew <- myfn(prm = bnew, data = mydata)
   print(anew)# should be  158.2324
   
   cat("Test with vector of un-named parameters \n")
   bthree <- c(100, 40, 0.1)
-  athree <- try(myfn(prm = bthree, tt = tt, y = y))
+  athree <- try(myfn(prm = bthree, data = mydata))
   print(athree) # should be 19536.65
 }
 \keyword{ nonlinear least squares }

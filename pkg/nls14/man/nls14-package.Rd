@@ -1,6 +1,6 @@
-\name{nlmrt-package}
-\alias{nlmrt-package}
-\alias{nlmrt}
+\name{nls14-package}
+\alias{nls14-package}
+\alias{nls14}
 \docType{package}
 \title{
 Tools for solving nonlinear least squares problems. UNDER DEVELOPMENT.
@@ -11,7 +11,7 @@ of Marquardt's algorithm for nonlinear least squares.
 }
 \details{
 \tabular{ll}{
-Package: \tab nlmrt\cr
+Package: \tab nls14\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2012-03-05\cr
@@ -29,7 +29,7 @@ the parent environment or else in the dot-arguments. Other symbolic elements in
 the modeling expression must be standard functions or else parameters that are 
 named in the start vector.
 
-The main functions in \code{nlmrt} are:
+The main functions in \code{nls14} are:
 
 \preformatted{
    nls14fb - Nash variant of the Marquardt procedure for nonlinear least squares,
@@ -42,7 +42,7 @@ The main functions in \code{nlmrt} are:
         an \code{R} modeling expression. The Jacobian is computed via symbolic
 	differentiation.
             
-   wrapnls - Uses nls14xb to solve nonlinear least squares then calls nls() to
+   wrap14nls - Uses nls14xb to solve nonlinear least squares then calls nls() to
             create an object of type nls.
 
    model2grfun.R - Generate a gradient vector function from a nonlinear 
@@ -102,7 +102,7 @@ y  <-  ydat  # for testing
 tdat  <-  seq_along(ydat) # for testing
 # WARNING -- using T can get confusion with TRUE
 tt  <-  tdat
-# A simple starting vector -- must have named parameters for nls14xb, nls, wrapnls.
+# A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.
 start1  <-  c(b1=1, b2=1, b3=1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
@@ -253,8 +253,8 @@ st1scal  <-  c(b1=100, b2=10, b3=0.1)
 cat("EASY start -- unscaled")
 anls01  <-  try(nls(eunsc, start=suneasy, trace=traceval, data=weeddata1))
 print(anls01)
-anlmrt01  <-  try(nls14xb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
-print(anlmrt01)
+anls1401  <-  try(nls14xb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
+print(anls1401)
 
 \dontrun{
 
@@ -266,26 +266,26 @@ if (class(anls02) == "try-error") {
 } else {
    print(anls02)
 }
-anlmrt02  <-  nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1)
-print(anlmrt02)
+anls1402  <-  nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1)
+print(anls1402)
 
 cat("ones start -- scaled")
 anls03  <-  try(nls(escal, start=start1, trace=traceval, data=weeddata1))
 print(anls03)
-anlmrt03  <-  nls14xb(escal, start=start1, trace=traceval, data=weeddata1)
-print(anlmrt03)
+anls1403  <-  nls14xb(escal, start=start1, trace=traceval, data=weeddata1)
+print(anls1403)
 
 cat("HARD start -- scaled")
 anls04  <-  try(nls(escal, start=st1scal, trace=traceval, data=weeddata1))
 print(anls04)
-anlmrt04  <-  nls14xb(escal, start=st1scal, trace=traceval, data=weeddata1)
-print(anlmrt04)
+anls1404  <-  nls14xb(escal, start=st1scal, trace=traceval, data=weeddata1)
+print(anls1404)
 
 cat("EASY start -- scaled")
 anls05  <-  try(nls(escal, start=ssceasy, trace=traceval, data=weeddata1))
 print(anls05)
-anlmrt05  <-  nls14xb(escal, start=ssceasy, trace=traceval, data=weeddata1)
-print(anlmrt03)
+anls1405  <-  nls14xb(escal, start=ssceasy, trace=traceval, data=weeddata1)
+print(anls1403)
 
 } # end dontrun
 
@@ -358,7 +358,7 @@ cat("BUT...crossprod(resid(anlsb))=",crossprod(resid(anlsb)),"\n")
 
 
 tmp <- readline("next")
-cat("Try wrapnls\n")
+cat("Try wrap14nls\n")
 traceval <- TRUE
 # Data for Hobbs problem
 ydat <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
@@ -374,20 +374,20 @@ weeddata1 <- data.frame(y=ydat, tt=tdat)
 
 \dontrun{
 
-an1w <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1))
+an1w <- try(wrap14nls(escal, start=start1, trace=traceval, data=weeddata1))
 print(an1w)
 
 
 
-cat("BOUNDED wrapnls\n")
+cat("BOUNDED wrap14nls\n")
 
-an1wb <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up1))
+an1wb <- try(wrap14nls(escal, start=start1, trace=traceval, data=weeddata1, upper=up1))
 print(an1wb)
 
 
-cat("BOUNDED wrapnls\n")
+cat("BOUNDED wrap14nls\n")
 
-an2wb <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1, upper=up2))
+an2wb <- try(wrap14nls(escal, start=start1, trace=traceval, data=weeddata1, upper=up2))
 print(an2wb)
 
 cat("TRY MASKS ONLY\n")

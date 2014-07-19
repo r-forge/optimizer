@@ -8,32 +8,19 @@ model2jacfun <- function(modelformula, pvec, funname = "myjac",
         es <- modelformula
     } else {
         tstr <- as.character(modelformula)  # note ordering of terms!
-        es <- paste(tstr[[2]], "~", tstr[[3]], "")
+        if (length(tstr) == 2) { # 1-sided formula
+             es <- paste("~", tstr[[2]], "")
+	} else {
+	     es <- paste(tstr[[2]], "~", tstr[[3]], sep="")
+        }
     }
     xx <- all.vars(parse(text = es))
     rp <- match(pnames, xx)  # Match names to parameters
     xx2 <- c(xx[rp], xx[-rp])
     xxparm <- xx[rp]
-    pstr <- "c("
     npar <- length(xxparm)
-    if (npar > 0) {
-        for (i in 1:npar) {
-            pstr <- paste(pstr, "\"", xxparm[i], "\"", sep = "")
-            if (i < npar) 
-                pstr <- paste(pstr, ", ", sep = "")
-        }
-    }
-    pstr <- paste(pstr, ")", sep = "")
     xxvars <- xx[-rp]
     nvar <- length(xxvars)
-    vstr <- "" # Revision 140718 to include data$name form
-    if (nvar > 0) {
-        for (i in 1:nvar) { ## 140718 change in next line
-            vstr <- paste(vstr, xxvars[i], " = ",xxvars[i], sep = "")
-            if (i < nvar) 
-                vstr <- paste(vstr, ", ", sep = "")
-        }
-    }
     ff <- vector("list", length(xx2))
     names(ff) <- xx2
     parts <- strsplit(as.character(es), "~")[[1]]
@@ -48,23 +35,17 @@ model2jacfun <- function(modelformula, pvec, funname = "myjac",
        resexp <- paste(rhs, "-", lhs, collapse = " ")
     }
     jacexp <- deriv(parse(text = resexp), pnames)  # gradient expression
-    dvstr <- ""
-    if (nvar > 0) {
-        for (i in 1:nvar) {
-            dvstr <- paste(dvstr, xxvars[i], sep = "")
-            if (i < nvar) 
-                dvstr <- paste(dvstr, ", ", sep = "")
-        }
-    }
-    jfstr <- paste("localdf<-data.frame(", dvstr, ");\n", sep = "")
-    jfstr <- paste(jfstr, "jstruc<-with(localdf,eval(", jacexp, 
-        "))", sep = "")  ##3
+    jfstr<-"" # start with null
+    jfstr <- paste(jfstr, "jstruc<-with(data,eval(", jacexp,"))", sep = "")  ##3
+    cat("jfstr:")
+    print(jfstr)
     pparse <- ""
     for (i in 1:npar) {
         pparse <- paste(pparse, "   ", pnames[[i]], "<-prm[[", 
             i, "]]\n", sep = "")
     }
-    myjstr <- paste(funname, "<-function(prm, ", vstr, ") {\n", 
+     myjstr <- paste(funname, "<-function(prm, data=NULL) {\n", 
+# Want NULL to trip error if we forget to call properly with data set.
         pparse, jfstr, " \n", "jacmat<-attr(jstruc,'gradient')\n ", 
         "return(jacmat)\n }", sep = "")
     if (!is.null(filename)) 
@@ -75,4 +56,3 @@ model2jacfun <- function(modelformula, pvec, funname = "myjac",
         stop("Error in Jacobian code string")
     eval(myparse)
 }
-

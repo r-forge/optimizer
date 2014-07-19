@@ -4,7 +4,8 @@ To do
 
    o    Handling of NaN in Jacfun
 
-   o    Does it make sense to have unconstrained version of nlfb?
+   o    Does it make sense to have unconstrained version of nlfb
+	when there are no masks or bounds?
 
    o    Rename modss, modgr to res2ss, res2gr
 
@@ -18,11 +19,23 @@ To do
 
    o    Weighted least squares example, especially in nlxb.
 
-   o    1-sided models
-
    o    Issue when npar = 1
 
    o    check and fix examples?
+
+Changes in nls14 version 2014-7.13
+
+   o    Name reset to reflect intent to substitute for nls()
+
+   o    wrapnls replaced by wrap14nls
+
+   o    use of ... args replaced with data = mydata (dataframe)
+
+   o    1-sided models which start with the tilde are now allowed in
+	nls14xb().
+
+
+
 
 Changes in nlmrt version 2013-8.26
 

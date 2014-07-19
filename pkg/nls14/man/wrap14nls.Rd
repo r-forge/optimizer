@@ -53,7 +53,7 @@
 }
 }
 \details{
-    \code{wrapnls} first attempts to solve the nonlinear sum of squares problem by using
+    \code{wrap14nls} first attempts to solve the nonlinear sum of squares problem by using
     \code{nlsmnq}, then takes the parameters from that method to call \code{nls}.
 }
 \value{
@@ -69,7 +69,7 @@ John C Nash <nashjc@uottawa.ca>
 }
 \examples{
 cat("See more examples in nlmrt-package.Rd\n")
-cat("kvanderpoel.R test of wrapnls\n")
+cat("kvanderpoel.R test of wrap14nls\n")
 # require(nls14)
 x<-c(1,3,5,7)
 y<-c(37.98,11.68,3.65,3.93)
@@ -81,7 +81,7 @@ cat("\n\n")
 fit1<-nls14xb(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace = TRUE)
 print(fit1) 
 cat("\n\nor better\n")
-fit2<-wrapnls(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), 
+fit2<-wrap14nls(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), 
               lower=-Inf, upper=Inf, trace = TRUE)
 
 }

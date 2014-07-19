@@ -1,5 +1,5 @@
-\name{modgr}
-\alias{modgr}
+\name{resgr}
+\alias{resgr}
 \title{Compute gradient from residuals and Jacobian.
 }
 \description{
@@ -10,7 +10,7 @@
    that is, t(Jacobian) . residuals. 
 }
 \usage{
-   modgr(prm, resfn, jacfn, ...)
+   resgr(prm, resfn, jacfn, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,7 +32,7 @@
 }
 }
 \details{
-    \code{modgr} calls resfn to compute residuals and jacfn to compute the
+    \code{resgr} calls resfn to compute residuals and jacfn to compute the
     Jacobian at the parameters \code{prm} using external data in the dot arguments.
     It then computes the gradient using t(Jacobian) . residuals.
 
@@ -65,13 +65,14 @@ John C Nash <nashjc@uottawa.ca>
   y <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 
       50.156, 62.948, 75.995, 91.972)  # for testing
   tt <- seq_along(y)  # for testing
+  mydata <- data.frame(tt = tt, y = y)
   f <- y ~ b1/(1 + b2 * exp(-1 * b3 * tt))
   p <- c(b1 = 1, b2 = 1, b3 = 1)
   myres <- model2resfun(f, p)
   myjac <- model2jacfun(f, p)
   mygr  <- model2grfun(f, p)
   gr <- mygr(p, tt = tt, y = y)
-  grm <- modgr(p, myres, myjac, tt = tt, y = y)
+  grm <- resgr(p, myres, myjac, data = mydata)
   cat("max(abs(grm - gr)) =",max(abs(grm-gr)),"\n")
 }
 \keyword{ nonlinear least squares }

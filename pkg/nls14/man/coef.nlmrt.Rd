@@ -1,14 +1,14 @@
-\name{coef.nlmrt}
-\alias{coef.nlmrt}
-\title{Output model coefficients for nlmrt object.
+\name{coef.nls14}
+\alias{coef.nls14}
+\title{Output model coefficients for nls14 object.
 }
 \description{
-    \code{coef.nlmrt} extracts and displays the coefficients for a model 
-    estimated by \code{nlxb} or \code{nlfb} in the \code{nlmrt} structured
+    \code{coef.nls14} extracts and displays the coefficients for a model 
+    estimated by \code{nlxb} or \code{nlfb} in the \code{nls14} structured
     \code{object}. 
 }
 \usage{
-    \method{coef}{nlmrt}(object, ...)
+    \method{coef}{nls14}(object, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,7 +20,7 @@
 }
 }
 \details{
-    \code{coef.nlmrt} extracts and displays the coefficients for a model 
+    \code{coef.nls14} extracts and displays the coefficients for a model 
     estimated by \code{nlxb} or \code{nlfb}. 
 }
 \value{

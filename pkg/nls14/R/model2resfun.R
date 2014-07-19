@@ -7,35 +7,19 @@ model2resfun <- function(modelformula, pvec, funname = "myres",
         es <- modelformula
     } else {
         tstr <- as.character(modelformula)  # note ordering of terms!
-        es <- paste(tstr[[2]], "~", tstr[[3]], "")
+        if (length(tstr) == 2) { # 1-sided formula
+             es <- paste("~", tstr[[2]], "")
+	} else {
+	     es <- paste(tstr[[2]], "~", tstr[[3]], sep="")
+        }
     }
     xx <- all.vars(parse(text = es))
-    rp <- match(pnames, xx)  # Match names to parameters
-    xx2 <- c(xx[rp], xx[-rp])
-    xxparm <- xx[rp]
-    vnames <- xx[-rp]
-    pstr <- "c("
+    rp <- match(pnames, xx)  # Match names to parameters -- rp indexes just parameters
+    xx2 <- c(xx[rp], xx[-rp]) # parnames then varnames
+    xxparm <- xx[rp] # just the parameter names
     npar <- length(xxparm)
-    if (npar > 0) {
-        for (i in 1:npar) {
-            pstr <- paste(pstr, "\"", xxparm[i], "\"", sep = "")
-            if (i < npar) 
-                pstr <- paste(pstr, ", ", sep = "")
-        }
-    }
-    pstr <- paste(pstr, ")", sep = "")
-    xxvars <- xx[-rp]
+    xxvars <- xx[-rp] # just the variable names
     nvar <- length(xxvars)
-    vstr <- "" # Revision 140718 to include data$name form ?? probably not needed??
-    if (nvar > 0) {
-        for (i in 1:nvar) { ## 140718 change in next line
-            vstr <- paste(vstr, xxvars[i], " = ",xxvars[i], sep = "")
-            if (i < nvar) 
-                vstr <- paste(vstr, ", ", sep = "")
-        }
-    }
-    ff <- vector("list", length(xx2))
-    names(ff) <- xx2
     parts <- strsplit(as.character(es), "~")[[1]]
     if (length(parts) != 2) 
         stop("Model expression is incorrect!")
@@ -55,9 +39,7 @@ model2resfun <- function(modelformula, pvec, funname = "myres",
             i, "]]\n", sep = "")
     }
     pparse<-paste(pparse, "with(data, {", sep="")
-##    myfstr <- paste(funname, "<-function(prm, ", vstr, ") {\n", 
     myfstr <- paste(funname, "<-function(prm, data=NULL) {\n", 
-
         pparse, fnexp, "\n}) \n }", sep = "")
     if (!is.null(filename)) 
         write(myfstr, file = filename)  # write out the file
@@ -66,6 +48,7 @@ model2resfun <- function(modelformula, pvec, funname = "myres",
     if (class(tparse) == "try-error") 
         stop("Error in residual code string")
     mfun<-eval(tparse)
+# May not need this, but possibly useful to check data is in dataframe data.
     attr(mfun, "varnames")<-xxvars
     mfun
 }

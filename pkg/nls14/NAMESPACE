@@ -7,15 +7,15 @@ export(
    nls14xb,
    nls14fb,
    wrap14nls,
-   modss,
-   modgr,
+   resss,
+   resgr,
    model2grfun,
    model2jacfun,
    model2resfun,
    model2ssfun, 
-   print.nlmrt,
-   summary.nlmrt,
-   coef.nlmrt
+   print.nls14,
+   summary.nls14,
+   coef.nls14
 )
 
 # S4 Methods

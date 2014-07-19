@@ -1,4 +1,4 @@
-modgr <- function(prm, resfn, jacfn, ...) {
+resgr <- function(prm, resfn, jacfn, ...) {
     # computes the gradient 2 * J' %*% res for residuals (res)
     # and jacobian (Jac) defined by resfn and jacfn at
     # parameters prm and extra variables defined in the

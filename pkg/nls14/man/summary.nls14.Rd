@@ -1,26 +1,26 @@
-\name{summary.nlmrt}
-\alias{summary.nlmrt}
-\title{Summary output for nlmrt object.
+\name{summary.nls14}
+\alias{summary.nls14}
+\title{Summary output for nls14 object.
 }
 \description{
     Provide a summary output (but involving some serious computations!) of
-    an object of class nlmrt from \code{nlxb} or \code{nlfb} from package
-    \code{nlmrt}.
+    an object of class nls14 from \code{nlxb} or \code{nlfb} from package
+    \code{nls14}.
 }
 \usage{
-    \method{summary}{nlmrt}(object, ...)
+    \method{summary}{nls14}(object, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
-     An object of class 'nlmrt'
+     An object of class 'nls14'
 }
   \item{\dots}{
      Any data needed for the function. We do not know of any!
 }
 }
 \details{
-    \code{summary.nlmrt} performs a summary method for an object of class 'nlmrt' that
+    \code{summary.nls14} performs a summary method for an object of class 'nls14' that
     has been created by a routine such as \code{nlfb} or \code{nlxb} for nonlinear
     least squares problems.
 
@@ -29,7 +29,7 @@
     for columns where a parameter is masked or at (or very close to) a bound. See the 
     \code{R} code for the determination of whether we are at a bound. In this case, 
     users may wish to look in the \code{inst/dev-codes} directory of this package, 
-    where there is a script \code{seboundsnlmrtx.R} that computes the \code{nls()} 
+    where there is a script \code{seboundsnls14x.R} that computes the \code{nls()} 
     standard errors for comparison on a simple problem. 
 
     Issue: The printsum() of this object includes the singular values of the Jacobian. 
@@ -41,7 +41,7 @@
 
 }
 \value{
-    returns an invisible copy of the nlmrt object.
+    returns an invisible copy of the nls14 object.
 }
 \author{
 John C Nash <nashjc@uottawa.ca>

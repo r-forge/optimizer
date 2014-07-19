@@ -1,5 +1,5 @@
-\name{modss}
-\alias{modss}
+\name{resss}
+\alias{resss}
 \title{Compute gradient from residuals and Jacobian.
 }
 \description{
@@ -10,7 +10,7 @@
    that is, t(Jacobian) %*% residuals. 
 }
 \usage{
-   modss(prm, resfn, ...)
+   resss(prm, resfn, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -29,7 +29,7 @@
 }
 }
 \details{
-    \code{modss} calls resfn to compute residuals and then uses \code{crossprod}
+    \code{resss} calls resfn to compute residuals and then uses \code{crossprod}
     to compute the sum of squares. 
 
     At 2012-4-26 there is no checking for errors. 
@@ -65,10 +65,11 @@ John C Nash <nashjc@uottawa.ca>
   y <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 
       50.156, 62.948, 75.995, 91.972)  # for testing
   tt <- seq_along(y)  # for testing
+  mydata <- data.frame(tt = tt, y = y)
   f <- y ~ b1/(1 + b2 * exp(-1 * b3 * tt))
   p <- c(b1 = 1, b2 = 1, b3 = 1)
   myres <- model2resfun(f, p)
-  myssval <- modss(p, myres, tt = tt, y = y)
+  myssval <- resss(p, myres, data = mydata)
   cat("ss at (1,1,1) (should be 23520.58) = ",myssval,"\n")
 }
 \keyword{ nonlinear least squares }

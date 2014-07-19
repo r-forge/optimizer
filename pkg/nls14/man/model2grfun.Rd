@@ -10,6 +10,7 @@ and a vector of named parameters.
    attempts to build the the \code{R} function for the gradient of the 
    residual sum of squares.
    As a side effect, a text file with the program code is generated.
+   One-sided formulas (no lhs) are permitted.
 }
 \usage{
    model2grfun(modelformula, pvec, funname="mygr", filename=NULL)
@@ -22,6 +23,7 @@ and a vector of named parameters.
      for example,
            y ~ b1/(1+b2*exp(-b3*tt))
      You may also give this as a string.
+     One-sided formulas (no lhs) are permitted.
 }
   \item{pvec}{
      A named parameter vector. For our example, we could use
@@ -59,7 +61,7 @@ John C Nash <nashjc@uottawa.ca>
 }
 
 \examples{
-  cat("See also examples in nlmrt-package.Rd\n")
+  cat("See also examples in nls14-package.Rd\n")
   require(numDeriv)
   y <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 
       50.156, 62.948, 75.995, 91.972)  # for testing

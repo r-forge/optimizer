@@ -63,8 +63,16 @@ if (length(upper)==1) upper<-rep(upper,npar)
        print(pnames[maskidx]) # Change 140716
     }
     bdmsk[maskidx]<-0 # fixed parameters
-## ?? remove numerical jacobian and put in model2jacfn 140716??
 
+## 140718 get data set up
+    varnames<-attr(resfn,"varnames")
+    nvar<-length(varnames)
+    for (i in 1:nvar){
+       cmd<-paste(varnames[i],"<-data$",varnames[i],sep='')
+       eval(parse(text=cmd))
+    }
+
+## ?? remove numerical jacobian and put in model2jacfn 140716??
 # 20120607 -- put in if needed ?? Change so we can get different numerical
 #   approximations -- and make it possible to get this into jacfn!!??
     if (is.null(jacfn)){
@@ -90,7 +98,10 @@ if (length(upper)==1) upper<-rep(upper,npar)
     } else { 
        numjac<-FALSE
     }
-    resbest<-resfn(pnum, ...)
+cat("Starting pnum=")
+print(pnum)
+
+    resbest<-resfn(pnum, ...) ## ?? wrong call?
 #    cat("resbest:")
 #    print(resbest)
     ssbest<-crossprod(resbest)

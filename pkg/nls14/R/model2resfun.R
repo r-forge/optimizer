@@ -26,10 +26,10 @@ model2resfun <- function(modelformula, pvec, funname = "myres",
     pstr <- paste(pstr, ")", sep = "")
     xxvars <- xx[-rp]
     nvar <- length(xxvars)
-    vstr <- "" # Revision 140718 to include data$name form
+    vstr <- "" # Revision 140718 to include data$name form ?? probably not needed??
     if (nvar > 0) {
         for (i in 1:nvar) { ## 140718 change in next line
-            vstr <- paste(vstr, xxvars[i], " = data[,",xxvars[i],"]", sep = "")
+            vstr <- paste(vstr, xxvars[i], " = ",xxvars[i], sep = "")
             if (i < nvar) 
                 vstr <- paste(vstr, ", ", sep = "")
         }
@@ -54,13 +54,18 @@ model2resfun <- function(modelformula, pvec, funname = "myres",
         pparse <- paste(pparse, "   ", pnames[[i]], "<-prm[[", 
             i, "]]\n", sep = "")
     }
-    myfstr <- paste(funname, "<-function(prm, ", vstr, ") {\n", 
-        pparse, fnexp, "\n }", sep = "")
+    pparse<-paste(pparse, "with(data, {", sep="")
+##    myfstr <- paste(funname, "<-function(prm, ", vstr, ") {\n", 
+    myfstr <- paste(funname, "<-function(prm, data=NULL) {\n", 
+
+        pparse, fnexp, "\n}) \n }", sep = "")
     if (!is.null(filename)) 
         write(myfstr, file = filename)  # write out the file
     tparse <- try(parse(text = myfstr))
     # This may cause trouble if there are errors
     if (class(tparse) == "try-error") 
         stop("Error in residual code string")
-    eval(tparse)
+    mfun<-eval(tparse)
+    attr(mfun, "varnames")<-xxvars
+    mfun
 }

@@ -1,4 +1,4 @@
-nls14xb <- function(formula, start, trace = FALSE, data=data, lower = -Inf,
+nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
                  upper = Inf, masked = NULL, control=list(), ...) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes

@@ -9,10 +9,13 @@ export(
    wrap14nls,
    resss,
    resgr,
+   modelexpr,
    model2grfun,
    model2jacfun,
    model2resfun,
+   model2rjfun,
    model2ssfun, 
+   model2ssgrfun,
    print.nls14,
    summary.nls14,
    coef.nls14

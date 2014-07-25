@@ -150,7 +150,7 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     print(tjacfn) 
 
     ## Call the nlfb function here
-    ctrl$watch<-TRUE
+##    ctrl$watch<-TRUE
 ## ?? problem is getting the data into the tresfn and tjacfn?? How?
 ## ?? This is really how to deal with the vstr of model2??.R functions
 ## which gets data into the functions

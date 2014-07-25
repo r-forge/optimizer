@@ -1,6 +1,6 @@
 nlfb <-function(start, resfn, jacfn = NULL, trace = FALSE, 
 		lower = -Inf, upper = Inf, maskidx = NULL, 
-		data=data, control, ...){
+		data=NULL, control, ...){
 #
 #  A stripped down nlfb (nls14fb does the checking of inputs).
 showprms<-function(SS, pnum){
@@ -18,6 +18,8 @@ showprms<-function(SS, pnum){
 pnames<-names(start)
 start<-as.numeric(start)
 names(start)<-pnames # ?? needed
+cat("Top of nlfb, start=")
+print(start)
 # bounds
 npar<-length(start) # number of parameters
 if (length(lower)==1) lower<-rep(lower,npar)
@@ -101,7 +103,7 @@ if (length(upper)==1) upper<-rep(upper,npar)
 cat("Starting pnum=")
 print(pnum)
 
-    resbest<-resfn(pnum, ...) ## ?? wrong call?
+    resbest<-resfn(pnum, data=data, ...) ## ?? wrong call?
 #    cat("resbest:")
 #    print(resbest)
     ssbest<-crossprod(resbest)
@@ -136,7 +138,7 @@ print(pnum)
             print(bdmsk)
           }
           if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
-          else Jac<-jacfn(pbest, ...)
+          else Jac<-jacfn(pbest, data=data, ...)
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
           JTJ<-crossprod(Jac)
@@ -226,7 +228,7 @@ print(pnum)
 #                eval(parse(text=joe))
 #              }
               feval<-feval+1 # count evaluations
-              resid<-resfn(pnum, ...)
+              resid<-resfn(pnum, data=data, ...)
               ssquares<-as.numeric(crossprod(resid))
               if (is.na(ssquares)) ssquares<-.Machine$double.xmax
               if (ssquares>=ssbest) {

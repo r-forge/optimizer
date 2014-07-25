@@ -69,9 +69,6 @@ The main functions in \code{nls14} are:
 
 } 
 
-For testing purposes, there are also some experimental codes using different 
-internal computations for the linear algebraic sub-problems in the inst/dev-codes/
-sub-folder.
 }
 \author{ John C Nash 
 
@@ -89,159 +86,32 @@ Maintainer:  <nashjc@uottawa.ca>
 \keyword{ nonlinear least squares }
 \seealso{\code{nls} }
 \examples{
+
 rm(list=ls())
 # require(nls14)
 
-# traceval set TRUE to debug or give full history
-traceval  <-  TRUE
+traceval  <-  TRUE  # traceval set TRUE to debug or give full history
 
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
-y  <-  ydat  # for testing
 tdat  <-  seq_along(ydat) # for testing
-# WARNING -- using T can get confusion with TRUE
-tt  <-  tdat
+
 # A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.
 start1  <-  c(b1=1, b2=1, b3=1)
+startf1  <-  c(b1=1, b2=1, b3=.1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
-
-\dontrun{
-
-
-cat("GLOBAL DATA\n")
-
-anls1g  <-  try(nls(eunsc, start=start1, trace=traceval))
-print(anls1g)
-
-cat("GLOBAL DATA AND EXPRESSION -- SHOULD FAIL\n")
-anls14xb1g  <-  try(nls14xb(eunsc, start=start1, trace=traceval))
-print(anls14xb1g)
-
-} # end dontrun
-
-rm(y)
-rm(tt)
 
 cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
+
 anls14xb1  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1))
 print(anls14xb1)
 
 anls14xb2  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata2))
 print(anls14xb2)
-
-startf1  <-  c(b1=1, b2=1, b3=.1)
-
-
-
-## Problem in 1 parameter to ensure methods work in trivial case
-cat("1 parameter problem\n")
-nobs<-8
-tt <- seq(1,nobs)
-dd <- 1.23*tt + 4*runif(nobs)
-
-df <- data.frame(tt, dd)
-print(df)
-a1par<-nls14xb(dd ~ a*tt, start=c(a=1), data=df)
-a1par
-
-
-
-
-## With BOUNDS
-
-\dontrun{
-
-anls14xb1  <-  try(nls14xb(eunsc, start=startf1, lower=c(b1=0, b2=0, b3=0), 
-      upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1))
-print(anls14xb1)
-
-} # end dontrun
-
-
-# Check nls too
-\dontrun{
-
-anlsb1  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
-     upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1, 
-             algorithm='port'))
-print(anlsb1)
-
-tmp  <-  readline("next")
-} # end dontrun
-
-\dontrun{
-
-anls14xb2  <-  try(nls14xb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
-        upper=c(b1=500, b2=100, b3=.25), trace=traceval, data=weeddata1))
-print(anls14xb2)
-
-
-anlsb2  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
-                upper=c(b1=500, b2=100, b3=.25), trace=traceval, 
-                data=weeddata1, algorithm='port'))
-print(anlsb2)
-
-tmp  <-  readline("next")
-} # end dontrun
-
-
-cat("TEST MASKS\n")
-
-\dontrun{
-
-anlsmnqm  <-  try(nls14xb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
-   upper=c(b1=500, b2=100, b3=5), masked=c("b2"), trace=traceval, data=weeddata1))
-print(anlsmnqm)
-} # end dontrun
-
-cat("UNCONSTRAINED\n")
-\dontrun{
-an1q  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1))
-print(an1q)
-tmp  <-  readline("next")
-} # end dontrun
-
-
-cat("MASKED\n")
-
-\dontrun{
-
-an1qm3  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1, 
-                masked=c("b3")))
-print(an1qm3)
-tmp  <-  readline("next")
-
-# Note that the parameters are put in out of order to test code.
-an1qm123  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1, 
-                  masked=c("b2","b1","b3")))
-print(an1qm123)
-tmp  <-  readline("next")
-
-} # end dontrun
-
-
-cat("BOUNDS")
-start2  <-  c(b1=100, b2=10, b3=0.1)
-an1qb1  <-  try(nls14xb(eunsc, start=start2, trace=traceval, data=weeddata1, 
-                     lower=c(0,0,0), upper=c(200, 60, .3)))
-print(an1qb1)
-tmp  <-  readline("next")
-
-
-cat("BOUNDS and MASK")
-
-\dontrun{
-
-an1qbm2  <-  try(nls14xb(eunsc, start=start2, trace=traceval, data=weeddata1, 
-                      lower=c(0,0,0), upper=c(200, 60, .3), masked=c("b2")))
-print(an1qbm2)
-tmp  <-  readline("next")
-
-} # end dontrun
 
 
 escal  <-   y ~ 100*b1/(1+10*b2*exp(-0.1*b3*tt))
@@ -250,44 +120,6 @@ ssceasy  <-  c(b1=2, b2=5, b3=3)
 st1scal  <-  c(b1=100, b2=10, b3=0.1)
 
 
-cat("EASY start -- unscaled")
-anls01  <-  try(nls(eunsc, start=suneasy, trace=traceval, data=weeddata1))
-print(anls01)
-anls1401  <-  try(nls14xb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
-print(anls1401)
-
-\dontrun{
-
-cat("All 1s start -- unscaled")
-anls02  <-  try(nls(eunsc, start=start1, trace=traceval, data=weeddata1))
-if (class(anls02) == "try-error") {
-   cat("FAILED:")
-   print(anls02)
-} else {
-   print(anls02)
-}
-anls1402  <-  nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1)
-print(anls1402)
-
-cat("ones start -- scaled")
-anls03  <-  try(nls(escal, start=start1, trace=traceval, data=weeddata1))
-print(anls03)
-anls1403  <-  nls14xb(escal, start=start1, trace=traceval, data=weeddata1)
-print(anls1403)
-
-cat("HARD start -- scaled")
-anls04  <-  try(nls(escal, start=st1scal, trace=traceval, data=weeddata1))
-print(anls04)
-anls1404  <-  nls14xb(escal, start=st1scal, trace=traceval, data=weeddata1)
-print(anls1404)
-
-cat("EASY start -- scaled")
-anls05  <-  try(nls(escal, start=ssceasy, trace=traceval, data=weeddata1))
-print(anls05)
-anls1405  <-  nls14xb(escal, start=ssceasy, trace=traceval, data=weeddata1)
-print(anls1403)
-
-} # end dontrun
 
 shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
 # This variant uses looping

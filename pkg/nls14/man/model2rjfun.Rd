@@ -1,6 +1,7 @@
 \name{model2rjfun}
 \alias{model2rjfun}
 \alias{model2ssgrfun}
+\alias{modelexpr}
 \title{
 Create functions to calculate the residual vector or the sum of squares, possibly
 with derivatives.
@@ -27,6 +28,9 @@ A dataframe, list or environment holding data used in the calculation.
 }
   \item{jacobian}{
 Whether to compute the Jacobian matrix.
+}
+  \item{gradient}{
+Whether to compute the gradient vector.
 }
   \item{testresult}{
 Whether to test the function by evaluating it at \code{pvec}.
@@ -77,6 +81,11 @@ John Nash and Duncan Murdoch
   p <- c(b1 = 1, b2 = 1, b3 = 1)
   rjfn <- model2rjfun(f, p, data = mydata)
   rjfn(p)
+  myexp <- modelexpr(rjfn)
+  cat("myexp:")
+  print(myexp)
+
+
   ssgrfn <- model2ssgrfun(f, p, data = mydata)
   ssgrfn(p)
 }

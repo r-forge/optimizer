@@ -13,7 +13,7 @@
 }
 \usage{
    nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
-         maskidx=NULL, data=data, control, ...)
+         maskidx=NULL, data=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

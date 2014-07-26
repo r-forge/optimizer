@@ -18,7 +18,11 @@ export(
    model2ssgrfun,
    print.nls14,
    summary.nls14,
-   coef.nls14
+   coef.nls14,
+   Deriv, 
+   Simplify,
+   newDeriv,
+   sysDerivs
 )
 
 # S4 Methods

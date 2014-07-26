@@ -1,11 +1,14 @@
 # R-based replacement for deriv() function
 
 sysDerivs <- new.env(parent = emptyenv())
+sysSimplifications <- new.env(parent = emptyenv())
 
 newDeriv <- function(expr, deriv, envir = sysDerivs) {
     if (missing(expr))
     	return(ls(envir))
     expr <- substitute(expr)
+    if (!is.call(expr))
+    	stop("expr must be a call to a function")
     fn <- as.character(expr[[1]])
     if (missing(deriv)) 
     	return(envir[[fn]])
@@ -21,7 +24,45 @@ newDeriv <- function(expr, deriv, envir = sysDerivs) {
                     required = required, deriv=deriv), envir = envir)
     invisible(envir[[fn]])
 }
-         
+
+newSimplification <- function(expr, test, simplification, do_eval = FALSE, envir = sysSimplifications) {
+    if (missing(expr))
+    	return(ls(envir))
+    expr <- substitute(expr)
+    if (!is.call(expr))
+    	stop("expr must be a call to a function")
+    fn <- as.character(expr[[1]])
+    nargs <- length(expr) - 1L
+    simps <- envir[[fn]]
+    if (missing(test)) {
+        if (nargs <= length(simps))	
+    	    return(simps[[nargs]])
+    	else
+    	    return(NULL)
+    }
+    test <- substitute(test)
+    simplification <- substitute(simplification)
+    
+    args <- expr[-1]
+    if (!is.null(names(args)))
+    	stop("expr should not have named arguments")
+    if (!all(sapply(args, is.name)))
+    	stop("expr should have simple names as arguments")
+    argnames <- sapply(args, as.character)
+    if (any(duplicated(argnames)))
+    	stop("expr names should be unique")
+    	
+    if (is.null(simps)) simps <- list()
+    if (nargs <= length(simps)) 
+    	simpn <- simps[[nargs]]
+    else
+    	simpn <- list()
+    simpn <- c(simpn, list(list(expr = expr, argnames = argnames, test = test, 
+                                simplification = simplification, do_eval = do_eval)))
+    simps[[nargs]] <- simpn
+    assign(fn, simps, envir=envir)
+}
+    	
 Deriv <- function(expr, name, envir = sysDerivs, do_substitute = TRUE) {
     Recurse <- function(expr) {
     	if (is.call(expr)) {
@@ -80,139 +121,42 @@ Deriv <- function(expr, name, envir = sysDerivs, do_substitute = TRUE) {
     }        
 }
 
-Simplify <- function(expr) {
+isFALSE <- function(x) identical(FALSE, x)
+isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0
+isONE  <- function(x) is.numeric(x) && length(x) == 1 && x == 1
+isMINUSONE <- function(x) is.numeric(x) && length(x) == 1 && x == -1
+
+Simplify <- function(expr, envir = sysSimplifications) {
+    
     if (is.expression(expr))
     	return(as.expression(lapply(expr, Simplify)))    
-    
-    isFALSE <- function(x) identical(FALSE, x)
-    isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0
-    isONE  <- function(x) is.numeric(x) && length(x) == 1 && x == 1
-    isMINUSONE <- function(x) is.numeric(x) && length(x) == 1 && x == -1
 
     if (is.call(expr)) {
 	for (i in seq_along(expr)[-1])
 	    expr[[i]] <- Simplify(expr[[i]])
 	fn <- as.character(expr[[1]])
-	if (length(expr) == 2) 
-	    switch(fn,
-	    "+" = expr[[2]],
-	    "-" = if (is.numeric(expr[[2]]))
-		      -expr[[2]]
-		  else if (is.call(expr[[2]]) && length(expr[[2]]) == 2 && as.character(expr[[c(2,1)]]) == "-")
-		      expr[[c(2,2)]]
-		  else 
-		     expr,     
-	    "exp" = if (is.call(expr[[2]]) && as.character(expr[[c(2,1)]]) == "log"
-					   && length(expr[[2]]) == 2)
-			expr[[c(2,2)]]
-		    else
-			expr,
-	    "log" = if (is.call(expr[[2]]) && as.character(expr[[c(2,1)]]) == "exp")
-			expr[[c(2,2)]]
-		    else if (is.numeric(expr[[2]]))
-		    	log(expr[[2]])
-		    else
-			expr,
-	    "!" =   if (isTRUE(expr[[2]]))
-	    		FALSE
-	            else if (isFALSE(expr[[2]]))
-	            	TRUE
-	            else
-	            	expr,
-	    "(" = expr[[2]],	     
-		expr)
-	else if (length(expr) == 3)
-	    switch(fn,
-	    "+" = if (isZERO(expr[[3]]))
-		     expr[[2]]
-		  else if (isZERO(expr[[2]]))
-		     expr[[3]]
-		  else if (is.numeric(expr[[2]]) && is.numeric(expr[[3]]))
-		     expr[[2]] + expr[[3]]
-		  else
-		     expr,
-	    "-" = if (isZERO(expr[[3]]))
-		     expr[[2]]
-		  else if (isZERO(expr[[2]]))
-		     Simplify(call("-", expr[[3]]))
-		  else if (is.numeric(expr[[2]]) && is.numeric(expr[[3]]))
-		     expr[[2]] - expr[[3]]
-		  else
-		     expr,     
-	    "*" = if (isONE(expr[[3]]))
-		     expr[[2]]
-		  else if (isONE(expr[[2]]))
-		     expr[[3]]
-		  else if (isMINUSONE(expr[[3]]))
-		     Simplify(call("-", expr[[2]]))
-		  else if (isMINUSONE(expr[[2]]))
-		     Simplify(call("-", expr[[3]]))
-		  else if (isZERO(expr[[2]]))
-		     0    	    	     
-		  else if (isZERO(expr[[3]]))
-		     0
-		  else if (is.numeric(expr[[2]]) && is.numeric(expr[[3]]))
-		     expr[[2]] * expr[[3]]
-		  else
-		     expr,
-	    "/" = if (isONE(expr[[3]]))
-		     expr[[2]]
-		  else if (isMINUSONE(expr[[3]]))
-		     Simplify(call("-", expr[[2]]))
-		  else if (isZERO(expr[[2]]))
-		     0
-		  else if (is.numeric(expr[[2]]) && is.numeric(expr[[3]]))
-		     expr[[2]] / expr[[3]]
-		  else
-		     expr,
-	    "^" = if (isONE(expr[[3]]))
-		     expr[[2]]
-		  else if (is.numeric(expr[[2]]) && is.numeric(expr[[3]]))
-		     expr[[2]] ^ expr[[3]]
-		  else 
-		     expr,
-	    "log" = if (is.call(expr[[2]]) && as.character(expr[[c(2,1)]]) == "exp")
-			Simplify(call("/", expr[[c(2,2)]], call("log", expr[[3]])))
-		    else
-			expr,	
-	    "&&" = if ( isFALSE(expr[[2]]) || isFALSE(expr[[3]]))
-	               FALSE
-	           else if (isTRUE(expr[[2]]))
-	               expr[[3]]
-	           else if (isTRUE(expr[[3]]))
-	               expr[[2]]
-	           else
-	               expr,
-	    "||" = if (  isTRUE(expr[[2]]) || isTRUE(expr[[3]]))
-	               TRUE
-	           else if (isFALSE(expr[[2]]))
-	               expr[[3]]
-	           else if (isFALSE(expr[[3]]))
-	               expr[[2]]
-	           else
-	               expr,
-	    "if" = if (isTRUE(expr[[2]]))
-	    	       expr[[3]]
-	    	   else if (isFALSE(expr[[2]]))
-	    	       NULL
-	    	   else
-	    	       expr,   
-		expr)
-	else if (length(expr) == 4)
-	    switch(fn,
-    	    "if" = if (isTRUE(expr[[2]]))
-    	    	       expr[[3]]
-    	    	   else if (isFALSE(expr[[2]]))
-    	    	       expr[[4]]
-    	    	   else if (identical(expr[[3]], expr[[4]]))
-    	    	       expr[[3]]
-    	    	   else
-    	    	       expr,
-    	    expr)
-	else
-	    expr 
-    } else
-	expr
+	nargs <- length(expr) - 1
+	while (!identical(envir, emptyenv())) {
+	    simps <- envir[[fn]]
+	    if (nargs > length(simps))
+		return(expr)
+	    simpn <- simps[[nargs]]
+	    for (i in seq_along(simpn)) {  	
+		argnames <- simpn[[i]]$argnames
+		substitutions <- lapply(seq_along(argnames)+1L, function(i) expr[[i]])
+		names(substitutions) <- argnames
+		test <- simpn[[i]]$test
+		if (with(substitutions, eval(test))) {
+		    simplification <- do.call(substitute, list(simpn[[i]]$simplification, substitutions))
+	   	    if (simpn[[i]]$do_eval)
+	    		simplification <- eval(simplification)
+	    	    return(simplification)
+	        }
+	     }
+	     envir <- parent.env(envir)
+	}
+    }
+    expr
 }
 
 # These are the derivatives supported by deriv()
@@ -260,3 +204,61 @@ newDeriv((x), D(x), envir = sysDerivs)
 
 newDeriv(abs(x), sign(x)*D(x), envir = sysDerivs)
 newDeriv(sign(x), 0, envir = sysDerivs)
+
+# Now, the simplifications
+
+newSimplification(+a, TRUE, a)
+newSimplification(-a, is.numeric(a), -a, do_eval=TRUE)
+newSimplification(-a, is.call(a) && length(a) == 2 && as.character(a[[1]]) == "-", a[[2]], do_eval=TRUE)
+
+newSimplification(exp(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "log", a[[2]], do_eval=TRUE)
+newSimplification(exp(a), is.numeric(a), exp(a), do_eval=TRUE)
+
+newSimplification(log(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "exp", a[[2]], do_eval=TRUE)
+newSimplification(log(a), is.numeric(a), log(a), do_eval=TRUE)
+
+newSimplification(!a, isTRUE(a), FALSE)
+newSimplification(!a, isFALSE(a), TRUE)
+
+newSimplification((a), TRUE, a)
+
+newSimplification(a + b, isZERO(b), a)
+newSimplification(a + b, isZERO(a), b)
+newSimplification(a + b, is.numeric(a) && is.numeric(b), a+b, do_eval=TRUE)
+
+newSimplification(a - b, isZERO(b), a)
+newSimplification(a - b, isZERO(a), Simplify(-b), do_eval = TRUE)
+newSimplification(a - b, is.numeric(a) && is.numeric(b), a - b, do_eval=TRUE)
+
+newSimplification(a * b, isZERO(a), 0)
+newSimplification(a * b, isZERO(b), 0)
+newSimplification(a * b, isONE(a), b)
+newSimplification(a * b, isONE(b), a)
+newSimplification(a * b, isMINUSONE(a), Simplify(-b), do_eval = TRUE)
+newSimplification(a * b, isMINUSONE(b), Simplify(-a), do_eval = TRUE)
+newSimplification(a * b, is.numeric(a) && is.numeric(b), a * b, do_eval=TRUE)
+
+newSimplification(a / b, isONE(b), a)
+newSimplification(a / b, isMINUSONE(b), Simplify(-a), do_eval = TRUE)
+newSimplification(a / b, isZERO(a), 0)
+newSimplification(a / b, is.numeric(a) && is.numeric(b), a / b, do_eval=TRUE)
+
+newSimplification(a ^ b, isONE(b), a)
+newSimplification(a ^ b, is.numeric(a) && is.numeric(b), a ^ b, do_eval=TRUE)
+
+newSimplification(log(a, base), is.call(a) && as.character(a[[1]]) == "exp", Simplify(a[[2]] / log(base)), do_eval=TRUE)
+
+newSimplification(a && b, isFALSE(a) || isFALSE(b), FALSE)
+newSimplification(a && b, isTRUE(a), b)
+newSimplification(a && b, isTRUE(b), a)
+
+newSimplification(a || b, isTRUE(a) || isTRUE(b), TRUE)
+newSimplification(a || b, isFALSE(a), b)
+newSimplification(a || b, isFALSE(b), a)
+
+newSimplification(if (cond) a, isTRUE(cond), a)
+newSimplification(if (cond) a, isFALSE(cond), NULL)
+
+newSimplification(if (cond) a else b, isTRUE(cond), a)
+newSimplification(if (cond) a else b, isFALSE(cond), b)
+newSimplification(if (cond) a else b, identical(a, b), a)

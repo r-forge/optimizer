@@ -1,18 +1,15 @@
 \name{Deriv}
 \alias{Deriv}
-\alias{Simplify}
 \alias{newDeriv}
 \alias{sysDerivs}
 \title{
-Functions to take symbolic derivatives and to simplify expressions.
+Functions to take symbolic derivatives.
 }
 \description{
-\code{Deriv} takes a symbolic derivative of the first argument.  \code{Simplify}
-simplifies expressions.
+\code{Deriv} takes a symbolic derivative of the first argument.  
 }
 \usage{
 Deriv(expr, name, envir = sysDerivs, do_substitute = TRUE)
-Simplify(expr)
 newDeriv(expr, deriv, envir = sysDerivs) 
 sysDerivs
 }
@@ -53,21 +50,12 @@ See the examples below.
 
 If \code{expr} or \code{deriv} is missing, \code{newDeriv()} will
 report on currently saved derivatives in \code{envir}.
-
-The \code{Simplify} function uses simple rules to simplify
-expressions.  The simplification is aimed at the needs of this
-package, so it assumes that variables and expressions have finite real
-values. For example, \code{0*expr} will simplify to \code{0}
-regardless of the value of \code{expr}.
 }
 \value{
 If \code{expr} is an expression vector, \code{Deriv} and \code{Simplify}
 return expression vectors containing the response.
 
 \code{Deriv} returns the symbolic derivative of the expression.
-
-\code{Simplify} returns a simplification of the expression, assuming
-that variables and functions take real values.
 
 \code{newDeriv} with \code{expr} and \code{deriv} specified is
 called for the side effect of recording the derivative in \code{envir}.
@@ -79,7 +67,7 @@ will return its record for the specified function.
 Duncan Murdoch
 }
 \seealso{
-\code{\link{deriv}}
+\code{\link{deriv}}, \code{\link{Simplify}}
 }
 \examples{
 newDeriv()

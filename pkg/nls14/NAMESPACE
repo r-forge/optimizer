@@ -22,7 +22,13 @@ export(
    Deriv, 
    Simplify,
    newDeriv,
-   sysDerivs
+   sysDerivs,
+   newSimplification,
+   sysSimplifications,
+   isFALSE,
+   isZERO,
+   isONE,
+   isMINUSONE
 )
 
 # S4 Methods

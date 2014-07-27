@@ -48,8 +48,17 @@ should be an expression giving the derivative, including calls to
 with partial derivatives of that argument with respect to \code{name}.
 See the examples below.
 
-If \code{expr} or \code{deriv} is missing, \code{newDeriv()} will
-report on currently saved derivatives in \code{envir}.
+If \code{expr} or \code{deriv} is missing in a call to
+\code{newDeriv()}, it will return the currently saved derivative
+record from \code{envir}.  If \code{name} is missing in a call to
+\code{Deriv} with a function call, it will print a message describing
+the derivative formula and return \code{NULL}.
+
+To handle functions which act differently if a parameter is
+missing, code the default value of that parameter to \code{.MissingVal},
+and give a derivative that is conditional on \code{missing()}
+applied to that parameter.  See the derivative of \code{"-"}
+for an example.
 }
 \value{
 If \code{expr} is an expression vector, \code{Deriv} and \code{Simplify}

@@ -61,6 +61,12 @@ standard rules.
 The \code{isFALSE}, \code{isZERO}, \code{isONE}, and \code{isMINUSONE}
 functions are simple functions to test whether expressions are simple constants,
 similar to \code{\link{isTRUE}}.
+
+To handle functions which act differently depending on which arguments
+are present, \code{Simplify} will simplify the expression \code{missing(.MissingVal)}
+to \code{TRUE}.  This is used in the definition of the derivative
+for \code{x - y}, where the unary minus is seen as a missing \code{y}
+value.
 }
 \value{
 \code{Simplify} returns a simplification of the expression, assuming
@@ -69,7 +75,7 @@ that variables and functions take real values.
 The \code{newSimplification} function is called for the side
 effect of recording a new simplification rule.
 
-If \code{expr} or \code{deriv} is missing, \code{newDeriv()} will
+If \code{expr} or \code{deriv} is missing, \code{newSimplification()} will
 report on the currently saved simplifications in \code{envir}.
 }
 \author{

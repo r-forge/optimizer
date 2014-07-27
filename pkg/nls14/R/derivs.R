@@ -81,11 +81,6 @@ Deriv <- function(expr, name, envir = sysDerivs, do_substitute = TRUE) {
     	return(as.expression(lapply(expr, Deriv, name=name, do_substitute = FALSE)))
     else if (is.numeric(expr) || is.logical(expr))
     	return(0)
-    else if (is.name(expr))
-    	if (as.character(expr) == name)
-    	    return(1)
-    	else
-    	    return(0)
     else if (is.call(expr)) {
     	fn <- as.character(expr[[1]])
 	if (fn == "expression")
@@ -93,7 +88,13 @@ Deriv <- function(expr, name, envir = sysDerivs, do_substitute = TRUE) {
     	model <- envir[[fn]]
     	if (is.null(model))
     	    stop("no derivative known for '", fn, "'")
-   
+ 	if (missing(name)) {
+ 	    message("Pattern for")
+ 	    message(paste("  ", deparse(model$expr), collapse="\n"))
+ 	    message("is")
+ 	    message(paste("  ", deparse(model$deriv), collapse="\n"))
+ 	    return(invisible(NULL))
+ 	}
         args <- expr[-1]
         argnames <- names(args)
         if (is.null(argnames)) 
@@ -118,7 +119,11 @@ Deriv <- function(expr, name, envir = sysDerivs, do_substitute = TRUE) {
         result <- do.call(substitute, list(model$deriv, subst))
         result <- Recurse(result)
         Simplify(result)
-    }        
+    } else if (is.name(expr))
+    	if (as.character(expr) == name)
+    	    return(1)
+    	else
+    	    return(0)        
 }
 
 isFALSE <- function(x) identical(FALSE, x)
@@ -171,15 +176,23 @@ newDeriv(sinh(x), cosh(x)*D(x), envir = sysDerivs)
 newDeriv(cosh(x), sinh(x)*D(x), envir = sysDerivs)
 newDeriv(sqrt(x), D(x)/2/sqrt(x), envir = sysDerivs)
 newDeriv(pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE),
-  (if (lower.tail && !log.p) dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
-  else if (!lower.tail && !log.p) -dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
-  else if (lower.tail && log.p) dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)/pnorm((q-mean)/sd)
-  else -dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)/pnorm((q-mean)/sd, lower.tail=FALSE))
+  (if (lower.tail && !log.p) 
+  	dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
+  else if (!lower.tail && !log.p) 
+  	-dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
+  else if (lower.tail && log.p) 
+  	(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)*exp(dnorm((q-mean)/sd, log=TRUE) 
+  		- pnorm((q-mean)/sd, log=TRUE))
+  else if (!lower.tail && log.p)	
+  	-(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)*exp(dnorm((q-mean)/sd, log=TRUE) 
+  		- pnorm((q-mean)/sd, lower.tail=FALSE, log=TRUE)))
   + stop("cannot take derivative wrt 'lower.tail' or 'log.p'")*(D(lower.tail) + D(log.p)),
   envir = sysDerivs)
 newDeriv(dnorm(x, mean = 0, sd = 1, log = FALSE),
-  (if (!log) dnorm((x-mean)/sd)/sd^2*((D(mean)-D(x))*(x-mean)/sd + D(sd)*((x-mean)^2/sd^2 - 1)) 
-  else ((D(mean)-D(x))*(x-mean)/sd + D(sd)*((x-mean)^2/sd^2 - 1))/sd) 
+  (if (!log) 
+  	dnorm((x-mean)/sd)/sd^2*((D(mean)-D(x))*(x-mean)/sd + D(sd)*((x-mean)^2/sd^2 - 1)) 
+  else if (log)
+        ((D(mean)-D(x))*(x-mean)/sd + D(sd)*((x-mean)^2/sd^2 - 1))/sd) 
   + stop("cannot take derivative wrt 'log'")*D(log),
   envir = sysDerivs)
 newDeriv(asin(x), D(x)/sqrt(1+x^2), envir = sysDerivs)
@@ -193,12 +206,13 @@ newDeriv(psigamma(x, deriv = 0L),
           psigamma(x, deriv + 1L)*D(x) 
         + stop("cannot take derivative wrt 'deriv'")*D(deriv), envir = sysDerivs)
 
-newDeriv(x + y, D(x) + D(y), envir = sysDerivs)
 newDeriv(x*y, x*D(y) + D(x)*y, envir = sysDerivs)
 newDeriv(x/y, D(x)/y - x*D(y)/y^2, envir = sysDerivs)
-newDeriv(x - y, D(x) - D(y), envir = sysDerivs)
 newDeriv(x^y, y*x^(y-1)*D(x) + x^y*log(x)*D(y), envir = sysDerivs)
 newDeriv((x), D(x), envir = sysDerivs)
+# Need to be careful with unary + or -
+newDeriv(`+`(x, y = .MissingVal), if (missing(y)) D(x) else D(x) + D(y), envir = sysDerivs)
+newDeriv(`-`(x, y = .MissingVal), if (missing(y)) -D(x) else D(x) - D(y), envir = sysDerivs)
 
 # These are new
 
@@ -262,3 +276,6 @@ newSimplification(if (cond) a, isFALSE(cond), NULL)
 newSimplification(if (cond) a else b, isTRUE(cond), a)
 newSimplification(if (cond) a else b, isFALSE(cond), b)
 newSimplification(if (cond) a else b, identical(a, b), a)
+
+# This one is used to fix up the unary -
+newSimplification(missing(a), identical(a, quote(.MissingVal)), TRUE)

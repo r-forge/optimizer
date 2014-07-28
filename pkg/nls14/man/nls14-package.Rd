@@ -45,35 +45,26 @@ The main functions in \code{nls14} are:
    wrap14nls - Uses nls14xb to solve nonlinear least squares then calls nls() to
             create an object of type nls.
 
-   model2grfun.R - Generate a gradient vector function from a nonlinear 
-        model expression and a vector of named parameters.
+   model2rjfun - returns a function with header function{prm}, which
+        evaluates the residuals (and if jacobian is TRUE the
+        Jacobian matrix) of the model at prm.  The residuals are defined 
+        to be the right hand side of modelformula minus the left hand side.
 
-   model2jacfun.R - Generate a Jacobian matrix function from a nonlinear 
-        model expression and a vector of named parameters.
+   model2ssgrfun - returns a function with header function{prm}, which
+        evaluates the sum of squared residuals (and if gradient is TRUE the
+        gradient vector) of the model at prm. 
 
-   model2resfun.R - Generate a residual vector function from a nonlinear 
-        model expression and a vector of named parameters.
+   modelexpr - returns the expression used to calculate the vector of 
+        residuals (and possibly the Jacobian) used in the previous functions.
+}
 
-   model2ssfun.R - Generate a sum of squares objective function from a 
-        nonlinear model expression and a vector of named parameters.
-
-   modgr.R - compute gradient of the sum of squares function using the 
-        Jacobian and residuals for a nonlinear least squares problem
-      
-   modss.R - computer the sum of squares function from the residuals of
-        a nonlinear least squares problem
-
-   myfn.R, mygr.R, myjac.R, myres.R, myss.R - dummy functions that seem to
-       be needed so there is an available handle for output of functions that
-       generate various functions from expressions.
-
-} 
 
 }
-\author{ John C Nash 
+\author{ John C Nash and Duncan Murdoch
 
 Maintainer:  <nashjc@uottawa.ca>
 }
+
 \references{
      Nash, J. C. (1979, 1990) _Compact Numerical Methods for Computers.
      Linear Algebra and Function Minimisation._ Adam Hilger./Institute
@@ -244,78 +235,6 @@ printsum(an1fm1)
 
 # Need to check when all parameters masked.??
 
-\dontrun{
-
-cat("\n\n Now check conversion of expression to function\n\n")
-cat("K Vandepoel function\n")
-
-x <- c(1,3,5,7) # data
-y <- c(37.98,11.68,3.65,3.93)
-penetrationks28 <- data.frame(x=x,y=y)
-
-cat("Try nls() -- note the try() function!\n")
-
-fit0  <-  try(nls(y ~ (a+b*exp(1)^(-c * x)), data = penetrationks28, 
-    start = c(a=0,b = 1,c=1), trace = TRUE))
-print(fit0)
-
-cat("\n\n")
-
-fit1  <-  nls14xb(y ~ (a+b*exp(-c*x)), data = penetrationks28, 
-   start = c(a=0,b=1,c=1), trace = TRUE) 
-printsum(fit1)
-
-mexprn <- "y ~ (a+b*exp(-c*x))"
-pvec <- c(a=0,b=1,c=1)
-bnew <- c(a=10,b=3,c=4)
-
-k.r <- model2resfun(mexprn , pvec)
-k.j <- model2jacfun(mexprn , pvec)
-k.f <- model2ssfun(mexprn , pvec)
-k.g <- model2grfun(mexprn , pvec)
-
-
-cat("At pvec:")
-print(pvec)
-rp <- k.r(pvec, x=x, y=y)
-cat(" rp=")
-print(rp)
-rf <- k.f(pvec, x=x, y=y)
-cat(" rf=")
-print(rf)
-rj <- k.j(pvec, x=x, y=y)
-cat(" rj=")
-print(rj)
-rg <- k.g(pvec, x=x, y=y)
-cat(" rg=")
-print(rg)
-cat("modss at pvec gives ")
-print(modss(pvec, k.r, x=x, y=y))
-cat("modgr at pvec gives ")
-print(modgr(pvec, k.r, k.j, x=x, y=y))
-cat("\n\n")
-
-cat("At bnew:")
-print(bnew)
-rb <- k.r(bnew, x=x, y=y)
-cat(" rb=")
-print(rb)
-rf <- k.f(bnew, x=x, y=y)
-cat(" rf=")
-print(rf)
-rj <- k.j(bnew, x=x, y=y)
-cat(" rj=")
-print(rj)
-rg <- k.g(bnew, x=x, y=y)
-cat(" rg=")
-print(rg)
-cat("modss at bnew gives ")
-print(modss(bnew, k.r, x=x, y=y))
-cat("modgr at bnew gives ")
-print(modgr(bnew, k.r, k.j, x=x, y=y))
-cat("\n\n")
-
-}  ## end of dontrun
 
 
 }

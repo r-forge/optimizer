@@ -13,7 +13,7 @@
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
-     An object of class 'nlmrt'
+     An object of class 'nls14'
 }
   \item{\dots}{
      Any data needed for the function. We do not know of any!
@@ -24,7 +24,7 @@
     estimated by \code{nlxb} or \code{nlfb}. 
 }
 \value{
-    returns the coefficients from the nlmrt object.
+    returns the coefficients from the nls14 object.
 }
 \author{
 John C Nash <nashjc@uottawa.ca>

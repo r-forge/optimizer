@@ -22,6 +22,22 @@ To do
    o    check and fix examples?  Partly done 140719
 	tests?
 
+   o    check impact of use of Deriv vs deriv and document!
+
+   o    make sure change to rjfun using "gradient" is clean in nls14xb
+
+
+Changes in nls14 version 2014-7.28
+
+
+Changes in nls14 version 2014-7.27
+
+   o    Deriv() etc.
+
+   o    model2rjfun() etc. 
+
+   o    changes to nls14xb structure
+
 Changes in nls14 version 2014-7.19
 
    o    The parameters MUST be named when setting up model2resfun etc.,

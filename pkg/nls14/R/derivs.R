@@ -164,6 +164,55 @@ Simplify <- function(expr, envir = sysSimplifications) {
     expr
 }
 
+FindSubexprs <- function(expr, simplify = FALSE, tag = ".expr") {
+    digests <- new.env(parent = emptyenv())
+    subexprs <- list()
+    subcount <- 0
+    
+    record <- function(index) {
+        if (simplify)
+	    expr[[index]] <<- subexpr <- Simplify(expr[[index]])
+	else
+	    subexpr <- expr[[index]]
+	if (is.call(subexpr)) {
+	    digest <- digest(subexpr)
+	    for (i in seq_along(subexpr))
+		record(c(index,i))
+	    prev <- digests[[digest]]
+	    if (is.null(prev)) 
+		assign(digest, index, envir=digests)
+	    else if (is.numeric(prev))  { # the index where we last saw this
+	        subcount <<- subcount + 1
+		name <- as.name(paste0(tag, subcount))
+		assign(digest, name, envir=digests)
+	    }
+	}
+    }
+    
+    edit <- function(index) {
+	subexpr <- expr[[index]]
+	if (is.call(subexpr)) {
+	    digest <- digest(subexpr)	    
+	    for (i in seq_along(subexpr))
+		edit(c(index,i))
+	    prev <- digests[[digest]]
+	    if (is.name(prev)) {
+		num <- as.integer(substring(as.character(prev), nchar(tag)))
+		subexprs[[num]] <<- call("<-", prev, expr[[index]])
+		expr[[index]] <<- prev
+	    } 
+	}
+    }
+
+    
+    for (i in seq_along(expr)) record(i)
+    for (i in seq_along(expr)) edit(i)
+    result <- quote({})
+    result[seq_along(subexprs)+1] <- subexprs
+    result[length(result)+1] <- as.expression(call("<-", as.name("expr"), expr))
+    result
+}
+    
 # These are the derivatives supported by deriv()
 
 newDeriv(log(x, base = exp(1)), 
@@ -238,29 +287,31 @@ newSimplification((a), TRUE, a)
 
 newSimplification(a + b, isZERO(b), a)
 newSimplification(a + b, isZERO(a), b)
+newSimplification(a + b, identical(a, b), Simplify(quote(2*a)), do_eval=TRUE)
 newSimplification(a + b, is.numeric(a) && is.numeric(b), a+b, do_eval=TRUE)
 
 newSimplification(a - b, isZERO(b), a)
-newSimplification(a - b, isZERO(a), Simplify(-b), do_eval = TRUE)
+newSimplification(a - b, isZERO(a), Simplify(quote(-b)), do_eval = TRUE)
+newSimplification(a - b, identical(a, b), 0)
 newSimplification(a - b, is.numeric(a) && is.numeric(b), a - b, do_eval=TRUE)
 
 newSimplification(a * b, isZERO(a), 0)
 newSimplification(a * b, isZERO(b), 0)
 newSimplification(a * b, isONE(a), b)
 newSimplification(a * b, isONE(b), a)
-newSimplification(a * b, isMINUSONE(a), Simplify(-b), do_eval = TRUE)
-newSimplification(a * b, isMINUSONE(b), Simplify(-a), do_eval = TRUE)
+newSimplification(a * b, isMINUSONE(a), Simplify(quote(-b)), do_eval = TRUE)
+newSimplification(a * b, isMINUSONE(b), Simplify(quote(-a)), do_eval = TRUE)
 newSimplification(a * b, is.numeric(a) && is.numeric(b), a * b, do_eval=TRUE)
 
 newSimplification(a / b, isONE(b), a)
-newSimplification(a / b, isMINUSONE(b), Simplify(-a), do_eval = TRUE)
+newSimplification(a / b, isMINUSONE(b), Simplify(quote(-a)), do_eval = TRUE)
 newSimplification(a / b, isZERO(a), 0)
 newSimplification(a / b, is.numeric(a) && is.numeric(b), a / b, do_eval=TRUE)
 
 newSimplification(a ^ b, isONE(b), a)
 newSimplification(a ^ b, is.numeric(a) && is.numeric(b), a ^ b, do_eval=TRUE)
 
-newSimplification(log(a, base), is.call(a) && as.character(a[[1]]) == "exp", Simplify(a[[2]] / log(base)), do_eval=TRUE)
+newSimplification(log(a, base), is.call(a) && as.character(a[[1]]) == "exp", Simplify(quote(a[[2]] / log(base))), do_eval=TRUE)
 
 newSimplification(a && b, isFALSE(a) || isFALSE(b), FALSE)
 newSimplification(a && b, isTRUE(a), b)

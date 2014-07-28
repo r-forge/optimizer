@@ -63,6 +63,7 @@ newSimplification <- function(expr, test, simplification, do_eval = FALSE, envir
     assign(fn, simps, envir=envir)
 }
     	
+# This is a more general version of D()
 Deriv <- function(expr, name, envir = sysDerivs, do_substitute = TRUE) {
     Recurse <- function(expr) {
     	if (is.call(expr)) {
@@ -125,6 +126,19 @@ Deriv <- function(expr, name, envir = sysDerivs, do_substitute = TRUE) {
     	else
     	    return(0)        
 }
+
+# This is a more general version of deriv()
+fnDeriv <- function(expr, namevec, function.arg = NULL, tag = ".expr",
+       hessian = FALSE, derivEnv = sysDerivs, ...) {
+    if (!is.expression(expr)) expr <- as.expression(expr)
+    origlen <- length(expr)
+    exprs <- expr
+    for (i in seq_along(namevec))
+	exprs[length(exprs) + seq_len(origlen)] <- Deriv(expr, namevec[i], envir = derivEnv, do_substitute = FALSE)
+    names(exprs) <- c(".value", namevec)
+    FindSubexprs(exprs)
+    ## Still incomplete....
+}    
 
 isFALSE <- function(x) identical(FALSE, x)
 isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0
@@ -209,7 +223,7 @@ FindSubexprs <- function(expr, simplify = FALSE, tag = ".expr") {
     for (i in seq_along(expr)) edit(i)
     result <- quote({})
     result[seq_along(subexprs)+1] <- subexprs
-    result[length(result)+1] <- as.expression(call("<-", as.name("expr"), expr))
+    result[[length(result)+1]] <- expr
     result
 }
     
@@ -330,3 +344,4 @@ newSimplification(if (cond) a else b, identical(a, b), a)
 
 # This one is used to fix up the unary -
 newSimplification(missing(a), identical(a, quote(.MissingVal)), TRUE)
+newSimplification(missing(a), !identical(a, quote(.MissingVal)), FALSE)

@@ -17,4 +17,5 @@ Description: nls14 provides tools for working with nonlinear least squares probl
 	gradient' messages.
 License: GPL-2
 Depends: R (>= 3.0)
+Imports: digest
 Suggests: minpack.lm, optimx, Rvmmin, Rcgmin, numDeriv

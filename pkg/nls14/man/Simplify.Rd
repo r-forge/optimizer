@@ -14,8 +14,8 @@ Functions to simplify expressions.
 by \code{newSimplification}.
 }
 \usage{
-Simplify(expr, envir = sysSimplifications)
-newSimplification(expr, test, simplification, do_eval = FALSE, envir = sysSimplifications)
+Simplify(expr, simpEnv = sysSimplifications)
+newSimplification(expr, test, simplification, do_eval = FALSE, simpEnv = sysSimplifications)
 sysSimplifications
 isFALSE(x)
 isZERO(x)
@@ -37,7 +37,7 @@ The new expression to use to replace the original one.
 Whether to evaluate the new expression (to give an even newer
 expression) to use as the simplification.
 }
-  \item{envir}{
+  \item{simpEnv}{
 An environment holding the registered simplifications.
 }
   \item{x}{
@@ -76,7 +76,7 @@ The \code{newSimplification} function is called for the side
 effect of recording a new simplification rule.
 
 If \code{expr} or \code{deriv} is missing, \code{newSimplification()} will
-report on the currently saved simplifications in \code{envir}.
+report on the currently saved simplifications in \code{simpEnv}.
 }
 \author{
 Duncan Murdoch
@@ -90,7 +90,7 @@ Simplify(quote(exp(1)))
 
 Simplify(quote(sqrt(a + b)))  # standard rule
 myrules <- new.env(parent = sysSimplifications)
-newSimplification(sqrt(a), TRUE, a^0.5, envir = myrules)
-Simplify(quote(sqrt(a + b)), envir = myrules)
+newSimplification(sqrt(a), TRUE, a^0.5, simpEnv = myrules)
+Simplify(quote(sqrt(a + b)), simpEnv = myrules)
 }
 \keyword{ math }

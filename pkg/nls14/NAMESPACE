@@ -16,15 +16,19 @@ export(
    summary.nls14,
    coef.nls14,
    Deriv, 
+   fnDeriv,
    Simplify,
    newDeriv,
    sysDerivs,
    newSimplification,
    sysSimplifications,
+   findSubexprs,
    isFALSE,
    isZERO,
    isONE,
    isMINUSONE
 )
+
+importFrom(digest, digest)
 
 # S4 Methods

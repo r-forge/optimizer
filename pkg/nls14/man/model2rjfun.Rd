@@ -50,12 +50,12 @@ of \code{data} with parent environment set to be
 the environment of \code{modelformula}.  
 }
 \value{
-\code{model2rjfun} returns a function with header \code{function{prm}}, which
+\code{model2rjfun} returns a function with header \code{function(prm)}, which
 evaluates the residuals (and if \code{jacobian} is \code{TRUE} the
 Jacobian matrix) of the model at \code{prm}.  The residuals are defined to be
 the right hand side of \code{modelformula} minus the left hand side.
 
-\code{model2ssgrfun} returns a function with header \code{function{prm}}, which
+\code{model2ssgrfun} returns a function with header \code{function(prm)}, which
 evaluates the sum of squared residuals (and if \code{gradient} is \code{TRUE} the
 gradient vector) of the model at \code{prm}. 
 

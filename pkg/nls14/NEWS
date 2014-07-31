@@ -26,6 +26,8 @@ To do
 
    o    make sure change to rjfun using "gradient" is clean in nls14xb
 
+   o    partially linear nls models. How to incorporate? Note Rust and Oleary.
+
 
 Changes in nls14 version 2014-7.28
 

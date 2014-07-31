@@ -61,7 +61,7 @@ John C Nash <nashjc@uottawa.ca>
 }
 
 \examples{
-
+   cat("So far no examples included for resgr\n")
 }
 \keyword{ nonlinear least squares }
 

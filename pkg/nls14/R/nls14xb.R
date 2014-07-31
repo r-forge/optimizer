@@ -35,15 +35,15 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
 # ?? else if data in args, add to data frame
 # ?? or should we make user do this?
 # ?? and put in the weights
-    ######### get data from data frame if exists
-    ######### print(str(data))
-    if (!is.null(data)) {
-        for (dfn in names(data)) {
-            cmd <- paste(dfn, "<-data$", dfn, "")
-            eval(parse(text = cmd))
-        }
-    } else stop("'data' must be a list or an environment")
-    # ensure params in vector
+#    ######### get data from data frame if exists
+#    ######### print(str(data))
+#    if (!is.null(data)) {
+#        for (dfn in names(data)) {
+#            cmd <- paste(dfn, "<-data$", dfn, "")
+#            eval(parse(text = cmd))
+#        }
+#    } else stop("'data' must be a list or an environment")
+# ensure params in vector
     pnames <- names(start)
     start <- as.numeric(start)
     names(start) <- pnames ## ?? do we need this for safety??
@@ -53,7 +53,7 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
         lower <- rep(lower, npar)
     if (length(upper) == 1) 
         upper <- rep(upper, npar)
-    # ?? more tests on bounds
+# ?? more tests on bounds
     if (length(lower) != npar) 
         stop("Wrong length: lower")
     if (length(upper) != npar) 
@@ -72,7 +72,7 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     ctrl <- list(watch = FALSE, phi = 1, lamda = 1e-04, offset = 100, 
         laminc = 10, lamdec = 4, femax = 10000, jemax = 5000, rofftest = TRUE, 
         smallsstest = TRUE)
-     ##   maxlamda <- 1e+60) ## dropped 130709 ??why?
+##      maxlamda <- 1e+60) ## dropped 130709 ??why?
     epstol <- (.Machine$double.eps) * ctrl$offset
     ncontrol <- names(control)
     nctrl <- names(ctrl)
@@ -94,8 +94,10 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     watch <- ctrl$watch
     femax <- ctrl$femax
     jemax <- ctrl$jemax
-    # First get all the variable names:
-    vn <- all.vars(parse(text = formula))
+# First get all the variable names:
+#    vn <- all.vars(parse(text = formula))
+# ??? need to fix
+    vn <- all.vars(formula)
     # Then see which ones are parameters (get their positions
     # in the set xx
     pnum <- start  # may simplify later??
@@ -109,47 +111,21 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     }
     bdmsk[maskidx] <- 0  # fixed parameters
     if (trace) {
-        parpos <- match(pnames, vn)
+        parpos <- match(pnames, vn) # ?? check this is right??
         datvar <- vn[-parpos]  # NOT the parameters
         for (dvn in datvar) {
             cat("Data variable ", dvn, ":")
             print(eval(parse(text = dvn)))
         }
     }
-    if (is.character(formula)) {
-        es <- formula
-    } else {
-        tstr <- as.character(formula)  # note ordering of terms!
-        es <- paste(tstr[[2]], "~", tstr[[3]], "")
-    }
-    # Now separate the sides
-    parts <- strsplit(as.character(es), "~")[[1]]
-    if (length(parts) != 2) 
-        stop("Model expression is incorrect!")
-    lhs <- parts[1]
-    rhs <- parts[2]
-    # And build the residual at the parameters
-    if (lhs == "") { # we allow 1-sided expressions 140716
-       resexp <- paste("~",rhs, collapse = " ")
-    } else {
-       resexp <- paste("~",rhs, "-", lhs, collapse = " ")
-    }
-    print(resexp)
-    for (i in 1:npar) {
-        # put parameters in separate variables
-        joe <- paste(pnames[[i]], "<-", pnum[[i]])
-        eval(parse(text = joe))
-    }
-### NEWNLS -- 140716
-## ?? Build resfn, jacfn, call nlfb, reporting?
-    trjfn<-model2rjfun(resexp, pnum) 
+    resexp <- formula # ?? simplify to remove resexp
+    trjfn<-model2rjfun(resexp, pnum, data=data) 
     cat("trjfn:\n")
     print(trjfn)
 
     ## Call the nlfb function here
 ##    ctrl$watch<-TRUE
 ## ?? problem is getting the data into the tresfn and tjacfn?? How?
-## ?? This is really how to deal with the vstr of model2??.R functions
 ## which gets data into the functions
     resfb <- nlfb(start=pnum, resfn=trjfn, jacfn=trjfn, trace=trace, 
             data=data, lower=lower, upper=upper, maskidx=maskidx, 
@@ -159,6 +135,6 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     names(pnum) <- pnames # Make sure names re-attached. ??Is this needed??
     resfb$coefficients <- pnum
     result <- resfb
-    class(result) <- "nlmrt"
+    class(result) <- "nls14"
     result
 }

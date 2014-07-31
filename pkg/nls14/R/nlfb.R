@@ -1,6 +1,6 @@
 nlfb <-function(start, resfn, jacfn = NULL, trace = FALSE, 
 		lower = -Inf, upper = Inf, maskidx = NULL, 
-		data=NULL, control, ...){
+		data=NULL, control=list(), ...){
 #
 #  A stripped down nlfb (nls14fb does the checking of inputs).
 showprms<-function(SS, pnum){
@@ -67,12 +67,12 @@ if (length(upper)==1) upper<-rep(upper,npar)
     bdmsk[maskidx]<-0 # fixed parameters
 
 ## 140718 get data set up
-    varnames<-attr(resfn,"varnames")
-    nvar<-length(varnames)
-    for (i in 1:nvar){
-       cmd<-paste(varnames[i],"<-data$",varnames[i],sep='')
-       eval(parse(text=cmd))
-    }
+#    varnames<-attr(resfn,"varnames")
+#    nvar<-length(varnames)
+#    for (i in 1:nvar){
+#       cmd<-paste(varnames[i],"<-data$",varnames[i],sep='')
+#       eval(parse(text=cmd))
+#    }
 
 ## ?? remove numerical jacobian and put in model2jacfn 140716??
 # 20120607 -- put in if needed ?? Change so we can get different numerical
@@ -103,7 +103,7 @@ if (length(upper)==1) upper<-rep(upper,npar)
 cat("Starting pnum=")
 print(pnum)
 
-    resbest<-resfn(pnum, data=data, ...) ## ?? wrong call?
+    resbest<-resfn(pnum, ...) ## ?? wrong call?
 #    cat("resbest:")
 #    print(resbest)
     ssbest<-crossprod(resbest)
@@ -138,7 +138,7 @@ print(pnum)
             print(bdmsk)
           }
           if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
-          else Jac<-jacfn(pbest, data=data, ...)
+          else Jac<-attr(jacfn(pbest, ...),"gradient") ## ?? JN 140730
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
           JTJ<-crossprod(Jac)
@@ -160,10 +160,15 @@ print(pnum)
                 }
              } # bmi
           } # end for loop
+          cat("npar =",npar,"\n")
           if (npar == 1) dee <- diag(as.matrix(sqrt(diag(crossprod(Jac)))))
           else dee <- diag(sqrt(diag(crossprod(Jac))))  # to append to Jacobian
        } # end newjac
        lamroot<-sqrt(lamda)
+       cat("Jac:")
+       print(Jac)
+       cat("dee:")
+       print(dee)
        JJ<-rbind(Jac,lamroot*dee, lamroot*phiroot*diag(npar)) # build the matrix
        if (trace && watch) {
          cat("JJ\n")
@@ -228,7 +233,7 @@ print(pnum)
 #                eval(parse(text=joe))
 #              }
               feval<-feval+1 # count evaluations
-              resid<-resfn(pnum, data=data, ...)
+              resid<-resfn(pnum, ...)
               ssquares<-as.numeric(crossprod(resid))
               if (is.na(ssquares)) ssquares<-.Machine$double.xmax
               if (ssquares>=ssbest) {

@@ -1,6 +1,10 @@
 model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE, 
                           testresult = TRUE) {
 
+    cat("model2rjfun: modelformula = ")
+    print(modelformula)
+    print(class(modelformula))
+
     stopifnot(inherits(modelformula, "formula"))
 
     if (length(modelformula) == 2) {
@@ -13,7 +17,9 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
 	names(pvec) <- paste0("p", seq_along(pvec))
     
     if (jacobian)
-	residexpr <- deriv(residexpr, names(pvec))
+        residexpr <- deriv(residexpr, names(pvec))
+## SHOULD TRY:
+##	residexpr <- fnDeriv(residexpr, names(pvec))
 	
     if (is.null(data))
 	data <- environment(modelformula)
@@ -21,12 +27,14 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
 	data <- list2env(data, parent = environment(modelformula))
     else if (!is.environment(data))
 	stop("'data' must be a dataframe, list, or environment")
-    
+## ??140730JN: Why do we have no data=something here? We cannot change data
+##   for the function.
     rjfun <- function(prm) {
         if (is.null(names(prm))) 
 	    names(prm) <- names(pvec)
 	localdata <- list2env(as.list(prm), parent = data)
-	eval(residexpr, envir = localdata)  # Saves Jacobian matrix as "gradient" attribute (consistent with deriv())
+	eval(residexpr, envir = localdata)  
+        # Saves Jacobian matrix as "gradient" attribute (consistent with deriv())
     }
     
     if (testresult) {

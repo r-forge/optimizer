@@ -152,7 +152,7 @@ The \code{control} argument is a list that can supply any of the following compo
  \emph{A Potential Reduction Newton Method for Constrained equations}, 
  SIAM Journal on Optimization 9(3), 729-754.
 
- S. Bellavia, M. Macconi, B. Morini (2003),
+ S. Bellavia, M. Macconi and B. Morini (2003),
  \emph{An affine scaling trust-region approach to bound-constrained nonlinear systems},
  Applied Numerical Mathematics 44, 257-280
 

@@ -207,7 +207,7 @@ to \code{FALSE}.
  \emph{nleqslv: Solve systems of non linear equations},
  R package.
 
- A. von Heusinger & J. Kanzow (2009),
+ A. von Heusinger and C. Kanzow (2009),
  \emph{Optimization reformulations of the generalized Nash equilibrium problem 
  using Nikaido-Isoda-type functions},
  Comput Optim Appl .

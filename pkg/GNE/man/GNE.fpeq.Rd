@@ -153,15 +153,15 @@ A list with components:
  \emph{Numerical Methods for the Solution of the Generalized Nash Equilibrium Problem},
  Ph. D. Thesis.
  
- A. von Heusinger & J. Kanzow (2009),
+ A. von Heusinger and C. Kanzow (2009),
  \emph{Optimization reformulations of the generalized Nash equilibrium problem using Nikaido-Isoda-type functions},
  Comput Optim Appl .
  
- S. Uryasev & R.Y. Rubinstein (1994), 
+ S. Uryasev and R.Y. Rubinstein (1994),
  \emph{On relaxation algorithms in computation of noncooperative equilibria}, 
  IEEE Transactions on Automatic Control.
  
- R. Varadhan & C. Roland (2004),
+ R. Varadhan and C. Roland (2004),
  \emph{Squared Extrapolation Methods (SQUAREM): A New Class of Simple and Efficient Numerical 
  Schemes for Accelerating the Convergence of the EM Algorithm},
  Johns Hopkins University, Dept. of Biostatistics Working Papers.

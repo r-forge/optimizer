@@ -85,18 +85,24 @@ SEXP dofunSSR(SEXP mode, SEXP nplayer,
 		lambda  = (double *) R_alloc(m, sizeof(double));
 		for(i = 0; i < m; i++) 
 			lambda[i] = REAL(z)[n+i];
-	}
+	}else
+    {
+        lambda = NULL;
+    }
 	if (MODE == 2 || MODE == 3)
 	{
 		mu  = (double *) R_alloc(dim_mu, sizeof(double));
 		for(i = 0; i < dim_mu; i++) 
 			mu[i] = REAL(z)[n+m+i];
-	}
+	}else
+    {
+        mu = NULL;
+    }
 	
 	idz = 0; //index in z
 	idlam = 0; //index in lambda
-	//for idz <= n, z[idz] = x[idz] and 
-	//for m+n > idz > n, z[idz] = lambda[idz-n]
+	//for n >= idz, z[idz] = x[idz] and
+	//for m+n >= idz > n, z[idz] = lambda[idz-n]
 	//for idz > n+m, z[idz] = mu[idz-n-m]
 	
 	if(length(z) != n && MODE == 0)
@@ -319,14 +325,23 @@ SEXP dojacSSR(SEXP mode, SEXP nplayer,
 		for(i = 0; i < m; i++) 
 			lambda[i] = REAL(z)[n+i];
 		tempconstr = (double *) R_alloc(m, sizeof(double));
-	}
+	}else
+    {
+        lambda = NULL;
+        tempconstr = NULL;
+    }
 	if (MODE == 2 || MODE == 3)
 	{
 		mu  = (double *) R_alloc(dim_mu, sizeof(double));
 		for(i = 0; i < dim_mu; i++) 
 			mu[i] = REAL(z)[n+m+i];
 		tempjoint = (double *) R_alloc(dim_mu, sizeof(double));
-	}
+	}else
+    {
+        mu = NULL;
+        tempjoint = NULL;
+    }
+    
 	R_CheckStack();
 	
 	if(length(z) != n && MODE == 0)

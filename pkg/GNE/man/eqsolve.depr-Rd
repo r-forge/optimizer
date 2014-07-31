@@ -5,8 +5,9 @@
 		Non linear Solving methods
 	}
 \usage{
-eqsolve(xinit, f, jac, method=c("Newton", "Levenberg-Marquardt","Broyden"), 
-	global=c("line search", "trust region", "none"), control=list())
+eqsolve(xinit, f, jac,
+    method=c("Newton", "Levenberg-Marquardt", "Broyden"),
+	global=c("line search", "none"), control=list())
 }
 \arguments{
   \item{xinit}{initial point.}
@@ -15,7 +16,7 @@ eqsolve(xinit, f, jac, method=c("Newton", "Levenberg-Marquardt","Broyden"),
   \item{method}{a character string specifying the method to use: either 
   \code{"Newton"}, \code{"Levenberg-Marquardt"}, or \code{"Broyden"}.}	
   \item{global}{a character string for the globalization method to be used:
-  either \code{"line search"}, \code{"trust region"}, or \code{"none"}.}
+  either \code{"line search"} or \code{"none"}.}
   \item{control}{a list for the control parameters. See details.}
 }
 \details{
@@ -54,11 +55,6 @@ See \code{\link{nleqslv}} from the package of the same name.
 }
 \author{
  Christophe Dutang
-}
-\examples{
-
-a <- 1
-
 }
 \keyword{nonlinear}
 \keyword{optimize}

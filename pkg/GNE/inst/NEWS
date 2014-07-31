@@ -1,5 +1,13 @@
 === GNE: computation of Nash Equilibria ===
 
+Version 0.99-0
+=============
+
+- remove eqsolve manual.
+- remove C-level warnings on mavericks.
+- remove ampersands.
+
+
 Version 0.98
 =============
 

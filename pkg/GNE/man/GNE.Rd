@@ -78,7 +78,7 @@ A list with components:
 }
 \references{
 
- F. Facchinei, A. Fischer & V. Piccialli (2009), 
+ F. Facchinei, A. Fischer and V. Piccialli (2009),
  \emph{Generalized Nash equilibrium problems and Newton methods},
  Math. Program.
 
@@ -86,9 +86,13 @@ A list with components:
  \emph{Numerical Methods for the Solution of the Generalized Nash Equilibrium Problem},
  Ph. D. Thesis.
  
- A. von Heusinger & J. Kanzow (2009),
+ A. von Heusinger and C. Kanzow (2009),
  \emph{Optimization reformulations of the generalized Nash equilibrium problem using Nikaido-Isoda-type functions},
  Comput Optim Appl .
+ 
+  F. Facchinei and C. Kanzow (2009),
+ \emph{Generalized Nash Equilibrium problems.}
+ Preprint 290.
  
  C. Dutang (2013), 
  \emph{A survey of GNE computation methods: theory and algorithms},

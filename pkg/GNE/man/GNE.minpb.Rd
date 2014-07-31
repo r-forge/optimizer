@@ -130,11 +130,11 @@ A list with components:
  \emph{Numerical Methods for the Solution of the Generalized Nash Equilibrium Problem},
  Ph. D. Thesis.
  
- A. von Heusinger & J. Kanzow (2009),
+ A. von Heusinger and C. Kanzow (2009),
  \emph{Optimization reformulations of the generalized Nash equilibrium problem using Nikaido-Isoda-type functions},
  Comput Optim Appl .
  
- K. Kubota & M. Fukushima (2009), 
+ K. Kubota and M. Fukushima (2009), 
  \emph{Gap function approach to the generalized Nash Equilibrium problem},
  Journal of Optimization theory and applications.
 }

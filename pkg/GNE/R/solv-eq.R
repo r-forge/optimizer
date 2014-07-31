@@ -22,11 +22,12 @@
 ###         R functions
 ### 
 
-eqsolve <- function(xinit, f, jac, method=c("Newton", "Levenberg-Marquardt","Broyden"), 
-	global=c("line search", "trust region", "none"), control=list())
+eqsolve <- function(xinit, f, jac,
+    method=c("Newton", "Levenberg-Marquardt", "Broyden"),
+	global=c("line search", "none"), control=list())
 {
 	method <- match.arg(method, c("Newton", "Levenberg-Marquardt","Broyden"))
-	global <- match.arg(global, c("line search", "trust region", "none"))
+	global <- match.arg(global, c("line search", "none"))
 
 	
 	#default control parameters

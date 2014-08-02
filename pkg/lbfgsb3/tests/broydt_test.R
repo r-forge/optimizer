@@ -38,54 +38,34 @@ broydt.g <- function(x) {
     return(gg)
 }
 
+ni <- c(1, 2)
 
-ni <- c(1, 2, 3)
-
-times <- matrix(NA, nrow = 3, ncol = 4)
-
+# ni <- c(1, 2, 3)
 
 for (ii in ni) {
     n <- 10^ii
     cat("n=", n, "\n")
-    afname <- paste("ansbroydt", n, "UG", sep = "")
     x0 <- rep(pi, n)
     ut <- system.time(ans <- lbfgsb3(x0, broydt.f, broydt.g, control = list(trace = 1)))[1]
-    times[ii, 1] <- ut
-    cat("unconstrained with gradient\n")
-    sink(afname, split=TRUE)
+    cat("unconstrained n=",n," with gradient\n")
+    cat("time =",ut,"\n")
     print(ans)
-    sink()
-    afname <- paste("ansbroydt", n, "UN", sep = "")
-    ut <- system.time(ans <- lbfgsb3(x0, broydt.f))[1]
-    times[ii, 2] <- ut
-    cat("unconstrained, no analytic gradient\n")
-    sink(afname, split=TRUE)
+
+    ct <- system.time(ans <- lbfgsb3(x0, broydt.f))[1]
+    cat("unconstrained n=",n," no analytic gradient\n")
+    cat("time =",ct,"\n")
     print(ans)
-    sink()
     
     
     lower <- rep(1, n)
     upper <- rep(Inf, n)
-    
-    afname <- paste("ansbroydt", n, "BG", sep = "")
+
     x0 <- rep(pi, n)
-    ut <- system.time(ans <- lbfgsb3(x0, broydt.f, broydt.g, lower = lower, 
+    t1 <- system.time(ans <- lbfgsb3(x0, broydt.f, broydt.g, lower = lower, 
         upper = upper))[1]
-    times[ii, 3] <- ut
-    cat("constrained, no analytic gradient\n")
-    sink(afname, split=TRUE)
+    cat("constrained n= ",n," no analytic gradient\n")
+    cat("time =",t1,"\n")
     print(ans)
-    sink()
-    afname <- paste("ansbroydt", n, "BN", sep = "")
-    ut <- system.time(ans <- Rcgmin(x0, broydt.f, lower = lower, 
-        upper = upper, control = list(trace = 1)))[1]
-    times[ii, 4] <- ut
-    cat("constrained, no analytic gradient\n")
-    #   ans
-    sink(afname, split=TRUE)
-    print(ans)
-    sink()
+
 }
 
-cat("Cols are UG, UN, BG, BN times\n")
-print(times)

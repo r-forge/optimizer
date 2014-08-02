@@ -32,8 +32,16 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
  
 # if (!is.loaded("lbfgsb3.so")) dyn.load("lbfgsb3.so") # get the routines attached
 
+# control defaults -- idea from spg
+ctrl <- list(maxit = 500, trace = 0, iprint = 0L)
+    namc <- names(control)
+    if (!all(namc %in% names(ctrl))) 
+        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    ctrl[namc] <- control
+
+
 # Here expand control list, but for moment leave alone
-      iprint <- 1L
+      iprint <- as.integer(ctrl$iprint)
       factr <- 1.0e+7
       pgtol <- 1.0e-5
       nmax <- 1024L
@@ -64,8 +72,8 @@ for (i in 1:n) {
    } else { if (is.finite(upper[i])) nbd[i] <- 3
             else nbd[i] <- 0 }
 }
-cat("nbd:")
-print(nbd)
+# cat("nbd:")
+# print(nbd)
 
 
 ##     We start the iteration by initializing task.
@@ -82,8 +90,10 @@ icsave <- 0 # to make sure defined
 repeat {
 ##     This is the call to the L-BFGS-B code.
 ## We have NOT returned lsave, isave, or dsave (yet?)
-      cat("Before call, f=",f,"  task number ",itask," ")
-      print(task)
+      if (ctrl$trace >= 2) {
+       cat("Before call, f=",f,"  task number ",itask," ")
+       print(task)
+      }
       result <- .Fortran('setulb', n = as.integer(n),m = as.integer(m),
                    x = as.double(prm), l = as.double(l), u = as.double(u),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
@@ -103,15 +113,19 @@ repeat {
       lsave <- result$lsave
       isave <- result$isave
       dsave <- result$dsave
+      if (ctrl$trace > 2) {
       cat("returned from setulb\n")
       cat("returned itask is ",itask,"\n")
       task <- tasklist[itask]
       cat("changed task to ", task,"\n")
 ##      task<-readline("continue")
+      }
 
       if  (itask %in% c(4L, 20L, 21L) ) {
-         cat("computing f and g at prm=")
-         print(prm)
+         if (ctrl$trace >= 2) {
+          cat("computing f and g at prm=")
+          print(prm)
+         }
 ##        Compute function value f for the sample problem.
          f <- fn(prm, ...)
 ##        Compute gradient g for the sample problem.
@@ -120,8 +134,13 @@ repeat {
          } else {
              g <- gr(prm, ...)
          }
-         cat("f evaluated =",f," with g:")
-         print(g)
+         if (ctrl$trace > 0) {
+            cat("At iteration ", isave[34]," f =",f)
+            if (ctrl$trace > 1) {
+               cat("max(abs(g))=",max(abs(g)))
+            }
+            cat("\n")
+         }
       } else {
         if (itask == 1L )  { # NEW_X
 ##          tmp <- readline("Continue") # eventually remove this
@@ -130,7 +149,7 @@ repeat {
       }
  } # end repeat
 ## Here build return structure
-  print(result)
+##  print(result) ## only print for debugging
   info <- list(task = task, itask = itask, lsave = lsave, 
                 icsave = icsave, dsave = dsave, isave = isave)
   ans <- list(prm = prm, f = f, g = g, info = info)

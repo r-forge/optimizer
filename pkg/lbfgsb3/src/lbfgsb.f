@@ -241,7 +241,7 @@ c-jlm-jn
 cj      integer ia(10)
 
 cj       ia(1) = itask
-      call intpr('  The incoming task no. is ', -1, itask, 1)
+cj      call intpr('  The incoming task no. is ', -1, itask, 1)
 cw      write(6,*) '  The incoming task no. is ', itask
       if ((itask .lt. 1) .or. (itask .gt. 26)) then
         call intpr("TASK NOT IN VALID RANGE", -1, 0,0)
@@ -281,6 +281,7 @@ c      if (task .eq. 'START') then
       lt   = isave(14)
       lxp  = isave(15)
       lwa  = isave(16)
+cj      call intpr('Incoming value of iprint =',-1,iprint,1)
 
       call mainlb(n,m,x,l,u,nbd,f,g,factr,pgtol,
      +  wa(lws),wa(lwy),wa(lsy),wa(lss), wa(lwt),
@@ -289,7 +290,7 @@ c      if (task .eq. 'START') then
      +  iwa(1),iwa(n+1),iwa(2*n+1),itask,iprint, 
      +  icsave,lsave,isave(22),dsave)
 
-      call intpr(" itask on return is ", -1, itask, 1)
+cj      call intpr(" itask on return is ", -1, itask, 1)
 cw      write(6,*) " itask on return is ",itask
 
       return
@@ -2881,13 +2882,13 @@ c  limit output to 1st 5 elements
       nprt = n
       if (nprt .gt. 5) nprt = 5
       if (iprint .ge. 0) then
+         if (iprint .ge. 1) then
 cw         write (6,7001) epsmch
-           call dblepr('RUNNING THE L-BFGS-B CODE with eps=',
+         call dblepr('RUNNING THE L-BFGS-B CODE with eps=',
      +     -1, epsmch, 1)
 cw         write (6,*) 'N = ',n,'    M = ',m
-           call intpr(' N =',-1, n, 1)
-           call intpr(' M =',-1, m, 1)
-         if (iprint .ge. 1) then
+         call intpr(' N =',-1, n, 1)
+         call intpr(' M =',-1, m, 1)
 cw            write (itfile,2001) epsmch
 cw            write (itfile,*)'N = ',n,'    M = ',m
 cw            write (itfile,9001)

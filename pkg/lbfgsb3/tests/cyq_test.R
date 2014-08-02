@@ -81,7 +81,8 @@ cyq.g <- function(x) {
 
 cat("Fletcher chebyquad function in file cyq.R\n")
 
-nn <- c(2, 3, 5, 8, 10, 20, 30)
+# nn <- c(2, 3, 5, 8, 10, 20, 30)
+nn <- c(2, 3, 5, 8)
 
 for (n in nn) {
     cat("Chebyquad in ", n, " parameters\n")

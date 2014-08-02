@@ -36,23 +36,24 @@ genrose.g <- function(x, gs = NULL) {
 
 
 cat("\n\n Unconstrained test\n")
-xx <- rep(3, 1000)
+nn <- 100
+xx <- rep(3, nn)
 lo <- -Inf
 up <- Inf
-t1000u <- system.time(ans1000u <- lbfgsb3(xx, genrose.f, 
+t100u <- system.time(ans100u <- lbfgsb3(xx, genrose.f, 
     genrose.g, gs = 10))[1]
-cat("final fn value =", ans1000u$value, "\n")
-cat("time = ", t1000u, "\n")
-t1000uo <- system.time(ao1000u <- optim(xx, genrose.f, 
+cat("final fn value =", ans100u$f, "\n")
+cat("time = ", t100u, "\n")
+t100uo <- system.time(ao100u <- optim(xx, genrose.f, 
     genrose.g, method = "L-BFGS-B", gs = 10, control=list(trace=1)))[1]
-cat("final fn value =", anso1000u$value, "\n")
-cat("time = ", t1000uo, "\n")
+cat("final fn value =", ao100u$value, "\n")
+cat("time = ", t100uo, "\n")
 
-t1000un <- system.time(ans1000u <- lbfgsb3(xx, genrose.f, 
+t100un <- system.time(ans100un <- lbfgsb3(xx, genrose.f, 
     gr = NULL, gs = 10))[1]
-cat("final fn value =", ans1000u$value, "\n")
-cat("time = ", t1000u, "\n")
-t1000uo <- system.time(ao1000u <- optim(xx, genrose.f, 
+cat("final fn value =", ans100un$f, "\n")
+cat("time = ", t100un, "\n")
+t100uon <- system.time(ao100un <- optim(xx, genrose.f, 
     gr = NULL, method = "L-BFGS-B", gs = 10, control=list(trace=1)))[1]
-cat("final fn value =", anso1000u$value, "\n")
-cat("time = ", t1000uo, "\n")
+cat("final fn value =", ao100un$value, "\n")
+cat("time = ", t100uon, "\n")

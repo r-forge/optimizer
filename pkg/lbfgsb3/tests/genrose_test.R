@@ -42,18 +42,18 @@ lo <- -Inf
 up <- Inf
 t100u <- system.time(ans100u <- lbfgsb3(xx, genrose.f, 
     genrose.g, gs = 10))[1]
-cat("final fn value =", ans100u$f, "\n")
+cat("final fn value =", ans100u$f," after ",ans100u$info$isave[34], "\n")
 cat("time = ", t100u, "\n")
 t100uo <- system.time(ao100u <- optim(xx, genrose.f, 
     genrose.g, method = "L-BFGS-B", gs = 10, control=list(trace=1)))[1]
-cat("final fn value =", ao100u$value, "\n")
+cat("final fn value =", ao100u$value," after",ao100u$counts[1],ao100u$counts[2], "\n")
 cat("time = ", t100uo, "\n")
 
 t100un <- system.time(ans100un <- lbfgsb3(xx, genrose.f, 
     gr = NULL, gs = 10))[1]
-cat("final fn value =", ans100un$f, "\n")
+cat("final fn value =", ans100un$f, " after ",ans100un$info$isave[34],"\n")
 cat("time = ", t100un, "\n")
 t100uon <- system.time(ao100un <- optim(xx, genrose.f, 
     gr = NULL, method = "L-BFGS-B", gs = 10, control=list(trace=1)))[1]
-cat("final fn value =", ao100un$value, "\n")
+cat("final fn value =", ao100un$value," after",ao100un$counts[1],ao100un$counts[2],  "\n")
 cat("time = ", t100uon, "\n")

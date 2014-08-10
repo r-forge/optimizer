@@ -38,12 +38,10 @@ broydt.g <- function(x) {
     return(gg)
 }
 
-ni <- c(1, 2)
-
-# ni <- c(1, 2, 3)
+ni <- c(10, 100, 400)
 
 for (ii in ni) {
-    n <- 10^ii
+    n <- ii
     cat("n=", n, "\n")
     x0 <- rep(pi, n)
     ut <- system.time(ans <- lbfgsb3(x0, broydt.f, broydt.g, control = list(trace = 1)))[1]

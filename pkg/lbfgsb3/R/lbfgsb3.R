@@ -51,8 +51,8 @@ if (length(prm) > nmax) stop("The number of parameters cannot exceed 1024")
       m <- 5L # default 
 ## Define the storage
 nbd <- rep(2L, n) # start by defining them "on" -- adjust below
-u <- rep(10, n)
-l <- rep(-10, n)
+## u <- rep(10, n)
+## l <- rep(-10, n)
 nwa<-2*mmax*nmax + 5*nmax + 11*mmax*mmax + 8*mmax
 wa<-rep(0, nwa)
 dsave<-rep(0,29)
@@ -72,8 +72,8 @@ for (i in 1:n) {
    } else { if (is.finite(upper[i])) nbd[i] <- 3
             else nbd[i] <- 0 }
 }
-# cat("nbd:")
-# print(nbd)
+## cat("nbd:")
+## print(nbd)
 
 
 ##     We start the iteration by initializing task.
@@ -89,13 +89,12 @@ icsave <- 0 # to make sure defined
 ## 111  continue ##  top of loop
 repeat {
 ##     This is the call to the L-BFGS-B code.
-## We have NOT returned lsave, isave, or dsave (yet?)
       if (ctrl$trace >= 2) {
        cat("Before call, f=",f,"  task number ",itask," ")
        print(task)
       }
       result <- .Fortran('setulb', n = as.integer(n),m = as.integer(m),
-                   x = as.double(prm), l = as.double(l), u = as.double(u),
+                   x = as.double(prm), l = as.double(lower), u = as.double(upper),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
                    factr = as.double(factr), pgtol = as.double(pgtol),
                    wa = as.double(wa), iwa = as.integer(iwa), 
@@ -106,6 +105,8 @@ repeat {
       itask <- result$itask
       icsave <- result$icsave
       prm <- result$x
+##      cat("in lbfgsb3 parameter results:")
+##      print(prm)
       g <- result$g
       iwa <- result$iwa
       wa <- result$wa

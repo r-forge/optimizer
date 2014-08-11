@@ -16,7 +16,7 @@ cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
 
-anls14xb1  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata1))
+anls14xb1  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data= weeddata1))
 print(anls14xb1)
 
 anls14xb2  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=weeddata2))
@@ -31,7 +31,7 @@ st1scal  <-  c(b1=100, b2=10, b3=0.1)
 cat("EASY start -- unscaled")
 anls01  <-  try(nls(eunsc, start=suneasy, trace=traceval, data=weeddata1))
 print(anls01)
-anls1401  <-  try(nls14xb(eunsc, start=ssceasy, trace=traceval, data=weeddata1))
+anls1401  <-  try(nls14xb(eunsc, start=suneasy, trace=traceval, data=weeddata1))
 print(anls1401)
 
 cat("All 1s start -- unscaled")

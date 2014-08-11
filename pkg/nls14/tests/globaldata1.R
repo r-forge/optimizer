@@ -17,12 +17,12 @@ start1  <-  c(b1=1, b2=1, b3=1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
 
-cat("GLOBAL DATA\n")
+cat("GLOBAL DATA -- does not work in nlmrt\n")
 
 anls1g  <-  try(nls(eunsc, start=start1, trace=traceval))
 print(anls1g)
 
-cat("GLOBAL DATA AND EXPRESSION -- SHOULD FAIL\n")
+cat("GLOBAL DATA AND EXPRESSION\n")
 anls14xb1g  <-  try(nls14xb(eunsc, start=start1, trace=traceval))
 print(anls14xb1g)
 

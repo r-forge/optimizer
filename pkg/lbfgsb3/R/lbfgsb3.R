@@ -51,8 +51,6 @@ if (length(prm) > nmax) stop("The number of parameters cannot exceed 1024")
       m <- 5L # default 
 ## Define the storage
 nbd <- rep(2L, n) # start by defining them "on" -- adjust below
-## u <- rep(10, n)
-## l <- rep(-10, n)
 nwa<-2*mmax*nmax + 5*nmax + 11*mmax*mmax + 8*mmax
 wa<-rep(0, nwa)
 dsave<-rep(0,29)
@@ -65,12 +63,24 @@ csave<-"" # note char strings are 255 automatically
 if (length(lower) == 1) lower <- rep(lower, n)
 if (length(upper) == 1) upper <- rep(upper, n)
 
+bigval <- .Machine$double.xmax/10.
+
 for (i in 1:n) {
    if (is.finite(lower[i])) {
         if (is.finite(upper[i])) nbd[i] <- 2
-        else nbd[i]<-1
-   } else { if (is.finite(upper[i])) nbd[i] <- 3
-            else nbd[i] <- 0 }
+        else {
+           nbd[i] <- 1
+           upper[i] <- bigval # to avoid call issue
+             }
+   } else { if (is.finite(upper[i])) {
+              nbd[i] <- 3
+              lower[i] <- -bigval
+            } else {
+              nbd[i] <- 0 
+              upper[i] <- bigval
+              lower[i] <- -bigval
+                 }
+   }
 }
 ## cat("nbd:")
 ## print(nbd)

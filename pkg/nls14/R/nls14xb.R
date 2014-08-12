@@ -102,6 +102,8 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     # in the set xx
     pnum <- start  # may simplify later??
     pnames <- names(pnum)
+    cat("vn:")
+    print(vn)
     bdmsk <- rep(1, npar)  # set all params free for now
     maskidx <- which(pnames %in% masked)  
           # NOTE: %in% not == or order gives trouble
@@ -113,11 +115,19 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     if (trace) {
         parpos <- match(pnames, vn) # ?? check this is right??
         datvar <- vn[-parpos]  # NOT the parameters
-        for (dvn in datvar) {
+        cat("datvar:")
+        print(datvar)
+        for (i in 1:length(datvar)) {
+            dvn <- datvar[[i]]
             cat("Data variable ", dvn, ":")
-            print(eval(parse(text = dvn)))
+            if (is.null(data)) { 
+                print(eval(parse(text = dvn)))
+            } else {
+                print(with(data, eval(parse(text = dvn)))) 
+            }
         }
     }
+    cat("Finished masks check\n")
     resexp <- formula # ?? simplify to remove resexp
     trjfn<-model2rjfun(resexp, pnum, data=data) 
     cat("trjfn:\n")

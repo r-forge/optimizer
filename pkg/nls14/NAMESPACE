@@ -34,4 +34,4 @@ export(
 
 importFrom(digest, digest)
 
-# S4 Methods
+S3method(print, modeldoc)

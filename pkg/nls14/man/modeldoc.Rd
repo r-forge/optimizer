@@ -13,30 +13,26 @@ particular parameter locations.
 }
 \usage{
 modeldoc(fun, savefile=NULL)
+\method{print}{modeldoc}(x, ...)
 }
 \arguments{
   \item{fun}{
 A function produced by one of \code{model2rjfun} or \code{model2ssgrfun}.
 }
 
-  \item{savefile}{A character string giving the filename of a file
-to record the terminal output. The filename may include a path relative
-to the working directory.
+  \item{savefile}{A character string or connection giving a location in which
+to record the \code{modeldoc} output. 
 }
 
 }
 \details{
 \code{modeldoc} displays the contents of the environment associated with
 \code{fun}. 
-
-**WARNING** \code{modeldoc} currently lists variables from the \code{"..."}
-arguments but does NOT seem to be able to list the values of these variables
-that are current at the time \code{modeldoc} is called.
 }
 
 \value{
-The function returns 0 unless it stops because \code{savefile} is 
-neither NULL nor a character string.
+\code{modeldoc} returns a list of class \code{"modeldoc"} containing values
+extracted from the environment of \code{fun}.
 }
 
 \author{

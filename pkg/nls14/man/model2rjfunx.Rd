@@ -46,6 +46,13 @@ The \code{data} argument may be a dataframe, list or environment, or \code{NULL}
 If it is not an environment, one will be constructed using the components
 of \code{data} with parent environment set to be
 the environment of \code{modelformula}.  
+
+The search order for variables in the formula will be as follows:
+Variables specified in the \code{...} argument will always take highest precedence.
+If \code{data} is given and is an environment, the search continues only in that environment and its
+parent, grandparent, etc.   Otherwise \code{data} is searched
+next, followed by the environment of \code{modelformula} (and its parents, grandparents, etc.)
+
 }
 \value{
 

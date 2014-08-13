@@ -3,41 +3,55 @@ modeldoc <- function(fun, savefile=NULL) {
   avn <- all.vars(efun$modelformula) # vars and parameters
   pnames <- names(efun$pvec) # assumes that vector is named (normal)
 # ?? what do we do when it is not -- need to name it p1, p2, etc.
+# DJM:  the model2rjfun* functions do this; if a user creates fun some other way,
+# they'd better do it too!
   iprm <- match(pnames, avn)
-  funname <- match.call()[[2]]
-  if (is.character(savefile)) { sink(savefile, split=TRUE) }
-  else if (! is.null(savefile)) stop("savefile must be null or a character filename")
-#  cat("Function name:",funname,"\n")
-  notprm <- avn[-iprm] # get the non-parameter names
-  dnames <- ls(efun$data) # names of vars in data dataframe
-  idata <- match(dnames, notprm) # index for vars in data dataframe
-  extradata <- notprm[-idata] # other data 
-  cat("Content of function",funname,"\n")
+  if (length(iprm))
+    notprm <- avn[-iprm]
+  else
+    notprm <- avn
+  funname <- deparse(match.call()[[2]])
+  data <- efun$data
+  # data is an environment, but not all variables are in the top level, so use get() to find them
+  modeldata <- mget(notprm, envir=data, inherits=TRUE, ifnotfound=list(function(n) NULL))
+  notdata <- setdiff(notprm, names(modeldata))
+  resids <- fun(efun$pvec)
+  n <- length(resids)
+  islengthn <- sapply(modeldata, function(col) length(col) == n)
+  result <- structure(list(funname=funname, modelformula=efun$modelformula,
+                           modelexpr=modelexpr(fun), n=n,
+                           pvec=efun$pvec, data=as.data.frame(modeldata[islengthn]), 
+                           extradata=modeldata[!islengthn], unknown = notdata),
+                      class = "modeldoc")
+  if (!is.null(savefile)) {
+    sink(savefile)
+    print(result)
+    sink()
+  }
+  result
+}
+  
+print.modeldoc <- function(x, ...) {
+  cat("Content of function ", x$funname, "\n")
+  cat("The formula:\n")
+  print(x$modelformula)
   cat("The code:\n")
-  print(modelexpr(fun))
-  cat("Parameters:")
-  print(pnames)
-  cat("Data in 'data' environment:")
-  print(dnames)
-  cat("Extra data needed:")
-  print(extradata)
+  print(x$modelexpr)
+  cat("Parameters:\t", paste(names(x$pvec), collapse=", "), "\n")
+  cat("Data:\t\t", paste(names(x$data), collapse=", "), "\n")
+  if (length(x$unknown)) 
+    cat("Unknown symbols:\t", paste(x$unknown, collapse=", "), "\n")
   cat("Values:\n")
-  cat("Parameters:")
-  print(efun$pvec)
-  cat("Data in dataframe:\n")
-  for (vv in seq_along(dnames)){
-     dident <- paste("efun$data$",dnames[vv],sep='')
-     cat(dident,":")
-     print(eval(parse(text=dident)))
+  cat("Observations:\t", x$n, "\n")
+  cat("Parameters:\n")
+  print(x$pvec)
+  if (length(x$data)) {
+    cat("Data (length ", x$n, "):\n")
+    print(x$data)
   }
-  cat("Extra data (!! NOT WORKING RIGHT !!):\n")
-  if (length(extradata) < 1) cat("None\n")
-  else {
-    for (vv in seq_along(extradata)){
-      cat(extradata[vv],":")
-      print(eval(parse(text=vv)))
-    }
+  if (length(x$extradata)) {
+    cat("Extra data:\n")
+    print(x$extradata)
   }
-  if (is.character(savefile)) { sink() }
-  return(0)
+  x
 }

@@ -28,7 +28,11 @@ model2rjfunx <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
     else if (!is.environment(data))
 	stop("'data' must be a dataframe, list, or environment")
 ## ?JN ... Is this the place?
-    rjfun <- function(prm, ...) {
+
+    if (length(list(...)))
+    	data <- list2env(list(...), parent = data)
+    	
+    rjfun <- function(prm) {
         if (is.null(names(prm))) 
 	    names(prm) <- names(pvec)
 	localdata <- list2env(as.list(prm), parent = data)
@@ -37,7 +41,7 @@ model2rjfunx <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
     }
     
     if (testresult) {
-	resids <- rjfun(pvec, ...)
+	resids <- rjfun(pvec)
 	if (any(bad <- !is.finite(resids))) 
 	    stop("residuals contain ", unique(resids[bad]))
 	if (jacobian && any(bad <- !is.finite(attr(resids, "gradient"))))
@@ -51,7 +55,7 @@ model2rjfunx <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
 model2ssgrfunx <- function(modelformula, pvec, data = NULL, gradient = TRUE, 
                           testresult = TRUE, ... ) {
     rjfun <- model2rjfun(modelformula, pvec, data = data, jacobian = gradient, 
-                         testresult = testresult)
+                         testresult = testresult, ...)
 			
     function(prm) {
 	resids <- rjfun(prm)

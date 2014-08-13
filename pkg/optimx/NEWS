@@ -6,6 +6,8 @@ TODO
 
       o The bdmsk vector is set clumsily for Rvmmin.
 
+      o itnmax / maxit appear to have a glitch from NashJSS2012 script.
+
 VERSION 2013-10-27
       
       o Fix obscure bug when Inf specified for one bound only for Rvmmin.

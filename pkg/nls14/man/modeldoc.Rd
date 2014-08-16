@@ -57,14 +57,14 @@ escal <-  y ~ ms*b1/(1+b2*exp(-b3*tt))
 ms <- 1
 weeddata3<-weeddata2
 weeddata3$y<-0
-grs3<-model2rjfunx(escal, start1, data=weeddata3)
+grs3<-model2rjfunx(escal, start1, data=weeddata3, ms=ms)
 res3<-grs3(start1)
 res3
 modeldoc(grs3)
 
 # Now a different value of ms
 ms<-2
-grs3b<-model2rjfunx(escal, start1, data=weeddata3)
+grs3b<-model2rjfunx(escal, start1, data=weeddata3, ms=ms)
 res3b<-grs3b(start1)
 res3b
 modeldoc(grs3b)

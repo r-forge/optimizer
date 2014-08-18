@@ -32,25 +32,27 @@ modeldoc <- function(fun, savefile=NULL) {
 }
   
 print.modeldoc <- function(x, ...) {
-  cat("Content of function ", x$funname, "\n")
-  cat("The formula:\n")
+  cat("FUNCTION", x$funname, "\n")
+  cat("Formula:\t")
   print(x$modelformula)
-  cat("The code:\n")
+  cat("Code:\t\t")
   print(x$modelexpr)
   cat("Parameters:\t", paste(names(x$pvec), collapse=", "), "\n")
   cat("Data:\t\t", paste(names(x$data), collapse=", "), "\n")
+  if (length(x$extradata))
+    cat("Extra:\t\t", paste(names(x$extradata), collapse=", "), "\n")
   if (length(x$unknown)) 
     cat("Unknown symbols:\t", paste(x$unknown, collapse=", "), "\n")
-  cat("Values:\n")
+  cat("\nVALUES\n")
   cat("Observations:\t", x$n, "\n")
   cat("Parameters:\n")
   print(x$pvec)
   if (length(x$data)) {
-    cat("Data (length ", x$n, "):\n")
+    cat("Data (length ", x$n, "):\n", sep="")
     print(x$data)
   }
   if (length(x$extradata)) {
-    cat("Extra data:\n")
+    cat("Extra:\n")
     print(x$extradata)
   }
   x

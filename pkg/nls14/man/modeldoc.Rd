@@ -1,5 +1,6 @@
 \name{modeldoc}
 \alias{modeldoc}
+\alias{print.modeldoc}
 \title{
 Output a description of the model and the data that was used at the time
 of its creation to the console and optionally to a file. The purpose of 
@@ -22,6 +23,8 @@ A function produced by one of \code{model2rjfun} or \code{model2ssgrfun}.
 
   \item{savefile}{A character string or connection giving a location in which
 to record the \code{modeldoc} output. 
+}
+  \item{x, ...}{Object to print, and other arguments that will be ignored.
 }
 
 }

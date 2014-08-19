@@ -287,14 +287,14 @@ newDeriv(cosh(x), sinh(x)*D(x))
 newDeriv(sqrt(x), D(x)/2/sqrt(x))
 newDeriv(pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE),
   (if (lower.tail && !log.p) 
-  	dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
+  	dnorm((q-mean)/sd)*(D(q)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
   else if (!lower.tail && !log.p) 
-  	-dnorm((q-mean)/sd)*(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
+  	-dnorm((q-mean)/sd)*(D(q)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2) 
   else if (lower.tail && log.p) 
-  	(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)*exp(dnorm((q-mean)/sd, log = TRUE) 
+  	(D(q)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)*exp(dnorm((q-mean)/sd, log = TRUE) 
   		- pnorm((q-mean)/sd, log = TRUE))
   else if (!lower.tail && log.p)	
-  	-(D(x)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)*exp(dnorm((q-mean)/sd, log = TRUE) 
+  	-(D(q)/sd - D(mean)/sd - D(sd)*(q-mean)/sd^2)*exp(dnorm((q-mean)/sd, log = TRUE) 
   		- pnorm((q-mean)/sd, lower.tail = FALSE, log = TRUE)))
   + stop("cannot take derivative wrt 'lower.tail' or 'log.p'")*(D(lower.tail) + D(log.p)))
 newDeriv(dnorm(x, mean = 0, sd = 1, log = FALSE),
@@ -331,12 +331,12 @@ newDeriv(sign(x), 0)
 
 newSimplification(+a, TRUE, a)
 newSimplification(-a, is.numeric(a), -a, do_eval = TRUE)
-newSimplification(-a, is.call(a) && length(a) == 2 && as.character(a[[1]]) == "-", a[[2]], do_eval = TRUE)
+newSimplification(-a, is.call(a) && length(a) == 2 && as.character(a[[1]]) == "-", quote(a)[[2]], do_eval = TRUE)
 
-newSimplification(exp(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "log", a[[2]], do_eval = TRUE)
+newSimplification(exp(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "log", quote(a)[[2]], do_eval = TRUE)
 newSimplification(exp(a), is.numeric(a), exp(a), do_eval = TRUE)
 
-newSimplification(log(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "exp", a[[2]], do_eval = TRUE)
+newSimplification(log(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "exp", quote(a)[[2]], do_eval = TRUE)
 newSimplification(log(a), is.numeric(a), log(a), do_eval = TRUE)
 
 newSimplification(!a, isTRUE(a), FALSE)
@@ -370,7 +370,7 @@ newSimplification(a / b, is.numeric(a) && is.numeric(b), a / b, do_eval = TRUE)
 newSimplification(a ^ b, isONE(b), a)
 newSimplification(a ^ b, is.numeric(a) && is.numeric(b), a ^ b, do_eval = TRUE)
 
-newSimplification(log(a, base), is.call(a) && as.character(a[[1]]) == "exp", Simplify(quote(a[[2]] / log(base))), do_eval = TRUE)
+newSimplification(log(a, base), is.call(a) && as.character(a[[1]]) == "exp", Simplify(call("/", quote(a)[[2]], quote(log(base)))), do_eval = TRUE)
 
 newSimplification(a && b, isFALSE(a) || isFALSE(b), FALSE)
 newSimplification(a && b, isTRUE(a), b)

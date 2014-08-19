@@ -14,7 +14,7 @@ Functions to simplify expressions.
 by \code{newSimplification}.
 }
 \usage{
-Simplify(expr, simpEnv = sysSimplifications)
+Simplify(expr, simpEnv = sysSimplifications, verbose = FALSE)
 newSimplification(expr, test, simplification, do_eval = FALSE, simpEnv = sysSimplifications)
 sysSimplifications
 isFALSE(x)
@@ -25,6 +25,12 @@ isMINUSONE(x)
 \arguments{
   \item{expr}{
 An expression to simplify; this should be a language object.
+}
+  \item{simpEnv}{
+An environment holding the registered simplifications.
+}  
+  \item{verbose}{
+If \code{TRUE}, diagnostics are printed as simplifications are recognized.
 }
   \item{test}{
 An expression giving a test to apply to decide whether this simplification
@@ -37,9 +43,7 @@ The new expression to use to replace the original one.
 Whether to evaluate the new expression (to give an even newer
 expression) to use as the simplification.
 }
-  \item{simpEnv}{
-An environment holding the registered simplifications.
-}
+
   \item{x}{
 An expression to test.
 }
@@ -86,7 +90,7 @@ Duncan Murdoch
 }
 \examples{
 Simplify(quote(a + 0))
-Simplify(quote(exp(1)))
+Simplify(quote(exp(1)), verbose = TRUE)
 
 Simplify(quote(sqrt(a + b)))  # standard rule
 myrules <- new.env(parent = sysSimplifications)

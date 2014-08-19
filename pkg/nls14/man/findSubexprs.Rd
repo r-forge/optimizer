@@ -8,7 +8,7 @@ This function finds common subexpressions in an expression vector
 so that duplicate computation can be avoided.
 }
 \usage{
-findSubexprs(expr, simplify = FALSE, tag = ".expr", ...)
+findSubexprs(expr, simplify = FALSE, tag = ".expr", verbose = FALSE, ...)
 }
 \arguments{
   \item{expr}{
@@ -19,7 +19,11 @@ Whether to call \code{\link{Simplify}} on each subexpression before
 looking for common subexpressions.
 }
   \item{tag}{
-The prefix to use for locally created variables
+The prefix to use for locally created variables.
+}
+  \item{verbose}{
+If \code{TRUE}, diagnostics are printed as simplifications are
+recognized.
 }
   \item{...}{
 Additional parameters to pass to \code{\link{Simplify}}.

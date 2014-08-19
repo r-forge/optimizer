@@ -10,8 +10,10 @@ Functions to take symbolic derivatives.
 Compute derivatives of simple expressions symbolically, allowing user-specified derivatives.
 }
 \usage{
-Deriv(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, ...)
-fnDeriv(expr, namevec, hessian = FALSE, derivEnv = sysDerivs, ...) 
+Deriv(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, 
+      verbose = FALSE, ...)
+fnDeriv(expr, namevec, hessian = FALSE, derivEnv = sysDerivs, 
+      verbose = FALSE, ...) 
 newDeriv(expr, deriv, derivEnv = sysDerivs) 
 sysDerivs
 }
@@ -28,6 +30,10 @@ The environment in which derivatives are stored.
   \item{do_substitute}{
 If \code{TRUE}, use \code{\link{substitute}} to get the expression passed as
 \code{expr}, otherwise evaluate it.
+}
+  \item{verbose}{
+If \code{TRUE}, then diagnostic output will be printed as derivatives
+and simplifications are recognized.
 }
   \item{...}{
 Additional parameters which will be passed to \code{\link{Simplify}}.

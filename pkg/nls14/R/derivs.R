@@ -64,11 +64,11 @@ newSimplification <- function(expr, test, simplification, do_eval = FALSE, simpE
 }
     	
 # This is a more general version of D()
-Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, ...) {
+Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, verbose = FALSE, ...) {
     Recurse <- function(expr) {
     	if (is.call(expr)) {
     	    if (as.character(expr[[1]]) == "D")
-    	    	expr <- Deriv(expr[[2]], name, derivEnv, do_substitute = FALSE, ...)
+    	    	expr <- Deriv(expr[[2]], name, derivEnv, do_substitute = FALSE, verbose = verbose, ...)
     	    else
     	    	for (i in seq_along(expr)[-1])
     	    	    expr[[i]] <- Recurse(expr[[i]])
@@ -79,22 +79,24 @@ Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, ...) {
     if (do_substitute)
     	expr <- substitute(expr)
     if (is.expression(expr))
-    	return(as.expression(lapply(expr, Deriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, ...)))
+    	return(as.expression(lapply(expr, Deriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)))
     else if (is.numeric(expr) || is.logical(expr))
     	return(0)
     else if (is.call(expr)) {
     	fn <- as.character(expr[[1]])
 	if (fn == "expression")
-	    return(as.expression(lapply(as.list(expr)[-1], Deriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, ...)))
+	    return(as.expression(lapply(as.list(expr)[-1], Deriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)))
     	model <- derivEnv[[fn]]
     	if (is.null(model))
     	    stop("no derivative known for '", fn, "'")
- 	if (missing(name)) {
- 	    message("Pattern for")
+ 	if (missing(name) || verbose) {
+ 	    message(paste("Expr:", deparse(expr)))
+ 	    message(if (missing(name)) "Pattern for" else "Using pattern")
  	    message(paste("  ", deparse(model$expr), collapse = "\n"))
  	    message("is")
  	    message(paste("  ", deparse(model$deriv), collapse = "\n"))
- 	    return(invisible(NULL))
+ 	    if (missing(name))
+ 	    	return(invisible(NULL))
  	}
         args <- expr[-1]
         argnames <- names(args)
@@ -119,7 +121,7 @@ Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, ...) {
         names(subst) <- modelnames
         result <- do.call(substitute, list(model$deriv, subst))
         result <- Recurse(result)
-        Simplify(result, ...)
+        Simplify(result, verbose = verbose, ...)
     } else if (is.name(expr))
     	if (as.character(expr) == name)
     	    return(1)
@@ -131,7 +133,7 @@ Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, ...) {
 # derivatives and simplifications
 
 fnDeriv <- function(expr, namevec, 
-       hessian = FALSE, derivEnv = sysDerivs, ...) {
+       hessian = FALSE, derivEnv = sysDerivs, verbose = FALSE, ...) {
     if (!is.expression(expr)) expr <- as.expression(expr)
     if (length(expr) > 1)
 	stop("Only single expressions allowed")
@@ -139,7 +141,7 @@ fnDeriv <- function(expr, namevec,
     n <- length(namevec)
     length(exprs) <- n + 1L
     for (i in seq_len(n))
-	exprs[[i + 1]] <- Deriv(expr[[1]], namevec[i], derivEnv = derivEnv, do_substitute = FALSE, ...)
+	exprs[[i + 1]] <- Deriv(expr[[1]], namevec[i], derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)
     names(exprs) <- c(".value", namevec)
     if (hessian) {
         m <- length(exprs)
@@ -148,7 +150,7 @@ fnDeriv <- function(expr, namevec,
 	    for (j in seq_len(n-i+1) + i-1) {
 		m <- m + 1
 		exprs[[m]] <- Deriv(exprs[[i + 1]], namevec[j], derivEnv = derivEnv, 
-		                    do_substitute = FALSE, ...)
+		                    do_substitute = FALSE, verbose = verbose, ...)
 	    }
     }
     exprs <- as.expression(exprs)
@@ -192,14 +194,14 @@ isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0
 isONE  <- function(x) is.numeric(x) && length(x) == 1 && x == 1
 isMINUSONE <- function(x) is.numeric(x) && length(x) == 1 && x == -1
 
-Simplify <- function(expr, simpEnv = sysSimplifications) {
+Simplify <- function(expr, simpEnv = sysSimplifications, verbose = FALSE) {
     
     if (is.expression(expr))
-    	return(as.expression(lapply(expr, Simplify, simpEnv)))    
+    	return(as.expression(lapply(expr, Simplify, simpEnv, verbose = verbose)))    
 
-    if (is.call(expr)) {
+    if (is.call(expr)) {    	
 	for (i in seq_along(expr)[-1])
-	    expr[[i]] <- Simplify(expr[[i]], simpEnv)
+	    expr[[i]] <- Simplify(expr[[i]], simpEnv, verbose = verbose)
 	fn <- as.character(expr[[1]])
 	nargs <- length(expr) - 1
 	while (!identical(simpEnv, emptyenv())) {
@@ -213,6 +215,11 @@ Simplify <- function(expr, simpEnv = sysSimplifications) {
 		names(substitutions) <- argnames
 		test <- simpn[[i]]$test
 		if (with(substitutions, eval(test))) {
+		    if (verbose) {
+	    		message(paste("Simplifying", deparse(expr)))		    	
+	    		message("Applying simplification:")
+		    	print(simpn[[i]])
+		    }
 		    simplification <- do.call(substitute, list(simpn[[i]]$simplification, substitutions))
 	   	    if (simpn[[i]]$do_eval)
 	    		simplification <- eval(simplification)
@@ -225,14 +232,14 @@ Simplify <- function(expr, simpEnv = sysSimplifications) {
     expr
 }
 
-findSubexprs <- function(expr, simplify = FALSE, tag = ".expr", ...) {
+findSubexprs <- function(expr, simplify = FALSE, tag = ".expr", verbose = FALSE, ...) {
     digests <- new.env(parent = emptyenv())
     subexprs <- list()
     subcount <- 0
     
     record <- function(index) {
         if (simplify)
-	    expr[[index]] <<- subexpr <- Simplify(expr[[index]], ...)
+	    expr[[index]] <<- subexpr <- Simplify(expr[[index]], verbose = verbose, ...)
 	else
 	    subexpr <- expr[[index]]
 	if (is.call(subexpr)) {

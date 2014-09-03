@@ -1,4 +1,4 @@
-tn <- function(x, fgfun, trace=TRUE, ...) {
+tn <- function(x, fgfun, trace=FALSE, ...) {
   ## ---------------------------------------------------------
   ##  this routine solves:  minimize f(x)
   ## 

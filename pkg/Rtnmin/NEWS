@@ -4,7 +4,16 @@ TODOS
    o    Simplification and streamlining of code to mesh
 	better with other R optimization tools.
 
-   o    Put maxit, maxfun in control list.
+   o    Put maxit, maxfun in control list somehow.
+
+   o    Setup trace as integer to work properly
+
+2013-09-03
+
+   o    Some fixes, particularly to dot-arguments missing
+	from calls to user function.
+
+   o    Changed returned user fgfun to f with g as attribute.
 
 2013-06-03
 

@@ -77,8 +77,8 @@ gtims <- function (v, x, g, accrcy, xnorm, sfun, ...) {
    tresult<-sfun(hg, ...)
 ##   cat("tresult: ")
 ##   print(tresult)
-#   gv <- sfun(hg, ...)$gval
-   gv <- tresult$g
+#   gv <- attr(sfun(hg, ...), "gradient")
+   gv <- attr(tresult, "gradient")
    gv <- (gv - g)/delta
 ##   cat("returning gv:")
 ##   print(gv)
@@ -127,8 +127,8 @@ lin1 <- function(p, x, f, alpha, g, sfun, ...){
    ## ---------------------------------------------------------
    ##  set up
    ## ---------------------------------------------------------
-##   cat("lin1: alpha=",alpha,"  p:\n")
-##   print(p)
+#   cat("lin1: alpha=",alpha,"  p:\n")
+#   print(p)
 
    if (is.null(alpha)) alpha <- 0
 
@@ -147,9 +147,9 @@ lin1 <- function(p, x, f, alpha, g, sfun, ...){
    ## ---------------------------------------------------------
    for (itcnt in 1:maxit) {
       xt <- x + alpha1*p 
-      fg <- sfun(xt)
-      ft<-fg$f
-      gt<-fg$g # may simplify later
+      fg <- sfun(xt, ...) # Note: added dots 140902
+      ft<-fg
+      gt<- attr(fg,"gradient") # may simplify later
       if (ft < f) {
          ierror <- 0
          xnew   <- xt
@@ -238,8 +238,8 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    fg<- sfun(x, ...)
    nf     <- 1 
    nit    <- 0 
-   g<-fg$g
-   f<-fg$f
+   g<- attr(fg,"gradient")
+   f<-fg
    flast  <- f
    gnorm  <- max(abs(g)) ##  norm(g,'inf') 
 ## ---------------------------------------------------------
@@ -505,8 +505,8 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 ## ---------------------------------------------------------
    fg <- sfun(x, ...)
 #%    print(fg)
-   g<-fg$g
-   f<-fg$f
+   g<- attr(fg, "gradient")
+   f<-fg
    gnorm  <- max(abs(g)) ##  norm(g,'inf') 
    nf     <- 1 
    nit    <- 0 
@@ -546,9 +546,9 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    argvec <- c(accrcy, gnorm, xnorm) 
    mres  <- modlnp (d, x, g, maxit, upd1, ireset, bounds=FALSE, ipivot, argvec, sfun, ...) 
    p <- mres$p
-#   cat("p from first call to modlnp\n")
-#   print(p)
-#   tmp<-readline("cont.")
+   cat("p from first call to modlnp\n")
+   print(p)
+   tmp<-readline("cont.")
 
    gtp <- mres$gtp
    ncg1<-mres$ncg1

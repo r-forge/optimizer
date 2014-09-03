@@ -14,10 +14,9 @@ minimization. The algorithm is based on Nash (1979)
 }
 \arguments{
  \item{x}{A numeric vector of starting estimates.}
- \item{fgfun}{A function that returns the value and gradient
-  of the objective at
+ \item{fgfun}{A function that returns the value of the objective at
   the supplied set of parameters \code{par} using auxiliary data in
-  \dots.
+  \dots. The gradient is returned as attribute "gradient". 
    The first argument of \code{fgfun} must be \code{par}. }
  \item{trace}{TRUE if progress output is to be presented. (Not yet verified.)}
  \item{\dots}{Further arguments to be passed to \code{fn}.}
@@ -69,13 +68,17 @@ gr <- function(x) {
 rosefg<-function(x){
    f<-fr(x)
    g<-gr(x)
-   list(f=f, g=g)
+   attr(f, "gradient") <- g
+   f
 }
 
 x<-c(-1.2, 1)
 
 ansrosenbrock <- tn(x, rosefg)
 print(ansrosenbrock) # use print to allow copy to separate file that 
+cat("Compare to optim\n")
+ansoptrose <- optim(x, fr, gr)
+print(ansoptrose)
 
 
 genrose.f<- function(x, gs=NULL){ # objective function
@@ -103,13 +106,20 @@ genrose.g <- function(x, gs=NULL){
 grosefg<-function(x, gs=100.0) {
     f<-genrose.f(x, gs)
     g<-genrose.g(x, gs)
-    fg<-list(f=f,g=g)
+    attr(f, "gradient") <- g
+    f
 }
 
 n <- 100
 x <- (1:100)/20
-groseu<-tn(x, grosefg)
+groseu<-tn(x, grosefg, gs=10)
 print(groseu)
+
+groseuo <- optim(x, fn=genrose.f, gr=genrose.g, method="BFGS",
+      control=list(maxit=1000), gs=10)
+cat("compare optim BFGS\n")
+print(groseuo)
+
 
 lower<-1+(1:n)/100
 upper<-5-(1:n)/100
@@ -117,6 +127,12 @@ xmid<-0.5*(lower+upper)
 
 grosec<-tnbc(xmid, grosefg, lower, upper)
 print(grosec)
+
+cat("compare L-BFGS-B\n")
+grosecl <- optim(par=xmid, fn=genrose.f, gr=genrose.g, 
+     lower=lower, upper=upper, method="L-BFGS-B")
+print(grosecl)
+
 
 }
 

@@ -13,10 +13,9 @@ of nonlinear functions subject to bounds (box) constraints and masks
 }
 \arguments{
  \item{x}{A numeric vector of starting estimates.}
- \item{fgfun}{A function that returns the value and gradient
-  of the objective at
+ \item{fgfun}{A function that returns the value of the objective at
   the supplied set of parameters \code{par} using auxiliary data in
-  \dots.
+  \dots. The gradient is returned as attribute "gradient". 
    The first argument of \code{fgfun} must be \code{par}. }
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}

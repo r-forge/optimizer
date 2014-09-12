@@ -790,6 +790,11 @@ modlnp <- function(d, x, g, maxit, upd1, ireset, bounds,
       if (v.gv[[k]]/gnorm < tol) { 
          ind <- 50  
          if (sqrt(sum(p^2))==0) {
+            p <- -g ## Mod SGN 140912
+            if (bounds) {
+              p <- ztime(p, ipivot)
+            }
+            gtp <- crossprod(p, g)
             cat("MODLNP 03: |p| = 0 \n") 
             ## pause(1) 
          }

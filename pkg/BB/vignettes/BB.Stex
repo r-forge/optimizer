@@ -125,12 +125,12 @@ f
 \end{Scode}
 
 Now, we introduce the function \emph{BBsolve}.  For the first starting value, 
-both \emph{dfsane} and \emph{BBsolve} find the zero of the system.
+\emph{dfsane} used in the default manner does not find the zero, but \emph{BBsolve(), which tries multiple control parameter settings, is able to successfully find the zero.
 
 \begin{Scode}
 p0 <- c(3,2) 
-BBsolve(par=p0, fn=froth)
 dfsane(par=p0, fn=froth, control=list(trace=FALSE))
+BBsolve(par=p0, fn=froth)
 \end{Scode}
 
 For the next starting value, \emph{BBsolve} finds the zero of the system, but 

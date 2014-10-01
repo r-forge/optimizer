@@ -105,7 +105,7 @@ F[n] <- -x[n-1] * exp(x[n-1] - x[n]) + 4*x[n] - 3
 F
 }
 
-n <- 50
+n <- 10000
 p0 <- runif(n)
 ans <- dfsane(par=p0, fn=trigexp, control=list(trace=FALSE))
 ans$message
@@ -125,7 +125,7 @@ f
 \end{Scode}
 
 Now, we introduce the function \emph{BBsolve}.  For the first starting value, 
-\emph{dfsane} used in the default manner does not find the zero, but \emph{BBsolve(), which tries multiple control parameter settings, is able to successfully find the zero.
+\emph{dfsane} used in the default manner does not find the zero, but \emph{BBsolve}, which tries multiple control parameter settings, is able to successfully find the zero.
 
 \begin{Scode}
 p0 <- c(3,2) 
@@ -383,7 +383,7 @@ multiple local maxima.  We have to make sure that we
 specify `\emph{action = "optimize"}', because the default option in 
 \emph{multiStart} is \emph{"solve"}.
 
-\begin{Scode}{results=hide}
+\begin{Scode}
 # 3 randomly generated starting values
 p0 <- matrix(runif(30, c(0.2,1,1), c(0.8,8,8)), 10, 3, byrow=TRUE)  
 ans <- multiStart(par=p0, fn=poissmix.loglik, action="optimize",

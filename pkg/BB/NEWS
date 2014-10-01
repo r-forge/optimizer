@@ -1,7 +1,18 @@
-Changes in BB version 2014.6-1
+Changes in BB version 2014.10-1
+
+   o	Added files in inst/extraTests.
+
+   o	Reverted back to solve.QP from quadprog because of some failures in the 
+   	special version added in 2014.1-1.
+
+   o	Changed conditional require() in some functions to requireNamespace().
 
    o	Removed unused geval from spg() and documented that geval is equal 
    	to iter.
+
+   o	Fixed NAMESPACE to import optim from stats.
+
+   o	Adjusted BB vignette text regarding a dfsane() failure.
 
 Changes in BB version 2014.1-1
 

@@ -125,8 +125,8 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     }
   #############################################
   if (!grNULL & checkGrad) {
-    require("numDeriv")
-    grad.num <- grad(x=par, func=fn, ...) 
+    requireNamespace("numDeriv", quietly = TRUE)
+    grad.num <- numDeriv::grad(x=par, func=fn, ...) 
     grad.analytic <- gr(par, ...)
     max.diff <- max(abs((grad.analytic - grad.num) / (1 + abs(fn(par, ...)))))
     if(!max.diff < checkGrad.tol) {

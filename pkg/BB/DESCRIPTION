@@ -1,5 +1,5 @@
 Package: BB
-Version: 2014.6-1
+Version: 2014.9-15
 Title: Solving and Optimizing Large-Scale Nonlinear Systems
 Description: Barzilai-Borwein spectral methods for solving nonlinear
         system of equations, and for optimizing nonlinear objective
@@ -8,6 +8,7 @@ Description: Barzilai-Borwein spectral methods for solving nonlinear
         CRAN download page or, when the package is loaded in an R
         session, with vignette("BB").
 Depends: R (>= 2.6.1)
+Imports: stats, quadprog
 Suggests: setRNG, survival, Hmisc, numDeriv
 BuildVignettes: false
 LazyLoad: yes

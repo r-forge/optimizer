@@ -1,6 +1,6 @@
 spg <- function(par, fn, gr=NULL, method=3, project=NULL, 
            lower=-Inf, upper=Inf, projectArgs=NULL, 
-	   control=list(), quiet=FALSE,  ... ) {
+	   control=list(), quiet=FALSE, alertConvergence=TRUE,  ... ) {
 
 
   prj <- TRUE
@@ -310,6 +310,9 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
       if (lsflag==4) conv <- list(type=5, message="Failure:  Error in projection")
       }
  
+  if(alertConvergence && ( 0 != conv$type))
+          warning("Unsuccessful convergence.")
+
   return(list(par=par, value=f.rep, gradient =pginfn, 
       fn.reduction=(-1)^maximize * (f0 - f), 
       iter=iter, feval=feval, convergence=conv$type, message=conv$message))

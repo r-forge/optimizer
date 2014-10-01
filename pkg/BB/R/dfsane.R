@@ -1,4 +1,5 @@
-dfsane <- function (par, fn, method = 2, control = list(), quiet=FALSE, ...) 
+dfsane <- function (par, fn, method = 2, control = list(), 
+                    quiet=FALSE, alertConvergence=TRUE, ...) 
 {
     ctrl <- list(maxit = 1500, M = 10, tol = 1e-07, trace = TRUE, 
         triter = 10, quiet=FALSE, noimp = 100, NM=FALSE, BFGS=FALSE)
@@ -233,6 +234,9 @@ dfsane <- function (par, fn, method = 2, control = list(), quiet=FALSE, ...)
 	if (normF.best/sqrt(length(par)) <= tol) 
       	conv <- list(type = 0, message = "Successful convergence")
 	}
+
+    if(alertConvergence && ( 0 != conv$type))
+          warning("Unsuccessful convergence.")
 
 ## We return "pbest" and "normF.best" #####
 

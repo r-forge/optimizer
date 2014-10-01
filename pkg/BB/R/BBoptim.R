@@ -30,8 +30,9 @@ BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project=NULL,
 	            lower=lower, upper=upper, projectArgs=projectArgs, 
 		    control=list(M=as.numeric(cpars[2]), maxit=maxit, 
 		       maximize=maximize, trace=trace, triter=triter, 
-		       maxfeval=maxfeval, eps=eps, gtol=gtol, ftol=ftol, checkGrad=checkGrad),
-		    quiet=quiet, ...),    silent=TRUE)
+		       maxfeval=maxfeval, eps=eps, gtol=gtol, ftol=ftol,
+		       checkGrad=checkGrad),
+		    quiet=quiet, alertConvergence=FALSE, ...),    silent=TRUE)
 
       if (!inherits(temp, "try-error")) {
    	 feval <- feval + temp$feval

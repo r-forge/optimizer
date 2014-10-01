@@ -1,5 +1,8 @@
 Changes in BB version 2014.10-1
 
+   o	Added argument alertConvergence to spg(), sane() and dfsane() and
+   	default to issue a warning if convergence is not obtained.
+
    o	Added files in inst/extraTests.
 
    o	Reverted back to solve.QP from quadprog because of some failures in the 

@@ -133,6 +133,9 @@ dfsane(par=p0, fn=froth, control=list(trace=FALSE))
 BBsolve(par=p0, fn=froth)
 \end{Scode}
 
+Note that the functions \emph{dfsane}, \emph{sane}, and \emph{spg} produce a warning message if convergence fails. These warnings have been suppressed in
+this vignette.
+
 For the next starting value, \emph{BBsolve} finds the zero of the system, but 
 \emph{dfsane} (with defaults) fails.
 

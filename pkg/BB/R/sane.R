@@ -27,7 +27,7 @@ sane <- function (par, fn, method = 2, control = list(),
         gpd <- -2 * abs(dg)
         while (cbl < maxbl) {
             xnew <- x + lambda * sgn * F
-            Fnew <- try(do.call("fn", append(list(xnew), fargs)))
+            Fnew <- try(do.call(fn, append(list(xnew), fargs)))
             fcnt = fcnt + 1
             if (class(Fnew) == "try-error" || any(is.nan(Fnew))) 
                 return(list(xnew = NA, Fnew = NA, fcnt = fcnt, 

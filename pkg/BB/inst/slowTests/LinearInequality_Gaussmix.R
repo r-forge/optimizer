@@ -87,7 +87,7 @@ par0 <- c(p0,ymean0, ysd0^2)
 
 # # The inequalities are defined such that:  Amat %*% x - b > 0 
 
-# does not work with EPS=1e-7
+# with solve.QP in version 2014.1-1 next does not work with EPS=1e-7
 # [1] "Failure:  Error in projection"
 
 ans <- spg(par=par0, fn=gaussmix.mloglik, gr=gaussmix.grad,

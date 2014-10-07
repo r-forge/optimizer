@@ -1,5 +1,5 @@
-BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), project=NULL, 
-     lower=-Inf, upper=Inf, projectArgs=NULL,
+BBoptim <- function(par, fn, gr=NULL, method=c(2,3,1), 
+     lower=-Inf, upper=Inf, project=NULL, projectArgs=NULL,
      control=list(), quiet=FALSE, ...) 
     {
     ctrl <- list(maxit = 1500, M = c(50, 10), ftol=1.e-10, gtol = 1e-05, maxfeval = 10000, 

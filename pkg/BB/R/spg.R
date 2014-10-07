@@ -1,31 +1,42 @@
-spg <- function(par, fn, gr=NULL, method=3, project=NULL, 
-           lower=-Inf, upper=Inf, projectArgs=NULL, 
+spg <- function(par, fn, gr=NULL, method=3, lower=-Inf, upper=Inf, 
+	   project=NULL, projectArgs=NULL, 
 	   control=list(), quiet=FALSE, alertConvergence=TRUE,  ... ) {
 
 
-  prj <- TRUE
-  if (is.null(project)){
-     if (is.null(projectArgs)){
-         projectArgs <- list(lower=lower, upper=upper)
-         #  expand upper and lower for all par
-         if (length(projectArgs$lower)==1)
-             projectArgs$lower <- rep(projectArgs$lower, length(par))
-         if (length(projectArgs$upper)==1)
-             projectArgs$upper <- rep(projectArgs$upper, length(par))
+  box <- if (any(is.finite(upper)))   TRUE
+    else if (any(is.finite(lower)))   TRUE
+    else                              FALSE  
+
+
+  prj <- if (box)                     TRUE
+    else if (!is.null(project))       TRUE
+    else                              FALSE  
+
+  if (is.character(project)) project <- get(project, mode="function")
+ 
+  if (box){
+    if (is.null(project) | identical(project, projectLinear)){
+         # upper and lower for projectLinear or default
+	 # expand if scalar
+         if(is.null(projectArgs)) projectArgs <- list()
+	 
+	 if( (!is.null(projectArgs$lower)) | (!is.null(projectArgs$upper))) 
+	    warning("Using lower and upper spg arguments, not using those specified in projectArgs.")
+
+         projectArgs$lower <- 
+	     if (length(lower)==1) rep(lower, length(par)) else lower
+         projectArgs$upper <- 
+	     if (length(upper)==1) rep(upper, length(par)) else upper
          }
-     if (any(is.finite(c(projectArgs$upper, projectArgs$lower)))){
-         project <- "projectBox"
-         # projectBox for default 
-         # This provides box constraints defined by upper and lower
-         projectBox <- function(par, lower, upper) {
-           # Projecting to ensure that box-constraints are satisfied
-           par[par < lower] <- lower[par < lower]
-           par[par > upper] <- upper[par > upper]
-           return(par)
-           }
-     
-         } else prj <- FALSE    
-     }
+         
+    if (is.null(project)) # default previously called projectBox
+	   project <-  function(par, lower, upper) {
+             # Projecting to ensure that box-constraints are satisfied
+             par[par < lower] <- lower[par < lower]
+             par[par > upper] <- upper[par > upper]
+             return(par)
+             }
+    }
 
 
   # control defaults
@@ -96,7 +107,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     fmax <- max(lastfv)
     alpha <- 1
     pnew <- p + alpha*d
-    fnew <- try(do.call("func", append(list(pnew) , fargs )),silent=TRUE)
+    fnew <- try(do.call(func, append(list(pnew) , fargs )),silent=TRUE)
     feval <- feval + 1
  
     if (class(fnew)=="try-error" | is.nan(fnew) )
@@ -111,7 +122,7 @@ spg <- function(par, fn, gr=NULL, method=3, project=NULL,
     	    }
 
     	pnew <- p + alpha*d
-    	fnew <- try(do.call("func", append(list(pnew), fargs )), silent=TRUE)
+    	fnew <- try(do.call(func, append(list(pnew), fargs )), silent=TRUE)
     	feval <- feval + 1
  
     	if (class(fnew)=="try-error" | is.nan(fnew) )

@@ -31,7 +31,7 @@ dfsane <- function (par, fn, method = 2, control = list(),
         while (cbl < maxbl) {
             d <- -alfa * F
             xnew <- x + lam1 * d
-           Fnew <- try(do.call("fn", append(list(xnew), fargs)))
+           Fnew <- try(do.call(fn, append(list(xnew), fargs)))
            fcnt = fcnt + 1
             if (class(Fnew) == "try-error" || any(is.nan(Fnew))) 
                 return(list(xnew = NA, Fnew = NA, fcnt = fcnt, 
@@ -45,7 +45,7 @@ dfsane <- function (par, fn, method = 2, control = list(),
                   bl = bl, lsflag = 0, fune = fune1))
             }
             xnew <- x - lam2 * d
-            Fnew <- try(do.call("fn", append(list(xnew), fargs)))
+            Fnew <- try(do.call(fn, append(list(xnew), fargs)))
             fcnt = fcnt + 1
             if (class(Fnew) == "try-error" || any(is.nan(Fnew))) 
                 return(list(xnew = NA, Fnew = NA, fcnt = fcnt, 

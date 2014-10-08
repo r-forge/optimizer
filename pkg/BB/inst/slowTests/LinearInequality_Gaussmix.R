@@ -157,3 +157,32 @@ ans
 # $message
 # [1] "Successful convergence"
 
+
+##########################
+# Gaussian mixture density using upper and lower
+
+Amat <- matrix(0, 1, 9)
+Amat[1, 1:4] <- 1  # corresponds to equality
+
+b <- 1
+meq <- 1
+
+ans2 <- spg(par=par0, fn=gaussmix.mloglik, gr=gaussmix.grad, 
+   lower=c(rep(0,4), rep(-Inf, 4), 0), upper=c(rep(1,4), rep(Inf, 4), Inf),
+   project="projectLinear", projectArgs=list(A=Amat, b=b, meq=meq))
+
+if(fuzz < max(abs(ans$par - ans2$par))){
+   print(ans2$par, digits=18)
+   cat("difference:\n")
+   print(ans$par - ans2$par, digits=18)
+   stop("converged to different parameter values with lower and upper!")
+   }
+
+if(fuzz < max(abs(ans$value - ans2$value))){
+   print(ans2$value, digits=18)
+   stop("converged to different function value with lower and upper!")
+   }
+
+ans2
+
+##########################

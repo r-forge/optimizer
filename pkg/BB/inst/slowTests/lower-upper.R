@@ -3,6 +3,7 @@ require(BB)
 
 # Note that r0 may not converge with a different seed
 set.seed(1234)
+p0 <- rnorm(2)
 
 fuzz <- 1e-6
 
@@ -11,8 +12,6 @@ fuzz <- 1e-6
 fn <- function(x) (x[1] - 3/2)^2 + (x[2] - 1/8)^4
 
 gr <- function(x) c(2 * (x[1] - 3/2) , 4 * (x[2] - 1/8)^3)
-
-p0 <- rnorm(2)
 
 Amat <- matrix(c(1, 0, 0, 1, -1, 0, 0, -1), 4, 2, byrow=TRUE)
 b <- c(0, 0, -0.5, -0.5)
@@ -26,12 +25,12 @@ if (0 != r0$convergence) stop("lower-upper test 1 did not converge!")
 
 if(fuzz < max(abs(r0$par - c( 0.500000000000000000, 0.136700820055768862)))){
    print(r0$par, digits=18)
-   stop("lower-upper test 1 converged to different parameter values!")
+   stop("lower-upper test 0 converged to different parameter values!")
    }
 
 if(fuzz < max(abs(r0$value - 1.00000001874412625 ))){
    print(r0$value, digits=18)
-   stop("lower-upper test 1 converged to different function value!")
+   stop("lower-upper test 0 converged to different function value!")
    }
 
 r0
@@ -53,7 +52,26 @@ r0
 # $message
 # [1] "Successful convergence"
 
-# Note that the above is the same as the following:
+#############
+
+# Note that the above should be the same as all the following:
+
+#############
+
+r1 <- spg(par=p0, fn=fn, gr=gr, lower=0, upper=0.5, 
+    project="projectLinear", 
+    projectArgs=list(A=matrix(NA,0,2), b=vector("numeric", 0), meq=0))
+
+if(fuzz < max(abs(r0$par - r1$par))){
+   print(r1$par, digits=18)
+   stop("lower-upper test 1 converged to different parameter values!")
+   }
+
+if(fuzz < max(abs(r0$value - r1$value ))){
+   print(r1$value, digits=18)
+   stop("lower-upper test 1 converged to different function value!")
+   }
+
 
 #############
 
@@ -139,14 +157,31 @@ if(fuzz < max(abs(r0$value - r5$fvalue[r5$converged]  ))){
 
 ################################################################
 
-#  if (project == "projectLinear",){
-#     if (any(!is.finite(lower))){
-#          Amat <- rbind(Amat, diag(npar))
-#          b <- c(b, lower)
-#          }
-#     if (any(!is.finite(upper))){
-#          Amat <- rbind(Amat, diag(-1, npar))
-#          b <- c(b, -upper)
-#          }
-#     }
+## Rosenbrock Banana function  from project.Rd with 
+##   additional lower and upper constraint
 
+fr <- function(x) { 
+x1 <- x[1] 
+x2 <- x[2] 
+100 * (x2 - x1 * x1)^2 + (1 - x1)^2 
+} 
+# Impose a constraint that sum(x) = 1 
+
+
+p0 <- c(0.4, 0.94)    # need feasible starting point
+
+r6 <- spg(par=p0, fn=fr,  lower=c(-0.6, -Inf), upper=c(0.6, Inf),
+  project="projectLinear", projectArgs=list(A=matrix(1, 1, 2), b=1, meq=1)) 
+
+
+if(fuzz < max(abs(r6$par - c( 0.599999994039535522, 0.400000005960464478)))){
+   print(r6$par, digits=18)
+   stop("lower-upper test 6 converged to different parameter values!")
+   }
+
+if(fuzz < max(abs(r6$value - 0.320000109672563315 ))){
+   print(r6$value, digits=18)
+   stop("lower-upper test 6 converged to different function value!")
+   }
+
+################################################################

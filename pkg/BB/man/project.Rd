@@ -119,6 +119,14 @@ spg(par=p0, fn=fr, project="proj")
 
 spg(par=p0, fn=fr, project="projectLinear", projectArgs=list(A=matrix(1, 1, 2), b=1, meq=1)) 
 
+# Impose additional box constraint on first parameter
+
+p0 <- c(0.4, 0.94)    # need feasible starting point
+
+spg(par=p0, fn=fr,  lower=c(-0.5, -Inf), upper=c(0.5, Inf),
+  project="projectLinear", projectArgs=list(A=matrix(1, 1, 2), b=1, meq=1)) 
+
+
 }
 
 \keyword{multivariate}

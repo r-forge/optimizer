@@ -118,8 +118,6 @@ to be imposed on the parameters in \code{spg}. \code{projectArgs} is passed
 to the \code{project} function if one is specified.  The first argument of any \code{project} function should be \code{par} and any other arguments should be passed using its argument \code{projectArgs}.    
 To avoid confusion it is suggested that user defined \code{project}
 functions should not use arguments  \code{lower} and \code{upper}.
-\code{spg} arguments \code{lower} and \code{upper} are not
-passed to a user defined \code{project} function.
 
 The function \code{\link{projectLinear}} incorporates linear equalities and 
 inequalities. This function also provides an example of how other projections

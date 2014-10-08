@@ -15,28 +15,54 @@ spg <- function(par, fn, gr=NULL, method=3, lower=-Inf, upper=Inf,
   if (is.character(project)) project <- get(project, mode="function")
  
   if (box){
-    if (is.null(project) | identical(project, projectLinear)){
-         # upper and lower for projectLinear or default
-	 # expand if scalar
+    if (is.null(project) ){
+         # upper and lower for default. Expand if scalar
          if(is.null(projectArgs)) projectArgs <- list()
 	 
 	 if( (!is.null(projectArgs$lower)) | (!is.null(projectArgs$upper))) 
-	    warning("Using lower and upper spg arguments, not using those specified in projectArgs.")
+	    warning("Using lower and upper spg arguments, ", 
+	            "not using those specified in projectArgs.")
 
          projectArgs$lower <- 
 	     if (length(lower)==1) rep(lower, length(par)) else lower
          projectArgs$upper <- 
 	     if (length(upper)==1) rep(upper, length(par)) else upper
-         }
          
-    if (is.null(project)) # default previously called projectBox
-	   project <-  function(par, lower, upper) {
+         # default previously called projectBox
+	 project <-  function(par, lower, upper) {
              # Projecting to ensure that box-constraints are satisfied
              par[par < lower] <- lower[par < lower]
              par[par > upper] <- upper[par > upper]
              return(par)
              }
-    }
+         }
+
+    if (identical(project, projectLinear)){
+	 
+       if( (!is.null(projectArgs$lower)) | (!is.null(projectArgs$upper))) 
+	    warning("Using lower and upper spg arguments, ", 
+	            "not using those specified in projectArgs.")
+
+       if(is.null(projectArgs$A)) stop(
+	  "projectLinear requires the A matrix to be specified in projectArgs.")
+
+       if(is.null(projectArgs$b)) stop(
+	  "projectLinear requires the b vector to be specified in projectArgs.")
+
+        # upper and lower. Expand if scalar
+       if (length(lower)==1) lower <- rep(lower, length(par))
+       if (any(zi <- is.finite(lower))){
+	  projectArgs$A <- rbind(projectArgs$A, diag(length(par))[zi,])
+	  projectArgs$b <-     c(projectArgs$b, lower[zi])
+	  }
+ 
+       if (length(upper)==1) upper <- rep(upper, length(par))
+       if (any(zi <- is.finite(upper))){
+	  projectArgs$A <- rbind(projectArgs$A, diag(-1, length(par))[zi,])
+	  projectArgs$b <-     c(projectArgs$b, -upper[zi])
+	  }
+       }
+  }
 
 
   # control defaults

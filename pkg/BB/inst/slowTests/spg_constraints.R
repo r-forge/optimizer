@@ -22,7 +22,7 @@ b <- c(1, 0)
 
 ans <- spg(par=p0, fn=rosbkext.f, project="projectLinear", projectArgs=list(A=Amat, b=b, meq=1)) 
 
-fuzz <- 1e-8
+fuzz <- 5e-7
 
 if(fuzz < max(abs(ans$par -
    c(5.46001058136910467e-01,  3.00133145466337903e-01,  9.30077533280728036e-02,

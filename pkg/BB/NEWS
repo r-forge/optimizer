@@ -35,7 +35,8 @@ Changes in BB version 2014.10-1
 
    o	Fixed NAMESPACE to import optim from stats.
 
-   o	Adjusted BB vignette text regarding a dfsane() failure.
+   o	Adjusted BB vignette text regarding a dfsane() failure and revised
+   	commentary on multiStart results.
 
 Changes in BB version 2014.1-1
 

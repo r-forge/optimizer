@@ -391,15 +391,18 @@ specify `\emph{action = "optimize"}', because the default option in
 p0 <- matrix(runif(30, c(0.2,1,1), c(0.8,8,8)), 10, 3, byrow=TRUE)  
 ans <- multiStart(par=p0, fn=poissmix.loglik, action="optimize",
       y=y, lower=lo, upper=hi, control=list(maximize=TRUE))
-pmat <- ans$par[ans$conv, ] # selecting only converged solutions
-ans <- round(pmat, 4)
-ans[!duplicated(ans), ]
+
+# selecting only converged solutions
+pmat <-  round(cbind(ans$fvalue[ans$conv], ans$par[ans$conv, ]), 4)
+dimnames(pmat) <- list(NULL, c("fvalue","parameter 1","parameter 2","parameter 3"))
+
+pmat[!duplicated(pmat), ]
+
 \end{Scode}
-
-This seemingly identifies many solutions.  However, except for two solutions, the rest are degenerate (i.e. the mixing 
-proportion, which is the first parameter, is either 0 or 1).  The two non-degenerate solutions are actually the same, 
-except that the labels for the first and second components are switched.  
-
-
+Here \emph{multiStart} is able to identifies many solutions.
+Two of these, the 2nd and 3rd rows, appear to be global maxima with 
+different parameter values. Actually, there is only one global maximum.
+It is due to the `label switching' problem that we see 2 solutions.
+The multiStart algorithm also identifies three local maxima with inferior values.
 
 \end{document}

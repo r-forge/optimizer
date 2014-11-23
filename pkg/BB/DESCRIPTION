@@ -1,5 +1,5 @@
 Package: BB
-Version: 2014.10-1
+Version: 2014.12-1
 Title: Solving and Optimizing Large-Scale Nonlinear Systems
 Description: Barzilai-Borwein spectral methods for solving nonlinear
         system of equations, and for optimizing nonlinear objective

@@ -19,7 +19,7 @@
     \item{quiet}{A logical variable (TRUE/FALSE). If \code{TRUE} warnings 
     and some additional information printing are suppressed.  
     Default is \code{quiet = FALSE}
-    Note that the \code{control} variable \code{trace} and \code{quiet} 
+    Note that \code{quiet} and the \code{control} variable \code{trace}
     affect different printing, so if \code{trace} is not set to \code{FALSE} 
     there will be considerable printed output.}
  

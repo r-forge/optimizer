@@ -1,5 +1,8 @@
 Changes in BB version 2014.12-1
 
+   o	Changed default control(trace=!quite) from TRUE so the user does not
+   	need to specify trace=FALSE when quiet=TRUE is specified.
+
    o	Fix so that an error will be generated if quiet is added to
    	the control list rather than specified as an argument. (It was
 	previously silently ignored.) Some minor clarification in the 

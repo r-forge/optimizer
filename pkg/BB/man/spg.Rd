@@ -148,7 +148,7 @@ than \code{gtol}.  Default is \code{gtol = 1.e-05}.}
 minimization.  For maximization (e.g. log-likelihood maximization in statistical modeling), this may be set to \code{TRUE}.}
 
 \item{trace}{A logical variable (TRUE/FALSE). If \code{TRUE}, information on 
-the progress of optimization is printed.  Default is \code{trace = TRUE}.}
+the progress of optimization is printed.  Default is \code{trace = !quiet}.}
 
 \item{triter}{An integer that controls the frequency of tracing 
   when \code{trace=TRUE}. Default is \code{triter=10}, which means that

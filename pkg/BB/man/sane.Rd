@@ -108,7 +108,7 @@ Default is \code{tol = 1.e-07}.}
 
 \item{trace}{A logical variable (TRUE/FALSE).  If \code{TRUE}, information on 
 the progress of solving the system is produced.  
-Default is \code{trace = TRUE}.}
+Default is \code{trace = !quiet}.}
 
 \item{triter}{An integer that controls the frequency of tracing 
 when \code{trace=TRUE}. Default is \code{triter=10}, which means that

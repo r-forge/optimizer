@@ -1,7 +1,7 @@
 dfsane <- function (par, fn, method = 2, control = list(), 
                     quiet=FALSE, alertConvergence=TRUE, ...) 
 {
-    ctrl <- list(maxit = 1500, M = 10, tol = 1e-07, trace = TRUE, 
+    ctrl <- list(maxit = 1500, M = 10, tol = 1e-07, trace = !quiet, 
         triter = 10, noimp = 100, NM=FALSE, BFGS=FALSE)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 

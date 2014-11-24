@@ -4,6 +4,10 @@ Known problems
 	algorithm gets stuck and does not improve (so does not converge). The
 	workaround is to restart with a very slightly perturbed starting point.       
 
+Changes in GPArotation version 2014.11-1
+
+   o	Minor format and cleanup required by CRAN checks, no real changes.
+
 Changes in GPArotation version 2012.3-1
 
    o	no real changes, but bumping version for new CRAN suitability check.

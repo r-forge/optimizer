@@ -49,19 +49,24 @@
     quartimin(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
     targetT(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000)
     targetQ(L, Tmat=diag(ncol(L)), Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000)
-    pstT(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000)
-    pstQ(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, normalize=FALSE, eps=1e-5, maxit=1000)
+    pstT(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL, 
+               normalize=FALSE, eps=1e-5, maxit=1000)
+    pstQ(L, Tmat=diag(ncol(L)), W=NULL, Target=NULL,
+               normalize=FALSE, eps=1e-5, maxit=1000)
     oblimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
     entropy(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
     quartimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
     Varimax(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
-    simplimax(L, Tmat=diag(ncol(L)), k=nrow(L), normalize=FALSE, eps=1e-5, maxit=1000)
+    simplimax(L, Tmat=diag(ncol(L)), k=nrow(L), 
+               normalize=FALSE, eps=1e-5, maxit=1000)
     bentlerT(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
     bentlerQ(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
     tandemI(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
     tandemII(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)
-    geominT(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-5, maxit=1000)
-    geominQ(L, Tmat=diag(ncol(L)), delta=.01, normalize=FALSE, eps=1e-5, maxit=1000)
+    geominT(L, Tmat=diag(ncol(L)), delta=.01, 
+               normalize=FALSE, eps=1e-5, maxit=1000)
+    geominQ(L, Tmat=diag(ncol(L)), delta=.01, 
+               normalize=FALSE, eps=1e-5, maxit=1000)
     cfT(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-5, maxit=1000)
     cfQ(L, Tmat=diag(ncol(L)), kappa=0, normalize=FALSE, eps=1e-5, maxit=1000)
     infomaxT(L, Tmat=diag(ncol(L)), normalize=FALSE, eps=1e-5, maxit=1000)

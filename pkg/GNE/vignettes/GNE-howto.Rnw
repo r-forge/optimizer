@@ -34,9 +34,6 @@
 %citation
 \usepackage{natbib}
 
-%text style
-\usepackage{ulem}
-
 %reference hypertext
 \usepackage[hyperfootnotes=false]{hyperref}
 

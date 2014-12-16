@@ -254,8 +254,10 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
             }
             else {
                 if (trace > 0) 
-                  cat("UPDATE NOT POSSIBLE\n")
-                if (ig == ilast+1) keepgoing=FALSE # stop when failure on steepest descent 131202
+                  cat("UPDATE NOT POSSIBLE: ilast, ig",ilast, ig,"\n") ## JN 141215
+                if (ig == ilast+1) keepgoing=FALSE
+                if (trace > 0) cat("keepgoing = ",keepgoing,"\n")
+                # stop when failure on steepest descent 131202
                 ilast <- ig  # note gradient evaluation when update failed
             }  # D1 > 0 test
         }
@@ -284,7 +286,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         cat("Seem to be done VM\n")
     if (maximize) 
         fmin <- (-1) * fmin
-    msg <- "Rvmminb appears to have converged"
+    msg <- "Rvmminu appears to have converged"
     ans <- list(par, fmin, c(ifn, ig), convergence=conv, msg)
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message")

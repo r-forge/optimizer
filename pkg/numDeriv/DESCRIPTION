@@ -13,7 +13,7 @@ Depends: R (>= 2.11.1)
 LazyLoad: yes
 ByteCompile: yes
 License: GPL-2
-Copyright: 2006-2011, Bank of Canada. 2012-2013, Paul Gilbert
+Copyright: 2006-2011, Bank of Canada. 2012-2015, Paul Gilbert
 Author: Paul Gilbert and Ravi Varadhan
 Maintainer: Paul Gilbert <pgilbert.ttv9z@ncf.ca>
 URL: http://optimizer.r-forge.r-project.org/

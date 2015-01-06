@@ -12,7 +12,7 @@ Changes in numDeriv version 2014.2-1
    o	added argument 'side' to allow one-sided first derivatives (grad and 
    	jacobian) for simple and Richardson  methods. 
 
-   o	minor documetation improvements. 
+   o	minor documentation improvements. 
  
 
 Changes in numDeriv version 2013.2-1

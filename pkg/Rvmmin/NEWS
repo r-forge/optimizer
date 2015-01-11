@@ -8,6 +8,12 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2014-12-21 
+
+   o    As per CRAN policies, edited DESCRIPTION and NAMESPACE files. 
+	Because there is no change to code, the date of the package 
+	advanced by only 1 day.
+
 2013-10-27 
    
    o    Added maxfevals to control. (It had been there some time.)

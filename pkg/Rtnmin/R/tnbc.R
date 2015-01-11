@@ -1,4 +1,4 @@
-tnbc <- function (x, fgfun, lower, upper, ...) {
+tnbc <- function (x, fgfun, lower, upper, trace=FALSE, ...) {
 ##---------------------------------------------------------
 ## this routine solves the optimization problem
 ##
@@ -35,5 +35,5 @@ stepmx <- 10
 accrcy <- 100*eps
 ##---------------------------------------------------------
 ## return [xstar, f, g, ierror] 
-    lmqnbc(x, fgfun, lower, upper, maxit, maxfun, stepmx, accrcy)
+    lmqnbc(x, fgfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace=trace)
 }

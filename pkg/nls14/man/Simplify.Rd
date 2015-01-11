@@ -15,7 +15,8 @@ by \code{newSimplification}.
 }
 \usage{
 Simplify(expr, simpEnv = sysSimplifications, verbose = FALSE)
-newSimplification(expr, test, simplification, do_eval = FALSE, simpEnv = sysSimplifications)
+newSimplification(expr, test, simplification, do_eval = FALSE, 
+    simpEnv = sysSimplifications)
 sysSimplifications
 isFALSE(x)
 isZERO(x)

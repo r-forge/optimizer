@@ -8,6 +8,19 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2015-01-07
+
+   o    comments in codes Rvmminb.R and Rvmminu.R aligned so that the
+        differences between bounds constrained version and unconstrained
+        more easily visualized
+        
+   o    control keepinputpar explained. It is used when user does NOT want
+        out-of-bounds parameters on input moved to nearest bound. Program
+        will stop in this case.
+        
+   o    Minor changes to maxit and maxfeval defaults so that they are 
+        increased with increasing numbers of parameters.
+
 2014-12-21 
 
    o    As per CRAN policies, edited DESCRIPTION and NAMESPACE files. 

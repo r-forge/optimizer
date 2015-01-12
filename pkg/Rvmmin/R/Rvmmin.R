@@ -86,10 +86,10 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
   if (is.null(control$trace)) control$trace=0
   # check if there are bounds
   if (is.null(lower) || !any(is.finite(lower))) 
-     nolower = TRUE
+     nolower = TRUE # no lower bounds
   else nolower = FALSE
   if (is.null(upper) || !any(is.finite(upper))) 
-     noupper = TRUE
+     noupper = TRUE # no upper bounds
   else noupper = FALSE
   if (nolower && noupper && all(bdmsk == 1)) 
      bounds = FALSE
@@ -126,6 +126,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
           if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
              warning("Parameter out of bounds has been moved to nearest bound")
              control$keepinputpar <- NULL # avoid problems in subsidiary routines
+             par <- btest$bvec # save the changed parameters             
           } else stop("Parameter out of bounds")
        }
     }

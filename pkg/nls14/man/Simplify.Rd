@@ -6,6 +6,7 @@
 \alias{isZERO}
 \alias{isONE}
 \alias{isMINUSONE}
+\alias{isCALL}
 \title{
 Functions to simplify expressions.
 }
@@ -22,6 +23,7 @@ isFALSE(x)
 isZERO(x)
 isONE(x)
 isMINUSONE(x)
+isCALL(x, name)
 }
 \arguments{
   \item{expr}{
@@ -48,6 +50,9 @@ expression) to use as the simplification.
   \item{x}{
 An expression to test.
 }
+  \item{name}{
+The name of a function as a character string.
+}
 }
 \details{
 The \code{Simplify} function uses simple rules to simplify
@@ -66,6 +71,9 @@ standard rules.
 The \code{isFALSE}, \code{isZERO}, \code{isONE}, and \code{isMINUSONE}
 functions are simple functions to test whether expressions are simple constants,
 similar to \code{\link{isTRUE}}.
+
+The \code{isCALL} function tests whether an expression is a call to a particular
+function.
 
 To handle functions which act differently depending on which arguments
 are present, \code{Simplify} will simplify the expression \code{missing(.MissingVal)}

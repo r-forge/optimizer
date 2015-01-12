@@ -193,6 +193,7 @@ isFALSE <- function(x) identical(FALSE, x)
 isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0
 isONE  <- function(x) is.numeric(x) && length(x) == 1 && x == 1
 isMINUSONE <- function(x) is.numeric(x) && length(x) == 1 && x == -1
+isCALL <- function(x, name) is.call(x) && as.character(x[[1]]) == name
 
 Simplify <- function(expr, simpEnv = sysSimplifications, verbose = FALSE) {
     
@@ -338,12 +339,12 @@ newDeriv(sign(x), 0)
 
 newSimplification(+a, TRUE, a)
 newSimplification(-a, is.numeric(a), -a, do_eval = TRUE)
-newSimplification(-a, is.call(a) && length(a) == 2 && as.character(a[[1]]) == "-", quote(a)[[2]], do_eval = TRUE)
+newSimplification(-a, isCALL(a, "-") && length(a) == 2, quote(a)[[2]], do_eval = TRUE)
 
-newSimplification(exp(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "log", quote(a)[[2]], do_eval = TRUE)
+newSimplification(exp(a), isCALL(a, "log") && length(a) == 2, quote(a)[[2]], do_eval = TRUE)
 newSimplification(exp(a), is.numeric(a), exp(a), do_eval = TRUE)
 
-newSimplification(log(a), is.call(a) && length(a) == 2 && as.character(a[[1]]) == "exp", quote(a)[[2]], do_eval = TRUE)
+newSimplification(log(a), isCALL(a, "exp") && length(a) == 2, quote(a)[[2]], do_eval = TRUE)
 newSimplification(log(a), is.numeric(a), log(a), do_eval = TRUE)
 
 newSimplification(!a, isTRUE(a), FALSE)
@@ -355,6 +356,9 @@ newSimplification(a + b, isZERO(b), a)
 newSimplification(a + b, isZERO(a), b)
 newSimplification(a + b, identical(a, b), Simplify(quote(2*a)), do_eval = TRUE)
 newSimplification(a + b, is.numeric(a) && is.numeric(b), a+b, do_eval = TRUE)
+# Add these to support our error scheme, don't test for stop() everywhere.
+newSimplification(a + b, isCALL(a, "stop"), a)
+newSimplification(a + b, isCALL(b, "stop"), b)
 
 newSimplification(a - b, isZERO(b), a)
 newSimplification(a - b, isZERO(a), Simplify(quote(-b)), do_eval = TRUE)
@@ -377,7 +381,7 @@ newSimplification(a / b, is.numeric(a) && is.numeric(b), a / b, do_eval = TRUE)
 newSimplification(a ^ b, isONE(b), a)
 newSimplification(a ^ b, is.numeric(a) && is.numeric(b), a ^ b, do_eval = TRUE)
 
-newSimplification(log(a, base), is.call(a) && as.character(a[[1]]) == "exp", Simplify(call("/", quote(a)[[2]], quote(log(base)))), do_eval = TRUE)
+newSimplification(log(a, base), isCALL(a, "exp"), Simplify(call("/", quote(a)[[2]], quote(log(base)))), do_eval = TRUE)
 
 newSimplification(a && b, isFALSE(a) || isFALSE(b), FALSE)
 newSimplification(a && b, isTRUE(a), b)

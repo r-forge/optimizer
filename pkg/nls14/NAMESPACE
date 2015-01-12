@@ -29,7 +29,8 @@ export(
    isFALSE,
    isZERO,
    isONE,
-   isMINUSONE
+   isMINUSONE,
+   isCALL
 )
 
 importFrom(digest, digest)

@@ -297,7 +297,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
               conv <- 1
               changed <- FALSE
               keepgoing <- FALSE
-              break
+              break # without saving parameters
             }
             if (is.na(f) | is.null(f) | is.infinite(f)) {
               if (trace > 2) {
@@ -327,6 +327,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         }  # end while ((f >= fmin) && changed )
       }  # end if gradproj<0
       if (accpoint) {
+        fmin <- f # remember to save the value 150112
         # matrix update if acceptable point.
 #
 #
@@ -364,6 +365,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           if (trace > 1) cat("Small gradient norm\n")
           keepgoing <- FALSE
           conv <- 2
+          par <- bvec # in this case save parameters
           break
         }
         ## 150107 check on breakout

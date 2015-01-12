@@ -296,7 +296,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
               conv <- 1
               changed <- FALSE
               keepgoing <- FALSE
-              break
+              break # don't save parameters
             }
             if (is.na(f) | is.null(f) | is.infinite(f)) {
               if (trace > 2) {
@@ -326,6 +326,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
         }  # end while ((f >= fmin) && changed )
       }  # end if gradproj<0
       if (accpoint) {
+        fmin <- f # remember to save the value 150112
         # matrix update if acceptable point.
         ### if (bounds) {
         for (i in 1:n) { ## Reactivate constraints?
@@ -356,13 +357,20 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
           conv <- 1
           break
         }
-        g[which(bdmsk == 0)] <- 0  # adjust for active mask or constraint
+        cat("unconstrained gradient:") ##??
+        print(g) ##??
+        g[which(bdmsk <= 0)] <- 0  # adjust for active mask or constraint 
+        cat("  constrained gradient:") ##??
+        print(g) ##??
+        cat("par:")
+        print(bvec)
         gnorm <- sqrt(sum(g*g)) ## JN131202 
         if (trace > 0) cat("gnorm=",gnorm,"  ")
         if (gnorm < (1 + abs(fmin))*eps*eps ) {
           if (trace > 1) cat("Small gradient norm\n")
           keepgoing <- FALSE
           conv <- 2
+          par <- bvec # save good parameters
           break
         }
         ## 150107 check on breakout

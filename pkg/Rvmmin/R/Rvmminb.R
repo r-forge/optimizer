@@ -88,8 +88,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   maxit <- 500 + 2L * n
   maxfeval <- 3000 + 10L * n
   ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
-    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, checkgrad=TRUE)
-  # checkgrad not needed, but here to avoid error
+    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -122,6 +121,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   if (trace > 0) 
      cat("Rvmminb -- J C Nash 2009-2015 - an R implementation of Alg 21\n")
   bvec <- par  # copy the parameter vector
+  n <- length(bvec)  # number of elements in par vector
   if (trace > 0) {
      cat("Problem of size n=", n, "  Dot arguments:\n")
      print(fargs)
@@ -144,15 +144,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
     }
   } else { 
     mygr<-gr 
-    # analytic gradient, so check if requested
-    if (ctrl$checkgrad) { # check gradient
-       testgrad<-grchk(par, fn, gr, trace=trace, ...)
-       if (! testgrad) warning("Gradient code for Rvmmin may be faulty - check it!")
-     }
   } # end else
   ############# end test gr ####################
-  control$checkgrad<-NULL # to avoid problems in subsidiary routines
-  #############################################
   # Assume bounds already checked 150108
   f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
   if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
@@ -285,8 +278,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
           changed <- (!identical((bvec + reltest), (par + reltest)) )
           if (changed) {
             # compute new step, if possible
-            f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
-            # instead preferring to fail out, which will hopefully be unlikely.
+            f <- try(fn(bvec, ...))
+            if (class(f) == "try-error") f <- .Machine$double.xmax
             if (maximize) f <- -f
             if (trace > 2) cat("New f=",f,"\n")
             ifn <- ifn + 1
@@ -298,7 +291,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
               keepgoing <- FALSE
               break # don't save parameters
             }
-            if (is.na(f) | is.null(f) | is.infinite(f)) {
+            if (is.infinite(f)) f <- .Machine$double.xmax
+            if (is.na(f) | is.null(f) ) {
               if (trace > 2) {
                 cat("Function is not calculable at intermediate bvec:")
                 print(bvec)

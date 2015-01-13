@@ -88,8 +88,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   maxit <- 500 + 2L * n
   maxfeval <- 3000 + 10L * n
   ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
-    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, checkgrad=TRUE)
-  # checkgrad not needed, but here to avoid error
+    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -103,6 +102,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   dowarn <- ctrl$dowarn  #
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
 #################################################################
+#
 #
 #
 #
@@ -145,15 +145,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
       }
     } else { 
      mygr<-gr 
-     # analytic gradient, so check if requested
-     if (ctrl$checkgrad) { # check gradient
-        testgrad<-grchk(par, fn, gr, trace=trace, ...)
-        if (! testgrad) warning("Gradient code for Rvmmin may be faulty - check it!")
-     }
   } # end else
-  ############# end test gr ####################
-  control$checkgrad<-NULL # to avoid problems in subsidiary routines
-  #############################################
+  ############# end setup gr ####################
   #
   f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
   if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
@@ -238,10 +231,10 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           print(t)
       }
 #  space for masks and box constraints        
-      if (trace > 2) {
-          cat("adj-t:")
-          print(t)
-      }
+#      if (trace > 2) {
+#          cat("adj-t:")
+#          print(t)
+#      }
       gradproj <- sum(t * g)  # gradient projection
       if (trace > 1) 
           cat("Gradproj =", gradproj, "\n")
@@ -286,10 +279,10 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           changed <- (!identical((bvec + reltest), (par + reltest)))
           if (changed) {
             # compute new step, if possible
-            f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
-            # instead preferring to fail out, which will hopefully be unlikely.
+            f <- try(fn(bvec, ...))
+            if (class(f) == "try-error") f <- .Machine$double.xmax
             if (maximize) f <- -f
-            if (trace > 2) cat("New f=",f,"\n")
+            if (trace > 2) cat("New f=",f," lower = ",(f < fmin),"\n")
             ifn <- ifn + 1
             if (ifn > maxfeval) {
               msg <- "Too many function evaluations"
@@ -299,7 +292,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
               keepgoing <- FALSE
               break # without saving parameters
             }
-            if (is.na(f) | is.null(f) | is.infinite(f)) {
+            if (is.infinite(f)) f <- .Machine$double.xmax
+            if (is.na(f) | is.null(f) ) {
               if (trace > 2) {
                 cat("Function is not calculable at intermediate bvec:")
                 print(bvec)

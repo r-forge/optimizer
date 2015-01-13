@@ -81,7 +81,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
   #     using -3 or upper bound using -1.
   #
   #################################################################
-  #
+  npar <- length(par) # number of parameters
   # control defaults -- idea from spg
   if (is.null(control$trace)) control$trace=0
   # check if there are bounds
@@ -116,6 +116,11 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
   #############################################
   if (bounds) { 
     if (is.null(control$checkbounds)) { control$checkbounds <- TRUE }
+    if (is.null(bdmsk)) { bdmsk <- rep(1, npar) } # ensure we have bdmsk
+    if ((length(lower) == 1) && (npar > 1) ) lower <- rep(lower, npar) 
+    if ((length(upper) == 1) && (npar > 1) ) lower <- rep(upper, npar)
+    if (any(is.infinite(lower))) lower[which(is.infinite(lower))] <- -.Machine$double.xmax
+    if (any(is.infinite(upper))) upper[which(is.infinite(upper))] <-  .Machine$double.xmax
     ### Check bounds feasible
     if (control$checkbounds) {
        btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 

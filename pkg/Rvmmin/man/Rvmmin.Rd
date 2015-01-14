@@ -107,6 +107,13 @@ the method terminates.
    \item{acctol}{To adjust the acceptable point tolerance (default 0.0001) in the test
        ( f <= fmin + gradproj * steplength * acctol ). This test is used to ensure progress
        is made at each iteration. }
+   \item{stepredn}{Step reduction factor for backtrack line search (default 0.2)}
+   \item{reltest}{Additive shift for equality test (default 100.0)}
+   \item{stopbadupdate}{A logical flag that if set TRUE will halt the optimization
+                if the Hessian inverse cannot be updated after a steepest descent
+                search. This indicates an ill-conditioned Hessian. The default is
+                FALSE, which causes Rvmmin methods to be aggressive in trying to
+                optimize the function, but may waste effort.}
   }
 
   As of 2011-11-21 the following controls have been REMOVED

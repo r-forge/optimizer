@@ -18,8 +18,6 @@ showprms<-function(SS, pnum){
 pnames<-names(start)
 start<-as.numeric(start)
 names(start)<-pnames # ?? needed
-cat("Top of nlfb, start=")
-print(start)
 # bounds
 npar<-length(start) # number of parameters
 if (length(lower)==1) lower<-rep(lower,npar)
@@ -109,7 +107,7 @@ print(pnum)
     ssbest<-crossprod(resbest)
     ss0 <- ssbest # reference value for rofftest
     ssminval <- ssbest*epstol^4
-    if (trace) cat("ssminval =",ssminval,"\n")
+    if (watch) cat("ssminval =",ssminval,"\n")
     feval<-1
     pbest<-pnum
     feval<-1 # number of function evaluations
@@ -117,7 +115,7 @@ print(pnum)
     if (trace) {
        cat("Start:")
        showprms(ssbest,pnum)
-       if (watch) tmp<-readline("Continue")
+       # if (watch) tmp<-readline("Continue")
     }
     if (length(maskidx) == npar) stop("All parameters are masked") # Should we return?
     ssquares<-.Machine$double.xmax # make it big
@@ -133,7 +131,7 @@ print(pnum)
           bdmsk[maskidx]<-0
           bdmsk[which(pnum-lower<epstol*(abs(lower)+epstol))]<- -3 
           bdmsk[which(upper-pnum<epstol*(abs(upper)+epstol))]<- -1
-          if (trace && watch) {
+          if (watch) {
             cat("bdmsk:")
             print(bdmsk)
           }
@@ -152,32 +150,27 @@ print(pnum)
              if (bmi<0) {
                 if((2+bmi)*gjty[i] > 0) { # free parameter
                    bdmsk[i]<-1
-                   if (trace) cat("freeing parameter ",i," now at ",pnum[i],"\n")
+                   if (watch) cat("freeing parameter ",i," now at ",pnum[i],"\n")
                 } else {
                    gjty[i]<-0 # active bound
                    Jac[,i]<-0
-                   if (trace) cat("active bound ",i," at ",pnum[i],"\n") 
+                   if (watch) cat("active bound ",i," at ",pnum[i],"\n") 
                 }
              } # bmi
           } # end for loop
-          cat("npar =",npar,"\n")
           if (npar == 1) dee <- diag(as.matrix(sqrt(diag(crossprod(Jac)))))
           else dee <- diag(sqrt(diag(crossprod(Jac))))  # to append to Jacobian
        } # end newjac
        lamroot<-sqrt(lamda)
-       cat("Jac:")
-       print(Jac)
-       cat("dee:")
-       print(dee)
        JJ<-rbind(Jac,lamroot*dee, lamroot*phiroot*diag(npar)) # build the matrix
-       if (trace && watch) {
+       if (watch) {
          cat("JJ\n")
          print(JJ)
        }
        JQR<-qr(JJ)# ??try
        rplus<-c(resbest, rep(0,2*npar))
        roff <- max(abs(as.numeric(crossprod(qr.Q(JQR), rplus))))/ss0
-       if (trace) cat("roff =", roff,"  converged = ",(roff <= sqrt(epstol)),"\n")
+       if (watch) cat("roff =", roff,"  converged = ",(roff <= sqrt(epstol)),"\n")
        if (ctrl$rofftest && (roff <= sqrt(epstol))) roffstop <- TRUE
 #        tmp <- readline('cont')
        delta<-try(qr.coef(JQR,-rplus)) # Note appended rows of y)
@@ -191,7 +184,7 @@ print(pnum)
           gproj<-crossprod(delta,gjty)
           gangle <- gproj/sqrt(crossprod(gjty) * crossprod(delta))
           gangle <- 180 * acos(sign(gangle)*min(1, abs(gangle)))/pi
-          if (trace) cat("gradient projection = ",gproj," g-delta-angle=",gangle,"\n")
+          if (watch) cat("gradient projection = ",gproj," g-delta-angle=",gangle,"\n")
           if (is.na(gproj) || (gproj >= 0) ) { # uphill direction -- should NOT be possible
             if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
             lamda<-laminc*lamda
@@ -200,7 +193,7 @@ print(pnum)
           } else { # downhill
             delta[maskidx]<-0
             delta<-as.numeric(delta)
-            if (trace && watch) {
+            if (watch) {
               cat("delta:")
               print(delta)
             }
@@ -208,7 +201,7 @@ print(pnum)
             for (i in 1:npar){
                 bd<-bdmsk[i]
                 da<-delta[i]
-#                if (trace) cat(i," bdmsk=",bd,"  delta=",da,"\n")
+#                if (watch) cat(i," bdmsk=",bd,"  delta=",da,"\n")
                 if (bd==0 || ((bd==-3) && (da<0)) ||((bd==-1)&& (da>0))) {
                   delta[i]<-0
                 } else {
@@ -217,7 +210,7 @@ print(pnum)
                 }
             }
             stepsize<-min(1,step[which(delta!=0)])
-            if (trace) cat("Stepsize=",stepsize,"\n")
+            if (watch) cat("Stepsize=",stepsize,"\n")
             if (stepsize<.Machine$double.eps) {
               if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
               lamda<-laminc*lamda

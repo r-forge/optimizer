@@ -42,8 +42,9 @@ the default simplifications, this means that all variables should take finite
 real values.
 }
 \value{
-A language object which evaluates to an expression vector which would evaluate to, the same result
-as the original vector with less duplicated code but more storage of intermediate results.
+A language object which evaluates to an expression vector which would
+evaluate to the same result as the original vector with less 
+duplicated code but more storage of intermediate results.
 
 }
 

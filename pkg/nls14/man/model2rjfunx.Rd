@@ -6,8 +6,8 @@ Create functions to calculate the residual vector or the sum of squares, possibl
 with derivatives.
 }
 \description{
-These functions create functions to evaluate residuals or sums of squares at 
-particular parameter locations.
+Create functions to calculate the residual vector or the sum of squares, possibly
+with derivatives.
 }
 \usage{
 model2rjfunx(modelformula, pvec, data = NULL, jacobian = TRUE, testresult = TRUE, ...)

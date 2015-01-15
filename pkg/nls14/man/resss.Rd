@@ -1,6 +1,6 @@
 \name{resss}
 \alias{resss}
-\title{Compute gradient from residuals and Jacobian.
+\title{Compute sum of squares from residuals via the residual function.
 }
 \description{
    For a nonlinear model originally expressed as an expression of the form

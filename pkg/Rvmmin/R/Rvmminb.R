@@ -401,8 +401,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
           keepgoing <- FALSE  # no progress possible
           if (conv < 0) { # conv == -1 is used to indicate it is not set
             conv <- 0
-            msg <- "Converged"
-          }
+          }  
+          msg <- "Converged"
           if (trace > 0) cat(msg, "\n")
         } # end ig == ilast
         else {

@@ -103,7 +103,8 @@ repeat {
        cat("Before call, f=",f,"  task number ",itask," ")
        print(task)
       }
-      result <- .Fortran('setulb', n = as.integer(n),m = as.integer(m),
+## 20150118 change name from setulb to lbfgsb3
+      result <- .Fortran('lbfgsb3', n = as.integer(n),m = as.integer(m),
                    x = as.double(prm), l = as.double(lower), u = as.double(upper),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
                    factr = as.double(factr), pgtol = as.double(pgtol),
@@ -125,7 +126,7 @@ repeat {
       isave <- result$isave
       dsave <- result$dsave
       if (ctrl$trace > 2) {
-      cat("returned from setulb\n")
+      cat("returned from lbfgsb3\n")
       cat("returned itask is ",itask,"\n")
       task <- tasklist[itask]
       cat("changed task to ", task,"\n")

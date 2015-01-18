@@ -10,7 +10,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2015-01-15" />
+<meta name="date" content="2015-01-18" />
 
 <title>nls14 Background, Examples and Discussion</title>
 
@@ -54,11 +54,11 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">nls14 Background, Examples and Discussion</h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2015-01-15</em></h4>
+<h4 class="date"><em>2015-01-18</em></h4>
 </div>
 
 
-<p>This vignette is to explain <strong>nls14</strong>, an R package to try to bring the <strong>R</strong> function nls() up to date and to add capabilities for the extension of the symbolic and automatic derivative tools in <strong>R</strong></p>
+<p>This vignette is to explain <strong>nls14</strong>, an R package to try to bring the <strong>R</strong> function nls() up to date and to add capabilities for the extension of the symbolic and automatic derivative tools in <strong>R</strong>.</p>
 <p>A particular goal in <strong>nls14</strong> is to attempt, wherever possible, to use analytic or automatic derivatives. The function nls() uses a rather weak forward derivative approximation. A second objective is to use a Marquardt stabilization of the Gauss-Newton equations to avoid the commonly encountered “singular gradient” failure of nls(). This refers to the loss of rank of the Jacobian at the parameters for evaluation. The particular stabilization also incorporates a very simple trick to avoid very small diagonal elements of the Jacobian inner product, though in the present implementations, this is accomplished indirectly. See the section below <strong>Implementation of method</strong></p>
 <p>A large part of the work of this package was carried out by Duncan Murdoch. Without his input, much of the capability of the package would not exist.</p>
 <p>The package and this vignette are a work in progress, and assistance and examples are welcome.</p>
@@ -68,42 +68,24 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <h4>coef.nls14</h4>
 <p>extracts and displays the coefficients for a model estimated by nlxb() or nlfb() in the nls14 structured object.</p>
 </div>
-<div id="deriv" class="section level4">
-<h4>Deriv</h4>
-</div>
-<div id="fnderiv" class="section level4">
-<h4>fnDeriv</h4>
-</div>
-<div id="newderiv" class="section level4">
-<h4>newDeriv</h4>
+<div id="deriv-fnderiv-newderiv" class="section level4">
+<h4>Deriv, fnDeriv, newDeriv</h4>
 <p>Functions <strong>Deriv</strong> and <strong>fnDeriv</strong> are designed as replacements for the stats package functions <strong>D</strong> and <strong>deriv</strong> respectively, though the argument lists do not match exactly.</p>
 </div>
 <div id="findsubexprs" class="section level4">
 <h4>findSubexprs</h4>
 <p>This function finds common subexpressions in an expression vector so that duplicate computation can be avoided.</p>
 </div>
-<div id="model2rjfun" class="section level4">
-<h4>model2rjfun</h4>
-</div>
-<div id="model2ssgrfun" class="section level4">
-<h4>model2ssgrfun</h4>
-</div>
-<div id="modelexpr" class="section level4">
-<h4>modelexpr</h4>
+<div id="model2rjfun-model2ssgrfun-modelexpr" class="section level4">
+<h4>model2rjfun, model2ssgrfun, modelexpr</h4>
 <p>These functions create functions to evaluate residuals or sums of squares at particular parameter locations.</p>
 </div>
-<div id="model2rjfunx" class="section level4">
-<h4>model2rjfunx</h4>
-</div>
-<div id="model2ssgrfunx" class="section level4">
-<h4>model2ssgrfunx</h4>
+<div id="model2rjfunx-model2ssgrfunx" class="section level4">
+<h4>model2rjfunx, model2ssgrfunx</h4>
 <p>These functions create functions to evaluate residuals or sums of squares at particular parameter locations. The attempt is to have dot-args available. This is experimental.</p>
 </div>
-<div id="modeldoc" class="section level4">
-<h4>modeldoc</h4>
-</div>
-<div id="print.modeldoc" class="section level4">
-<h4>print.modeldoc</h4>
+<div id="modeldoc-print.modeldoc" class="section level4">
+<h4>modeldoc, print.modeldoc</h4>
 <p>Output a description of the model and the data that was used at the time of its creation to the console and optionally to a file. The purpose of this function is to provide a record of the details underlying the function</p>
 </div>
 <div id="nlfb" class="section level4">
@@ -130,26 +112,8 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <h4>resss</h4>
 <p>For a nonlinear model originally expressed as an expression of the form lhs ~ formula_for_rhs assume we have a resfn and jacfn that compute the residuals and the Jacobian at a set of parameters. This routine computes the gradient, that is, t(Jacobian) %*% residuals.</p>
 </div>
-<div id="newsimplification" class="section level4">
-<h4>newSimplification</h4>
-</div>
-<div id="simplify" class="section level4">
-<h4>Simplify</h4>
-</div>
-<div id="syssimplifications" class="section level4">
-<h4>sysSimplifications</h4>
-</div>
-<div id="isfalse" class="section level4">
-<h4>isFALSE</h4>
-</div>
-<div id="iszero" class="section level4">
-<h4>isZERO</h4>
-</div>
-<div id="isone" class="section level4">
-<h4>isONE</h4>
-</div>
-<div id="isminusone" class="section level4">
-<h4>isMINUSONE</h4>
+<div id="newsimplification-simplify-syssimplifications-isfalse-iszero-isone-isminusone" class="section level4">
+<h4>newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE</h4>
 <p>Functions to simplify expressions.  simplifies expressions according to rules specified by .</p>
 </div>
 <div id="summary.nls14" class="section level4">
@@ -166,21 +130,25 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="implementation-of-method" class="section level2">
 <h2>Implementation of method</h2>
 <p>Nonlinear least squares methods are mostly founded on some or other variant of the Gauss-Newton algorithm. The function we wish to minimize is the sum of squares of the (nonlinear) residuals r(x) where there are m observations (elements of r) and n parameters x. Hence the function is</p>
-<p>f(x) = sum(r(k)^2)</p>
+<pre><code>f(x) = sum(r(k)^2)</code></pre>
 <p>Newton’s method starts with an original set of parameters x[0]. At a given iteraion, which could be the first, we want to solve</p>
-<p>x[k+1] = x[k] - H^(-1) g</p>
-<p>where H is the Hessian and g is the gradient at x[k]. We can rewrite this as a solution, at each iteration, of H delta = -g with x[k+1] = x[k] + delta</p>
+<pre><code>x[k+1]  =  x[k]  -   H^(-1) g</code></pre>
+<p>where H is the Hessian and g is the gradient at x[k]. We can rewrite this as a solution, at each iteration, of</p>
+<pre><code>H delta = -g</code></pre>
+<p>with</p>
+<pre><code>x[k+1]  =  x[k] + delta
+     </code></pre>
 <p>For the particular sum of squares, the gradient is</p>
-<pre><code>     g(x) = 2 * r(k)</code></pre>
+<pre><code>g(x) = 2 * r(k)</code></pre>
 <p>and</p>
-<pre><code>     H(x) = 2 ( J' J  +  sum(r * Z))</code></pre>
+<pre><code>H(x) = 2 ( J' J  +  sum(r * Z))</code></pre>
 <p>where J is the Jacobian (first derivatives of r w.r.t. x) and Z is the tensor of second derivatives of r w.r.t. x). Note that J’ is the transpose of J.</p>
 <p>The primary simplification of the Gauss-Newton method is to assume that the second term above is negligible. As there is a common factor of 2 on each side of the Newton iteration after the simplification of the Hessian, the Gauss-Newton iteration equation is</p>
-<pre><code>       J' J  delta = - J' r
+<pre><code>J' J  delta = - J' r
        </code></pre>
 <p>This iteration frequently fails. The approximation of the Hessian by the Jacobian inner-product is one reason, but there is also the possibility that the sum of squares function is not “quadratic” enough that the unit step reduces it. Hartley introduced a line search along delta, while Marquardt suggested replacing J’ J with (J’ J + lambda * D) where D is a diagonal matrix intended to partially approximate the omitted portion of the Hessian.</p>
 <p>Marquardt suggested D = I (a unit matrix) or D = (diagonal part of J’ J). The former approach, when lambda is large enough that the iteration is essentially</p>
-<pre><code>  delta = - g / lambda
+<pre><code>delta = - g / lambda
   </code></pre>
 <p>we get a version of the steepest descents algorithm. Using the diagonal of J’ J, we have a scaled version of this (see <a href="http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm">http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm</a>)</p>
 <p>Nash (1977) ??ref?? found that on low precision machines, it was common for diagonal elements of J’ J to underflow. A very small modification to solve</p>
@@ -198,7 +166,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 </div>
 <div id="derivatives-table" class="section level2">
 <h2>Derivatives table</h2>
-<p>Note that this derivatives table is accomplished by example. We would like to have as many examples of different ways to use the tools as possible in order to provide a good understanding of the tools and their appropriate usage. In particular we want to know of errors. We compare the derivative tools Deriv() and fnDeriv() with the stats package tools D(), deriv() and deriv3().</p>
+<p>Note that this derivatives table is accomplished by example. We would like to have as many examples of different ways to use the tools as possible in order to provide a good understanding of the tools and their appropriate usage. In particular we want to know of errors. We compare the derivative tools Deriv() and fnDeriv() with the <strong>stats</strong> package tools D(), deriv() and deriv3().</p>
 <p>See specific notes either in comments or at the end.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nls14)
 
@@ -216,6 +184,9 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Following generates a very long line on output of knitr (for markdown)</span>
+<span class="kw">class</span>(new)</code></pre>
+<pre><code>## [1] &quot;{&quot;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(new)</code></pre>
 <pre><code>##  language {  .value &lt;- 1 + x + y; .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;x&quot;, &quot;y&quot;; ))); .grad[, &quot;x&quot;] &lt;- 1; .grad[, &quot;y&quot;] &lt;- 1; attr(.value, &quot;gradient&quot;) &lt;- .grad; .value }</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.expression</span>(new)</code></pre>
@@ -238,11 +209,38 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(old)</code></pre>
+<pre><code>## [1] &quot;expression&quot;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(old)</code></pre>
 <pre><code>##   expression({     .value &lt;- 1 + x + y     .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;x&quot;, &quot;y&quot;)))     .grad[, &quot;x&quot;] &lt;- 1     .grad[, &quot;y&quot;] &lt;- 1     attr(.value, &quot;gradient&quot;) &lt;- .grad     .value })</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre>
+<p>Unfortunately, the inputs and outputs are not always easily transformed so that the symbolic derivatives can be found. (?? Need to codify this and provide filters so we can get things to work nicely.)</p>
+<p>As an example, how could we take object <strong>new</strong> and embed it in a function we can then use in <strong>R</strong>? We can certainly copy and paste the output into a function template, as follows,</p>
+<pre class="sourceCode r"><code class="sourceCode r">fnfromnew &lt;-<span class="st"> </span>function(x,y){
+    .value &lt;-<span class="st"> </span><span class="dv">1</span> +<span class="st"> </span>x +<span class="st"> </span>y
+    .grad &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(<span class="kw">length</span>(.value), 2L), <span class="kw">list</span>(<span class="ot">NULL</span>, <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, 
+    <span class="st">&quot;y&quot;</span>)))
+    .grad[, <span class="st">&quot;x&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
+    .grad[, <span class="st">&quot;y&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
+    <span class="kw">attr</span>(.value, <span class="st">&quot;gradient&quot;</span>) &lt;-<span class="st"> </span>.grad
+    .value
+}
+
+<span class="kw">print</span>(<span class="kw">fnfromnew</span>(<span class="dv">3</span>,<span class="dv">5</span>))</code></pre>
+<pre><code>## [1] 9
+## attr(,&quot;gradient&quot;)
+##      x y
+## [1,] 1 1</code></pre>
+<p>However, we would ideally like to be able to automate this to generate functions and gradients for nonlinear least squares and optimization calculations.</p>
+<pre class="sourceCode r"><code class="sourceCode r">## Try different ways to supply the log function
+aDeriv &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
+<span class="kw">class</span>(aDeriv)</code></pre>
+<pre><code>## [1] &quot;call&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">aDeriv</code></pre>
 <pre><code>## 1/x</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>( ~<span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">aderiv &lt;-<span class="st"> </span><span class="kw">deriv</span>( ~<span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
+<span class="kw">class</span>(aderiv)</code></pre>
+<pre><code>## [1] &quot;expression&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">aderiv</code></pre>
 <pre><code>## expression({
 ##     .value &lt;- log(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -250,15 +248,35 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">aD &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
+<span class="kw">class</span>(aD)</code></pre>
+<pre><code>## [1] &quot;call&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">aD</code></pre>
 <pre><code>## 1/x</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;but </span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
 <pre><code>## but</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>( <span class="st">&quot;~ log(x)&quot;</span>, <span class="st">&quot;x&quot;</span>) <span class="co"># fails -- gives NA rather than expected answer due to quotes</span></code></pre>
 <pre><code>## [1] NA</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">D</span>( ~<span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>))
-
-<span class="kw">Deriv</span>(<span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>), <span class="st">&quot;x&quot;</span> ) <span class="co"># OK</span></code></pre>
+interm &lt;-<span class="st"> </span><span class="er">~</span><span class="st"> </span><span class="kw">log</span>(x)
+interm</code></pre>
+<pre><code>## ~log(x)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(interm)</code></pre>
+<pre><code>## [1] &quot;formula&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">interme &lt;-<span class="st"> </span><span class="kw">as.expression</span>(interm)
+<span class="kw">class</span>(interme)</code></pre>
+<pre><code>## [1] &quot;expression&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">D</span>(interme, <span class="st">&quot;x&quot;</span>))
+<span class="kw">try</span>(<span class="kw">deriv</span>(interme, <span class="st">&quot;x&quot;</span>))
+<span class="kw">try</span>(<span class="kw">deriv</span>(interm, <span class="st">&quot;x&quot;</span>))</code></pre>
+<pre><code>## expression({
+##     .value &lt;- log(x)
+##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
+##     .grad[, &quot;x&quot;] &lt;- 1/x
+##     attr(.value, &quot;gradient&quot;) &lt;- .grad
+##     .value
+## })</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(<span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>), <span class="st">&quot;x&quot;</span> ) <span class="co"># OK</span></code></pre>
 <pre><code>## 1/(x * 1.09861228866811)</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>)), <span class="st">&quot;x&quot;</span> )) <span class="co"># fails - only single-argument calls supported</span>
 <span class="kw">try</span>(<span class="kw">deriv</span>(~<span class="st"> </span><span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>), <span class="st">&quot;x&quot;</span> )) <span class="co"># fails - only single-argument calls supported</span>
@@ -937,7 +955,7 @@ anls14xb1  &lt;-<span class="st">  </span><span class="kw">try</span>(<span clas
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x2f67f78&gt;
+## &lt;environment: 0x3f0d3a0&gt;
 ## Starting pnum=b1 b2 b3 
 ##  1  1  1 
 ## Start:lamda: 1e-04  SS= 23520.58  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
@@ -1042,7 +1060,7 @@ anlsf1 &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="k
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x23de2c0&gt;
+## &lt;environment: 0x3b18cb8&gt;
 ## Starting pnum= b1  b2  b3 
 ## 1.0 1.0 0.1 
 ## Start:lamda: 1e-04  SS= 23756  at  b1 = 1  b2 = 1  b3 = 0.1  1 / 0
@@ -1074,6 +1092,75 @@ svals &lt;-<span class="st"> </span><span class="kw">svd</span>(jf1)$d
 <span class="kw">print</span>(svals)</code></pre>
 <pre><code>## [1] 3.4641e+00 5.0146e-11 6.4267e-27</code></pre>
 <p>Here we see that the Jacobian is only rank 1, even though there are 3 coefficients. It is therefore not surprising that our nonlinear least squares program has concluded we are unable to make further progress.</p>
+</div>
+<div id="nonlinear-least-squares-with-functions" class="section level3">
+<h3>Nonlinear least squares with functions</h3>
+<p>We can run the same example as above using <strong>R</strong> functions rather than expressions, but now we need to have a gradient function as well as one to compute residuals. <strong>nls14</strong> has tools to create these functions from expressions, as we shall see here. First we again set up the data and load the package.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nls14)
+traceval &lt;-<span class="st"> </span><span class="ot">FALSE</span>
+<span class="co"># Data for Hobbs problem</span>
+ydat  &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="fl">5.308</span>, <span class="fl">7.24</span>, <span class="fl">9.638</span>, <span class="fl">12.866</span>, <span class="fl">17.069</span>, <span class="fl">23.192</span>, <span class="fl">31.443</span>, 
+          <span class="fl">38.558</span>, <span class="fl">50.156</span>, <span class="fl">62.948</span>, <span class="fl">75.995</span>, <span class="fl">91.972</span>) <span class="co"># for testing</span>
+tdat  &lt;-<span class="st">  </span><span class="kw">seq_along</span>(ydat) <span class="co"># for testing</span>
+
+<span class="co"># A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.</span>
+start1  &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="dt">b1=</span><span class="dv">1</span>, <span class="dt">b2=</span><span class="dv">1</span>, <span class="dt">b3=</span><span class="dv">1</span>)
+
+eunsc  &lt;-<span class="st">   </span>y ~<span class="st"> </span>b1/(<span class="dv">1</span>+b2*<span class="kw">exp</span>(-b3*tt))
+
+<span class="kw">cat</span>(<span class="st">&quot;LOCAL DATA IN DATA FRAMES</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## LOCAL DATA IN DATA FRAMES</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">weeddata1  &lt;-<span class="st">  </span><span class="kw">data.frame</span>(<span class="dt">y=</span>ydat, <span class="dt">tt=</span>tdat)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">weedrj &lt;-<span class="st"> </span><span class="kw">model2rjfun</span>(<span class="dt">modelformula=</span>eunsc, <span class="dt">pvec=</span>start1, <span class="dt">data=</span>weeddata1)</code></pre>
+<pre><code>## model2rjfun: modelformula = y ~ b1/(1 + b2 * exp(-b3 * tt))
+## [1] &quot;formula&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">weedrj</code></pre>
+<pre><code>## function (prm) 
+## {
+##     if (is.null(names(prm))) 
+##         names(prm) &lt;- names(pvec)
+##     localdata &lt;- list2env(as.list(prm), parent = data)
+##     eval(residexpr, envir = localdata)
+## }
+## &lt;environment: 0x2fbc5f8&gt;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">modeldoc</span>(weedrj) <span class="co"># Note how useful this is to report status</span></code></pre>
+<pre><code>## FUNCTION weedrj 
+## Formula: y ~ b1/(1 + b2 * exp(-b3 * tt))
+## Code:        expression({
+##     .expr3 &lt;- exp(-b3 * tt)
+##     .expr5 &lt;- 1 + b2 * .expr3
+##     .expr10 &lt;- .expr5^2
+##     .value &lt;- b1/.expr5 - y
+##     .grad &lt;- array(0, c(length(.value), 3L), list(NULL, c(&quot;b1&quot;, 
+##         &quot;b2&quot;, &quot;b3&quot;)))
+##     .grad[, &quot;b1&quot;] &lt;- 1/.expr5
+##     .grad[, &quot;b2&quot;] &lt;- -(b1 * .expr3/.expr10)
+##     .grad[, &quot;b3&quot;] &lt;- b1 * (b2 * (.expr3 * tt))/.expr10
+##     attr(.value, &quot;gradient&quot;) &lt;- .grad
+##     .value
+## })
+## Parameters:   b1, b2, b3 
+## Data:         y, tt 
+## 
+## VALUES
+## Observations:     12 
+## Parameters:
+## b1 b2 b3 
+##  1  1  1 
+## Data (length 12):
+##         y tt
+## 1   5.308  1
+## 2   7.240  2
+## 3   9.638  3
+## 4  12.866  4
+## 5  17.069  5
+## 6  23.192  6
+## 7  31.443  7
+## 8  38.558  8
+## 9  50.156  9
+## 10 62.948 10
+## 11 75.995 11
+## 12 91.972 12</code></pre>
 <div id="check-modelexpr-works-with-an-ssgrfun" class="section level4">
 <h4>check modelexpr() works with an ssgrfun ??</h4>
 </div>

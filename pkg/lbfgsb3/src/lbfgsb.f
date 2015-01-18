@@ -44,7 +44,9 @@ c
 c                        March  2011    
 c                                                 
 c============================================================================= 
-      subroutine setulb(n, m, x, l, u, nbd, f, g, factr, pgtol, wa, iwa,
+c JN 20150118 change name setulb to lbfgsb3
+c      subroutine setulb(n, m, x, l, u, nbd, f, g, factr, pgtol, wa, iwa,
+      subroutine lbfgsb3(n, m, x, l, u, nbd, f, g, factr, pgtol, wa, iwa,
      +                 itask, iprint, icsave, lsave, isave, dsave)
  
       logical          lsave(4)
@@ -57,7 +59,7 @@ c-jlm-jn
  
 c     ************
 c
-c     Subroutine setulb
+c     Subroutine lbfgsb3
 c
 c     This subroutine partitions the working arrays wa and iwa, and 
 c       then uses the limited memory BFGS method to solve the bound
@@ -297,7 +299,7 @@ cw      write(6,*) " itask on return is ",itask
 
       end
 
-c======================= The end of setulb =============================
+c======================= The end of lbfgsb3 =============================
 c mainlb here
  
       subroutine mainlb(n, m, x, l, u, nbd, f, g, factr, pgtol, ws, wy,

@@ -46,9 +46,9 @@ c
 c============================================================================= 
 c JN 20150118 change name setulb to lbfgsb3
 c      subroutine setulb(n, m, x, l, u, nbd, f, g, factr, pgtol, wa, iwa,
-      subroutine lbfgsb3(n, m, x, l, u, nbd, f, g, factr, pgtol, wa, iwa,
-     +                 itask, iprint, icsave, lsave, isave, dsave)
- 
+      subroutine lbfgsb3(n, m, x, l, u, nbd, f, g, factr, pgtol, wa,
+     +                iwa, itask, iprint, icsave, lsave, isave, dsave)
+c Berend noted earlier format beyond column 72 
       logical          lsave(4)
       integer          n, m, iprint, itask, icsave,
      +                 nbd(n), iwa(3*n), isave(44)
@@ -1933,7 +1933,7 @@ c======================= The end of cmprlb =============================
       subroutine errclb(n, m, factr, l, u, nbd, itask, info, k)
  
 c      character*255     task
-      integer          n, m, info, k, nbd(n)
+      integer          n, m, itask, info, k, nbd(n)
       double precision factr, l(n), u(n)
 
 c     ************

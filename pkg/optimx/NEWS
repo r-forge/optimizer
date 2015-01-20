@@ -1,22 +1,27 @@
 NEWS about R package optimx
 
 TODO
-      o Rvmmin gives warning when called with no gradient. 
-        Use control "usenumDeriv=TRUE" to overcome this. 130411
+     
 
-      o The bdmsk vector is set clumsily for Rvmmin.
-
-      o itnmax / maxit appear to have a glitch from NashJSS2012 script.
-
-VERSION 2013-10-27
+VERSION 2013-08-08
+      o Attempt to sort out Rvmmin and Rcgmin no gradient failures
       
-      o Fix obscure bug when Inf specified for one bound only for Rvmmin.
+      o Fix for nlm calls which sometimes failed due to inappropriate
+        control settings and failure to clear (NULL) temporary settings.
 
-VERSION 2013-10-21
-      
-      o Keep hessOK TRUE even if we must symmetrize Hessian.
+VERSION 2013-08-07
 
-      o Fix issue that gr=NULL did not use "grfwd" for Rvmmin, Rcgmin
+      o Moved optimizer packages to Imports and removed require() calls to
+	satisfy R 3.1.2.
+
+      o This version is artificial! It is the version of 2013-08-06 with an 
+	updated CITATION and minor fixes to satisfy NAMESPACE requirements.
+	A new optimx is in process with quite sweeping changes that may or
+	may not result in changed behaviour and usage. (JN 2014-09-04).
+
+      o Failure to have the following packages installed may give rise to 
+	diagnostic messages that can be confusing: Rvmmin, Rcgmin, ucminf,
+	minqa, BB, and dfoptim.
 
 VERSION 2013-08-02
 

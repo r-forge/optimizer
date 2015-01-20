@@ -1,3 +1,15 @@
+import(
+  "numDeriv",
+  "ucminf",
+  "BB",
+  "Rcgmin",
+  "Rvmmin",
+  "minqa",
+  "setRNG",
+  "dfoptim",
+  "svUnit"
+)
+
 export(
   "optimx",
   "coef<-"
@@ -8,5 +20,4 @@ S3method("coef", "optimx")
 S3method("coef<-", "optimx")
 S3method("summary", "optimx")
 
-import(optextras)
-import(numDeriv)
+

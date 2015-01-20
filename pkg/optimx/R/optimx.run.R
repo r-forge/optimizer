@@ -21,12 +21,12 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   row.names(ans.ret)<-method
   ans.details <- list()
   ansout <- NULL # ensure NULL if we have no parameters or no successes
-# if (is.null(ugr)) stop("Cannot have null ugr() in optimx.run")
-  numgrad<-FALSE
-  # 130924 -- need to fix -- some methods can handle null gradient
   for (i in 1:nmeth) { # loop over the methods
       meth <- method[i] # extract the method name
       conv <- -1 # indicate that we have not yet converged
+#      cat("optimx.run with method ",meth," ctrl:")
+#      tmp <- readline("CONTINUE")
+#     print(ctrl)
       # 20100608 - take care of polyalgorithms
       if (! is.null(itnmax) ) {
 	if (length(itnmax) == 1) {ctrl$maxit <- itnmax} # Note we will execute this FIRST
@@ -60,6 +60,11 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
 #       if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now 
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
+
+#        cat("optim() par:")
+#        print(par)
+
+
         time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
                 method=meth, control=mcontrol, ...), silent=TRUE))[1]
         # The time is the index=1 element of the system.time for the process, 
@@ -129,30 +134,28 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (meth == "nlm") { # Use stats package nlm routine
-        tufn <- ufn # we don't want to change the user function object, so create a copy
+        tufn <- ufn # don't want to change user function object, so create copy
         if (!is.null(ugr)) {
 	   attr(tufn, "gradient") <- ugr(par, ...) 
            if (!is.null(uhess)) {
-##		if (ctrl$maximize) attr(tufn, "hessian") <- - uhess(par, ...) # Only change attibute if gr defined too
-##			else attr(tufn, "hessian") <-  uhess(par, ...)
 		attr(tufn, "hessian") <-  uhess(par, ...)
            } else attr(tufn, "hessian") <- NULL
-        }
+        } 
 	## 091215 added control for iteration limit
-	if (! is.null(mcontrol$maxit)) { iterlim<-mcontrol$maxit } 
-	else { 
-		iterlim = 100 
-		mcontrol$maxit<-NULL # and remove it for this method
+	if (! is.null(mcontrol$maxit)) { 
+	    iterlim<-mcontrol$maxit 
+            mcontrol$maxit<-NULL # and remove it for this method- fix150120
+        } else { # null -- had wrong way round
+	    iterlim = 100 # default
 	}
-	if (! is.null(mcontrol$trace)) { print.level<-0 }
-	else {
-		print.level<-mcontrol$trace
-		mcontrol$trace<-NULL
+	if (is.null(mcontrol$trace)) { print.level<-0 }
+	else { # fixed below in call which used to be to mcontrol$trace 150120
+	  print.level<-mcontrol$trace 
+	  mcontrol$trace<-NULL
 	}
-
 # 110121 -- need to put tufn NOT ufn in call 
-#        time <- system.time(ans <- try(nlm(f=ufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
-        time <- system.time(ans <- try(nlm(f=tufn, p=par, ..., iterlim=iterlim, print.level=mcontrol$trace), silent=TRUE))[1]
+        time <- system.time(ans <- try(nlm(f=tufn, p=par, ...,
+           iterlim=iterlim, print.level=print.level), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$code
 		if (ans$convcode == 1 || ans$convcode == 2 || ans$convcode == 3) ans$convcode <- 0
@@ -175,9 +178,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         	ans$gevals<-NA 
         	ans$nitns<-NA
 	}
-##	if (ctrl$maximize) {
-##		ans$value= -ans$value
-##	}
       } # end if using nlm
 ## --------------------------------------------
       else if (meth == "spg") { # Use BB package routine spg as minimizer
@@ -252,17 +252,19 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
 ###### progress point #########
       else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
-##	bdmsk<-rep(1,npar)
-	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
+	bdmsk<-rep(1,npar)
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
+	tugr <- ugr
+	if (is.null(ugr)){
+                 tugr <- "grfwd"
+	         if (ctrl$trace>0) cat("Rcgmin using grfwd\n")
+        }	     
 	if (have.bounds) {
-           if (is.null(ugr)) ugr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=ugr, lower=lower,
-                upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+   	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
+		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-           if (is.null(ugr)) ugr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=ugr, 
+   	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") {
@@ -285,22 +287,27 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rcgmin
 ## --------------------------------------------
 ###### progress point #########
-      else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
-##	bdmsk<-rep(1,npar) ## 131027
-	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
+      else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
+	bdmsk<-rep(1,npar)
 	mcontrol$trace<-NULL
 	if (ctrl$trace>0) mcontrol$trace<-1
-	if (have.bounds) {
-           if (is.null(ugr)) ugr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=ugr, lower=lower,
-                upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
-	} else {
-           if (is.null(ugr)) ugr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=ugr, 
-		control=mcontrol, ...), silent=TRUE))[1]
+	tugr <- ugr
+        if (is.null(ugr)){
+                 tugr <- "grfwd"
+	         if (ctrl$trace>0) cat("Rvmmin using grfwd\n")
 	}
-##        if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
-        if (class(ans)[1] != "try-error") {
+	if (have.bounds) {
+   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
+		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+	} else {
+	   cat("Calling Rvmminu with parameters:")
+	   print(par)
+   	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=tugr, 
+		control=mcontrol, ...), silent=TRUE))[1]
+           print(ans)
+           cat("above is return from Rvmminu\n")
+	}
+        if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
@@ -445,10 +452,27 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          mcontrol$maximize<-NULL
          mcontrol$parscale<-NULL
          mcontrol$fnscale<-NULL
+#         cat("nmkb mcontrol\n")
+#        print(mcontrol)
+#        cat("nmkb par:")
+#        print(par)
+#         if (have.bounds) {
+#            time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
+#              upper = upper, control=mcontrol, ...), silent=TRUE))[1]
+#         } else {
+#            time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
+#              control=mcontrol, ...), silent=TRUE))[1]
+#         }
          if (have.bounds) {
             time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
               upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
+## this worked when control=mcontrol did not
+##            time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
+##              control=list(trace=TRUE), ...)))[1]
+## as.list did not work
+#           print(str(mcontrol))
+#           print(class(mcontrol))
             time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
               control=mcontrol, ...), silent=TRUE))[1]
          }
@@ -506,13 +530,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
-#            cat("call hjk with function ",deparse(substitute(ufn)),"\n")
-#            cat("F(par)=",ufn(par, ...), " for par =")
-#            print(par)
-#            print(mcontrol)
             time <- system.time(ans <- try(hjk(par=par, fn=ufn, 
                 control=mcontrol, ...), silent=TRUE))[1]
-#            print(ans)
          }
          if (class(ans)[1] != "try-error") {
             ans$convcode <- ans$convergence

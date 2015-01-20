@@ -42,6 +42,7 @@ ctrl <- list(maxit = 500, trace = 0, iprint = 0L)
 
 # Here expand control list, but for moment leave alone
       iprint <- as.integer(ctrl$iprint)
+      cat("In R wrapper, iprint is ",iprint,"\n")
       factr <- 1.0e+7
       pgtol <- 1.0e-5
       nmax <- 1024L
@@ -59,7 +60,6 @@ isave<-rep(0L,44)
 iwa<-rep(0L, 3*nmax)
 csave<-"" # note char strings are 255 automatically
 
-
 if (length(lower) == 1) lower <- rep(lower, n)
 if (length(upper) == 1) upper <- rep(upper, n)
 
@@ -75,11 +75,11 @@ for (i in 1:n) {
    } else { if (is.finite(upper[i])) {
               nbd[i] <- 3
               lower[i] <- -bigval
-            } else {
+          } else {
               nbd[i] <- 0 
               upper[i] <- bigval
               lower[i] <- -bigval
-                 }
+          }
    }
 }
 ## cat("nbd:")
@@ -103,8 +103,11 @@ repeat {
        cat("Before call, f=",f,"  task number ",itask," ")
        print(task)
       }
+      cat("check value of itask before call =",itask,"\n") # ??
+      cat("check value of iprint before call =",iprint,"\n") # ??
+      
 ## 20150118 change name from setulb to lbfgsb3
-      result <- .Fortran('lbfgsb3', n = as.integer(n),m = as.integer(m),
+      result <- .Fortran('lbfgsb3', n = as.integer(n), m = as.integer(m),
                    x = as.double(prm), l = as.double(lower), u = as.double(upper),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
                    factr = as.double(factr), pgtol = as.double(pgtol),

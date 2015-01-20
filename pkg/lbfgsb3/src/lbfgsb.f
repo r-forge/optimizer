@@ -244,6 +244,8 @@ cj      integer ia(10)
 
 cj       ia(1) = itask
 cj      call intpr('  The incoming task no. is ', -1, itask, 1)
+      call intpr('  The incoming task no. is ', -1, itask, 1)
+      call intpr('  The incoming iprint value is ', -1, iprint, 1)
 cw      write(6,*) '  The incoming task no. is ', itask
       if ((itask .lt. 1) .or. (itask .gt. 26)) then
         call intpr("TASK NOT IN VALID RANGE", -1, 0,0)
@@ -4262,4 +4264,3 @@ c     Compute the new step.
 
       return
       end
-      

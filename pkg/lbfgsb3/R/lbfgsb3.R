@@ -4,7 +4,7 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
 # ?? need to add controls
 # if (is.null(gr)) require(numDeriv) # eventually change to "grfwd" etc.
 # interface to Fortran Lbfgsb.3.0
-
+## 150121 There is currently no limit on function or gradient evaluations
 
     tasklist <- c('NEW_X', 'START', 'STOP', 'FG',  # 1-4
        'ABNORMAL_TERMINATION_IN_LNSRCH', 'CONVERGENCE', #5-6

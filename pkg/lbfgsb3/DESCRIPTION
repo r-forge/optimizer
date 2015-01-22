@@ -2,8 +2,8 @@ Package: lbfgsb3
 Type: Package
 Title: Interfacing to Nocedal LBFGSB.3.0 limited memory BFGS 
 	minimizer with bounds on parameters.
-Version: 2015-1.14
-Date: 2015-01-14
+Version: 2015-1.21
+Date: 2015-01-21
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
               c("aut", "cre"), email = "nashjc@uottawa.ca"))
 Description: Interfacing to Nocedal et al. L-BFGS-B.3.0 (2011) limited

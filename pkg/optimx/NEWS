@@ -3,6 +3,9 @@ NEWS about R package optimx
 TODO
      
 
+VERSION 2015-01-21
+      o Added lbfgsb3, the 2011 version of this code.
+
 VERSION 2013-08-08
       o Attempt to sort out Rvmmin and Rcgmin no gradient failures
       

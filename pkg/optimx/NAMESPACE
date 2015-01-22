@@ -7,7 +7,8 @@ import(
   "minqa",
   "setRNG",
   "dfoptim",
-  "svUnit"
+  "svUnit",
+  "lbfgsb3"
 )
 
 export(

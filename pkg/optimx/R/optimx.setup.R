@@ -128,7 +128,6 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #    the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #    for smooth functions. Code left in for those who may need it.
   # List of methods in packages. 
-  allmeth <- bmeth
 # Now make sure methods loaded
    allmeth <- bmeth # start with base methods
    testload <- TRUE # This is a temporary fix for NAMESPACE changes in R 3.1.2
@@ -157,7 +156,12 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    if (testload)  allmeth<-c(allmeth,"nmkb", "hjkb")
    else if (ctrl$trace>0) { warning("Package `dfoptim' Not installed", call.=FALSE) }
    
-   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb")
+#   testload <- suppressWarnings(require(lbfgsb3, quietly=TRUE))
+   if (testload)  allmeth<-c(allmeth,"lbfgsb3")
+   else if (ctrl$trace>0) { warning("Package `lbfgsb3' Not installed", call.=FALSE) }
+   
+   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", 
+                 "nmkb", "hjkb", "lbfgsb3")
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
   if (ctrl$all.methods) { # Changes method vector!

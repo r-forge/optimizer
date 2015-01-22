@@ -290,7 +290,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
 	bdmsk<-rep(1,npar)
 	mcontrol$trace<-NULL
-	if (ctrl$trace>0) mcontrol$trace<-1
+	if (ctrl$trace>0) mcontrol$trace <- 1
 	tugr <- ugr
         if (is.null(ugr)){
                  tugr <- "grfwd"
@@ -300,12 +300,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
    	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
 		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-	   cat("Calling Rvmminu with parameters:")
-	   print(par)
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
-           print(ans)
-           cat("above is return from Rvmminu\n")
 	}
         if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
 		ans$convcode <- ans$convergence
@@ -320,6 +316,45 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		ans$par<-rep(NA,npar)
                 ans$convcode<-9999 # failed in run
         	ans$gevals<-NA 
+        }
+       	ans$nitns<-NA # not used
+        ans$convergence<-NULL
+      }  ## end if using Rvmmin
+## --------------------------------------------
+      else if (meth == "lbfgsb3") { # Use lbfgsb3
+        mcontrol$maxit <- NULL
+        mcontrol$maxfevals <- NULL
+	mcontrol$trace<-NULL
+	mcontrol$iprint <- -1L
+	if (ctrl$trace>0) {
+	   mcontrol$trace<-1
+	   mcontrol$iprint <- 1
+	}
+	cat("About to call lbfgsb3 in optimx.run\n")
+	print(par)
+	print(ufn)
+	print(ugr)
+        time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, 
+		lower=lower, upper=upper, control=mcontrol, ...), silent=TRUE))[1]
+        if ((class(ans)[1] != "try-error")) {
+		ans$convcode <- 0
+	        ans$fevals<-ans$info$isave[34]
+	        ans$gevals<-ans$fevals
+		ans$value<-ans$f
+		ans$par <- ans$prm
+		ans$prm <- NULL
+		ans$f <- NULL
+		ans$info <- NULL
+# Note: We dont' use the returned gradient. Sigh.		
+        } else {
+		if (ctrl$trace>0) cat("lbfgsb3 failed for current problem \n")
+		ans<-list(fevals=NA) # ans not yet defined, so set as list
+##		ans$value<-ans$fvalue 
+		ans$value= ctrl$badval
+		ans$par<-rep(NA,npar)
+                ans$convcode<-9999 # failed in run
+        	ans$gevals<-NA 
+        	ans$fevals<-NA
         }
        	ans$nitns<-NA # not used
         ans$convergence<-NULL

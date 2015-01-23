@@ -83,8 +83,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     maxit <- ctrl$maxit  # limit on function evaluations
     maximize <- ctrl$maximize  # TRUE to maximize the function
     trace <- ctrl$trace  # 0 for no output, >0 for output (bigger => more output)
-    if (trace > 2) 
-        cat("trace = ", trace, "\n")
+    if (trace > 2) cat("trace = ", trace, "\n")
     eps <- ctrl$eps
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     grNULL <- is.null(gr)

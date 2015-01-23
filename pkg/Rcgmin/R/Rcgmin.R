@@ -77,7 +77,6 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
     # control defaults -- idea from spg
-cat("At top\n")
     if (is.null(control$trace)) control$trace=0
     # check if there are bounds
     if (is.null(lower) || !any(is.finite(lower))) 
@@ -137,11 +136,9 @@ cat("At top\n")
        upper <- btest$upper
        control$checkbounds<-NULL # to avoid problems in subsidiary routines
        ############## end bounds check #############
-       cat("bounds: trace=",control$trace,"\n")
        ans<-Rcgminb(par, fn, gr, lower = lower, 
           upper = upper, bdmsk = bdmsk, control = control, ...)
     } else {
-       cat("unconstrained: trace=",control$trace,"\n")
        ans<-Rcgminu(par, fn, gr, control = control, ...)
     }
 #    return(ans) # ?? is this needed

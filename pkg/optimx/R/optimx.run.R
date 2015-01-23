@@ -330,10 +330,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	   mcontrol$trace<-1
 	   mcontrol$iprint <- 1
 	}
-	cat("About to call lbfgsb3 in optimx.run\n")
-	print(par)
-	print(ufn)
-	print(ugr)
+#	cat("About to call lbfgsb3 in optimx.run\n")
+#	print(par)
+#	print(ufn)
+#	print(ugr)
         time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, 
 		lower=lower, upper=upper, control=mcontrol, ...), silent=TRUE))[1]
         if ((class(ans)[1] != "try-error")) {

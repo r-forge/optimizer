@@ -10,7 +10,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2015-01-18" />
+<meta name="date" content="2015-01-26" />
 
 <title>nls14 Background, Examples and Discussion</title>
 
@@ -54,7 +54,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">nls14 Background, Examples and Discussion</h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2015-01-18</em></h4>
+<h4 class="date"><em>2015-01-26</em></h4>
 </div>
 
 
@@ -230,7 +230,7 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 ## attr(,&quot;gradient&quot;)
 ##      x y
 ## [1,] 1 1</code></pre>
-<p>However, we would ideally like to be able to automate this to generate functions and gradients for nonlinear least squares and optimization calculations.</p>
+<p>However, we would ideally like to be able to automate this to generate functions and gradients for nonlinear least squares and optimization calculations. The same criticism applies to the object <strong>old</strong></p>
 <pre class="sourceCode r"><code class="sourceCode r">## Try different ways to supply the log function
 aDeriv &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
 <span class="kw">class</span>(aDeriv)</code></pre>
@@ -881,6 +881,31 @@ interm</code></pre>
 <span class="kw">Simplify</span>(<span class="kw">quote</span>(--(a+b)))</code></pre>
 <pre><code>## a + b</code></pre>
 </div>
+<div id="comparison-with-other-approaches" class="section level3">
+<h3>Comparison with other approaches</h3>
+<p>There is at least one other symbolic package for R. Here we look at <strong>Ryacas</strong>. The following example was provided by Gabor Grothendieck.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nls14)
+dnls14 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">sin</span>(x+y), <span class="st">&quot;x&quot;</span>)
+<span class="kw">print</span>(dnls14)</code></pre>
+<pre><code>## cos(x + y)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(dnls14)</code></pre>
+<pre><code>## [1] &quot;call&quot;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(Ryacas)</code></pre>
+<pre><code>## 
+## Attaching package: 'Ryacas'
+## 
+## The following object is masked from 'package:nls14':
+## 
+##     Simplify</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">Sym</span>(<span class="st">&quot;x&quot;</span>)
+y &lt;-<span class="st"> </span><span class="kw">Sym</span>(<span class="st">&quot;y&quot;</span>)
+dryacas &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw">sin</span>(x+y), x)
+<span class="kw">print</span>(dryacas)</code></pre>
+<pre><code>## [1] &quot;Starting Yacas!&quot;
+## Cos(x+y);</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(dryacas)</code></pre>
+<pre><code>## [1] &quot;Sym&quot;       &quot;character&quot;</code></pre>
+</div>
 </div>
 <div id="examples-of-use" class="section level2">
 <h2>Examples of use</h2>
@@ -955,7 +980,7 @@ anls14xb1  &lt;-<span class="st">  </span><span class="kw">try</span>(<span clas
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x3f0d3a0&gt;
+## &lt;environment: 0x30bc288&gt;
 ## Starting pnum=b1 b2 b3 
 ##  1  1  1 
 ## Start:lamda: 1e-04  SS= 23520.58  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
@@ -1060,7 +1085,7 @@ anlsf1 &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="k
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x3b18cb8&gt;
+## &lt;environment: 0x11b6b78&gt;
 ## Starting pnum= b1  b2  b3 
 ## 1.0 1.0 0.1 
 ## Start:lamda: 1e-04  SS= 23756  at  b1 = 1  b2 = 1  b3 = 0.1  1 / 0
@@ -1122,7 +1147,7 @@ eunsc  &lt;-<span class="st">   </span>y ~<span class="st"> </span>b1/(<span cla
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x2fbc5f8&gt;</code></pre>
+## &lt;environment: 0x2f48058&gt;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">modeldoc</span>(weedrj) <span class="co"># Note how useful this is to report status</span></code></pre>
 <pre><code>## FUNCTION weedrj 
 ## Formula: y ~ b1/(1 + b2 * exp(-b3 * tt))
@@ -1239,207 +1264,182 @@ a2</code></pre>
 ## $message
 ## NULL</code></pre>
 </div>
-<div id="need-more-extensive-discussion-of-simplify" class="section level4">
-<h4>Need more extensive discussion of Simplify??</h4>
+</div>
+<div id="need-more-extensive-discussion-of-simplify" class="section level3">
+<h3>Need more extensive discussion of Simplify??</h3>
 </div>
 </div>
+<div id="using-derivative-functions-to-generate-gradient-functions" class="section level2">
+<h2>Using derivative functions to generate gradient functions</h2>
+<p>One of the common needs for optimization computations is the availability of accurate gradients of the objective functions. While differentiation is relatively straightforward, it is tedious and error-prone.</p>
+<p>At 2015-1-24, I have not determined how to automate the use the output of the derivatives generated by <strong>nls14</strong> to create a working gradient function. However, the following write-up shows how such a function can be generated in a semi-automatic way.</p>
+<p>We use an example that appeared on the R-help mailing list on Jan 14, 2015. Responses by Ravi Varadhan and others, along with some modification I made, gave the following negative log likelihood function to be minimized.</p>
+<pre class="sourceCode r"><code class="sourceCode r">y=<span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">11</span>,<span class="dv">21</span>,<span class="dv">31</span>,<span class="dv">46</span>,<span class="dv">75</span>,<span class="dv">98</span>,<span class="dv">122</span>,<span class="dv">145</span>,<span class="dv">165</span>,<span class="dv">195</span>,<span class="dv">224</span>,<span class="dv">245</span>,<span class="dv">293</span>,<span class="dv">321</span>,<span class="dv">330</span>,<span class="dv">350</span>,<span class="dv">420</span>) <span class="co"># data set</span>
+
+Nweibull2 &lt;-<span class="st"> </span>function(x,prm){
+  la &lt;-<span class="st"> </span>prm[<span class="dv">1</span>]
+  al &lt;-<span class="st"> </span>prm[<span class="dv">2</span>]
+  be&lt;-<span class="st"> </span>prm[<span class="dv">3</span>]
+  val2 &lt;-<span class="st"> </span>la*be*(x/al)^(be<span class="dv">-1</span>)*<span class="st"> </span><span class="kw">exp</span>( (x/al)^be+la*al*(<span class="dv">1</span>-<span class="kw">exp</span>((x/al)^be) ) )
+  val2
+}
+LL2J &lt;-<span class="st"> </span>function(par,y) {
+R =<span class="st"> </span><span class="kw">Nweibull2</span>(y,par)
+-<span class="kw">sum</span>(<span class="kw">log</span>(R))
+}</code></pre>
+<p>We want the gradient of LL3J() with respect to <em>par</em>, and first compute the derivatives of Nweibull2() with respect to the paramters <em>prm</em></p>
+<p>We start with the central expression in Nweibull2() and compute its partial derivatives. The expression is:</p>
+<pre><code>  la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) )</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Put in the main expression for the Nweibull pdf.</span>
+<span class="kw">require</span>(nls14)
+
+## we generate the three gradient components
+g1n &lt;-<span class="st"> </span><span class="kw">Deriv</span>(la*be*(x/al)^(be<span class="dv">-1</span>)*<span class="st"> </span><span class="kw">exp</span>( (x/al)^be+la*al*(<span class="dv">1</span>-<span class="kw">exp</span>((x/al)^be) ) ), <span class="st">&quot;la&quot;</span>)
+g1n</code></pre>
+<pre><code>## la * be * (x/al)^(be - 1) * (exp((x/al)^be + la * al * (1 - exp((x/al)^be))) * 
+##     (al * (1 - exp((x/al)^be)))) + be * (x/al)^(be - 1) * exp((x/al)^be + 
+##     la * al * (1 - exp((x/al)^be)))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">g2n &lt;-<span class="st"> </span><span class="kw">Deriv</span>(la*be*(x/al)^(be<span class="dv">-1</span>)*<span class="st"> </span><span class="kw">exp</span>( (x/al)^be+la*al*(<span class="dv">1</span>-<span class="kw">exp</span>((x/al)^be) ) ), <span class="st">&quot;al&quot;</span>)
+g2n</code></pre>
+<pre><code>## la * be * (x/al)^(be - 1) * (exp((x/al)^be + la * al * (1 - exp((x/al)^be))) * 
+##     (be * (x/al)^(be - 1) * -(x/al^2) + (la * al * -(exp((x/al)^be) * 
+##         (be * (x/al)^(be - 1) * -(x/al^2))) + la * (1 - exp((x/al)^be))))) + 
+##     la * be * ((be - 1) * (x/al)^(be - 1 - 1) * -(x/al^2)) * 
+##         exp((x/al)^be + la * al * (1 - exp((x/al)^be)))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">g3n &lt;-<span class="st"> </span><span class="kw">Deriv</span>(la*be*(x/al)^(be<span class="dv">-1</span>)*<span class="st"> </span><span class="kw">exp</span>( (x/al)^be+la*al*(<span class="dv">1</span>-<span class="kw">exp</span>((x/al)^be) ) ), <span class="st">&quot;be&quot;</span>)
+g3n</code></pre>
+<pre><code>## la * be * (x/al)^(be - 1) * (exp((x/al)^be + la * al * (1 - exp((x/al)^be))) * 
+##     ((x/al)^be * log(x/al) + la * al * -(exp((x/al)^be) * ((x/al)^be * 
+##         log(x/al))))) + (la * be * ((x/al)^(be - 1) * log(x/al)) + 
+##     la * (x/al)^(be - 1)) * exp((x/al)^be + la * al * (1 - exp((x/al)^be)))</code></pre>
+<p>By copying and pasting the output above into a function structure, we get Nwei2g() below.</p>
+<pre class="sourceCode r"><code class="sourceCode r">Nwei2g &lt;-<span class="st"> </span>function(x, prm){
+  la &lt;-<span class="st"> </span>prm[<span class="dv">1</span>]
+  al &lt;-<span class="st"> </span>prm[<span class="dv">2</span>]
+  be&lt;-<span class="st"> </span>prm[<span class="dv">3</span>]
+g1v &lt;-<span class="st"> </span>la *<span class="st"> </span>be *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span>(<span class="kw">exp</span>((x/al)^be +<span class="st"> </span>la *<span class="st"> </span>al *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be))) *<span class="st"> </span>
+<span class="st">    </span>(al *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be)))) +<span class="st"> </span>be *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span><span class="kw">exp</span>((x/al)^be +<span class="st"> </span>
+<span class="st">    </span>la *<span class="st"> </span>al *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be)))
+
+g2v &lt;-<span class="st"> </span>la *<span class="st"> </span>be *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span>(<span class="kw">exp</span>((x/al)^be +<span class="st"> </span>la *<span class="st"> </span>al *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be))) *<span class="st"> </span>
+<span class="st">    </span>(be *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span>-(x/al^<span class="dv">2</span>) +<span class="st"> </span>(la *<span class="st"> </span>al *<span class="st"> </span>-(<span class="kw">exp</span>((x/al)^be) *<span class="st"> </span>
+<span class="st">        </span>(be *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span>-(x/al^<span class="dv">2</span>))) +<span class="st"> </span>la *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be))))) +<span class="st"> </span>
+<span class="st">    </span>la *<span class="st"> </span>be *<span class="st"> </span>((be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span> -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span>-(x/al^<span class="dv">2</span>)) *<span class="st"> </span>
+<span class="st">        </span><span class="kw">exp</span>((x/al)^be +<span class="st"> </span>la *<span class="st"> </span>al *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be)))
+
+g3v &lt;-<span class="st"> </span>la *<span class="st"> </span>be *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span>(<span class="kw">exp</span>((x/al)^be +<span class="st"> </span>la *<span class="st"> </span>al *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be))) *<span class="st"> </span>
+<span class="st">    </span>((x/al)^be *<span class="st"> </span><span class="kw">log</span>(x/al) +<span class="st"> </span>la *<span class="st"> </span>al *<span class="st"> </span>-(<span class="kw">exp</span>((x/al)^be) *<span class="st"> </span>((x/al)^be *<span class="st"> </span>
+<span class="st">        </span><span class="kw">log</span>(x/al))))) +<span class="st"> </span>(la *<span class="st"> </span>be *<span class="st"> </span>((x/al)^(be -<span class="st"> </span><span class="dv">1</span>) *<span class="st"> </span><span class="kw">log</span>(x/al)) +<span class="st"> </span>
+<span class="st">    </span>la *<span class="st"> </span>(x/al)^(be -<span class="st"> </span><span class="dv">1</span>)) *<span class="st"> </span><span class="kw">exp</span>((x/al)^be +<span class="st"> </span>la *<span class="st"> </span>al *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span><span class="kw">exp</span>((x/al)^be)))
+gg &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data=</span><span class="kw">c</span>(g1v, g2v, g3v), <span class="dt">ncol=</span><span class="dv">3</span>)
+}</code></pre>
+<p>We can check this gradient functionusing the grad() function from package <strong>numDeriv</strong>.</p>
+<pre class="sourceCode r"><code class="sourceCode r">start1 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">lambda=</span>.<span class="dv">01</span>,<span class="dt">alpha=</span><span class="dv">340</span>,<span class="dt">beta=</span>.<span class="dv">8</span>)
+start2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">lambda=</span>.<span class="dv">01</span>,<span class="dt">alpha=</span><span class="dv">340</span>,<span class="dt">beta=</span>.<span class="dv">7</span>)
+
+<span class="kw">require</span>(numDeriv)</code></pre>
+<pre><code>## Loading required package: numDeriv</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ganwei &lt;-<span class="st"> </span><span class="kw">Nwei2g</span>(y, <span class="dt">prm=</span>start1)
+
+<span class="kw">require</span>(numDeriv)
+Nw &lt;-<span class="st"> </span>function(x, y) {
+   <span class="kw">Nweibull2</span>(y, x)
+} <span class="co"># to allow grad() to work</span>
+
+gnnwei &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="ot">NA</span>, <span class="dt">nrow=</span><span class="kw">length</span>(y), <span class="dt">ncol=</span><span class="dv">3</span>)
+for (i in <span class="dv">1</span>:<span class="kw">length</span>(y)){
+   gnrow &lt;-<span class="st"> </span><span class="kw">grad</span>(Nw, <span class="dt">x=</span>start1, <span class="dt">y=</span>y[i])
+   gnnwei[i,] &lt;-<span class="st"> </span>gnrow
+}
+gnnwei</code></pre>
+<pre><code>##             [,1]        [,2]        [,3]
+##  [1,]  1.5080091  7.5763e-06 -4.4573e-02
+##  [2,]  1.0470119  4.3477e-06 -2.1663e-02
+##  [3,]  0.6473921  1.6572e-06 -7.3707e-03
+##  [4,]  0.4021585  1.7784e-07 -9.4940e-04
+##  [5,]  0.1635446 -1.0061e-06  3.5893e-03
+##  [6,] -0.0815624 -1.6713e-06  6.0571e-03
+##  [7,] -0.1689654 -1.5386e-06  5.8709e-03
+##  [8,] -0.2048835 -1.1819e-06  5.0149e-03
+##  [9,] -0.2077443 -7.9701e-07  4.0222e-03
+## [10,] -0.1955391 -4.9171e-07  3.1859e-03
+## [11,] -0.1644138 -1.3523e-07  2.1110e-03
+## [12,] -0.1297028  8.2595e-08  1.3249e-03
+## [13,] -0.1055059  1.7196e-07  9.0488e-04
+## [14,] -0.0598567  2.2613e-07  3.1939e-04
+## [15,] -0.0406518  2.0242e-07  1.4872e-04
+## [16,] -0.0355949  1.9079e-07  1.1187e-04
+## [17,] -0.0261120  1.6182e-07  5.3031e-05
+## [18,] -0.0075317  6.8245e-08 -1.1995e-05</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ganwei</code></pre>
+<pre><code>##             [,1]        [,2]        [,3]
+##  [1,]  1.5080091  7.5763e-06 -4.4573e-02
+##  [2,]  1.0470119  4.3477e-06 -2.1663e-02
+##  [3,]  0.6473921  1.6572e-06 -7.3707e-03
+##  [4,]  0.4021585  1.7784e-07 -9.4940e-04
+##  [5,]  0.1635446 -1.0061e-06  3.5893e-03
+##  [6,] -0.0815624 -1.6713e-06  6.0571e-03
+##  [7,] -0.1689654 -1.5386e-06  5.8709e-03
+##  [8,] -0.2048835 -1.1819e-06  5.0149e-03
+##  [9,] -0.2077443 -7.9701e-07  4.0222e-03
+## [10,] -0.1955391 -4.9171e-07  3.1859e-03
+## [11,] -0.1644138 -1.3523e-07  2.1110e-03
+## [12,] -0.1297028  8.2595e-08  1.3249e-03
+## [13,] -0.1055059  1.7196e-07  9.0488e-04
+## [14,] -0.0598567  2.2613e-07  3.1939e-04
+## [15,] -0.0406518  2.0242e-07  1.4872e-04
+## [16,] -0.0355949  1.9079e-07  1.1187e-04
+## [17,] -0.0261120  1.6182e-07  5.3031e-05
+## [18,] -0.0075317  6.8245e-08 -1.1995e-05</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;max(abs(gnnwei - ganwei))= &quot;</span>,   <span class="kw">max</span>(<span class="kw">abs</span>(gnnwei -<span class="st"> </span>ganwei)),<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## max(abs(gnnwei - ganwei))=  2.8041e-11</code></pre>
+<p>Now we can build the gradient of the objective function. This requires an application of the chain rule to the summation of logs of the elements of the quantity <em>R</em>. Since the derivative of log(R) w.r.t. R is simply 1/R, this is relatively simple. However, I have not found how to automate this.</p>
+<pre class="sourceCode r"><code class="sourceCode r">## and now we can build the gradient of LL2J
+LL2Jg &lt;-<span class="st"> </span>function(prm, y) {
+    R =<span class="st"> </span><span class="kw">Nweibull2</span>(y,prm)
+    gNN &lt;-<span class="st"> </span><span class="kw">Nwei2g</span>(y, prm)
+<span class="co">#    print(str(gNN)</span>
+    gL &lt;-<span class="st"> </span>-<span class="st"> </span><span class="kw">as.vector</span>( <span class="kw">t</span>(<span class="dv">1</span>/R) %*%<span class="st"> </span>gNN) 
+}
+<span class="co"># test</span>
+gaLL2J &lt;-<span class="st"> </span><span class="kw">LL2Jg</span>(start1, y)
+gaLL2J</code></pre>
+<pre><code>## [1] 3365.78244   -0.01441  -18.63351</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">gnLL2J &lt;-<span class="st"> </span><span class="kw">grad</span>(LL2J, start1, <span class="dt">y=</span>y)
+gnLL2J</code></pre>
+<pre><code>## [1] 3365.78244   -0.01441  -18.63351</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;max(abs(gaLL2J-gnLL2J))= &quot;</span>, <span class="kw">max</span>(<span class="kw">abs</span>(gaLL2J-gnLL2J)), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span> )</code></pre>
+<pre><code>## max(abs(gaLL2J-gnLL2J))=  1.8254e-08</code></pre>
 </div>
-<div id="vignette-info" class="section level2">
-<h2>Vignette Info</h2>
-<p>Note the various macros within the <code>vignette</code> setion of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the <code>title</code> field and the <code>\VignetteIndexEntry</code> to match the title of your vignette.</p>
-</div>
-<div id="styles" class="section level2">
-<h2>Styles</h2>
-<p>The <code>html_vignette</code> template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:</p>
-<pre><code>output: 
-  rmarkdown::html_vignette:
-    css: mystyles.css</code></pre>
-</div>
-<div id="figures" class="section level2">
-<h2>Figures</h2>
-<p>The figure sizes have been customised so that you can easily put two images side-by-side.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="dv">1</span>:<span class="dv">10</span>)
-<span class="kw">plot</span>(<span class="dv">10</span>:<span class="dv">1</span>)</code></pre>
-<p><img src="data:image/png;base64,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" /> <img src="data:image/png;base64,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" /></p>
-<p>You can enable figure captions by <code>fig_caption: yes</code> in YAML:</p>
-<pre><code>output:
-  rmarkdown::html_vignette:
-    fig_caption: yes</code></pre>
-<p>Then you can use the chunk option <code>fig.cap = &quot;Your figure caption.&quot;</code> in <strong>knitr</strong>.</p>
-</div>
-<div id="more-examples" class="section level2">
-<h2>More Examples</h2>
-<p>You can write math expressions, e.g. <span class="math">\(Y = X\beta + \epsilon\)</span>, footnotes<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>, and tables, e.g. using <code>knitr::kable()</code>.</p>
-<table>
-<thead>
-<tr class="header">
-<th align="left"></th>
-<th align="right">mpg</th>
-<th align="right">cyl</th>
-<th align="right">disp</th>
-<th align="right">hp</th>
-<th align="right">drat</th>
-<th align="right">wt</th>
-<th align="right">qsec</th>
-<th align="right">vs</th>
-<th align="right">am</th>
-<th align="right">gear</th>
-<th align="right">carb</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Mazda RX4</td>
-<td align="right">21.0</td>
-<td align="right">6</td>
-<td align="right">160.0</td>
-<td align="right">110</td>
-<td align="right">3.90</td>
-<td align="right">2.620</td>
-<td align="right">16.46</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-<tr class="even">
-<td align="left">Mazda RX4 Wag</td>
-<td align="right">21.0</td>
-<td align="right">6</td>
-<td align="right">160.0</td>
-<td align="right">110</td>
-<td align="right">3.90</td>
-<td align="right">2.875</td>
-<td align="right">17.02</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-<tr class="odd">
-<td align="left">Datsun 710</td>
-<td align="right">22.8</td>
-<td align="right">4</td>
-<td align="right">108.0</td>
-<td align="right">93</td>
-<td align="right">3.85</td>
-<td align="right">2.320</td>
-<td align="right">18.61</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">Hornet 4 Drive</td>
-<td align="right">21.4</td>
-<td align="right">6</td>
-<td align="right">258.0</td>
-<td align="right">110</td>
-<td align="right">3.08</td>
-<td align="right">3.215</td>
-<td align="right">19.44</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">Hornet Sportabout</td>
-<td align="right">18.7</td>
-<td align="right">8</td>
-<td align="right">360.0</td>
-<td align="right">175</td>
-<td align="right">3.15</td>
-<td align="right">3.440</td>
-<td align="right">17.02</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">Valiant</td>
-<td align="right">18.1</td>
-<td align="right">6</td>
-<td align="right">225.0</td>
-<td align="right">105</td>
-<td align="right">2.76</td>
-<td align="right">3.460</td>
-<td align="right">20.22</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">1</td>
-</tr>
-<tr class="odd">
-<td align="left">Duster 360</td>
-<td align="right">14.3</td>
-<td align="right">8</td>
-<td align="right">360.0</td>
-<td align="right">245</td>
-<td align="right">3.21</td>
-<td align="right">3.570</td>
-<td align="right">15.84</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">3</td>
-<td align="right">4</td>
-</tr>
-<tr class="even">
-<td align="left">Merc 240D</td>
-<td align="right">24.4</td>
-<td align="right">4</td>
-<td align="right">146.7</td>
-<td align="right">62</td>
-<td align="right">3.69</td>
-<td align="right">3.190</td>
-<td align="right">20.00</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">2</td>
-</tr>
-<tr class="odd">
-<td align="left">Merc 230</td>
-<td align="right">22.8</td>
-<td align="right">4</td>
-<td align="right">140.8</td>
-<td align="right">95</td>
-<td align="right">3.92</td>
-<td align="right">3.150</td>
-<td align="right">22.90</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">2</td>
-</tr>
-<tr class="even">
-<td align="left">Merc 280</td>
-<td align="right">19.2</td>
-<td align="right">6</td>
-<td align="right">167.6</td>
-<td align="right">123</td>
-<td align="right">3.92</td>
-<td align="right">3.440</td>
-<td align="right">18.30</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">4</td>
-<td align="right">4</td>
-</tr>
-</tbody>
-</table>
-<p>Also a quote using <code>&gt;</code>:</p>
-<blockquote>
-<p>“He who gives up [code] safety for [code] speed deserves neither.” (<a href="https://twitter.com/hadleywickham/status/504368538874703872">via</a>)</p>
-</blockquote>
-</div>
-<div class="footnotes">
-<hr />
-<ol>
-<li id="fn1"><p>A footnote here.<a href="#fnref1">↩</a></p></li>
-</ol>
+<div id="issues-of-programming-on-the-language" class="section level2">
+<h2>Issues of programming on the language</h2>
+<p>One of the key tasks with tools for derivatives is that of taking objects in one or other form (that is, <strong>R</strong> class) and using it as an input for a symbolic function. The object may, of course, be an output from another such function, and this is one of the reasons we need to do such transformations.</p>
+<p>We also note that the different tools for symbolic derivatives use slightly different inputs. For example, for the derivative of log(x), we have</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nls14)
+dlogx &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
+<span class="kw">str</span>(dlogx)</code></pre>
+<pre><code>##  language 1/x</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogx)</code></pre>
+<pre><code>## 1/x</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># base R</span>
+dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
+<span class="kw">str</span>(dblogx)</code></pre>
+<pre><code>##  language 1/x</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dblogx)</code></pre>
+<pre><code>## 1/x</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(Deriv)</code></pre>
+<pre><code>## Loading required package: Deriv</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ddlogx &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
+<span class="kw">str</span>(ddlogx)</code></pre>
+<pre><code>##   expression(1/x)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(ddlogx)</code></pre>
+<pre><code>## expression(1/x)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="kw">as.character</span>(ddlogx), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## 1/x</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ddlogxf &lt;-<span class="st"> </span><span class="er">~</span><span class="st"> </span>ddlogx
+<span class="kw">str</span>(ddlogxf)</code></pre>
+<pre><code>## Class 'formula' length 2 ~ddlogx
+##   ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_GlobalEnv&gt;</code></pre>
 </div>
 
 

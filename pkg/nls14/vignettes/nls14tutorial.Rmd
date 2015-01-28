@@ -836,6 +836,22 @@ require(nls14)
 dlogx <- Deriv(log(x), "x")
 str(dlogx)
 print(dlogx)
+```
+
+Unfortunately, there are complications when we have an expression object, and 
+we need to specify that we do NOT execute the *substitute()* function. Here we
+show how to do this implicitly and with an explicit object.
+
+```{r}
+dlogxs <- Deriv(expression(log(x)), "x", do_substitute=FALSE)
+str(dlogxs)
+print(dlogxs)
+cat(as.character(dlogxs), "\n")
+fne <- expression(log(x))
+dlogxe <- Deriv(fne, "x", do_substitute=FALSE)
+str(dlogxe)
+print(dlogxe)
+
 
 # base R
 dblogx <- D(expression(log(x)), "x")
@@ -843,10 +859,53 @@ str(dblogx)
 print(dblogx)
 
 require(Deriv)
-ddlogx <- Deriv(expression(log(x)), "x")
+ddlogx <- DDeriv(expression(log(x)), "x")
 str(ddlogx)
 print(ddlogx)
 cat(as.character(ddlogx), "\n")
 ddlogxf <- ~ ddlogx
 str(ddlogxf)
+```
+
+## Indexed parameters or variables
+
+Erin Hodgess on R-help in January 2015 raised the issue of taking the 
+derivative of an expression that contains an indexed variable. We
+show the example and its resolution, then give an explanation.
+
+```{r}
+zzz <- expression(y[3]*r1 + r2)
+try(deriv(zzz,c("r1","r2")))
+require(nls14)
+try(Deriv(zzz, c("r1","r2")))
+try(fnDeriv(zzz, c("r1","r2")))
+newDeriv(`[`(x,y), stop("no derivative when indexing"))
+try(Deriv(zzz, c("r1","r2")))
+try(fnDeriv(zzz, c("r1","r2")))
+```
+
+Richard Heiberger pointed out that internally, **R** stores
+
+    y[3]
+
+as
+
+    "["(y,3)
+
+that is, as a function. Duncan Murdoch pointed out the availability of
+**nls14** and the use of newDeriv() to redefine the "[" function for
+the purposes of derivatives. 
+
+This is not an ideal resolution, especially as we would like to be able
+to get the gradients of functions with respect to vectors of parameters
+(Noted also by Sergei Sokol in the manual for package **Deriv**). The 
+following examples illustrate this.
+
+
+
+
+```{r}
+Deriv(zzz, "y[3]")
+Deriv(y3*r1+r2,"y3")
+Deriv(y[3]*r1+r2,"y[3]")
 ```

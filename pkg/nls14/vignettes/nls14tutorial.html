@@ -10,7 +10,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2015-01-26" />
+<meta name="date" content="2015-01-28" />
 
 <title>nls14 Background, Examples and Discussion</title>
 
@@ -54,7 +54,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">nls14 Background, Examples and Discussion</h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2015-01-26</em></h4>
+<h4 class="date"><em>2015-01-28</em></h4>
 </div>
 
 
@@ -980,7 +980,7 @@ anls14xb1  &lt;-<span class="st">  </span><span class="kw">try</span>(<span clas
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x30bc288&gt;
+## &lt;environment: 0x41a3138&gt;
 ## Starting pnum=b1 b2 b3 
 ##  1  1  1 
 ## Start:lamda: 1e-04  SS= 23520.58  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
@@ -1085,7 +1085,7 @@ anlsf1 &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="k
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x11b6b78&gt;
+## &lt;environment: 0x1bd4450&gt;
 ## Starting pnum= b1  b2  b3 
 ## 1.0 1.0 0.1 
 ## Start:lamda: 1e-04  SS= 23756  at  b1 = 1  b2 = 1  b3 = 0.1  1 / 0
@@ -1147,7 +1147,7 @@ eunsc  &lt;-<span class="st">   </span>y ~<span class="st"> </span>b1/(<span cla
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x2f48058&gt;</code></pre>
+## &lt;environment: 0x2589818&gt;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">modeldoc</span>(weedrj) <span class="co"># Note how useful this is to report status</span></code></pre>
 <pre><code>## FUNCTION weedrj 
 ## Formula: y ~ b1/(1 + b2 * exp(-b3 * tt))
@@ -1421,6 +1421,20 @@ dlogx &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="k
 <pre><code>##  language 1/x</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogx)</code></pre>
 <pre><code>## 1/x</code></pre>
+<p>Unfortunately, there are complications when we have an expression object, and we need to specify that we do NOT execute the <em>substitute()</em> function. Here we show how to do this implicitly and with an explicit object.</p>
+<pre class="sourceCode r"><code class="sourceCode r">dlogxs &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+<span class="kw">str</span>(dlogxs)</code></pre>
+<pre><code>##   expression(1/x)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogxs)</code></pre>
+<pre><code>## expression(1/x)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="kw">as.character</span>(dlogxs), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## 1/x</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">fne &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">log</span>(x))
+dlogxe &lt;-<span class="st"> </span><span class="kw">Deriv</span>(fne, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+<span class="kw">str</span>(dlogxe)</code></pre>
+<pre><code>##   expression(1/x)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogxe)</code></pre>
+<pre><code>## expression(1/x)</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># base R</span>
 dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(dblogx)</code></pre>
@@ -1429,17 +1443,59 @@ dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">
 <pre><code>## 1/x</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(Deriv)</code></pre>
 <pre><code>## Loading required package: Deriv</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">ddlogx &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
+<pre class="sourceCode r"><code class="sourceCode r">ddlogx &lt;-<span class="st"> </span><span class="kw">DDeriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(ddlogx)</code></pre>
-<pre><code>##   expression(1/x)</code></pre>
+<pre><code>##   expression(reciprocal(x))</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(ddlogx)</code></pre>
-<pre><code>## expression(1/x)</code></pre>
+<pre><code>## expression(reciprocal(x))</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="kw">as.character</span>(ddlogx), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
-<pre><code>## 1/x</code></pre>
+<pre><code>## reciprocal(x)</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">ddlogxf &lt;-<span class="st"> </span><span class="er">~</span><span class="st"> </span>ddlogx
 <span class="kw">str</span>(ddlogxf)</code></pre>
 <pre><code>## Class 'formula' length 2 ~ddlogx
 ##   ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_GlobalEnv&gt;</code></pre>
+</div>
+<div id="indexed-parameters-or-variables" class="section level2">
+<h2>Indexed parameters or variables</h2>
+<p>Erin Hodgess on R-help in January 2015 raised the issue of taking the derivative of an expression that contains an indexed variable. We show the example and its resolution, then give an explanation.</p>
+<pre class="sourceCode r"><code class="sourceCode r">zzz &lt;-<span class="st"> </span><span class="kw">expression</span>(y[<span class="dv">3</span>]*r1 +<span class="st"> </span>r2)
+<span class="kw">try</span>(<span class="kw">deriv</span>(zzz,<span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))
+<span class="kw">require</span>(nls14)
+<span class="kw">try</span>(<span class="kw">Deriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
+<pre><code>## Warning in if (as.character(expr) == name) return(1) else return(0): the
+## condition has length &gt; 1 and only the first element will be used</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))
+<span class="kw">newDeriv</span>(<span class="st">`</span><span class="dt">[</span><span class="st">`</span>(x,y), <span class="kw">stop</span>(<span class="st">&quot;no derivative when indexing&quot;</span>))
+<span class="kw">try</span>(<span class="kw">Deriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
+<pre><code>## Warning in if (as.character(expr) == name) return(1) else return(0): the
+## condition has length &gt; 1 and only the first element will be used</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
+<pre><code>## {
+##     .expr1 &lt;- y[3]
+##     .expr2 &lt;- stop(&quot;no derivative when indexing&quot;)
+##     .expr3 &lt;- .expr2 * r1
+##     .value &lt;- .expr1 * r1 + r2
+##     .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;r1&quot;, 
+##     &quot;r2&quot;)))
+##     .grad[, &quot;r1&quot;] &lt;- .expr1 + .expr3
+##     .grad[, &quot;r2&quot;] &lt;- .expr3 + 1
+##     attr(.value, &quot;gradient&quot;) &lt;- .grad
+##     .value
+## }</code></pre>
+<p>Richard Heiberger pointed out that internally, <strong>R</strong> stores</p>
+<pre><code>y[3]</code></pre>
+<p>as</p>
+<pre><code>&quot;[&quot;(y,3)</code></pre>
+<p>that is, as a function. Duncan Murdoch pointed out the availability of <strong>nls14</strong> and the use of newDeriv() to redefine the “[” function for the purposes of derivatives.</p>
+<p>This is not an ideal resolution, especially as we would like to be able to get the gradients of functions with respect to vectors of parameters (Noted also by Sergei Sokol in the manual for package <strong>Deriv</strong>). The following examples illustrate this.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(zzz, <span class="st">&quot;y[3]&quot;</span>)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(y3*r1+r2,<span class="st">&quot;y3&quot;</span>)</code></pre>
+<pre><code>## r1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(y[<span class="dv">3</span>]*r1+r2,<span class="st">&quot;y[3]&quot;</span>)</code></pre>
+<pre><code>## stop(&quot;no derivative when indexing&quot;) * r1</code></pre>
 </div>
 
 

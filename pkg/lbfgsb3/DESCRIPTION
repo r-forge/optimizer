@@ -1,13 +1,18 @@
 Package: lbfgsb3
 Type: Package
-Title: Interfacing to Nocedal LBFGSB.3.0 limited memory BFGS 
-	minimizer with bounds on parameters.
-Version: 2015-1.21
-Date: 2015-01-21
+Title: Wrapper for Nocedal LBFGSB.3.0 Limited Memory BFGS 
+	Minimizer with Bounds on Parameters
+Version: 2015-1.22
+Date: 2015-01-22
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
-              c("aut", "cre"), email = "nashjc@uottawa.ca"))
+              c("aut", "cre"), email = "nashjc@uottawa.ca"),
+              person(given = "Ciyou", family = "Zhu", role = "aut"), 
+              person(given = "Richard", family = "Byrd", role = "aut"), 
+              person(given = "Jorge", family = "Nocedal", role = "aut"),
+              person(given = c("Jose", "Luis"), family = "Morales", role = "aut"))
+Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Interfacing to Nocedal et al. L-BFGS-B.3.0 (2011) limited
 	memory BFGS minimizer with bounds on parameters.
-License: GPL-2
+License: GPL-2 | BSD_3_clause + file LICENSE
 Depends: R (>= 2.15.0), numDeriv
 

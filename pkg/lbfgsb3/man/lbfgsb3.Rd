@@ -1,9 +1,10 @@
 \name{lbfgsb3}
 \alias{lbfgsb3}
-\title{Interfacing to Nocedal LBFGSB3 limited memory BFGS solver.
+\title{Interfacing wrapper for the Nocedal - Morales LBFGSB3 (Fortran) 
+      limited memory BFGS solver.
 }
 \description{
-   Interfacing to Nocedal LBFGSB3 limited memory BFGS solver.
+   This package is an 
 }
 \usage{
    lbfgsb3(prm, fn, gr=NULL, lower=-Inf, upper=Inf, 
@@ -36,6 +37,8 @@
      
 }
 \details{
+
+  See the notes below for a general appreciation of this package.
 
   The list of controls for the algorithm contains:
   \describe{
@@ -126,17 +129,44 @@
        computation on return. See Details.}
 }
 \references{
-%% ~put references to the literature/web site here ~
-     Nocedal et al. (1994) 
+     Morales, J. L.; Nocedal, J. (2011). "Remark on 'algorithm 778: L-BFGS-B: 
+           Fortran subroutines for large-scale bound constrained optimization' ". 
+           ACM Transactions on Mathematical Software 38: 1. 
 
-     others!!
-
+     Byrd, R. H.; Lu, P.; Nocedal, J.; Zhu, C. (1995). "A Limited Memory Algorithm 
+           for Bound Constrained Optimization". SIAM J. Sci. Comput. 16 (5): 1190-1208. 
+           
+     Zhu, C.; Byrd, Richard H.; Lu, Peihuang; Nocedal, Jorge (1997). "L-BFGS-B: 
+           Algorithm 778: L-BFGS-B, FORTRAN routines for large scale bound constrained 
+           optimization". ACM Transactions on Mathematical Software 23 (4): 550-560.
 }
 \author{
-John C Nash <nashjc@uottawa.ca>
+     John C Nash <nashjc@uottawa.ca> (of the wrapper only)
 }
 \note{
-   Special notes, if any, will appear here.
+   This package is a wrapper to the Fortran code released by Nocedal and Morales.
+   This poses several difficulties for an R package. While the \code{.Fortran()}
+   tool exists for the interfacing, we must be very careful to align the arguments
+   with those of the Fortran subroutine, especially in type and storage. 
+   
+   A more annoying task for interfacing the Fortran code is that Fortran WRITE or
+   PRINT statements must all be replaced with calls to special R-friendly output 
+   routines. Unfortunately, the Fortran is full of output statements. Worse, we may
+   wish to be able to suppress such output, and there are thus many modifications
+   to be made. This means that an update of the original code cannot be simply
+   plugged into the R package \code{src} directory.
+   
+   Finally, and likely because L-BFGS-B has a long history, the Fortran code is far
+   from well-structured. For example, the number of function and gradient evaluations
+   used is returned as the 34'th element of an integer vector. There does not appear
+   to be an easy way to stop the program after some maximum number of such evaluations
+   have been performed.
+
+   On the other hand, the version of L-BFGS-B in \code{optim()} is a \code{C} translation
+   of a now-lost Fortran code. It does not implement the improvements Nocedal and 
+   Morales published in 2011. Hence, despite its deficiencies, this wrapper has been
+   prepared.
+
 }
 
 \seealso{
@@ -145,6 +175,7 @@ John C Nash <nashjc@uottawa.ca>
 
 \examples{
 cat("Examples are to be added\n")
+cat("But see the tests\n")
 
 }
 \keyword{ nonlinear parameter optimization }

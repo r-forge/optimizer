@@ -191,13 +191,26 @@ x003 <- start1[3]
 print(hobbs1m(start1)) # start1 actually ignored
 print(eval(hobbs1me(start1))) # start1 actually ignored
 print(try(eval(Jr11ex)))
-
+resx <- expression(x001/(1+x002*exp(-x003*t)) - y)
+res1 <- Deriv(resx, "x001", do_substitute=FALSE)
+res1
+col1 <- eval(res1)
+res2 <- Deriv(resx, "x002", do_substitute=FALSE)
+res2
+col2 <- eval(res2)
+res3 <- Deriv(resx, "x003", do_substitute=FALSE)
+res3
+col3 <- eval(res3)
+hobJac <- cbind(col1, col2, col3)
+print(hobJac)
 ```
 
 ### Jacobians
 
 Jacobians, the matrices of partial derivatives of residuals with respect
 to the parameters, have a vector input.
+
+
 
 
 

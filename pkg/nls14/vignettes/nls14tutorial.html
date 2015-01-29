@@ -210,6 +210,35 @@ x003 &lt;-<span class="st"> </span>start1[<span class="dv">3</span>]
 ## [1] &quot;try-error&quot;
 ## attr(,&quot;condition&quot;)
 ## &lt;simpleError in array(0, c(length(.value), 2L), list(NULL, c(&quot;x001&quot;, &quot;x002&quot;, &quot;x003&quot;))): length of 'dimnames' [2] not equal to array extent&gt;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">resx &lt;-<span class="st"> </span><span class="kw">expression</span>(x001/(<span class="dv">1</span>+x002*<span class="kw">exp</span>(-x003*t)) -<span class="st"> </span>y)
+res1 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(resx, <span class="st">&quot;x001&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+res1</code></pre>
+<pre><code>## expression(1/(1 + x002 * exp(-x003 * t)))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">col1 &lt;-<span class="st"> </span><span class="kw">eval</span>(res1)
+res2 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(resx, <span class="st">&quot;x002&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+res2</code></pre>
+<pre><code>## expression(-(x001 * exp(-x003 * t)/(1 + x002 * exp(-x003 * t))^2))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">col2 &lt;-<span class="st"> </span><span class="kw">eval</span>(res2)
+res3 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(resx, <span class="st">&quot;x003&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+res3</code></pre>
+<pre><code>## expression(-(x001 * (x002 * (exp(-x003 * t) * -t))/(1 + x002 * 
+##     exp(-x003 * t))^2))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">col3 &lt;-<span class="st"> </span><span class="kw">eval</span>(res3)
+hobJac &lt;-<span class="st"> </span><span class="kw">cbind</span>(col1, col2, col3)
+<span class="kw">print</span>(hobJac)</code></pre>
+<pre><code>##             col1       col2       col3
+##  [1,] 0.02628749 -0.1023858   5.119291
+##  [2,] 0.03516102 -0.1356989  13.569891
+##  [3,] 0.04688566 -0.1787496  26.812437
+##  [4,] 0.06226762 -0.2335615  46.712293
+##  [5,] 0.08226046 -0.3019747  75.493681
+##  [6,] 0.10793373 -0.3851362 115.540847
+##  [7,] 0.14039380 -0.4827335 168.956738
+##  [8,] 0.18063918 -0.5920347 236.813864
+##  [9,] 0.22934330 -0.7069798 318.140911
+## [10,] 0.28658605 -0.8178179 408.908969
+## [11,] 0.35159786 -0.9119072 501.548971
+## [12,] 0.42262102 -0.9760500 585.629985</code></pre>
 </div>
 </div>
 <div id="jacobians" class="section level3">
@@ -1070,7 +1099,7 @@ anls14xb1  &lt;-<span class="st">  </span><span class="kw">try</span>(<span clas
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x3b8e0b8&gt;
+## &lt;environment: 0x41e6ea8&gt;
 ## Starting pnum=b1 b2 b3 
 ##  1  1  1 
 ## Start:lamda: 1e-04  SS= 23520.58  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
@@ -1175,7 +1204,7 @@ anlsf1 &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="k
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x1ea35f0&gt;
+## &lt;environment: 0x428faa0&gt;
 ## Starting pnum= b1  b2  b3 
 ## 1.0 1.0 0.1 
 ## Start:lamda: 1e-04  SS= 23756  at  b1 = 1  b2 = 1  b3 = 0.1  1 / 0
@@ -1237,7 +1266,7 @@ eunsc  &lt;-<span class="st">   </span>y ~<span class="st"> </span>b1/(<span cla
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x24d4690&gt;</code></pre>
+## &lt;environment: 0x425cb58&gt;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">modeldoc</span>(weedrj) <span class="co"># Note how useful this is to report status</span></code></pre>
 <pre><code>## FUNCTION weedrj 
 ## Formula: y ~ b1/(1 + b2 * exp(-b3 * tt))

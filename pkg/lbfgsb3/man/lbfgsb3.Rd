@@ -141,7 +141,8 @@
            optimization". ACM Transactions on Mathematical Software 23 (4): 550-560.
 }
 \author{
-     John C Nash <nashjc@uottawa.ca> (of the wrapper only)
+     John C Nash <nashjc@uottawa.ca> (of the wrapper and edits to Fortran code to allow R output)
+     Ciyou Zhu, Richard Byrd, Jorge Nocedal, Jose Luis Morales (original Fortran packages)     
 }
 \note{
    This package is a wrapper to the Fortran code released by Nocedal and Morales.

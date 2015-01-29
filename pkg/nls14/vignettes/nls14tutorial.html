@@ -10,7 +10,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2015-01-28" />
+<meta name="date" content="2015-01-29" />
 
 <title>nls14 Background, Examples and Discussion</title>
 
@@ -54,7 +54,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">nls14 Background, Examples and Discussion</h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2015-01-28</em></h4>
+<h4 class="date"><em>2015-01-29</em></h4>
 </div>
 
 
@@ -64,6 +64,8 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <p>The package and this vignette are a work in progress, and assistance and examples are welcome.</p>
 <div id="summary-of-capabilities" class="section level2">
 <h2>Summary of capabilities</h2>
+<div id="functions-in-nls14" class="section level3">
+<h3>Functions in <strong>nls14</strong></h3>
 <div id="coef.nls14" class="section level4">
 <h4>coef.nls14</h4>
 <p>extracts and displays the coefficients for a model estimated by nlxb() or nlfb() in the nls14 structured object.</p>
@@ -125,6 +127,94 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <p>Given a nonlinear model expressed as an expression of the form</p>
 <pre><code>lhs ~ formula_for_rhs</code></pre>
 <p>and a start vector where parameters used in the model formula are named, attempts to find the minimum of the residual sum of squares using the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear sub-problem is solved by a qr method.</p>
+</div>
+</div>
+<div id="missing-capabilities" class="section level3">
+<h3>Missing capabilities</h3>
+<div id="multi-line-functions" class="section level4">
+<h4>Multi-line functions</h4>
+<p>Multi-line functions present present a challenge. This is in part because the chain rule may have to be applied backwards (last line first), but also because there may be structures that are not always differentiable, such as <em>if</em> statements.</p>
+</div>
+<div id="vector-parameters" class="section level4">
+<h4>Vector parameters</h4>
+<p>We would like to be able to find the Jacobian or gradient of functions that have as their parameters a vector, e.g., <em>prm</em>. At time of writing (January 2015) we cannot specify such a vector within <strong>nls14</strong>. The following script shows things that work or fail.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># tryhobbsderiv.R</span>
+
+hobbs.res&lt;-function(x){ <span class="co"># Hobbs weeds problem -- residual</span>
+  <span class="co"># This variant uses looping</span>
+<span class="co">#  if(length(x) != 3) stop(&quot;hobbs.res -- parameter vector n!=3&quot;)</span>
+  y&lt;-<span class="kw">c</span>(<span class="fl">5.308</span>, <span class="fl">7.24</span>, <span class="fl">9.638</span>, <span class="fl">12.866</span>, <span class="fl">17.069</span>, <span class="fl">23.192</span>, <span class="fl">31.443</span>, <span class="fl">38.558</span>, <span class="fl">50.156</span>, <span class="fl">62.948</span>,
+       <span class="fl">75.995</span>, <span class="fl">91.972</span>)
+  t&lt;-<span class="dv">1</span>:<span class="dv">12</span>
+<span class="co">#  if(abs(12*x[3])&gt;50) {</span>
+<span class="co">#    res&lt;-rep(Inf,12)</span>
+<span class="co">#  } else {</span>
+    res&lt;-x[<span class="dv">1</span>]/(<span class="dv">1</span>+x[<span class="dv">2</span>]*<span class="kw">exp</span>(-x[<span class="dv">3</span>]*t)) -<span class="st"> </span>y
+<span class="co">#  }</span>
+}
+<span class="co"># test it</span>
+start1 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">50</span>, .<span class="dv">3</span>)
+<span class="kw">cat</span>(<span class="st">&quot;residuals at start1:&quot;</span>)</code></pre>
+<pre><code>## residuals at start1:</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">r1 &lt;-<span class="st"> </span><span class="kw">hobbs.res</span>(start1)
+<span class="kw">print</span>(r1)</code></pre>
+<pre><code>##  [1] -0.05050236 -0.20779506 -0.26086802 -0.41247546 -0.61690702
+##  [6] -1.60525418 -3.36423901 -2.43016453 -4.28734016 -5.63079076
+## [11] -5.67542775 -7.44779537</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nls14)</code></pre>
+<pre><code>## Loading required package: nls14</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">Jr1a &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">fnDeriv</span>(r1, <span class="st">&quot;x&quot;</span>))
+
+
+y&lt;-<span class="kw">c</span>(<span class="fl">5.308</span>, <span class="fl">7.24</span>, <span class="fl">9.638</span>, <span class="fl">12.866</span>, <span class="fl">17.069</span>, <span class="fl">23.192</span>, <span class="fl">31.443</span>, <span class="fl">38.558</span>, <span class="fl">50.156</span>, <span class="fl">62.948</span>,
+     <span class="fl">75.995</span>, <span class="fl">91.972</span>)
+t &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="dv">12</span>
+hobbs1 &lt;-<span class="st"> </span>function(x){ res&lt;-x[<span class="dv">1</span>]/(<span class="dv">1</span>+x[<span class="dv">2</span>]*<span class="kw">exp</span>(-x[<span class="dv">3</span>]*t)) -<span class="st"> </span>y }
+hobbs1m &lt;-<span class="st"> </span>function(x){ res&lt;-x001/(<span class="dv">1</span>+x002*<span class="kw">exp</span>(-x003*t)) -<span class="st"> </span>y }
+Jr11m &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">fnDeriv</span>(hobbs1m, <span class="kw">c</span>(<span class="st">&quot;x001&quot;</span>, <span class="st">&quot;x002&quot;</span>, <span class="st">&quot;x003&quot;</span>)))
+hobbs1me &lt;-<span class="st"> </span>function(x){ <span class="kw">expression</span>(x001/(<span class="dv">1</span>+x002*<span class="kw">exp</span>(-x003*t)) -<span class="st"> </span>y) }
+Jr11me &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">fnDeriv</span>(hobbs1me, <span class="kw">c</span>(<span class="st">&quot;x001&quot;</span>, <span class="st">&quot;x002&quot;</span>, <span class="st">&quot;x003&quot;</span>)))
+Jr11ex &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">fnDeriv</span>(<span class="kw">expression</span>(x001/(<span class="dv">1</span>+x002*<span class="kw">exp</span>(-x003*t)) -<span class="st"> </span>y)
+                  , <span class="kw">c</span>(<span class="st">&quot;x001&quot;</span>, <span class="st">&quot;x002&quot;</span>, <span class="st">&quot;x003&quot;</span>)))
+Jr11ex</code></pre>
+<pre><code>## {
+##     .expr1 &lt;- -x003
+##     .expr2 &lt;- .expr1 * t
+##     .expr3 &lt;- exp(.expr2)
+##     .expr4 &lt;- x002 * .expr3
+##     .expr5 &lt;- 1 + .expr4
+##     .expr6 &lt;- .expr5^2
+##     .value &lt;- x001/(.expr5) - y
+##     .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;x001&quot;, 
+##     &quot;x002&quot;, &quot;x003&quot;)))
+##     .grad[, &quot;x001&quot;] &lt;- 1/.expr5
+##     .grad[, &quot;x002&quot;] &lt;- -(x001 * .expr3/.expr6)
+##     .grad[, &quot;x003&quot;] &lt;- -(x001 * (x002 * (.expr3 * -t))/.expr6)
+##     attr(.value, &quot;gradient&quot;) &lt;- .grad
+##     .value
+## }</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">x001 &lt;-<span class="st"> </span>start1[<span class="dv">1</span>]
+x002 &lt;-<span class="st"> </span>start1[<span class="dv">2</span>]
+x003 &lt;-<span class="st"> </span>start1[<span class="dv">3</span>]
+<span class="kw">print</span>(<span class="kw">hobbs1m</span>(start1)) <span class="co"># start1 actually ignored</span></code></pre>
+<pre><code>##  [1] -0.05050236 -0.20779506 -0.26086802 -0.41247546 -0.61690702
+##  [6] -1.60525418 -3.36423901 -2.43016453 -4.28734016 -5.63079076
+## [11] -5.67542775 -7.44779537</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">eval</span>(<span class="kw">hobbs1me</span>(start1))) <span class="co"># start1 actually ignored</span></code></pre>
+<pre><code>##  [1] -0.05050236 -0.20779506 -0.26086802 -0.41247546 -0.61690702
+##  [6] -1.60525418 -3.36423901 -2.43016453 -4.28734016 -5.63079076
+## [11] -5.67542775 -7.44779537</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">try</span>(<span class="kw">eval</span>(Jr11ex)))</code></pre>
+<pre><code>## [1] &quot;Error in array(0, c(length(.value), 2L), list(NULL, c(\&quot;x001\&quot;, \&quot;x002\&quot;,  : \n  length of 'dimnames' [2] not equal to array extent\n&quot;
+## attr(,&quot;class&quot;)
+## [1] &quot;try-error&quot;
+## attr(,&quot;condition&quot;)
+## &lt;simpleError in array(0, c(length(.value), 2L), list(NULL, c(&quot;x001&quot;, &quot;x002&quot;, &quot;x003&quot;))): length of 'dimnames' [2] not equal to array extent&gt;</code></pre>
+</div>
+</div>
+<div id="jacobians" class="section level3">
+<h3>Jacobians</h3>
+<p>Jacobians, the matrices of partial derivatives of residuals with respect to the parameters, have a vector input.</p>
 </div>
 </div>
 <div id="implementation-of-method" class="section level2">
@@ -980,7 +1070,7 @@ anls14xb1  &lt;-<span class="st">  </span><span class="kw">try</span>(<span clas
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x41a3138&gt;
+## &lt;environment: 0x3b8e0b8&gt;
 ## Starting pnum=b1 b2 b3 
 ##  1  1  1 
 ## Start:lamda: 1e-04  SS= 23520.58  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
@@ -1085,7 +1175,7 @@ anlsf1 &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="k
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x1bd4450&gt;
+## &lt;environment: 0x1ea35f0&gt;
 ## Starting pnum= b1  b2  b3 
 ## 1.0 1.0 0.1 
 ## Start:lamda: 1e-04  SS= 23756  at  b1 = 1  b2 = 1  b3 = 0.1  1 / 0
@@ -1147,7 +1237,7 @@ eunsc  &lt;-<span class="st">   </span>y ~<span class="st"> </span>b1/(<span cla
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x2589818&gt;</code></pre>
+## &lt;environment: 0x24d4690&gt;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">modeldoc</span>(weedrj) <span class="co"># Note how useful this is to report status</span></code></pre>
 <pre><code>## FUNCTION weedrj 
 ## Formula: y ~ b1/(1 + b2 * exp(-b3 * tt))

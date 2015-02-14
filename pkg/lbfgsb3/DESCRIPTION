@@ -1,7 +1,6 @@
 Package: lbfgsb3
 Type: Package
-Title: Wrapper for Nocedal LBFGSB.3.0 Limited Memory BFGS 
-	Minimizer with Bounds on Parameters
+Title: Limited Memory BFGS Minimizer with Bounds on Parameters
 Version: 2015-1.22
 Date: 2015-01-22
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =

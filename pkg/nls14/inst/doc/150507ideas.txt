@@ -1,0 +1,112 @@
+Notes on derivatives in R
+
+Package stats:
+	D - derivative of expression w.r.t. single character name
+	deriv - derivative of expression w.r.t. vector of character names
+	deriv3 - derivative of expression w.r.t. vector of character names,
+		and Hessian set TRUE
+
+BUT -- quite difficult to avoid "NA" as result if the expression in 
+	D(expr, name) is not in right form.
+
+Package numDeriv: Gilbert / Ravadan
+
+	?? initial eval check / timing
+
+	genD
+	grad
+	Hessian
+	Jacobian
+
+Package Deriv:  Andrew Clausen [aut], Serguei Sokol [aut, cre]
+
+	Deriv
+	drule  (environment with rules for derivs)
+	format1 (wrapper for base::format)
+	simplifications  (environment with rules for simplifications)
+	Simplify
+
+Package nls14: (only derivative-related functions listed) Murdoch / Nash
+
+	Deriv
+	findSubexprs
+	fnDeriv
+	isFALSE
+	isMINUSONE
+	isONE
+	isZERO
+	newDeriv
+	newSimplification
+	Simplify
+	sysDerivs
+	sysSimplifications
+    
+Package pracma:  (only derivative-related functions listed) Borchers
+
+	complexstep
+	grad_csd
+	jacobian_csd
+	hessian_csd
+	laplacian_csd
+
+Unofficial package dualnumbers: Borchers
+
+	Uses dual numbers to get derivatives.
+
+Questions:
+
+- How to get more reliability in D() etc. so we do not get NA when
+	"expr" is not correctly structured.
+
+   e.g., myexp<- "b1/(1 + b2 * exp(-b3 * t))"
+         D(myexp, "b1")  returns NA
+         D(parse(text=myexp), "b1") returns correct expression.
+
+
+- How to find grad or Hessian of a functional form as a functional form.
+
+- How to "nicely" switch from symbolic to numeric derivatives when an
+expression has no analytic partial derivative. 
+
+	Need an example where expression has some analytic and some non-analytic
+	partials.
+
+- Generally -- easier "how-to" and more automation.
+
+
+==============================================================
+Other topics to discuss with Ben and Duncan
+
+Convex optimization:
+	still not fully available for R users
+
+"Production" optimizers vs. "Test" optimizers:
+	optimx is more for testing. It has too many checks that take a lot
+	of time. A clean interface that is very stripped down that efficiently
+	switched between optimizers for applications like bbmle that want to 
+	change optimizer.
+		- need a clean way to specify options / controls, as well as
+			good defaults
+		- need a clean interface so developers don't have to read
+			and learn too much.
+
+Nonlinear least squares
+	- how much of nls() to carry over
+	- updated variable projection (partially linear) methods. There is
+		a new implementation (? in MATLAB) by Diane O'Leary et al.
+	- better integration of derivatives
+
+Scaling issues
+	- optimx had scaling, (optim has it), but it slowed things down.
+		Possibly better coding could avoid the slowness, but it
+		seems almost naturally to add complexity to the code.
+		Could it be "buried" in the parameter vector structure,
+		much like the names attribute?
+
+Other?
+
+===============================================================
+
+Priority for effort?
+
+

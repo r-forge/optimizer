@@ -1,7 +1,12 @@
 NEWS about R package optimx
 
 TODO
-     
+
+
+VERSION 2015-04-23
+      o removed condition that made solution NA if gradient or function
+        limits exceeded. Now returns parameters and function at the point
+	where limit reached.
 
 VERSION 2015-01-21
       o Added lbfgsb3, the 2011 version of this code.

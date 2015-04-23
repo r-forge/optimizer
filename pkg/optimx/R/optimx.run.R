@@ -303,13 +303,16 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
-        if ((class(ans)[1] != "try-error") && (ans$convergence==0)) {
+        if (class(ans)[1] != "try-error") { # 150423 remove  "&& (ans$convergence==0"
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
 ##		ans$value<-ans$fvalue 
         } else {
 		if (ctrl$trace>0) cat("Rvmmin failed for current problem \n")
+#                cat("Temporary answer:\n")
+#                print(ans)
+#                tmp <- readline()
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
 ##		ans$value<-ans$fvalue 
 		ans$value= ctrl$badval
@@ -345,7 +348,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		ans$prm <- NULL
 		ans$f <- NULL
 		ans$info <- NULL
-# Note: We dont' use the returned gradient. Sigh.		
+# Note: We don't use the returned gradient. Sigh.		
         } else {
 		if (ctrl$trace>0) cat("lbfgsb3 failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list

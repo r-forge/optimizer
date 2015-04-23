@@ -1,7 +1,7 @@
 Package: optimx
-Version: 2015.1.21
-Date: 2015-01-21
-Title: A Replacement and Extension of the optim() Function
+Version: 2015.4.23
+Date: 2015-04-23
+Title: A Replacement and Extension of the _optim()_ Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
     "Ravi", family = "Varadhan", role = "aut", email =

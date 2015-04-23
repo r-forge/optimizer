@@ -53,10 +53,14 @@ Unofficial package dualnumbers: Borchers
 
 	Uses dual numbers to get derivatives.
 
+Package cOde (daniel.kaschek@physik.uni-freiburg.de)
+	Has some tools for helping to get Jacobians (sum and prod).
+
 Questions:
 
 - How to get more reliability in D() etc. so we do not get NA when
 	"expr" is not correctly structured.
+	Note ideas in vignette for nls14 of safeD.
 
    e.g., myexp<- "b1/(1 + b2 * exp(-b3 * t))"
          D(myexp, "b1")  returns NA

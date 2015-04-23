@@ -10,7 +10,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2015-01-29" />
+<meta name="date" content="2015-04-23" />
 
 <title>nls14 Background, Examples and Discussion</title>
 
@@ -54,14 +54,14 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <div id="header">
 <h1 class="title">nls14 Background, Examples and Discussion</h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2015-01-29</em></h4>
+<h4 class="date"><em>2015-04-23</em></h4>
 </div>
 
 
 <p>This vignette is to explain <strong>nls14</strong>, an R package to try to bring the <strong>R</strong> function nls() up to date and to add capabilities for the extension of the symbolic and automatic derivative tools in <strong>R</strong>.</p>
 <p>A particular goal in <strong>nls14</strong> is to attempt, wherever possible, to use analytic or automatic derivatives. The function nls() uses a rather weak forward derivative approximation. A second objective is to use a Marquardt stabilization of the Gauss-Newton equations to avoid the commonly encountered “singular gradient” failure of nls(). This refers to the loss of rank of the Jacobian at the parameters for evaluation. The particular stabilization also incorporates a very simple trick to avoid very small diagonal elements of the Jacobian inner product, though in the present implementations, this is accomplished indirectly. See the section below <strong>Implementation of method</strong></p>
 <p>A large part of the work of this package was carried out by Duncan Murdoch. Without his input, much of the capability of the package would not exist.</p>
-<p>The package and this vignette are a work in progress, and assistance and examples are welcome.</p>
+<p>The package and this vignette are a work in progress, and assistance and examples are welcome. Note that there is similar work in the package Deriv (Andrew Clausen and Serguei Sokol (2015) Symbolic Differentiation, version 2.0, <a href="http://CRAN.R-project.org/package=Deriv" class="uri">http://CRAN.R-project.org/package=Deriv</a>)</p>
 <div id="summary-of-capabilities" class="section level2">
 <h2>Summary of capabilities</h2>
 <div id="functions-in-nls14" class="section level3">
@@ -133,7 +133,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <h3>Missing capabilities</h3>
 <div id="multi-line-functions" class="section level4">
 <h4>Multi-line functions</h4>
-<p>Multi-line functions present present a challenge. This is in part because the chain rule may have to be applied backwards (last line first), but also because there may be structures that are not always differentiable, such as <em>if</em> statements.</p>
+<p>Multi-line functions present a challenge. This is in part because the chain rule may have to be applied backwards (last line first), but also because there may be structures that are not always differentiable, such as <em>if</em> statements.</p>
 </div>
 <div id="vector-parameters" class="section level4">
 <h4>Vector parameters</h4>
@@ -246,8 +246,10 @@ hobJac &lt;-<span class="st"> </span><span class="kw">cbind</span>(col1, col2, c
 <p>Jacobians, the matrices of partial derivatives of residuals with respect to the parameters, have a vector input.</p>
 </div>
 </div>
-<div id="implementation-of-method" class="section level2">
-<h2>Implementation of method</h2>
+<div id="implementation-of-optimization-methods" class="section level2">
+<h2>Implementation of optimization methods</h2>
+<div id="nonlinear-least-squares" class="section level3">
+<h3>Nonlinear least squares</h3>
 <p>Nonlinear least squares methods are mostly founded on some or other variant of the Gauss-Newton algorithm. The function we wish to minimize is the sum of squares of the (nonlinear) residuals r(x) where there are m observations (elements of r) and n parameters x. Hence the function is</p>
 <pre><code>f(x) = sum(r(k)^2)</code></pre>
 <p>Newton’s method starts with an original set of parameters x[0]. At a given iteraion, which could be the first, we want to solve</p>
@@ -276,12 +278,379 @@ hobJac &lt;-<span class="st"> </span><span class="kw">cbind</span>(col1, col2, c
 <p>In Nash (1979), the iteration equation was solved as stated. However, this involves forming the sum of squares and cross products of J, a process that loses some numerical precision. A better way to solve the linear equations is to apply the QR decomposition to the matrix J itself. However, we still need to incorporate the lambda * I or lambda * D adjustments. This is done by adding rows to J that are the square roots of the “pieces”. We add 1 row for each diagonal element of I and each diagonal element of D.</p>
 <p>In each iteration, we reduce the lambda parameter before solution. If the resulting sum of squares is not reduced, lambda is increased, otherwise we move to the next iteration.</p>
 </div>
+</div>
 <div id="providing-extra-data-to-expressions" class="section level2">
 <h2>Providing extra data to expressions</h2>
 <p>Almost all statistical functions have exogenous data that is needed to compute residuals or likelihoods and is not dependent on the model parameters. (This section starts from Notes140806.)</p>
 <p>model2rjfun does NOT have … args.</p>
 <p>Should it have? i.e., a problem where we are fitting a set of time series, 1 for each plant/animal, with some sort of start parameter for each that is NOT estimated (e.g., pH of soil, some index of health).</p>
 <p>Difficulty in such a problem is that the residuals are then a matrix, and the nlfb rather than nlxb is a better approach. However, fitting 1 series would still need this data, and example nls14tryextraparms.txt shows that the extra parm (ms in this case) needs to be in the user’s globalenv.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(<span class="dt">list=</span><span class="kw">ls</span>())
+<span class="kw">require</span>(nls14)
+<span class="co"># want to have data AND extra parameters (NOT to be estimated)</span>
+traceval  &lt;-<span class="st">  </span><span class="ot">TRUE</span>  <span class="co"># traceval set TRUE to debug or give full history</span>
+<span class="co"># Data for Hobbs problem</span>
+ydat  &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="fl">5.308</span>, <span class="fl">7.24</span>, <span class="fl">9.638</span>, <span class="fl">12.866</span>, <span class="fl">17.069</span>, <span class="fl">23.192</span>, <span class="fl">31.443</span>, 
+          <span class="fl">38.558</span>, <span class="fl">50.156</span>, <span class="fl">62.948</span>, <span class="fl">75.995</span>, <span class="fl">91.972</span>) <span class="co"># for testing</span>
+tdat  &lt;-<span class="st">  </span><span class="kw">seq_along</span>(ydat) <span class="co"># for testing</span>
+<span class="co"># A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.</span>
+start1  &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="dt">b1=</span><span class="dv">1</span>, <span class="dt">b2=</span><span class="dv">1</span>, <span class="dt">b3=</span><span class="dv">1</span>)
+startf1  &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="dt">b1=</span><span class="dv">1</span>, <span class="dt">b2=</span><span class="dv">1</span>, <span class="dt">b3=</span>.<span class="dv">1</span>)
+eunsc  &lt;-<span class="st">   </span>y ~<span class="st"> </span>b1/(<span class="dv">1</span>+b2*<span class="kw">exp</span>(-b3*tt))
+<span class="kw">cat</span>(<span class="st">&quot;LOCAL DATA IN DATA FRAMES</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## LOCAL DATA IN DATA FRAMES</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">weeddata1  &lt;-<span class="st">  </span><span class="kw">data.frame</span>(<span class="dt">y=</span>ydat, <span class="dt">tt=</span>tdat)
+<span class="kw">cat</span>(<span class="st">&quot;weeddata contains the original data</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## weeddata contains the original data</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ms &lt;-<span class="st"> </span><span class="dv">2</span> <span class="co"># define the external parameter here</span>
+<span class="kw">cat</span>(<span class="st">&quot;wdata scales y by ms =&quot;</span>,ms,<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## wdata scales y by ms = 2</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">wdata &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">y=</span>ydat/ms, <span class="dt">tt=</span>tdat)
+wdata</code></pre>
+<pre><code>##          y tt
+## 1   2.6540  1
+## 2   3.6200  2
+## 3   4.8190  3
+## 4   6.4330  4
+## 5   8.5345  5
+## 6  11.5960  6
+## 7  15.7215  7
+## 8  19.2790  8
+## 9  25.0780  9
+## 10 31.4740 10
+## 11 37.9975 11
+## 12 45.9860 12</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;estimate the UNSCALED model with SCALED data</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## estimate the UNSCALED model with SCALED data</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">anls14xbs  &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="kw">nls14xb</span>(eunsc, <span class="dt">start=</span>start1, <span class="dt">trace=</span>traceval, <span class="dt">data=</span>wdata))</code></pre>
+<pre><code>## formula: y ~ b1/(1 + b2 * exp(-b3 * tt))
+## lower:[1] -Inf -Inf -Inf
+## upper:[1] Inf Inf Inf
+## $watch
+## [1] FALSE
+## 
+## $phi
+## [1] 1
+## 
+## $lamda
+## [1] 1e-04
+## 
+## $offset
+## [1] 100
+## 
+## $laminc
+## [1] 10
+## 
+## $lamdec
+## [1] 4
+## 
+## $femax
+## [1] 10000
+## 
+## $jemax
+## [1] 5000
+## 
+## $rofftest
+## [1] TRUE
+## 
+## $smallsstest
+## [1] TRUE
+## 
+## vn:[1] &quot;y&quot;  &quot;b1&quot; &quot;b2&quot; &quot;b3&quot; &quot;tt&quot;
+## datvar:[1] &quot;y&quot;  &quot;tt&quot;
+## Data variable  y : [1]  2.6540  3.6200  4.8190  6.4330  8.5345 11.5960 15.7215 19.2790
+##  [9] 25.0780 31.4740 37.9975 45.9860
+## Data variable  tt : [1]  1  2  3  4  5  6  7  8  9 10 11 12
+## Finished masks check
+## model2rjfun: modelformula = y ~ b1/(1 + b2 * exp(-b3 * tt))
+## [1] &quot;formula&quot;
+## trjfn:
+## function (prm) 
+## {
+##     if (is.null(names(prm))) 
+##         names(prm) &lt;- names(pvec)
+##     localdata &lt;- list2env(as.list(prm), parent = data)
+##     eval(residexpr, envir = localdata)
+## }
+## &lt;environment: 0x1e1d3d8&gt;
+## Starting pnum=b1 b2 b3 
+##  1  1  1 
+## Start:lamda: 1e-04  SS= 5676.925  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
+## lamda: 0.001  SS= 6088.946  at  b1 = 25.44327  b2 = -119.8584  b3 = -185.954  2 / 1
+## lamda: 0.01  SS= 6088.946  at  b1 = 25.09223  b2 = -94.84981  b3 = -166.6058  3 / 1
+## lamda: 0.1  SS= 6088.946  at  b1 = 23.49226  b2 = -12.1639  b3 = -96.94824  4 / 1
+## lamda: 1  SS= 6088.946  at  b1 = 19.10491  b2 = 15.51374  b3 = -31.7677  5 / 1
+## lamda: 10  SS= 6077.975  at  b1 = 9.663924  b2 = 2.341445  b3 = -1.074466  6 / 1
+## &lt;&lt;lamda: 4  SS= 5096.507  at  b1 = 2.508867  b2 = 0.9465915  b3 = 1.140924  7 / 1
+## &lt;&lt;lamda: 1.6  SS= 4086.732  at  b1 = 5.539492  b2 = 1.127669  b3 = 0.9866082  8 / 2
+## lamda: 16  SS= 5979.157  at  b1 = 10.70911  b2 = 2.436093  b3 = -0.3579844  9 / 3
+## &lt;&lt;lamda: 6.4  SS= 3871.108  at  b1 = 6.275743  b2 = 1.194974  b3 = 0.9504393  10 / 3
+## &lt;&lt;lamda: 2.56  SS= 3427.063  at  b1 = 7.913975  b2 = 1.462101  b3 = 0.7695198  11 / 4
+## &lt;&lt;lamda: 1.024  SS= 2714.043  at  b1 = 11.24279  b2 = 2.292268  b3 = 0.4124356  12 / 5
+## &lt;&lt;lamda: 0.4096  SS= 1624.322  at  b1 = 17.58076  b2 = 3.978355  b3 = 0.5133315  13 / 6
+## &lt;&lt;lamda: 0.16384  SS= 1595.968  at  b1 = 25.77752  b2 = 7.844312  b3 = 0.2536126  14 / 7
+## &lt;&lt;lamda: 0.065536  SS= 389.9944  at  b1 = 36.5797  b2 = 11.35334  b3 = 0.4014417  15 / 8
+## &lt;&lt;lamda: 0.0262144  SS= 227.356  at  b1 = 47.30675  b2 = 19.47462  b3 = 0.3253081  16 / 9
+## &lt;&lt;lamda: 0.01048576  SS= 30.76802  at  b1 = 61.38048  b2 = 30.70084  b3 = 0.3549442  17 / 10
+## &lt;&lt;lamda: 0.004194304  SS= 7.535561  at  b1 = 71.37593  b2 = 39.43433  b3 = 0.3435968  18 / 11
+## &lt;&lt;lamda: 0.001677722  SS= 2.40805  at  b1 = 80.80069  b2 = 44.72922  b3 = 0.3344339  19 / 12
+## &lt;&lt;lamda: 0.0006710886  SS= 1.188571  at  b1 = 88.88428  b2 = 47.00714  b3 = 0.3237746  20 / 13
+## &lt;&lt;lamda: 0.0002684355  SS= 0.7263783  at  b1 = 94.69062  b2 = 48.29672  b3 = 0.3169928  21 / 14
+## &lt;&lt;lamda: 0.0001073742  SS= 0.6497016  at  b1 = 97.37788  b2 = 48.92225  b3 = 0.3142756  22 / 15
+## &lt;&lt;lamda: 4.294967e-05  SS= 0.6468358  at  b1 = 98.02182  b2 = 49.07495  b3 = 0.3136437  23 / 16
+## &lt;&lt;lamda: 1.717987e-05  SS= 0.6468194  at  b1 = 98.08991  b2 = 49.09088  b3 = 0.3135732  24 / 17
+## &lt;&lt;lamda: 6.871948e-06  SS= 0.6468193  at  b1 = 98.09306  b2 = 49.09162  b3 = 0.3135698  25 / 18</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(anls14xbs)</code></pre>
+<pre><code>## nls14 class object: x 
+## residual sumsquares =  0.64682  on  12 observations
+##     after  18    Jacobian and  25 function evaluations
+##   name            coeff          SE       tstat      pval      gradient    JSingval   
+## b1               98.0931         5.653      17.35  3.164e-08  -1.337e-07       505.4  
+## b2               49.0916         1.688      29.08  3.281e-10   3.017e-08      0.2344  
+## b3               0.31357      0.006863      45.69  5.768e-12  -1.398e-05     0.04632</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">escal &lt;-<span class="st">  </span>y ~<span class="st"> </span>ms*b1/(<span class="dv">1</span>+b2*<span class="kw">exp</span>(-b3*tt))
+<span class="kw">cat</span>(<span class="st">&quot;estimate the SCALED model with scaling provided in the call (ms=0.5)</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## estimate the SCALED model with scaling provided in the call (ms=0.5)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">anls14xbh  &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="kw">nls14xb</span>(escal, <span class="dt">start=</span>start1, <span class="dt">trace=</span>traceval, <span class="dt">data=</span>weeddata1, <span class="dt">ms=</span><span class="fl">0.5</span>))</code></pre>
+<pre><code>## formula: y ~ ms * b1/(1 + b2 * exp(-b3 * tt))
+## lower:[1] -Inf -Inf -Inf
+## upper:[1] Inf Inf Inf
+## $watch
+## [1] FALSE
+## 
+## $phi
+## [1] 1
+## 
+## $lamda
+## [1] 1e-04
+## 
+## $offset
+## [1] 100
+## 
+## $laminc
+## [1] 10
+## 
+## $lamdec
+## [1] 4
+## 
+## $femax
+## [1] 10000
+## 
+## $jemax
+## [1] 5000
+## 
+## $rofftest
+## [1] TRUE
+## 
+## $smallsstest
+## [1] TRUE
+## 
+## vn:[1] &quot;y&quot;  &quot;ms&quot; &quot;b1&quot; &quot;b2&quot; &quot;b3&quot; &quot;tt&quot;
+## datvar:[1] &quot;y&quot;  &quot;ms&quot; &quot;tt&quot;
+## Data variable  y : [1]  5.308  7.240  9.638 12.866 17.069 23.192 31.443 38.558 50.156 62.948
+## [11] 75.995 91.972
+## Data variable  ms :[1] 2
+## Data variable  tt : [1]  1  2  3  4  5  6  7  8  9 10 11 12
+## Finished masks check
+## model2rjfun: modelformula = y ~ ms * b1/(1 + b2 * exp(-b3 * tt))
+## [1] &quot;formula&quot;
+## trjfn:
+## function (prm) 
+## {
+##     if (is.null(names(prm))) 
+##         names(prm) &lt;- names(pvec)
+##     localdata &lt;- list2env(as.list(prm), parent = data)
+##     eval(residexpr, envir = localdata)
+## }
+## &lt;environment: 0x3488f58&gt;
+## Starting pnum=b1 b2 b3 
+##  1  1  1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(anls14xbh)</code></pre>
+<pre><code>## [1] &quot;Error in resfn(pnum, ...) : unused argument (ms = 0.5)\n&quot;
+## attr(,&quot;class&quot;)
+## [1] &quot;try-error&quot;
+## attr(,&quot;condition&quot;)
+## &lt;simpleError in resfn(pnum, ...): unused argument (ms = 0.5)&gt;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st"> scaling is now using the globally defined value of ms=&quot;</span>,ms,<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## 
+##  scaling is now using the globally defined value of ms= 2</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">anls14xb1a  &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="kw">nls14xb</span>(escal, <span class="dt">start=</span>start1, <span class="dt">trace=</span>traceval, <span class="dt">data=</span>weeddata1))</code></pre>
+<pre><code>## formula: y ~ ms * b1/(1 + b2 * exp(-b3 * tt))
+## lower:[1] -Inf -Inf -Inf
+## upper:[1] Inf Inf Inf
+## $watch
+## [1] FALSE
+## 
+## $phi
+## [1] 1
+## 
+## $lamda
+## [1] 1e-04
+## 
+## $offset
+## [1] 100
+## 
+## $laminc
+## [1] 10
+## 
+## $lamdec
+## [1] 4
+## 
+## $femax
+## [1] 10000
+## 
+## $jemax
+## [1] 5000
+## 
+## $rofftest
+## [1] TRUE
+## 
+## $smallsstest
+## [1] TRUE
+## 
+## vn:[1] &quot;y&quot;  &quot;ms&quot; &quot;b1&quot; &quot;b2&quot; &quot;b3&quot; &quot;tt&quot;
+## datvar:[1] &quot;y&quot;  &quot;ms&quot; &quot;tt&quot;
+## Data variable  y : [1]  5.308  7.240  9.638 12.866 17.069 23.192 31.443 38.558 50.156 62.948
+## [11] 75.995 91.972
+## Data variable  ms :[1] 2
+## Data variable  tt : [1]  1  2  3  4  5  6  7  8  9 10 11 12
+## Finished masks check
+## model2rjfun: modelformula = y ~ ms * b1/(1 + b2 * exp(-b3 * tt))
+## [1] &quot;formula&quot;
+## trjfn:
+## function (prm) 
+## {
+##     if (is.null(names(prm))) 
+##         names(prm) &lt;- names(pvec)
+##     localdata &lt;- list2env(as.list(prm), parent = data)
+##     eval(residexpr, envir = localdata)
+## }
+## &lt;environment: 0x360a820&gt;
+## Starting pnum=b1 b2 b3 
+##  1  1  1 
+## Start:lamda: 1e-04  SS= 22708  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
+## lamda: 0.001  SS= 24356  at  b1 = 25.472  b2 = -122.14  b3 = -187.69  2 / 1
+## lamda: 0.01  SS= 24356  at  b1 = 25.327  b2 = -113.2  b3 = -180.68  3 / 1
+## lamda: 0.1  SS= 24356  at  b1 = 24.283  b2 = -57.588  b3 = -135.68  4 / 1
+## lamda: 1  SS= 24356  at  b1 = 20.254  b2 = 14.461  b3 = -54.127  5 / 1
+## lamda: 10  SS= 24355  at  b1 = 10.077  b2 = 4.8657  b3 = -4.5699  6 / 1
+## &lt;&lt;lamda: 4  SS= 20252  at  b1 = 2.5977  b2 = 0.83113  b3 = 1.4117  7 / 1
+## &lt;&lt;lamda: 1.6  SS= 16143  at  b1 = 5.7092  b2 = 1.3529  b3 = 0.86529  8 / 2
+## lamda: 16  SS= 22536  at  b1 = 11.269  b2 = 3.0589  b3 = -0.12239  9 / 3
+## &lt;&lt;lamda: 6.4  SS= 15214  at  b1 = 6.5093  b2 = 1.428  b3 = 0.86138  10 / 3
+## &lt;&lt;lamda: 2.56  SS= 13336  at  b1 = 8.2714  b2 = 1.7659  b3 = 0.74306  11 / 4
+## &lt;&lt;lamda: 1.024  SS= 10290  at  b1 = 11.801  b2 = 2.7987  b3 = 0.46561  12 / 5
+## &lt;&lt;lamda: 0.4096  SS= 5999.3  at  b1 = 18.477  b2 = 4.9891  b3 = 0.46298  13 / 6
+## &lt;&lt;lamda: 0.16384  SS= 3360.8  at  b1 = 27.609  b2 = 9.7076  b3 = 0.35379  14 / 7
+## &lt;&lt;lamda: 0.065536  SS= 872.75  at  b1 = 40.302  b2 = 16.934  b3 = 0.38655  15 / 8
+## &lt;&lt;lamda: 0.026214  SS= 308.99  at  b1 = 51.624  b2 = 26.628  b3 = 0.36281  16 / 9
+## &lt;&lt;lamda: 0.010486  SS= 64.882  at  b1 = 63.651  b2 = 36.557  b3 = 0.35778  17 / 10
+## &lt;&lt;lamda: 0.0041943  SS= 19.992  at  b1 = 73.76  b2 = 43.123  b3 = 0.3463  18 / 11
+## &lt;&lt;lamda: 0.0016777  SS= 8.8066  at  b1 = 83.053  b2 = 46.013  b3 = 0.33222  19 / 12
+## &lt;&lt;lamda: 0.00067109  SS= 4.1734  at  b1 = 91.086  b2 = 47.556  b3 = 0.32103  20 / 13
+## &lt;&lt;lamda: 0.00026844  SS= 2.7218  at  b1 = 96.072  b2 = 48.622  b3 = 0.31554  21 / 14
+## &lt;&lt;lamda: 0.00010737  SS= 2.5891  at  b1 = 97.8  b2 = 49.023  b3 = 0.31386  22 / 15
+## &lt;&lt;lamda: 4.295e-05  SS= 2.5873  at  b1 = 98.074  b2 = 49.087  b3 = 0.31359  23 / 16
+## &lt;&lt;lamda: 1.718e-05  SS= 2.5873  at  b1 = 98.093  b2 = 49.091  b3 = 0.31357  24 / 17</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(anls14xb1a)</code></pre>
+<pre><code>## nls14 class object: x 
+## residual sumsquares =  2.5873  on  12 observations
+##     after  17    Jacobian and  24 function evaluations
+##   name            coeff          SE       tstat      pval      gradient    JSingval   
+## b1               98.0925         5.651      17.36  3.153e-08  -9.046e-06        1011  
+## b2               49.0915         1.688      29.09   3.27e-10   6.839e-06      0.4687  
+## b3               0.31357      0.006863      45.69  5.769e-12   -0.003104     0.09268</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ms &lt;-<span class="st"> </span><span class="dv">1</span>
+<span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st"> scaling is now using the globally re-defined value of ms=&quot;</span>,ms,<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
+<pre><code>## 
+##  scaling is now using the globally re-defined value of ms= 1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">anls14xb1b  &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="kw">nls14xb</span>(escal, <span class="dt">start=</span>start1, <span class="dt">trace=</span>traceval, <span class="dt">data=</span>weeddata1))</code></pre>
+<pre><code>## formula: y ~ ms * b1/(1 + b2 * exp(-b3 * tt))
+## lower:[1] -Inf -Inf -Inf
+## upper:[1] Inf Inf Inf
+## $watch
+## [1] FALSE
+## 
+## $phi
+## [1] 1
+## 
+## $lamda
+## [1] 1e-04
+## 
+## $offset
+## [1] 100
+## 
+## $laminc
+## [1] 10
+## 
+## $lamdec
+## [1] 4
+## 
+## $femax
+## [1] 10000
+## 
+## $jemax
+## [1] 5000
+## 
+## $rofftest
+## [1] TRUE
+## 
+## $smallsstest
+## [1] TRUE
+## 
+## vn:[1] &quot;y&quot;  &quot;ms&quot; &quot;b1&quot; &quot;b2&quot; &quot;b3&quot; &quot;tt&quot;
+## datvar:[1] &quot;y&quot;  &quot;ms&quot; &quot;tt&quot;
+## Data variable  y : [1]  5.308  7.240  9.638 12.866 17.069 23.192 31.443 38.558 50.156 62.948
+## [11] 75.995 91.972
+## Data variable  ms :[1] 1
+## Data variable  tt : [1]  1  2  3  4  5  6  7  8  9 10 11 12
+## Finished masks check
+## model2rjfun: modelformula = y ~ ms * b1/(1 + b2 * exp(-b3 * tt))
+## [1] &quot;formula&quot;
+## trjfn:
+## function (prm) 
+## {
+##     if (is.null(names(prm))) 
+##         names(prm) &lt;- names(pvec)
+##     localdata &lt;- list2env(as.list(prm), parent = data)
+##     eval(residexpr, envir = localdata)
+## }
+## &lt;environment: 0x33355b8&gt;
+## Starting pnum=b1 b2 b3 
+##  1  1  1 
+## Start:lamda: 1e-04  SS= 23521  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
+## lamda: 0.001  SS= 24356  at  b1 = 50.886  b2 = -240.72  b3 = -372.91  2 / 1
+## lamda: 0.01  SS= 24356  at  b1 = 50.183  b2 = -190.69  b3 = -334.2  3 / 1
+## lamda: 0.1  SS= 24356  at  b1 = 46.97  b2 = -25.309  b3 = -194.81  4 / 1
+## lamda: 1  SS= 24356  at  b1 = 38.096  b2 = 29.924  b3 = -64.262  5 / 1
+## lamda: 10  SS= 24353  at  b1 = 18.798  b2 = 3.551  b3 = -2.9011  6 / 1
+## &lt;&lt;lamda: 4  SS= 21065  at  b1 = 4.1015  b2 = 0.86688  b3 = 1.3297  7 / 1
+## &lt;&lt;lamda: 1.6  SS= 16852  at  b1 = 10.248  b2 = 1.2302  b3 = 1.0044  8 / 2
+## lamda: 16  SS= 24078  at  b1 = 20.944  b2 = 2.9473  b3 = -0.40959  9 / 3
+## &lt;&lt;lamda: 6.4  SS= 15934  at  b1 = 11.771  b2 = 1.3084  b3 = 0.98087  10 / 3
+## &lt;&lt;lamda: 2.56  SS= 14050  at  b1 = 15.152  b2 = 1.6468  b3 = 0.80462  11 / 4
+## &lt;&lt;lamda: 1.024  SS= 10985  at  b1 = 22.005  b2 = 2.6632  b3 = 0.45111  12 / 5
+## &lt;&lt;lamda: 0.4096  SS= 6427.1  at  b1 = 35.128  b2 = 4.7135  b3 = 0.50974  13 / 6
+## &lt;&lt;lamda: 0.16384  SS= 4725  at  b1 = 52.285  b2 = 9.2948  b3 = 0.31348  14 / 7
+## &lt;&lt;lamda: 0.065536  SS= 1132.2  at  b1 = 76.446  b2 = 15.142  b3 = 0.41095  15 / 8
+## &lt;&lt;lamda: 0.026214  SS= 518.76  at  b1 = 96.924  b2 = 24.422  b3 = 0.35816  16 / 9
+## &lt;&lt;lamda: 0.010486  SS= 79.464  at  b1 = 122.18  b2 = 35.262  b3 = 0.36484  17 / 10
+## &lt;&lt;lamda: 0.0041943  SS= 26.387  at  b1 = 141.55  b2 = 42.387  b3 = 0.35215  18 / 11
+## &lt;&lt;lamda: 0.0016777  SS= 11.339  at  b1 = 160.02  b2 = 45.519  b3 = 0.33738  19 / 12
+## &lt;&lt;lamda: 0.00067109  SS= 5.2767  at  b1 = 176.92  b2 = 47.037  b3 = 0.32443  20 / 13
+## &lt;&lt;lamda: 0.00026844  SS= 2.9656  at  b1 = 189.12  b2 = 48.279  b3 = 0.31712  21 / 14
+## &lt;&lt;lamda: 0.00010737  SS= 2.6003  at  b1 = 194.72  b2 = 48.92  b3 = 0.31429  22 / 15
+## &lt;&lt;lamda: 4.295e-05  SS= 2.5873  at  b1 = 196.04  b2 = 49.075  b3 = 0.31364  23 / 16
+## &lt;&lt;lamda: 1.718e-05  SS= 2.5873  at  b1 = 196.18  b2 = 49.091  b3 = 0.31357  24 / 17
+## &lt;&lt;lamda: 6.8719e-06  SS= 2.5873  at  b1 = 196.19  b2 = 49.092  b3 = 0.31357  25 / 18</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(anls14xb1b)</code></pre>
+<pre><code>## nls14 class object: x 
+## residual sumsquares =  2.5873  on  12 observations
+##     after  18    Jacobian and  25 function evaluations
+##   name            coeff          SE       tstat      pval      gradient    JSingval   
+## b1               196.186         11.31      17.35  3.164e-08  -2.663e-07        1011  
+## b2               49.0916         1.688      29.08  3.281e-10    1.59e-07      0.4605  
+## b3               0.31357      0.006863      45.69  5.768e-12  -5.531e-05     0.04715</code></pre>
 </div>
 <div id="derivatives-table" class="section level2">
 <h2>Derivatives table</h2>
@@ -350,6 +719,50 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 ##      x y
 ## [1,] 1 1</code></pre>
 <p>However, we would ideally like to be able to automate this to generate functions and gradients for nonlinear least squares and optimization calculations. The same criticism applies to the object <strong>old</strong></p>
+<div id="another-issue" class="section level4">
+<h4>Another issue:</h4>
+<p>If we have x and y set such that the function is not admissible, then both our old and new functions give a gradient that is seemingly reasonable. While the gradient of this simple function could be considered to be defined for ANY values of x and y, I (JN) am sure most users would wish for a warning at the very least in such cases.</p>
+<pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="ot">NA</span>
+y &lt;-<span class="st"> </span><span class="ot">Inf</span>
+<span class="kw">print</span>(<span class="kw">eval</span>(new))</code></pre>
+<pre><code>## [1] NA
+## attr(,&quot;gradient&quot;)
+##      x y
+## [1,] 1 1</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">eval</span>(old))</code></pre>
+<pre><code>## [1] NA
+## attr(,&quot;gradient&quot;)
+##      x y
+## [1,] 1 1</code></pre>
+</div>
+<div id="safed" class="section level4">
+<h4>SafeD</h4>
+<p>We could define a way to avoid the issue of character vs. expression (and possibly other classes) as follows:</p>
+<pre class="sourceCode r"><code class="sourceCode r">safeD &lt;-<span class="st"> </span>function(obj, var) {
+   <span class="co"># safeguarded D() function for symbolic derivs</span>
+   if (!<span class="st"> </span><span class="kw">is.character</span>(var) ) <span class="kw">stop</span>(<span class="st">&quot;The variable var MUST be character type&quot;</span>)
+   if (<span class="kw">is.character</span>(obj) ) {
+       eobj &lt;-<span class="st"> </span><span class="kw">parse</span>(<span class="dt">text=</span>obj)
+       result &lt;-<span class="st"> </span><span class="kw">D</span>(eobj, var)
+   } else {
+       result &lt;-<span class="st"> </span><span class="kw">D</span>(obj, var)
+   }
+}
+
+lxy2 &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">log</span>(x+y^<span class="dv">2</span>))
+clxy2 &lt;-<span class="st"> &quot;log(x+y^2)&quot;</span>
+<span class="kw">print</span>(<span class="kw">D</span>(clxy2, <span class="st">&quot;y&quot;</span>))</code></pre>
+<pre><code>## [1] NA</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">D</span>(lxy2, <span class="st">&quot;y&quot;</span>))</code></pre>
+<pre><code>## 2 * y/(x + y^2)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">safeD</span>(clxy2, <span class="st">&quot;y&quot;</span>))</code></pre>
+<pre><code>## 2 * y/(x + y^2)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">safeD</span>(lxy2, <span class="st">&quot;y&quot;</span>))</code></pre>
+<pre><code>## 2 * y/(x + y^2)</code></pre>
+</div>
+</div>
+<div id="derivatives-table---2" class="section level2">
+<h2>Derivatives table - 2</h2>
 <pre class="sourceCode r"><code class="sourceCode r">## Try different ways to supply the log function
 aDeriv &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
 <span class="kw">class</span>(aDeriv)</code></pre>
@@ -919,7 +1332,7 @@ interm</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="kw">log</span>(a+b))))</code></pre>
 <pre><code>## a + b</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="dv">1</span>)))</code></pre>
-<pre><code>## [1] 2.718282</code></pre>
+<pre><code>## [1] 2.7183</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="kw">exp</span>(a+b))))</code></pre>
 <pre><code>## a + b</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="dv">1</span>)))</code></pre>
@@ -967,7 +1380,7 @@ interm</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span>/(a+b)))</code></pre>
 <pre><code>## [1] 0</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">1</span>/<span class="dv">3</span>))</code></pre>
-<pre><code>## [1] 0.3333333</code></pre>
+<pre><code>## [1] 0.33333</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b) ^<span class="st"> </span><span class="dv">1</span>))</code></pre>
 <pre><code>## a + b</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">2</span>^<span class="dv">10</span>))</code></pre>
@@ -1099,34 +1512,34 @@ anls14xb1  &lt;-<span class="st">  </span><span class="kw">try</span>(<span clas
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x41e6ea8&gt;
+## &lt;environment: 0x35f6980&gt;
 ## Starting pnum=b1 b2 b3 
 ##  1  1  1 
-## Start:lamda: 1e-04  SS= 23520.58  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
-## lamda: 0.001  SS= 24355.78  at  b1 = 50.88637  b2 = -240.7157  b3 = -372.9063  2 / 1
-## lamda: 0.01  SS= 24355.78  at  b1 = 50.18287  b2 = -190.6899  b3 = -334.197  3 / 1
-## lamda: 0.1  SS= 24355.78  at  b1 = 46.96994  b2 = -25.30862  b3 = -194.8134  4 / 1
-## lamda: 1  SS= 24355.78  at  b1 = 38.09609  b2 = 29.92399  b3 = -64.26249  5 / 1
-## lamda: 10  SS= 24352.57  at  b1 = 18.79845  b2 = 3.550992  b3 = -2.901089  6 / 1
-## &lt;&lt;lamda: 4  SS= 21065.17  at  b1 = 4.101523  b2 = 0.8668807  b3 = 1.329686  7 / 1
-## &lt;&lt;lamda: 1.6  SS= 16852.28  at  b1 = 10.24849  b2 = 1.230212  b3 = 1.004386  8 / 2
-## lamda: 16  SS= 24077.82  at  b1 = 20.94439  b2 = 2.947339  b3 = -0.4095915  9 / 3
-## &lt;&lt;lamda: 6.4  SS= 15933.75  at  b1 = 11.77098  b2 = 1.30839  b3 = 0.9808683  10 / 3
-## &lt;&lt;lamda: 2.56  SS= 14050.37  at  b1 = 15.15227  b2 = 1.646833  b3 = 0.8046192  11 / 4
-## &lt;&lt;lamda: 1.024  SS= 10984.53  at  b1 = 22.00496  b2 = 2.663208  b3 = 0.4511129  12 / 5
-## &lt;&lt;lamda: 0.4096  SS= 6427.122  at  b1 = 35.12773  b2 = 4.713469  b3 = 0.5097411  13 / 6
-## &lt;&lt;lamda: 0.16384  SS= 4725.038  at  b1 = 52.28509  b2 = 9.294817  b3 = 0.3134769  14 / 7
-## &lt;&lt;lamda: 0.065536  SS= 1132.227  at  b1 = 76.44604  b2 = 15.14153  b3 = 0.4109482  15 / 8
-## &lt;&lt;lamda: 0.0262144  SS= 518.7608  at  b1 = 96.92384  b2 = 24.42232  b3 = 0.358158  16 / 9
-## &lt;&lt;lamda: 0.01048576  SS= 79.46363  at  b1 = 122.1849  b2 = 35.26152  b3 = 0.3648369  17 / 10
-## &lt;&lt;lamda: 0.004194304  SS= 26.38693  at  b1 = 141.5485  b2 = 42.38658  b3 = 0.3521514  18 / 11
-## &lt;&lt;lamda: 0.001677722  SS= 11.339  at  b1 = 160.024  b2 = 45.51922  b3 = 0.3373821  19 / 12
-## &lt;&lt;lamda: 0.0006710886  SS= 5.276671  at  b1 = 176.9152  b2 = 47.03717  b3 = 0.32443  20 / 13
-## &lt;&lt;lamda: 0.0002684355  SS= 2.965609  at  b1 = 189.1175  b2 = 48.27921  b3 = 0.3171216  21 / 14
-## &lt;&lt;lamda: 0.0001073742  SS= 2.600262  at  b1 = 194.7168  b2 = 48.91974  b3 = 0.3142945  22 / 15
-## &lt;&lt;lamda: 4.294967e-05  SS= 2.587347  at  b1 = 196.0419  b2 = 49.07496  b3 = 0.3136449  23 / 16
-## &lt;&lt;lamda: 1.717987e-05  SS= 2.587277  at  b1 = 196.1798  b2 = 49.09089  b3 = 0.3135732  24 / 17
-## &lt;&lt;lamda: 6.871948e-06  SS= 2.587277  at  b1 = 196.1861  b2 = 49.09162  b3 = 0.3135698  25 / 18</code></pre>
+## Start:lamda: 1e-04  SS= 23521  at  b1 = 1  b2 = 1  b3 = 1  1 / 0
+## lamda: 0.001  SS= 24356  at  b1 = 50.886  b2 = -240.72  b3 = -372.91  2 / 1
+## lamda: 0.01  SS= 24356  at  b1 = 50.183  b2 = -190.69  b3 = -334.2  3 / 1
+## lamda: 0.1  SS= 24356  at  b1 = 46.97  b2 = -25.309  b3 = -194.81  4 / 1
+## lamda: 1  SS= 24356  at  b1 = 38.096  b2 = 29.924  b3 = -64.262  5 / 1
+## lamda: 10  SS= 24353  at  b1 = 18.798  b2 = 3.551  b3 = -2.9011  6 / 1
+## &lt;&lt;lamda: 4  SS= 21065  at  b1 = 4.1015  b2 = 0.86688  b3 = 1.3297  7 / 1
+## &lt;&lt;lamda: 1.6  SS= 16852  at  b1 = 10.248  b2 = 1.2302  b3 = 1.0044  8 / 2
+## lamda: 16  SS= 24078  at  b1 = 20.944  b2 = 2.9473  b3 = -0.40959  9 / 3
+## &lt;&lt;lamda: 6.4  SS= 15934  at  b1 = 11.771  b2 = 1.3084  b3 = 0.98087  10 / 3
+## &lt;&lt;lamda: 2.56  SS= 14050  at  b1 = 15.152  b2 = 1.6468  b3 = 0.80462  11 / 4
+## &lt;&lt;lamda: 1.024  SS= 10985  at  b1 = 22.005  b2 = 2.6632  b3 = 0.45111  12 / 5
+## &lt;&lt;lamda: 0.4096  SS= 6427.1  at  b1 = 35.128  b2 = 4.7135  b3 = 0.50974  13 / 6
+## &lt;&lt;lamda: 0.16384  SS= 4725  at  b1 = 52.285  b2 = 9.2948  b3 = 0.31348  14 / 7
+## &lt;&lt;lamda: 0.065536  SS= 1132.2  at  b1 = 76.446  b2 = 15.142  b3 = 0.41095  15 / 8
+## &lt;&lt;lamda: 0.026214  SS= 518.76  at  b1 = 96.924  b2 = 24.422  b3 = 0.35816  16 / 9
+## &lt;&lt;lamda: 0.010486  SS= 79.464  at  b1 = 122.18  b2 = 35.262  b3 = 0.36484  17 / 10
+## &lt;&lt;lamda: 0.0041943  SS= 26.387  at  b1 = 141.55  b2 = 42.387  b3 = 0.35215  18 / 11
+## &lt;&lt;lamda: 0.0016777  SS= 11.339  at  b1 = 160.02  b2 = 45.519  b3 = 0.33738  19 / 12
+## &lt;&lt;lamda: 0.00067109  SS= 5.2767  at  b1 = 176.92  b2 = 47.037  b3 = 0.32443  20 / 13
+## &lt;&lt;lamda: 0.00026844  SS= 2.9656  at  b1 = 189.12  b2 = 48.279  b3 = 0.31712  21 / 14
+## &lt;&lt;lamda: 0.00010737  SS= 2.6003  at  b1 = 194.72  b2 = 48.92  b3 = 0.31429  22 / 15
+## &lt;&lt;lamda: 4.295e-05  SS= 2.5873  at  b1 = 196.04  b2 = 49.075  b3 = 0.31364  23 / 16
+## &lt;&lt;lamda: 1.718e-05  SS= 2.5873  at  b1 = 196.18  b2 = 49.091  b3 = 0.31357  24 / 17
+## &lt;&lt;lamda: 6.8719e-06  SS= 2.5873  at  b1 = 196.19  b2 = 49.092  b3 = 0.31357  25 / 18</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(anls14xb1)</code></pre>
 <pre><code>## nls14 class object: x 
 ## residual sumsquares =  2.5873  on  12 observations
@@ -1204,7 +1617,7 @@ anlsf1 &lt;-<span class="st">  </span><span class="kw">try</span>(<span class="k
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x428faa0&gt;
+## &lt;environment: 0x2ed9af8&gt;
 ## Starting pnum= b1  b2  b3 
 ## 1.0 1.0 0.1 
 ## Start:lamda: 1e-04  SS= 23756  at  b1 = 1  b2 = 1  b3 = 0.1  1 / 0
@@ -1266,7 +1679,7 @@ eunsc  &lt;-<span class="st">   </span>y ~<span class="st"> </span>b1/(<span cla
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x425cb58&gt;</code></pre>
+## &lt;environment: 0x3eb9d90&gt;</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">modeldoc</span>(weedrj) <span class="co"># Note how useful this is to report status</span></code></pre>
 <pre><code>## FUNCTION weedrj 
 ## Formula: y ~ b1/(1 + b2 * exp(-b3 * tt))
@@ -1535,13 +1948,13 @@ gnLL2J</code></pre>
 <p>One of the key tasks with tools for derivatives is that of taking objects in one or other form (that is, <strong>R</strong> class) and using it as an input for a symbolic function. The object may, of course, be an output from another such function, and this is one of the reasons we need to do such transformations.</p>
 <p>We also note that the different tools for symbolic derivatives use slightly different inputs. For example, for the derivative of log(x), we have</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nls14)
-dlogx &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
+dlogx &lt;-<span class="st"> </span>nls14::<span class="kw">Deriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(dlogx)</code></pre>
 <pre><code>##  language 1/x</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogx)</code></pre>
 <pre><code>## 1/x</code></pre>
 <p>Unfortunately, there are complications when we have an expression object, and we need to specify that we do NOT execute the <em>substitute()</em> function. Here we show how to do this implicitly and with an explicit object.</p>
-<pre class="sourceCode r"><code class="sourceCode r">dlogxs &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+<pre class="sourceCode r"><code class="sourceCode r">dlogxs &lt;-<span class="st"> </span>nls14::<span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
 <span class="kw">str</span>(dlogxs)</code></pre>
 <pre><code>##   expression(1/x)</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogxs)</code></pre>
@@ -1561,14 +1974,24 @@ dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dblogx)</code></pre>
 <pre><code>## 1/x</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(Deriv)</code></pre>
-<pre><code>## Loading required package: Deriv</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">ddlogx &lt;-<span class="st"> </span><span class="kw">DDeriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
+<pre><code>## Loading required package: Deriv
+## 
+## Attaching package: 'Deriv'
+## 
+## The following object is masked from 'package:Ryacas':
+## 
+##     Simplify
+## 
+## The following objects are masked from 'package:nls14':
+## 
+##     Deriv, Simplify</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">ddlogx &lt;-<span class="st"> </span>Deriv::<span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(ddlogx)</code></pre>
-<pre><code>##   expression(reciprocal(x))</code></pre>
+<pre><code>##   expression(1/x)</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(ddlogx)</code></pre>
-<pre><code>## expression(reciprocal(x))</code></pre>
+<pre><code>## expression(1/x)</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="kw">as.character</span>(ddlogx), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre>
-<pre><code>## reciprocal(x)</code></pre>
+<pre><code>## 1/x</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r">ddlogxf &lt;-<span class="st"> </span><span class="er">~</span><span class="st"> </span>ddlogx
 <span class="kw">str</span>(ddlogxf)</code></pre>
 <pre><code>## Class 'formula' length 2 ~ddlogx
@@ -1580,17 +2003,17 @@ dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">
 <pre class="sourceCode r"><code class="sourceCode r">zzz &lt;-<span class="st"> </span><span class="kw">expression</span>(y[<span class="dv">3</span>]*r1 +<span class="st"> </span>r2)
 <span class="kw">try</span>(<span class="kw">deriv</span>(zzz,<span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))
 <span class="kw">require</span>(nls14)
-<span class="kw">try</span>(<span class="kw">Deriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
+<span class="kw">try</span>(nls14::<span class="kw">Deriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
 <pre><code>## Warning in if (as.character(expr) == name) return(1) else return(0): the
 ## condition has length &gt; 1 and only the first element will be used</code></pre>
 <pre><code>## [1] 0</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))
 <span class="kw">newDeriv</span>(<span class="st">`</span><span class="dt">[</span><span class="st">`</span>(x,y), <span class="kw">stop</span>(<span class="st">&quot;no derivative when indexing&quot;</span>))
-<span class="kw">try</span>(<span class="kw">Deriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
+<span class="kw">try</span>(nls14::<span class="kw">Deriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
 <pre><code>## Warning in if (as.character(expr) == name) return(1) else return(0): the
 ## condition has length &gt; 1 and only the first element will be used</code></pre>
 <pre><code>## [1] 0</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nls14::<span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre>
 <pre><code>## {
 ##     .expr1 &lt;- y[3]
 ##     .expr2 &lt;- stop(&quot;no derivative when indexing&quot;)
@@ -1609,11 +2032,11 @@ dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">
 <pre><code>&quot;[&quot;(y,3)</code></pre>
 <p>that is, as a function. Duncan Murdoch pointed out the availability of <strong>nls14</strong> and the use of newDeriv() to redefine the “[” function for the purposes of derivatives.</p>
 <p>This is not an ideal resolution, especially as we would like to be able to get the gradients of functions with respect to vectors of parameters (Noted also by Sergei Sokol in the manual for package <strong>Deriv</strong>). The following examples illustrate this.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(zzz, <span class="st">&quot;y[3]&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nls14::<span class="kw">Deriv</span>(zzz, <span class="st">&quot;y[3]&quot;</span>))</code></pre>
 <pre><code>## [1] 0</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(y3*r1+r2,<span class="st">&quot;y3&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nls14::<span class="kw">Deriv</span>(y3*r1+r2,<span class="st">&quot;y3&quot;</span>))</code></pre>
 <pre><code>## r1</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(y[<span class="dv">3</span>]*r1+r2,<span class="st">&quot;y[3]&quot;</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nls14::<span class="kw">Deriv</span>(y[<span class="dv">3</span>]*r1+r2,<span class="st">&quot;y[3]&quot;</span>))</code></pre>
 <pre><code>## stop(&quot;no derivative when indexing&quot;) * r1</code></pre>
 </div>
 

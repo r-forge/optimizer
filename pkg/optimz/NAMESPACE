@@ -1,0 +1,52 @@
+import(
+    numDeriv,
+    BB,
+    dfoptim,
+    minqa,
+    setRNG,
+    ucminf
+)
+
+# Public routines
+
+export(
+  "optimx",
+  "coef<-",
+  "optsp",
+  "axsearch",
+  "fnchk",
+  "grback",
+  "grcentral",
+  "grchk",
+  "grfwd",
+  "hesschk", 
+  "ufn",
+  "ugr",
+  "uhess",
+  "kktc",
+  "gHgen",
+  "gHgenb",
+  "ugHgenb",
+  "bmchk",
+  "bmstep",
+  "scalecheck",
+  "grnd",
+  "tn",
+  "tnbc",
+  "Rvmmin",
+  "Rvmminb",
+  "Rvmminu",
+  "Rcgmin",
+  "Rcgminu",
+  "Rcgminb",
+  "lbfgsb3"
+)
+S3method("[", "optimx")
+S3method("as.data.frame", "optimx")
+S3method("coef", "optimx")
+S3method("coef<-", "optimx")
+S3method("summary", "optimx")
+
+# Load shared objects
+useDynLib(optimz)
+

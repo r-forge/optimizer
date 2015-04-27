@@ -35,7 +35,10 @@ scalecheck<-function(par, lower=lower, upper=upper, bdmsk=NULL, dowarn=TRUE){
    bddiff<-upper-lower
    bddiff<-bddiff[which(is.finite(bddiff))]
    lbd<-log10(bddiff[which(bddiff>0)]) # Change 20100711
-   lpratio<-max(logpar) - min(logpar)
+   if(length(logpar)>0) ## Thanks to J Laake 140904
+     lpratio <- max(logpar) - min(logpar)
+   else
+     lpratio=0 # was: lpratio<-max(logpar) - min(logpar)
    if (length(lbd) > 0) {
       lbratio<-max(lbd)-min(lbd)
    } else { 

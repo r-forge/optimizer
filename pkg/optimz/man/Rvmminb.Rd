@@ -32,7 +32,9 @@ of nonlinear functions subject to bounds (box) constraints and masks
      unconstrained, and 0 for any parameter that is fixed or MASKED for the
      duration of the optimization.}
  \item{control}{
-    An optional list of control settings.
+    An optional list of control settings. See the manual Rvmmin.Rd for 
+    details. 
+
  }
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }

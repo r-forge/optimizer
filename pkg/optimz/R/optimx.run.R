@@ -79,8 +79,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (meth == "nlminb") {
         # Here we use portLib routine nlminb rather than optim as our minimizer
-        mcontrol$iter.max <- ctrl$maxit # different name for iteration limit in this routine
-        mcontrol$abs.tol <- 0.0 # To fix issues when minimum is less than 0. 20100711
+        mcontrol$iter.max<-mcontrol$maxit # different name for iteration limit in this routine
+        mcontrol$maxit<-NULL
+        mcontrol$abs.tol<-0 # To fix issues when minimum is less than 0. 20100711
 	if ( is.null(mcontrol$trace) || is.na(mcontrol$trace) || mcontrol$trace == 0) { 
 		mcontrol$trace = 0
 	} else { 
@@ -218,6 +219,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         ## Use ucminf routine
         if (is.null(ctrl$maxit)) { mcontrol$maxeval <- 500 }  # ensure there is a default value
         else { mcontrol$maxeval <- ctrl$maxit}
+        mcontrol$maxit <- NULL # 150427 ensure nulled for ucminf
         time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$convergence
@@ -254,7 +256,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using ucminf
 ## --------------------------------------------
       else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
-	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
+	bdmsk <- bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
 	mcontrol$trace <- ctrl$trace # 140902 Note no check on validity of values
         mcontrol$maxit <- ctrl$maxit
 	if (have.bounds) {

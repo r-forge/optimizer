@@ -1,0 +1,164 @@
+optimz
+├── demo
+│   ├── 00Index
+│   ├── brown_test.R
+│   ├── brown_testRV.R
+│   ├── broydt_test.R
+│   ├── chenlog_test.R
+│   ├── chen_test.R
+│   ├── froth_test.R
+│   ├── maxtestJN.R
+│   ├── onepar_test.R
+│   ├── ox.R
+│   ├── poissmix_test.R
+│   ├── rosbkext_test.R
+│   ├── sc2_test.R
+│   ├── trig_test.R
+│   ├── unit1.R
+│   ├── unitTests.R
+│   ├── valley_test.R
+│   └── vmmix_test.R
+├── DESCRIPTION
+├── inst
+│   ├── CITATION
+│   ├── developmentnotes
+│   │   ├── devnotes.html
+│   │   └── devnotes.md
+│   ├── forRtnmin
+│   │   ├── myb.R
+│   │   ├── mygoc.R
+│   │   ├── mygo.R
+│   │   ├── my.opt.R
+│   │   ├── my.sfun.R
+│   │   ├── testmygoc.R
+│   │   └── testmygocu.R
+│   ├── Rcgmindemo
+│   │   ├── broydt_test.R
+│   │   └── cyq_test.R
+│   └── unitTests
+│       ├── runit.1.R
+│       └── runit.all.R
+├── man (150427 -- many examples moved to tests/ directory)
+│   ├── axsearch.Rd -- agrees with optextras
+│   ├── bmchk.Rd -- agrees with optextras
+│   ├── bmstep.Rd -- agrees with optextras
+│   ├── coef.optimx.Rd -- agrees with optextras
+│   ├── fnchk.Rd -- agrees with optextras
+│   ├── gHgenb.Rd -- agrees with optextras
+│   ├── gHgen.Rd -- agrees with optextras
+│   ├── grback.Rd -- agrees with optextras
+│   ├── grcentral.Rd -- agrees with optextras
+│   ├── grchk.Rd -- agrees with optextras
+│   ├── grfwd.Rd -- agrees with optextras
+│   ├── grnd.Rd -- agrees with optextras
+│   ├── hesschk.Rd -- agrees with optextras
+│   ├── kktc.Rd -- agrees with optextras
+│   ├── lbfgsb3.Rd -- much updated 150427
+│   ├── optextras-package.Rd
+│   ├── optimx-package.Rd
+│   ├── optimx.Rd -- modified so nmkb is default method. Otherwise as in optimx.
+│   ├── Rcgminb.Rd -- as per Rcgmin
+│   ├── Rcgmin.Rd -- as per Rcgmin but examples moved to tests/
+│   ├── Rcgminu.Rd -- as per Rcgmin
+│   ├── Rvmminb.Rd -- as per Rvmmin but expanded
+│   ├── Rvmmin.Rd -- as per Rvmmin but examples moved to tests/
+│   ├── Rvmminu.Rd -- as per Rvmmin but expanded
+│   ├── scalecheck.Rd -- agrees with optextras
+│   ├── summary.optimx.Rd -- as per optimx
+│   ├── tnbc.Rd -- as per Rtnmin
+│   ├── tn.Rd -- as per Rtnmin
+│   ├── ufn.Rd -- agrees with optextras
+│   ├── ugHgenb.Rd -- has examples, minor change to remove require(). Why this plus gHgenb?
+│   ├── ugr.Rd -- agrees with optextras
+│   └── uhess.Rd -- agrees with optextras
+├── NAMESPACE
+├── NEWS -- new one for optimz
+├── R
+│   ├── axsearch.R -- agrees with optextras
+│   ├── bmchk.R -- agrees with optextras
+│   ├── bmstep.R -- agrees with optextras
+│   ├── fnchk.R -- agrees with optextras
+│   ├── gHgenb.R -- agrees with optextras
+│   ├── gHgen.R -- agrees with optextras
+│   ├── grback.R -- agrees with optextras
+│   ├── grcentral.R -- agrees with optextras
+│   ├── grchk.R -- agrees with optextras
+│   ├── grfwd.R -- agrees with optextras
+│   ├── grnd.R -- agrees with optextras
+│   ├── hesschk.R -- agrees with optextras
+│   ├── kktc.R -- agrees with optextras
+│   ├── lbfgsb3.R -- minor naming changes to make maintenance easier
+│   ├── optimx.check.R -- same as optimx
+│   ├── optimx.R -- as suggested -- updates according to Gabor 140811
+│   ├── optimx.run.R -- much changed to include lbfgsb3 and Rtnmin
+│   ├── optimx.setup.R -- much changed to deal with Imports and changes to methods
+│   ├── optimz-package.R -- merged optimx-package and Rtnmin-package
+│   ├── Rcgminb.R -- agrees with Rcgmin
+│   ├── Rcgmin.R -- agrees with Rcgmin
+│   ├── Rcgminu.R -- agrees with Rcgmin
+│   ├── Rvmminb.R -- agrees with Rvmmin
+│   ├── Rvmmin.R -- agrees with Rvmmin
+│   ├── Rvmminu.R -- agrees with Rvmmin
+│   ├── scalecheck.R -- agrees with optextras (J Laake minor change made to optextras)
+│   ├── tnbc.Rsame as Rtnmin 
+│   ├── tn.R -- same as Rtnmin except trace = FALSE
+│   ├── ufn.R -- agrees with optextras
+│   ├── ugHgenb.R -- agrees with optextras
+│   ├── ugr.R -- agrees with optextras
+│   ├── uhess.R -- agrees with optextras
+│   └── zzz.R -- agrees with optextras (But may not be needed at all.)
+├── src
+│   ├── blas.f -- same as lbfgsb3/src/
+│   ├── blas.o -- compiled
+│   ├── lbfgsb.f -- setulb renamed lbfgsb
+│   ├── lbfgsb.o -- compiled
+│   ├── linpack.f -- same as lbfgsb3/src/
+│   ├── linpack.o -- compiled
+│   ├── optimz.so -- compiled
+│   ├── symbols.rds -- compiled
+│   ├── timer.f -- same as lbfgsb3/src/
+│   └── timer.o -- compiled
+└── tests
+    ├── 1taxsearch.R
+    ├── 1tbmchk.R
+    ├── 1tbmstep.R
+    ├── 1tcoef.optimx.R
+    ├── 1tfnchk.R
+    ├── 1tgHgenb.R
+    ├── 1tgHgen.R
+    ├── 1tgradapprox.R
+    ├── 1tgrchk.R
+    ├── 1thesschk.R
+    ├── 1tkktc.R
+    ├── 1tlbfgsb3.R
+    ├── 1toptimx.R
+    ├── 1tRcgmin.R
+    ├── 1tRvmmin.R
+    ├── 1tscalecheck.R
+    ├── 1tsummary.optimx.R
+    ├── 1tugr.R
+    ├── 1tuhess.R
+    ├── boundstest.R
+    ├── chebyquad.R
+    ├── jonesrun.R
+    ├── taxsearch.R
+    ├── tbmchk.R
+    ├── tbmstep.R
+    ├── tcoef.optimx.R
+    ├── tfnchk.R
+    ├── tgHgenb.R
+    ├── tgHgen.R
+    ├── tgradapprox.R
+    ├── tgrchk.R
+    ├── thesschk.R
+    ├── tkktc.R
+    ├── tlbfgsb3.R
+    ├── toptimx.R
+    ├── tRcgmin.R
+    ├── tRvmmin.R
+    ├── tscalecheck.R
+    ├── tsummary.optimx.R
+    ├── tugr.R
+    └── tuhess.R
+
+10 directories, 151 files

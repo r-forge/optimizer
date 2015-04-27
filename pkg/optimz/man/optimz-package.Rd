@@ -1,18 +1,28 @@
-\name{optextras-package}
-\alias{optextras}
+\name{optimz-package}
+\alias{optimz-package}
 \docType{package}
 \title{
-A replacement and extension of the optim() function, plus various optimization
-tools
+An enlarged replacement and extension of the optim() function
 }
 \description{
-Provides a replacement and extension of the optim() function to unify
-and streamline optimization capabilities in R for smooth, possibly box
-constrained functions of several or many parameters
 
-The three functions ufn, ugr and uhess wrap corresponding user functions fn, gr, and 
-hess so that these functions can be executed safely (via try()) and also so parameter or
-function scaling can be applied. The wrapper
+\code{optimz}
+
+provides a replacement and extension of the \code{link{optim()}} function to 
+unify and streamline optimization capabilities in R for smooth, possibly box
+constrained functions of several or many parameters. The \code{optimz} package
+also subsumes the packages \code{optextras}, \code{Rcgmin}, \code{Rvmmin}
+ and \code{Rtnmin}.
+
+Examples can be found in the \code{tests/} directory, and in the 
+demo directory, \code{demo(package = "optimz")}. ??
+
+The three functions \code{ufn}, \code{ugr} and \code{uhess}
+wrap corresponding user functions \code{fn}, \code{gr}, and 
+\code{hess} so that these functions can be executed safely (via 
+\code{try()}) and also so parameter or
+function scaling could be applied. However at 2015-4-27, automated scaling has been found to
+be very time consuming and has been left out. The wrapper
 functions also allow for maximization of functions (via minimization of the negative of
 the function) using the logical parameter \code{maximize}.
 
@@ -21,19 +31,19 @@ function to be tested for validity and correctness. However, no set of tests is
 exhaustive, and extensions and improvements are welcome. The package 
 \code{numDeriv} is used for generation of numerical approximations to 
 derivatives.
+
+}
+\author{
+John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
+
+Maintainer: John C Nash <nashjc@uottawa.ca>
+}
+\references{
+  Nash, John C. and Varadhan, Ravi (2011) Unifying Optimization Algorithms 
+          to Aid Software System Users: optimx for R, Journal of Statistical
+	  Software, publication pending.
 }
 \details{
-\tabular{ll}{
-Package: \tab optextras\cr
-Version: \tab 2012-6.18\cr
-Date: \tab 2012-06-18\cr
-License: \tab GPL-2\cr
-Lazyload: \tab Yes\cr
-Depends: \tab numDeriv \cr
-Suggests: \tab BB, ucminf, Rcgmin, Rvmmin, minqa, setRNG, dfoptim\cr
-Repository: \tab R-Forge\cr
-Repository/R-Forge/Project: \tab optimizer\cr
-}
 
 Index:
 \preformatted{
@@ -64,19 +74,7 @@ ugHgenb      Compute gradient and Hessian as a given
 uhess        Wrapper for user Hessian function
 }
 }
-\author{
-John C Nash <nashjc@uottawa.ca> and Ravi Varadhan <RVaradhan@jhmi.edu>
-
-Maintainer: John C Nash <nashjc@uottawa.ca>
-}
-\references{
-  Nash, John C. and Varadhan, Ravi (2011) Unifying Optimization Algorithms 
-          to Aid Software System Users: optimx for R, Journal of Statistical
-	  Software, publication pending.
-}
 \keyword{ package }
 \keyword{ optimization }
-\seealso{
-optim
-}
+\seealso{optim}
 

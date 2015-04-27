@@ -26,7 +26,9 @@ See the manual Rvmmin.Rd for details.
    directly. 
  }
  \item{control}{
-    An optional list of control settings.
+    An optional list of control settings. See the manual Rvmmin.Rd for 
+    details. Some control elements apply only when parameters are bounds
+    constrained and are not used in this function.
  }
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }

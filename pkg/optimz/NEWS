@@ -47,6 +47,20 @@ TODO
 
       o Simplify, simplify, simplify
 
+      o Keep thinking about scaling as in optim()
+
+      o Consider how to subsume routines in optim() so that optimx can become
+	a recommended package and optim() can be dropped from base-R.
+
+      o Move anything of value in optplus to optimz
+
+
+VERSION 2015-04-27
+      o  Rtnmin fixes -- had some typos in calls
+
+      o  Checked against files in former component packages
+
+      o  
 
 
 VERSION 2014-10-10

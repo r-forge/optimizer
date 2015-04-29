@@ -9,7 +9,7 @@ test.all <- function() {
 
 	## test 1
 
-	checkTrue(require(optimx))
+	checkTrue(require(optimz))
 
 	## test 2
 

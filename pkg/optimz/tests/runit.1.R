@@ -9,7 +9,7 @@ test.1 <- function() {
 
 	## test 1
 
-	checkTrue(require(optimx))
+	checkTrue(require(optimz))
 
 	## test 2
 	f1<-function(xx){ # function of one parameter

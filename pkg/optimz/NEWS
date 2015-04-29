@@ -5,8 +5,6 @@ TODO
          ?? Need to expand and create saved
 	 results for auto-comparison in running R CMD check.
 
-      o inst/UnitTests should be merged with tests/
-
       o need a NEW mechanism for controls that are special to 
 	individual methods 140902. Can we use control$methopt as 
 	a list, with sub-lists for each method. How to convert
@@ -74,6 +72,8 @@ TODO
 
 
 VERSION 2015-04-27
+
+      o inst/UnitTests should be merged with tests/
 
       o grcheckfwithg=500, grcheckfnog=50 parameterization of checks
 

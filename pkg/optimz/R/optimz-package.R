@@ -12,6 +12,7 @@ ctrldefault <- function(npar) {
 	follow.on=FALSE, 
         grcheckfwithg=500,
         grcheckfnog=50,
+        keepinputpar=FALSE,
 	kkt=TRUE,
 	kkttol=0.001,
 	kkt2tol=1.0E-6,

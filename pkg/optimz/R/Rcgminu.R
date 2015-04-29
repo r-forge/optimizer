@@ -54,7 +54,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     # control defaults -- idea from spg
 
     ctrl <- ctrldefault(npar) # get default values of controls
-    if (! is.null(control)
+    if (! is.null(control) ) {
      namc <- names(control)
      if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])

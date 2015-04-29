@@ -91,7 +91,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   # control defaults
   n <- as.integer(length(par))  # number of elements in par vector
   ctrl <- ctrldefault(n) # get default values of controls
-  if (! is.null(control)
+  if (! is.null(control) ) {
      namc <- names(control)
      if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])

@@ -28,10 +28,6 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     # eps=1.0e-7 (default) for use in computing numerical
     #   gradient approximations.
     # dowarn=TRUE by default. Set FALSE to suppress warnings.
-    # checkgrad = FALSE by default. Check analytic gradient 
-    #             against numDeriv results.
-    # checkbounds = TRUE by default. Check parameters and bounds
-    #             for addmissible bounds and feasible start.
     #
     # Output:
     #    A list with components:
@@ -99,28 +95,22 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
            if (control$trace > 0) cat("WARNING: using gradient approximation ",gr,"\n")
 
        } else { # analytic gradient, so check if requested
-           if (is.null(control$checkgrad)) control$checkgrad <- FALSE
-           if (control$checkgrad) { # check gradient
               testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
               if (! testgrad) warning("Gradient code for Rcgmin may be faulty - check it!")
-           }
        } # end else
     }
     #############################################
     if (bounds) {
-       if (is.null(control$checkbounds)) { control$checkbounds <- TRUE }
        ### Check bounds feasible
-       if (control$checkbounds) {
-          btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
-             trace = control$trace)
-          if (!btest$admissible) 
-             stop("Inadmissible bounds: one or more lower>upper")
-          if (btest$parchanged) {
-             if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
-                 warning("Parameter out of bounds has been moved to nearest bound")
-                 control$keepinputpar<-NULL # avoid problems in subsidiary routines
-             } else stop("Parameter out of bounds")
-          }
+       btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
+          trace = control$trace)
+       if (!btest$admissible) 
+          stop("Inadmissible bounds: one or more lower>upper")
+       if (btest$parchanged) {
+          if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
+              warning("Parameter out of bounds has been moved to nearest bound")
+              control$keepinputpar<-NULL # avoid problems in subsidiary routines
+          } else stop("Parameter out of bounds")
        }
        nolower <- btest$nolower
        noupper <- btest$noupper

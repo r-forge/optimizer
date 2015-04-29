@@ -61,8 +61,6 @@ TODO
 
       o method="All" check
 
-      o         grcheckfwithg=500, grcheckfnog=50 parameterization of checks
-
       o null gr check working
     
       o get rid of extra printouts in optimx.run
@@ -76,6 +74,8 @@ TODO
 
 
 VERSION 2015-04-27
+
+      o grcheckfwithg=500, grcheckfnog=50 parameterization of checks
 
       o New function ctrldefault(npar) to create ctrl default set for use by routines.
         Note tol=0 to force its calculation.

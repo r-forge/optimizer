@@ -50,14 +50,21 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     #  Author:  John C Nash
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
-    # control defaults -- idea from spg
-    ctrl <- list(maxit = 500, maximize = FALSE, trace = 0, eps = 1e-07, 
-        dowarn = TRUE, tol=0)
-    namc <- names(control)
-    if (!all(namc %in% names(ctrl))) 
-        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-    ctrl[namc] <- control
     npar<-length(par)
+    # control defaults -- idea from spg
+
+    ctrl <- ctrldefault(npar) # get default values of controls
+    if (! is.null(control)
+     namc <- names(control)
+     if (!all(namc %in% names(ctrl))) 
+        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+     nctrl <- names(ctrl)
+     for (onename in namc) {
+        if (onename %in% nctrl) {
+           ctrl[onename] <- control[onename]
+        } 
+     }
+    }
     if (ctrl$tol == 0) tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  
     # Note -- integer overflow if npar*npar*.Machine$double.eps
     else tol<-ctrl$tol

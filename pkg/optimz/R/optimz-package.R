@@ -1,5 +1,34 @@
-## optimx-package.R 
-## This file contains support routines (methods) for the optimx() function
+## optimz-package.R 
+## This file contains support routines (methods) for various functions in 
+## the optimz package
+##################################################################
+ctrldefault <- function(npar) {
+    ctrl.default <- list(
+        acctol = 0.0001, 
+	all.methods=FALSE,
+	badval=(0.5)*.Machine$double.xmax,
+        dowarn=TRUE, 
+        eps = 1e-07, 
+	follow.on=FALSE, 
+        grcheckfwithg=500,
+        grcheckfnog=50,
+	kkt=TRUE,
+	kkttol=0.001,
+	kkt2tol=1.0E-6,
+	maximize=FALSE,
+        maxit=500*round(sqrt(npar+1)),
+	maxfeval=5000*round(sqrt(npar+1)),
+        reltest=100.0,
+	save.failures=TRUE,
+	scaletol=3, 
+	starttests=TRUE,
+        stepredn=0.2,
+        stopbadupdate=FALSE,
+        tol=0, 
+	trace=0,
+        usenumDeriv=FALSE
+    ) 
+}
 ##################################################################
 summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {
 	
@@ -2259,3 +2288,5 @@ ztime<-function(x,ipivot) {
    x[ind] <- 0
    x1 <- x;
 }
+
+

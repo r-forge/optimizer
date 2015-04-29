@@ -70,26 +70,31 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     #  Author:  John C Nash
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
+    n<-length(par)
     # control defaults -- idea from spg
-    ctrl <- list(maxit = 500, maximize = FALSE, trace = 0, eps = 1e-07, 
-        dowarn = TRUE, tol=0)
-    namc <- names(control)
-    if (!all(namc %in% names(ctrl))) 
+
+    ctrl <- ctrldefault(n) # get default values of controls
+    if (! is.null(control)
+     namc <- names(control)
+     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-    ctrl[namc] <- control
-    npar<-length(par)
-    if (ctrl$tol == 0) tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  Note -- integer overflow if n*n*d.eps
+     nctrl <- names(ctrl)
+     for (onename in namc) {
+        if (onename %in% nctrl) {
+           ctrl[onename] <- control[onename]
+        } 
+     }
+    }
+
+    if (ctrl$tol == 0) tol <- n * (n * .Machine$double.eps)  
+         # for gradient test.  Note -- integer overflow if n*n*d.eps
     else tol<-ctrl$tol
-    maxit <- ctrl$maxit  # limit on function evaluations
-    maximize <- ctrl$maximize  # TRUE to maximize the function
-    trace <- ctrl$trace  # 0 for no output, >0 for output (bigger => more output)
     if (trace > 2) cat("trace = ", trace, "\n")
-    eps <- ctrl$eps
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     grNULL <- is.null(gr)
-    dowarn <- ctrl$dowarn  #
+    ceps <- .Machine$double.eps * reltest
     #############################################
-    if (maximize) {
+    if (ctrl$maximize) {
        warning("Rcgmin no longer supports maximize 111121 -- see documentation")
        msg<-"Rcgmin no longer supports maximize 111121"
        ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
@@ -113,14 +118,8 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
         cat("an R implementation of Alg 22 with Yuan/Dai modification\n")
     }
     bvec <- par  # copy the parameter vector
-    n <- length(bvec)  # number of elements in par vector
-    maxfeval <- round(sqrt(n + 1) * maxit)  # change 091219
     ig <- 0  # count gradient evaluations
     ifn <- 1  # count function evaluations (we always make 1 try below)
-    stepredn <- 0.15  # Step reduction in line search
-    acctol <- 1e-04  # acceptable point tolerance
-    reltest <- 100  # relative equality test
-    ceps <- .Machine$double.eps * reltest
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     fargs <- list(...)  # function arguments
@@ -273,9 +272,9 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                 print(bvec)
                 cat("\n")
             }
-            if (ifn > maxfeval) {
+            if (ifn > ctrl$maxfeval) {
                 msg <- paste("Too many function evaluations (> ", 
-                  maxfeval, ") ", sep = "")
+                  ctrl$maxfeval, ") ", sep = "")
                 if (trace > 0) 
                   cat(msg, "\n")
                 ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  # 1 indicates not converged in function limit
@@ -285,9 +284,9 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             }
             par <- bvec  # save best parameters
             ig <- ig + 1
-            if (ig > maxit) {
+            if (ig > ctrl$maxit) {
                 msg <- paste("Too many gradient evaluations (> ", 
-                  maxit, ") ", sep = "")
+                  ctrl$maxit, ") ", sep = "")
                 if (trace > 0) 
                   cat(msg, "\n")
                 ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  # 1 indicates not converged in function or gradient limit

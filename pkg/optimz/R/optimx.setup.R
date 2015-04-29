@@ -15,7 +15,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
 # Only one ref to parameters -- to get npar here
   npar <- length(par) # !! NOT CHECKED in case par not well-defined
-  optcfg$npar <- npar
+  optcfg$npar <- npar ##?? Need to put this stuff in environment??
 
 ##??140828 need default and alternate sets of controls and methods
 
@@ -23,118 +23,51 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
 # Set control defaults # ?? does not include some of the tests and maxit etc.
     ## for different methods
+   ctrl <- ctrldefault(npar)
 
-    ctrl.default <- list(
-        acctol = 0.0001, 
-	all.methods=FALSE,
-	badval=(0.5)*.Machine$double.xmax,
-	dowarn=TRUE, 
-        eps = 1e-07, 
-	follow.on=FALSE, 
-        grcheckfwithg=500,
-        grcheckfnog=50,
-	kkt=TRUE,
-	kkttol=0.001,
-	kkt2tol=1.0E-6,
-	maximize=FALSE,
-        maxit=500*round(sqrt(npar+1)),
-	maxfeval=5000*round(sqrt(npar+1)),
-        reltest=100.0,
-	save.failures=TRUE,
-	scaletol=3, 
-	starttests=TRUE,
-        stepredn=0.2,
-        stopbadupdate=FALSE,
-	trace=0,
-        usenumDeriv=FALSE
-    ) 
-    
-# Control set for optimx version 2013.8.6
-# Note: same as default -- must be in maxit etc. ??!!
-   ctrl.2013 <- list(
-        acctol = 0.0001, 
-	all.methods=FALSE,
-	badval=(0.5)*.Machine$double.xmax,
-	dowarn=TRUE, 
-        eps = 1e-07, 
-	follow.on=FALSE, 
-        grcheckfwithg=500,
-        grcheckfnog=50,
-	kkt=TRUE,
-	kkttol=0.001,
-	kkt2tol=1.0E-6,
-	maximize=FALSE,
-        maxit=500,
-	maxfeval=5000*round(sqrt(npar+1)),
-        reltest=100.0,
-	save.failures=TRUE,
-	scaletol=3, 
-	starttests=TRUE,
-        stepredn=0.2,
-        stopbadupdate=FALSE,
-	trace=0,
-        usenumDeriv=FALSE
-   )
+# substitute the appropriate information according to user spec.
 
-   if (is.null(control)) { ctrl <- ctrl.default }
-   else { if (! is.null(control$ctrlset) ) { # set to another set of controls
-            if (control$ctrlset=="default") {ctrl <- ctrl.default}
-            else if (control$ctrlset=="2013") {ctrl <- ctrl.2013}
-                 else { stop("BAD END: control set not defined") }
-        } else { ctrl <- ctrl.default }
+   if (! is.null(control)) { 
+      ncontrol <- names(control)
+      nctrl <- names(ctrl)
+      for (onename in ncontrol) {
+         if (onename %in% nctrl) {
+            ctrl[onename] <- control[onename]
+         } 
+      }
    }
-   
 
-# Note that we do NOT want to check on the names, because we may introduce 
-#    new names in the control lists of added methods
-#    if (!all(namc %in% names(ctrl))) 
-#        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-# However, we do want to substitute the appropriate information. 
-# removed copy of hessian to control$kkt
-##?? Clean this up??
-    ncontrol <- names(control)
-    nctrl <- names(ctrl)
-#    cat("names in control:")
-#    print(ncontrol)
-#    cat("names in ctrl:")
-#    print(nctrl)
-    for (onename in ncontrol) {
-       if (onename %in% nctrl) {
-           ctrl[onename] <- control[onename]
-       } else {
-           ctrl[onename] <- control[onename]
-       }
-    }
-## ?? parametrize the 50 and 500
+# Check if we should do gradient check
     if (is.null(control$kkt)) { # turn off kkt for large matrices
       ctrl$kkt<-TRUE # default it to compute KKT tests
       if (is.null(gr)) { # no analytic gradient
-         if (npar > 50) {
+         if (npar >  ctrl$grcheckfnog) {
            ctrl$kkt=FALSE # too much work when large number of parameters
-           if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
+           if (ctrl$trace>0) cat("gr NULL, npar > ",ctrl$grcheckfnog,", ctrl$kkt set FALSE\n")
          }
       } else {
-         if (npar > 500) {
-            ctrl$kkt=FALSE # too much work when large number of parameters, even with analytic gradient
-            if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
+         if (npar > ctrl$grcheckfwithg) {
+            ctrl$kkt=FALSE # too much work when npar large, even with analytic gradient
+            if (ctrl$trace>0) cat("gr NULL, npar > ",ctrl$grcheckfwithg,", ctrl$kkt set FALSE\n")
          }
       }
     } else { # kkt is set
       if (control$kkt) {
         if (is.null(gr)) {
-           if (npar > 50) {
-             if ((ctrl$trace>0) && ctrl$dowarn) warning("Computing hessian for gr NULL, npar > 50, can be slow\n")
+           if (npar > ctrl$grcheckfnog) {
+             if ((ctrl$trace>0) && ctrl$dowarn) 
+                warning("Computing hessian for gr NULL, npar > ", ctrl$grcheckfnog,", can be slow\n")
            }
         } else {
-           if (npar > 500) {
-             if ((ctrl$trace>0) && ctrl$dowarn) warning("Computing hessian with gr code, npar > 500, can be slow\n")
+           if (npar > ctrl$grcheckfwithg) {
+             if ((ctrl$trace>0) && ctrl$dowarn) 
+               warning("Computing hessian with gr code, npar > ",ctrl$grcheckfwithg,", can be slow\n")
            }
         }
       }
     }
-    cat("optimx.setup ctrl out:")
-    print(ctrl)
-
+##    cat("optimx.setup ctrl out:")
+##    print(ctrl)
 
     optcfg$ctrl <- ctrl
 # reset the function if we are maximizing

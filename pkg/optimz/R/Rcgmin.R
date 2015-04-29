@@ -106,8 +106,6 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
            }
        } # end else
     }
-    control$checkgrad<-NULL # to avoid problems in subsidiary routines
-    if (is.null(control$dowarn)) control$dowarn<-TRUE
     #############################################
     if (bounds) {
        if (is.null(control$checkbounds)) { control$checkbounds <- TRUE }
@@ -134,12 +132,10 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
        }
        lower <- btest$lower
        upper <- btest$upper
-       control$checkbounds<-NULL # to avoid problems in subsidiary routines
        ############## end bounds check #############
        ans<-Rcgminb(par, fn, gr, lower = lower, 
           upper = upper, bdmsk = bdmsk, control = control, ...)
     } else {
        ans<-Rcgminu(par, fn, gr, control = control, ...)
     }
-#    return(ans) # ?? is this needed
 }  ## end of Rcgmin

@@ -70,10 +70,20 @@ TODO
       o change maxit, maxfeval settings -- too low for many functions
 
       o minqa routines -- not giving convcode=1 when out of iterations
+
+      o Rcgmin should support maximize (150429)
  
 
 
 VERSION 2015-04-27
+
+      o New function ctrldefault(npar) to create ctrl default set for use by routines.
+        Note tol=0 to force its calculation.
+
+      o  Rvmmin and Rcgmin -- remove ctrl$checkgrad and ctrl$checkbounds. These
+	will automatically be done in Rcgmin and Rvmin, and we'll call the Rcgminu, 
+	Rcgminb, Rvmminu, Rvmminb if we want to omit the checks.
+
       o  Rtnmin fixes -- had some typos in calls
 
       o  Checked against files in former component packages

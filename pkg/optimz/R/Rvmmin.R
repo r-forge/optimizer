@@ -103,6 +103,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
   if (control$trace > 1) 
      cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
            " bounds = ", bounds, "\n")
+# ?? probably don't need this if we set it in optimx.setup
   if (is.null(gr)) {
      gr <- "grfwd" # use forward gradient approximation if no gradient code provided
      if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
@@ -117,29 +118,24 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
         }
      } # end else
   }
-  control$checkgrad<-NULL # to avoid problems in subsidiary routines
-  if (is.null(control$dowarn)) control$dowarn<-TRUE
   #############################################
   if (bounds) { 
-    if (is.null(control$checkbounds)) { control$checkbounds <- TRUE }
     if (is.null(bdmsk)) { bdmsk <- rep(1, npar) } # ensure we have bdmsk
     if ((length(lower) == 1) && (npar > 1) ) lower <- rep(lower, npar) 
     if ((length(upper) == 1) && (npar > 1) ) lower <- rep(upper, npar)
     if (any(is.infinite(lower))) lower[which(is.infinite(lower))] <- -.Machine$double.xmax
     if (any(is.infinite(upper))) upper[which(is.infinite(upper))] <-  .Machine$double.xmax
     ### Check bounds feasible
-    if (control$checkbounds) {
-       btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
-             trace = control$trace)
-       if (!btest$admissible) 
-          stop("Inadmissible bounds: one or more lower > upper")
-       if (btest$parchanged) {
-          if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
-             warning("Parameter out of bounds has been moved to nearest bound")
-             control$keepinputpar <- NULL # avoid problems in subsidiary routines
-             par <- btest$bvec # save the changed parameters             
-          } else stop("Parameter out of bounds")
-       }
+    btest <- bmchk(par, lower = lower, upper = upper, bdmsk = bdmsk, 
+          trace = control$trace)
+    if (!btest$admissible) 
+       stop("Inadmissible bounds: one or more lower > upper")
+    if (btest$parchanged) {
+       if (is.null(control$keepinputpar) || ! control$keepinputpar) { 
+          warning("Parameter out of bounds has been moved to nearest bound")
+          control$keepinputpar <- NULL # avoid problems in subsidiary routines
+          par <- btest$bvec # save the changed parameters             
+       } else stop("Parameter out of bounds")
     }
     nolower <- btest$nolower
     noupper <- btest$noupper
@@ -151,11 +147,10 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     }
     lower <- btest$lower
     upper <- btest$upper
-    control$checkbounds<-NULL # to avoid problems in subsidiary routines
     ############## end bounds check #############
     ans <- Rvmminb(par, fn, gr, lower = lower, 
         upper = upper, bdmsk = bdmsk, control = control, ...)
-    } else {
-       ans <- Rvmminu(par, fn, gr, control = control, ...)
-    } #   return(ans) 
+  } else {
+    ans <- Rvmminu(par, fn, gr, control = control, ...)
+  } #   return(ans) 
 }  ## end of Rvmmin

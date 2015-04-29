@@ -90,28 +90,19 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   #################################################################
   # control defaults
   n <- as.integer(length(par))  # number of elements in par vector
-#  maxit <- 500 + 2L * n
-#  maxfeval <- 3000 + 10L * n
-#  ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
-#    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
-#    reltest=100.0, stopbadupdate = FALSE)
-  ctrl <- control # get values from optimx.setup
-  namc <- names(control)
-  if (!all(namc %in% names(ctrl))) 
-     stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-  ctrl[namc] <- control  #
-#  maxit <- ctrl$maxit  #
-#  maxfeval <- ctrl$maxfeval  #
-#  maximize <- ctrl$maximize  # TRUE to maximize the function
-#  trace <- ctrl$trace  #
-#  eps <- ctrl$eps  #
-#  acctol <- ctrl$acctol # 130125
-#  dowarn <- ctrl$dowarn  #
-#  stepredn <- ctrl$stepredn
-#  reltest <- ctrl$reltest
-#  stopbadupdate <- ctrl$stopbadupdate
+  ctrl <- ctrldefault(n) # get default values of controls
+  if (! is.null(control)
+     namc <- names(control)
+     if (!all(namc %in% names(ctrl))) 
+        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+     nctrl <- names(ctrl)
+     for (onename in namc) {
+        if (onename %in% nctrl) {
+           ctrl[onename] <- control[onename]
+        } 
+     }
+  }
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
-  ceps <- .Machine$double.eps * ctrl$reltest
   dblmax <- .Machine$double.xmax  # used to flag bad function
 #################################################################
 #

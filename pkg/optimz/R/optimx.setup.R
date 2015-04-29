@@ -25,47 +25,59 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     ## for different methods
 
     ctrl.default <- list(
-	follow.on=FALSE, 
-	save.failures=TRUE,
-	trace=0,
-	kkt=TRUE,
+        acctol = 0.0001, 
 	all.methods=FALSE,
-	starttests=TRUE,
-	maximize=FALSE,
+	badval=(0.5)*.Machine$double.xmax,
 	dowarn=TRUE, 
-        usenumDeriv=FALSE,
+        eps = 1e-07, 
+	follow.on=FALSE, 
+        grcheckfwithg=500,
+        grcheckfnog=50,
+	kkt=TRUE,
 	kkttol=0.001,
 	kkt2tol=1.0E-6,
-	badval=(0.5)*.Machine$double.xmax,
+	maximize=FALSE,
+        maxit=500*round(sqrt(npar+1)),
+	maxfeval=5000*round(sqrt(npar+1)),
+        reltest=100.0,
+	save.failures=TRUE,
 	scaletol=3, 
-        maxit=500,
-	maxfeval=5000*round(sqrt(npar+1))
+	starttests=TRUE,
+        stepredn=0.2,
+        stopbadupdate=FALSE,
+	trace=0,
+        usenumDeriv=FALSE
     ) 
     
 # Control set for optimx version 2013.8.6
 # Note: same as default -- must be in maxit etc. ??!!
    ctrl.2013 <- list(
-	follow.on=FALSE, 
-	save.failures=TRUE,
-	trace=0,
-	kkt=TRUE,
+        acctol = 0.0001, 
 	all.methods=FALSE,
-	starttests=TRUE,
-	maximize=FALSE,
+	badval=(0.5)*.Machine$double.xmax,
 	dowarn=TRUE, 
-        usenumDeriv=FALSE,
+        eps = 1e-07, 
+	follow.on=FALSE, 
+        grcheckfwithg=500,
+        grcheckfnog=50,
+	kkt=TRUE,
 	kkttol=0.001,
 	kkt2tol=1.0E-6,
-	badval=(0.5)*.Machine$double.xmax,
-	scaletol=3,
+	maximize=FALSE,
         maxit=500,
-	maxfeval=5000*round(sqrt(npar+1))
+	maxfeval=5000*round(sqrt(npar+1)),
+        reltest=100.0,
+	save.failures=TRUE,
+	scaletol=3, 
+	starttests=TRUE,
+        stepredn=0.2,
+        stopbadupdate=FALSE,
+	trace=0,
+        usenumDeriv=FALSE
    )
 
    if (is.null(control)) { ctrl <- ctrl.default }
    else { if (! is.null(control$ctrlset) ) { # set to another set of controls
-             # ?? do we want to be careful? or just fail
-             # ?? save ctrl <- ctrl set that matches
             if (control$ctrlset=="default") {ctrl <- ctrl.default}
             else if (control$ctrlset=="2013") {ctrl <- ctrl.2013}
                  else { stop("BAD END: control set not defined") }
@@ -198,6 +210,9 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      "Rtnmin", "bobyqa", "nmkb", "hjkb", "lbfgsb3")
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- bdsmeth
+  if (("All" %in% method) || ("ALL" %in% method)) stop("To specify all methods, use 'all' (lower case)")
+  if (("all" %in% method) && (length(method) > 1)) stop("If method='all', method can have ONLY that element")
+  if (method == "all") ctrl$all.methods=TRUE # use ctrl$all.methods as the main mechanism
   if (! ctrl$all.methods) { # Changes method vector!
       if ((length(method) == 1) && (method=="all")) ctrl$all.methods <- TRUE
   }             

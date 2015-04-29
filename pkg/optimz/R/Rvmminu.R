@@ -34,16 +34,16 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   #    eps = a tolerance used for judging small gradient norm
   #           (default = 1e-07). See code for usage.
   #    maxit = a limit on the gradient evaluations (default
-  #             500 + 2*n )
+  #             500 + 2*n in Rvmminu of 2014, now set in optimx.setup)
   #    maxfeval = a limit on the function evaluations (default
-  #             3000 + 10*n )
+  #             3000 + 10*n in Rvminu of 2014, now set in optimx.setup)
   #    maximize = TRUE to maximize the function (default FALSE)
   #    trace = 0 (default) for no output,
   #          > 0 for output (bigger => more output)
   #    dowarn=TRUE by default. Set FALSE to suppress warnings.
   #    stepredn = 0.2 (default). Step reduction factor for backtrack
   #             line search
-  #    reltest = 100.0 (default). Additive shift for equality test.
+  #    reltest = 100.0 (default). Additive shift for equality test. Set in optimx.setup
   #    stopbadupdate = FALSE (default). Don't stop when steepest
   #             descent search point results in failed inverse 
   #             Hessian update
@@ -90,26 +90,29 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   #################################################################
   # control defaults
   n <- as.integer(length(par))  # number of elements in par vector
-  maxit <- 500 + 2L * n
-  maxfeval <- 3000 + 10L * n
-  ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
-    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
-    reltest=100.0, stopbadupdate = FALSE)
+#  maxit <- 500 + 2L * n
+#  maxfeval <- 3000 + 10L * n
+#  ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
+#    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
+#    reltest=100.0, stopbadupdate = FALSE)
+  ctrl <- control # get values from optimx.setup
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
   ctrl[namc] <- control  #
-  maxit <- ctrl$maxit  #
-  maxfeval <- ctrl$maxfeval  #
-  maximize <- ctrl$maximize  # TRUE to maximize the function
-  trace <- ctrl$trace  #
-  eps <- ctrl$eps  #
-  acctol <- ctrl$acctol # 130125
-  dowarn <- ctrl$dowarn  #
-  stepredn <- ctrl$stepredn
-  reltest <- ctrl$reltest
-  stopbadupdate <- ctrl$stopbadupdate
+#  maxit <- ctrl$maxit  #
+#  maxfeval <- ctrl$maxfeval  #
+#  maximize <- ctrl$maximize  # TRUE to maximize the function
+#  trace <- ctrl$trace  #
+#  eps <- ctrl$eps  #
+#  acctol <- ctrl$acctol # 130125
+#  dowarn <- ctrl$dowarn  #
+#  stepredn <- ctrl$stepredn
+#  reltest <- ctrl$reltest
+#  stopbadupdate <- ctrl$stopbadupdate
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
+  ceps <- .Machine$double.eps * ctrl$reltest
+  dblmax <- .Machine$double.xmax  # used to flag bad function
 #################################################################
 #
 #
@@ -128,19 +131,17 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
 #
 ##################################################################
 ## Set working parameters (See CNM Alg 22)
-  if (trace > 0) 
+  if (ctrl$trace > 0) 
      cat("Rvmminu -- J C Nash 2009-2015 - an R implementation of Alg 21\n")
   bvec <- par  # copy the parameter vector
   n <- length(bvec)  # number of elements in par vector
-  if (trace > 0) {
+  if (ctrl$trace > 0) {
      cat("Problem of size n=", n, "  Dot arguments:\n")
      print(fargs)
   }
   ifn <- 1  # count function evaluations
-  stepredn <- 0.2  # Step reduction in line search
-  reltest <- 100  # relative equality test
-  ceps <- .Machine$double.eps * reltest
-  dblmax <- .Machine$double.xmax  # used to flag bad function
+#  stepredn <- 0.2  # Step reduction in line search
+#  reltest <- 100  # relative equality test
   #############################################
   # gr MUST be provided
   if (is.null(gr)) {  # if gr function is not provided STOP 
@@ -148,7 +149,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   }
   if (is.character(gr)) { # assume numerical gradient
   # Convert string to function call, assuming it is a numerical gradient function
-    if (trace > 0) cat("WARNING: using gradient approximation '",gr,"'\n")
+    if (ctrl$trace > 0) cat("WARNING: using gradient approximation '",gr,"'\n")
     mygr<-function(par=par, userfn=fn, ...){
         do.call(gr, list(par, userfn, ...))
     }
@@ -161,23 +162,23 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   if ((class(f) == "try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
      msg <- "Initial point gives inadmissible function value"
      conv <- 20
-     if (trace > 0) 
+     if (ctrl$trace > 0) 
         cat(msg, "\n") # change NA to dblmax 110524
      ans <- list(bvec, dblmax, c(ifn, 0), conv, msg)  #
      names(ans) <- c("par", "value", "counts", "convergence", 
        "message")
      return(ans)
   }
-    if (maximize) f <- -f
-    if (trace > 0) cat("Initial fn=", f, "\n")
-    if (trace > 2) print(bvec)
+    if (ctrl$maximize) f <- -f
+    if (ctrl$trace > 0) cat("Initial fn=", f, "\n")
+    if (ctrl$trace > 2) print(bvec)
     keepgoing <- TRUE  # to ensure loop continues until we are finished
     ig <- 1  # count gradient evaluations
     ilast <- ig  # last time we used gradient as search direction
     fmin <- f  # needed for numerical gradients
     g <- mygr(bvec, ...)  # Do we need to use try() ?
-    if (maximize) g <- -g
-    if (trace > 2) {
+    if (ctrl$maximize) g <- -g
+    if (ctrl$trace > 2) {
         cat("g:")
         print(g)
     }
@@ -186,10 +187,10 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     while (keepgoing) { ## main loop -- must remember to break out of it!
       if (ilast == ig) { # reset the approx. inverse hessian B to unit matrix
           B <- diag(1, n, n)  # create unit matrix of order n
-          if (trace > 2) cat("Reset Inv. Hessian approx at ilast = ", ilast, "\n")
+          if (ctrl$trace > 2) cat("Reset Inv. Hessian approx at ilast = ", ilast, "\n")
       }
       fmin <- f
-      if (trace > 0) cat(" ", ifn, " ", ig, " ", fmin, "\n")
+      if (ctrl$trace > 0) cat(" ", ifn, " ", ig, " ", fmin, "\n")
       par <- bvec  # save parameters
       if (!all(is.numeric(g))) {
           g <- rep(0, n)  # 110619
@@ -235,17 +236,17 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
       t <- as.vector(-B %*% g)  # compute search direction
       if (!all(is.numeric(t))) 
           t <- rep(0, n)  # 110619
-      if (trace > 2) {
+      if (ctrl$trace > 2) {
           cat("t:")
           print(t)
       }
 #  space for masks and box constraints        
-#      if (trace > 2) {
+#      if (ctrl$trace > 2) {
 #          cat("adj-t:")
 #          print(t)
 #      }
       gradproj <- sum(t * g)  # gradient projection
-      if (trace > 1) 
+      if (ctrl$trace > 1) 
           cat("Gradproj =", gradproj, "\n")
       accpoint <- FALSE  # Need this BEFORE gradproj test
       if (is.nan(gradproj)) {
@@ -281,21 +282,21 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
 #
 #
           bvec <- par + steplength * t
-          if (trace > 2) {
+          if (ctrl$trace > 2) {
             cat("new bvec:")
             print(bvec)
           }
-          changed <- (!identical((bvec + reltest), (par + reltest)) )
+          changed <- (!identical((bvec + ctrl$reltest), (par + ctrl$reltest)) )
           if (changed) {
             # compute new step, if possible
             f <- try(fn(bvec, ...))
             if (class(f) == "try-error") f <- .Machine$double.xmax
-            if (maximize) f <- -f
-            if (trace > 2) cat("New f=",f," lower = ",(f < fmin),"\n")
+            if (ctrl$maximize) f <- -f
+            if (ctrl$trace > 2) cat("New f=",f," lower = ",(f < fmin),"\n")
             ifn <- ifn + 1
-            if (ifn > maxfeval) {
+            if (ifn > ctrl$maxfeval) {
               msg <- "Too many function evaluations"
-              if (dowarn) warning(msg)
+              if (ctrl$dowarn) warning(msg)
               conv <- 1
               changed <- FALSE
               keepgoing <- FALSE
@@ -303,7 +304,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
             }
             if (is.infinite(f)) f <- .Machine$double.xmax
             if (is.na(f) | is.null(f) ) {
-              if (trace > 2) {
+              if (ctrl$trace > 2) {
                 cat("Function is not calculable at intermediate bvec:")
                 print(bvec)
               }
@@ -317,15 +318,15 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
             if (f < fmin) {
               # We have a lower point. Is it 'low enough' i.e.,
               #   acceptable
-              accpoint <- (f <= fmin + gradproj * steplength * acctol)
+              accpoint <- (f <= fmin + gradproj * steplength * ctrl$acctol)
             }
             else {
-              steplength <- steplength * stepredn
-              if (trace > 0) cat("*")
+              steplength <- steplength * ctrl$stepredn
+              if (ctrl$trace > 0) cat("*")
             }
           } # end changed
           else { # NOT changed in step reduction
-            if (trace > 1) cat("Unchanged in step redn \n")
+            if (ctrl$trace > 1) cat("Unchanged in step redn \n")
           }
         }  # end while ((f >= fmin) && changed )
       }  # end if gradproj<0
@@ -353,20 +354,20 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         if (class(test) == "try-error") stop("Bad gradient!!")
         if (any(is.nan(g))) stop("NaN in gradient")
         ig <- ig + 1
-        if (maximize) g <- -g
-        if (ig > maxit) {
+        if (ctrl$maximize) g <- -g
+        if (ig > ctrl$maxit) {
           keepgoing = FALSE
           msg = "Too many gradient evaluations"
-          if (dowarn) warning(msg)
+          if (ctrl$dowarn) warning(msg)
           conv <- 1
           break
         }
         par <- bvec # save parameters since point acceptable
 # for Rvmminb active mask or constraint adjust g
         gnorm <- sqrt(sum(g*g)) ## JN131202 
-        if (trace > 0) cat("ig=",ig,"  gnorm=",gnorm,"  ")
-        if (gnorm < (1 + abs(fmin))*eps*eps ) {
-          if (trace > 1) cat("Small gradient norm\n")
+        if (ctrl$trace > 0) cat("ig=",ig,"  gnorm=",gnorm,"  ")
+        if (gnorm < (1 + abs(fmin))*ctrl$eps*ctrl$eps ) {
+          if (ctrl$trace > 1) cat("Small gradient norm\n")
           keepgoing <- FALSE
           conv <- 2
           break
@@ -385,18 +386,18 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           B <- B - (outer(t, y) + outer(y, t) - D2 * outer(t, t))/D1
         }
         else {
-          if (trace > 0) 
+          if (ctrl$trace > 0) 
             cat("UPDATE NOT POSSIBLE: ilast, ig",ilast, ig,"\n")
           if (ig == ilast+1) {
-            if (stopbadupdate) keepgoing=FALSE # stop on update failure for s.d. search
-            if (trace > 2) cat("keepgoing = ",keepgoing,"\n")
+            if (ctrl$stopbadupdate) keepgoing=FALSE # stop on update failure for s.d. search
+            if (ctrl$trace > 2) cat("keepgoing = ",keepgoing,"\n")
             conv <- 3
           }
           ilast <- ig  # note gradient evaluation when update failed
         }  # D1 > 0 test
       } # end if accpoint
       else { # no acceptable point
-        if (trace > 0) cat("No acceptable point\n")
+        if (ctrl$trace > 0) cat("No acceptable point\n")
         if (ig == ilast) {
           # we reset to gradient and did new linesearch
           keepgoing <- FALSE  # no progress possible
@@ -404,16 +405,16 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
             conv <- 0
           }
           msg <- "Converged"
-          if (trace > 0) cat(msg, "\n")
+          if (ctrl$trace > 0) cat(msg, "\n")
         } # end ig == ilast
         else {
           ilast <- ig  # reset to gradient search
-          if (trace > 0) cat("Reset to gradient search\n")
+          if (ctrl$trace > 0) cat("Reset to gradient search\n")
         }  # end else ig != ilast
       }  # end else no accpoint
     }  # end main loop  (while keepgoing)
-    if (maximize) fmin <- (-1) * fmin
-    if (trace > 0) cat("Seem to be done Rvmminu\n")
+    if (ctrl$maximize) fmin <- (-1) * fmin
+    if (ctrl$trace > 0) cat("Seem to be done Rvmminu\n")
     msg <- "Rvmminu appears to have converged"
     counts <- c(ifn, ig)
     names(counts) <- c("function", "gradient")

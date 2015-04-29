@@ -16,7 +16,7 @@ TODO
 
       o Rtnmin not working on some examples. start=(1:10)/3, gs=10
         works for octave, not for R. ?? May now be fixed. Check.140904
-        tn uses envjn, but tnbc does not??
+        tn uses envjn, tnbc does too??
 
       o lbfgsb3 explanation poor. No convcode at the moment. 140901
 

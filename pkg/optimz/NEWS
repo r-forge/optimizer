@@ -35,6 +35,7 @@ TODO
         UOBYQA is present in optimx.run.R, but is not included in the list of
         "all.methods" in optimx.setup.R. It should be possible to run UOBYQA
         by including "uobyqa" in the list of methods in a direct call to optimx.run.R.
+      o method="all" check -- 
 
       o May want to tweak bobyqa, newuoa default controls.
 
@@ -45,21 +46,13 @@ TODO
 	Need to standardize, then test. May not be able to fully reproduce 
 	results.
 
-      o Simplify, simplify, simplify
-
       o Keep thinking about scaling as in optim() -- use same environment as in tn,
 	but change the name
 
-      o Consider how to subsume routines in optim() so that optimx can become
-	a recommended package and optim() can be dropped from base-R.
-
       o Move anything of value in optplus to optimz
 
-      o method="All" check
-
-      o null gr check working
-    
-      o get rid of extra printouts in optimx.run
+      o Consider how to subsume routines in optim() so that optimx can become
+	a recommended package and optim() can be dropped from base-R.
 
       o change maxit, maxfeval settings -- too low for many functions
 
@@ -70,11 +63,16 @@ TODO
 	In optimx means we assume methods ONLY minimize, UNLESS we 
 	include the fnscale in an environment eventually.
 
-      o  Examples moved to tests/ subdirectory. 
-         ?? Need to expand and create saved
-	 results for auto-comparison in running R CMD check.
+      o  Examples moved to tests/ subdirectory, except for a simple one.
+         Need to expand and create saved results for auto-comparison 
+	 in running R CMD check.
+
+      o null gr check working -- move all gradient prep to optimx.setup
+    
 
 VERSION 2015-04-27
+
+      o     Removed extra printouts in optimx.run
 
       o    The optsp environment was only used with the simple 
            numerical gradient approximations to provide the eps

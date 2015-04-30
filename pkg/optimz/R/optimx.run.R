@@ -389,11 +389,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rvmmin
 ## --------------------------------------------
       else if (meth == "bobyqa") {# Use bobyqa routine from minqa package
-        if (! is.null(ctrl$maxit)) { 
-		mcontrol$maxfun <- ctrl$maxit
-	} else {
-		mcontrol$maxfun <- 5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
-	}
+  	mcontrol$maxfun <- ctrl$maxfeval
         mcontrol$iprint <- ctrl$trace
         time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, 
 		control=mcontrol,...), silent=TRUE))[1]
@@ -418,11 +414,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using bobyqa
 ## --------------------------------------------
       else if (meth == "uobyqa") {# Use uobyqa routine from minqa package
-        if (! is.null(ctrl$maxit)) { 
-		mcontrol$maxfun <- ctrl$maxit
-	} else {
-		mcontrol$maxfun <- 5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
-	}
+	mcontrol$maxfun <- ctrl$maxfeval
         mcontrol$iprint <- ctrl$trace
 
         time <- system.time(ans <- try(uobyqa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
@@ -447,11 +439,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using uobyqa
 ## --------------------------------------------
       else if (meth == "newuoa") {# Use newuoa routine from minqa package
-        if (! is.null(ctrl$maxit)) { 
-		mcontrol$maxfun <- ctrl$maxit
-	} else {
-		mcontrol$maxfun <- 5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
-	}
+	mcontrol$maxfun <- ctrl$maxfeval
         mcontrol$iprint <- ctrl$trace
 
         time <- system.time(ans <- try(newuoa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]

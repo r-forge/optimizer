@@ -1,10 +1,6 @@
 NEWS about R package optimz
 
 TODO
-      o  Examples moved to tests/ subdirectory. 
-         ?? Need to expand and create saved
-	 results for auto-comparison in running R CMD check.
-
       o need a NEW mechanism for controls that are special to 
 	individual methods 140902. Can we use control$methopt as 
 	a list, with sub-lists for each method. How to convert
@@ -20,8 +16,10 @@ TODO
 
       o lbfgsb3 explanation poor. No convcode at the moment. 140901
 
-      o Rvmmin gives warning when called with no gradient. 
-        Use control "usenumDeriv=TRUE" to overcome this. 130411
+      o Rvmmin called through optimz gives warning when called with no gradient. 
+	?? Use control "usenumDeriv=TRUE" to overcome this. 130411
+        Problem is that if we use grfwd, then problem with post-optimization
+	calculations.
 
       o tn and tnbc do not have proper controls yet for iterations and
 	trace
@@ -67,11 +65,21 @@ TODO
 
       o minqa routines -- not giving convcode=1 when out of iterations
 
-      o Rcgmin should support maximize (150429)
- 
+      o Rcgmin should support maximize (150429) 
+        Can all methods support it, or else in the call to the method.
+	In optimx means we assume methods ONLY minimize, UNLESS we 
+	include the fnscale in an environment eventually.
 
+      o  Examples moved to tests/ subdirectory. 
+         ?? Need to expand and create saved
+	 results for auto-comparison in running R CMD check.
 
 VERSION 2015-04-27
+
+      o    The optsp environment was only used with the simple 
+           numerical gradient approximations to provide the eps
+	   (adjustment of parameter) argument. This has now been
+           put in the argument lists of grfwd, grback and grcentral.
 
       o inst/UnitTests should be merged with tests/
 
@@ -418,15 +426,6 @@ Changes in optextras
 
 Changes before 2012-5-26 not recorded 
 
-TODOS
-
-   o    The optsp environment is only currently used
-        with the simple numerical gradient approximations.
-        It needs to be added to ufn, ugr, uhess and some
-        other routines. 
-
-   o    Need to check that other packages can use the
-        optsp environment, e.g., Rtn.
 
 Changes
 

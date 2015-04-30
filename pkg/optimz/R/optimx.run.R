@@ -23,7 +23,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   row.names(ans.ret)<-method
   ans.details <- list()
   ansout <- NULL # ensure NULL if we have no parameters or no successes
-# if (is.null(ugr)) stop("Cannot have null ugr() in optimx.run")
   numgrad<-FALSE
   # 130924 -- need to fix -- some methods can handle null gradient
   for (i in 1:nmeth) { # loop over the methods
@@ -361,17 +360,17 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 
 	if (have.bounds) {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
-           tmp <- readline("About to call Rvmminb")
+#           tmp <- readline("About to call Rvmminb")
    	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=ugr, lower=lower,
                 upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
-           tmp <- readline("About to call Rvmminu")
+#           tmp <- readline("About to call Rvmminu")
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=ugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
-        cat(class(ans)[1])
-        tmp<-readline("back from Rvmmin")
+#        cat(class(ans)[1])
+#        tmp<-readline("back from Rvmmin")
 
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$convergence

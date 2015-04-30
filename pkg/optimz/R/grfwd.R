@@ -1,6 +1,5 @@
-grfwd <- function(par, userfn, fbase=NULL, env=optsp, ...) {
+grfwd <- function(par, userfn, fbase=NULL, eps=1.0e-8, ...) {
    # Forward different gradient approximation
-   eps<-env$deps
    if (is.null(fbase)) fbase <- userfn(par, ...)  # ensure we have function value at par
    df <- rep(NA, length(par))
    teps <- eps * (abs(par) + eps)

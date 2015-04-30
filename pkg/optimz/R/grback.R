@@ -1,6 +1,5 @@
-grback <- function(par, userfn, fbase=NULL, env=optsp, ...) {
+grback <- function(par, userfn, fbase=NULL, eps=1.e-8, ...) {
    # Backward difference gradient approximation
-   eps<-env$deps
    if (is.null(fbase)) fbase <- userfn(par, ...)  # ensure we function value at par
    df <- rep(NA, length(par))
    teps <- eps * (abs(par) + eps)

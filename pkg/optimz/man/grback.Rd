@@ -10,7 +10,7 @@
 
 
 \usage{
-   grback(par, userfn, fbase=NULL, env=optsp, ...)
+   grback(par, userfn, fbase=NULL, eps=1.0e-8, ...)
 }
 
 
@@ -26,9 +26,8 @@
         The value of the function at the parameters, else NULL. This is to save
         recomputing the function at this point.
         }
-    \item{env}{
-        Environment for scratchpad items (like \code{deps} for approximation 
-        control in this routine). Default \code{optsp}.
+    \item{eps}{
+        Value used to shift parameters to generate derivative approximations.
         }
     \item{\dots}{
         optional arguments passed to the objective function.
@@ -76,8 +75,8 @@ cat("compare to analytic gradient:\n")
 print(ga)
 
 cat("change the step parameter to 1e-4\n")
-optsp$deps <- 1e-4
-gn2<-grback(xx,myfn, shift=0)
+
+gn2<-grback(xx,myfn, eps=1e-4, shift=0)
 print(gn2)
 
 }

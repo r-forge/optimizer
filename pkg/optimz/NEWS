@@ -39,13 +39,6 @@ TODO
 
       o May want to tweak bobyqa, newuoa default controls.
 
-      o Sets of control defaults so we can get different examples to show up
-	properly, and also to allow "soft" vs. "hard" tries of problems e.g.,
-	with tighter or looser iteration and tolerance settings.
-        Note changes 130806 to 140504 in maxfeval lines (more in 13 than 14??)
-	Need to standardize, then test. May not be able to fully reproduce 
-	results.
-
       o Keep thinking about scaling as in optim() -- use same environment as in tn,
 	but change the name
 
@@ -58,7 +51,12 @@ TODO
 
       o minqa routines -- not giving convcode=1 when out of iterations
 
-      o Rcgmin should support maximize (150429) 
+      o Support for control$maximize:  150429
+	- optimx.setup.R should define ufn, ugr, uhess so that the process
+	is a MINIMIZATION. Need a parameter minimizeorig in ctrl so we can 
+	change ctrl$minimize to TRUE and then revert it after solution for
+	those methods (BB?, others) that work with minimize argument.
+	Rcgmin should support maximize (150429) 
         Can all methods support it, or else in the call to the method.
 	In optimx means we assume methods ONLY minimize, UNLESS we 
 	include the fnscale in an environment eventually.
@@ -84,7 +82,7 @@ VERSION 2015-04-27
       o grcheckfwithg=500, grcheckfnog=50 parameterization of checks
 
       o New function ctrldefault(npar) to create ctrl default set for use by routines.
-        Note tol=0 to force its calculation.
+	In optimz-package.R should user wish to change.
 
       o  Rvmmin and Rcgmin -- remove ctrl$checkgrad and ctrl$checkbounds. These
 	will automatically be done in Rcgmin and Rvmin, and we'll call the Rcgminu, 

@@ -37,10 +37,11 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }
    }
 
-# Check if we should do gradient check
-    if (is.null(control$kkt)) { # turn off kkt for large matrices
-      ctrl$kkt<-TRUE # default it to compute KKT tests
-      if (is.null(gr)) { # no analytic gradient
+# Check if we should do kkt check (default is true)
+# control$kkt TRUE -- do it regardless, FALSE don't. ctrl$kkt will be these values
+  if (! is.null(control$kkt)) {  # Only adjust kkt control if user has not specified it
+    if (ctrl$kkt)) { # if kkt is on, turn it off for large matrices
+      if (is.null(gr) || is.character(gr)) { # no analytic gradient
          if (npar >  ctrl$grcheckfnog) {
            ctrl$kkt=FALSE # too much work when large number of parameters
            if (ctrl$trace>0) cat("gr NULL, npar > ",ctrl$grcheckfnog,", ctrl$kkt set FALSE\n")
@@ -51,52 +52,50 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             if (ctrl$trace>0) cat("gr NULL, npar > ",ctrl$grcheckfwithg,", ctrl$kkt set FALSE\n")
          }
       }
-    } else { # kkt is set
-      if (control$kkt) {
-        if (is.null(gr)) {
-           if (npar > ctrl$grcheckfnog) {
-             if ((ctrl$trace>0) && ctrl$dowarn) 
-                warning("Computing hessian for gr NULL, npar > ", ctrl$grcheckfnog,", can be slow\n")
-           }
-        } else {
-           if (npar > ctrl$grcheckfwithg) {
-             if ((ctrl$trace>0) && ctrl$dowarn) 
-               warning("Computing hessian with gr code, npar > ",ctrl$grcheckfwithg,", can be slow\n")
-           }
-        }
-      }
     }
+  }
+
 ##    cat("optimx.setup ctrl out:")
 ##    print(ctrl)
 
-    optcfg$ctrl <- ctrl
-# reset the function if we are maximizing
-  ufn <- fn
-  ugr <- gr
-  uhess <- hess
-  if ((! is.null(control$maximize)) && control$maximize ) { 
-        cat("Maximizing -- use negfn and neggr\n")
-        if (! is.null(control$fnscale)) { 
- 		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
-        } # moved up 091216
-        optcfg$ctrl$maximize<-TRUE
-        ufn <- function (par, ...) { # negate the function for maximizing
-	   val<-(-1.)*fn(par,...)
-        } # end of ufn = negfn
-        if (! is.null(gr)) { 
-           ugr <- function(par, userfn=ufn, ...) {
-               gg <- (-1)*gr(par, ...)
-           }
-        } else { ugr <- NULL } # ensure it is defined
-        if (! is.null(hess) ) {
-           uhess <- function(par, ...) {
-               hh <- (-1)*hess(par, ...)
-           }
-        } else { uhess <- NULL } # ensure it is defined
-  } else { 
-     optcfg$ctrl$maximize <- FALSE # ensure defined
+# reset the function if we are maximizing / using a numerical gradient
+  ctrl$maximizeorig <- ctrl$maximize
+  ctrl$maximize <- FALSE # We always minimize
+
+  if (is.null(gr)) gr <- ctrl$defgrapprox # define the gradient approximation
+  if (ctrl$maximizeorig) {
+     ufn <- function(par=par, userfn=fn, ...){
+        result <- (-1) * fn(par, ...)
+     }
+     if ( is.character(gr) ) {
+       # Convert string to function call, assuming it is a numerical gradient function
+       ugr<-function(par=par, userfn=fn, ...){
+           result <- do.call(gr, list(par, userfn, ...))
+           result <- (-1)*result
+       }
+       uhess <- NULL # Do NOT define hessian when approximating gradient
+     } else { ugr<- function(par, ...) {
+                 result <- (-1)*gr(par,...)
+              }
+              if (! is.null(hess) ) {
+                 uhess <- function(par, ...) {
+                    result <- (-1) * hess(par, ...)
+                 }
+              }   
+  } else { # not maximizing
+       ufn <- fn
+       if ( is.character(gr) ) {
+         # Convert string to function call, assuming it is a numerical gradient function
+         ugr<-function(par=par, userfn=fn, ...){
+           result <- do.call(gr, list(par, userfn, ...))
+          }
+       } else { 
+           ugr <- gr
+           uhess <- hess
+       }
+  }    
   } # define maximize if NULL
-  optcfg$usenumDeriv <- FALSE # JN130703
+  optcfg$usenumDeriv <- FALSE # JN130703 ??
   if (is.null(gr) && ctrl$usenumDeriv) {
      if (ctrl$dowarn) warning("Replacing NULL gr with 'numDeriv' approximation")
      optcfg$usenumDeriv<-TRUE
@@ -183,6 +182,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     cat("Methods to be used:")
     print(method)
   }
+  optcfg$ctrl <- ctrl
   optcfg$method <- method
   optcfg # return the structure
 } ## end of optimx.setup

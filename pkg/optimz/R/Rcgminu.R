@@ -106,7 +106,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     maxfeval <- round(sqrt(n + 1) * maxit)  # change 091219
     ig <- 0  # count gradient evaluations
     ifn <- 1  # count function evaluations (we always make 1 try below)
-    stepredn <- 0.15  # Step reduction in line search
+##    stepredn <- 0.15  # Step reduction in line search
     acctol <- 1e-04  # acceptable point tolerance
     reltest <- 100  # relative equality test
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point

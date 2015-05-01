@@ -7,6 +7,7 @@ ctrldefault <- function(npar) {
         acctol = 0.0001, 
 	all.methods=FALSE,
 	badval=(0.5)*.Machine$double.xmax,
+        defgrapprox<-"grfwd",
         dowarn=TRUE, 
         eps = 1e-07, 
 	follow.on=FALSE, 

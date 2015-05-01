@@ -71,30 +71,17 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
     n<-length(par)
-    # control defaults -- idea from spg
-
-    ctrl <- ctrldefault(n) # get default values of controls
-    if (! is.null(control) ) {
-     namc <- names(control)
-     if (!all(namc %in% names(ctrl))) 
-        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-     nctrl <- names(ctrl)
-     for (onename in namc) {
-        if (onename %in% nctrl) {
-           ctrl[onename] <- control[onename]
-        } 
-     }
-    }
-
-    if (ctrl$tol == 0) tol <- n * (n * .Machine$double.eps)  
+    # control MUST be set externally (optimx.setup or Rcgmin or user program)
+    print(control)
+    if (control$tol == 0) tol <- n * (n * .Machine$double.eps)  
          # for gradient test.  Note -- integer overflow if n*n*d.eps
-    else tol<-ctrl$tol
-    if (ctrl$trace > 2) cat("trace = ", trace, "\n")
+    else tol<-control$tol
+    if (control$trace > 2) cat("trace = ", trace, "\n")
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     grNULL <- is.null(gr)
-    ceps <- .Machine$double.eps * ctrl$reltest
+    ceps <- .Machine$double.eps * control$reltest
     #############################################
-    if (ctrl$maximize) {
+    if (control$maximize) {
        warning("Rcgmin no longer supports maximize 111121 -- see documentation")
        msg<-"Rcgmin no longer supports maximize 111121"
        ans <- list(par, NA, c(0, 0), 9999, msg, bdmsk)
@@ -113,7 +100,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     } else { mygr<-gr }
    ############# end test gr ####################
     ## Set working parameters (See CNM Alg 22)
-    if (ctrl$trace > 0) {
+    if (control$trace > 0) {
         cat("Rcgmin -- J C Nash 2009 - bounds constraint version of new CG\n")
         cat("an R implementation of Alg 22 with Yuan/Dai modification\n")
     }
@@ -123,7 +110,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     fargs <- list(...)  # function arguments
-    if (ctrl$trace > 2) {
+    if (control$trace > 2) {
         cat("Extra function arguments:")
         print(fargs)
     }
@@ -131,7 +118,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     if (is.null(bdmsk)) {
         bdmsk <- rep(1, n)
     }
-    if (ctrl$trace > 2) {
+    if (control$trace > 2) {
         cat("bdmsk:")
         print(bdmsk)
     }
@@ -146,7 +133,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     if (nolower && noupper && all(bdmsk == 1)) 
         bounds = FALSE
     else bounds = TRUE
-    if (ctrl$trace > 2) 
+    if (control$trace > 2) 
         cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
             " bounds = ", bounds, "\n")
     if (nolower) 
@@ -186,7 +173,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                   if (bvec[i] < lower[i]) {
                     wmsg <- paste(bvec[i], " = MASKED x[", i, 
                       "] < lower bound = ", lower[i], sep = "")
-                    if (ctrl$dowarn) 
+                    if (control$dowarn) 
                       warning(wmsg)
                   }
                 }
@@ -194,7 +181,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                   if (bvec[i] > upper[i]) {
                     wmsg <- paste(bvec[i], " = MASKED x[", i, 
                       "] > upper bound = ", upper[i], sep = "")
-                    if (ctrl$dowarn) 
+                    if (control$dowarn) 
                       warning(wmsg)
                   }
                 }
@@ -206,7 +193,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     # changed 090814 to ensure bdmsk is set
                     wmsg <- paste("x[", i, "], set ", bvec[i], 
                       " to lower bound = ", lower[i], sep = "")
-                    if (ctrl$dowarn && (bvec[i] != lower[i])) 
+                    if (control$dowarn && (bvec[i] != lower[i])) 
                       warning(wmsg)
                     bvec[i] <- lower[i]
                     bdmsk[i] <- -3  # active lower bound
@@ -217,7 +204,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     # changed 090814 to ensure bdmsk is set
                     wmsg <- paste("x[", i, "], set ", bvec[i], 
                       " to upper bound = ", upper[i], sep = "")
-                    if (ctrl$dowarn && (bvec[i] != upper[i])) 
+                    if (control$dowarn && (bvec[i] != upper[i])) 
                       warning(wmsg)
                     bvec[i] <- upper[i]
                     bdmsk[i] <- -1  # active upper bound
@@ -229,17 +216,17 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     ############## end bounds check #############
     # Initial function value -- may NOT be at initial point
     #   specified by user.
-    if (ctrl$trace > 2) {
+    if (control$trace > 2) {
         cat("Try function at initial point:")
         print(bvec)
     }
     f <- try(fn(bvec, ...), silent = TRUE)  # Compute the function at initial point.
-    if (ctrl$trace > 0) {
+    if (control$trace > 0) {
         cat("Initial function value=", f, "\n")
     }
     if (class(f) == "try-error") {
         msg <- "Initial point is infeasible."
-        if (ctrl$trace > 0) 
+        if (control$trace > 0) 
             cat(msg, "\n")
         ans <- list(par, NA, c(ifn, 0), 2, msg, bdmsk)
         names(ans) <- c("par", "value", "counts", "convergence", 
@@ -247,9 +234,9 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
         return(ans)
     }
     fmin <- f
-    if (ctrl$trace > 0) 
+    if (control$trace > 0) 
         cat("Initial fn=", f, "\n")
-    if (ctrl$trace > 2) 
+    if (control$trace > 2) 
         print(bvec)
     # Start the minimization process
     keepgoing <- TRUE
@@ -265,17 +252,17 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
         while (keepgoing && (cycle < cyclimit)) {
             ## cycle loop
             cycle <- cycle + 1
-            if (ctrl$trace > 0) 
+            if (control$trace > 0) 
                 cat(ifn, " ", ig, " ", cycle, " ", fmin, "  last decrease=", 
                   fdiff, "\n")
-            if (ctrl$trace > 2) {
+            if (control$trace > 2) {
                 print(bvec)
                 cat("\n")
             }
-            if (ifn > ctrl$maxfeval) {
+            if (ifn > control$maxfeval) {
                 msg <- paste("Too many function evaluations (> ", 
-                  ctrl$maxfeval, ") ", sep = "")
-                if (ctrl$trace > 0) 
+                  control$maxfeval, ") ", sep = "")
+                if (control$trace > 0) 
                   cat(msg, "\n")
                 ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  # 1 indicates not converged in function limit
                 names(ans) <- c("par", "value", "counts", "convergence", 
@@ -284,10 +271,10 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             }
             par <- bvec  # save best parameters
             ig <- ig + 1
-            if (ig > ctrl$maxit) {
+            if (ig > control$maxit) {
                 msg <- paste("Too many gradient evaluations (> ", 
-                  ctrl$maxit, ") ", sep = "")
-                if (ctrl$trace > 0) 
+                  control$maxit, ") ", sep = "")
+                if (control$trace > 0) 
                   cat(msg, "\n")
                 ans <- list(par, fmin, c(ifn, ig), 1, msg, bdmsk)  # 1 indicates not converged in function or gradient limit
                 names(ans) <- c("par", "value", "counts", "convergence", 
@@ -299,7 +286,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                 {
                   ## Bounds and masks adjustment of gradient ##
                   ## first try with looping -- later try to vectorize
-                  if (ctrl$trace > 2) {
+                  if (control$trace > 2) {
                     cat("bdmsk:")
                     print(bdmsk)
                   }
@@ -310,7 +297,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     }
                     else {
                       if (bdmsk[i] == 1) {
-                        if (ctrl$trace > 1) 
+                        if (control$trace > 1) 
                           cat("Parameter ", i, " is free\n")
                       }
                       else {
@@ -320,13 +307,13 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                         }
                         else {
                           bdmsk[i] <- 1  # freeing parameter i
-                          if (ctrl$trace > 1) 
+                          if (control$trace > 1) 
                             cat("freeing parameter ", i, "\n")
                         }
                       }
                     }
                   }  # end masking loop on i
-                  if (ctrl$trace > 2) {
+                  if (control$trace > 2) {
                     cat("bdmsk adj:\n")
                     print(bdmsk)
                     cat("proj-g:\n")
@@ -337,13 +324,13 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             g1 <- sum(g * (g - c))  # gradient * grad-difference
             g2 <- sum(t * (g - c))  # oldsearch * grad-difference
             gradsqr <- sum(g * g)
-            if (ctrl$trace > 1) {
+            if (control$trace > 1) {
                 cat("Gradsqr = ", gradsqr, " g1, g2 ", g1, " ", 
                   g2, " fmin=", fmin, "\n")
             }
             c <- g  # save last gradient
             g3 <- 1  # !! Default to 1 to ensure it is defined -- t==0 on first cycle
-            if (gradsqr > tol * (abs(fmin) + ctrl$reltest)) {
+            if (gradsqr > tol * (abs(fmin) + control$reltest)) {
                 if (g2 > 0) {
                   betaDY <- gradsqr/g2
                   betaHS <- g1/g2
@@ -353,16 +340,16 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             else {
                 msg <- paste("Very small gradient -- gradsqr =", 
                   gradsqr, sep = " ")
-                if (ctrl$trace > 0) 
+                if (control$trace > 0) 
                   cat(msg, "\n")
                 keepgoing <- FALSE  # done loops -- should we break ??
                 break  # to leave inner loop
             }
-            if (ctrl$trace > 2) 
+            if (control$trace > 2) 
                 cat("Betak = g3 = ", g3, "\n")
             if (g3 == 0 || cycle >= cyclimit) {
                 # we are resetting to gradient in this case
-                if (ctrl$trace > 0) {
+                if (control$trace > 0) {
                   if (cycle < cyclimit) 
                     cat("Yuan/Dai cycle reset\n")
                   else cat("Cycle limit reached -- reset\n")
@@ -375,17 +362,17 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                 # drop through if not Yuan/Dai cycle reset
                 t <- t * g3 - g  # t starts at zero, later is step vector
                 gradproj <- sum(t * g)  # gradient projection
-                if (ctrl$trace > 1) 
+                if (control$trace > 1) 
                   cat("Gradproj =", gradproj, "\n")
                 if (bounds) 
                   {
                     ## Adjust search direction for masks
-                    if (ctrl$trace > 2) {
+                    if (control$trace > 2) {
                       cat("t:\n")
                       print(t)
                     }
                     t[which(bdmsk <= 0)] <- 0  # apply mask constraint
-                    if (ctrl$trace > 2) {
+                    if (control$trace > 2) {
                       cat("adj-t:\n")
                       print(t)
                     }
@@ -395,7 +382,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                 ########################################################
                 ####                  Line search                   ####
                 OKpoint <- FALSE
-                if (ctrl$trace > 2) 
+                if (control$trace > 2) 
                   cat("Start linesearch with oldstep=", oldstep, 
                     "\n")
                 steplength <- oldstep * 1.5  #!! try a bit bigger
@@ -419,18 +406,18 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                               # going up, check upper bound
                               trystep <- (upper[i] - par[i])/t[i]  # t[i] > 0 so this is positive
                             }
-                            if (ctrl$trace > 2) 
+                            if (control$trace > 2) 
                               cat("steplength, trystep:", steplength, 
                                 trystep, "\n")
                             steplength <- min(steplength, trystep)  # reduce as necessary
                           }  # end steplength reduction
                       }  # end loop on i to reduce step length
-                      if (ctrl$trace > 1) 
+                      if (control$trace > 1) 
                         cat("reset steplegth=", steplength, "\n")
                       # end box constraint adjustment of step length
                     }  # end if bounds
                   bvec <- par + steplength * t
-                  changed <- (!identical((bvec + ctrl$reltest), (par + ctrl$reltest)))
+                  changed <- (!identical((bvec + control$reltest), (par + control$reltest)))
                   if (changed) {
                     # compute newstep, if possible
                     f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
@@ -446,9 +433,9 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     }
                     else {
                       savestep<-steplength
-                      steplength <- steplength * ctrl$stepredn
+                      steplength <- steplength * control$stepredn
                       if (steplength >=savestep) changed<-FALSE
-                      if (ctrl$trace > 0) 
+                      if (control$trace > 0) 
                         cat("*")
                     }
                   }
@@ -478,28 +465,28 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                                 # going up, check upper bound
                                 trystep <- (upper[i] - par[i])/t[i]  # t[i] > 0 so this is positive
                               }
-                              if (ctrl$trace > 2) 
+                              if (control$trace > 2) 
                                 cat("newstep, trystep:", newstep, 
                                   trystep, "\n")
                               newstep <- min(newstep, trystep)  # reduce as necessary
                             }  # end newstep reduction
                         }  # end loop on i to reduce step length
-                        if (ctrl$trace > 2) 
+                        if (control$trace > 2) 
                           cat("reset newstep=", newstep, "\n")
                         # end box constraint adjustment of step length
                       }  # end if bounds
                     bvec <- par + newstep * t
-                    changed <- (!identical((bvec + ctrl$reltest), (par + ctrl$reltest)))
+                    changed <- (!identical((bvec + control$reltest), (par + control$reltest)))
                     if (changed) {
                       f <- fn(bvec, ...)
                       ifn <- ifn + 1
                     }
-                    if (ctrl$trace > 2) 
+                    if (control$trace > 2) 
                       cat("fmin, f1, f: ", fmin, f1, f, "\n")
                     if (f < min(fmin, f1)) {
                       # success
                       OKpoint <- TRUE
-                      accpoint <- (f <= fmin + gradproj * newstep * ctrl$acctol)
+                      accpoint <- (f <= fmin + gradproj * newstep * control$acctol)
                       fdiff <- (fmin - f)  # check decrease
                       fmin <- f
                       oldstep <- newstep  # !! save it
@@ -507,7 +494,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     else {
                       if (f1 < fmin) {
                         bvec <- par + steplength * t  # reset best point
-                        accpoint <- (f1 <= fmin + gradproj * steplength * ctrl$acctol)
+                        accpoint <- (f1 <= fmin + gradproj * steplength * control$acctol)
                         OKpoint <- TRUE  # Because f1 < fmin
                         fdiff <- (fmin - f1)  # check decrease
                         fmin <- f1
@@ -519,12 +506,12 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                         accpoint <- FALSE
                       }  # f1<?fmin
                     }  # f < min(f1, fmin)
-                    if (ctrl$trace > 1) 
+                    if (control$trace > 1) 
                       cat("accpoint = ", accpoint, " OKpoint = ", 
                         OKpoint, "\n")
                     if (!accpoint) {
                       msg <- "No acceptable point -- exit loop"
-                      if (ctrl$trace > 0) 
+                      if (control$trace > 0) 
                         cat("\n", msg, "\n")
                       keepgoing <- FALSE
                       break  #!!
@@ -534,7 +521,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                   # not changed on step redn
                   if (cycle == 1) {
                     msg <- " Converged -- no progress on new CG cycle"
-                    if (ctrl$trace > 0) 
+                    if (control$trace > 0) 
                       cat("\n", msg, "\n")
                     keekpgoing <- FALSE
                     break  #!!
@@ -556,7 +543,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                             1)) 
                             {
                               # are we near or lower than lower bd
-                              if (ctrl$trace > 2) 
+                              if (control$trace > 2) 
                                 cat("(re)activate lower bd ", 
                                   i, " at ", lower[i], "\n")
                               bdmsk[i] <- -3
@@ -568,7 +555,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                             1)) 
                             {
                               # are we near or above upper bd
-                              if (ctrl$trace > 2) 
+                              if (control$trace > 2) 
                                 cat("(re)activate upper bd ", 
                                   i, " at ", upper[i], "\n")
                               bdmsk[i] <- -1
@@ -578,14 +565,14 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                   }  # end reactivate constraints
                 }  # end if bounds
         }  # end of inner loop (cycle)
-        if (oldstep < ctrl$acctol) { oldstep <- ctrl$acctol }
+        if (oldstep < control$acctol) { oldstep <- control$acctol }
         #   steplength
         if (oldstep > 1) { oldstep <- 1 }
-        if (ctrl$trace > 1) 
+        if (control$trace > 1) 
             cat("End inner loop, cycle =", cycle, "\n")
     }  # end of outer loop
     msg <- "Rcgmin seems to have converged"
-    if (ctrl$trace > 0) 
+    if (control$trace > 0) 
         cat(msg, "\n")
     #  par: The best set of parameters found.
     #  value: The value of 'fn' corresponding to 'par'.

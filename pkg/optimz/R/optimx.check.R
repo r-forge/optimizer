@@ -1,7 +1,5 @@
 optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf, 
              hessian=FALSE, ctrl, have.bounds=FALSE, usenumDeriv=FALSE, ...) {
-##            method=NULL, itnmax=NULL, hessian=FALSE,
-##            ctrl=list(),...) {
 
 ## Should be run whenever we are not sure parameters and function are
 ## admissible. 
@@ -13,7 +11,6 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 
 ###############################################################################
 
-## Code more or less common to funtest, funcheck and optimx <<<
 # Check parameters are in right form
   if (!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
   if (! is.vector(par) ) {
@@ -39,9 +36,12 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
             #   if (bdmsk[i]!=0) {
                   infeasible<-TRUE
             #   }
-                if (lower[i]>par[i]) {bstate[i]<-" Out of Bounds LOW" } else { bstate[i]<-" Out of Bounds HIGH " }
+                if (lower[i]>par[i]) {bstate[i]<-" Out of Bounds LOW" } 
+                else { bstate[i]<-" Out of Bounds HIGH " }
             } # end if in bounds
-            if (ctrl$trace > 0) cat("par[",i,"]: ",lower[i],"  <?",par[i],"  <?",upper[i],"  ",bstate,"\n")
+            if (ctrl$trace > 0) {
+               cat("par[",i,"]: ",lower[i],"  <?",par[i],"  <?",upper[i],"  ",bstate,"\n")
+            }
           } # end of for loop over parameter vector elements
 	  if (infeasible) { ## ?? maybe don't want to stop ??
         	stop("Infeasible point, no further tests")
@@ -49,19 +49,20 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
   	} # end have.bounds
         # Check if function can be computed
         firsttry<-try(finit<-ufn(par, ...), silent=TRUE ) # 20100711
-        # Note: This incurs one EXTRA function evaluation because optimx is a wrapper for other methods
+        # Note: This incurs one EXTRA function evaluation because optimx 
+        #       is a wrapper for other methods
         if (class(firsttry) == "try-error") {
     	   infeasible <- TRUE
            stop("Cannot evaluate function at initial parameters")
         }
         # Also check that it is returned as a scalar
-       if (!(is.vector(finit) && (length(finit)==1)) || is.list(finit) || 
+        if (!(is.vector(finit) && (length(finit)==1)) || is.list(finit) || 
             is.matrix(finit) || is.array(finit) || ! is.numeric(finit) ) {
            stop("Function provided is not returning a scalar number")
-       }
-       if (is.infinite(finit) || is.na(finit)) {
+        }
+        if (is.infinite(finit) || is.na(finit)) {
           stop("Function returned is infinite or NA (non-computable)")
-       }
+        }
   }
 
 
@@ -84,6 +85,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
        } else if (ctrl$trace>0) cat("Analytic gradient not made available.\n")
 
        optchk$hessbad <- FALSE
+##?? need to fix this
        if (! is.null(uhess) && ! is.character(uhess)){ # check Hessian - if character then numeric
           hname <- deparse(substitute(uhess))
           if (ctrl$trace>0) cat("Analytic hessian from function ",hname,"\n\n")

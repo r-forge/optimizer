@@ -38,7 +38,8 @@ export(
   "Rcgmin",
   "Rcgminu",
   "Rcgminb",
-  "lbfgsb3"
+  "lbfgsb3",
+  "ctrldefault"
 )
 S3method("[", "optimx")
 S3method("as.data.frame", "optimx")

@@ -51,32 +51,19 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
     npar<-length(par)
-    # control defaults -- idea from spg
-
-    ctrl <- ctrldefault(npar) # get default values of controls
-    if (! is.null(control) ) {
-     namc <- names(control)
-     if (!all(namc %in% names(ctrl))) 
-        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-     nctrl <- names(ctrl)
-     for (onename in namc) {
-        if (onename %in% nctrl) {
-           ctrl[onename] <- control[onename]
-        } 
-     }
-    }
-    if (ctrl$tol == 0) tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  
+     
+    if (control$tol == 0) tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  
     # Note -- integer overflow if npar*npar*.Machine$double.eps
-    else tol<-ctrl$tol
-    maxit <- ctrl$maxit  # limit on function evaluations
-    maximize <- ctrl$maximize  # TRUE to maximize the function
-    trace <- ctrl$trace  # 0 for no output, >0 for output (bigger => more output)
+    else tol<-control$tol
+    maxit <- control$maxit  # limit on function evaluations
+    maximize <- control$maximize  # TRUE to maximize the function
+    trace <- control$trace  # 0 for no output, >0 for output (bigger => more output)
     if (trace > 2) 
         cat("trace = ", trace, "\n")
-    eps <- ctrl$eps
+    eps <- control$eps
     fargs <- list(...)  # the ... arguments that are extra function / gradient data
     grNULL <- is.null(gr)
-    dowarn <- ctrl$dowarn  #
+    dowarn <- control$dowarn  #
     #############################################
     if (maximize) {
        warning("Rcgmin no longer supports maximize 111121 -- see documentation")
@@ -113,7 +100,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     #!! getting rid of limit makes it work on negstart BUT inefficient
     # This does not appear to be in Y H Dai & Y Yuan, Annals of
-    #   Operations Research 103, 33–47, 2001 aor01.pdf
+    #   Operations Research 103, 33 - 47, 2001 aor01.pdf
     # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
     ##    tol <- n * (n * .Machine$double.eps)  # # for gradient test.  
     ## Note -- integer overflow if n*n*d.eps
@@ -264,7 +251,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                     }
                     else {
                       savestep<-steplength
-                      steplength <- steplength * stepredn
+                      steplength <- steplength * control$stepredn
                       if (steplength >=savestep) changed<-FALSE
                       if (trace > 0) 
                         cat("*")

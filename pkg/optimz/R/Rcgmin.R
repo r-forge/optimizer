@@ -73,6 +73,19 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
     # control defaults -- idea from spg
+    npar <- length(par)
+    ctrl <- ctrldefault(npar)
+    # substitute the appropriate information according to user spec.
+
+    if (! is.null(control)) { 
+       ncontrol <- names(control)
+       nctrl <- names(ctrl)
+       for (onename in ncontrol) {
+          if (onename %in% nctrl) {
+             ctrl[onename] <- control[onename]
+          } 
+       }
+    }
     if (is.null(control$trace)) control$trace=0
     # check if there are bounds
     if (is.null(lower) || !any(is.finite(lower))) 
@@ -87,7 +100,7 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
     if (control$trace > 1) 
         cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
             " bounds = ", bounds, "\n")
-    if (is.null(gr)) {
+    if (is.null(gr)) { # fix as per optimz.setup
        gr <- "grfwd" # use forward gradient approximation if no gradient code provided
        if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
     } else {
@@ -124,8 +137,9 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
        upper <- btest$upper
        ############## end bounds check #############
        ans<-Rcgminb(par, fn, gr, lower = lower, 
-          upper = upper, bdmsk = bdmsk, control = control, ...)
+          upper = upper, bdmsk = bdmsk, control = ctrl, ...)
     } else {
-       ans<-Rcgminu(par, fn, gr, control = control, ...)
+       cat("before Rcgminu call, ctrl$stepredn =",ctrl$stepredn,"\n")
+       ans<-Rcgminu(par, fn, gr, control = ctrl, ...)
     }
 }  ## end of Rcgmin

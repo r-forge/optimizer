@@ -84,4 +84,3 @@
 \seealso{\code{\link{optim}}}
 \keyword{nonlinear}
 \keyword{optimize}
-

@@ -89,8 +89,9 @@ cat("timings B vs U\n")
 lo<-rep(-100,10)
 up<-rep(100,10)
 bdmsk<-rep(1,10)
-tb<-system.time(ab<-Rcgminb(xx,genrose.f, genrose.g, lower=lo, upper=up, bdmsk=bdmsk))[1]
-tu<-system.time(au<-Rcgminu(xx,genrose.f, genrose.g))[1]
+tb<-system.time(ab<-Rcgminb(xx,genrose.f, genrose.g, lower=lo, upper=up, bdmsk=bdmsk, 
+     control=ctrldefault(length(xx))))[1]
+tu <- system.time(au<-Rcgminu(xx,genrose.f, genrose.g, control=ctrldefault(length(xx))))[1]
 cat("times U=",tu,"   B=",tb,"\n")
 cat("solution Rcgminu\n")
 print(au)

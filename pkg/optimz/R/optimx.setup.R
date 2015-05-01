@@ -37,10 +37,10 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }
    }
 
-# Check if we should do kkt check (default is true)
+# See if we should do kkt check (default is true)
 # control$kkt TRUE -- do it regardless, FALSE don't. ctrl$kkt will be these values
   if (! is.null(control$kkt)) {  # Only adjust kkt control if user has not specified it
-    if (ctrl$kkt)) { # if kkt is on, turn it off for large matrices
+    if (ctrl$kkt) { # if kkt is on, turn it off for large matrices
       if (is.null(gr) || is.character(gr)) { # no analytic gradient
          if (npar >  ctrl$grcheckfnog) {
            ctrl$kkt=FALSE # too much work when large number of parameters
@@ -61,54 +61,51 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # reset the function if we are maximizing / using a numerical gradient
   ctrl$maximizeorig <- ctrl$maximize
   ctrl$maximize <- FALSE # We always minimize
+  if (ctrl$usenumDeriv) { gr <- "grnd" }
 
-  if (is.null(gr)) gr <- ctrl$defgrapprox # define the gradient approximation
+  if (is.null(gr)) {gr <- ctrl$defgrapprox} # define the gradient approximation
   if (ctrl$maximizeorig) {
      ufn <- function(par=par, userfn=fn, ...){
         result <- (-1) * fn(par, ...)
      }
      if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
-       ugr<-function(par=par, userfn=fn, ...){
+       ugr <- function(par=par, userfn=fn, ...){
            result <- do.call(gr, list(par, userfn, ...))
            result <- (-1)*result
        }
        uhess <- NULL # Do NOT define hessian when approximating gradient
-     } else { ugr<- function(par, ...) {
+     } else { ugr<- function(par=par, userfn=fn, ...) {
                  result <- (-1)*gr(par,...)
               }
               if (! is.null(hess) ) {
-                 uhess <- function(par, ...) {
+                 uhess <- function(par=par, userfn=fn, ...) {
                     result <- (-1) * hess(par, ...)
                  }
               }   
+     }
   } else { # not maximizing
        ufn <- fn
        if ( is.character(gr) ) {
          # Convert string to function call, assuming it is a numerical gradient function
          ugr<-function(par=par, userfn=fn, ...){
            result <- do.call(gr, list(par, userfn, ...))
-          }
+         }
+         uhess <- NULL # Do NOT define hessian when approximating gradient
        } else { 
-           ugr <- gr
-           uhess <- hess
+           ugr <- function(par=par, userfn=fn, ...){ # to satisfy formal arguments
+              gr(par, ...)
+           }
+           if (is.null(hess)) {
+              uhess <- NULL
+           } else {
+              uhess <- function(par=par, userfn=fn, ...) {
+                 hess(par, ...)
+              }
+           }
        }
-  }    
-  } # define maximize if NULL
-  optcfg$usenumDeriv <- FALSE # JN130703 ??
-  if (is.null(gr) && ctrl$usenumDeriv) {
-     if (ctrl$dowarn) warning("Replacing NULL gr with 'numDeriv' approximation")
-     optcfg$usenumDeriv<-TRUE
-     ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
-        tryg<-grad(userfn, par, ...)
-     } # Already have negation in ufn if maximizing
-  }
-  if (is.character(gr)) {
-     if (ctrl$dowarn) warning("Replacing NULL gr with '",gr,"' approximation")
-     ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
-        tryg <- do.call(gr, list(par, userfn, ...))
-     } # Already have negation in ufn if maximizing
-  }
+  } # set functions if MAXIMIZEing
+  optcfg$usenumDeriv <- FALSE # JN130703 ?? Because we have already set ugr
   optcfg$ufn <- ufn
   optcfg$ugr <- ugr
   optcfg$uhess <- uhess
@@ -124,21 +121,21 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #   the maximum number of function evaluations; remove DEoptim for now -- not useful 
 #   for smooth functions. Code left in for those who may need it.
 # List of methods in this packages
-   oxmeth <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin")
-   pkgmeth <- c("spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb")
+  oxmeth <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin")
+  pkgmeth <- c("spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb")
 
 # Now make sure methods loaded
    allmeth <- c(basemeth, oxmeth, pkgmeth) 
 
-   goodpkg <- (requireNamespace("BB", quietly=TRUE) && 
+  goodpkg <- (requireNamespace("BB", quietly=TRUE) && 
              requireNamespace("ucminf", quietly=TRUE) && 
              requireNamespace("minqa", quietly=TRUE) && 
              requireNamespace("dfoptim", quietly=TRUE) && 
              requireNamespace("setRNG", quietly=TRUE)) 
 
-   if (! goodpkg) stop("Installation missing one of BB, ucminf, minqa, dfoptim, setRNG")
+  if (! goodpkg) stop("Installation missing one of BB, ucminf, minqa, dfoptim, setRNG")
   
-   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", 
+  bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", 
      "Rtnmin", "bobyqa", "nmkb", "hjkb", "lbfgsb3")
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- bdsmeth
@@ -167,7 +164,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      }
   }
   method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
-  if (class(method)=="try-error") stop("optimx: No match to available methods")
+  if (class(method)=="try-error") { stop("optimx: No match to available methods") }
   nmeth <- length(method)
   ## Check that methods are indeed available and loaded
   for (i in 1:nmeth) {

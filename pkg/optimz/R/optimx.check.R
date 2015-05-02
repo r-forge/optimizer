@@ -11,10 +11,6 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 
 ###############################################################################
 
-cat("optimx.check - ugr:\n")
-print(ugr)
-
-
 # Check parameters are in right form
   if (!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
   if (! is.vector(par) ) {

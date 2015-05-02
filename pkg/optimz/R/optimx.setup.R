@@ -55,9 +55,6 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     }
   }
 
-##    cat("optimx.setup ctrl out:")
-##    print(ctrl)
-
 # reset the function if we are maximizing / using a numerical gradient
   ctrl$maximizeorig <- ctrl$maximize
   ctrl$maximize <- FALSE # We always minimize
@@ -66,7 +63,6 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (is.null(gr)) {
      print(ctrl)
      gr <- ctrl$defgrapprox
-     cat("RESET gr to ",gr,"\n")
   } # define the gradient approximation
   if (ctrl$maximizeorig) {
      ufn <- function(par=par, userfn=fn, ...){
@@ -126,7 +122,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #   for smooth functions. Code left in for those who may need it.
 # List of methods in this packages
   oxmeth <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin")
-  pkgmeth <- c("spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb")
+  pkgmeth <- c("spg", "ucminf", "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
 
 # Now make sure methods loaded
    allmeth <- c(basemeth, oxmeth, pkgmeth) 

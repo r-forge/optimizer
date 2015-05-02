@@ -16,11 +16,6 @@ TODO
 
       o lbfgsb3 explanation poor. No convcode at the moment. 140901
 
-      o Rvmmin called through optimz gives warning when called with no gradient. 
-	?? Use control "usenumDeriv=TRUE" to overcome this. 130411
-        Problem is that if we use grfwd, then problem with post-optimization
-	calculations.
-
       o tn and tnbc do not have proper controls yet for iterations and
 	trace
 
@@ -47,8 +42,6 @@ TODO
       o Consider how to subsume routines in optim() so that optimx can become
 	a recommended package and optim() can be dropped from base-R.
 
-      o change maxit, maxfeval settings -- too low for many functions
-
       o minqa routines -- not giving convcode=1 when out of iterations
 
       o Support for control$maximize:  150429
@@ -65,10 +58,17 @@ TODO
          Need to expand and create saved results for auto-comparison 
 	 in running R CMD check.
 
-      o null gr check working -- move all gradient prep to optimx.setup
-    
 
 VERSION 2015-04-27
+
+      o change maxit, maxfeval settings -- too low for many functions
+	Defaults now         maxit = 500*round(sqrt(npar+1)),
+	maxfeval = 5000*round(sqrt(npar+1)) where npar = no. of parameters
+
+      o NULL gr check working. Moved all gradient prep to optimx.setup()
+	Related issue fixed is that Rvmmin gave warning when called with no gradient. 
+	Could also set control "usenumDeriv=TRUE" to overcome this. (noted earlier
+	130411)
 
       o     Removed extra printouts in optimx.run
 

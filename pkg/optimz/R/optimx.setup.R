@@ -63,7 +63,11 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   ctrl$maximize <- FALSE # We always minimize
   if (ctrl$usenumDeriv) { gr <- "grnd" }
 
-  if (is.null(gr)) {gr <- ctrl$defgrapprox} # define the gradient approximation
+  if (is.null(gr)) {
+     print(ctrl)
+     gr <- ctrl$defgrapprox
+     cat("RESET gr to ",gr,"\n")
+  } # define the gradient approximation
   if (ctrl$maximizeorig) {
      ufn <- function(par=par, userfn=fn, ...){
         result <- (-1) * fn(par, ...)

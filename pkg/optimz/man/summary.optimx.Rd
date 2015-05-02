@@ -42,7 +42,7 @@ maximization problems).}
 to \code{order} and with those parameters selected by \code{par.select}.
 }
 \examples{
-ans <- optimx(fn = function(x) sum(x*x), par = 1:2)
+ans <- optimx(fn = function(x) sum(x*x), par = 1:2, control=ctrldefault(2))
 
 # order by method name.
 summary(ans, order = rownames)

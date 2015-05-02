@@ -1,8 +1,7 @@
 lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
          control=list(), ...){
 
-# ?? need to add controls
-# if (is.null(gr)) require(numDeriv) # eventually change to "grfwd" etc.
+# ?? note gr won't be null if called from optimx
 # interface to Fortran Lbfgsb.3.0
 
 
@@ -33,15 +32,12 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
 # if (!is.loaded("lbfgsb3.so")) dyn.load("lbfgsb3.so") # get the routines attached
 
 # control defaults -- idea from spg
-ctrl <- list(femax=5000, gemax=500, trace = 0, iprint = 0L)
-    namc <- names(control)
-    if (!all(namc %in% names(ctrl))) 
-        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-    ctrl[namc] <- control
-
+  if(is.null(control)) stop("lbfgsb3 requires a control list to be supplied")
+  ctrl <- control
+      
 
 # Here expand control list, but for moment leave alone
-      iprint <- as.integer(ctrl$iprint)
+      iprint <- as.integer(ctrl$trace) # change to trace -- iprint not in control
       factr <- 1.0e+7
       pgtol <- 1.0e-5
       nmax <- 1024L

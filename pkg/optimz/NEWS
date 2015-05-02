@@ -13,11 +13,12 @@ TODO
       o Rtnmin not working on some examples. start=(1:10)/3, gs=10
         works for octave, not for R. ?? May now be fixed. Check.140904
         tn uses envjn, tnbc does too??
-
-      o lbfgsb3 explanation poor. No convcode at the moment. 140901
-
       o tn and tnbc do not have proper controls yet for iterations and
 	trace
+
+      o lbfgsb3 explanation poor. No convcode at the moment. 140901
+        Also no control of function or gradient max. -- Always f&g 
+	computed together (tn may be like this too??).
 
       o The bdmsk vector is set clumsily for Rvmmin.
 
@@ -30,9 +31,8 @@ TODO
         UOBYQA is present in optimx.run.R, but is not included in the list of
         "all.methods" in optimx.setup.R. It should be possible to run UOBYQA
         by including "uobyqa" in the list of methods in a direct call to optimx.run.R.
+        Try set "workset": Rvmmin, Rcgmin, nmkb, and possibly Rtnmin
       o method="all" check -- 
-
-      o May want to tweak bobyqa, newuoa default controls.
 
       o Keep thinking about scaling as in optim() -- use same environment as in tn,
 	but change the name
@@ -43,6 +43,7 @@ TODO
 	a recommended package and optim() can be dropped from base-R.
 
       o minqa routines -- not giving convcode=1 when out of iterations
+      o May want to tweak bobyqa, newuoa default controls.
 
       o Support for control$maximize:  150429
 	- optimx.setup.R should define ufn, ugr, uhess so that the process

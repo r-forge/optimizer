@@ -2,23 +2,15 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=c("nmkb"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...) {
-  cat("optimx before setup: gr = ")
-  print(gr)
   optcfg <- optimx.setup(par, fn, gr, hess, lower, upper, 
             method, itnmax, hessian, control, ...)
 # Parse and use optcfg
-  cat("optimx before check: gr = ")
-  print(gr)
   if (optcfg$ctrl$starttests) {
     optchk <- optimx.check(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower,
            upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds,
            usenumDeriv=optcfg$usenumDeriv, ...)
   }
   optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
-#  cat("optcfg:")
-#  print(optcfg)
-  cat("optimx before run: gr = ")
-  print(gr)
 
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
             optcfg$method, itnmax, hessian, optcfg$ctrl, ...)

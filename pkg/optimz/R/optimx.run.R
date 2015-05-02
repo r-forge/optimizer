@@ -140,18 +140,12 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                f
            }
         }
-
-        cat("Check tufn function for nlm:")
-        print(tufn)
-        cat("value:")
-        print(tufn(par, ...))
-
-
 	## 091215 added control for iteration limit
 	if (! is.null(ctrl$maxit)) { iterlim <- ctrl$maxit } 
 	else { iterlim <- 100 }
 	if (! is.null(ctrl$trace)) { mcontrol$print.level <- 0 }
-	else { 	mcontrol$print.level <- ctrl$trace } # 20140902 Note: May want to check validity of values??
+	else { 	mcontrol$print.level <- ctrl$trace } 
+        # 20140902 Note: May want to check validity of values??
 	# 110121 -- need to put tufn NOT ufn in call 
         # 140902 Note that nlm has arguments (not control arguments) such as gradtol. That needs special
 	# attention if we decide to include??
@@ -288,10 +282,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (meth == "Rtnmin") { # Use Rtnmin routines (ignoring masks)
 	if (ctrl$trace>0) {mcontrol$trace <- TRUE } else {mcontrol$trace <- FALSE}
-        cat("mcontrol$trace = ",mcontrol$trace,"\n")
-        cat("dots:")
-        print(list(...))
-
         if (!is.null(ugr)) { # ?? can ugr be null?
            tufn <- function(par, ...){
                f <- ufn(par, ...)
@@ -310,24 +300,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ##141010               f
 ##141010           }
         }
-        cat("tufn:\n")
-        print(tufn)
-        cat("start:")
-        print(par)
-        cat("tufn at start:")
-        print(tufn(par, ...))
 	if (have.bounds) {
    	   time <- system.time(ans <- try(tnbc(x=par, fgfun=tufn, gr=ugr, lower=lower,
                 upper=upper, trace=mcontrol$trace, ...), silent=TRUE))[1]
-##   	   time <- system.time(ans <- try(tnbc(x=par, fgfun=tufn, gr=ugr, lower=lower,
-##                upper=upper, ...), silent=TRUE))[1]
 	} else {
    	   time <- system.time(ans <- try(tn(x=par, fgfun=tufn, 
 		  trace=mcontrol$trace, ...), silent=TRUE))[1]
-##   	   time <- system.time(ans <- try(tn(x=par, fgfun=tufn, ...), silent=TRUE))[1]
 	}
-        print(ans)
-        tmp<-readline("after tn call")
         if (class(ans)[1] != "try-error") {
                 ans$par <- ans$xstar
                 ans$xstar <- NULL
@@ -337,7 +316,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	        ans$fevals <- ans$nfngr
 	        ans$gevals <- ans$nfngr
                 ans$nfngr <- NULL
-	#	ans$value <- ans$value 
         } else {
 		if (ctrl$trace>0) cat("Rtnmin failed for current problem \n")
 		ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -360,18 +338,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 
 	if (have.bounds) {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
-#           tmp <- readline("About to call Rvmminb")
    	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=ugr, lower=lower,
                 upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
-#           tmp <- readline("About to call Rvmminu")
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=ugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
-#        cat(class(ans)[1])
-#        tmp<-readline("back from Rvmmin")
-
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
@@ -562,32 +535,23 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else 
       if (meth == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
-        mcontrol$gemax <- ctrl$maxit
-        mcontrol$femax <- ctrl$maxfeval 
-
-        print(mcontrol)
- 
-         if (have.bounds) { ## Note call uses prm not par
-           tmp <- readline("About to call lbfgsb3 with bounds")
+        if (ctrl$trace > 1) cat("lbfgsb3\n")
+        # ?? use maxfevals rather than maxit for lbfgsb3 ??
+        if (have.bounds) { ## Note call uses prm not par
             time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
-         } else {
-           tmp <- readline("About to call lbfgsb3 no bounds")
+        } else {
             time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, lower = -Inf, 
                 upper = Inf, control=mcontrol, ...), silent=TRUE))[1]
-         }
-         if (class(ans)[1] != "try-error") {
+        }
+        if (class(ans)[1] != "try-error") {
  ## Need to check these carefully??
-            cat("lbfgsb3 ans:")
-            print(ans)
-            tmp <- readline("Continue")
-#            if (ans$convcode == 1) ans$convcode <- 9999
             ans$convcode <- 0
             ans$value<-as.numeric(ans$f)
             ans$fevals<-ans$info$isave[34]
-#??fix            if (ans$fevals > mcontrol$maxfeval) {
-#		ans$convcode <- 1 # too many evaluations
-#            }
+            if (ans$fevals > mcontrol$maxfeval) {
+               ans$convcode <- 1 # too many evaluations
+            }
             ans$par <- ans$prm
             ans$prm <- NULL
             ans$gevals<-ans$fevals

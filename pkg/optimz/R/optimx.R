@@ -1,5 +1,5 @@
 optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("nmkb"), itnmax=NULL, hessian=FALSE,
+            method=NULL, itnmax=NULL, hessian=FALSE,
             control=list(),
              ...) {
   optcfg <- optimx.setup(par, fn, gr, hess, lower, upper, 

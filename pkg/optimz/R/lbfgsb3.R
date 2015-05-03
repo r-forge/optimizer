@@ -1,5 +1,5 @@
 lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
-         control=list(), ...){
+         control=NULL, ...){
 
 # ?? note gr won't be null if called from optimx
 # interface to Fortran Lbfgsb.3.0
@@ -31,9 +31,10 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
  
 # if (!is.loaded("lbfgsb3.so")) dyn.load("lbfgsb3.so") # get the routines attached
 
+if (length(prm) > nmax) stop("The number of parameters cannot exceed 1024")
+      n <- as.integer(length(prm))
 # control defaults -- idea from spg
-  if(is.null(control)) stop("lbfgsb3 requires a control list to be supplied")
-  ctrl <- control
+  if(is.null(control)) ctrl <- ctrldefault(n)
       
 
 # Here expand control list, but for moment leave alone
@@ -42,8 +43,6 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
       pgtol <- 1.0e-5
       nmax <- 1024L
       mmax <- 17L
-if (length(prm) > nmax) stop("The number of parameters cannot exceed 1024")
-      n <- as.integer(length(prm))
       m <- 5L # default 
 ## Define the storage
 nbd <- rep(2L, n) # start by defining them "on" -- adjust below

@@ -136,10 +136,11 @@ Rcgmin <- function(par, fn, gr = NULL, lower = NULL,
        lower <- btest$lower
        upper <- btest$upper
        ############## end bounds check #############
+       if (ctrl$trace > 1) cat("before Rcgminb call, ctrl$stepredn =",ctrl$stepredn,"\n")
        ans<-Rcgminb(par, fn, gr, lower = lower, 
           upper = upper, bdmsk = bdmsk, control = ctrl, ...)
     } else {
-       cat("before Rcgminu call, ctrl$stepredn =",ctrl$stepredn,"\n")
+       if (ctrl$trace > 1) cat("before Rcgminu call, ctrl$stepredn =",ctrl$stepredn,"\n")
        ans<-Rcgminu(par, fn, gr, control = ctrl, ...)
     }
 }  ## end of Rcgmin

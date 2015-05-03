@@ -143,15 +143,15 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	## 091215 added control for iteration limit
 	if (! is.null(ctrl$maxit)) { iterlim <- ctrl$maxit } 
 	else { iterlim <- 100 }
-	if (! is.null(ctrl$trace)) { mcontrol$print.level <- 0 }
-	else { 	mcontrol$print.level <- ctrl$trace } 
+	print.level <- 0 
+        if (! is.null(ctrl$trace) && (ctrl$trace > 0) ) {print.level <- 2 } 
         # 20140902 Note: May want to check validity of values??
 	# 110121 -- need to put tufn NOT ufn in call 
         # 140902 Note that nlm has arguments (not control arguments) such as gradtol. That needs special
 	# attention if we decide to include??
     
         time <- system.time(ans <- try(nlm(f=tufn, p=par, iterlim=iterlim, 
-                    print.level = 2, ...), silent=TRUE))[1]
+                    print.level=print.level, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$code
 		if (ans$convcode == 1 || ans$convcode == 2 || ans$convcode == 3) ans$convcode <- 0
@@ -161,9 +161,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                 ans$par<-ans$estimate
 		ans$estimate<-NULL
 		ans$minimum<-NULL
-        	ans$fevals<-NA
-        	ans$gevals<-NA # ?? need to fix this somehow in nlm code
         	ans$nitns<-ans$iterations
+        	ans$fevals<-ans$nitns
+        	ans$gevals<-ans$nitns # Artificial copy of these values
         	ans$iterations<-NULL
 	} else {
 		if (ctrl$trace > 0) cat("nlm failed for this problem\n")
@@ -174,6 +174,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         	ans$gevals<-NA 
         	ans$nitns<-NA
 	}
+        print.level <- NULL # clean up
       } # end if using nlm
 ## --------------------------------------------
       else if (meth == "spg") { # Use BB package routine spg as minimizer

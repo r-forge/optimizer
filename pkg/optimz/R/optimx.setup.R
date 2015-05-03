@@ -61,7 +61,6 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (ctrl$usenumDeriv) { gr <- "grnd" }
 
   if (is.null(gr)) {
-     print(ctrl)
      gr <- ctrl$defgrapprox
   } # define the gradient approximation
   if (ctrl$maximizeorig) {
@@ -115,6 +114,12 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   } else { have.bounds <- FALSE }
   optcfg$have.bounds <- have.bounds
 
+  if (is.null(method)) {
+    if (have.bounds) { method <- c("lbfgsb3", "bobyqa", "Rvmmin", "Rcgmin", "nmkb")}
+        else { method <- c("lbfgsb3", "newuoa", "Rvmmin", "Rcgmin", "nmkb")}
+  }
+
+
 # List of methods in base or stats, namely those in optim(), nlm(), nlminb()
   basemeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb")
 # SANN has no termination for optimality, only a maxit count for
@@ -156,13 +161,6 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   # Partial matching of method string allowed
   # avoid duplicates here
   # 2011-1-17 JN: to set L-BFGS-B
-  if (is.null(method)) {
-     if (is.null(gr)) { method <- "nmkb" }
-     else { 
-        if (have.bounds) { method <- "L-BFGS-B" }
-        else {method <- "BFGS" }
-     }
-  }
   method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
   if (class(method)=="try-error") { stop("optimx: No match to available methods") }
   nmeth <- length(method)

@@ -1,6 +1,16 @@
 NEWS about R package optimz
 
 TODO
+
+	require(optimz)
+	testfn = function(x) sum(x*x)
+	ans <- optimx(fn = testfn, par = 1:4, control=list(trace=2))
+	# order by method name. (fails!)
+	summary(ans, order = rownames)
+
+        AND lbfgs3 and Rcgmin and Rvmmin fail!!
+
+
       o need a NEW mechanism for controls that are special to 
 	individual methods 140902. Can we use control$methopt as 
 	a list, with sub-lists for each method. How to convert
@@ -25,15 +35,6 @@ TODO
       o Where should input checks be done? We should be able to leave them
 	out more easily to make code more efficient.
 
-      o Get some routines out of the "all" set. Create a new "ALL+" category
-	that is really all the routines, and leave "all" as all reasonable ones.
-        See 2013-08-02 note about UOBYQA.
-        UOBYQA is present in optimx.run.R, but is not included in the list of
-        "all.methods" in optimx.setup.R. It should be possible to run UOBYQA
-        by including "uobyqa" in the list of methods in a direct call to optimx.run.R.
-        Try set "workset": Rvmmin, Rcgmin, nmkb, and possibly Rtnmin
-      o method="all" check -- 
-
       o Keep thinking about scaling as in optim() -- use same environment as in tn,
 	but change the name
 
@@ -55,12 +56,20 @@ TODO
 	In optimx means we assume methods ONLY minimize, UNLESS we 
 	include the fnscale in an environment eventually.
 
-      o  Examples moved to tests/ subdirectory, except for a simple one.
+      o  Tests
          Need to expand and create saved results for auto-comparison 
 	 in running R CMD check.
 
 
 VERSION 2015-04-27
+
+      o  Examples moved to tests/ subdirectory, except for a simple one.
+
+      o New default set of methods for optimx. See optimx.setup.R for this.
+	Use method=NULL to get this set, which is 
+             "lbfgsb3", "bobyqa", "Rvmmin", "Rcgmin", "nmkb" for bounded problems
+	     "lbfgsb3", "newuoa", "Rvmmin", "Rcgmin", "nmkb" for unconstrained ones
+        Added "uobyqa" to "all" set.
 
       o change maxit, maxfeval settings -- too low for many functions
 	Defaults now         maxit = 500*round(sqrt(npar+1)),

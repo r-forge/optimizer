@@ -397,7 +397,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
       } # end if accpoint
       else { # no acceptable point
         if (trace > 0) cat("No acceptable point\n")
-        if (ig == ilast) {
+        if ((ig == ilast) && (ig > 2)) {
           # we reset to gradient and did new linesearch
           keepgoing <- FALSE  # no progress possible
           if (conv < 0) { # conv == -1 is used to indicate it is not set

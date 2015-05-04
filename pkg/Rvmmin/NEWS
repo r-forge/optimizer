@@ -8,6 +8,10 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2015-05-03
+   o    Check gradient count ig > 2 when doing convergence test.
+	Possible failure for test fn = sum(x*x) noted.
+
 2015-01-07
 
    o    comments in codes Rvmminb.R and Rvmminu.R aligned so that the

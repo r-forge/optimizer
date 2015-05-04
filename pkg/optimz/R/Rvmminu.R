@@ -165,10 +165,11 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     if (ctrl$trace > 0) cat("Initial fn=", f, "\n")
     if (ctrl$trace > 2) print(bvec)
     keepgoing <- TRUE  # to ensure loop continues until we are finished
-    ig <- 1  # count gradient evaluations
-    ilast <- ig  # last time we used gradient as search direction
+    ig <- 0  # count gradient evaluations
     fmin <- f  # needed for numerical gradients
     g <- mygr(bvec, ...)  # Do we need to use try() ?
+    ig <- 1
+    ilast <- ig  # last time we used gradient as search direction
     if (ctrl$maximize) g <- -g
     if (ctrl$trace > 2) {
         cat("g:")
@@ -283,8 +284,8 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
             # compute new step, if possible
             f <- try(fn(bvec, ...))
             if (class(f) == "try-error") f <- .Machine$double.xmax
-            if (ctrl$maximize) f <- -f
-            if (ctrl$trace > 2) cat("New f=",f," lower = ",(f < fmin),"\n")
+            if (ctrl$maximize) f <- -f ## ?? put in ufn??
+            if (ctrl$trace > 2) cat("New f=",f," lower = ",(f < fmin),(fmin-f),"\n")
             ifn <- ifn + 1
             if (ifn > ctrl$maxfeval) {
               msg <- "Too many function evaluations"
@@ -311,6 +312,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
               # We have a lower point. Is it 'low enough' i.e.,
               #   acceptable
               accpoint <- (f <= fmin + gradproj * steplength * ctrl$acctol)
+              cat("accpoint = ", accpoint,"\n")
             }
             else {
               steplength <- steplength * ctrl$stepredn
@@ -390,7 +392,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
       } # end if accpoint
       else { # no acceptable point
         if (ctrl$trace > 0) cat("No acceptable point\n")
-        if (ig == ilast) {
+        if ((ig == ilast) && (ig > 2)) { # ?? check 2 is OK
           # we reset to gradient and did new linesearch
           keepgoing <- FALSE  # no progress possible
           if (conv < 0) { # conv == -1 is used to indicate it is not set

@@ -1,4 +1,9 @@
 require(optimz)
+
+testfn = function(x) sum(x*x)
+ugrf <- function(par, userfn=testfn, ...){
+   res <- do.call("grfwd", list(par, userfn, ...))
+}
 	
 ans <- optimx(fn = testfn, par = 1:4, control=list(trace=2))
 

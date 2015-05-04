@@ -11,8 +11,13 @@ TODO
         AND lbfgs3 and Rcgmin and Rvmmin fail!!
         150504: Rvmmin is stepping to -par, finding "lower??" should not do so,
 	  then cannot find acceptable point. Need to fix this!!
+	Note that Rvmmin from CRAN works OK. So may be ctrl defaults are
+	part of the trouble. May be grfwd??
         lbfgsb3 and Rcgmin work when called directly, so it is a calling
 	sequence issue. Also fix ??
+
+      o Get rid of maximize in the main routines, and put in the setup. 
+	may need a genfn as well as gengr, genhess, ...
 
       o use fnchk, gHgen (or maybe change names to chkfn, gengH to 
         create ugr, uhess and check the fn, then call these in 

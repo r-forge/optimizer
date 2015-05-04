@@ -1,8 +1,8 @@
 Package: Rvmmin
 Type: Package
 Title: Variable Metric Nonlinear Function Minimization
-Version: 2015-1.7
-Date: 2015-01-07
+Version: 2015-5.3
+Date: 2015-05-03
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca") )
 Maintainer: John C. Nash <nashjc@uottawa.ca>

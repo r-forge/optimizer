@@ -1,0 +1,11 @@
+require(optimz)
+testfn <- function(par){
+           val <- crossprod(par)
+          }
+          
+aol <- optimx(par=1:4, fn=testfn, method="lbfgsb3", control=list(trace=1))
+summary(aol)
+
+al <- lbfgsb3(prm=1:4, f=testfn)
+al
+          

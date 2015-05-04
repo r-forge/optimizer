@@ -146,7 +146,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (any(is.finite(c(lower, upper)))) allmeth <- bdsmeth
   if (("All" %in% method) || ("ALL" %in% method)) stop("To specify all methods, use 'all' (lower case)")
   if (("all" %in% method) && (length(method) > 1)) stop("If method='all', method can have ONLY that element")
-  if (method == "all") ctrl$all.methods=TRUE # use ctrl$all.methods as the main mechanism
+  if ((length(method) == 1) && (method == "all")) ctrl$all.methods=TRUE # use ctrl$all.methods as the main mechanism
   if (! ctrl$all.methods) { # Changes method vector!
       if ((length(method) == 1) && (method=="all")) ctrl$all.methods <- TRUE
   }             

@@ -165,17 +165,17 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
     if (ctrl$trace > 0) cat("Initial fn=", f, "\n")
     if (ctrl$trace > 2) print(bvec)
     keepgoing <- TRUE  # to ensure loop continues until we are finished
-    ig <- 0  # count gradient evaluations
+#    ig <- 0 
     fmin <- f  # needed for numerical gradients
     g <- mygr(bvec, ...)  # Do we need to use try() ?
-    ig <- 1
+    ig <- 1 # count gradient evaluations
     ilast <- ig  # last time we used gradient as search direction
     if (ctrl$maximize) g <- -g
     if (ctrl$trace > 2) {
         cat("g:")
         print(g)
     }
-    oldstep <- 1
+    oldstep <- ctrl$steplen0 # change 150504 for f = sum(x*x)
     conv <- -1
     while (keepgoing) { ## main loop -- must remember to break out of it!
       if (ilast == ig) { # reset the approx. inverse hessian B to unit matrix
@@ -392,8 +392,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
       } # end if accpoint
       else { # no acceptable point
         if (ctrl$trace > 0) cat("No acceptable point\n")
-        if ((ig == ilast) && (ig > 2)) { # ?? check 2 is OK
-          # we reset to gradient and did new linesearch
+        if (ig == ilast) { # we reset to gradient and did new linesearch
           keepgoing <- FALSE  # no progress possible
           if (conv < 0) { # conv == -1 is used to indicate it is not set
             conv <- 0

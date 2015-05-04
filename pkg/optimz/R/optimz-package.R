@@ -3,6 +3,7 @@
 ## the optimz package
 ##################################################################
 ctrldefault <- function(npar) {
+   ## These are DEFAULTS. They may be nonsense in some contexts.
     ctrl.default <- list(
         acctol = 0.0001, 
 	all.methods = FALSE,
@@ -13,6 +14,7 @@ ctrldefault <- function(npar) {
 	follow.on = FALSE, 
         grcheckfwithg = 500,
         grcheckfnog = 50,
+        have.bounds = FALSE,
         keepinputpar = FALSE,
 	kkt = TRUE,
 	kkttol = 0.001,
@@ -24,6 +26,7 @@ ctrldefault <- function(npar) {
 	save.failures = TRUE,
 	scaletol = 3, 
 	starttests = TRUE,
+        steplen0 = 0.75, 
         stepredn = 0.2,
         stopbadupdate = FALSE,
         tol = 0, 

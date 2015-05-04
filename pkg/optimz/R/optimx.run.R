@@ -1,7 +1,7 @@
 optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
+            method=NULL, itnmax=NULL, hessian=FALSE,
             ctrl, ...) {
-# ?? change all defaults to be brought in outside -- should have method=NULL here
+# ?? change all defaults to be brought in from outside -- should have method=NULL here
 
 # Run methods
   have.bounds<-ctrl$have.bounds
@@ -251,8 +251,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
 	bdmsk <- bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
-	mcontrol$trace <- ctrl$trace # 140902 Note no check on validity of values
-        mcontrol$maxit <- ctrl$maxit
+        mcontrol <- ctrl
+#	mcontrol$trace <- ctrl$trace # 140902 Note no check on validity of values
+#        mcontrol$maxit <- ctrl$maxit
 	if (have.bounds) {
            if (is.null(ugr)) ugr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=ugr, lower=lower,
@@ -534,13 +535,14 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       else 
       if (meth == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
         if (ctrl$trace > 1) cat("lbfgsb3\n")
-        mcontrol$maxfeval <- ctrl$maxfeval
+        mcontrol <- ctrl
+#        mcontrol$maxfeval <- ctrl$maxfeval
         # ?? use maxfevals rather than maxit for lbfgsb3 ??
         if (have.bounds) { ## Note call uses prm not par
-            time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, lower = lower, 
+            time <- system.time(ans <- try(lbfgsb3(par=par, fn=ufn, gr=ugr, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
         } else {
-            time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, lower = -Inf, 
+            time <- system.time(ans <- try(lbfgsb3(par=par, fn=ufn, gr=ugr, lower = -Inf, 
                 upper = Inf, control=mcontrol, ...), silent=TRUE))[1]
         }
         if (class(ans)[1] != "try-error") {
@@ -551,8 +553,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             if (ans$fevals > mcontrol$maxfeval) {
                ans$convcode <- 1 # too many evaluations
             }
-            ans$par <- ans$prm
-            ans$prm <- NULL
             ans$gevals<-ans$fevals
             ans$nitns<-ans$fevals
             ans$info <- NULL ##?? Note -- throwing away a lot of information

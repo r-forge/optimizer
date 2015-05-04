@@ -10,7 +10,9 @@ TODOS
 
 2015-05-03
    o    Check gradient count ig > 2 when doing convergence test.
-	Possible failure for test fn = sum(x*x) noted.
+	Possible failure for test fn = sum(x*x) noted. However, 
+	other fns fail with this change. This is an issue in the
+	program logic rather than an algorithmic failure. 
 
 2015-01-07
 

@@ -1,6 +1,9 @@
 require(optimz)
 
-testfn = function(x) sum(x*x)
+testfn <- function(x) sum(x*x)
+
+testgr <- function(x) {2 * x}
+
 ugrf <- function(par, userfn=testfn, ...){
    res <- do.call("grfwd", list(par, userfn, ...))
 }
@@ -8,7 +11,7 @@ ugrf <- function(par, userfn=testfn, ...){
 ans <- optimx(fn = testfn, par = 1:4, control=list(trace=2))
 
 # order by method name.
-summary(ans, order=rownames)
+print(summary(ans, order=rownames))
 
 tmp <- readline("test components")
 av <- Rvmmin(fn=testfn, par = 1:4, control=list(trace=2))

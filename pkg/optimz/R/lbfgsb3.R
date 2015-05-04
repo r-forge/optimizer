@@ -31,11 +31,15 @@ nmax <- 1024 # define maximum number of parameters
  
 # if (!is.loaded("lbfgsb3.so")) dyn.load("lbfgsb3.so") # get the routines attached
 
-if (length(par) > nmax) stop("The number of parameters cannot exceed 1024")
+if (length(par) > nmax) stop("The number of parameters cannot exceed 1024 for lbfgsb3")
       n <- as.integer(length(par))
 # control defaults -- idea from spg
   if(is.null(control)) control <- ctrldefault(n)
-      ctrl <- control ## ?? CLUMSY
+  ctrl <- control ## ?? CLUMSY
+  cat("lbfgsb3 ctrl:\n")
+  print(ctrl)
+  tmp <- readline("cont.")
+
 
 # Here expand control list, but for moment leave alone
       iprint <- as.integer(ctrl$trace) # change to trace -- iprint not in control

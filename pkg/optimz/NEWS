@@ -9,7 +9,16 @@ TODO
 	summary(ans, order = rownames)
 
         AND lbfgs3 and Rcgmin and Rvmmin fail!!
+        150504: Rvmmin is stepping to -par, finding "lower??" should not do so,
+	  then cannot find acceptable point. Need to fix this!!
+        lbfgsb3 and Rcgmin work when called directly, so it is a calling
+	sequence issue. Also fix ??
 
+      o use fnchk, gHgen (or maybe change names to chkfn, gengH to 
+        create ugr, uhess and check the fn, then call these in 
+        optimx.setup(). Export the components so that they can be 
+	used for testing/making gradients by users. Have optimx.setup
+	create the optimz15 environment??
 
       o need a NEW mechanism for controls that are special to 
 	individual methods 140902. Can we use control$methopt as 
@@ -62,6 +71,8 @@ TODO
 
 
 VERSION 2015-04-27
+
+      o  lbfgsb3: prm changed to par for consistency with other methods
 
       o  Examples moved to tests/ subdirectory, except for a simple one.
 

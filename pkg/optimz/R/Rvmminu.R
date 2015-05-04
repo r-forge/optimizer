@@ -41,7 +41,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   #    trace = 0 (default) for no output,
   #          > 0 for output (bigger => more output)
   #    dowarn=TRUE by default. Set FALSE to suppress warnings.
-  #    stepredn = 0.2 (default). Step reduction factor for backtrack
+  #???    stepredn = 0.2 (default). Step reduction factor for backtrack
   #             line search
   #    reltest = 100.0 (default). Additive shift for equality test. Set in optimx.setup
   #    stopbadupdate = FALSE (default). Don't stop when steepest
@@ -104,6 +104,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   }
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
   dblmax <- .Machine$double.xmax  # used to flag bad function
+  cat("ctrl$stepredn=",ctrl$stepredn,"\n")
 #################################################################
 #
 #

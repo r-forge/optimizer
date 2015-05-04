@@ -1,4 +1,4 @@
-lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
+lbfgsb3 <- function(par, fn, gr=NULL, lower = -Inf, upper = Inf,
          control=NULL, ...){
 
 # ?? note gr won't be null if called from optimx
@@ -31,11 +31,11 @@ nmax <- 1024 # define maximum number of parameters
  
 # if (!is.loaded("lbfgsb3.so")) dyn.load("lbfgsb3.so") # get the routines attached
 
-if (length(prm) > nmax) stop("The number of parameters cannot exceed 1024")
-      n <- as.integer(length(prm))
+if (length(par) > nmax) stop("The number of parameters cannot exceed 1024")
+      n <- as.integer(length(par))
 # control defaults -- idea from spg
-  if(is.null(control)) ctrl <- ctrldefault(n)
-      
+  if(is.null(control)) control <- ctrldefault(n)
+      ctrl <- control ## ?? CLUMSY
 
 # Here expand control list, but for moment leave alone
       iprint <- as.integer(ctrl$trace) # change to trace -- iprint not in control
@@ -99,7 +99,7 @@ repeat {
        print(task)
       }
       result <- .Fortran('setulb', n = as.integer(n),m = as.integer(m),
-                   x = as.double(prm), l = as.double(lower), u = as.double(upper),
+                   x = as.double(par), l = as.double(lower), u = as.double(upper),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
                    factr = as.double(factr), pgtol = as.double(pgtol),
                    wa = as.double(wa), iwa = as.integer(iwa), 
@@ -109,9 +109,9 @@ repeat {
                    isave=as.integer(isave), dsave=as.double(dsave))
       itask <- result$itask
       icsave <- result$icsave
-      prm <- result$x
+      par <- result$x
 ##      cat("in lbfgsb3 parameter results:")
-##      print(prm)
+##      print(par)
       g <- result$g
       iwa <- result$iwa
       wa <- result$wa
@@ -129,16 +129,16 @@ repeat {
 
       if  (itask %in% c(4L, 20L, 21L) ) {
          if (ctrl$trace >= 2) {
-          cat("computing f and g at prm=")
-          print(prm)
+          cat("computing f and g at par=")
+          print(par)
          }
 ##        Compute function value f for the sample problem.
-         f <- fn(prm, ...)
+         f <- fn(par, ...)
 ##        Compute gradient g for the sample problem.
          if (is.null(gr)) {
-             g <- grad(fn, prm, ...)
+             g <- grad(fn, par, ...)
          } else {
-             g <- gr(prm, ...)
+             g <- gr(par, ...)
          }
          if (ctrl$trace > 0) {
             cat("At iteration ", isave[34]," f =",f)
@@ -158,6 +158,6 @@ repeat {
 ##  print(result) ## only print for debugging
   info <- list(task = task, itask = itask, lsave = lsave, 
                 icsave = icsave, dsave = dsave, isave = isave)
-  ans <- list(prm = prm, f = f, g = g, info = info)
+  ans <- list(par = par, f = f, g = g, info = info)
 ##======================= The end of driver1 ============================
 } # end of lbfgsb3()

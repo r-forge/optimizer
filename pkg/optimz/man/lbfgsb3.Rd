@@ -6,14 +6,14 @@
    Interfacing to Nocedal LBFGSB3 limited memory BFGS solver.
 }
 \usage{
-   lbfgsb3(prm, fn, gr=NULL, lower=-Inf, upper=Inf, 
+   lbfgsb3(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
          control=list(), ...)
 }
 \arguments{
-  \item{prm}{
+  \item{par}{
      A parameter vector which gives the initial guesses to the parameters
      that will minimize \code{fn}. This can be named, for example, we could use
-        prm=c(b1=1, b2=2.345, b3=0.123)
+        par=c(b1=1, b2=2.345, b3=0.123)
   }
   \item{fn}{
      A function that evaluates the objective function to be minimized.
@@ -129,7 +129,7 @@
 }
 \value{
   A list of the following items
-  \item{prm}{A vector giving the parameter values at the supposed solution.}
+  \item{par}{A vector giving the parameter values at the supposed solution.}
   \item{f}{The value of the objective function at this set of parameters.}
   \item{g}{An estimate of the gradient of the objective at the solution.}
   \item{info}{A structure containing information on the disposition of the

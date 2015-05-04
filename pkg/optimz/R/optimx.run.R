@@ -413,6 +413,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using uobyqa
 ## --------------------------------------------
       else if (meth == "newuoa") {# Use newuoa routine from minqa package
+        cat("Trying newuoa\n")
 	mcontrol$maxfun <- ctrl$maxfeval
         mcontrol$iprint <- ctrl$trace
 

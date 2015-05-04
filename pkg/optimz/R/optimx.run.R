@@ -497,12 +497,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          if (ctrl$trace > 0) {
             mcontrol$info <- TRUE # logical needed, not integer         
          } else { mcontrol$info <- FALSE }
-         if (! is.null(ctrl$maxit)) { 
-		mcontrol$maxfeval <- ctrl$maxit
- 	 } else {
-		mcontrol$maxfeval <- 5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
-	 }
-         mcontrol$maxit<-NULL # and null out control that is NOT used
+#?? can't be null         if (! is.null(ctrl$maxfit)) { 
+         mcontrol$maxfeval <- ctrl$maxfeval
          if (have.bounds) {
             time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
@@ -537,6 +533,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       else 
       if (meth == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
         if (ctrl$trace > 1) cat("lbfgsb3\n")
+        mcontrol$maxfeval <- ctrl$maxfeval
         # ?? use maxfevals rather than maxit for lbfgsb3 ??
         if (have.bounds) { ## Note call uses prm not par
             time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, lower = lower, 

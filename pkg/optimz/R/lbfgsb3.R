@@ -3,7 +3,7 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
 
 # ?? note gr won't be null if called from optimx
 # interface to Fortran Lbfgsb.3.0
-
+nmax <- 1024 # define maximum number of parameters
 
     tasklist <- c('NEW_X', 'START', 'STOP', 'FG',  # 1-4
        'ABNORMAL_TERMINATION_IN_LNSRCH', 'CONVERGENCE', #5-6

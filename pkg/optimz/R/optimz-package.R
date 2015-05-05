@@ -15,6 +15,7 @@ ctrldefault <- function(npar) {
         grcheckfwithg = 500,
         grcheckfnog = 50,
         have.bounds = FALSE,
+        hessasymtol = 0.0001,
         keepinputpar = FALSE,
 	kkt = TRUE,
 	kkttol = 0.001,
@@ -22,6 +23,7 @@ ctrldefault <- function(npar) {
 	maximize = FALSE,
         maxit = 500*round(sqrt(npar+1)),
 	maxfeval = 5000*round(sqrt(npar+1)),
+        parchanged = FALSE, 
         reltest = 100.0,
 	save.failures = TRUE,
 	scaletol = 3, 
@@ -479,9 +481,6 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    gtp  <- mres$gtp
    d    <- mres$dnew
    p    <- mres$p
-   ## cat("p:")
-   ## print(p)
-   ## tmp<-readline("cont.")
 
    ncg <- ncg + ncg1 
    while (!conv) {
@@ -512,7 +511,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
           ## ############################
           cat('    |g|     = ', norm2(g), "\n") 
           cat('    |p|     = ', norm2(p), "\n") 
-          tmp <- readline('Hit any key to continue')
+#          tmp <- readline('Hit any key to continue')
           ## ############################
       } 
       ## #######################
@@ -632,10 +631,6 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
       d    <- mres$dnew
       p    <- mres$p
 
-   ## cat("New p:")
-   ## print(p)
-   ## tmp<-readline("cont.")
-
       ncg <- ncg + ncg1 
 ## ---------------------------------------------------------
 ##  update LMQN preconditioner
@@ -731,20 +726,12 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    argvec <- c(accrcy, gnorm, xnorm) 
    mres  <- modlnp (d, x, g, maxit, upd1, ireset, bounds=FALSE, ipivot, argvec, sfun, ...) 
    p <- mres$p
-#   cat("p from first call to modlnp\n")
-#   print(p)
-#   tmp<-readline("cont.")
 
    gtp <- mres$gtp
    ncg1<-mres$ncg1
    d <- mres$dnew
-
-#%    cat("d from modlnp:")
-#%    print(d)
    ncg <- ncg + ncg1 
    while ( ! conv) { 
-#%       cat("top while ")
-#%       tmp <- readline("Top of iteration")
       oldg   <- g 
       pnorm  <- max(abs(p)) # norm(p,'inf') 
       oldf   <- f 
@@ -763,8 +750,6 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
       nf1 <- reslin$nf1
       ierror <- reslin$ierror
       alpha <- reslin$alpha1
-#      cat("after lin1, alpha=",alpha,"\n")
-#   tmp<-readline("cont.")
 
      nf <- nf + nf1 
 ## ---------------------------------------------------------
@@ -1536,9 +1521,6 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    gtp  <- mres$gtp
    d    <- mres$dnew
    p    <- mres$p
-   ## cat("p:")
-   ## print(p)
-   ## tmp<-readline("cont.")
 
    ncg <- ncg + ncg1 
    while (!conv) {
@@ -1569,7 +1551,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
           ## ############################
           cat('    |g|     = ', norm2(g), "\n") 
           cat('    |p|     = ', norm2(p), "\n") 
-          tmp <- readline('Hit any key to continue')
+#          tmp <- readline('Hit any key to continue')
           ## ############################
       } 
       ## #######################
@@ -1689,10 +1671,6 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
       d    <- mres$dnew
       p    <- mres$p
 
-   ## cat("New p:")
-   ## print(p)
-   ## tmp<-readline("cont.")
-
       ncg <- ncg + ncg1 
 ## ---------------------------------------------------------
 ##  update LMQN preconditioner
@@ -1787,9 +1765,6 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    argvec <- c(accrcy, gnorm, xnorm) 
    mres  <- modlnp (d, x, g, maxit, upd1, ireset, bounds=FALSE, ipivot, argvec, sfun, ...) 
    p <- mres$p
-#   cat("p from first call to modlnp\n")
-#   print(p)
-#   tmp<-readline("cont.")
 
    gtp <- mres$gtp
    ncg1<-mres$ncg1
@@ -1799,8 +1774,6 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 #%    print(d)
    ncg <- ncg + ncg1 
    while ( ! conv) { 
-#%       cat("top while ")
-#%       tmp <- readline("Top of iteration")
       oldg   <- g 
       pnorm  <- max(abs(p)) # norm(p,'inf') 
       oldf   <- f 
@@ -1819,8 +1792,6 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
       nf1 <- reslin$nf1
       ierror <- reslin$ierror
       alpha <- reslin$alpha1
-#      cat("after lin1, alpha=",alpha,"\n")
-#   tmp<-readline("cont.")
 
      nf <- nf + nf1 
 ## ---------------------------------------------------------

@@ -25,7 +25,7 @@
 }
 \usage{
 optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("nmkb"), itnmax=NULL, hessian=FALSE,
+            method=NULL, itnmax=NULL, hessian=FALSE,
             control=list(),
              ...)
 }
@@ -49,7 +49,11 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    handle box (or bounds) constraints.}
  \item{method}{A list of the methods to be used. 
        Note that this is an important change from optim() that allows
-       just one method to be specified. See \sQuote{Details}.}
+       just one method to be specified. See \sQuote{Details}.
+       The default of NULL causes an appropriate set of methods to be supplied
+       depending on the presence or absence of bounds on the parameters. The default
+       unconstrained set is Rvmminu, Rcgminu, lbfgsb3, newuoa and nmkb.
+       The default bounds constrained set is Rvmminb, Rcgminb, lbfgsb3, bobyqa and nmkb.}
  \item{itnmax}{If provided as a vector of the same length as the list of methods \code{method}, 
 	gives the maximum number of iterations or function values for the corresponding 
 	method. If a single number is provided, this will be used for all methods. Note that

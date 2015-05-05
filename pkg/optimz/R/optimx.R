@@ -6,11 +6,10 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method, itnmax, hessian, control, ...)
 # Parse and use optcfg
   if (optcfg$ctrl$starttests) {
-    optchk <- optimx.check(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower,
-           upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds,
-           usenumDeriv=optcfg$usenumDeriv, ...)
+    optchk <- optimx.check(par=par, ufn=optcfg$ufn, ugr=optcfg$ugr, uhess=optcfg$uhess, 
+           lower=lower, upper=upper, ctrl=optcfg$ctrl, ...)
   }
-  optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
+#  optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
 
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
             optcfg$method, itnmax, hessian, optcfg$ctrl, ...)

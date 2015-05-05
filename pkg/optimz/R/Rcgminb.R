@@ -145,9 +145,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     if (bounds) {
         # Make sure to expand lower and upper
         if (!nolower & (length(lower) < n)) 
-            {
-                ## tmp<-readline('Check length lower ')
-                if (length(lower) == 1) {
+            {   if (length(lower) == 1) {
                   lower <- rep(lower, n)
                 }
                 else {

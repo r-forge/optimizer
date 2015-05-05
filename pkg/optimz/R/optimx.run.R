@@ -629,14 +629,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                    ngatend[bset]<-0 # "project" the gradient
                    nhatend[bset,] <-0
                    nhatend[, bset] <-0 # and the Hessian
-                   if (!isSymmetric(nhatend, tol=sqrt(.Machine$double.eps))) {
+                   if (!isSymmetric(nhatend, tol=ctrl$hessasymtol)) {
                       # hessOK<-FALSE ## Assume we will keep hessian after symmetrizing
                       asym <- sum(abs(t(nhatend) - nhatend))/sum(abs(nhatend))
                       asw <- paste("Hessian is reported non-symmetric with asymmetry ratio ", 
                       asym, sep = "")
                       if (ctrl$trace > 1) cat(asw, "\n")
                       if (ctrl$dowarn) warning(asw)
-                      ### if (asym > ctrl$asymtol) stop("Hessian too asymmetric") ##??as yet don't stop
                       if (ctrl$trace > 1) cat("Force Hessian symmetric\n")
                       if (ctrl$dowarn) warning("Hessian forced symmetric", call. = FALSE)
                       nhatend <- 0.5 * (t(nhatend) + nhatend)

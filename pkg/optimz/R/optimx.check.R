@@ -1,5 +1,5 @@
-optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf, 
-             hessian=FALSE, ctrl, have.bounds=FALSE, usenumDeriv=FALSE, ...) {
+optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,  
+                             ctrl, ...) {
 
 ## Should be run whenever we are not sure parameters and function are
 ## admissible. 
@@ -11,66 +11,43 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 
 ###############################################################################
 
+
 # Check parameters are in right form
-  if (!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
+  if (!is.null(dim(par))) stop("Parameters should be a vector, not a matrix!")
   if (! is.vector(par) ) {
 	stop("The parameters are NOT in a vector")
   }
   npar<-length(par)
-  optchk<-list() # output of the checks
-  if (ctrl$starttests) {
-	# Check parameters in bounds (090601: As yet not dealing with masks ??)
-	#  bdmsk<-as.vector(bdmset[k, ])
-	infeasible<-FALSE
-	if (ctrl$trace > 0) cat("Function has ",npar," arguments\n")
-	if (have.bounds) {
-    	  # Expand bounds to vectors if needed
-          # Note 20100610: we do not check if there is a vector of wrong length.??
-    	  if (length(lower)==1 ) lower <- rep(lower, npar)
-    	  if (length(upper)==1 ) upper <- rep(upper, npar)
-    	  bstate<-vector(mode="character", length=npar)
-    	  for (i in 1:npar) {
-     	    if ( (lower[i]<=par[i]) && (par[i]<=upper[i])) {
-    	      bstate[i]<-" In Bounds "
-            } else { 
-            #   if (bdmsk[i]!=0) {
-                  infeasible<-TRUE
-            #   }
-                if (lower[i]>par[i]) {bstate[i]<-" Out of Bounds LOW" } 
-                else { bstate[i]<-" Out of Bounds HIGH " }
-            } # end if in bounds
-            if (ctrl$trace > 0) {
-               cat("par[",i,"]: ",lower[i],"  <?",par[i],"  <?",upper[i],"  ",bstate,"\n")
-            }
-          } # end of for loop over parameter vector elements
-	  if (infeasible) { ## ?? maybe don't want to stop ??
-        	stop("Infeasible point, no further tests")
-	  } 
-  	} # end have.bounds
-        # Check if function can be computed
-        firsttry<-try(finit<-ufn(par, ...), silent=TRUE ) # 20100711
-        # Note: This incurs one EXTRA function evaluation because optimx 
-        #       is a wrapper for other methods
-        if (class(firsttry) == "try-error") {
-    	   infeasible <- TRUE
-           stop("Cannot evaluate function at initial parameters")
+  if (is.null(ctrl)) ctrl <- ctrldefault(npar)
+  optchk<-list() # set up output kust of the checks
+#  if (ctrl$starttests) {
+     # Check parameters in bounds (090601: As yet not dealing with masks ??)
+     infeasible<-FALSE
+     if (ctrl$trace > 1) cat("Function has ",npar," arguments\n")
+     if (! ctrl$have.bounds) { # Don't do the check if we already know there are bounds
+          
+        shift2bound <- ! ctrl$keepinputpar
+        bc <- bmchk(par, lower=lower, upper=upper, trace=ctrl$trace, shift2bound)
+        if (! bc$admissible) stop("At least one lower bound is > corresponding upper bound")
+        if (infeasible && ctrl$dowarn) warning("Parameters may be out of bounds")
+        if (ctrl$trace > 0) {
+           cat("Parameter relation to bounds\n")
+           print(bc$bchar)
         }
-        # Also check that it is returned as a scalar
-        if (!(is.vector(finit) && (length(finit)==1)) || is.list(finit) || 
-            is.matrix(finit) || is.array(finit) || ! is.numeric(finit) ) {
-           stop("Function provided is not returning a scalar number")
-        }
-        if (is.infinite(finit) || is.na(finit)) {
-          stop("Function returned is infinite or NA (non-computable)")
-        }
-  }
+        if (bc$parchanged) par <- bc$bvec
+     }
 
+     # Check if function can be computed
+     checkfn <- fnchk(par, ufn, trace=ctrl$trace, ...)
+     if (checkfn$infeasible) {
+        cat("fnchk exit code and msg:",checkfn$excode," ",checkfn$msg,"\n")
+        stop("Cannot evaluate function at initial parameters")
+     }
 
-  if (ctrl$starttests) {
      optchk$grbad <- FALSE
-     if (! is.null(ugr) && ! usenumDeriv && ! is.character(ugr)){ # check gradient
+     if (! is.null(ugr) && ! ctrl$usenumDeriv && ! is.character(ugr)){ # check gradient
        gname <- deparse(substitute(ugr))
-       if (ctrl$trace>0) cat("Analytic gradient from function ",gname,"\n\n")
+       if (ctrl$trace > 0) cat("Analytic gradient from function ",gname,"\n\n")
           fval <- ufn(par,...) 
           gn <- grad(func=ufn, x=par,...) # 
           ga <- ugr(par, ...)
@@ -82,21 +59,21 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
             stop("Gradient function might be wrong - check it! \n", call.=FALSE)
             optchk$grbad <- TRUE # Never get here if we stop ??
           }
-       } else if (ctrl$trace>0) cat("Analytic gradient not made available.\n")
+       } else if (ctrl$trace > 0) cat("Analytic gradient not made available.\n")
 
        optchk$hessbad <- FALSE
 ##?? need to fix this
        if (! is.null(uhess) && ! is.character(uhess)){ # check Hessian - if character then numeric
           hname <- deparse(substitute(uhess))
-          if (ctrl$trace>0) cat("Analytic hessian from function ",hname,"\n\n")
+          if (ctrl$trace > 0) cat("Analytic hessian from function ",hname,"\n\n")
           hn <- hessian(func=ufn, x=par,...) # ?? should we use dotdat
           ha <- uhess(par, ...)
           # Now test for equality
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) stop("Hessian function might be wrong - check it! \n", call.=FALSE)
           optchk$hessbad <- TRUE
-       } else if (ctrl$trace>0) cat("Analytic Hessian not made available.\n")
-   }
+       } else if (ctrl$trace > 0) cat("Analytic Hessian not made available.\n")
+   
 # Scaling check  091219
     if (ctrl$starttests) {
         optchk$scalebad <- FALSE
@@ -107,7 +84,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 		if (ctrl$dowarn) warning(warnstr)
              optchk$scalebad <- TRUE
 	}
-        if (ctrl$trace>0) {
+        if (ctrl$trace > 0) {
 		cat("Scale check -- log parameter ratio=",srat$lpratio,"  log bounds ratio=",srat$lbratio,"\n")
 	}
     }

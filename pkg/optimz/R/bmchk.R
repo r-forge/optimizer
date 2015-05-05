@@ -21,6 +21,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     #   or upper bound (-1)
     # trace = control of output: 0 for none (default), >0 for
     #   output
+    # tol = 
     # shift2bound = TRUE if we adjust par values so they are
     #   feasible
     ##
@@ -104,7 +105,6 @@ bmchk <- function(par, lower = NULL, upper = NULL,
             }  # else lower OK
         if (!noupper & (length(upper) < n)) 
             {
-                ## tmp<-readline('Check length upper ')
                 if (length(upper) == 1) {
                   upper <- rep(upper, n)
                 }

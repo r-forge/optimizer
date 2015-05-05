@@ -24,13 +24,15 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
 #  Author:  John Nash
 #  Date: Sept 18, 2011
 #################################################################
-  maxard10<-function(one, two) { # get maximum absolute relative difference scaled by 10. in denominator
-# This internal function is used to make comparisons using a relative difference, but avoiding zero divide
+  maxard10<-function(one, two) { 
+  # get max abs relative difference scaled by 10.0 in denominator
+  # This internal function is used to make comparisons using a 
+  # relative difference, but avoiding zero divide
     result<-max(abs((one-two)/(abs(one)+abs(two)+10.0)))
     return(result)
   }
 #########
-   if (trace>3) {
+   if (trace > 3) {
       cat("fnchk: ffn =\n")
       print(ffn)
       cat("xpar:")
@@ -41,7 +43,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
    infeasible<-FALSE # set value OK, then alter if not feasible later
    excode <- 0 # ditto
    msg <- "fnchk OK" # ditto
-   if (trace>1) {
+   if (trace > 1) {
       cat("about to call ffn(xpar, ...)\n")
       cat("ffn:")
       print(ffn)
@@ -50,7 +52,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
       print(list(...))
    }
    test<-try(fval<-ffn(xpar, ...)) # 
-   if (trace>1) {
+   if (trace > 1) {
       cat("test in fnchk:")
       print(test)
    }
@@ -69,7 +71,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
       infeasible <- TRUE
       excode <- -1
       msg <- "Function evaluation returns INADMISSIBLE"
-      if (trace>0) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    }
 
    # Also check that it is returned as a scalar
@@ -78,7 +80,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
         excode <- -4
         msg <- "Function evaluation returns a vector not a scalar"
         infeasible <- TRUE
-        if (trace>0) cat(msg,"\n")
+        if (trace > 0) cat(msg,"\n")
       }
    }
 
@@ -86,44 +88,44 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
       excode <- -4
       msg <- "Function evaluation returns a list not a scalar"
       infeasible <- TRUE
-      if (trace>0) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    }
 
    if (is.matrix(fval)) {
       excode <- -4
       msg <- "Function evaluation returns a matrix list not a scalar"
       infeasible <- TRUE
-      if (trace>0) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    }
 
    if (is.array(fval)) {
       excode <- -4
       msg <- "Function evaluation returns an array not a scalar"
       infeasible <- TRUE
-      if (trace>0) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    }
 
    if ((length(fval)!=1) && !(is.vector(fval))) { #this may never get executed
       excode <- -4
       msg <- "Function returned not length 1, despite not vector, matrix or array"
       infeasible <- TRUE
-      if (trace>0) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    }
 
    if ( ! (is.numeric(fval)) ) {
       excode <- -1 
       msg <- "Function evaluation returned non-numeric value"
       infeasible <- TRUE
-      if (trace>0) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    }
 
    if (is.infinite(fval) || is.na(fval)) {
       excode <- -1 
       msg <- "Function evaluation returned Inf or NA (non-computable)"
       infeasible <- TRUE
-      if (trace>0) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    }
-   if (trace>0) cat("Function at given point=",fval,"\n")
+   if (trace > 0) cat("Function at given point=",fval,"\n")
    answer <- list(fval=fval, infeasible=infeasible, excode=excode, msg=msg)
 }
 ### end of fnchk ***

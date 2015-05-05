@@ -108,6 +108,9 @@ Scaling issues
 		much like the names attribute?
 
 Other?
+	optimz work -- report on it
+	lbfgsb3 stuff inc. Berend comments
+
 
 ===============================================================
 

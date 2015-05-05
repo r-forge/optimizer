@@ -7,7 +7,7 @@
 }
 \usage{
    lbfgsb3(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
-         control=list(), ...)
+         control=NULL, ...)
 }
 \arguments{
   \item{par}{

@@ -36,10 +36,6 @@ if (length(par) > nmax) stop("The number of parameters cannot exceed 1024 for lb
 # control defaults -- idea from spg
   if(is.null(control)) control <- ctrldefault(n)
   ctrl <- control ## ?? CLUMSY
-  cat("lbfgsb3 ctrl:\n")
-  print(ctrl)
-  tmp <- readline("cont.")
-
 
 # Here expand control list, but for moment leave alone
       iprint <- as.integer(ctrl$trace) # change to trace -- iprint not in control
@@ -114,8 +110,6 @@ repeat {
       itask <- result$itask
       icsave <- result$icsave
       par <- result$x
-##      cat("in lbfgsb3 parameter results:")
-##      print(par)
       g <- result$g
       iwa <- result$iwa
       wa <- result$wa
@@ -127,8 +121,6 @@ repeat {
       cat("returned from setulb\n")
       cat("returned itask is ",itask,"\n")
       task <- tasklist[itask]
-      cat("changed task to ", task,"\n")
-##      task<-readline("continue")
       }
 
       if  (itask %in% c(4L, 20L, 21L) ) {
@@ -153,8 +145,7 @@ repeat {
          }
       } else {
         if (itask == 1L )  { # NEW_X
-##          tmp <- readline("Continue") # eventually remove this
- 		##     If task is neither FG nor NEW_X we terminate execution.
+	##     If task is neither FG nor NEW_X we terminate execution.
           } else break
       }
  } # end repeat

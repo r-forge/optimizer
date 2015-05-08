@@ -1,0 +1,136 @@
+---
+title: "Optimization Objects"
+author: "Duncan Murdoch"
+output:
+  rmarkdown::html_vignette:
+    toc: yes
+---
+
+# Introduction
+
+These are notes describing a proposal for "optimization objects", a format
+to unify the inputs and outputs from optimization functions.
+
+Currently base R has many different optimizers (`optim()`, `nls()`, `nlm()`, etc.)
+each with different strengths, but also each with different requirements for 
+inputs.  The `optimx` and `optimz` packages are an attempt to unify these
+(and others) into a common interface, to make comparison of the results easier.
+This proposal carries that unification further.
+
+# General Idea
+
+The `optimx()` function should accept as input an optimization object.  The
+object should contain sufficient information about the optimization problem
+to allow choice of an optimizer and construction of defaults for all necessary 
+arguments for that optimizer.
+
+The result should also be an optimization object.  In addition to the inputs, 
+the result should contain information about the outcome of the optimization 
+attempt, and perhaps a history of previous attempts.  (There needs to be 
+some control over the level of detail here, but it should at least be possible
+to contain full trace information from previous attempts.)
+
+# Details
+
+I am thinking about this as if the objects are implemented in S3, but
+this proposal is preliminary, so all of the suggestions are tentative,
+including the form of the objects.
+
+On input the fields should include:
+
+* `par`:  A vector of named parameter values, used to initialize the optimizer.
+* `fn`:   A function with signature `f(par, ...)`: the objective function.
+
+The rest of the fields are optional:
+
+* `methods`:  A vector of names of methods to try.
+* `gr`:   An optional field to compute the gradient.
+* `lower`, `upper`:  Bounds on the allowable range of the parameters.
+* `results`:  A list of results of previous attempts.
+
+Some optional functions may be defined.
+
+* Transformations that
+convert the `par` vector to a more convenient form or invert that transformation,
+functions that evaluate the objective or gradient in the more convenient
+form, etc.  The underlying optimizer will only see the convenient form, but 
+the results that are returned will be translated back to the user specified form.
+Examples would include fixing some parameters for profiling, 
+forcing several parameters to be
+functions of a single underlying one (e.g. optimizing `f(x=s, y=s)` over `s`),
+or partially linear models.
+
+* Functions to monitor progress of optimization, e.g. a function to plot the
+current state every `n` evaluations.
+
+# Prototype
+
+This is the kind of thing I am thinking of.  This only supports `optim`; the
+real thing needs to be much more elaborate.
+
+```{r}
+optimization <- function(par, fn, gr = NULL, ...,
+      methods = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN",
+                 "Brent"),
+      lower = -Inf, upper = Inf,
+      control = list(), hessian = FALSE) {
+    result <- list(par = par, fn = fn, gr = gr, 
+    	           dots = list(...), lower = lower, upper = upper,
+    	           control = control, hessian = hessian)
+    result$methods <- match.arg(methods, several.ok = TRUE)
+    structure(result, class = "optimization")
+}
+
+print.optimization <- function(x, ...) {
+  cat("Optimization object:")
+  if (!is.null(x$value))
+    cat("  fn(", paste(format(x$par), collapse=","), ")=", 
+                 format(x$value),"\n")
+  else
+    cat("  Not run yet.\n")
+}
+
+run.optimization <- function (x, verbose = TRUE) {
+  if (is.null(x$runs))
+    x$runs <- list()
+  if (is.null(x$value))
+    x$value <- do.call(x$fn, c(list(x$par), x$dots))
+  for (method in x$methods) {
+    args <- unclass(x)
+    argsmethod <- method
+    args$methods <- NULL
+    args$runs <- NULL
+    args$value <- NULL
+    args$dots <- NULL
+    if (verbose)
+        cat("Trying method='", method, "'\n")
+    run <- do.call(optim, c(args, x$dots))
+    x$runs <- c(x$runs, list(run))
+    if (run$value < x$value) {
+    	x$value <- run$value
+    	x$par <- run$par
+    	if (verbose) {
+    	  cat("  ")
+    	  print(x)
+    	}
+    } else 
+    	if (verbose)
+    	  cat("  No improvement.\n")
+  }
+  x
+}
+```
+
+Here we try it to optimize the function $(x-1)^2 + (x-y-3)^4 + 0.0001*(y-4)^4 + 1$.  I use methods SANN followed by Nelder-Mead with a limit of 20 iterations,
+just so that the problem doesn't get optimized in the very first try.
+```{r}
+opt <- optimization(par = c(x=10, y=10), 
+		    fn = function(arg) {
+		    	x <- arg[1]
+		    	y <- arg[2]
+		    	(x-1)^2 + (x-y-3)^4 + 0.0001*(y-4)^4 + 1
+		    }, methods=c("SANN", "Nelder"), control=list(maxit=20))
+print(opt <- run.optimization(opt))
+print(opt <- run.optimization(opt))
+run.optimization(opt)
+```

@@ -36,31 +36,26 @@ I am thinking about this as if the objects are implemented in S3, but
 this proposal is preliminary, so all of the suggestions are tentative,
 including the form of the objects.
 
-On input the fields should include:
+Fields in the object:
 
 * `par`:  A vector of named parameter values, used to initialize the optimizer.
-* `fn`:   A function with signature `f(par, ...)`: the objective function.
+* `fn`:   A function with signature `f(par, ...)`: the objective function
+* `methods`:  A vector of names of optimization methods to try.
 
-The rest of the fields are optional:
+Optional fields:
 
-* `methods`:  A vector of names of methods to try.
 * `gr`:   An optional field to compute the gradient.
 * `lower`, `upper`:  Bounds on the allowable range of the parameters.
 * `results`:  A list of results of previous attempts.
-
-Some optional functions may be defined.
-
-* Transformations that
-convert the `par` vector to a more convenient form or invert that transformation,
+* `transform`: A transformation to the arguments. This
+converts the `par` vector to a more convenient form, or inverts that transformation,
 functions that evaluate the objective or gradient in the more convenient
 form, etc.  The underlying optimizer will only see the convenient form, but 
 the results that are returned will be translated back to the user specified form.
 Examples would include fixing some parameters for profiling, 
 forcing several parameters to be
 functions of a single underlying one (e.g. optimizing `f(x=s, y=s)` over `s`),
-or partially linear models.
-
-* Functions to monitor progress of optimization, e.g. a function to plot the
+or partially linear models, or functions to plot the
 current state every `n` evaluations.
 
 # Prototype
@@ -75,6 +70,8 @@ optimization <- function(par, fn, gr = NULL, ...,
       control = list(), hessian = FALSE, transform = NULL) {
     knownMethods <- c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN",
                  "Brent") 
+    if (!is.null(transform)) 
+      transform$setfn(fn, gr)
     result <- list(par = par, fn = fn, gr = gr, 
     	           dots = list(...), lower = lower, upper = upper,
     	           control = control, hessian = hessian, 
@@ -133,6 +130,8 @@ run.optimization <- function (x, verbose = TRUE) {
     	args$lower <- x$transform$forward(rep(args$lower, length=length(x$par)))
     	args$upper <- x$transform$forward(rep(args$upper, length=length(x$par)))
     	args$fn <- x$transform$fn1
+    	if (!is.null(x$gr)) 
+    	  args$gr <- x$transform$gr1
     }
     if (verbose)
         cat("Trying method = '", method, "'\n", sep = "")
@@ -172,28 +171,41 @@ opt <- run.optimization(opt)
 run.optimization(opt)
 ```
 
-Here's the same example, with a transform that does two things:  it
-reports whenever $x < 0$, and it fixes $y$ at the value 10.
+Here's the same example, with a transform that fixes $y$ at the value 10.
 
 ```{r}
-transform <- local({
-  yval <- 10
+fixparms <- function(parms) {
+  fn0 <- NULL
+  gr0 <- NULL
+  unfixed <- is.na(parms)
+  setfn <- function(fn, gr = NULL) {
+    fn0 <<- fn
+    gr0 <<- gr
+  }
   forward <- function(par) {
-    x <- par[1]
-    if (x < 0) message("x = ", format(x))
-    x
+    par[unfixed]
   }
   inverse <- function(par1) {
-    c(par1, yval)
+    result <- parms
+    result[unfixed] <- par1
+    result
   }
-  fn1 <- function(par1) fn(inverse(par1))
-  list(forward = forward, inverse = inverse, fn1 = fn1)
-})
+  fn1 <- function(par1, ...) fn0(inverse(par1), ...)
+  gr1 <- function(par1, ...) gr0(inverse(par1), ...)[unfixed]
+  list(setfn = setfn, forward = forward, inverse = inverse, fn1 = fn1, gr1 = gr1)
+}
+
 opt <- optimization(par = c(x = -2, y = 10), 
 		    fn = fn, methods=c("SANN", "Brent", "BFGS"), 
 		    lower = list(Brent = -5), 
 		    upper = list(Brent = 100), 
-		    transform = transform,
+		    transform = fixparms(c(NA, 10)),
 		    control=list(maxit=20))
 run.optimization(opt)
 ```
+
+# What else?
+
+* It should be possible to compose transformations
+* We should have more examples of transformations
+* More optimization methods should be supported

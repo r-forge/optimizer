@@ -70,23 +70,28 @@ real thing needs to be much more elaborate.
 
 ```{r}
 optimization <- function(par, fn, gr = NULL, ...,
-      methods = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN",
-                 "Brent"),
+      methods = knownMethods,
       lower = -Inf, upper = Inf,
-      control = list(), hessian = FALSE) {
+      control = list(), hessian = FALSE, transform = NULL) {
+    knownMethods <- c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN",
+                 "Brent") 
     result <- list(par = par, fn = fn, gr = gr, 
     	           dots = list(...), lower = lower, upper = upper,
-    	           control = control, hessian = hessian)
-    result$methods <- match.arg(methods, several.ok = TRUE)
+    	           control = control, hessian = hessian, 
+    	           transform = transform)
+    if (!missing(methods))
+      result$methods <- match.arg(methods, knownMethods, several.ok = TRUE)
+    else
+      result$methods <- knownMethods[1]
     structure(result, class = "optimization")
 }
 
 print.optimization <- function(x, ...) {
-  cat("Optimization object:")
-  if (!is.null(x$value))
-    cat("  fn(", paste(format(x$par), collapse=","), ")=", 
-                 format(x$value),"\n")
-  else
+  cat("Optimization object.")
+  if (!is.null(x$value)) {
+    cat("  fn(", paste(format(x$par), collapse=","), ") = ", 
+                 format(x$value),"\n", sep="")
+  } else
     cat("  Not run yet.\n")
 }
 
@@ -97,18 +102,47 @@ run.optimization <- function (x, verbose = TRUE) {
     x$value <- do.call(x$fn, c(list(x$par), x$dots))
   for (method in x$methods) {
     args <- unclass(x)
-    argsmethod <- method
+    args$method <- method
     args$methods <- NULL
     args$runs <- NULL
     args$value <- NULL
     args$dots <- NULL
+    args$transform <- NULL
+    if (is.list(args$lower)) {
+    	args$lower <- args$lower[[method]]
+        if (is.null(args$lower)) 
+          args$lower <- -Inf
+    }
+    if (is.list(args$upper)) {
+    	args$upper <- args$upper[[method]]
+    	if (is.null(args$upper))
+    	  args$upper <- Inf
+    }
+    if (is.list(args$control) && all(names(args$control) %in% x$methods)) {
+    	args$control <- args$control[[method]]
+    	if (is.null(args$control))
+    	  args$control <- list()
+    }
+    if (is.list(args$hessian)) {
+    	args$hessian <- args$hessian[[method]]
+    	if (is.null(args$hessian))
+    	  args$hessian <- FALSE
+    }
+    if (!is.null(x$transform)) {
+    	args$par <- x$transform$forward(args$par)
+    	args$lower <- x$transform$forward(rep(args$lower, length=length(x$par)))
+    	args$upper <- x$transform$forward(rep(args$upper, length=length(x$par)))
+    	args$fn <- x$transform$fn1
+    }
     if (verbose)
-        cat("Trying method='", method, "'\n")
-    run <- do.call(optim, c(args, x$dots))
+        cat("Trying method = '", method, "'\n", sep = "")
+    run <- do.call("optim", c(args, x$dots))
     x$runs <- c(x$runs, list(run))
     if (run$value < x$value) {
     	x$value <- run$value
     	x$par <- run$par
+    	if (!is.null(x$transform))
+    	  x$par <- x$transform$inverse(x$par)
     	if (verbose) {
     	  cat("  ")
     	  print(x)
@@ -117,20 +151,49 @@ run.optimization <- function (x, verbose = TRUE) {
     	if (verbose)
     	  cat("  No improvement.\n")
   }
-  x
+  if (verbose) invisible(x)
+  else x
 }
 ```
 
 Here we try it to optimize the function $(x-1)^2 + (x-y-3)^4 + 0.0001*(y-4)^4 + 1$.  I use methods SANN followed by Nelder-Mead with a limit of 20 iterations,
 just so that the problem doesn't get optimized in the very first try.
 ```{r}
-opt <- optimization(par = c(x=10, y=10), 
-		    fn = function(arg) {
-		    	x <- arg[1]
-		    	y <- arg[2]
-		    	(x-1)^2 + (x-y-3)^4 + 0.0001*(y-4)^4 + 1
-		    }, methods=c("SANN", "Nelder"), control=list(maxit=20))
-print(opt <- run.optimization(opt))
-print(opt <- run.optimization(opt))
+fn <- function(arg) {
+  x <- arg[1]
+  y <- arg[2]
+  (x-1)^2 + (x-y-3)^4 + 0.0001*(y-4)^4 + 1
+}
+opt <- optimization(par = c(x=0, y=10), 
+		    fn = fn, methods=c("SANN", "Nelder"), 
+		    control=list(maxit=20))
+opt <- run.optimization(opt)
+opt <- run.optimization(opt)
+run.optimization(opt)
+```
+
+Here's the same example, with a transform that does two things:  it
+reports whenever $x < 0$, and it fixes $y$ at the value 10.
+
+```{r}
+transform <- local({
+  yval <- 10
+  forward <- function(par) {
+    x <- par[1]
+    if (x < 0) message("x = ", format(x))
+    x
+  }
+  inverse <- function(par1) {
+    c(par1, yval)
+  }
+  fn1 <- function(par1) fn(inverse(par1))
+  list(forward = forward, inverse = inverse, fn1 = fn1)
+})
+opt <- optimization(par = c(x = -2, y = 10), 
+		    fn = fn, methods=c("SANN", "Brent", "BFGS"), 
+		    lower = list(Brent = -5), 
+		    upper = list(Brent = 100), 
+		    transform = transform,
+		    control=list(maxit=20))
 run.optimization(opt)
 ```

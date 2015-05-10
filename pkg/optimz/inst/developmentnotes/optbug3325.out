@@ -1,0 +1,1112 @@
+
+> ## optbug3325.R
+> rm(list=ls())
+
+> require(optimz)
+
+> sn.dev <- function(cp, X, y, trace=FALSE)
++ { # -2*logL for centred parameters  
++   m <- ncol(X)
++   if(abs(cp[length(cp)])> 0.99527) {print(cp); s .... [TRUNCATED] 
+
+> sn.dev.gh <- function(cp, X, y, trace=FALSE, hessian=FALSE)
++ {
++   # computes gradient and hessian of dev=-2*logL for centred parameters 
++   # (an .... [TRUNCATED] 
+
+> cp.to.dp <- function(param){
++   # converts centred parameters cp=(mu,sigma,gamma1)
++   # to direct parameters dp=(xi,omega,lambda)
++   # Note:  mu  .... [TRUNCATED] 
+
+> zeta <- function(k,x){# k integer \in (0,4)
++   k <- as.integer(k)
++   na <- is.na(x)
++   x <- replace(x,na,0)
++   if(any(abs(x)==Inf)) stop("Inf no ..." ... [TRUNCATED] 
+
+> gamma1.to.lambda<- function(gamma1){
++   max.gamma1 <- 0.5*(4-pi)*(2/(pi-2))^1.5
++   na <- (abs(gamma1)>max.gamma1)
++   if(any(na)) warning("NAs gen ..." ... [TRUNCATED] 
+
+> monica2 <-  structure(c(-1.13886379255452, -1.49413719201167, -1.87841064955904, 
++ -0.513738594928947, -1.00896950224601, -1.6532307897784, -1.3093 .... [TRUNCATED] 
+
+> #----
+> # cp <- c(-1.322168500,  0.373810085,  0.326283975)
+> y <- monica2
+
+> X <-  matrix(1, nrow=length(monica2))
+
+> n <- length(y)
+
+> m <- ncol(X)
+
+>     qrX <- qr(X)
+
+>     s <- sqrt(sum(qr.resid(qrX, y)^2)/n)
+
+>     gamma1 <- sum(qr.resid(qrX, y)^3)/(n*s^3)
+
+>     if(abs(gamma1)>0.99527) gamma1<- sign(gamma1)*0.95
+
+>     cp <- c(qr.coef(qrX,y), s, gamma1)
+
+> opt<- optimx(cp, fn=sn.dev, gr=sn.dev.gh, method=c("L-BFGS-B","lbfgsb3"),
++          lower=c(-rep(Inf,m),1e-10, -0.99527), 
++          upper=c(rep(I .... [TRUNCATED] 
+fn is  fn 
+Looking for method =  L-BFGS-B 
+Looking for method =  lbfgsb3 
+Function value at supplied parameters =[1] 42.18242
+ num 42.2
+NULL
+[1] TRUE
+Function at given point= 42.18242 
+Analytic gradient from function  optcfg$ugr 
+
+Analytic Hessian not made available.
+Scale check -- log parameter ratio= 0.6076911   log bounds ratio= NA 
+Method:  L-BFGS-B 
+iter   10 value 35.766396
+final  value 35.727100 
+converged
+Post processing for method  L-BFGS-B 
+Successful convergence! 
+Compute Hessian approximation at finish of  L-BFGS-B 
+Compute gradient approximation at finish of  L-BFGS-B 
+Save results from method  L-BFGS-B 
+$par
+[1] -1.3504743  0.4183608  0.9952700
+
+$value
+[1] 35.7271
+
+$message
+[1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
+
+$convcode
+[1] 0
+
+$fevals
+function 
+      52 
+
+$gevals
+gradient 
+      52 
+
+$nitns
+[1] NA
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] TRUE
+
+$xtimes
+user.self 
+    0.016 
+
+Assemble the answers
+Method:  lbfgsb3 
+RUNNING THE L-BFGS-B CODE with eps=
+[1] 2.220446e-16
+ N =
+[1] 3
+ M =
+[1] 5
+ Variables exactly at bounds for X0 
+[1] 0
+At iteration  0  f = 42.18242
+At iterate
+[1] 0
+ f=
+[1] 42.18242
+ |proj g|= 
+[1] 2.091904
+At iteration  2  f = 686.3262
+At iteration  3  f = 42.62603
+At iteration  4  f = 42.17054
+At iteration  5  f = 42.1461
+At iteration  6  f = 42.12186
+At iteration  7  f = 42.02684
+At iteration  8  f = 41.67341
+At iteration  9  f = 38.48842
+At iteration  10  f = 41.55118
+At iteration  11  f = 35.81694
+ ys =
+[1] -5000.96
+ BFGS update skipped for +gs=
+[1] 1.603281
+At iteration  12  f = 27296.31
+At iteration  13  f = 35.81686
+At iteration  14  f = 35.81686
+At iteration  15  f = 4480.073
+At iteration  16  f = 35.81673
+At iteration  17  f = 35.81672
+At iteration  18  f = 718.7573
+At iteration  19  f = 35.81652
+At iteration  20  f = 35.81651
+At iteration  21  f = 129.7456
+At iteration  22  f = 35.81613
+At iteration  23  f = 35.81611
+At iteration  24  f = 43.97598
+At iteration  25  f = 35.81481
+At iteration  26  f = 35.81474
+At iteration  27  f = 35.79512
+At iteration  28  f = 35.80686
+At iteration  29  f = 35.74486
+At iteration  30  f = 35.73264
+At iteration  31  f = 35.73108
+At iteration  32  f = 35.73126
+At iteration  33  f = 35.73108
+At iteration  34  f = 35.73108
+At iteration  35  f = 35.73108
+At iteration  36  f = 35.73108
+At iteration  37  f = 35.73108
+At iteration  38  f = 35.73108
+At iteration  39  f = 35.73108
+At iteration  40  f = 35.73108
+At iteration  41  f = 35.73108
+At iteration  42  f = 35.73108
+At iteration  43  f = 35.73108
+At iteration  44  f = 35.73108
+At iteration  45  f = 35.73108
+At iteration  46  f = 35.73108
+At iteration  47  f = 35.73108
+ F =
+[1] 35.73108
+ Warning:  more than 10 function and gradient
+   evaluations in the last line search.  Termination
+   may possibly be caused by a bad search direction.
+Post processing for method  lbfgsb3 
+Successful convergence! 
+Compute Hessian approximation at finish of  lbfgsb3 
+Compute gradient approximation at finish of  lbfgsb3 
+Save results from method  lbfgsb3 
+$par
+[1] -1.3529772  0.4165003  0.9952700
+
+$f
+[1] 35.73108
+
+$convcode
+[1] 0
+
+$value
+[1] 35.73108
+
+$fevals
+[1] 47
+
+$gevals
+[1] 47
+
+$nitns
+[1] 47
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] TRUE
+
+$xtimes
+user.self 
+    0.025 
+
+Assemble the answers
+
+> opt
+                p1        p2      p3    value fevals gevals niter convcode
+L-BFGS-B -1.350474 0.4183608 0.99527 35.72710     52     52    NA        0
+lbfgsb3  -1.352977 0.4165003 0.99527 35.73108     47     47    47        0
+          kkt1 kkt2 xtimes
+L-BFGS-B FALSE TRUE  0.016
+lbfgsb3  FALSE TRUE  0.025
+
+> tmp <- readline("Now try all meths")
+
+> optall<- optimx(cp, fn=sn.dev, gr=sn.dev.gh, method="all",
++          lower=c(-rep(Inf,m),1e-10, -0.99527), 
++          upper=c(rep(Inf,m), Inf, 0.9 .... [TRUNCATED] 
+fn is  fn 
+all.methods is TRUE -- Using all available methods
+ [1] "L-BFGS-B" "nlminb"   "spg"      "Rcgmin"   "Rvmmin"   "Rtnmin"  
+ [7] "bobyqa"   "nmkb"     "hjkb"     "lbfgsb3" 
+Looking for method =  L-BFGS-B 
+Looking for method =  nlminb 
+Looking for method =  spg 
+Looking for method =  Rcgmin 
+Looking for method =  Rvmmin 
+Looking for method =  Rtnmin 
+Looking for method =  bobyqa 
+Looking for method =  nmkb 
+Looking for method =  hjkb 
+Looking for method =  lbfgsb3 
+Function value at supplied parameters =[1] 42.18242
+ num 42.2
+NULL
+[1] TRUE
+Function at given point= 42.18242 
+Analytic gradient from function  optcfg$ugr 
+
+Analytic Hessian not made available.
+Scale check -- log parameter ratio= 0.6076911   log bounds ratio= NA 
+Method:  L-BFGS-B 
+iter   10 value 35.766396
+final  value 35.727100 
+converged
+Post processing for method  L-BFGS-B 
+Successful convergence! 
+Compute Hessian approximation at finish of  L-BFGS-B 
+Compute gradient approximation at finish of  L-BFGS-B 
+Save results from method  L-BFGS-B 
+$par
+[1] -1.3504743  0.4183608  0.9952700
+
+$value
+[1] 35.7271
+
+$message
+[1] "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
+
+$convcode
+[1] 0
+
+$fevals
+function 
+      52 
+
+$gevals
+gradient 
+      52 
+
+$nitns
+[1] NA
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] TRUE
+
+$xtimes
+user.self 
+    0.012 
+
+Assemble the answers
+Method:  nlminb 
+Post processing for method  nlminb 
+Compute Hessian approximation at finish of  nlminb 
+Compute gradient approximation at finish of  nlminb 
+Save results from method  nlminb 
+$par
+[1] -1.3526484  0.4163037  0.9952700
+
+$message
+[1] "false convergence (8)"
+
+$convcode
+[1] 1
+
+$value
+[1] 35.66035
+
+$fevals
+function 
+      56 
+
+$gevals
+gradient 
+      23 
+
+$nitns
+[1] 23
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] TRUE
+
+$xtimes
+user.self 
+     0.01 
+
+Assemble the answers
+Method:  spg 
+iter:  0  f-value:  42.18242  pgrad:  2.091904 
+iter:  10  f-value:  41.91387  pgrad:  0.9087497 
+iter:  20  f-value:  41.30838  pgrad:  0.4590548 
+iter:  30  f-value:  40.80456  pgrad:  0.3323625 
+iter:  40  f-value:  40.55593  pgrad:  1.141814 
+iter:  50  f-value:  40.34665  pgrad:  7.109064 
+iter:  60  f-value:  40.24649  pgrad:  0.1415543 
+iter:  70  f-value:  39.53757  pgrad:  21.51512 
+iter:  80  f-value:  35.87481  pgrad:  111.899 
+iter:  90  f-value:  35.82855  pgrad:  97.35289 
+iter:  100  f-value:  35.8046  pgrad:  83.71216 
+iter:  110  f-value:  35.7885  pgrad:  71.16657 
+iter:  120  f-value:  35.77671  pgrad:  59.89167 
+iter:  130  f-value:  35.76773  pgrad:  49.95115 
+iter:  140  f-value:  35.76074  pgrad:  41.32602 
+iter:  150  f-value:  35.75522  pgrad:  33.94217 
+iter:  160  f-value:  35.75084  pgrad:  27.69222 
+iter:  170  f-value:  35.74735  pgrad:  22.45227 
+iter:  180  f-value:  35.74455  pgrad:  18.09405 
+iter:  190  f-value:  35.74231  pgrad:  14.49318 
+iter:  200  f-value:  35.74051  pgrad:  11.53424 
+iter:  210  f-value:  35.73907  pgrad:  9.113586 
+iter:  220  f-value:  35.73791  pgrad:  7.140288 
+iter:  230  f-value:  35.73698  pgrad:  5.536057 
+iter:  240  f-value:  35.73623  pgrad:  4.234419 
+iter:  250  f-value:  35.73563  pgrad:  3.179549 
+iter:  260  f-value:  35.73515  pgrad:  2.324944 
+iter:  270  f-value:  35.73476  pgrad:  1.632094 
+iter:  280  f-value:  35.73444  pgrad:  1.069228 
+iter:  290  f-value:  35.73419  pgrad:  0.6101784 
+iter:  300  f-value:  35.73398  pgrad:  0.4184909 
+iter:  310  f-value:  35.7338  pgrad:  0.4184898 
+iter:  320  f-value:  35.73365  pgrad:  0.4184888 
+iter:  330  f-value:  35.73353  pgrad:  0.5669064 
+iter:  340  f-value:  35.73342  pgrad:  0.7647256 
+iter:  350  f-value:  35.73332  pgrad:  0.9418471 
+iter:  360  f-value:  35.73323  pgrad:  1.086469 
+iter:  370  f-value:  35.73314  pgrad:  1.07252 
+iter:  380  f-value:  35.73309  pgrad:  1.04303 
+iter:  390  f-value:  35.73304  pgrad:  1.021199 
+iter:  400  f-value:  35.73191  pgrad:  2.122795 
+Post processing for method  spg 
+Successful convergence! 
+Compute Hessian approximation at finish of  spg 
+Compute gradient approximation at finish of  spg 
+Save results from method  spg 
+$par
+[1] -1.3508013  0.4181443  0.9952700
+attr(,"hessian")
+     [,1] [,2] [,3]
+[1,]   NA   NA   NA
+[2,]   NA   NA   NA
+[3,]   NA   NA   NA
+
+$value
+[1] 35.73169
+
+$gradient
+[1] 2.00436
+
+$fn.reduction
+[1] 6.450443
+
+$message
+[1] "Successful convergence"
+
+$convcode
+[1] 0
+
+$fevals
+[1] 450
+
+$gevals
+[1] NA
+
+$nitns
+[1] 405
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] TRUE
+
+$xtimes
+user.self 
+     0.22 
+
+Assemble the answers
+Method:  Rcgmin 
+$acctol
+[1] 1e-04
+
+$all.methods
+[1] TRUE
+
+$badval
+[1] 8.988466e+307
+
+$defgrapprox
+[1] "grfwd"
+
+$dowarn
+[1] TRUE
+
+$eps
+[1] 1e-07
+
+$follow.on
+[1] FALSE
+
+$grcheckfwithg
+[1] 500
+
+$grcheckfnog
+[1] 50
+
+$hessasymtol
+[1] 1e-04
+
+$keepinputpar
+[1] FALSE
+
+$kkt
+[1] TRUE
+
+$kkttol
+[1] 0.001
+
+$kkt2tol
+[1] 1e-06
+
+$maximize
+[1] FALSE
+
+$maxit
+[1] 1000
+
+$maxfeval
+[1] 10000
+
+$parchanged
+[1] FALSE
+
+$reltest
+[1] 100
+
+$save.failures
+[1] TRUE
+
+$scaletol
+[1] 3
+
+$starttests
+[1] TRUE
+
+$steplen0
+[1] 0.75
+
+$stepredn
+[1] 0.2
+
+$stopbadupdate
+[1] FALSE
+
+$tol
+[1] 0
+
+$trace
+[1] 1
+
+$usenumDeriv
+[1] FALSE
+
+$maximizeorig
+[1] FALSE
+
+Rcgmin -- J C Nash 2009 - bounds constraint version of new CG
+an R implementation of Alg 22 with Yuan/Dai modification
+Initial function value= 42.18242 
+Initial fn= 42.18242 
+1   0   1   42.18242   last decrease= NA 
+***6   1   2   42.15224   last decrease= 0.03018548 
+8   2   3   42.06894   last decrease= 0.08329447 
+10   3   4   41.32354   last decrease= 0.745398 
+*13   4   5   41.05616   last decrease= 0.2673825 
+15   5   6   40.72811   last decrease= 0.3280469 
+*18   6   7   40.54804   last decrease= 0.1800789 
+Yuan/Dai cycle reset
+18   7   1   40.54804   last decrease= NA 
+20   8   2   40.4173   last decrease= 0.1307359 
+*23   9   3   40.37193   last decrease= 0.04536458 
+25   10   4   40.34318   last decrease= 0.02875487 
+*28   11   5   40.31365   last decrease= 0.02952902 
+30   12   6   39.92304   last decrease= 0.3906091 
+*33   13   7   39.62928   last decrease= 0.2937609 
+[1]   1.148050  -1.014244 -11.410636
+attr(,"hessian")
+     [,1] [,2] [,3]
+[1,]   NA   NA   NA
+[2,]   NA   NA   NA
+[3,]   NA   NA   NA
+Rcgmin failed for current problem 
+Post processing for method  Rcgmin 
+Save results from method  Rcgmin 
+$fevals
+[1] NA
+
+$value
+[1] 8.988466e+307
+
+$par
+[1] NA NA NA
+
+$convcode
+[1] 9999
+
+$gevals
+[1] NA
+
+$nitns
+[1] NA
+
+$kkt1
+[1] NA
+
+$kkt2
+[1] NA
+
+$xtimes
+user.self 
+    0.009 
+
+Assemble the answers
+Method:  Rvmmin 
+Rvmminb -- J C Nash 2009-2015 - an R implementation of Alg 21
+Problem of size n= 3   Dot arguments:
+$X
+      [,1]
+ [1,]    1
+ [2,]    1
+ [3,]    1
+ [4,]    1
+ [5,]    1
+ [6,]    1
+ [7,]    1
+ [8,]    1
+ [9,]    1
+[10,]    1
+[11,]    1
+[12,]    1
+[13,]    1
+[14,]    1
+[15,]    1
+[16,]    1
+[17,]    1
+[18,]    1
+[19,]    1
+[20,]    1
+[21,]    1
+[22,]    1
+[23,]    1
+[24,]    1
+[25,]    1
+[26,]    1
+[27,]    1
+[28,]    1
+[29,]    1
+[30,]    1
+[31,]    1
+[32,]    1
+[33,]    1
+[34,]    1
+[35,]    1
+[36,]    1
+[37,]    1
+[38,]    1
+[39,]    1
+[40,]    1
+[41,]    1
+[42,]    1
+[43,]    1
+[44,]    1
+[45,]    1
+[46,]    1
+[47,]    1
+[48,]    1
+[49,]    1
+[50,]    1
+
+$y
+ [1] -1.1388638 -1.4941372 -1.8784106 -0.5137386 -1.0089695 -1.6532308
+ [7] -1.3093897 -1.0604103 -1.8147169 -1.3376630 -1.6433073 -1.0646990
+[13] -1.0000106 -1.3963020 -0.6958505 -1.6920380 -1.5286599 -1.6270907
+[19] -0.9344367 -1.1112359 -1.6733250 -1.1613422 -1.2748330 -1.8376624
+[25] -1.5642939 -0.7066359 -0.8068797 -1.3970654 -1.4844450 -1.4819204
+[31] -0.7633502 -1.4234094 -1.5034850 -0.9160578 -0.7976507 -1.9021878
+[37] -1.8957358 -1.5503125 -1.5548897 -1.1713757 -1.8149021 -1.8297430
+[43] -0.7974073 -1.1651465 -1.3100711 -1.7132559 -1.5425371 -1.2819062
+[49] -1.2899027 -0.5935344
+attr(,"parameters")
+[1] -1.716314  0.500000  2.000000
+
+Initial fn= 42.18242 
+  1   1   42.18242 
+***ig= 2   gnorm= 4.383968     5   2   42.16115 
+**ig= 3   gnorm= 9.018984     8   3   42.0819 
+[1] -1.3452300  0.3728695  0.9952700
+*ig= 4   gnorm= 9.089801   UPDATE NOT POSSIBLE: ilast, ig 1 4 
+  10   4   41.5549 
+***ig= 5   gnorm= 5.153839     14   5   41.51597 
+**ig= 6   gnorm= 8.814415     17   6   41.46496 
+*ig= 7   gnorm= 7.71447     19   7   41.06291 
+*ig= 8   gnorm= 6.845324     21   8   40.75831 
+*ig= 9   gnorm= 6.700867     23   9   40.53948 
+*ig= 10   gnorm= 7.171843     25   10   40.39168 
+ig= 11   gnorm= 108.5107     26   11   40.27789 
+*ig= 12   gnorm= 120.7867   UPDATE NOT POSSIBLE: ilast, ig 4 12 
+  28   12   40.14408 
+[1] -8.84284 10.87971 -0.99527
+****ig= 13   gnorm= 55.6899     33   13   39.54131 
+ig= 14   gnorm= 199.395     34   14   37.85044 
+No acceptable point
+Reset to gradient search
+  34   14   37.85044 
+***ig= 15   gnorm= 200.4108   UPDATE NOT POSSIBLE: ilast, ig 14 15 
+  38   15   36.99614 
+***ig= 16   gnorm= 201.4097   UPDATE NOT POSSIBLE: ilast, ig 15 16 
+  42   16   36.14486 
+****ig= 17   gnorm= 200.5245     47   17   35.97555 
+**ig= 18   gnorm= 769.0065     50   18   35.81231 
+***ig= 19   gnorm= 1030.753     54   19   35.71096 
+*ig= 20   gnorm= 413.7005     56   20   35.64958 
+******************No acceptable point
+Reset to gradient search
+  74   20   35.64958 
+*************************No acceptable point
+Converged 
+Seem to be done Rvmminb
+Post processing for method  Rvmmin 
+Compute Hessian approximation at finish of  Rvmmin 
+Compute gradient approximation at finish of  Rvmmin 
+Save results from method  Rvmmin 
+$par
+[1] -1.3547984  0.4145892  0.9952700
+
+$value
+[1] 35.64958
+
+$counts
+function gradient 
+      99       20 
+
+$message
+[1] "Rvmminb appears to have converged"
+
+$bdmsk
+[1] 1 1 1
+
+$convcode
+[1] 3
+
+$fevals
+function 
+      99 
+
+$gevals
+gradient 
+      20 
+
+$nitns
+[1] NA
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] TRUE
+
+$xtimes
+user.self 
+    0.024 
+
+Assemble the answers
+Method:  Rtnmin 
+lmqnbc -- crout:  it     nf     cg           f             |g|
+Rtnmin failed for current problem 
+Post processing for method  Rtnmin 
+Save results from method  Rtnmin 
+$fevals
+[1] NA
+
+$value
+[1] 8.9885e+307
+
+$par
+[1] NA NA NA
+
+$convcode
+[1] 9999
+
+$gevals
+[1] NA
+
+$nitns
+[1] NA
+
+$kkt1
+[1] NA
+
+$kkt2
+[1] NA
+
+$xtimes
+user.self 
+    0.001 
+
+Assemble the answers
+Method:  bobyqa 
+start par. =  -1.3222 0.37381 0.32628 fn =  42.182 
+At return
+eval: 252 fn:      35.627280 par: -1.35399 0.414958 0.995270
+Post processing for method  bobyqa 
+Successful convergence! 
+Compute Hessian approximation at finish of  bobyqa 
+Compute gradient approximation at finish of  bobyqa 
+Save results from method  bobyqa 
+parameter estimates: -1.35398654872492, 0.414958291253312, 0.99527 
+objective: 35.6272803034556 
+number of function evaluations: 252 
+Assemble the answers
+Method:  nmkb 
+iter:  2 
+ value:  42.182 
+iter:  4 
+ value:  42.182 
+iter:  6 
+ value:  42.182 
+iter:  8 
+ value:  42.182 
+iter:  10 
+ value:  42.182 
+iter:  12 
+ value:  42.182 
+iter:  14 
+ value:  40.899 
+iter:  16 
+ value:  40.899 
+iter:  18 
+ value:  40.899 
+iter:  20 
+ value:  40.353 
+iter:  22 
+ value:  40.353 
+iter:  24 
+ value:  40.353 
+iter:  26 
+ value:  40.319 
+iter:  28 
+ value:  40.082 
+iter:  30 
+ value:  39.982 
+iter:  32 
+ value:  39.321 
+iter:  34 
+ value:  38.593 
+iter:  36 
+ value:  38.325 
+iter:  38 
+ value:  37.451 
+iter:  40 
+ value:  37.451 
+iter:  42 
+ value:  36.734 
+iter:  44 
+ value:  36.405 
+iter:  46 
+ value:  36.405 
+iter:  48 
+ value:  36.2 
+iter:  50 
+ value:  36.2 
+iter:  52 
+ value:  36.064 
+iter:  54 
+ value:  35.962 
+iter:  56 
+ value:  35.926 
+iter:  58 
+ value:  35.798 
+iter:  60 
+ value:  35.774 
+iter:  62 
+ value:  35.774 
+iter:  64 
+ value:  35.739 
+iter:  66 
+ value:  35.719 
+iter:  68 
+ value:  35.719 
+iter:  70 
+ value:  35.719 
+iter:  72 
+ value:  35.695 
+iter:  74 
+ value:  35.682 
+iter:  76 
+ value:  35.679 
+iter:  78 
+ value:  35.674 
+iter:  80 
+ value:  35.661 
+iter:  82 
+ value:  35.658 
+iter:  84 
+ value:  35.645 
+iter:  86 
+ value:  35.645 
+iter:  88 
+ value:  35.635 
+iter:  90 
+ value:  35.635 
+iter:  92 
+ value:  35.635 
+iter:  94 
+ value:  35.632 
+iter:  96 
+ value:  35.632 
+iter:  98 
+ value:  35.63 
+iter:  100 
+ value:  35.628 
+iter:  102 
+ value:  35.628 
+iter:  104 
+ value:  35.627 
+iter:  106 
+ value:  35.627 
+iter:  108 
+ value:  35.627 
+iter:  110 
+ value:  35.627 
+iter:  112 
+ value:  35.627 
+iter:  114 
+ value:  35.626 
+iter:  116 
+ value:  35.626 
+iter:  118 
+ value:  35.626 
+iter:  120 
+ value:  35.626 
+iter:  122 
+ value:  35.626 
+iter:  124 
+ value:  35.626 
+iter:  126 
+ value:  35.626 
+iter:  128 
+ value:  35.626 
+iter:  130 
+ value:  35.626 
+iter:  132 
+ value:  35.626 
+Post processing for method  nmkb 
+Successful convergence! 
+Compute Hessian approximation at finish of  nmkb 
+Compute gradient approximation at finish of  nmkb 
+Hessian eigenvalue calculation failure!
+        [,1]    [,2] [,3]
+[1,]  650589 -860250   NA
+[2,] -860250 1138630   NA
+[3,]      NA      NA   NA
+Save results from method  nmkb 
+$par
+[1] -1.35221  0.41630  0.99527
+
+$value
+[1] 35.626
+
+$convcode
+[1] 0
+
+$fevals
+[1] 231
+
+$gevals
+[1] NA
+
+$nitns
+[1] NA
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] NA
+
+$xtimes
+user.self 
+    0.036 
+
+Assemble the answers
+Method:  hjkb 
+step	nofc	fmin	xpar
+1 	 6 	 42.182 	 -1.3222 ...
+[1] -1.82217  0.37381  1.32628
+hjkb failed for current problem 
+Post processing for method  hjkb 
+Save results from method  hjkb 
+$fevals
+[1] NA
+
+$value
+[1] 8.9885e+307
+
+$par
+[1] NA NA NA
+
+$convcode
+[1] 9999
+
+$gevals
+[1] NA
+
+$nitns
+[1] NA
+
+$kkt1
+[1] NA
+
+$kkt2
+[1] NA
+
+$xtimes
+user.self 
+    0.002 
+
+Assemble the answers
+Method:  lbfgsb3 
+RUNNING THE L-BFGS-B CODE with eps=
+[1] 2.2204e-16
+ N =
+[1] 3
+ M =
+[1] 5
+ Variables exactly at bounds for X0 
+[1] 0
+At iteration  0  f = 42.182
+At iterate
+[1] 0
+ f=
+[1] 42.182
+ |proj g|= 
+[1] 2.0919
+At iteration  2  f = 686.33
+At iteration  3  f = 42.626
+At iteration  4  f = 42.171
+At iteration  5  f = 42.146
+At iteration  6  f = 42.122
+At iteration  7  f = 42.027
+At iteration  8  f = 41.673
+At iteration  9  f = 38.488
+At iteration  10  f = 41.551
+At iteration  11  f = 35.817
+ ys =
+[1] -5001
+ BFGS update skipped for +gs=
+[1] 1.6033
+At iteration  12  f = 27296
+At iteration  13  f = 35.817
+At iteration  14  f = 35.817
+At iteration  15  f = 4480.1
+At iteration  16  f = 35.817
+At iteration  17  f = 35.817
+At iteration  18  f = 718.76
+At iteration  19  f = 35.817
+At iteration  20  f = 35.817
+At iteration  21  f = 129.75
+At iteration  22  f = 35.816
+At iteration  23  f = 35.816
+At iteration  24  f = 43.976
+At iteration  25  f = 35.815
+At iteration  26  f = 35.815
+At iteration  27  f = 35.795
+At iteration  28  f = 35.807
+At iteration  29  f = 35.745
+At iteration  30  f = 35.733
+At iteration  31  f = 35.731
+At iteration  32  f = 35.731
+At iteration  33  f = 35.731
+At iteration  34  f = 35.731
+At iteration  35  f = 35.731
+At iteration  36  f = 35.731
+At iteration  37  f = 35.731
+At iteration  38  f = 35.731
+At iteration  39  f = 35.731
+At iteration  40  f = 35.731
+At iteration  41  f = 35.731
+At iteration  42  f = 35.731
+At iteration  43  f = 35.731
+At iteration  44  f = 35.731
+At iteration  45  f = 35.731
+At iteration  46  f = 35.731
+At iteration  47  f = 35.731
+ F =
+[1] 35.731
+ Warning:  more than 10 function and gradient
+   evaluations in the last line search.  Termination
+   may possibly be caused by a bad search direction.
+Post processing for method  lbfgsb3 
+Successful convergence! 
+Compute Hessian approximation at finish of  lbfgsb3 
+Compute gradient approximation at finish of  lbfgsb3 
+Save results from method  lbfgsb3 
+$par
+[1] -1.35298  0.41650  0.99527
+
+$f
+[1] 35.731
+
+$convcode
+[1] 0
+
+$value
+[1] 35.731
+
+$fevals
+[1] 47
+
+$gevals
+[1] 47
+
+$nitns
+[1] 47
+
+$kkt1
+[1] FALSE
+
+$kkt2
+[1] TRUE
+
+$xtimes
+user.self 
+    0.041 
+
+Assemble the answers
+
+> summary(optall, order=value)
+              p1      p2      p3       value fevals gevals niter convcode  kkt1
+nmkb     -1.3522 0.41630 0.99527  3.5626e+01    231     NA    NA        0 FALSE
+bobyqa   -1.3540 0.41496 0.99527  3.5627e+01    252     NA    NA        0 FALSE
+Rvmmin   -1.3548 0.41459 0.99527  3.5650e+01     99     20    NA        3 FALSE
+nlminb   -1.3526 0.41630 0.99527  3.5660e+01     56     23    23        1 FALSE
+L-BFGS-B -1.3505 0.41836 0.99527  3.5727e+01     52     52    NA        0 FALSE
+lbfgsb3  -1.3530 0.41650 0.99527  3.5731e+01     47     47    47        0 FALSE
+spg      -1.3508 0.41814 0.99527  3.5732e+01    450     NA   405        0 FALSE
+Rcgmin        NA      NA      NA 8.9885e+307     NA     NA    NA     9999    NA
+Rtnmin        NA      NA      NA 8.9885e+307     NA     NA    NA     9999    NA
+hjkb          NA      NA      NA 8.9885e+307     NA     NA    NA     9999    NA
+         kkt2 xtimes
+nmkb       NA  0.036
+bobyqa   TRUE  0.020
+Rvmmin   TRUE  0.024
+nlminb   TRUE  0.010
+L-BFGS-B TRUE  0.012
+lbfgsb3  TRUE  0.041
+spg      TRUE  0.220
+Rcgmin     NA  0.009
+Rtnmin     NA  0.001
+hjkb       NA  0.002

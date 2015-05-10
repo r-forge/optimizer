@@ -6,6 +6,7 @@ with options(use.optimz=TRUE)
    i.e.
     if (!getOption("use.optimz",FALSE)) 
         message("using optim() from the optimz package")
+* optim: wrapper for optimx
 * add scaling to 'ufn'
 * send examples of bad Hessians to JN (BMB)
 * send examples of bad L-BFGS-B cases to JN (BMB)
@@ -16,9 +17,8 @@ with options(use.optimz=TRUE)
 * helper functions: DJM (proposal #1)
     - check when out of bounds
     - fix parameters
-* user-definable configuration
+* user-definable configuration -- optcfg object
 * bang on optimz and report problems (BMB)
-* optim: wrapper for optimx
     
 WOULD BE NICE
 
@@ -28,4 +28,8 @@ WOULD BE NICE
 * AD in R, or interfacing TMB?
 * optimizers with ability to call .External: DJM
 * check out plinear option for nls14
+* integrate dfoptim (nmkb, hjkb) into optimz, possibly BB package) JN
+* setup of fn, gr, hess -- some methods always want fn/gr together.
+   It could be sensible to NOT have separate gr and hess functions.
+   How to integrate existing methods?    JN
 

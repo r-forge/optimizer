@@ -36,27 +36,54 @@ I am thinking about this as if the objects are implemented in S3, but
 this proposal is preliminary, so all of the suggestions are tentative,
 including the form of the objects.
 
-Fields in the object:
+The current idea is that there should be two kinds of objects:  
+`objectiveFn` objects which represent an objective function to optimize,
+and `optimization` objects which represent an optimization problem, including
+the objective function, strategy for optimizing, and a record of what
+has been attempted so far.
 
-* `par`:  A vector of named parameter values, used to initialize the optimizer.
-* `fn`:   A function with signature `f(par, ...)`: the objective function
+We distinguish between two views of the objective function:  the user's view, and
+the optimizer's view.  For example, the user may have a function of 5 variables,
+but wish to fix two of them, so the optimizer's view is of a function of
+3 variables.  Or the user may have a partially linear model, so the 
+nonlinear optimizer only needs to modify the nonlinear parameters, and the 
+linear parameters can then by estimated by linear regression.
+
+## The optimization object
+
+Fields in the optimization object.  These are modelled on the arguments
+to the `stats::optim` function; other optimizers may need others, so 
+these can change.
+
+* `par`:  A vector of parameter values, used to initialize the optimizer.
+* `fn`:   An objective function object.
 * `methods`:  A vector of names of optimization methods to try.
-
-Optional fields:
-
-* `gr`:   An optional field to compute the gradient.
 * `lower`, `upper`:  Bounds on the allowable range of the parameters.
+* `control`:  A list of control parameters.
+* `hessian`:  An indicator of whether to compute the Hessian matrix.
+* `dots`:  A list of other parameters to pass to the objective function.
 * `results`:  A list of results of previous attempts.
-* `transform`: A transformation to the arguments. This
-converts the `par` vector to a more convenient form, or inverts that transformation,
-functions that evaluate the objective or gradient in the more convenient
-form, etc.  The underlying optimizer will only see the convenient form, but 
-the results that are returned will be translated back to the user specified form.
-Examples would include fixing some parameters for profiling, 
-forcing several parameters to be
-functions of a single underlying one (e.g. optimizing `f(x=s, y=s)` over `s`),
-or partially linear models, or functions to plot the
-current state every `n` evaluations.
+
+The `lower`, `upper`, `control`, and `hessian` arguments can be lists, 
+with entries corresponding to the matching entry in `methods`.  Currently
+these are named with matching names to methods, but perhaps this should
+be done as a vector, so the same method can be included multiple times
+with different `control` values.  
+
+
+## The objectiveFn object
+
+This object contains the following functions.  Typically they would share
+an environment where other data could be stored.
+
+* `fn0`:  A `function(par, ...)` which is the
+   user's view of the function.
+* `fn1`:  A `function(par1, ...)` which is the 
+   optimizer's view of the function.
+* `gr0` and `gr1`:  Corresponding functions to compute the gradients.
+* `forward`: A `function(par)` that converts `par` to `par1`.
+* `inverse`: A `function(par1)` that converts `par1` to `par`.
+
 
 # Prototype
 
@@ -64,22 +91,34 @@ This is the kind of thing I am thinking of.  This only supports `optim`; the
 real thing needs to be much more elaborate.
 
 ```{r}
+
+simpleObjective <- function(fn, gr = NULL) {
+  identity <- function(par) par
+  structure(list(fn0 = fn, fn1 = fn, gr0 = gr, gr1 = gr, 
+  	         forward = identity, inverse = identity),
+  	    class = "objectiveFn")
+}
+
 optimization <- function(par, fn, gr = NULL, ...,
       methods = knownMethods,
       lower = -Inf, upper = Inf,
-      control = list(), hessian = FALSE, transform = NULL) {
+      control = list(), hessian = FALSE) {
+	
+    if (!inherits(fn, "objectiveFn"))
+      fn <- simpleObjective(fn, gr)
+    
     knownMethods <- c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN",
                  "Brent") 
-    if (!is.null(transform)) 
-      transform$setfn(fn, gr)
-    result <- list(par = par, fn = fn, gr = gr, 
+    
+    result <- list(par = par, fn = fn,  
     	           dots = list(...), lower = lower, upper = upper,
-    	           control = control, hessian = hessian, 
-    	           transform = transform)
+    	           control = control, hessian = hessian)
+    
     if (!missing(methods))
       result$methods <- match.arg(methods, knownMethods, several.ok = TRUE)
     else
       result$methods <- knownMethods[1]
+    
     structure(result, class = "optimization")
 }
 
@@ -95,8 +134,10 @@ print.optimization <- function(x, ...) {
 run.optimization <- function (x, verbose = TRUE) {
   if (is.null(x$runs))
     x$runs <- list()
+  
   if (is.null(x$value))
-    x$value <- do.call(x$fn, c(list(x$par), x$dots))
+    x$value <- do.call(x$fn$fn0, c(list(x$par), x$dots))
+  
   for (method in x$methods) {
     args <- unclass(x)
     args$method <- method
@@ -104,34 +145,29 @@ run.optimization <- function (x, verbose = TRUE) {
     args$runs <- NULL
     args$value <- NULL
     args$dots <- NULL
-    args$transform <- NULL
+    args$par <- x$fn$forward(args$par)
+    args$gr <- x$fn$gr1
+    args$fn <- x$fn$fn1
+    
     if (is.list(args$lower)) {
-    	args$lower <- args$lower[[method]]
+    	args$lower <- x$lower[[method]]
         if (is.null(args$lower)) 
           args$lower <- -Inf
     }
     if (is.list(args$upper)) {
-    	args$upper <- args$upper[[method]]
+    	args$upper <- x$upper[[method]]
     	if (is.null(args$upper))
     	  args$upper <- Inf
     }
     if (is.list(args$control) && all(names(args$control) %in% x$methods)) {
-    	args$control <- args$control[[method]]
+    	args$control <- x$control[[method]]
     	if (is.null(args$control))
     	  args$control <- list()
     }
     if (is.list(args$hessian)) {
-    	args$hessian <- args$hessian[[method]]
+    	args$hessian <- x$hessian[[method]]
     	if (is.null(args$hessian))
     	  args$hessian <- FALSE
-    }
-    if (!is.null(x$transform)) {
-    	args$par <- x$transform$forward(args$par)
-    	args$lower <- x$transform$forward(rep(args$lower, length=length(x$par)))
-    	args$upper <- x$transform$forward(rep(args$upper, length=length(x$par)))
-    	args$fn <- x$transform$fn1
-    	if (!is.null(x$gr)) 
-    	  args$gr <- x$transform$gr1
     }
     if (verbose)
         cat("Trying method = '", method, "'\n", sep = "")
@@ -139,9 +175,7 @@ run.optimization <- function (x, verbose = TRUE) {
     x$runs <- c(x$runs, list(run))
     if (run$value < x$value) {
     	x$value <- run$value
-    	x$par <- run$par
-    	if (!is.null(x$transform))
-    	  x$par <- x$transform$inverse(x$par)
+    	x$par <- x$fn$inverse(run$par)
     	if (verbose) {
     	  cat("  ")
     	  print(x)
@@ -174,38 +208,46 @@ run.optimization(opt)
 Here's the same example, with a transform that fixes $y$ at the value 10.
 
 ```{r}
-fixparms <- function(parms) {
-  fn0 <- NULL
-  gr0 <- NULL
+fixparms <- function(parms, fn, gr = NULL) {
+  if (!inherits(fn, "objectiveFn"))
+    fn <- simpleObjective(fn, gr)
+  
+  fn0 <- fn$fn0
+  gr0 <- fn$gr0
+  
   unfixed <- is.na(parms)
-  setfn <- function(fn, gr = NULL) {
-    fn0 <<- fn
-    gr0 <<- gr
-  }
+  
   forward <- function(par) {
     par[unfixed]
   }
+  
   inverse <- function(par1) {
     result <- parms
     result[unfixed] <- par1
     result
   }
+  
   fn1 <- function(par1, ...) fn0(inverse(par1), ...)
-  gr1 <- function(par1, ...) gr0(inverse(par1), ...)[unfixed]
-  list(setfn = setfn, forward = forward, inverse = inverse, fn1 = fn1, gr1 = gr1)
+  if (is.null(gr0)) 
+    gr1 <- NULL
+  else
+    gr1 <- function(par1, ...) gr0(inverse(par1), ...)[unfixed]
+  
+  structure(list(fn0 = fn0, gr0 = gr0, fn1 = fn1, gr1 = gr1, 
+       forward = forward, inverse = inverse),
+            class = "objectiveFn")
 }
 
 opt <- optimization(par = c(x = -2, y = 10), 
-		    fn = fn, methods=c("SANN", "Brent", "BFGS"), 
+		    fn = fixparms(c(NA, 10), fn), 
+		    methods=c("SANN", "Brent", "BFGS"), 
 		    lower = list(Brent = -5), 
-		    upper = list(Brent = 100), 
-		    transform = fixparms(c(NA, 10)),
+		    upper = list(Brent = 100),
 		    control=list(maxit=20))
 run.optimization(opt)
 ```
 
 # What else?
 
-* It should be possible to compose transformations
 * We should have more examples of transformations
 * More optimization methods should be supported

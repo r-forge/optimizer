@@ -90,6 +90,8 @@ an environment where other data could be stored.
 This is the kind of thing I am thinking of.  This only supports `optim`; the
 real thing needs to be much more elaborate.
 
+## Code for methods
+
 ```{r}
 
 simpleObjective <- function(fn, gr = NULL) {
@@ -189,6 +191,8 @@ run.optimization <- function (x, verbose = TRUE) {
 }
 ```
 
+## Simple example
+
 Here we try it to optimize the function $(x-1)^2 + (x-y-3)^4 + 0.0001*(y-4)^4 + 1$.  I use methods SANN followed by Nelder-Mead with a limit of 20 iterations,
 just so that the problem doesn't get optimized in the very first try.
 ```{r}
@@ -204,6 +208,8 @@ opt <- run.optimization(opt)
 opt <- run.optimization(opt)
 run.optimization(opt)
 ```
+
+## Profiling example
 
 Here's the same example, with a transform that fixes $y$ at the value 10.
 
@@ -247,7 +253,59 @@ opt <- optimization(par = c(x = -2, y = 10),
 run.optimization(opt)
 ```
 
+## Tracing example
+
+This example traces all calls to `fn0`, `fn1` and the gradients:
+```{r}
+tracer <- function(fn, gr = NULL) {
+  if (!inherits(fn, "objectiveFn"))
+    fn <- simpleObjective(fn, gr)
+  fn0 <- function(par, ...) {
+    value <- fn$fn0(par, ...)
+    cat("fn0(", paste(format(par), collapse=","), ") = ", 
+        format(value), "\n", sep="")
+    value
+  }
+  fn1 <- function(par1, ...) {
+    value <- fn$fn1(par1, ...)
+    cat("fn1(", paste(format(par1), collapse=","), ") = ", 
+        format(value), "\n", sep="")
+    value
+  }
+  if (is.null(fn$gr0))
+    gr0 <- NULL
+  else
+    gr0 <- function(par, ...) {
+      value <- fn$gr0(par, ...)
+      cat("gr0(", paste(format(par), collapse=","), ") = (", 
+        paste(format(value), collapse = ","), ")\n", sep="")
+      value
+    }
+  if (is.null(fn$gr1))
+    gr1 <- NULL
+  else
+    gr1 <- function(par, ...) {
+      value <- fn$gr1(par, ...)
+      cat("gr1(", paste(format(par), collapse=","), ") = (", 
+        paste(format(value), collapse = ","), ")\n", sep="")
+      value
+    }
+  structure(list(fn0 = fn0, gr0 = gr0, fn1 = fn1, gr1 = gr1, 
+       forward = fn$forward, inverse = fn$inverse),
+            class = "objectiveFn")
+}
+
+opt <- optimization(par = c(x = -2, y = 10), 
+		    fn = tracer(fixparms(c(NA, 10), fn)), 
+		    methods=c("SANN", "Brent", "BFGS"), 
+		    lower = list(Brent = -5), 
+		    upper = list(Brent = 100),
+		    control=list(maxit=20))
+run.optimization(opt)
+```
+
 # What else?
 
 * We should have more examples of transformations
 * More optimization methods should be supported
+* Need to handle the Hessian

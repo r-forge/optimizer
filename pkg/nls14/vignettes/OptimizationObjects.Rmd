@@ -530,6 +530,14 @@ opt <- optimization(par = c(x = -2, y = 10),
 run.optimization(opt)
 ```
 
+JN: In the above, it took me a while to realize that the lower and upper bounds
+only applied to x and only in the Brent problem. How would we specify bounds on parameters
+3983 and 4587 in a 10000 parameter problem over spg, Rcgmin and Rtnmin where these parameters
+have different ranges? What happens if par=c(NA, 10) and fixparms(c(NA,8))? Which fixed value
+takes precedence. I'm being picky, but we want to make sure things are really clear. I actually
+like the fixparms() layout. It may be awkward to code, but something like 
+   fixparms(list(par[3214]=23, par[123]=.012)) could be easy to understand.
+
 # Use cases  (JN)
 
 It is helpful to think about how the tools will be used.

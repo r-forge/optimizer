@@ -28,7 +28,9 @@ object should contain sufficient information about the optimization problem
 to allow choice of an optimizer and construction of defaults for all necessary 
 arguments for that optimizer.
 
-Thus   ans <- optimobj(myoptopject)            (JN:)
+Thus   
+
+     ans <- optimobj(myoptopject)            (JN:)
 
 The result `ans` should also be an optimization object.  In addition to the inputs, 
 the result should contain information about the outcome of the optimization 
@@ -51,7 +53,8 @@ the objective function, strategy for optimizing, and a record of what
 has been attempted so far.
 
 JN: Thus, 
-        anoptobj <- list(objectiveFn=myobjfn, optInputs=myoptinputs, optOut=NULL)
+
+     anoptobj <- list(objectiveFn=myobjfn, optInputs=myoptinputs, optOut=NULL)
 
 where the NULL gets replaced with "stuff". And maybe the name is unfortunate.
 
@@ -89,23 +92,23 @@ optInput
 
 optOut
 
-* `results`:  A list of results of previous attempts.
+* `results`:  A list of results of previous attempts. JN: It would be good to figure out
+the structure of this, especially how we deal with detail that a full trajectory would 
+entail.
 
 optStatus
 
 * various informational items that report whether
-
-   ** inputs are feasible, 
-   ** bounds are admissible (lower <= upper), 
-   ** or equal bounds converted to masks (fixed parameters)
-   ** parameter scaling not too "extreme"
-   ** gradient and possibly hessian functins test OK with approximations
+    * inputs are feasible, 
+    * bounds are admissible (lower <= upper), 
+    * or equal bounds converted to masks (fixed parameters)
+    * parameter scaling not too "extreme"
+    * gradient and possibly hessian functins test OK with approximations
 
 * Post solution checks on proposed solutions
-
-  -- kkt checks
-  -- axial search
-  -- others?
+    * kkt checks
+    * axial search
+    * others?
 
 
 The `lower`, `upper`, `control`, and `hessian` arguments can be lists, 
@@ -283,13 +286,6 @@ microbenchmark(lfgh)
 microbenchmark(afgh)
 
 ```
-
-
-
-
-
-
-
 
 
 # Prototype
@@ -527,12 +523,42 @@ opt <- optimization(par = c(x = -2, y = 10),
 		    fn = tracer(fixparms(c(NA, 10), fn)), 
 		    methods=c("SANN", "Brent", "BFGS"), 
 		    lower = list(Brent = -5), 
-		    upper = list(Brent = 100),
+		    upper = list(Brent = 10),
 		    control=list(maxit=20))
+#  JN: Brent is solving a different problem from SANN and BFGS
+#  as shown by forcing upper bound to 10
 run.optimization(opt)
 ```
 
+# Use cases  (JN)
 
+It is helpful to think about how the tools will be used.
+
+The existing `optimx()` function is designed to make it easy to run a suite of methods
+on a single problem. `optimx` also runs checks on the bounds, the nature of the input
+parameters, and the results of computing the gradient by the user's function as well
+as a numerical approximation. After finishing, the KKT tests are computed, and a table of
+results is available for display in several ways.
+
+`optimx` also envisages running a single polyalgorithm by taking the result parameters
+from the first listed method and starting the next method with these. It allows for 
+the number of "iterations" in each method to be specified separately. An issue is that
+"iterations", "functions" and "gradients" are not entirely parallel measures of effort, 
+while methods vary by their particular controls.
+
+A use-case that is not currently available is the comparison of several polyalgorithms.
+For example, we may have two methods, labelled A and B. It would be useful to
+be able to compare different orderings and different levels of effort within each method.
+Using "iterations" as our measure of effort, we might want to run 10 A, then 100 B and
+compare to 100 A, then 10 B, or 100 B then 10 A.
+
+## Problem specification
+
+The last use-case above raises the question of how to instruct R to run the polyalgorithms
+and, especially, how to report and compare the results. It is not that it is particularly
+difficult -- the run.optimization() lets us do each stage of a polyalgorithm.  What is 
+awkward is providing a shorthand for a particular polyalgorithm so we can tabulate the
+results easily. 
 
 
 # What else?

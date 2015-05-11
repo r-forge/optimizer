@@ -11,6 +11,9 @@ output:
 These are notes describing a proposal for "optimization objects", a format
 to unify the inputs and outputs from optimization functions.
 
+Annotations: JN: means John Nash has commented. JN??: he has a query or wants 
+    comments. Similarly for other commentators.
+
 Currently base R has many different optimizers (`optim()`, `nls()`, `nlm()`, etc.)
 each with different strengths, but also each with different requirements for 
 inputs.  The `optimx` and `optimz` packages are an attempt to unify these
@@ -19,16 +22,21 @@ This proposal carries that unification further.
 
 # General Idea
 
-The `optimx()` function should accept as input an optimization object.  The
+The `optimx()` (JN: suggest `optimobj()` to avoid confusion for current packages) 
+function should accept as input an optimization object.  The
 object should contain sufficient information about the optimization problem
 to allow choice of an optimizer and construction of defaults for all necessary 
 arguments for that optimizer.
 
-The result should also be an optimization object.  In addition to the inputs, 
+Thus   ans <- optimobj(myoptopject)            (JN:)
+
+The result `ans` should also be an optimization object.  In addition to the inputs, 
 the result should contain information about the outcome of the optimization 
 attempt, and perhaps a history of previous attempts.  (There needs to be 
 some control over the level of detail here, but it should at least be possible
-to contain full trace information from previous attempts.)
+to contain (JN??: obtain. I think npar=25000 with full trace will blow most R
+installations. It gives a very interesting demo, as I discovered to my embarrassment,
+of the swap disk going berserk.) full trace information from previous attempts.)
 
 # Details
 
@@ -42,6 +50,11 @@ and `optimization` objects which represent an optimization problem, including
 the objective function, strategy for optimizing, and a record of what
 has been attempted so far.
 
+JN: Thus, 
+        anoptobj <- list(objectiveFn=myobjfn, optInputs=myoptinputs, optOut=NULL)
+
+where the NULL gets replaced with "stuff". And maybe the name is unfortunate.
+
 We distinguish between two views of the objective function:  the user's view, and
 the optimizer's view.  For example, the user may have a function of 5 variables,
 but wish to fix two of them, so the optimizer's view is of a function of
@@ -49,26 +62,82 @@ but wish to fix two of them, so the optimizer's view is of a function of
 nonlinear optimizer only needs to modify the nonlinear parameters, and the 
 linear parameters can then by estimated by linear regression.
 
+JN: I'm very much in agreement with the spirit of this, and very much worried
+how difficult it will be to do nicely. Still, we've got to try.
+
+
 ## The optimization object
 
 Fields in the optimization object.  These are modelled on the arguments
 to the `stats::optim` function; other optimizers may need others, so 
 these can change.
 
-* `par`:  A vector of parameter values, used to initialize the optimizer.
+JN: I've reordered these
+
+objectiveFn
+
 * `fn`:   An objective function object.
-* `methods`:  A vector of names of optimization methods to try.
+
+optInput
+
+* `par`:  A vector of parameter values, used to initialize the optimizer.
+* `method`:  A vector of names of optimization methods to try. (JN: I use this singular for 
+   historical reasons -- i.e., optim(), but we could change it.)
 * `lower`, `upper`:  Bounds on the allowable range of the parameters.
-* `control`:  A list of control parameters.
-* `hessian`:  An indicator of whether to compute the Hessian matrix.
+* `control`:  A list of control parameters. (JN: This can be tricky to set up "nicely".)
 * `dots`:  A list of other parameters to pass to the objective function.
+
+optOut
+
 * `results`:  A list of results of previous attempts.
 
+optStatus
+
+* various informational items that report whether
+
+   ** inputs are feasible, 
+   ** bounds are admissible (lower <= upper), 
+   ** or equal bounds converted to masks (fixed parameters)
+   ** parameter scaling not too "extreme"
+   ** gradient and possibly hessian functins test OK with approximations
+
+* Post solution checks on proposed solutions
+
+  -- kkt checks
+  -- axial search
+  -- others?
+
+
 The `lower`, `upper`, `control`, and `hessian` arguments can be lists, 
-with entries corresponding to the matching entry in `methods`.  Currently
+with entries corresponding to the matching entry in `method`.  Currently
 these are named with matching names to methods, but perhaps this should
 be done as a vector, so the same method can be included multiple times
 with different `control` values.  
+
+JN: The default control list is now about a page long. Many controls are common.
+However, it is important for "follow-on" cases as Duncan's example below suggests
+(optimx already has this option, but the code is not as clean as I'd like.) Because
+of the complexity the use of lists here involves, I believe we need to think 
+carefully how we set up computations. The examples provide some suggestions, and 
+we can use more to help us understand what would work well. 
+
+JN: I regard different bounds as defining different problems. So I think `lower` and 
+`upper` should only appear once. 
+
+JN: Computing the Hessian is VERY expensive when npar gets large. I'd suggest that
+it should only be calculated for the "best" result unless the user takes special steps. 
+The user has the option of 
+calling optimHess() in current optim(). It is actually poorly documented there, and
+I'd argue for a documentation patch. We may also want to prepare a function that
+computes it and puts the result in the right place in the optOut list.
+
+JN: A confusion issue is that hessian is a LOGICAL input and a MATRIX output. This
+could be unimportant if we use the optInput and optOut categories.
+
+JN: Duncan's example, as I note below is a follow-on polyalgorithm. Sometimes this
+is what we want. Other times we want to compare methods. So we are trying to do two
+different things with the list of methods, and this gets us into trouble, especially
+when we need separate controls for each of the components of a polyalgorithm.
 
 
 ## The objectiveFn object
@@ -81,8 +150,146 @@ an environment where other data could be stored.
 * `fn1`:  A `function(par1, ...)` which is the 
    optimizer's view of the function.
 * `gr0` and `gr1`:  Corresponding functions to compute the gradients.
+* `hess0` and `hess1` JN??
 * `forward`: A `function(par)` that converts `par` to `par1`.
 * `inverse`: A `function(par1)` that converts `par1` to `par`.
+
+
+## Notes on the objectiveFn object
+
+JN: My experience is that it's (a lot) easier to work with the original length parameter
+vector. Yes, the function has fewer true parameters, but the transformation is 
+tedious and error prone. It is fairly straightforward for the software to deal 
+with the loss of dimensionality, since a "mask" that has 0 in each place where
+the parameter is fixed and 1 elsewhere will project the change vector appropriately.
+This is used in the bounded methods as the parameters move and hit and leave bounds.
+The transformation on each iteration would be very onerous. Since we already have
+a structure for masking the constrained parameters, adding fixed parameters is
+relatively straightforward.
+
+Issue: You DO need to know the dimensionality internally. ntrue = 0 is 
+trivial -- no work. ntrue = 1 can mess up some algorithms e.g., conjugate gradients. 
+I suspect Nelder-Mead will do silly things too. However, we use a hyperbolic
+transformation to do bounds in nmkb, but Rcgmin, Rvmmin and Rtnmin all use index
+vectors and seem to manage the dimensionality when they hit upper or lower bounds,
+as these reduce dimensionality too. 
+  
+JN: A different "internal" function is one that minimizes to compute a maximum
+by multiplying user's objective by -1. There is also parameter scaling, and I
+believe that this could be made efficient by use of a scaling vector passed 
+through a local environment. This already exists in Rtnmin, as my brother
+used Matlab globals to pass historical points and function values and 
+gradients between internal routines. I believe it could be used more
+generally to hold useful information about the function.
+
+## Structure to deal with functions, gradients and Hessians
+
+`optim()` likes fn and gr as separate entities. However, it is quite common
+to find that the function and gradient code share a large proportion of their
+calculations, so having them separate is wasteful. However, three logical 
+controls in a special environment for optimz / nls14 could be getf, getg, 
+and geth. In optimx and optimz there are conditions so that in the following
+table, the top three possibilities are allowed and the bottom 5 are not.
+
+```
+       getf         getg         geth
+        T             T              T
+        T             T              F      
+        T             F              F
+      ================
+        T             F              T
+        F             T              F
+        F             T              T
+        F             F              T
+        F             F              F
+```
+
+Different optimization methods take different approaches. However, it is
+more common that one needs a new evaluation of the function AND gradient at
+a given set of parameters than just the gradient. Only in methods like 
+`trust` do we need function, gradient and Hessian. On the other hand, 
+there are plenty of times when even a gradient method will ask only for
+the function value. Less common is the need for gradient alone. Methods
+such as `Rtnmin` and `L-BFGS-B` always calculate function and gradient
+together.
+
+`nlm` can optionally compute the gradient and hessian
+as well as the function value, but puts the evaluated gradient and 
+hessian into attributes of the returned object, whereas `trust`
+returns them in a list.
+
+JN: I think the idea of a single R function with multiple returns is
+attractive, but we need to figure out which method is best.
+
+A simple example suggests a small difference in favour of the attribute
+approach:
+
+```{r}
+source("~/R-optimtest/testfnsR/grosenbrock/grose.R")
+grose.h <- function(x, gs){
+  return(NULL)
+}
+lfn <- function(x, ...){ # list based function
+    fv <- grose.f(x, ...)
+    gv <- grose.g(x, ...)
+    hv <- grose.h(x, ...)
+    fgh <- list(value=fv, gradient=gv, hessia=hv)
+}
+afn <- function(x, ...){ # attribute based function
+    fv <- grose.f(x, ...)
+    gv <- grose.g(x, ...)
+    hv <- grose.h(x, ...)
+    attribute(fv,"gradient") <- gv
+    attribute(fv, "hessian") <- hv
+    fv
+}
+require(microbenchmark)
+xx<-rep(pi, 10)
+microbenchmark(lfn)
+microbenchmark(afn)
+
+
+afgh <- function(x)
+{
+    gr <- function(x1, x2)
+        c(-400*x1*(x2 - x1*x1) - 2*(1-x1), 200*(x2 - x1*x1))
+    h <- function(x1, x2) {
+        a11 <- 2 - 400*x2 + 1200*x1*x1
+        a21 <- -400*x1
+        matrix(c(a11, a21, a21, 200), 2, 2)
+    }
+    x1 <- x[1]; x2 <- x[2]
+    res<- 100*(x2 - x1*x1)^2 + (1-x1)^2
+    attr(res, "gradient") <- gr(x1, x2)
+    attr(res, "hessian") <- h(x1, x2)
+    return(res)
+}
+
+lfgh <- function(x)
+{
+    gr <- function(x1, x2)
+        c(-400*x1*(x2 - x1*x1) - 2*(1-x1), 200*(x2 - x1*x1))
+    h <- function(x1, x2) {
+        a11 <- 2 - 400*x2 + 1200*x1*x1
+        a21 <- -400*x1
+        matrix(c(a11, a21, a21, 200), 2, 2)
+    }
+    x1 <- x[1]; x2 <- x[2]
+    res<- 100*(x2 - x1*x1)^2 + (1-x1)^2
+    lfgh <- list(value=res, gradient=gr, hessian=h)
+}
+
+microbenchmark(lfgh)
+microbenchmark(afgh)
+
+```
+
+
+
+
+
+
+
 
 
 # Prototype
@@ -209,6 +416,27 @@ opt <- run.optimization(opt)
 run.optimization(opt)
 ```
 
+## Example showing polyalgorithm not necessarily smart
+
+```{r}
+fn <- function(arg) {
+  x <- arg[1]
+  y <- arg[2]
+  (x-1)^2 + (x-y-3)^4 + 0.0001*(y-4)^4 + 1
+}
+start <- c(x=0, y=10)
+start
+set.seed(12345) # REALLY IMPORTANT!
+a1s <- optim(start, fn, method="SANN", control=list(maxit=20))
+a1s
+a1n <- optim(start, fn, method="Nelder-Mead", control=list(maxit=20))
+a1n
+a1sn <- optim(a1s$par, fn, method="Nelder-Mead", control=list(maxit=20))
+a1sn
+```
+
+
+
 ## Profiling example
 
 Here's the same example, with a transform that fixes $y$ at the value 10.
@@ -303,6 +531,9 @@ opt <- optimization(par = c(x = -2, y = 10),
 		    control=list(maxit=20))
 run.optimization(opt)
 ```
+
+
+
 
 # What else?
 

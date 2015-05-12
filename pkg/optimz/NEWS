@@ -5,6 +5,13 @@ TODO
       o Get rid of maximize in the main routines, and put in the setup. 
 	may need a genfn as well as gengr, genhess, ...
 
+      o optimz::optim() to run individual methods and return the optim()
+	structure. Use this to build a new optimx.run().
+	The structure has 
+           par, value, counts, convergence, message, hessian
+        Note: ?optim shows method as a vector, but trying more than 1
+        gives "Error in match.arg(method) : 'arg' must be of length 1"
+
       o use fnchk, gHgen (or maybe change names to chkfn, gengH to 
         create ugr, uhess and check the fn, then call these in 
         optimx.setup(). Export the components so that they can be 

@@ -1,50 +1,15 @@
-optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf, 
-            method=NULL, itnmax=NULL, hessian=FALSE,
-            ctrl, ...) {
-# ?? change all defaults to be brought in from outside -- should have method=NULL here
+optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf, 
+            method=NULL, control=list(), hessian=FALSE, ...) {
 
-# Run methods
-  have.bounds<-ctrl$have.bounds
-  ctrl$have.bounds<-NULL ## or we get errors in optim()
-  npar<-length(par)
-## 131027 -- ?? do we need this or can we move to setup or check?
+# ?? should have method=NULL here
+# The structure has   par, value, counts, convergence, message, hessian
+
+# Run a single method
+## ?? check have.bounds?? or do again??
+## 131027 ?? needed or in setup
   if (length(lower) == 1) lower<-rep(lower,npar)
   if (length(upper) == 1) upper<-rep(upper,npar)
 ## end 131027
-  nmeth<-length(method)
-  pstring<-names(par)
-  if (is.null(pstring)) {
-    pstring <- NULL
-    for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
-  }  
-  cnames <- c(pstring, "value", "fevals", "gevals", "niter", "convcode", "kkt1", "kkt2", "xtimes")
-  ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+8)
-  colnames(ans.ret)<-cnames
-  row.names(ans.ret)<-method
-  ans.details <- list()
-  ansout <- NULL # ensure NULL if we have no parameters or no successes
-  numgrad<-FALSE
-  # 130924 -- need to fix -- some methods can handle null gradient
-  for (i in 1:nmeth) { # loop over the methods
-      meth <- method[i] # extract the method name
-      conv <- -1 # indicate that we have not yet converged
-      # 20100608 - take care of polyalgorithms
-      if (! is.null(itnmax) ) {
-	if (length(itnmax) == 1) {ctrl$maxit <- itnmax} # Note we will execute this FIRST
-        else {if (length(itnmax) != nmeth) { 
-		stop("Length of itnmax =",length(itnmax)," but should be ",nmeth) }
-              else { ctrl$maxit<-itnmax[i] }
-        }
-        if (ctrl$follow.on && (ctrl$trace>0)) cat("Do ",ctrl$maxit," steps of ")
-      }
-      if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
-      # Extract control information e.g., trace
-      # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
-      # create local control list for a single method -- this is one of the key issues for optimx
-      # 20140902 big change for mcontrol -- start NULL and then sort out for each method
-      mcontrol <- NULL
-      # not used in any methods -- it is here for the scale check of parameters and bounds above
-      ans.ret[i, "value"] <- .Machine$double.xmax # to ensure defined for sort
 # Methods from optim()
       if (meth == "SANN") stop("SANN is not permitted within optimx") # 20140902
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG") {
@@ -56,24 +21,16 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                 method=meth, control=mcontrol, ...), silent=TRUE))[1]
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
-        if (class(ans)[1] != "try-error") { 
-                ans$convcode <- ans$convergence
-                ans$convergence <- NULL
-		#      convergence: An integer code. '0' indicates successful convergence.
-#                if (meth=="SANN") ans$convcode = 1 # always the case for SANN (but it reports 0!)
-	        ans$fevals<-ans$counts[1] # save function and gradient count information
-	        ans$gevals<-ans$counts[2]
-        	ans$counts<-NULL # and erase the counts element now data is saved
-	} else { # bad result -- What to do?
-		ans<-list(fevals=NA) # ans not yet defined, so set as list
-                ans$convcode<-9999 # failed in run
-		if (ctrl$trace>0) cat("optim function evaluation failure\n")
+        if (class(ans)[1] == "try-error") { # bad result -- What to do?
+		ans<-list() # ans not yet defined, so set as list
+                ans$convergence <- 9999 # failed in run
+		if (ctrl$trace>0) cat("optim method failure\n")
 		ans$value <- ctrl$badval
 		ans$par<-rep(NA,npar)
-	        ans$fevals<-NA # save function and gradient count information
-	        ans$gevals<-NA
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA # save function and gradient count information
+	        ans$message <- NULL
         }
-      	ans$nitns<-NA # not used
       }   # end if using optim() methods
 ## --------------------------------------------
       else if (meth == "nlminb") {

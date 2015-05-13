@@ -45,14 +45,60 @@ any parameter that is fixed or MASKED for the duration of the optimization.
 
 Note that the function ``bmchk()`` in packages ``optimx`` and ``optimz`` contains a much more
 extensive examination of the bounds on parameters. In particular, it considers the issues of 
-when to convert a pair of bounds  where upper["parameter"] - lower["parameter"] < tol to a
+inadmissible bounds (lower > upper), when to convert a pair of bounds  
+where upper["parameter"] - lower["parameter"] < tol to a
 fixed or masked parameter (`maskadded`) and whether parameters outside of bounds should be
-moved to the nearest bound (`parchanged`).
+moved to the nearest bound (`parchanged`). It may be useful to use **inadmissible** to refer
+to situations where a lower bound is higher than an upper bound and **infeasible** where
+a parameter is outside the bounds.
 
 ## Examples of use
 
 ?? put them in
 
+```{r}
+require(Rvmmin)
+sq<-function(x){
+   nn<-length(x)
+   yy<-1:nn
+   f<-sum((yy-x)^2)
+#   cat("Fv=",f," at ")
+#   print(x)
+   f
+}
+sq.g <- function(x){
+   nn<-length(x)
+   yy<-1:nn
+   gg<- 2*(x - yy)
+}
+xx <- c(.3, 4)
+uncans <- Rvmmin(xx, sq, sq.g)
+uncans
+mybm <- c(0,1) # fix parameter 1
+cans <- Rvmmin(xx, sq, sq.g, bdmsk=mybm)
+cans
+require(nls14)
+weed <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
+   38.558, 50.156, 62.948, 75.995, 91.972)
+ii <- 1:12
+wdf <- data.frame(weed, ii)
+weedux <- nls14xb(weed~b1/(1+b2*exp(-b3*ii)), start=c(b1=200, b2=50, b3=0.3)) 
+weedux
+weedcx <- nls14xb(weed~b1/(1+b2*exp(-b3*ii)), start=c(b1=200, b2=50, b3=0.3), masked=c("b1")) 
+weedcx
+rfn <- function(bvec, weed=weed, ii=ii){
+  res <- rep(NA, length(ii))
+  for (i in ii){
+    res[i]<- bvec[1]/(1+bvec[2]*exp(-bvec[3]*i))-weed[i]
+  }
+  res
+}
+weeduf <- nls14fb(start=c(200, 50, 0.3),resfn=rfn,weed=weed, ii=ii)
+weeduf
+weedcf <- nls14fb(start=c(200, 50, 0.3),resfn=rfn,weed=weed, ii=ii, maskidx=c(1))
+weedcf
+
+```
 
 ## Internal structures
 
@@ -70,8 +116,27 @@ but during optimization in the presence of bounds, we can set other values. The 
 
 The -1 and -3 are historical, and arose in the development of BASIC codes for Nash J C and Walker-Smith M (1987)
 **Nonlinear parameter estimation: and integrated system in BASIC** New York: Dekker. Now available for free download
-from archive.org. (?? put in URL). In particular, adding 2 gives 1 for an upper bound and -1 for a lower bound, 
+from archive.org. (https://archive.org/details/ost-engineering-jnmws2004). 
+In particular, adding 2 gives 1 for an upper bound and -1 for a lower bound, 
 simplifying the expression to decide if an optimization trial step will move away from a bound.
 
 # Proposed approaches
+
+Because masks (fixed parameters) reduce the dimensionality of the optimization problem, we can consider
+modifying the problem to the lower dimension space. This is Duncan's suggestion, using 
+
+*  `fn0(par0)` to be the initial user function of the full dimension parameter vector `par0`
+*  `fn1(par1)` to be the reduced or internal functin of the reduced dimension vector `par1`
+*  `par1 <- forward(par0)`
+*  `par0 <- inverse(par1)`
+
+The major advantage of this approach is explicit dimension reduction. The main disadvantage
+is the effort of transformation at every step of an optimization.
+
+An alternative is to use the `bdmsk` vector to **mask** the optimization search or adjustment vector, 
+including gradients and (approximate) Hessian matrices. A 0 element of `bdmsk` "multiplies" any 
+adjustment. The principal difficulty is to ensure we do not essentially divide by zero in applying
+any inverse Hessian. This approach avoids `forward`, `inverse` and `fn1`. However, it may hide the
+reduction in dimension, and caution is necessary in using the function and its derived gradient,
+Hessian and derived information.
 

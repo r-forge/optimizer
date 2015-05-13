@@ -1,0 +1,77 @@
+---
+title: "Specifying Fixed Parameters"
+author: "John Nash"
+output:
+  rmarkdown::html_vignette:
+    toc: yes
+---
+
+# Motivation
+
+In finding optimal parameters in nonlinear optimization and nonlinear 
+least squares problems, we frequently wish to fix one or more parameters
+while allowing the rest to be adjusted to explore or optimize an objective 
+function. 
+
+This vignette discusses some ideas about specifying the fixed parameters. A 
+lot of the material is drawn from Nash J C (2014) **Nonlinear parameter 
+optimization using R tools** Chichester UK: Wiley, in particular chapters
+11 and 12.
+
+# Background
+
+Here are some of the ways fixed parameters may be specified in R packages.
+
+From `nls14xb`
+
+masked  
+
+Character vector of quoted parameter names. These parameters will NOT be altered by the algorithm.
+
+From `nls14fb`
+
+maskidx  
+
+?? This needs to be changed to use names!?? Vector if indices of the parameters to be masked. 
+These parameters will NOT be altered by the algorithm. Note that the mechanism here is different 
+from that in nlxb which uses the names of the parameters.
+
+From `Rvmmin` and `Rcgmin`
+
+bdmsk  
+
+An indicator vector, having 1 for each parameter that is "free" or unconstrained, and 0 for 
+any parameter that is fixed or MASKED for the duration of the optimization.
+
+Note that the function ``bmchk()`` in packages ``optimx`` and ``optimz`` contains a much more
+extensive examination of the bounds on parameters. In particular, it considers the issues of 
+when to convert a pair of bounds  where upper["parameter"] - lower["parameter"] < tol to a
+fixed or masked parameter (`maskadded`) and whether parameters outside of bounds should be
+moved to the nearest bound (`parchanged`).
+
+## Examples of use
+
+?? put them in
+
+
+## Internal structures
+
+`bdmsk` is the internal structure used in `Rcgmin` and `Rvmmin` to handle bounds constraints as well as masks.
+There is one element of `bdmsk` for each parameter, and in `Rcgmin` and `Rvmmin`, this is used on input to 
+specify parameter i as fixed or masked by setting `bdmsk[i] <- 0`. Free parameters have their `bdmsk` element 1,
+but during optimization in the presence of bounds, we can set other values. The full set is as follows
+
+* 1 for a free or unconstrained parameter
+* 0 for a masked or fixed parameter
+* -0.5 for a parameter that is out of bounds high (> upper bound)
+* -1 for a parameter at its upper bound
+* -3 for a parameter at its lower bound
+* -3.5 for a parameter that is out of bounds low (< lower bound)
+
+The -1 and -3 are historical, and arose in the development of BASIC codes for Nash J C and Walker-Smith M (1987)
+**Nonlinear parameter estimation: and integrated system in BASIC** New York: Dekker. Now available for free download
+from archive.org. (?? put in URL). In particular, adding 2 gives 1 for an upper bound and -1 for a lower bound, 
+simplifying the expression to decide if an optimization trial step will move away from a bound.
+
+# Proposed approaches
+

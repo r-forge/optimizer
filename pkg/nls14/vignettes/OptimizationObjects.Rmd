@@ -22,7 +22,8 @@ This proposal carries that unification further.
 
 # General Idea
 
-The `optimx()` (JN: suggest `optimobj()` to avoid confusion for current packages) 
+The `optimx()` (JN: suggest `optimobj()` or other different name 
+to avoid confusion for current packages) 
 function should accept as input an optimization object.  The
 object should contain sufficient information about the optimization problem
 to allow choice of an optimizer and construction of defaults for all necessary 
@@ -129,9 +130,10 @@ JN: I regard different bounds as defining different problems. So I think `lower`
 
 JN: Computing the Hessian is VERY expensive when npar gets large. I'd suggest that
 it should only be calculated for the "best" result unless the user takes special steps. 
-The user has the option of 
-calling optimHess() in current optim(). It is actually poorly documented there, and
-I'd argue for a documentation patch. We may also want to prepare a function that
+The user has the option of calling optimHess() in current optim(). 
+It is actually documented there, but I think too succinctly, and
+I'd argue for a documentation patch, or at least an example. 
+We may also want to prepare a function that
 computes it and puts the result in the right place in the optOut list.
 
 JN: A confusion issue is that hessian is a LOGICAL input and a MATRIX output. This
@@ -566,7 +568,7 @@ The last use-case above raises the question of how to instruct R to run the poly
 and, especially, how to report and compare the results. It is not that it is particularly
 difficult -- the run.optimization() lets us do each stage of a polyalgorithm.  What is 
 awkward is providing a shorthand for a particular polyalgorithm so we can tabulate the
-results easily. 
+results easily, and then the tedium of gathering these results and displaying them. 
 
 
 # What else?
@@ -574,3 +576,45 @@ results easily.
 * We should have more examples of transformations
 * More optimization methods should be supported
 * Need to handle the Hessian
+
+# Attempt at a design
+
+The following is intended to help drive the coding as at 2015-5-14.
+
+## Top level functions
+
+These are the functions that are likely called by the user, though some others
+will be *export*ed.
+
+*  optstart() 
+    - Create the local oe2015 environment (JN??: Is this name sufficiently unique, or
+        should we use a timestamp and save the name. At the moment I prefer the simple
+        name, as it lets power users employ the content of the environment, which is
+        still to be defined.)
+*  makeufn()   
+    - using **maximize**, fn, gr, hess, parscale, set up a ufn() object for use by optimization routines
+    - output ufn() (JN??: Other name choices? e.g., ofn())
+*  makeoptobj
+    - create the optimization object
+    - contents of this object need to be delineated
+*  setoptctrl()  (JN??: currently ctrldefault())    
+    - Called with no argument, sets overall / general defaults for things like trace, dowarn, etc.
+    - Called with `method=methname`, where `methname` is a character string for a single method,
+      sets default controls for that method.
+    - output is a list
+    - JN: we might try `control=list(SANN:temp=34)` to set specific method controls. A small test using
+      `pmatch()` and `names(control)` shows this to be feasible, but some care may be needed to make it
+      work efficiently and in a way that can be easily maintained. I've found that getting controls 
+      even a little wrong (and not checking them) can give bugs that are annoyingly difficult to track
+      down. 
+    - This mechanism lets us override general controls e.g., maxit, for particular methods, for example,
+      in the "simple example" above, we might want `maxit=20` for Nelder-Mead and `maxit=1000` for SANN.
+*  optxsetup()
+    - Intended to call some of the routines above and ensure that inputs are sane
+    - we could make this common for `optim()` and `optimx()` and `run.optimization()`,but would need to take
+    care with the different options and multiple methods for optimx.
+*  optcheck()
+    - verify bounds are admissible
+    - check parameters are feasible (within bounds, or else moved to bounds)
+    
+    

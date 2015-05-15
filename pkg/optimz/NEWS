@@ -37,7 +37,9 @@ TODO
         Also no control of function or gradient max. -- Always f&g 
 	computed together (tn may be like this too??).
 
-      o The bdmsk vector is set clumsily for Rvmmin.
+      o Rvmmin: The bdmsk vector is set clumsily for Rvmmin.
+        Also need to adjust documentation for maxit/maxfevals.
+        Some controls could be dropped!
 
       o Where should input checks be done? We should be able to leave them
 	out more easily to make code more efficient.

@@ -2,9 +2,13 @@
 ## This file contains support routines (methods) for various functions in 
 ## the optimz package
 ##################################################################
-ctrldefault <- function(npar) {
-   ## These are DEFAULTS. They may be nonsense in some contexts.
-    ctrl.default <- list(
+ctrldefault <- function(npar) { ## setoptctrl is new name
+#   possmeths <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "SANN", "nlm", 
+#	"nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",
+#	"spg", "ucminf", "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
+
+     ## These are DEFAULTS. They may be nonsense in some contexts.
+      ctrl.default <- list(
         acctol = 0.0001, 
 	all.methods = FALSE,
 	badval = (0.5)*.Machine$double.xmax,
@@ -34,7 +38,7 @@ ctrldefault <- function(npar) {
         tol = 0, 
 	trace = 0,
         usenumDeriv = FALSE
-    ) 
+      )
 }
 ##################################################################
 summary.optimx <- function(object, order = NULL, par.select = TRUE, ...) {

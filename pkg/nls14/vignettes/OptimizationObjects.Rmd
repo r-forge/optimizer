@@ -597,7 +597,12 @@ will be *export*ed.
 *  makeoptobj
     - create the optimization object
     - contents of this object need to be delineated
-*  setoptctrl()  (JN??: currently ctrldefault())    
+*  setoptctrl()  (JN??: currently ctrldefault())  
+    - JN: I started to develop this, but after a couple of day's work/thinking, have decided
+      that it makes more sense to limit the controls to reasonable common ones. If people 
+      really want to work with the details, they will need to call the original packages and
+      functions, or even dig into the code. For example, nlminb does not even properly define
+      two of the controls. 
     - Called with no argument, sets overall / general defaults for things like trace, dowarn, etc.
     - Called with `method=methname`, where `methname` is a character string for a single method,
       sets default controls for that method.
@@ -616,5 +621,16 @@ will be *export*ed.
 *  optcheck()
     - verify bounds are admissible
     - check parameters are feasible (within bounds, or else moved to bounds)
+*  optmethcomp()
+    - current optimx() idea of comparing several methods for optimization and prepare results in a 
+      dataframe
+    - Calls   optmeth.setup
+              optcheck
+              optmeth.run  -- calls optim, or possibly its internal routines
+              optmeth.post -- does the post run kkt and related tests
+*  optim()
+   - Run a single method using a stats::optim() style of input and obtaining that structure output
+   - Do we want to call interface routines? Possibly not, or we get too many.
+   
     
     

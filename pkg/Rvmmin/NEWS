@@ -8,6 +8,10 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2015-06-03
+   o    Had "lower" instead of "upper" in one of the bounds checks.
+        Fixed.
+
 2015-05-03
    o    Check gradient count ig > 2 when doing convergence test.
 	Possible failure for test fn = sum(x*x) noted. However, 

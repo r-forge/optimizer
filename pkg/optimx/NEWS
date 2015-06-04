@@ -3,6 +3,10 @@ NEWS about R package optimx
 TODO
 
 
+VERSION 2015-06-03
+      o Added index to bstate in optimx.check.R to avoid unwanted 
+        elements in reporting bounds when trace > 0
+
 VERSION 2015-04-23
       o removed condition that made solution NA if gradient or function
         limits exceeded. Now returns parameters and function at the point

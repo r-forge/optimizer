@@ -124,7 +124,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
     if (is.null(control$checkbounds)) { control$checkbounds <- TRUE }
     if (is.null(bdmsk)) { bdmsk <- rep(1, npar) } # ensure we have bdmsk
     if ((length(lower) == 1) && (npar > 1) ) lower <- rep(lower, npar) 
-    if ((length(upper) == 1) && (npar > 1) ) lower <- rep(upper, npar)
+    if ((length(upper) == 1) && (npar > 1) ) upper <- rep(upper, npar) # fix 150604
     if (any(is.infinite(lower))) lower[which(is.infinite(lower))] <- -.Machine$double.xmax
     if (any(is.infinite(upper))) upper[which(is.infinite(upper))] <-  .Machine$double.xmax
     ### Check bounds feasible

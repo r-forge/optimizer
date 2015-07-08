@@ -1,0 +1,4 @@
+150708:
+
+- problems with saving to ans.ret[meth, ] for single method. Need to fix
+- Note that trace > 0 does not seem to be transferred to optim

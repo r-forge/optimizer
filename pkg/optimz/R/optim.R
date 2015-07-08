@@ -1,5 +1,5 @@
 optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf, 
-            method=NULL, control=list(), hessian=FALSE, ...) {
+            method=NULL, hessian=FALSE, control=list(), ...) {
 
 # ?? time not used in output -- make it an attribute of ans??
 # The structure has   par, value, counts, convergence, message, hessian
@@ -7,21 +7,22 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
 # Run a single method
 ## ?? check have.bounds?? or do again??
 ## 131027 ?? needed or in setup
+  npar <- length(par)
   if (length(lower) == 1) lower<-rep(lower,npar)
   if (length(upper) == 1) upper<-rep(upper,npar)
 ## end 131027
   mcontrol <- list() # define the control list
 # Methods from optim()
-      if (meth=="Nelder-Mead" || 
-          meth == "BFGS" || 
-          meth == "L-BFGS-B" || 
-          meth == "CG" || 
-          meth == "SANN") {
+      if (method=="Nelder-Mead" || 
+          method == "BFGS" || 
+          method == "L-BFGS-B" || 
+          method == "CG" || 
+          method == "SANN") {
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
         mcontrol$maxit <- control$maxit 
         mcontrol$trace <- control$trace
         time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
-                method=meth, hessian=hessian, control=mcontrol, ...), silent=TRUE))[1]
+                method=method, hessian=hessian, control=mcontrol, ...), silent=TRUE))[1]
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
         if (class(ans)[1] == "try-error") { # bad result -- What to do?
@@ -37,7 +38,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans) # to ensure we return
       }   # end if using optim() methods
 ## --------------------------------------------
-      else if (meth == "nlminb") {
+      else if (method == "nlminb") {
         # Here we use portLib routine nlminb rather than optim as our minimizer
         mcontrol$iter.max<-mcontrol$maxit # different name for iteration limit in this routine
         mcontrol$maxit<-NULL # and we null it out
@@ -71,7 +72,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using nlminb
 ## --------------------------------------------
-      else if (meth == "nlm") { # Use stats package nlm routine
+      else if (method == "nlm") { # Use stats package nlm routine
         if (!is.null(ugr)) { # ?? can ugr be null?
            tufn <- function(par, ...){
                f <- ufn(par, ...)
@@ -114,7 +115,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       } # end if using nlm
 ## --------------------------------------------
-      else if (meth == "spg") { # Use BB package routine spg as minimizer
+      else if (method == "spg") { # Use BB package routine spg as minimizer
         mcontrol$maximize <- NULL # Use external maximization approach
         mcontrol$maxit <- control$maxit
         mcontrol$maxfeval <- control$maxfeval
@@ -143,7 +144,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  # end if using spg
 ## --------------------------------------------
-      else if (meth == "ucminf") {
+      else if (method == "ucminf") {
         ## Use ucminf routine
         if (is.null(control$maxit)) { mcontrol$maxeval <- 500 }  # ensure there is a default value
         else { mcontrol$maxeval <- control$maxit}
@@ -184,7 +185,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using ucminf
 ## --------------------------------------------
-      else if (meth == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
+      else if (method == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
 	bdmsk <- bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
         mcontrol <- control
 	if (control$have.bounds) {
@@ -214,7 +215,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using Rcgmin
 ## --------------------------------------------
-      else if (meth == "Rtnmin") { # Use Rtnmin routines (ignoring masks)
+      else if (method == "Rtnmin") { # Use Rtnmin routines (ignoring masks)
 	if (control$trace>0) {mcontrol$trace <- TRUE } else {mcontrol$trace <- FALSE}
          tufn <- function(par, ...){
             f <- ufn(par, ...)
@@ -253,7 +254,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using Rtnmin
 ## --------------------------------------------
-      else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
+      else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
 	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
         mcontrol$maxit <- control$maxit
         mcontrol$maxfeval <- control$maxfeval
@@ -278,7 +279,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using Rvmmin
 ## --------------------------------------------
-      else if (meth == "bobyqa") {# Use bobyqa routine from minqa package
+      else if (method == "bobyqa") {# Use bobyqa routine from minqa package
   	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
         time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, 
@@ -305,7 +306,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using bobyqa
 ## --------------------------------------------
-      else if (meth == "uobyqa") {# Use uobyqa routine from minqa package
+      else if (method == "uobyqa") {# Use uobyqa routine from minqa package
 	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
 
@@ -332,7 +333,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using uobyqa
 ## --------------------------------------------
-      else if (meth == "newuoa") {# Use newuoa routine from minqa package
+      else if (method == "newuoa") {# Use newuoa routine from minqa package
         cat("Trying newuoa\n")
 	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
@@ -361,7 +362,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using newuoa
 ## --------------------------------------------
       else 
-      if (meth == "nmkb") {# Use nmkb routine from dfoptim package
+      if (method == "nmkb") {# Use nmkb routine from dfoptim package
         if (any(par == lower) || any(par==upper)) {
            if (control$trace>0) cat("nmkb cannot start if on any bound \n")
            warning("nmkb() cannot be started if any parameter on a bound")
@@ -416,7 +417,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
      }  ## end if using nmkb
 ## --------------------------------------------
       else 
-      if (meth == "hjkb") {# Use hjkb routine from dfoptim package
+      if (method == "hjkb") {# Use hjkb routine from dfoptim package
          if (control$trace > 0) {
             mcontrol$info <- TRUE # logical needed, not integer         
          } else { mcontrol$info <- FALSE }
@@ -453,7 +454,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using hjkb
 ## --------------------------------------------
       else 
-      if (meth == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
+      if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
         if (control$trace > 1) cat("lbfgsb3\n")
         mcontrol <- control
 #        mcontrol$maxfeval <- control$maxfeval
@@ -489,7 +490,7 @@ optim <- function(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using lbfgsb3
 ## --------------------------------------------
 # ---  UNDEFINED METHOD ---
-      else { errmsg<-paste("UNDEFINED METHOD: ", meth, sep='')
+      else { errmsg<-paste("UNDEFINED METHOD: ", method, sep='')
              stop(errmsg, call.=FALSE)
       }
 

@@ -3,6 +3,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             ctrl, ...) {
 # ?? change all defaults to be brought in from outside -- should have method=NULL here
 
+cat("150708 - check ctrl\n")
+print(ctrl)
+
 # Run methods
   have.bounds<-ctrl$have.bounds
   ctrl$have.bounds<-NULL ## or we get errors in optim()
@@ -40,7 +43,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       if (ctrl$trace>0) cat("Method: ", meth, "\n") # display the method being used
       # Extract control information e.g., trace
       # 20100215: Note that maxit needs to be defined other than 0 e.g., for ucminf
-      # create local control list for a single method -- this is one of the key issues for optimx
+      # create local control list for each single method -- this is one of the key issues for optimx
       # 20140902 big change for mcontrol -- start NULL and then sort out for each method
       mcontrol <- NULL
       # not used in any methods -- it is here for the scale check of parameters and bounds above
@@ -686,6 +689,12 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	  	print(ans)
 	  }
 	  if (ctrl$trace>0) { cat("Assemble the answers\n") }
+          if (ctrl$trace>0) { 
+              print(ans.ret)
+              cat("add solution:\n")
+              print(c(ans$par, ans$value, ans$fevals, ans$gevals, ans$nitns,
+                              ans$convcode, ans$kkt1, ans$kkt2, ans$xtimes) )
+          }                  
           ans.ret[meth, ] <- c(ans$par, ans$value, ans$fevals, ans$gevals, ans$nitns,
                               ans$convcode, ans$kkt1, ans$kkt2, ans$xtimes)
           if (! gradOK) ngatend <- NA

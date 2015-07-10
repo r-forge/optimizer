@@ -1,0 +1,20 @@
+import(
+  numDeriv,
+  BB, 
+  dfoptim,
+  minqa,
+  setRNG,
+  ucminf,
+  Rtnmin,
+  Rvmmin,
+  Rcgmin,
+  lbfgsb3
+)
+
+export(
+  optest.setup,
+  optest.check,
+  ctrldefault,
+  optest
+)
+

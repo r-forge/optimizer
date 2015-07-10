@@ -54,6 +54,15 @@ print(ctrl)
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
         mcontrol$maxit <- ctrl$maxit 
         mcontrol$trace <- ctrl$trace # for optim() at least
+        cat("optim methods - mcontrol:\n")
+        print(mcontrol)
+        cat("\n\n ufn + ugr:\n")
+        print(ufn)
+        print(ugr)
+        cat("fn at start is ", ufn(par, ...),"\n")
+        cat("gr at start is ")
+        print(ugr(par, ...))
+        tmp<-readline("continue")
         ## add explicit methopts ??
         time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
                 method=meth, control=mcontrol, ...), silent=TRUE))[1]

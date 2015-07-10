@@ -22,7 +22,7 @@
   (conv), optimz::optim() does not call the SANN method.
 }
 \usage{
-optim(par, ufn, ugr=NULL, lower=-Inf, upper=Inf, 
+optim(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE,
             control=list(),
              ...)
@@ -31,10 +31,10 @@ optim(par, ufn, ugr=NULL, lower=-Inf, upper=Inf,
  \item{par}{a vector of initial values for the parameters 
    for which optimal values are to be found. Names on the elements
    of this vector are preserved and used in the results data frame.}  
- \item{ufn}{A function to be minimized (or maximized), with first
+ \item{fn}{A function to be minimized (or maximized), with first
    argument the vector of parameters over which minimization is to take
    place.  It should return a scalar result.}
- \item{ugr}{A function to return (as a vector) the gradient for those methods that 
+ \item{gr}{A function to return (as a vector) the gradient for those methods that 
    can use this information.
 
    If 'gr' is \code{NULL}, a finite-difference approximation will be used.

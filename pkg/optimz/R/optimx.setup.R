@@ -90,8 +90,9 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          uhess <- NULL # Do NOT define hessian when approximating gradient
        } else { 
            ugr <- function(par=par, userfn=fn, ...){ # to satisfy formal arguments
-              gr(par, ...)
-           }
+               result <- gr(par, ...)
+#              result <- do.call(gr, list(par,...))
+            }
            if (is.null(hess)) {
               uhess <- NULL
            } else {

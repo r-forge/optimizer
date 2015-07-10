@@ -4,12 +4,17 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
              ...) {
   optcfg <- optimx.setup(par, fn, gr, hess, lower, upper, 
             method, itnmax, hessian, control, ...)
+  cat("optcfg:\n")
+  print(optcfg)
+  tmp <- readline(" on to optchk")
+
 # Parse and use optcfg
   if (optcfg$ctrl$starttests) {
     optchk <- optimx.check(par=par, ufn=optcfg$ufn, ugr=optcfg$ugr, uhess=optcfg$uhess, 
            lower=lower, upper=upper, ctrl=optcfg$ctrl, ...)
   }
 #  optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
+  tmp <- readline(" on to optimx.run")
 
   ansout <- optimx.run(par, ufn=optcfg$ufn, ugr=optcfg$ugr, uhess=optcfg$uhess,
             lower=lower, upper=upper, method=optcfg$method, 

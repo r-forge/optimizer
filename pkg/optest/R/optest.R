@@ -22,27 +22,25 @@ optest <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #  print(gval)
 
 #  tmp <- readline("try optest.check")
-#  opchk <- optest.check(par, ufn=optcfg$ufn, ugr=optcfg$ugr, lower=lower, upper=upper, 
-
-  opchk <- optest.check(par, ufn=optcfg$ufn, ugr=optcfg$ugr, 
-         ctrl=optcfg$ctrl, ...)
+# ?? need to add bounds here for checking!!! Note bounds will be scaled too!!!
+# ?? temp shut of check
+#  opchk <- optest.check(par=optcfg$spar, ufn=optcfg$ufn, ugr=optcfg$ugr, ctrl=optcfg$ctrl, ...)
 #  print(opchk)
 #  tmp <- readline("try optimr")
 #  cat("optimr call for method ",optcfg$method," using trace =", optcfg$ctrl$trace,"\n")
 
+  tctrl <- optcfg$ctrl
+  tctrl$parscale <- NULL # make sure we don't have scaling
+
+
   if (optcfg$ctrl$have.bounds) {
-  ans <- optimr(par, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, lower=lower, upper=upper, 
-         hessian=hessian, control=optcfg$ctrl, ...)
+  ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
+	lower=lower, upper=upper, hessian=hessian, control=tctrl,  pscale=control$parscale, ...)
   } else {
-  ans <- optimr(par, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
-         hessian=hessian, control=optcfg$ctrl, ...)
+  ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
+         hessian=hessian, control=tctrl, pscale=control$parscale, ...)
   }    
-#  print(ans)
-#  tmp <- readline("try optest.run")
-#  ans <- optim(par, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, lower=lower, upper=upper, 
-#         hessian=hessian, control=optcfg$ctrl, ...)
-#  print(ans)
-  ans    
+  ans    # ??? still need to unscale
 
 
 

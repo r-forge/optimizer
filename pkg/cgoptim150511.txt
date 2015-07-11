@@ -1,0 +1,23 @@
+?optim
+ls()
+example(optim)
+ls()
+x
+?optim
+optimHess(res$par, fr, grr)
+?optim
+res <- optim(c(-1.2,1), fr, grr, method = "BFGS")
+res
+optimHess(res$par, fr, grr)
+source("R-optimtest/testfnsR/grosenbrock/grose.R")
+xx <- runif(5000)*2
+xx
+acg <- optim(xx, grose.f, grose.g, method="CG")
+acg
+require(Rcgmin)
+arcg <- Rcgminu(xx, grose.f, grose.g)
+arcg
+acg
+arcg
+asann<-optim(xx, grose.f, method="SANN", control=list(trace=1))
+savehistory("cgoptim150511.txt")

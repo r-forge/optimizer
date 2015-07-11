@@ -55,7 +55,7 @@ cat("scaled using ps:")
 print(ps)
 print(anms)
 
-tmp <- readline("Now try ufn scaling - first normal")
+# tmp <- readline("Now try ufn scaling - first normal")
 
 require(dfoptim)
 anmk <- nmk(start, hobbs.f, control=list(trace=TRUE))
@@ -72,4 +72,27 @@ cat("scaled using ps:")
 print(ps)
 print(anmks)
 
+# tmp<-readline("try optest.setup")
 
+source("/home/john/rsvnall/optimizer/pkg/optest/R/ctrldefault.R")
+source("/home/john/rsvnall/optimizer/pkg/optest/R/optest.setup.R")
+opcfg <- optest.setup(par=start, fn=hobbs.f, gr=hobbs.g, hess=NULL, control=list(parscale=c(100,10,.1)))
+print(str(opcfg))
+print(hobbs.f(start))
+print(ufn(opcfg$spar, c(100,10,.1)))
+print(ufn(opcfg$spar, opcfg$ctrl$parscale))
+
+require(optest)
+tmp<-readline("continue to optim ")
+anso <- optim(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000))
+tmp<-readline("continue to optim scaled")
+ansos <- optim(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
+tmp<-readline("continue to optest ")
+
+ans <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
+ansu <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
+
+print(anso)
+print(ansos)
+print(ans)
+print(ansu)

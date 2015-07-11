@@ -1,12 +1,4 @@
----
-  title: "Scaling Functions and Derivatives"
-author: "J C Nash"
-output:
-  rmarkdown::html_vignette:
-  toc: yes
----
 
-```{r}
 # playscale1.R
 library(numDeriv)
 f <- function(x, t) { x[1]*exp(-x[2]*t) }
@@ -47,4 +39,3 @@ gns
 gn %*% Z
 cat(" Z hn Z - hns:\n")
 print(Z %*% hn %*% Z - hns)
-```

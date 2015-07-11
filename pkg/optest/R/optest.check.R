@@ -19,7 +19,7 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   }
   npar<-length(par)
   if (is.null(ctrl)) ctrl <- ctrldefault(npar)
-  optchk<-list() # set up output kust of the checks
+  optchk<-list() # set up output list of the checks
 #  if (ctrl$starttests) {
      # Check parameters in bounds (090601: As yet not dealing with masks ??)
      infeasible<-FALSE
@@ -38,7 +38,7 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
      }
 
      # Check if function can be computed
-     checkfn <- fnchk(par, ufn, trace=ctrl$trace, ...)
+     checkfn <- fnchk(par, ufn, trace=ctrl$trace, parscale=ctrl$parscale, ...)
      if (checkfn$infeasible) {
         cat("fnchk exit code and msg:",checkfn$excode," ",checkfn$msg,"\n")
         stop("Cannot evaluate function at initial parameters")
@@ -48,9 +48,9 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
      if (! is.null(ugr) && ! ctrl$usenumDeriv && ! is.character(ugr)){ # check gradient
        gname <- deparse(substitute(ugr))
        if (ctrl$trace > 0) cat("Analytic gradient from function ",gname,"\n\n")
-          fval <- ufn(par,...) 
-          gn <- grad(func=ufn, x=par,...) # 
-          ga <- ugr(par, ...)
+          fval <- ufn(par, parscale=ctrl$parscale, ...) 
+          gn <- grad(func=ufn, x=par, parscale=ctrl$parscale, ...) # 
+          ga <- ugr(par, parscale=ctrl$parscale, ...)
 #130929          badgrad<-TRUE
 #130929          if (all(! is.na(ga)) & all(is.finite(ga))) badgrad<-FALSE
           # Now test for equality (090612: ?? There may be better choices for the tolerances.
@@ -66,7 +66,7 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
        if (! is.null(uhess) && ! is.character(uhess)){ # check Hessian - if character then numeric
           hname <- deparse(substitute(uhess))
           if (ctrl$trace > 0) cat("Analytic hessian from function ",hname,"\n\n")
-          hn <- hessian(func=ufn, x=par,...) # ?? should we use dotdat
+          hn <- hessian(func=ufn, x=par, parscale=ctrl$parscale, ...) # ?? should we use dotdat
           ha <- uhess(par, ...)
           # Now test for equality
           teps <- (.Machine$double.eps)^(1/3)

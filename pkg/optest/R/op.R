@@ -1,14 +1,13 @@
-op <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
+opj <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=c("BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...) {
-
-  cat("op: call optimr to run single optimizer\n")
-  npar<-length(par)
   if (is.null(control$trace)) control$trace <- 0
+  if (control$trace > 0) cat("op: call optimr to run single optimizer\n")
+  npar<-length(par)
   if (control$trace > 1) cat("Function has ",npar," arguments\n")
 
-# ?? check before or after scaling -- better before, but may want sometime
+# check before or after scaling -- better before, but may want sometime
 #    to be able to check my transformations
 
   if (is.null(control$starttests) || control$starttests) {
@@ -51,7 +50,7 @@ op <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      #   have gr fn        not specified method     not using numDeriv
        gname <- deparse(substitute(gr))
        if (control$trace > 0) cat("Analytic gradient from function ",gname,"\n\n")
-       fval <- ufn(par, ...) 
+       fval <- fn(par, ...) 
        gn <- grad(func=fn, x=par,...) # 
        ga <- gr(par, ...)
        # Now test for equality (090612: ?? There may be better choices for the tolerances.
@@ -91,7 +90,6 @@ op <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          cat("Scale check -- log parameter ratio=",srat$lpratio,"  log bounds ratio=",srat$lbratio,"\n")
        }
 
-  
   } # end starttests
 
 tmp <- readline("Run optest.setup")
@@ -107,12 +105,16 @@ tmp <- readline("Now run optimr")
   # the scaling is passed via pscale for ufn, ugr and (possibly uhess??)
   print(str(tctrl))
 
-#  if (optcfg$ctrl$have.bounds) {
-  ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
+  if (optcfg$ctrl$have.bounds) {
+     ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
+         lower=optcfg$lower, upper=optcfg$upper, 
          hessian=hessian, control=tctrl, pscale=control$parscale, ...)
-#  }    
+  } else {   
+     ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
+         hessian=hessian, control=tctrl, pscale=control$parscale, ...)
+  }    
   ans$par <- ans$par * control$parscale
   ans
 
-} ## end of optimx
+} ## end of op
 

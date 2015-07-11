@@ -89,18 +89,20 @@ require(optest)
 # ansos <- optim(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
 # tmp<-readline("continue to optest ")
 
-ansBFGS <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
+#ansBFGS <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
+ansBFGS <- op(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
 
-ansuBFGS <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
+# ansuBFGS <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
+ansuBFGS <- op(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
 
 print(ansBFGS)
 print(ansuBFGS)
 
 tmp<-readline("continue")
 
-ansNM <- optest(start, hobbs.f, method="Nelder-Mead", control=list(trace=1, maxit=1000, parscale=ps))
+ansNM <- op(start, hobbs.f, method="Nelder-Mead", control=list(trace=1, maxit=1000, parscale=ps))
 
-ansuNM <- optest(start, hobbs.f, method="Nelder-Mead", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
+ansuNM <- op(start, hobbs.f, method="Nelder-Mead", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
 
 print(ansNM)
 print(ansuNM)

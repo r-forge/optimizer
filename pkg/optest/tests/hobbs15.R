@@ -96,3 +96,11 @@ print(anso)
 print(ansos)
 print(ans)
 print(ansu)
+
+tmp<-readline("continue to opchk ")
+
+#  opchk <- optest.check(par=opcfg$spar, ufn=opcfg$ufn, ugr=opcfg$ugr, ctrl=opcfg$ctrl, ...)
+#  print(opchk)
+
+opchkorig <- optest.check(par=start, ufn=hobbs.f, ugr=hobbs.g, ctrl=list(trace=2))
+print(opchkorig)

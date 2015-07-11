@@ -42,7 +42,9 @@ optest <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
          hessian=hessian, control=tctrl, pscale=control$parscale, ...)
 #  }    
-  list(ans=ans, ansu=ansu)    # ??? still need to unscale
+  ans$par <- ans$par * control$parscale
+
+  ans
 
 } ## end of optimx
 

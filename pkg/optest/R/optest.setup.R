@@ -75,46 +75,47 @@ optest.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (ctrl$usenumDeriv) { 
      gr <- "grnd" 
   } else if (is.null(gr)) { gr <- ctrl$defgrapprox } # use default gradient approximation
+  defscale <- rep(1, npar)
   if (ctrl$maximizeorig) {
-     ufn <- function(spar, userfn=fn, pscale, ...){
+     ufn <- function(spar, userfn=fn, pscale=defscale, ...){
 # note pscale is a vector
         result <- (-1) * fn(spar*pscale, ...)
      }
      if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
-       ugr <- function(par=par, userfn=fn, pscale, ...){
+       ugr <- function(par=par, userfn=fn, pscale=defscale, ...){
            result <- do.call(gr, list(par, userfn, ...))
            result <- (-1)*result*pscale
        }
        uhess <- NULL # Do NOT define hessian when approximating gradient
-     } else { ugr<- function(par=par, userfn=fn, pscale, ...) {
+     } else { ugr<- function(par=par, userfn=fn, pscale=defscale, ...) {
                  result <- (-1)*gr(par,...)*pscale
               }
               if (! is.null(hess) ) {
-                 uhess <- function(par=par, userfn=fn, pscale, ...) {
+                 uhess <- function(par=par, userfn=fn, pscale=defscale, ...) {
                     result <- (-1) * (diag(pscale) %*% hess(par*pscale, ...) %*% diag(pscale))
                  }
               }   
      }
   } else { # not maximizing
-       ufn <- function(spar, userfn=fn, pscale, ...){
+       ufn <- function(spar, userfn=fn, pscale=defscale, ...){
            val <- fn(spar * pscale, ...)
        }
        if ( is.character(gr) ) {
          # Convert string to function call, assuming it is a numerical gradient function
-         ugr<-function(par=par, userfn=fn, pscale, ...){
+         ugr<-function(par=par, userfn=fn, pscale=defscale, ...){
            result <- do.call(gr, list(par*pscale, userfn, ...))*pscale
          }
          uhess <- NULL # Do NOT define hessian when approximating gradient
        } else { 
-           ugr <- function(par=par, userfn=fn, pscale, ...){ # to satisfy formal arguments
+           ugr <- function(par=par, userfn=fn, pscale=defscale, ...){ # to satisfy formal arguments
                result <- gr(par*pscale, ...)*pscale
 #              result <- do.call(gr, list(par,...))*pscale
             }
            if (is.null(hess)) {
               uhess <- NULL
            } else {
-              uhess <- function(par=par, userfn=fn, pscale, ...) {
+              uhess <- function(par=par, userfn=fn, pscale=defscale, ...) {
                   (diag(pscale) %*% hess(par*pscale, ...) %*% diag(pscale))
               }
            }

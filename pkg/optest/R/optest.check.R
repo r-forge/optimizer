@@ -20,7 +20,7 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   npar<-length(par)
   if (is.null(ctrl)) ctrl <- ctrldefault(npar)
   optchk<-list() # set up output list of the checks
-#  if (ctrl$starttests) {
+#  if (ctrl$starttests) { ## ??? RESET THIS
      # Check parameters in bounds (090601: As yet not dealing with masks ??)
      infeasible<-FALSE
      if (ctrl$trace > 1) cat("Function has ",npar," arguments\n")
@@ -35,6 +35,9 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
            print(bc$bchar)
         }
         if (bc$parchanged) par <- bc$bvec
+        ctrl$have.bounds <- bc$bounds # reset the control vector
+        
+	# NOTE: this will NOT reset in the master ctrl list
 #     }
 
      # Check if function can be computed
@@ -49,9 +52,11 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
      print(ctrl$parscale)
      # ??150711 - if parscale NOT present, will fail. 
      if ( is.null(ctrl$parscale) || (ctrl$parscale == rep(1,npar))) {
+        cat("optest.check: unscaled fn check\n")
         checkfn <- fnchk(par, ufn, trace=ctrl$trace, ...)
      } else {
-        checkfn <- fnchk(par, ufn, trace=ctrl$trace, parscale=ctrl$parscale, ...)
+        cat("optest.check: scaled fn check\n")
+        checkfn <- fnchk(par, ufn, trace=ctrl$trace, pscale=ctrl$parscale, ...)
      }
      if (checkfn$infeasible) {
         cat("fnchk exit code and msg:",checkfn$excode," ",checkfn$msg,"\n")
@@ -65,13 +70,15 @@ optest.check <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
        gname <- deparse(substitute(ugr))
        if (ctrl$trace > 0) cat("Analytic gradient from function ",gname,"\n\n")
        if ( is.null(ctrl$parscale) || (ctrl$parscale == rep(1,npar))) {
+          cat("optest.check: unscaled grad check\n")
           fval <- ufn(par, ...) 
-          gn <- grad(func=ufn, x=par, ...) # 
+          gn <- grad(func=ufn, x=par,...) # 
           ga <- ugr(par, ...)
        } else {
-          fval <- ufn(par, parscale=ctrl$parscale, ...) 
-          gn <- grad(func=ufn, x=par, parscale=ctrl$parscale, ...) # 
-          ga <- ugr(par, parscale=ctrl$parscale, ...)
+          cat("optest.check: scaled grad check\n")
+          fval <- ufn(par, pscale=ctrl$parscale, ...) 
+          gn <- grad(func=ufn, x=par, pscale=ctrl$parscale, ...) # 
+          ga <- ugr(par, pscale=ctrl$parscale, ...)
        }
 #130929          badgrad<-TRUE
 #130929          if (all(! is.na(ga)) & all(is.finite(ga))) badgrad<-FALSE

@@ -6,10 +6,14 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? time not used in output -- make it an attribute of ans??
 # The structure has   par, value, counts, convergence, message, hessian
 
+  cat("optimr: control$trace =",control$trace,"\n")
+
 # Run a single method
 ## Need to create have.bounds again
-  have.bounds <- bmchk(par, lower, upper)$bounds
-  cat("optimr -- have.bounds =",have.bounds,"\n")
+  if (is.null(control$have.bounds)) {
+     have.bounds <- bmchk(par, lower, upper)$bounds
+     cat("optimr -- have.bounds =",have.bounds,"\n")
+  } else have.bounds <- control$have.bounds
 ## ?? BE NICE TO AVOID THIS TEST
 
 ## 131027 ?? needed or in setup

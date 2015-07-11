@@ -35,9 +35,9 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
 #   if (trace > 2) {
       cat("fnchk: ffn =\n")
       print(ffn)
-      cat("xpar:")
+      cat("fnchk: xpar:")
       print(xpar)
-      cat("dots:")
+      cat("fnchk: dots:")
       print(list(...))
 #   }
    infeasible<-FALSE # set value OK, then alter if not feasible later

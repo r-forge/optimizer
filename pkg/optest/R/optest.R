@@ -7,6 +7,8 @@ optest <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #  print(control)
 #  tmp <- readline("cont. optest")
 
+  ansu <- optimr(par, fn, gr, method=method, control=control, ...) # unscaled
+
   optcfg <- optest.setup(par, fn=fn, gr=gr, hess=hess,
             lower=lower, upper=upper, method=method, 
             itnmax=itnmax, hessian=hessian, control=control, ...)
@@ -33,16 +35,14 @@ optest <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   tctrl$parscale <- NULL # make sure we don't have scaling
 
 
-  if (optcfg$ctrl$have.bounds) {
-  ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
-	lower=lower, upper=upper, hessian=hessian, control=tctrl,  pscale=control$parscale, ...)
-  } else {
+#  if (optcfg$ctrl$have.bounds) {
+#  ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
+#	lower=lower, upper=upper, hessian=hessian, control=tctrl,  pscale=control$parscale, ...)
+#  } else {
   ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
          hessian=hessian, control=tctrl, pscale=control$parscale, ...)
-  }    
-  ans    # ??? still need to unscale
-
-
+#  }    
+  list(ans=ans, ansu=ansu)    # ??? still need to unscale
 
 } ## end of optimx
 

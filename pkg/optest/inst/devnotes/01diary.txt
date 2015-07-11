@@ -32,3 +32,7 @@ Done:
 150710: 
 
 - optest.check seems to fail at fnchk, but fnchk works on its own. Weird.
+- the optest function more or less works. We can create the cfg using setup, and
+  the scaled fn and gr work fine in optim() and Rvmmin and Rcgmin with minor setup
+  issues. BUT running in optest seems to fail for Rcgmin (did not try Rvmmin, but 
+  suspect also)

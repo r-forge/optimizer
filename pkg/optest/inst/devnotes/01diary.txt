@@ -37,3 +37,12 @@ Done:
 150710: 
 
 - optest.check seems to fail at fnchk, but fnchk works on its own. Weird.
+
+150711: 
+- op does not seem to call optimr correctly, but running optest.setup then optimr
+works OK.
+- config structure should include flag to note that testing has been completed (testsOK)
+This would let us run several methods with a single setup.
+- the ufn and ugr keep changing environment labels. And get msg that formal
+argument 'pscale' matched by multiple actual arguments. 
+- problem may be that the structure gets built again and again. WHy?

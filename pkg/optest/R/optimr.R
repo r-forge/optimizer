@@ -7,6 +7,13 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # The structure has   par, value, counts, convergence, message, hessian
 
   cat("optimr: control$trace =",control$trace,"\n")
+  print(par)
+  cat("fval:")
+  print(fn(par,pscale=rep(1,2),...))
+  cat("gval:")
+  print(gr(par,...))
+  print(method)
+tmp <- readline("on to the run in optimr")
 
 # Run a single method
 ## Need to create have.bounds again

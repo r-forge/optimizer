@@ -1,4 +1,4 @@
-opj <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
+op <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=c("BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...) {
@@ -104,6 +104,8 @@ tmp <- readline("Now run optimr")
   tctrl$parscale <- NULL # make sure we don't have scaling double called
   # the scaling is passed via pscale for ufn, ugr and (possibly uhess??)
   print(str(tctrl))
+
+  tctrl<- list(trace=1) # temporary
 
   if (optcfg$ctrl$have.bounds) {
      ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 

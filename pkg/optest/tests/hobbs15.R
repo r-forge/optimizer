@@ -38,10 +38,6 @@ hobbs.g<-function(x){ # gradient of Hobbs weeds problem
     return(gg)
 }
 
-ufn <- function(x, parscale=c(1,1,1)){
-    val <- hobbs.f(x*parscale)
-}
-
 cat("standard test using optim\n")
 start <- c(300, 50, .3)
 ps <- c(100, 10, .1)
@@ -62,17 +58,8 @@ ps <- c(100, 10, .1)
 # tmp <- readline("ufn unscaled")
 # anmku <- nmk(start, ufn, control=list(trace=TRUE), parscale=c(1,1,1))
 starts <- start/ps
-tmp <- readline("ufn scaling using starts")
-# anmks <- nmk(starts, ufn, control=list(trace=TRUE), parscale=ps)
-# cat("no scaling\n")
-# print(anmk)
-# cat("no scaling via c(1,1,1) in ps\n")
-# print(anmku)
-# cat("scaled using ps:")
-# print(ps)
-# print(anmks)
 
-# # tmp<-readline("try optest.setup")
+tmp<-readline("try optest.setup")
 
 source("/home/john/rsvnall/optimizer/pkg/optest/R/ctrldefault.R")
 source("/home/john/rsvnall/optimizer/pkg/optest/R/optest.setup.R")
@@ -83,25 +70,18 @@ opcfg <- optest.setup(par=start, fn=hobbs.f, gr=hobbs.g, hess=NULL, control=list
 # print(ufn(opcfg$spar, opcfg$ctrl$parscale))
 
 require(optest)
-# tmp<-readline("continue to optim ")
-# anso <- optim(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000))
-# tmp<-readline("continue to optim scaled")
-# ansos <- optim(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
-# tmp<-readline("continue to optest ")
-
-#ansBFGS <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
 ansBFGS <- op(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=ps))
-
-# ansuBFGS <- optest(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
+tmp <- readline("unscaled")
 ansuBFGS <- op(start, hobbs.f, hobbs.g, method="BFGS", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
 
 print(ansBFGS)
 print(ansuBFGS)
 
-tmp<-readline("continue")
+tmp<-readline("continue to NM")
 
 ansNM <- op(start, hobbs.f, method="Nelder-Mead", control=list(trace=1, maxit=1000, parscale=ps))
 
+tmp <- readline("unscaled")
 ansuNM <- op(start, hobbs.f, method="Nelder-Mead", control=list(trace=1, maxit=1000, parscale=rep(1,3)))
 
 print(ansNM)

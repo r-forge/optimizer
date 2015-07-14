@@ -1,27 +1,16 @@
 optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
-  npar <- length(par)
-  if (is.null(control$parscale)) { pscale <- rep(1,npar) }
-  else { pscale <- control$parscale }
-  spar <- par/pscale # scaled parameters
-  if (is.null(control$fnscale)) {
-     fnscale <- 1
-     if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
-  else if (! is.null(control$maximize)) {
-          if ( (control$fnscale < 0) && maximize) {fnscale <- -1} # this is OK
-          else stop("control$fnscale and control$maximize conflict")
-       } # end ifelse
-  } # end else
 
-  efn <- function(spar, fn, pscale=pscale, fnscale=fnscale, ...) {
+  npar <- length(par)
+  sfn <- function(spar, fn, pscale=pscale, ...) {
       # rely on pscale being defined in this enclosing environment
       val <- fn(spar*pscale, ...)
   }
-  egr <- function(spar, gr, pscale=pscale, fnscale=fnscale,...) {
+  sgr <- function(spar, gr, pscale=pscale, ...) {
       result <- gr(spar*pscale, ...) * pscale
   }
-# ?? do we want ehess ??    Not at 150714
+    
 
 # replacement for optim to minimize using a single method
 
@@ -30,28 +19,30 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 
   cat("optimr: control$trace =",control$trace,"\n")
   print(par)
-  cat("fval from efn:")
-  print(efn(spar,pscale, fnscale, ...))
+  cat("fval:")
+  print(fn(par,...))
   if (! is.null(gr)) {
-  cat("gval from efn:")
-  print(egr(par, pscale, fnscale, ...))
+  cat("gval:")
+  print(gr(par,...))
   }
   print(method)
-tmp <- readline("on to the run stage of optimr")
+tmp <- readline("on to the run in optimr")
 
 # Run a single method
+## Need to create have.bounds again
   if (is.null(control$have.bounds)) {
      have.bounds <- bmchk(par, lower, upper)$bounds
-     control$have.bounds <- have.bounds # for safety
      cat("optimr -- have.bounds =",have.bounds,"\n")
   } else have.bounds <- control$have.bounds
+## ?? BE NICE TO AVOID THIS TEST
 
-# expand bounds
+## 131027 ?? needed or in setup
   if (length(lower) == 1) lower<-rep(lower,npar)
   if (length(upper) == 1) upper<-rep(upper,npar)
-
+## end 131027
   mcontrol <- list() # define the control list
-
+  pscale <- control$parscale # Not needed for optim(), but for rest of methods
+  spar <- par/pscale
 # Methods from optim()
       if (method=="Nelder-Mead" || 
           method == "BFGS" || 

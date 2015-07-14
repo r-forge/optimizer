@@ -78,3 +78,11 @@ Now can run optim, but not optimr. Check to see why. Seems to be something relat
 explicit scaling inside optimr, but relying on dots. ?? Try to make optimr ALWAYS refer to the
 scaling, maybe using the control$parscale. That is, put the scaling INSIDE optimr and not in
 the setup.
+- NEW TRY: use ONLY the original parameters and functions, and do all the fixup inside optimr
+- optimr will be for a SINGLE method and it will use the openv environment. It's arguments could be
+    method (but that could be in the environment) and possibly a control list, but again this is
+    better placed in the environment, which is where we modify things.
+- use control$parscale and control$fnscale. 
+- Do we want to allow optimr() to have same args as optim, but more optimizers. That would be nice,
+  but possibly inefficient, though it avoids the environment of setup. However, it could be more sensible
+  in the long run, and avoids setup AND the special openv environment. 

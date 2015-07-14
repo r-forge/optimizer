@@ -129,4 +129,5 @@ optest.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   optcfg$ctrl <- ctrl
   optcfg$method <- method
   optcfg # return the structure
+   openv <<- list2env(optcfg, parent=emptyenv())
 } ## end of optimx.setup

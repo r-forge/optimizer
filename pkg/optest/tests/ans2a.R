@@ -31,20 +31,20 @@ methlist <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "SANN", "nlm", "nlminb",
               "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
               "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
 
-mycfg <- optest.setup(start, fr, grr)
+myenv <- optest.setup(start, fr, grr)
 for (meth in methlist){ 
-   tmp<-readline("continue to call using mycfg")
-   print(mycfg$spar)
-   print(mycfg$ufn)
-   print(mycfg$ugr)
+   tmp<-readline("continue to call using myenv")
+   print(myenv$spar)
+   print(myenv$ufn)
+   print(myenv$ugr)
    print(meth)
    
-   mydo <- optimr(mycfg$spar, mycfg$ufn, mycfg$ugr, method=meth, control=list(trace=2),
+   mydo <- optimr(myenv$spar, myenv$ufn, myenv$ugr, method=meth, control=list(trace=2),
         pscale=rep(1,2))
    print(mydo)
-tmp <- readline("next method (mycfg)")
+tmp <- readline("next method (myenv)")
 }
-rm(mycfg) # to try to remove duplicate defs
+rm(myenv) # to try to remove duplicate defs
 
 tmp <- readline("Now try using op")   
 for (meth in methlist){ 

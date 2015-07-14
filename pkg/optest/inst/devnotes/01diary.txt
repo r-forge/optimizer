@@ -46,3 +46,35 @@ This would let us run several methods with a single setup.
 - the ufn and ugr keep changing environment labels. And get msg that formal
 argument 'pscale' matched by multiple actual arguments. 
 - problem may be that the structure gets built again and again. WHy?
+
+150712:
+- tried deleting mycfg etc. No joy. Can get optim and optimr to run from command line, but op
+	gets "formal argument 'pscale' matched by multiple actual arguments"
+  Found an item about this problem, which used write.csv as example
+
+	write.csv <- function (...)
+	{
+	Call <- match.call(expand.dots = TRUE)
+	for (argname in c("append", "col.names", "sep", "dec", "qmethod"))
+	if (!is.null(Call[[argname]]))
+	warning(gettextf("attempt to set '%s' ignored", argname), domain = NA)
+	rn <- eval.parent(Call$row.names)
+	Call$append <- NULL
+	Call$col.names <- if (is.logical(rn) && !rn) TRUE else NA
+	Call$sep <- ","
+	Call$dec <- "."
+	Call$qmethod <- "double"
+	Call[[1L]] <- as.name("write.table")
+	eval.parent(Call)
+	}
+
+The idea is to prevent R from using the wrong argument to a function. So how to use this for my
+op problem?
+
+150714: 
+- From reading Hadley's "Advanced R" about environments, converted optcfg to environment, and made
+the parent the emptyenv() (to avoid having any objects defined in it other than those specified).
+Now can run optim, but not optimr. Check to see why. Seems to be something related to NOT having
+explicit scaling inside optimr, but relying on dots. ?? Try to make optimr ALWAYS refer to the
+scaling, maybe using the control$parscale. That is, put the scaling INSIDE optimr and not in
+the setup.

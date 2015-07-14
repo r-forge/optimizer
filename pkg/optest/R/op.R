@@ -115,6 +115,7 @@ tmp <- readline("Now run optimr")
      ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
          hessian=hessian, control=tctrl, pscale=control$parscale, ...)
   }    
+  rm("optcfg")
   ans$par <- ans$par * control$parscale
   ans
 

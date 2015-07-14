@@ -1,6 +1,7 @@
 optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
+  if (is.null(control$trace)) control$trace <- 0
   npar <- length(par)
   if (is.null(control$parscale)) { pscale <- rep(1,npar) }
   else { pscale <- control$parscale }
@@ -14,12 +15,22 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
        } # end ifelse
   } # end else
 
-  efn <- function(spar, fn, pscale=pscale, fnscale=fnscale, ...) {
+  efn <- function(spar, ...) {
       # rely on pscale being defined in this enclosing environment
-      val <- fn(spar*pscale, ...)
+      par <- spar*pscale
+      val <- fn(par, ...)
   }
-  egr <- function(spar, gr, pscale=pscale, fnscale=fnscale,...) {
-      result <- gr(spar*pscale, ...) * pscale
+  egr <- function(spar, ...) {
+      par <- spar*pscale
+      result <- gr(par, ...) * pscale
+  }
+
+  nlmfn <- function(spar, ...){
+     f <- efn(spar, ...)
+     g <- egr(spar, ...)
+     attr(f,"gradient") <- g
+     attr(f,"hessian") <- NULL # ?? maybe change later
+     f
   }
 # ?? do we want ehess ??    Not at 150714
 
@@ -28,16 +39,16 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? time not used in output -- make it an attribute of ans??
 # The structure has   par, value, counts, convergence, message, hessian
 
-  cat("optimr: control$trace =",control$trace,"\n")
-  print(par)
-  cat("fval from efn:")
-  print(efn(spar,pscale, fnscale, ...))
-  if (! is.null(gr)) {
-  cat("gval from efn:")
-  print(egr(par, pscale, fnscale, ...))
-  }
-  print(method)
-tmp <- readline("on to the run stage of optimr")
+#  cat("optimr: control$trace =",control$trace,"\n")
+#  print(par)
+#  cat("fval from efn:")
+#  print(efn(spar,pscale, fnscale, ...))
+#  if (! is.null(gr)) {
+#  cat("gval from efn:")
+#  print(egr(par, pscale, fnscale, ...))
+#  }
+#  print(method)
+# tmp <- readline("on to the run stage of optimr")
 
 # Run a single method
   if (is.null(control$have.bounds)) {
@@ -98,7 +109,7 @@ tmp <- readline("on to the run stage of optimr")
 	} else { 
 		mcontrol$trace = 1 # this is EVERY iteration. nlminb trace is freq of reporting.
 	}
-        time <- system.time(ans <- try(nlminb(start=spar, objective=sfn, gradient=sgr, lower=lower, 
+        time <- system.time(ans <- try(nlminb(start=spar, objective=efn, gradient=egr, lower=lower, 
 		upper=upper, control=mcontrol,  ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		# Translate output to common format and names
@@ -125,20 +136,16 @@ tmp <- readline("on to the run stage of optimr")
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (method == "nlm") { # Use stats package nlm routine
-        if (!is.null(gr)) { # ?? can gr be null?
-           tufn <- function(par, pscale, ...){
-               f <- sfn(spar, pscale, ...)
-               g <- sgr(spar, pscale, ...)
-               attr(f,"gradient") <- g
-               attr(f,"hessian") <- NULL # ?? maybe change later
-               f
-           }
-        } else { stop("optimz::optim -- nlm -- we do not allow gr = NULL") }
+        if (is.null(gr)) { stop("optimr -- nlm -- we do not allow gr = NULL") }
+        cat("test nlmfn:")
+        ffval <- nlmfn(spar)
+        print(ffval)
+        tmp <- readline("cont.")
 	if (! is.null(control$maxit) ) {iterlim <- control$maxit }
         else { iterlim <- 100 }
 	print.level <- 0 
         if (! is.null(control$trace) && (control$trace > 0) ) {print.level <- 2 } 
-        time <- system.time(ans <- try(nlm(f=tufn, p=spar, iterlim=iterlim, 
+        time <- system.time(ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, 
                     print.level=print.level, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		if (ans$code == 1 || ans$code == 2 || ans$code == 3) ans$convergence <- 0
@@ -180,7 +187,7 @@ tmp <- readline("on to the run stage of optimr")
             mcontrol$trace <- TRUE
             if (control$trace > 1) mcontrol$triter <- 1 # default is 10
         } else { mcontrol$trace <- FALSE }
-        time <- system.time(ans <- try(spg(par=spar, fn=sfn, gr=sgr, lower=lower, upper=upper,  
+        time <- system.time(ans <- try(spg(par=spar, fn=efn, gr=egr, lower=lower, upper=upper,  
 		control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") { 
            ans$par <- ans$par*pscale
@@ -212,7 +219,7 @@ tmp <- readline("on to the run stage of optimr")
         mcontrol$maxit <- NULL # 150427 ensure nulled for ucminf
 #        if (hessian) uhessian <- 1 else uhessian <- 0
          uhessian <- 0 # Ensure hessian NOT computed
-        time <- system.time(ans <- try(ucminf(par=spar, fn=sfn, gr=sgr, 
+        time <- system.time(ans <- try(ucminf(par=spar, fn=efn, gr=egr, 
                  hessian = uhessian,  control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
@@ -257,11 +264,11 @@ tmp <- readline("on to the run stage of optimr")
 #?? others
 	if (control$have.bounds) {
 #           if (is.null(gr)) gr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rcgminb(par=spar, fn=sfn, gr=sgr, lower=lower,
+   	   time <- system.time(ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=lower,
                 upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
 #           if (is.null(gr)) gr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rcgminu(par=spar, fn=sfn, gr=sgr, 
+   	   time <- system.time(ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") {
@@ -285,18 +292,12 @@ tmp <- readline("on to the run stage of optimr")
 ## --------------------------------------------
       else if (method == "Rtnmin") { # Use Rtnmin routines (ignoring masks)
 	if (control$trace>0) {mcontrol$trace <- TRUE } else {mcontrol$trace <- FALSE}
-         tufn <- function(spar, ...){
-            f <- sfn(spar, pscale, ...)
-            g <- sgr(spar, pscale, ...)
-            attr(f,"gradient") <- g
-            attr(f,"hessian") <- NULL # ?? maybe change later
-            f
-        }
+
 	if (control$have.bounds) {
-   	   time <- system.time(ans <- try(tnbc(x=spar, fgfun=tufn, gr=gr, lower=lower,
+   	   time <- system.time(ans <- try(tnbc(x=spar, fgfun=nlmfn, gr=gr, lower=lower,
                 upper=upper, trace=mcontrol$trace, ...), silent=TRUE))[1]
 	} else {
-   	   time <- system.time(ans <- try(tn(x=spar, fgfun=tufn, 
+   	   time <- system.time(ans <- try(tn(x=spar, fgfun=nlmfn, 
 		  trace=mcontrol$trace, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") {
@@ -487,10 +488,10 @@ tmp <- readline("on to the run stage of optimr")
          if (control$trace > 0) { mcontrol$trace <- TRUE } # logical needed, not integer         
          else { mcontrol$trace<-FALSE }
          if (control$have.bounds) {
-            time <- system.time(ans <- try(nmkb(par=spar, fn=sfn, lower = lower, 
+            time <- system.time(ans <- try(nmkb(par=spar, fn=efn, lower = lower, 
               upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
-            time <- system.time(ans <- try(nmk(par=spar, fn=sfn, 
+            time <- system.time(ans <- try(nmk(par=spar, fn=efn, 
               control=mcontrol, ...), silent=TRUE))[1]
          }
          cat("Outputting ans for nmkb:\n")
@@ -527,10 +528,10 @@ tmp <- readline("on to the run stage of optimr")
          } else { mcontrol$info <- FALSE }
          mcontrol$maxfeval <- control$maxfeval
          if (have.bounds) {
-            time <- system.time(ans <- try(hjkb(par=spar, fn=sfn, lower = lower, 
+            time <- system.time(ans <- try(hjkb(par=spar, fn=efn, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
-            time <- system.time(ans <- try(hjk(par=spar, fn=sfn, 
+            time <- system.time(ans <- try(hjk(par=spar, fn=efn, 
                 control=mcontrol, ...), silent=TRUE))[1]
          }
          if (class(ans)[1] != "try-error") {
@@ -558,14 +559,16 @@ tmp <- readline("on to the run stage of optimr")
       if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
         if (control$trace > 1) cat("lbfgsb3\n")
         mcontrol$trace <- control$trace
+        mcontrol$iprint <- 1 # ???
 #        mcontrol$maxfeval <- control$maxfeval
         # ?? use maxfevals rather than maxit for lbfgsb3 ??
+        cat("have.bounds =",have.bounds,"\n")
         if (have.bounds) { ## Note call uses prm not par
-            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=sfn, gr=sgr, lower = lower, 
+            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
         } else {
-            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=sfn, gr=sgr, lower = -Inf, 
-                upper = Inf, control=mcontrol, ...), silent=TRUE))[1]
+            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr,  
+                control=mcontrol, ...), silent=TRUE))[1]
         }
         if (class(ans)[1] != "try-error") {
  ## Need to check these carefully??

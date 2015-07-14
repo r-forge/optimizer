@@ -1,5 +1,6 @@
 # require(graphics)
 # require(optest)
+rm(list=ls())
 
 fr <- function(x) {   ## Rosenbrock Banana function
     x1 <- x[1]
@@ -16,42 +17,41 @@ grr <- function(x) { ## Gradient of 'fr'
 ####
 require(numDeriv)
 
-source("optest/R/op.R")
-source("optest/R/optest.setup.R")
+# source("optest/R/op.R")
+# source("optest/R/optest.setup.R")
 source("optest/R/bmchk.R")
 source("optest/R/fnchk.R")
 source("optest/R/optimr.R")
 source("optest/R/scalecheck.R")
 source("optest/R/ctrldefault.R")
+require(lbfgsb3)
+require(Rcgmin)
+require(Rvmmin)
+require(Rtnmin)
+require(minqa)
+require(dfoptim)
+require(ucminf)
+require(BB)
 
 ##JN Since this is a single method, the details could have wrong structure
 start <- c(-1.2,1)
 
-methlist <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "SANN", "nlm", "nlminb", 
-              "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
-              "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
+methlist <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
+              "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", "BFGS", "CG", "Nelder-Mead", 
+               "L-BFGS-B", "SANN", "nlm", "nlminb")
 
-myenv <- optest.setup(start, fr, grr)
+# myenv <- optest.setup(start, fr, grr)
 for (meth in methlist){ 
-   tmp<-readline("continue to call using myenv")
-   print(myenv$spar)
-   print(myenv$ufn)
-   print(myenv$ugr)
-   print(meth)
+   msg <- paste("Optimr attempt using ",meth)
+   tmp<-readline(msg)
+#   print(myenv$spar)
+#   print(myenv$ufn)
+#   print(myenv$ugr)
+#   print(meth)
    
-   mydo <- optimr(myenv$spar, myenv$ufn, myenv$ugr, method=meth, control=list(trace=2),
-        pscale=rep(1,2))
+   mydo <- optimr(start, fr, grr, method=meth, control=list(trace=1))
    print(mydo)
-tmp <- readline("next method (myenv)")
 }
-rm(myenv) # to try to remove duplicate defs
+# rm(myenv) # to try to remove duplicate defs
 
-tmp <- readline("Now try using op")   
-for (meth in methlist){ 
-   myopt <- op(start, fr, gr=grr, hess=NULL, 
-            method=meth, itnmax=NULL, hessian=FALSE, control=list(trace=1, starttests=FALSE))
-   cat("myopt for method = ",meth,":\n")
-   print(myopt)
-tmp <- readline("next method (op)")
-}
 

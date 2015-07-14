@@ -156,10 +156,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		ans$minimum <- NULL
                 ans$par <- ans$estimate*pscale
 		ans$estimate <- NULL
-#        	ans$nitns <- ans$iterations
-        	ans$iterations <- NULL
-        	ans$counts[2] <- ans$nitns
+        	ans$counts[2] <- ans$iterations
                 ans$counts[1] <- NA
+        	ans$iterations <- NULL
                 ans$hessian <- NULL
                 ans$gradient <- NULL # We lose information here
                 ans$message <- paste("Convergence indicator (code) = ",ans$code)

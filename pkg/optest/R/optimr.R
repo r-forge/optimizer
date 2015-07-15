@@ -1,8 +1,10 @@
 optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
+
   if (is.null(control$trace)) control$trace <- 0
   npar <- length(par)
+  defctrl <- ctrldefault(npar) # could leave this out in most cases
   if (is.null(control$parscale)) { pscale <- rep(1,npar) }
   else { pscale <- control$parscale }
   spar <- par/pscale # scaled parameters
@@ -10,7 +12,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
      fnscale <- 1
      if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
   else if (! is.null(control$maximize)) {
-          if ( (control$fnscale < 0) && maximize) {fnscale <- -1} # this is OK
+          if ( (control$fnscale < 0) && control$maximize) {fnscale <- -1} # this is OK
           else stop("control$fnscale and control$maximize conflict")
        } # end ifelse
   } # end else
@@ -18,12 +20,21 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   efn <- function(spar, ...) {
       # rely on pscale being defined in this enclosing environment
       par <- spar*pscale
-      val <- fn(par, ...)
+      val <- fn(par, ...) * fnscale
   }
-  egr <- function(spar, ...) {
-      par <- spar*pscale
-      result <- gr(par, ...) * pscale
-  }
+
+  if (is.null(gr)) gr <- defctrl$defgrapprox
+  if (is.character(gr)) {
+     egr <- function(spar, ...){
+        par <- spar*pscale
+        result <- do.call(gr, list(par, fn, ...)) * fnscale
+     }
+  } else { 
+    egr <- function(spar, ...) {
+       par <- spar*pscale
+       result <- gr(par, ...) * pscale * fnscale
+    }
+  } # end egr definition
 
   nlmfn <- function(spar, ...){
      f <- efn(spar, ...)

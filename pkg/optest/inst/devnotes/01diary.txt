@@ -5,7 +5,10 @@ Done:
 	  the scaled fn and gr work fine in optim() and Rvmmin and Rcgmin with minor setup
 	  issues. BUT running in optest seems to fail for Rcgmin (did not try Rvmmin, but 
 	  suspect also)
-	  Got op working -- but not tested for bounds.
+	  Got op working -- but not tested for bounds. But failed later when scaling.
+150714: - got optimr working with scaling by putting efn, egr INSIDE optimr and using spar
+	and pscale and fnscale defined at top. Arguments are ORIGINAL par and fn and gr. No
+	hess at this point. Not are quoted grad routines available yet.R
 
 
 
@@ -86,3 +89,5 @@ the setup.
 - Do we want to allow optimr() to have same args as optim, but more optimizers. That would be nice,
   but possibly inefficient, though it avoids the environment of setup. However, it could be more sensible
   in the long run, and avoids setup AND the special openv environment. 
+- started adding numerical gradient approximations. Note that egr is built even when the method
+  does not require a gradient

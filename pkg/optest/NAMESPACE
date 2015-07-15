@@ -12,13 +12,10 @@ import(
 )
 
 export(
-  optest.setup,
   optimr,
   ctrldefault,
   bmchk,
   fnchk,
-  scalecheck,
-  op,
-  opm
+  scalecheck
 )
 

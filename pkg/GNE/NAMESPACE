@@ -4,6 +4,11 @@ import(SQUAREM)
 import(alabama)
 import(nleqslv)
 
+importFrom("graphics", abline, contour, legend, lines, par, plot, points, text)
+importFrom("grDevices", colorRampPalette, dev.off, png)
+importFrom("stats", optim, qnorm, rnorm, runif)
+importFrom("utils", capture.output)
+
 ### Exports of main R functions
 export(GNE, GNE.nseq, GNE.ceq, GNE.fpeq, GNE.minpb)
 S3method(print, GNE)

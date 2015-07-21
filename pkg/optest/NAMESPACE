@@ -13,6 +13,7 @@ import(
 
 export(
   optimr,
+  opm,
   ctrldefault,
   bmchk,
   fnchk,

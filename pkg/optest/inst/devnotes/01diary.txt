@@ -9,8 +9,11 @@ Done:
 150714: - got optimr working with scaling by putting efn, egr INSIDE optimr and using spar
 	and pscale and fnscale defined at top. Arguments are ORIGINAL par and fn and gr. No
 	hess at this point. Not are quoted grad routines available yet.R
+150721: - opm sort of working. Need to tidy output and ensure tested
+	- bounds tested with optimr
 
 
+--------------------------------------------------------------------------------------------
 
 
 150708:

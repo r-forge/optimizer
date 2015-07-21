@@ -1,118 +1,193 @@
 opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
-            method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
+            method=c("Nelder-Mead","BFGS"), hessian=FALSE,
             control=list(),
              ...) {
 
   cat("opm: wrapper to call optimr to run multiple optimizers\n")
-  npar<-length(par)
-  if (is.null(control$trace)) control$trace <- 0
-  if (control$trace > 1) cat("Function has ",npar," arguments\n")
+   
+  ans.ret <- list()
 
-# ?? check before or after scaling -- better before, but may want sometime
-#    to be able to check my transformations
+  allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
+                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
+                "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
 
-  if (is.null(control$starttests) || control$starttests) {
-     # Check parameters are in right form
-     if (!is.null(dim(par))) stop("Parameters should be a vector, not a matrix!")
-     if (! is.vector(par) ) { stop("The parameters are NOT in a vector")  }
+  if (method == "ALL") control$all.methods <- TRUE
+  if (control$all.methods) method <- allmeth # does not restrict if bounds??
+
+  nmeth <- length(method)
+
+# ?? do we need to restrict to bounded methods?? -- or leave to optimr??
+  npar <- length(par)
+  pstring<-names(par)
+  if (is.null(pstring)) {
+    pstring <- NULL
+    for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
+  } 
+  cnames <- c(pstring, "value", "fevals", "gevals", "niter", "convergence", "kkt1", "kkt2", "xtimes")
+  ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+8)
+  colnames(ans.ret)<-cnames
+  row.names(ans.ret)<-method
+  cat("width of ans.ret =", npar+8,"\n")
 
 
-     # Check parameters in bounds (090601: As yet not dealing with masks ??)
-     infeasible<-FALSE
-#     Even if we have control$have.bounds, do the check
-     if (is.null(control$keepinputpar)) { shift2bound <- TRUE } 
-     else {shift2bound <- ! control$keepinputpar}
-     bc <- bmchk(par, lower=lower, upper=upper, trace=control$trace, shift2bound)
-     if (! bc$admissible) stop("At least one lower bound is > corresponding upper bound")
-     if (infeasible && control$dowarn) warning("Parameters may be out of bounds")
-     if (control$trace > 0) {
-        cat("Parameter relation to bounds\n")
-        print(bc$bchar)
-     }
-     if (bc$parchanged) par <- bc$bvec # adjust parameters to bounds
-     control$have.bounds <- bc$bounds # reset the control vector element for bounds
+  for (i in 1:nmeth) {
+    meth <- method[i] # extract the method name
+    # Note: not using try() here
+    time <- system.time(ans <- optimr(par, fn, gr, method=meth, lower=lower, upper=upper, 
+           hessian=hessian, control=control, ...))[1]
+    cat("Method: ",meth,"\n")
+    print(ans)
+    # add to list
+#    ans.ret <- c(ans.ret, c(method=meth, ans))
 
-     # Check if function can be computed
-     tmp <- readline("about to call fnchk")
-     cat("Call fnchk with par:")
-     print(par)
-     cat("Call fnchk with fn:")
-     print(fn)
-     checkfn <- fnchk(par, fn, trace=control$trace, ...)
-
-     if (checkfn$infeasible) {
-        cat("fnchk exit code and msg:",checkfn$excode," ",checkfn$msg,"\n")
-        stop("Cannot evaluate function at initial parameters")
-     }
-
-     grbad <- FALSE
-     if (is.null(control$usenumDeriv)) control$usenumDeriv <- FALSE # ?? may be not correct
-     if (! is.null(gr) && ! is.character(gr) && ! control$usenumDeriv){ # check gradient
-     #   have gr fn        not specified method     not using numDeriv
-       gname <- deparse(substitute(gr))
-       if (control$trace > 0) cat("Analytic gradient from function ",gname,"\n\n")
-       fval <- ufn(par, ...) 
-       gn <- grad(func=fn, x=par,...) # 
-       ga <- gr(par, ...)
-       # Now test for equality (090612: ?? There may be better choices for the tolerances.
-       teps <- (.Machine$double.eps)^(1/3)
-       grtest <- max(abs(gn-ga))/(1 + abs(fval))
-       if (control$trace > 0) cat("Gradient test value =",grtest,"\n")
-       if (grtest >= teps) {
-         stop("Gradient function test value ",grtest," check gradient! \n", call.=FALSE)
-         grbad <- TRUE # Never get here if we stop ??
-       }
-       } else if (control$trace > 0) cat("Analytic gradient not made available.\n")
-
-       hessbad <- FALSE
-##?? need to fix this
-       if (! is.null(hess) && ! is.character(hess)){ # check Hessian - if character then numeric
-          hname <- deparse(substitute(uhess))
-          if (control$trace > 0) cat("Analytic hessian from function ",hname,"\n\n")
-          hn <- hessian(func=ufn, x=par, parscale=control$parscale, ...) # ?? should we use dotdat
-          ha <- uhess(par, ...)
-          # Now test for equality
-          teps <- (.Machine$double.eps)^(1/3)
-          if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) stop("Hessian function might be wrong - check it! \n", call.=FALSE)
-          optchk$hessbad <- TRUE
-       } else if (control$trace > 0) cat("Analytic Hessian not made available.\n")
-
-       # Scaling check  091219
-       cat("scale check\n")
-       scalebad <- FALSE
-       srat<-scalecheck(par, lower, upper,control$dowarn)
-       sratv<-c(srat$lpratio, srat$lbratio)
-       if (is.null(control$scaletol)) control$scaletol <- 3
-       if (max(sratv,na.rm=TRUE) > control$scaletol) { 
-	  warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
-          if (! is.null(control$dowarn) && control$dowarn)  warning(warnstr)
-       }
-       if (control$trace > 0) {
-         cat("Scale check -- log parameter ratio=",srat$lpratio,"  log bounds ratio=",srat$lbratio,"\n")
-       }
-
-  
-  } # end starttests
-
-tmp <- readline("Run optest.setup")
-
-  optcfg <- optest.setup(par, fn=fn, gr=gr, hess=hess,
-            lower=lower, upper=upper, method=method, 
-            itnmax=itnmax, hessian=hessian, control=control, ...)
-  print(str(optcfg))
-tmp <- readline("Now run optimr")
-
-  tctrl <- optcfg$ctrl
-  tctrl$parscale <- NULL # make sure we don't have scaling double called
-  # the scaling is passed via pscale for ufn, ugr and (possibly uhess??)
-  print(str(tctrl))
-
-#  if (optcfg$ctrl$have.bounds) {
-  ans <- optimr(par=optcfg$spar, fn=optcfg$ufn, gr=optcfg$ugr, method=optcfg$method, 
-         hessian=hessian, control=tctrl, pscale=control$parscale, ...)
-#  }    
-  ans$par <- ans$par * control$parscale
-  ans
+## --------------------------------------------
+## Post-processing -- Kuhn Karush Tucker conditions
+#  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
+      if (control$trace>0) { cat("Post processing for method ",meth,"\n") }
+      if (exists("ans$message")) {
+           amsg<-ans$message
+           ans$message <- NULL
+      } else { amsg <- "none" }
+      ngatend <- NA
+      nhatend <- NA
+      hev <- NA
+      ans$gevals <- ans$counts[2]
+      ans$fevals <- ans$counts[1]
+      if ( control$save.failures || (ans$convergence < 1) ){# Save soln if converged or directed to save
+#          if (control$trace && ans$convergence==0) cat("Successful convergence! \n") 
+# Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
+          hessOK<-FALSE # indicator for later
+          gradOK<-FALSE
+#          if ((control$kkt || hessian) && (ans$convergence != 9999)) {
+#              if (control$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
+#              if (!is.null(uhess)){ # check if we have analytic hessian 
+#                 nhatend<-try(uhess(ans$par, ...), silent=TRUE)
+#                 if (class(nhatend) != "try-error") {
+#                    hessOK<-TRUE
+#                 }
+#              } else {
+#                 if (is.null(ugr)) {
+#                     nhatend<-try(hessian(ufn, ans$par, ...), silent=TRUE) # change 20100711
+#                 } else {
+#                     nhatend<-try(jacobian(ugr,ans$par, ...), silent=TRUE) # change 20100711
+#                 } # numerical hessian at "solution"
+#                 if (class(nhatend) != "try-error") {
+#                    hessOK<-TRUE
+#                 }
+#              } # end hessian calculation
+#          } # end test if hessian computed
+          ans$kkt1<-NA
+          ans$kkt2<-NA
+#          if ((hessian || control$kkt) && (ans$convergence != 9999)) {# avoid test when method failed
+#             if (control$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
+#             if (is.null(ugr)) {
+#                 ngatend<-try(grad(ufn, ans$par, ...), silent=TRUE) # change 20100711
+#             } else {
+#                 ngatend<-try(ugr(ans$par, ...), silent=TRUE) # Gradient at solution # change 20100711
+#             }
+#             if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
+#             if ( (! gradOK) && (control$trace>0)) cat("Gradient computation failure!\n") 
+#             if (gradOK) {
+#                # test gradient
+#                ans$kkt1<-(max(abs(ngatend)) <= control$kkttol*(1.0+abs(ans$value)) ) # ?? sensible?
+#                if (hessOK) {
+#                   # For bounds constraints, we need to "project" the gradient and Hessian
+#                   bset<-sort(unique(c(which(ans$par<=lower), which(ans$par>=upper))))
+#                   nbds<-length(bset) # number of elements nulled by bounds
+#                   # Note: we assume that we are ON, not over boundary, 
+#                   # but use <= and >=. No tolerance is used.
+#                   ngatend[bset]<-0 # "project" the gradient
+#                   nhatend[bset,] <-0
+#                   nhatend[, bset] <-0 # and the Hessian
+#                   if (!isSymmetric(nhatend, tol=sqrt(.Machine$double.eps))) {
+#                      # hessOK<-FALSE ## Assume we will keep hessian after symmetrizing
+#                      asym <- sum(abs(t(nhatend) - nhatend))/sum(abs(nhatend))
+#                      asw <- paste("Hessian is reported non-symmetric with asymmetry ratio ", 
+#                      asym, sep = "")
+#                      if (control$trace > 1) cat(asw, "\n")
+#                      if (control$dowarn) warning(asw)
+#                      ### if (asym > control$asymtol) stop("Hessian too asymmetric") ##??as yet don't stop
+#                      if (control$trace > 1) cat("Force Hessian symmetric\n")
+#                      if (control$dowarn) warning("Hessian forced symmetric", call. = FALSE)
+#                      nhatend <- 0.5 * (t(nhatend) + nhatend)
+#                   }  # end symmetry test
+#                   hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble
+#                   if (control$kkt){
+#   	              if (class(hev) != "try-error") {# answers are OK, check Hessian properties
+#                         if (any(is.complex(hev))){
+#                            hessOK<-FALSE
+#                            cat("Complex eigenvalues found for method =",meth,"\n")
+#                            cat("coefficients for function value", ans$value," :\n")
+#                            print(ans$par)
+#                            dput(nhatend, file="badhess.txt")
+#                            warning("Complex eigenvalues found for method =",meth)
+#                         }
+#                         if (hessOK) {
+#                            negeig<-(hev[npar] <= (-1)*control$kkt2tol*(1.0+abs(ans$value))) 
+#                            evratio<-hev[npar-nbds]/hev[1]
+#                            # If non-positive definite, then there have zero evs (from the projection)
+#                            # in the place of the "last" eigenvalue and we'll have singularity.
+#                            # WARNING: Could have a weak minimum if semi-definite.
+#                            ans$kkt2<- (evratio > control$kkt2tol) && (! negeig)
+#                         }
+#                      } else {
+#                         warnstr<-paste("Eigenvalue failure after method ",method[i],sep='')
+#                         if (control$dowarn) warning(warnstr)
+#                         if (control$trace>0) {
+#                            cat("Hessian eigenvalue calculation failure!\n")
+#                            print(nhatend)
+#                         }
+#                      }
+#                   } # kkt2 evaluation
+#                } else { # computing Hessian has failed
+#                   warnstr<-paste("Hessian not computable after method ",method[i],sep='')
+#                   if (control$dowarn) warning(warnstr)
+#                   if (control$trace>0) cat(warnstr,"\n") 
+#                }
+#             } else { # gradient failure
+#                warnstr<-paste("Gradient not computable after method ",method[i],sep='')
+#                if (control$dowarn) warning(warnstr)
+#                if (control$trace>0) cat(warnstr,"\n") 
+#             }
+#          } # end kkt test
+          cat("str(time):\n")
+          print(time)
+          ans$xtimes <- time
+          # Do we want more information saved?
+          if (control$trace>0) { 
+		cat("Save results from method ",meth,"\n") 
+	  	print(ans)
+	  }
+	  if (control$trace>0) { cat("Assemble the answers\n") }
+          cat("ans.ret now\n")
+          print(ans.ret)
+          ans$nitns <- NA
+          cat("add ans for meth = ",meth,"\n")
+          print(ans)
+          addvec <- c(ans$par, ans$value, ans$fevals, ans$gevals, ans$nitns,
+                              ans$convergence, ans$kkt1, ans$kkt2, ans$xtimes)
+          cat("length addvec = ",length(addvec),"\n")
+          ans.ret[meth, ] <- addvec
+          if (! gradOK) ngatend <- NA
+          if (! hessOK) {
+             nhatend <- NA
+             hev <- NA
+          }
+      }  ## end post-processing of successful solution
+#      ans.details<-rbind(ans.details, list(method=meth, ngatend=ngatend, nhatend=nhatend, hev=hev, message=amsg))
+      # 1303234 try list() not c()
+#      row.names(ans.details)[[i]]>=meth
+#      	if (control$follow.on) {
+#		par <- ans$par # save parameters for next method
+#		if (i < nmeth && (control$trace>0)) cat("FOLLOW ON!\n") # NOT trace ??
+#	}
+    } # End loop  ## end loop over method (index i)
+    ansout <- NULL # default if no answers
+    if (length(ans$par) > 0) { # cannot save if no answers
+	ansout <- data.frame(ans.ret)# Don't seem to need drop=FALSE
+#        attr(ansout, "details")<-ans.details
+    }
+    ansout # return(ansout)
 
 } ## end of optimx
 

@@ -160,7 +160,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                     print.level=print.level, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		if (ans$code == 1 || ans$code == 2 || ans$code == 3) ans$convergence <- 0
-		if (ans$code == 4) ans$convvergence <- 1
+		if (ans$code == 4) ans$convergence <- 1
                 if (ans$code == 5) ans$convergence <- 5
         	# Translate output to common format
 		ans$value <- ans$minimum

@@ -586,18 +586,7 @@ The following is intended to help drive the coding as at 2015-5-14.
 These are the functions that are likely called by the user, though some others
 will be *export*ed.
 
-*  optstart() 
-    - Create the local oe2015 environment (JN??: Is this name sufficiently unique, or
-        should we use a timestamp and save the name. At the moment I prefer the simple
-        name, as it lets power users employ the content of the environment, which is
-        still to be defined.)
-*  makeufn()   
-    - using **maximize**, fn, gr, hess, parscale, set up a ufn() object for use by optimization routines
-    - output ufn() (JN??: Other name choices? e.g., ofn())
-*  makeoptobj
-    - create the optimization object
-    - contents of this object need to be delineated
-*  setoptctrl()  (JN??: currently ctrldefault())  
+*  ctrldefault())  
     - JN: I started to develop this, but after a couple of day's work/thinking, have decided
       that it makes more sense to limit the controls to reasonable common ones. If people 
       really want to work with the details, they will need to call the original packages and
@@ -605,7 +594,7 @@ will be *export*ed.
       two of the controls. 
     - Called with no argument, sets overall / general defaults for things like trace, dowarn, etc.
     - Called with `method=methname`, where `methname` is a character string for a single method,
-      sets default controls for that method.
+      sets default controls for that method. (This is NOT yet active!!!)
     - output is a list
     - JN: we might try `control=list(SANN:temp=34)` to set specific method controls. A small test using
       `pmatch()` and `names(control)` shows this to be feasible, but some care may be needed to make it
@@ -614,23 +603,20 @@ will be *export*ed.
       down. 
     - This mechanism lets us override general controls e.g., maxit, for particular methods, for example,
       in the "simple example" above, we might want `maxit=20` for Nelder-Mead and `maxit=1000` for SANN.
-*  optxsetup()
-    - Intended to call some of the routines above and ensure that inputs are sane
-    - we could make this common for `optim()` and `optimx()` and `run.optimization()`,but would need to take
-    care with the different options and multiple methods for optimx.
-*  optcheck()
-    - verify bounds are admissible
-    - check parameters are feasible (within bounds, or else moved to bounds)
-*  optmethcomp()
-    - current optimx() idea of comparing several methods for optimization and prepare results in a 
-      dataframe
-    - Calls   optmeth.setup
-              optcheck
-              optmeth.run  -- calls optim, or possibly its internal routines
-              optmeth.post -- does the post run kkt and related tests
-*  optim()
+*  optchk()
+    - verify bounds are admissible using bmchk()
+    - check parameters are feasible (within bounds, or else moved to bounds) using bmchk()
+    - check parameters have right type (directly in routine)
+    - check initial fn is computable
+    - check gradient function (if supplied) gives reasonable results
+    - sets control defaults
+    - checks parameter scaling
+*  optimr()
    - Run a single method using a stats::optim() style of input and obtaining that structure output
    - Do we want to call interface routines? Possibly not, or we get too many.
-   
+*  opm()
+   - a wrapper to call a set of methods or "ALL"
+   - do we want to get rid of "control$all.methods" ? Having multiple ways to do something is an 
+     invitation to trouble.
     
     

@@ -2,6 +2,8 @@ Done:  Top MOST recent
 
 150723: - add CITATION file to inst/ directory
         - add kktc and manual, but not test / example
+        - Do not allow fn, numerical gr, analytic hess calls.
+        - Got optchk running, with example
 150721: - opm sort of working. Need to tidy output and ensure tested
 	- bounds tested with optimr
 150714: - got optimr working with scaling by putting efn, egr INSIDE optimr and using spar
@@ -101,3 +103,7 @@ the setup.
 
 150723: - kktc added, but there is no test yet
         - need to sort out maximize / fnscale to make sure they are consistent
+        - check that numerical derivatives work
+        - allow  control$defgrapprox NULL or NA to stop() when trying a gradient method. i.e., 
+	  we can specify NO gradient approximation ???
+

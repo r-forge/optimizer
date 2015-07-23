@@ -106,4 +106,7 @@ the setup.
         - check that numerical derivatives work
         - allow  control$defgrapprox NULL or NA to stop() when trying a gradient method. i.e., 
 	  we can specify NO gradient approximation ???
+        -   # ?? need to apply constraints to gradient and hessian
+        -   # ?? check for no free parameters
+        -   # ?? provide both free parameter and constrained parameter gradient and Hessian measures??
 

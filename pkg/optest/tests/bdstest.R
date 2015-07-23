@@ -25,12 +25,13 @@ xx<-0.5*(lower+upper)
 
 cat("Rvmmin \n\n")
 
-abtrvm <- optimr(xx, bt.f, bt.g, lower, upper, bdmsk, method="Rvmmin", control=list(trace=4))
+abtrvm <- optimr(xx, bt.f, bt.g, lower, upper, method="Rvmmin", control=list(trace=4))
 print(abtrvm)
 
 alb<-optimr(xx,bt.f, bt.g, lower=lower, upper=upper, method="L-BFGS-B", control=list(trace=3))
-
 print(alb)
 
+alkkt <- kktchk(alb$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maxfn=FALSE, control=list(trace=1))
+print(alkkt)
 #sink()
 

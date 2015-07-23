@@ -17,6 +17,7 @@ export(
   ctrldefault,
   bmchk,
   fnchk,
+  kktc,
   scalecheck
 )
 

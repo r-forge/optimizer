@@ -1,20 +1,24 @@
-Done:
-150709: - optimr -- need to sort out counts for methods
+Done:  Top MOST recent
+
+150723: - add CITATION file to inst/ directory
+        - add kktc and manual, but not test / example
+150721: - opm sort of working. Need to tidy output and ensure tested
+	- bounds tested with optimr
+150714: - got optimr working with scaling by putting efn, egr INSIDE optimr and using spar
+	and pscale and fnscale defined at top. Arguments are ORIGINAL par and fn and gr. No
+	hess at this point. Not are quoted grad routines available yet.R
 150710: - need to adjust bounds for parscale	
 	- the optest function more or less works. We can create the cfg using setup, and
 	  the scaled fn and gr work fine in optim() and Rvmmin and Rcgmin with minor setup
 	  issues. BUT running in optest seems to fail for Rcgmin (did not try Rvmmin, but 
 	  suspect also)
 	  Got op working -- but not tested for bounds. But failed later when scaling.
-150714: - got optimr working with scaling by putting efn, egr INSIDE optimr and using spar
-	and pscale and fnscale defined at top. Arguments are ORIGINAL par and fn and gr. No
-	hess at this point. Not are quoted grad routines available yet.R
-150721: - opm sort of working. Need to tidy output and ensure tested
-	- bounds tested with optimr
+150709: - optimr -- need to sort out counts for methods
 
 
 --------------------------------------------------------------------------------------------
 
+Top LEAST recent
 
 150708:
 
@@ -94,3 +98,6 @@ the setup.
   in the long run, and avoids setup AND the special openv environment. 
 - started adding numerical gradient approximations. Note that egr is built even when the method
   does not require a gradient
+
+150723: - kktc added, but there is no test yet
+        - need to sort out maximize / fnscale to make sure they are consistent

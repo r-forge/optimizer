@@ -73,7 +73,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
       cat("max abs projected gradient element =",gmax,"  test tol = ",kkttol*(1.0+abs(fval)),"\n")
    }
    kkt1<-(gmax <= kkttol*(1.0+abs(fval)) ) # ?? Is this sensible?
-   if (trace) {cat("KKT1 result = ",kkt1,"\n") }
+   if (control$trace > 0) {cat("KKT1 result = ",kkt1,"\n") }
 
    if (is.null(hess)) { 
       if (is.character(gr)){
@@ -86,7 +86,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
    }
    if (maxfn) {
       nHes<- -nHes
-      if (trace) cat("Maximizing: use negative Hessian\n")
+      if (control$trace > 0) cat("Maximizing: use negative Hessian\n")
    }
 
    # ?? check for no free parameters
@@ -94,7 +94,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
 
    hev<- try(eigen(nHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
                                               # 20100711 silent
-   if (class(phev) != "try-error") {
+   if (class(hev) != "try-error") {
      if (control$trace > 0) {
         cat("Hessian eigenvalues of unconstrained Hessian:\n")
         print(hev) # ?? no check for errors

@@ -1,10 +1,10 @@
-% File src/library/stats/man/kktc.Rd
+% File src/library/stats/man/kktchk.Rd
 % Part of the R package, http://www.R-project.org
 % Copyright 1995-2007 R Core Development Team
 % Distributed under GPL 2 or later
 
-\name{kktc}
-\alias{kktc}
+\name{kktchk}
+\alias{kktchk}
 \encoding{UTF-8}
 \title{Check Kuhn Karush Tucker conditions for a supposed function minimum}
 \concept{minimization}
@@ -14,31 +14,24 @@
   already computed. Some of these used only for reporting.
 }
 \usage{
-     kktc(par, fval, ngr, nHes, nbm, maxfn=FALSE, control=list() )
+     kktchk(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, control=list(), ...)
 }
 \arguments{
  \item{par}{A vector of values for the parameters which are supposedly optimal.}
- \item{fval}{Function value at parameters \code{par}.}
- \item{ngr}{Gradient (possibly estimated) of the function at \code{par}.}
- \item{nHes}{Matrix that is supposedly the Hessian at \code{par}.}
- \item{nbm}{Number of active masks or bounds on \code{par}.}
+ \item{fn}{The objective function}
+ \item{gr}{The gradient function}
+ \item{hess}{The Hessian function}
+ \item{upper}{Upper bounds on the parameters}
+ \item{lower}{Lower bounds on the parameters}
  \item{maxfn}{Logical TRUE if function is being maximized. Default FALSE.}
- \item{control}{A list of controls for the function, made up of the following items}
-    \itemize{
-       \item{kkttol}{A tolerance for the KKT gradient check.}
-       \item{kkt2tol}{A tolerance used for the KKT Hessian check.}
-       \item{ktrace}{A logical flag that, if TRUE, displays intermediate information
-          on the progress of the function. Default is FALSE.}
-    }
+ \item{control}{A list of controls for the function}
+ \item{...}{The dot arguments needed for evaluating the function and gradient and hessian}
+
 }
 \details{
-  At the moment, kktc does NOT handle box constraints or masks in its
-  tests, except to ignore the dimensions for masks (not active bounds).
-  The present code was developed by lifting it from \code{optimx}
-  so that KKT checks could be added to other optimization routines.
-  Note that we IGNORE the sign of the gradient in the case that the
-  objective is being maximized. We do account for the sign of the
-  Hessian for curvature however.
+  kktchk computes the gradient and Hessian measures for BOTH unconstrained and 
+  bounds (and masks) constrained parameters, but the kkt measures are evaluated
+  only for the constrained case.
 }
 
 \value{

@@ -26,28 +26,28 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
 ## Post-processing -- Kuhn Karush Tucker conditions
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
 #   print(control)
-   if (is.null(control$trace) && control$trace <1) trace<-FALSE else trace<-TRUE
+   if (is.null(control$trace)) control$trace <- 0
    if (is.null(control$kkttol)) kkttol<-1e-3 else kkttol<-control$kkttol
    if (is.null(control$kkt2tol)) kkt2tol<-1e-6 else kkt2tol<-control$kkt2tol
-   if (trace) { cat("kkttol=",kkttol,"   kkt2tol=",kkt2tol,"  trace=",trace,"\n") }
+   if (control$trace > 0) { cat("kkttol=",kkttol,"   kkt2tol=",kkt2tol,
+            "  control$trace=",control$trace,"\n") }
    dotargs <- list(...)
    cat("dotargs:\n")
    print(dotargs)
    fval <- fn(par, ...)
-   if (trace) { cat("fval =",fval,"\n") }
    npar<-length(par)
-   if (trace) { 
+   if (control$trace > 0) { 
       cat("KKT condition testing\n") 
-      cat("Number of parameters =",npar,"\n")
+      cat("Number of parameters =",npar," fval =",fval,"\n") 
    }
 
    bdout <- bmchk(par, lower = lower, upper = upper, bdmsk = NULL, 
                  trace = control$trace, tol = NULL, shift2bound = FALSE) 
-   print(bdout)
+   #   print(bdout)
    # should we have shift2bound TRUE here??
    nfree <- sum(bdout$bdmsk[which(bdout$bdmsk==1)])
    nbm <- npar - nfree
-   if (trace) cat("Number of parameters =",npar," of which ",nfree," are unconstrained\n")
+   if (control$trace > 0) cat("Number of free parameters =",nfree,"\n")
 
    kkt1<-NA
    kkt2<-NA
@@ -58,11 +58,19 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
    } else {
       ngr <- gr(par, ...)
    }
-   cat("gradient:")
-   print(ngr)
-   gmax<-max(abs(ngr)) # need not worry about sign for maximizing
-   if (trace) {
-      cat("max abs gradient element =",gmax,"  test tol = ",kkttol*(1.0+abs(fval)),"\n")
+   if (control$trace > 0) {
+      cat("gradient:")
+      print(ngr)
+   }
+   pngr <- ngr
+   pngr[which(bdout$bdmsk != 1)] <- 0.0 # set up projected gradient
+   if (control$trace > 0) {
+      cat("projected gradient:")
+      print(pngr)
+   }   
+   gmax<-max(abs(pngr)) # need not worry about sign for maximizing
+   if (control$trace > 0) {
+      cat("max abs projected gradient element =",gmax,"  test tol = ",kkttol*(1.0+abs(fval)),"\n")
    }
    kkt1<-(gmax <= kkttol*(1.0+abs(fval)) ) # ?? Is this sensible?
    if (trace) {cat("KKT1 result = ",kkt1,"\n") }
@@ -81,32 +89,48 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
       if (trace) cat("Maximizing: use negative Hessian\n")
    }
 
-   # ?? need to apply constraints to gradient and hessian
    # ?? check for no free parameters
-   # ?? provide both free parameter and constrained parameter gradient and Hessian measures??
+   #  provide both free parameter and constrained parameter gradient and Hessian measures
 
    hev<- try(eigen(nHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
                                               # 20100711 silent
-   if (trace) {
-      cat("Hessian eigenvalues:\n")
-      print(hev)
-   }
-   if (class(hev) != "try-error") {
-       # now look at Hessian
-       negeig<-(hev[npar] <= (-1)*kkt2tol*(1.0+abs(fval))) # 20100711 kkt2tol
-       evratio<-hev[npar-nbm]/hev[1]
-       # If non-positive definite, then there will be zero eigenvalues (from the projection)
-       # in the place of the "last" eigenvalue and we'll have singularity.
-       # WARNING: Could have a weak minimum if semi-definite.
-       kkt2<- (evratio > kkt2tol) && (! negeig) 
-       if (trace) {
+   if (class(phev) != "try-error") {
+     if (control$trace > 0) {
+        cat("Hessian eigenvalues of unconstrained Hessian:\n")
+        print(hev) # ?? no check for errors
+     }
+   } else { warning("Error during computation of unconstrained Hessian eigenvalues") }
+   pHes <- nHes # projected Hessian
+   pHes[which(bdout$bdmsk != 1), ] <- 0.0
+   pHes[ ,which(bdout$bdmsk != 1)] <- 0.0
+   if (nfree > 0) {
+      phev<- try(eigen(pHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
+                                              # 20100711 silent
+      if (class(phev) != "try-error") {
+        if (control$trace > 0) {
+          cat("Hessian eigenvalues of constrained Hessian:\n")
+          print(phev) # ?? no check for errors
+        }
+        # now look at Hessian
+        negeig<-(hev[npar] <= (-1)*kkt2tol*(1.0+abs(fval))) # 20100711 kkt2tol
+        evratio<-hev[npar-nbm]/hev[1]
+        # If non-positive definite, then there will be zero eigenvalues (from the projection)
+        # in the place of the "last" eigenvalue and we'll have singularity.
+        # WARNING: Could have a weak minimum if semi-definite.
+        kkt2<- (evratio > kkt2tol) && (! negeig) 
+        if (control$trace > 0) {
           cat("KKT2 result = ",kkt2,"\n") 
-       }
-       ans<-list(gmax,evratio,kkt1,kkt2,hev)
-       names(ans)<-c("gmax","evratio","kkt1","kkt2","hev")
-       return(ans)
-   } else {
-       warning("Eigenvalue failure")
-       if(trace) cat("Eigenvalue calculation has failed!\n") # JN 111207 added \n
-   } # end kkt test
+        }
+        ans<-list(gmax,evratio,kkt1,kkt2,hev)
+        names(ans)<-c("gmax","evratio","kkt1","kkt2","hev")
+        return(ans)
+     } else {
+        warning("Eigenvalue failure for constrained Hessian")
+        if(control$trace > 0) cat("Eigenvalue calculation has failed!\n") # JN 111207 added \n
+     }
+  } else {
+     warning("All parameters are constrained")
+     ans <- list(gmax=0.0, evratio = NA, kkt1=TRUE, kkt2=TRUE, hev=rep(0,npar))
+     # this is the fully constrained case
+  } # end kkt test
 } ## end of kktcchek

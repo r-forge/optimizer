@@ -13,23 +13,23 @@ import(
 
 export(
   "coef<-",
-  optimr,
-  opm,
-  optchk,
-  grfwd,
-  grback,
-  grcentral,
-  grchk,
-  hesschk,
-  grnd,
-  ctrldefault,
-  bmchk,
-  fnchk,
-  kktchk,
-  scalecheck
+  "optimr",
+  "opm",
+  "optchk",
+  "grfwd",
+  "grback",
+  "grcentral",
+  "grchk",
+  "hesschk",
+  "grnd",
+  "ctrldefault",
+  "bmchk",
+  "fnchk",
+  "kktchk",
+  "scalecheck"
 )
 S3method("[", "opm")
-# S3method("as.data.frame", "opm")
+S3method("as.data.frame", "opm")
 S3method("coef", "opm")
 S3method("coef<-", "opm")
 S3method("summary", "opm")

@@ -79,7 +79,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
 
    if (is.null(hess)) { 
       if (is.character(gr)){
-         nHes <- hessian(par, ...) # use numDeriv
+         nHes <- hessian(func=fn, par, ...) # use numDeriv
       } else {
          nHes <- jacobian(gr, par, ...)
       } 

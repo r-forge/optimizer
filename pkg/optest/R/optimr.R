@@ -1,6 +1,11 @@
 optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
+  orig.method <- method
+  orig.gr <- gr
+  orig.fn <- fn
+
+  if (is.null(method)) method <- "Nelder-Mead"
 
   if (is.null(control$trace)) control$trace <- 0
   npar <- length(par)
@@ -26,8 +31,14 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   if (is.null(gr)) gr <- defctrl$defgrapprox
   if (is.character(gr)) {
      egr <- function(spar, ...){
+        cat("fnscale =",fnscale,"  pscale=")
+        print(pscale)
+        cat("gr:")
+        print(gr)
         par <- spar*pscale
-        result <- do.call(gr, list(par, fn, ...)) * fnscale
+        cat("par:")
+        print(par)
+        result <- do.call(gr, list(par, userfn=fn, ...)) * fnscale
      }
   } else { 
     egr <- function(spar, ...) {
@@ -50,16 +61,23 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? time not used in output -- make it an attribute of ans??
 # The structure has   par, value, counts, convergence, message, hessian
 
-#  cat("optimr: control$trace =",control$trace,"\n")
-#  print(par)
-#  cat("fval from efn:")
-#  print(efn(spar,pscale, fnscale, ...))
-#  if (! is.null(gr)) {
-#  cat("gval from efn:")
-#  print(egr(par, pscale, fnscale, ...))
-#  }
-#  print(method)
-# tmp <- readline("on to the run stage of optimr")
+  cat("optimr: control$trace =",control$trace,"\n")
+  print(par)
+  cat("fnscale =",fnscale,"  pscale:")
+  print(pscale)
+  dots <- list(...)
+  cat("dots:")
+  print(dots)
+  cat("efn and egr\n")
+  print(efn)
+  print(egr)
+  cat("fval from efn:")
+  print(efn(spar, ...))
+  cat("gval from efn:")
+  print(egr(par, ...))
+  cat("method:")
+  print(method)
+ tmp <- readline("on to the run stage of optimr")
 
 # Run a single method
   if (is.null(control$have.bounds)) {
@@ -87,10 +105,11 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # Note: hessian always FALSE
 
         if (have.bounds) {
-        time <- system.time(ans <- try(optim(par=par, fn=fn, gr=gr, lower=lower, upper=upper, 
-                method=method, hessian=FALSE, control=mcontrol, ...), silent=TRUE))[1]
+        if (orig.method != "L-BFGS-B") warning("optim() with bounds ONLY uses L-BFGS-B")
+        time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, lower=lower, upper=upper, 
+                method="L-BFGS-B", hessian=FALSE, control=mcontrol, ...), silent=TRUE))[1]
         } else {
-        time <- system.time(ans <- try(optim(par=par, fn=fn, gr=gr, 
+        time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
                 method=method, hessian=FALSE, control=mcontrol, ...), silent=TRUE))[1]
         }
 

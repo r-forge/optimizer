@@ -1,5 +1,8 @@
 Done:  Top MOST recent
 
+150728: - optim() -- bounds method!
+
+
 150724: - got kktchk going, and integrated more or less into opm, but issue of kkt1 and 
 	  kkt2 NOT logical in result. Probably matrix is numeric.
 150723: - add CITATION file to inst/ directory
@@ -112,3 +115,7 @@ the setup.
         -   # ?? check for no free parameters
         -   # ?? provide both free parameter and constrained parameter gradient and Hessian measures??
 
+150728: - ?? need to check egr in optimr, esp when gr is character and parscale not 1
+        - Fix problem with very simple function sum(x*x) and numerical gradient
+        - Fix coef extraction.!!
+        - optim() methods -- issue with fn and gr -- watch out that gr is replaced if not careful

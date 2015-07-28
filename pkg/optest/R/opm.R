@@ -66,7 +66,9 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 
 # Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
           if ((control$kkt || hessian) && (ans$convergence != 9999)) {
-             kktres <- kktchk(ans$par, fn, gr, hess=NULL, upper=NULL, lower=NULL, 
+             wgr <- gr
+             if (is.null(wgr)) wgr <- control$defgrapprox
+             kktres <- kktchk(ans$par, fn, wgr, hess=NULL, upper=NULL, lower=NULL, 
                     maxfn=control$maximize, control=control, ...) 
              ans$kkt1<-as.logical(kktres$kkt1)
              ans$kkt2<-as.logical(kktres$kkt2)
@@ -104,5 +106,8 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ansout[, "kkt2"] <- as.logical(ansout[, "kkt2"])
     }
     ansout # return(ansout)
+    answer <- structure(ansout, details = ans.details, maximize = control$maximize,
+            npar = npar, class = c("opm", "data.frame"))
+
 } ## end of opm
 

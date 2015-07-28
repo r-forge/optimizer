@@ -51,6 +51,8 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
 
    kkt1<-NA
    kkt2<-NA
+   ngr <- NA
+   nHes <- NA
    # test gradient
    if (is.null(gr)) stop("kktchk: A gradient function (or approximation method) MUST be supplied")
    if (is.character(gr)) {
@@ -121,8 +123,8 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
         if (control$trace > 0) {
           cat("KKT2 result = ",kkt2,"\n") 
         }
-        ans<-list(gmax,evratio,kkt1,kkt2,hev)
-        names(ans)<-c("gmax","evratio","kkt1","kkt2","hev")
+        ans<-list(gmax,evratio,kkt1,kkt2,hev, ngatend=ngr, nhatend=nHes)
+        names(ans)<-c("gmax","evratio","kkt1","kkt2","hev", "ngatend", "nhatend")
         return(ans)
      } else {
         warning("Eigenvalue failure for constrained Hessian")
@@ -130,7 +132,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
      }
   } else {
      warning("All parameters are constrained")
-     ans <- list(gmax=0.0, evratio = NA, kkt1=TRUE, kkt2=TRUE, hev=rep(0,npar))
+     ans <- list(gmax=0.0, evratio = NA, kkt1=TRUE, kkt2=TRUE, hev=rep(0,npar), ngatend=ngr, nhatend=nHes)
      # this is the fully constrained case
   } # end kkt test
 } ## end of kktcchek

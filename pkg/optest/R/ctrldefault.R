@@ -8,13 +8,13 @@ ctrldefault <- function(npar) { ## setoptctrl is new name
 #	follow.on = FALSE, 
 #        grcheckfwithg = 500,
 #        grcheckfnog = 50,
-#        save.failures = TRUE,
+#
 #        starttests = TRUE,
-#        all.methods = FALSE,
 #
      ## These are DEFAULTS. They may be nonsense in some contexts.
       ctrl.default <- list(
         acctol = 0.0001, 
+        all.methods = FALSE,
 	badval = (0.5)*.Machine$double.xmax,
         defgrapprox = "grfwd",
         dowarn = TRUE, 
@@ -34,6 +34,7 @@ ctrldefault <- function(npar) { ## setoptctrl is new name
         parchanged = FALSE, 
         parscale = rep(1, npar),
         reltest = 100.0,
+        save.failures = TRUE,
 	scaletol = 3, 
         steplen0 = 0.75, 
         stepredn = 0.2,

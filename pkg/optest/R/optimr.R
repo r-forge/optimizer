@@ -8,8 +8,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   if (is.null(control$parscale)) { pscale <- rep(1,npar) }
   else { pscale <- control$parscale }
   spar <- par/pscale # scaled parameters
+  fnscale <- 1 # default to ensure defined
   if (is.null(control$fnscale)) {
-     fnscale <- 1
      if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
   else if (! is.null(control$maximize)) {
           if ( (control$fnscale < 0) && control$maximize) {fnscale <- -1} # this is OK
@@ -148,10 +148,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (method == "nlm") { # Use stats package nlm routine
         if (is.null(gr)) { stop("optimr -- nlm -- we do not allow gr = NULL") }
-        cat("test nlmfn:")
+#        cat("test nlmfn:")
         ffval <- nlmfn(spar)
-        print(ffval)
-        tmp <- readline("cont.")
+#        print(ffval)
+#        tmp <- readline("cont.")
 	if (! is.null(control$maxit) ) {iterlim <- control$maxit }
         else { iterlim <- 100 }
 	print.level <- 0 

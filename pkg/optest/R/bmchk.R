@@ -57,7 +57,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     # set default masks if not defined
     bchar <- rep("F",n) # make sure these are defined
     if (is.null(bdmsk)) {
-        cat("setting bdmsk\n")
+#        cat("setting bdmsk\n")
         bdmsk <- rep(1, n)
     }
     if (trace > 2) {

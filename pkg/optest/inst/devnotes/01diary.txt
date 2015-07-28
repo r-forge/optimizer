@@ -1,5 +1,7 @@
 Done:  Top MOST recent
 
+150724: - got kktchk going, and integrated more or less into opm, but issue of kkt1 and 
+	  kkt2 NOT logical in result. Probably matrix is numeric.
 150723: - add CITATION file to inst/ directory
         - add kktc and manual, but not test / example
         - Do not allow fn, numerical gr, analytic hess calls.

@@ -12,6 +12,7 @@ import(
 )
 
 export(
+  "coef<-",
   optimr,
   opm,
   optchk,
@@ -27,4 +28,9 @@ export(
   kktchk,
   scalecheck
 )
+S3method("[", "opm")
+# S3method("as.data.frame", "opm")
+S3method("coef", "opm")
+S3method("coef<-", "opm")
+S3method("summary", "opm")
 

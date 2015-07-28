@@ -45,6 +45,9 @@
   \item{kkt2}{A logical value that is TRUE if we consider the second (i.e., positive
       definite Hessian) KKT condition to be satisfied. WARNING: The decision is dependent 
       on tolerances and scaling that may be inappropriate for some problems.}
+  \item{hev}{The calculated hessian eigenvalues, sorted largest to smallest??}
+  \item{ngatend}{The computed (unconstrained) gradient at the solution parameters.}
+  \item{nnatend}{The computed (unconstrained) hessian at the solution parameters.}
 }
 \seealso{
 

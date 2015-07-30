@@ -55,6 +55,14 @@ for (meth in methlist){
 
    mydos <- optimr(start, hobbs.f, hobbs.g, method=meth, control=list(trace=1, parscale=c(100,10,.1)))
    print(mydos)
+   tmp <- readline("compare")
+   cat("counts:")
+   print( mydou$counts - mydos$counts)
+   cat("value:")
+   print(mydou$value - mydos$value)  
+   tmp <- readline("continue")
+
+
 }
 # rm(myenv) # to try to remove duplicate defs
 

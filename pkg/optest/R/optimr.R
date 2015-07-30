@@ -13,6 +13,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   if (is.null(control$parscale)) { pscale <- rep(1,npar) }
   else { pscale <- control$parscale }
   spar <- par/pscale # scaled parameters
+  slower <- lower/pscale
+  supper <- upper/pscale
   fnscale <- 1 # default to ensure defined
   if (is.null(control$fnscale)) {
      if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
@@ -61,23 +63,23 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? time not used in output -- make it an attribute of ans??
 # The structure has   par, value, counts, convergence, message, hessian
 
-  cat("optimr: control$trace =",control$trace,"\n")
-  print(par)
-  cat("fnscale =",fnscale,"  pscale:")
-  print(pscale)
-  dots <- list(...)
-  cat("dots:")
-  print(dots)
-  cat("efn and egr\n")
-  print(efn)
-  print(egr)
-  cat("fval from efn:")
-  print(efn(spar, ...))
-  cat("gval from efn:")
-  print(egr(par, ...))
-  cat("method:")
-  print(method)
- tmp <- readline("on to the run stage of optimr")
+#  cat("optimr: control$trace =",control$trace,"\n")
+#  print(par)
+#  cat("fnscale =",fnscale,"  pscale:")
+#  print(pscale)
+#  dots <- list(...)
+#  cat("dots:")
+#  print(dots)
+#  cat("efn and egr\n")
+#  print(efn)
+#  print(egr)
+#  cat("fval from efn:")
+#  print(efn(spar, ...))
+#  cat("gval from efn:")
+#  print(egr(par, ...))
+#  cat("method:")
+#  print(method)
+# tmp <- readline("on to the run stage of optimr")
 
 # Run a single method
   if (is.null(control$have.bounds)) {
@@ -139,8 +141,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	} else { 
 		mcontrol$trace = 1 # this is EVERY iteration. nlminb trace is freq of reporting.
 	}
-        time <- system.time(ans <- try(nlminb(start=spar, objective=efn, gradient=egr, lower=lower, 
-		upper=upper, control=mcontrol,  ...), silent=TRUE))[1]
+        time <- system.time(ans <- try(nlminb(start=spar, objective=efn, gradient=egr, lower=slower, 
+		upper=supper, control=mcontrol,  ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		# Translate output to common format and names
         	ans$value<-ans$objective
@@ -216,7 +218,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             mcontrol$trace <- TRUE
             if (control$trace > 1) mcontrol$triter <- 1 # default is 10
         } else { mcontrol$trace <- FALSE }
-        time <- system.time(ans <- try(spg(par=spar, fn=efn, gr=egr, lower=lower, upper=upper,  
+        time <- system.time(ans <- try(spg(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,  
 		control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") { 
            ans$par <- ans$par*pscale
@@ -293,8 +295,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 #?? others
 	if (control$have.bounds) {
 #           if (is.null(gr)) gr<-"grfwd" ##JN
-   	   time <- system.time(ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=lower,
-                upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+   	   time <- system.time(ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
 #           if (is.null(gr)) gr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, 
@@ -323,8 +325,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	if (control$trace>0) {mcontrol$trace <- TRUE } else {mcontrol$trace <- FALSE}
 
 	if (control$have.bounds) {
-   	   time <- system.time(ans <- try(tnbc(x=spar, fgfun=nlmfn, gr=gr, lower=lower,
-                upper=upper, trace=mcontrol$trace, ...), silent=TRUE))[1]
+   	   time <- system.time(ans <- try(tnbc(x=spar, fgfun=nlmfn, lower=slower,
+                upper=supper, trace=mcontrol$trace, ...), silent=TRUE))[1]
 	} else {
    	   time <- system.time(ans <- try(tn(x=spar, fgfun=nlmfn, 
 		  trace=mcontrol$trace, ...), silent=TRUE))[1]
@@ -360,13 +362,14 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
 	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
         mcontrol$maxit <- control$maxit
+#        mcontrol$parscale <- pscale
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
 	if (control$have.bounds) {
-   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=fn, gr=gr, lower=lower,
-                upper=upper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+   	   time <- system.time(ans <- try(Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-   	   time <- system.time(ans <- try(Rvmminu(par=par, fn=fn, gr=gr, 
+   	   time <- system.time(ans <- try(Rvmminu(par=spar, fn=efn, gr=egr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") {
@@ -389,7 +392,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "bobyqa") {# Use bobyqa routine from minqa package
   	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
-        time <- system.time(ans <- try(bobyqa(par=par, fn=fn, lower=lower, upper=upper, 
+        time <- system.time(ans <- try(bobyqa(par=spar, fn=efn, lower=slower, upper=supper, 
 		control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
@@ -425,8 +428,20 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "uobyqa") {# Use uobyqa routine from minqa package
 	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
-
-        time <- system.time(ans <- try(uobyqa(par=par, fn=fn, control=mcontrol,...), silent=TRUE))[1]
+        if (control$have.bounds) {
+            warning("Cannot use uobyqa with bounds")
+		if (control$trace > 0) cat("Cannot use uobyqa with bounds\n")
+		ans<-list() # ans not yet defined, so set as list
+                ans$convergence <- 9999 # failed in run
+		ans$value <- control$badval
+		ans$par<-rep(NA,npar)
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA # save function and gradient count information
+	        ans$message <- NULL        
+                ans$hessian <- NULL
+                return(ans)
+        }
+        time <- system.time(ans <- try(uobyqa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
@@ -444,7 +459,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	      	ans$fval <- NULL # not used
                 ans$hessian <- NULL
         } else {
-		if (control$trace > 0) cat("bobyqa failed for current problem \n")
+		if (control$trace > 0) cat("uobyqa failed for current problem \n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
 		ans$value <- control$badval
@@ -462,8 +477,21 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         cat("Trying newuoa\n")
 	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
+        if (control$have.bounds) {
+            warning("Cannot use newuoa with bounds")
+		if (control$trace > 0) cat("Cannot use newuoa with bounds\n")
+		ans<-list() # ans not yet defined, so set as list
+                ans$convergence <- 9999 # failed in run
+		ans$value <- control$badval
+		ans$par<-rep(NA,npar)
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA # save function and gradient count information
+	        ans$message <- NULL        
+                ans$hessian <- NULL
+                return(ans)
+        }
 
-        time <- system.time(ans <- try(newuoa(par=par, fn=fn, control=mcontrol,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(newuoa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {

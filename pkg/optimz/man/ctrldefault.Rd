@@ -1,27 +1,20 @@
 \name{ctrldefault}
 \alias{ctrldefault}
 \encoding{UTF-8}
-\title{Set default values of control parameters for routines in the \code{optimz} package}
-\description{Set default values of control parameters for routines in the \code{optimz}
-    package. See the source code for the names and values. 
+\title{set control defaults}
+\concept{minimization}
+\concept{maximization}
+\description{
+  Set control defaults.
 }
 \usage{
-       ctrldefault(npar)
+   ctrldefault(npar)  
 }
 \arguments{
- \item{npar}{The (scalar) number of parameters in the function to be optimized.}
+ \item{npar}{Number of parameters to optimize.}
 }
-
-\details{
-None.
-}
-
 \value{
-  A list with components as described in the source code.
-
-}
-\examples{
-cat("all examples in tests/ subdirectory\n")
+  \code{ctrldefault} returns the default control settings for optimization tools.
 }
 \keyword{nonlinear}
 \keyword{optimize}

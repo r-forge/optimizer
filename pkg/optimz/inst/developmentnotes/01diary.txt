@@ -120,3 +120,27 @@ the setup.
 150728: - ?? need to check egr in optimr, esp when gr is character and parscale not 1
         - optim() methods -- issue with fn and gr -- watch out that gr is replaced if not careful
 
+150709:
+- setup of ufn, ugr -- worked using optest package. Found it too easy to make mistakes.
+- optimr: a replacement for optim that returns single method output with hessian NULL.
+   This should allow optimx to be a loop wrapper and call this using ufn and ugr so we
+   avoid lots of the internal stuff (though the overhead will still be there in general).
+- Note lots of ?? re Imports and Namespace. Need to learn this better.
+- optimr -- parameter scaling
+  How: spar <- par / pscale    Scaled parameters (over which we optimize)
+
+       par <- spar*pscale      Unscaled parameters
+
+       sfn(spar, ...) = fn(par, ...) = fn(spar*pscale, ...)
+
+       How do we communicate the pscale  (= control$parscale for optim)
+
+       Maybe use control$parscale and default it to rep(1, npar)
+
+This approach later abandoned
+
+150708:
+- problems with saving to ans.ret[meth, ] for single method. Need to fix
+- Note that trace > 0 does not seem to be transferred to optim
+  In fact, fn and gr are seemingly not transferred correctly. Something seriously wrong.
+

@@ -21,7 +21,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     #   or upper bound (-1)
     # trace = control of output: 0 for none (default), >0 for
     #   output
-    # tol = 
+    # tol = tolerance for closeness of upper and lower bounds
     # shift2bound = TRUE if we adjust par values so they are
     #   feasible
     ##
@@ -57,6 +57,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
     # set default masks if not defined
     bchar <- rep("F",n) # make sure these are defined
     if (is.null(bdmsk)) {
+#        cat("setting bdmsk\n")
         bdmsk <- rep(1, n)
     }
     if (trace > 2) {
@@ -82,7 +83,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
         upper <- rep(Inf, n)
 
 ## adjust tolerance for masks and parameters ON bounds
-    if (is.null(tol)) {
+    if (is.null(tol) || tol <= 0.0) {
        tol <- .Machine$double.eps * max(abs(par), 1) # use par as bounds Inf
     }
     ######## check bounds and masks #############

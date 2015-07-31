@@ -1,48 +1,37 @@
 import(
-    numDeriv,
-    BB,
-    dfoptim,
-    minqa,
-    setRNG,
-    ucminf
+  numDeriv,
+  BB, 
+  dfoptim,
+  minqa,
+  setRNG,
+  ucminf,
+  Rtnmin,
+  Rvmmin,
+  Rcgmin,
+  lbfgsb3
 )
-
-# Public routines
-
+importFrom("stats", "nlm", "nlminb", "optim")
+importFrom("utils", "str")
 export(
-  "optimx",
-  "optim",
   "coef<-",
-  "axsearch",
-  "fnchk",
+  "optimr",
+  "opm",
+  "optchk",
+  "grfwd",
   "grback",
   "grcentral",
   "grchk",
-  "grfwd",
-  "hesschk", 
-  "kktc",
-  "bmchk",
-  "bmstep",
-  "scalecheck",
+  "hesschk",
   "grnd",
-  "tn",
-  "tnbc",
-  "Rvmmin",
-  "Rvmminb",
-  "Rvmminu",
-  "Rcgmin",
-  "Rcgminu",
-  "Rcgminb",
-  "lbfgsb3",
   "ctrldefault",
-  "optimx.setup"
+  "bmchk",
+  "fnchk",
+  "kktchk",
+  "scalecheck"
 )
-S3method("[", "optimx")
-S3method("as.data.frame", "optimx")
-S3method("coef", "optimx")
-S3method("coef<-", "optimx")
-S3method("summary", "optimx")
-
-# Load shared objects
-useDynLib(optimz)
+S3method("[", "opm")
+S3method("as.data.frame", "opm")
+S3method("coef", "opm")
+S3method("coef<-", "opm")
+S3method("summary", "opm")
 

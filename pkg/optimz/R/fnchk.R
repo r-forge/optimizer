@@ -7,8 +7,8 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
 #  This function can take-in multiple starting values
 #
 # Input:
-#  xpar = a vector of starting values
-#  ffn = objective function (assumed to be sufficiently differentiable)
+#  xpar = a vector of starting values (may be scaled)
+#  ffn = objective function (assumed to be sufficiently differentiable). May be created by setup program.
 #  cctrl = a list of control information FOR THE CHECKING PROGRAM. See Details.
 #          The name has been changed from control to avoid confusion with control list in optim/optimx
 #  ...     = other arguments to the function identified by fname
@@ -22,7 +22,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
 #      msg
 #
 #  Author:  John Nash
-#  Date: Sept 18, 2011
+#  Date: Sept 18, 2011, mod July 2015
 #################################################################
   maxard10<-function(one, two) { 
   # get max abs relative difference scaled by 10.0 in denominator
@@ -32,14 +32,14 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
     return(result)
   }
 #########
-   if (trace > 3) {
+#   if (trace > 2) {
       cat("fnchk: ffn =\n")
       print(ffn)
-      cat("xpar:")
+      cat("fnchk: xpar:")
       print(xpar)
-      cat("dots:")
+      cat("fnchk: dots:")
       print(list(...))
-   }
+#   }
    infeasible<-FALSE # set value OK, then alter if not feasible later
    excode <- 0 # ditto
    msg <- "fnchk OK" # ditto
@@ -51,7 +51,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
       print(xpar)
       print(list(...))
    }
-   test<-try(fval<-ffn(xpar, ...)) # 
+   test<-try(fval<-ffn(xpar, ...)) # !! KEY LINE
    if (trace > 1) {
       cat("test in fnchk:")
       print(test)

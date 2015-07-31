@@ -14,7 +14,8 @@
   already computed. Some of these used only for reporting.
 }
 \usage{
-     kktchk(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, control=list(), ...)
+     kktchk(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, 
+                 maxfn=FALSE, control=list(), ...)
 }
 \arguments{
  \item{par}{A vector of values for the parameters which are supposedly optimal.}

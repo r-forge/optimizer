@@ -4,8 +4,14 @@ optchk <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 ## Should be run whenever we are not sure parameters and function are
 ## admissible. 
 ##
-## Inputs: ?? 
-##   control list -- control. fn, gr
+## Inputs:  
+# par - a vector of initial values for the parameters 
+# fn  - A function to be minimized (or maximized)
+# gr  - A function to return (as a vector) the gradient 
+# hess- A function to return (as a symmetric matrix) the Hessian of the objective 
+# lower, upper - Bounds on the variables
+# control - A list of control parameters. 
+# ... - further arguments to be passed to fn and gr
 
 ## Outputs: ?? failed-checks info.
 
@@ -72,5 +78,5 @@ optchk <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      }
   }
   optcheck <- list(grOK = grOK, hessOK = hessOK, scalebad = scalebad, scaleratios = sratv)
-} ## end of optimx.check
+} ## end of optchk.R
 

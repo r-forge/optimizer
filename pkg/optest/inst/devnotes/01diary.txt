@@ -1,5 +1,7 @@
 Done:  Top MOST recent
 
+150730: - fixup calls to several optimizers
+	- test hobbs15b
 150728: - optim() -- bounds method!
         - Fix coef extraction.!! / summary method
         - Fix problem with very simple function sum(x*x) and numerical gradient
@@ -117,3 +119,4 @@ the setup.
 
 150728: - ?? need to check egr in optimr, esp when gr is character and parscale not 1
         - optim() methods -- issue with fn and gr -- watch out that gr is replaced if not careful
+

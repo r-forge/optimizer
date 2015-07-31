@@ -56,30 +56,12 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
      attr(f,"hessian") <- NULL # ?? maybe change later
      f
   }
-# ?? do we want ehess ??    Not at 150714
+# ?? do we want ehess ?    Not at 150714
 
 # replacement for optim to minimize using a single method
 
-# ?? time not used in output -- make it an attribute of ans??
+# time is in opm(), but not here
 # The structure has   par, value, counts, convergence, message, hessian
-
-#  cat("optimr: control$trace =",control$trace,"\n")
-#  print(par)
-#  cat("fnscale =",fnscale,"  pscale:")
-#  print(pscale)
-#  dots <- list(...)
-#  cat("dots:")
-#  print(dots)
-#  cat("efn and egr\n")
-#  print(efn)
-#  print(egr)
-#  cat("fval from efn:")
-#  print(efn(spar, ...))
-#  cat("gval from efn:")
-#  print(egr(par, ...))
-#  cat("method:")
-#  print(method)
-# tmp <- readline("on to the run stage of optimr")
 
 # Run a single method
   if (is.null(control$have.bounds)) {
@@ -292,13 +274,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
 	bdmsk <- bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
         mcontrol$trace <- control$trace
-#?? others
 	if (control$have.bounds) {
-#           if (is.null(gr)) gr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-#           if (is.null(gr)) gr<-"grfwd" ##JN
    	   time <- system.time(ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
@@ -362,7 +341,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
 	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
         mcontrol$maxit <- control$maxit
-#        mcontrol$parscale <- pscale
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
 	if (control$have.bounds) {
@@ -531,16 +509,16 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
            ans <- list() # ans not yet defined, so set as list
            ans$value <- control$badval
            ans$par <- rep(NA,npar)
-           ans$convcode <- 9999 # failed in run - ?? need special code for nmkb on bounds
+           ans$convcode <- 9999 # failed in run - ?? consider special code for nmkb on bounds
            ans$fevals <- NA 
            ans$gevals <- NA 
            ans$nitns <- NA
            ans$hessian <- NULL
         } else { # ok to proceed with nmkb()
         if (! is.null(control$maxit)) { 
-		mcontrol$maxfeval <- control$maxit
+	   mcontrol$maxfeval <- control$maxit
 	} else {
-		mcontrol$maxfeval <- 5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+	   mcontrol$maxfeval <- 5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?
 	}
          if (control$trace > 0) { mcontrol$trace <- TRUE } # logical needed, not integer         
          else { mcontrol$trace<-FALSE }
@@ -616,10 +594,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
         if (control$trace > 1) cat("lbfgsb3\n")
         mcontrol$trace <- control$trace
-        mcontrol$iprint <- 1 # ???
-#        mcontrol$maxfeval <- control$maxfeval
-        # ?? use maxfevals rather than maxit for lbfgsb3 ??
-        cat("have.bounds =",have.bounds,"\n")
+        if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
+        # ?? use maxfevals rather than maxit for lbfgsb3 ?
+        if (control$trace > 0) cat("have.bounds =",have.bounds,"\n")
         if (have.bounds) { ## Note call uses prm not par
             time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
@@ -636,8 +613,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$f <- NULL
             ans$counts[1] <- ans$info$isave[34]
             ans$counts[2] <- ans$counts[1]
-            ans$info <- NULL ##?? Note -- throwing away a lot of information
-            ans$g <- NULL ##?? perhaps keep -- but how??
+            ans$info <- NULL ## Note -- throwing away a lot of information
+            ans$g <- NULL ## perhaps keep -- but how??
             ans$hessian <- NULL
             ans$message <- NA
             ans$niter <- NULL # loss of information

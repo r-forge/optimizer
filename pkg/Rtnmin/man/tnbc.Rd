@@ -1,12 +1,9 @@
 \name{tnbc}
 \alias{tnbc}
 \encoding{UTF-8}
-\title{Variable metric nonlinear function minimization with bounds constraints}
-\description{A bounds-constarined R implementation of a variable metric method for minimization
-of nonlinear functions subject to bounds (box) constraints and masks 
-(fixed parameters). 
-
-   See manual Rvmmin.Rd for more details and examples.
+\title{Truncated Newton function minimization with bounds constraints}
+\description{A bounds-constarined R implementation of a truncated Newton method
+for minimization of nonlinear functions subject to bounds (box) constraints. 
 }
 \usage{
    tnbc(x, fgfun, lower, upper, trace=FALSE, \dots)

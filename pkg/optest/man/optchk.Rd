@@ -51,7 +51,7 @@ optchk(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 \value{
   A list of the following items:
 
-\describe{
+ \describe{
 
  \item{grOK}{TRUE if the analytic gradient and a numerical approximation via \code{numDeriv}
    agree within the \code{control$grtesttol} as per the \code{R} code in function 
@@ -65,7 +65,7 @@ optchk(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
  \item{scalebad}{TRUE if the larger of the \code{scaleratios} exceeds \code{control$scaletol}}
  \item{scaleratios}{A vector of the parameter and bounds scale ratios. See the function code
    of \code{scalecheck} for the computation of these values.}
-}
+ }
 } 
 \references{
 

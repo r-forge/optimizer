@@ -10,7 +10,8 @@ import(
   Rcgmin,
   lbfgsb3
 )
-
+importFrom("stats", "nlm", "nlminb", "optim")
+importFrom("utils", "str")
 export(
   "coef<-",
   "optimr",

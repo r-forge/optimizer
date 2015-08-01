@@ -54,10 +54,10 @@ setok <- bt.setup0(n)
 start <- setok$x
 lo <- setok$lower
 up <- setok$upper 
-abt <- optimx(start, bt.f, bt.g, lower=lo, upper=up, method="all")
+abt <- opm(start, bt.f, bt.g, lower=lo, upper=up, method="ALL") # Must be capitalized
 print(summary(abt, order=value))
 
 
-abtn <- optimx(start, bt.f, gr="grnd", lower=lo, upper=up, method="all")
+abtn <- opm(start, bt.f, gr="grnd", lower=lo, upper=up, method="ALL")
 print(summary(abtn, order=value))
 

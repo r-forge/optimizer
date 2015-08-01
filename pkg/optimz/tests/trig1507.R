@@ -39,7 +39,7 @@ trig.g <- function(x) { # unvectorized
 }
 
 
-require(optest)
+require(optimz)
 x<-rep(4,2)
 cat("opm\n")
 opt2<-optimr(x, trig.f, trig.g, method="BFGS")

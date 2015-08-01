@@ -37,7 +37,7 @@ hobbs.g<-function(x){ # gradient of Hobbs weeds problem
     gg<-as.vector(2.*t(jj) %*% res)
     return(gg)
 }
-require(optest)
+require(optimz)
 
 start <- c(300, 50, .3)
 

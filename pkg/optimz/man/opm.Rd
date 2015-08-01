@@ -47,9 +47,11 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    function for those methods that can use this information.}
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can
    handle box (or bounds) constraints.}
- \item{method}{A list of the methods to be used. 
+ \item{method}{A vector of the methods to be used, each as a character string.
        Note that this is an important change from optim() that allows
-       just one method to be specified. See \sQuote{Details}.}
+       just one method to be specified. See \sQuote{Details}. If \code{method}
+       has just one element, \code{"ALL"} (capitalized), all available and 
+       appropriate methods will be tried.}
  \item{hessian}{A logical control that if TRUE forces the computation of an approximation 
        to the Hessian at the final set of parameters. If FALSE (default), the hessian is
        calculated if needed to provide the KKT optimality tests (see \code{kkt} in

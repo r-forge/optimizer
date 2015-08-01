@@ -14,7 +14,7 @@ grr <- function(x) { ## Gradient of 'fr'
 
 ####
 # require(numDeriv)
-require(optest)
+require(optimz)
 ##JN Since this is a single method, the details could have wrong structure
 start <- c(-1.2,1)
 
@@ -22,7 +22,6 @@ methlist <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf",
               "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", "BFGS", "CG", "Nelder-Mead", 
                "L-BFGS-B", "SANN", "nlm", "nlminb")
 
-# myenv <- optest.setup(start, fr, grr)
 for (meth in methlist){ 
    msg <- paste("Optimr attempt using ",meth)
    tmp<-readline(msg)

@@ -97,7 +97,7 @@ spg <- function(par, fn, gr=NULL, method=3, lower=-Inf, upper=Inf,
   # and use the timing to decide if the analytic gradient should be checked.
   # c() in next is for case of a 1x1 matrix value
 
-  f.time <- system.time(f <- try(func(par, ...),silent=TRUE))
+  f.time <- system.time(f <- try(func(par, ...),silent=TRUE), gcFirst=FALSE)
   feval <- 1
   
   # set the default for checking the gradient based on how long

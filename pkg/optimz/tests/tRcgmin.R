@@ -20,7 +20,7 @@ grn<-function(x){
 }  
 
 
-ansrosenbrock0 <- Rcgmin(fn=fr,gr=grn, par=c(1,2))
+ansrosenbrock0 <- optimr(fn=fr,gr=grn, par=c(1,2), method="Rcgmin")
 print(ansrosenbrock0) # use print to allow copy to separate file that 
 #    can be called using source()
 #####################
@@ -44,7 +44,7 @@ for (i in 1:n) {
    upper[i]<-1.0*i*(n+1)/n
 }
 xx<-0.5*(lower+upper)
-ansbt<-Rcgmin(xx, bt.f, bt.g, lower, upper, bdmsk, control=list(trace=1))
+ansbt<-optimr(xx, bt.f, bt.g, lower, upper, method="Rcgmin", control=list(trace=1), bdmsk=bdmsk)
 
 print(ansbt)
 
@@ -76,8 +76,8 @@ xx<-rep(pi,10)
 lower<-NULL
 upper<-NULL
 bdmsk<-NULL
-genrosea<-Rcgmin(xx,genrose.f, genrose.g, gs=10)
-genrosenn<-Rcgmin(xx,genrose.f, gs=10) # use local numerical gradient
+genrosea<-optimr(xx,genrose.f, genrose.g, method="Rcgmin", gs=10)
+genrosenn<-optimr(xx,genrose.f, method="Rcgmin", gs=10) # use local numerical gradient
 cat("genrosea uses analytic gradient\n")
 print(genrosea)
 cat("genrosenn uses default gradient approximation\n")
@@ -89,9 +89,9 @@ cat("timings B vs U\n")
 lo<-rep(-100,10)
 up<-rep(100,10)
 bdmsk<-rep(1,10)
-tb<-system.time(ab<-Rcgminb(xx,genrose.f, genrose.g, lower=lo, upper=up, bdmsk=bdmsk, 
-     control=ctrldefault(length(xx))))[1]
-tu <- system.time(au<-Rcgminu(xx,genrose.f, genrose.g, control=ctrldefault(length(xx))))[1]
+require(Rcgmin)
+tb<-system.time(ab<-Rcgminb(xx,genrose.f, genrose.g, lower=lo, upper=up, bdmsk=bdmsk))[1]
+tu <- system.time(au<-Rcgminu(xx,genrose.f, genrose.g))[1]
 cat("times U=",tu,"   B=",tb,"\n")
 cat("solution Rcgminu\n")
 print(au)

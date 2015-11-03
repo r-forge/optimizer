@@ -47,17 +47,17 @@ tufn <- function (par) {
 require(optimz)
 
 xx<-0.5*c(pi,pi)
-ans<-optimx(xx, jones, jonesg, method="all", control=list(trace=1))
+ans<-opm(xx, jones, jonesg, method="ALL", control=list(trace=1))
 print(summary(ans, order=value))
 tmp <- readline("continue")
 
 lo<-c(0,0)
 up<-c(1.2*pi, 1.2*pi)
-ansb<-optimx(xx, jones, jonesg, lower=lo, upper=up, method="all", control=list(trace=1))
+ansb<-opm(xx, jones, jonesg, lower=lo, upper=up, method="ALL", control=list(trace=1))
 print(summary(ansb, order=value))
 tmp <- readline("continue")
 
-ansbn<-optimx(xx, jones, gr="grfwd", lower=lo, upper=up, method="all", control=list(trace=1))
+ansbn<-opm(xx, jones, gr="grfwd", lower=lo, upper=up, method="ALL", control=list(trace=1))
 print(summary(ansbn, order=value))
 tmp <- readline("continue")
 

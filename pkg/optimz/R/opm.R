@@ -34,11 +34,14 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #  cnames <- c(pstring, "value", "fevals", "gevals", "niter", "convergence", "kkt1", "kkt2", "xtimes")
    cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtimes")
   ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
+  print(ans.ret)
+  tmp <- readline("continue after printing ans.ret initial")
   ans.ret <- data.frame(ans.ret)
   colnames(ans.ret)<-cnames
   row.names(ans.ret)<-method
   ans.details <- list()
-  cat("width of ans.ret =", npar+8,"\n")
+  cat("width of ans.ret =", npar+7,"\n")
+  print(dim(ans.ret))
   for (i in 1:nmeth) {
     meth <- method[i] # extract the method name
     # Note: not using try() here
@@ -62,6 +65,9 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       hev <- NA
       ans$gevals <- ans$counts[2]
       ans$fevals <- ans$counts[1]
+      ans$kkt1<-NA
+      ans$kkt2<-NA
+      kktres <- list(gmax=NA, evratio = NA, kkt1=NA, kkt2=NA, hev=rep(NA,npar), ngatend=NA, nhatend=NA)
       if ( control$save.failures || (ans$convergence < 1) ){# Save soln if converged or directed to save
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 
 # Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
@@ -83,13 +89,16 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	  	print(ans)
 	  }
 	  if (control$trace>0) { cat("Assemble the answers\n") }
-#          cat("ans.ret now\n")
-#          print(ans.ret)
+          cat("ans.ret now\n")
+          print(ans.ret)
 #          ans$nitns <- NA
 #          cat("add ans for meth = ",meth,"\n")
 #          print(ans)
           addvec <- c(ans$par, ans$value, ans$fevals, ans$gevals, 
                               ans$convergence, ans$kkt1, ans$kkt2, ans$xtimes)
+          cat("length addvec = ", length(addvec),"\n")
+          print(addvec)
+
 #          cat("length addvec = ",length(addvec),"\n")
           ans.ret[meth, ] <- addvec
       }  ## end post-processing of successful solution

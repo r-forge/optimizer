@@ -102,12 +102,14 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         if (class(ans)[1] == "try-error") { # bad result -- What to do?
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		if (control$trace>0) cat("optim method failure\n")
+                errmsg <- "optim method failure\n"
+                if (orig.method != "L-BFGS-B") errmsg <- paste("optim() with bounds ONLY uses L-BFGS-B: ", errmsg)
+		if (control$trace>0) cat(errmsg)
 		ans$value <- control$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- NULL
+	        ans$message <- errmsg
         } # otherwise ans is OK and we return it
         return(ans) # to ensure we return
       }   # end if using optim() methods
@@ -231,6 +233,12 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         else { mcontrol$maxeval <- control$maxit}
         mcontrol$maxit <- NULL # 150427 ensure nulled for ucminf
 #        if (hessian) uhessian <- 1 else uhessian <- 0
+        errmsg <- NULL
+        if (have.bounds) {
+              cat("ucminf cannot handle bounds\n")
+              errmsg <- "ucminf cannot handle bounds\n"
+              stop("ucminf tried with bounds")
+        }
          uhessian <- 0 # Ensure hessian NOT computed
         time <- system.time(ans <- try(ucminf(par=spar, fn=efn, gr=egr, 
                  hessian = uhessian,  control=mcontrol, ...), silent=TRUE))[1]
@@ -264,7 +272,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- NULL        
+	        ans$message <- errmsg
                 ans$hessian <- NULL
         }
         uhessian <- NULL

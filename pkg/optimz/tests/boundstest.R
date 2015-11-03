@@ -54,8 +54,8 @@ setok <- bt.setup0(n)
 start <- setok$x
 lo <- setok$lower
 up <- setok$upper 
-abt <- opm(start, bt.f, bt.g, lower=lo, upper=up, method="ALL") # Must be capitalized
-print(summary(abt, order=value))
+# abt <- opm(start, bt.f, bt.g, lower=lo, upper=up, method="ALL") # Must be capitalized
+# print(summary(abt, order=value))
 
 
 abtn <- opm(start, bt.f, gr="grnd", lower=lo, upper=up, method="ALL")

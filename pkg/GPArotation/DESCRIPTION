@@ -1,7 +1,7 @@
 Package: GPArotation
 Version: 2015.7-1
 Title: GPA Factor Rotation
-Description:  Gradient Projection Algorithm Rotation for Factor Analysis. See ?GPArotation.Intro for more details.
+Description:  Gradient Projection Algorithm Rotation for Factor Analysis. See '?GPArotation.Intro' for more details.
 Depends: R (>= 2.0.0)
 Imports: stats
 LazyLoad: yes

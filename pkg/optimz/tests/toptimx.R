@@ -1,6 +1,6 @@
 require(optimz)
 
-cat("Show how optimx works\n")
+cat("Show how optimz works\n")
 
 require(graphics)
 cat("Note demo(ox) for extended examples\n")
@@ -48,23 +48,23 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 }
 
 startx<-4*seq(1:10)/3.
-ans8<-optimx(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
+ans8z<-opm(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h, 
    control=list(all.methods=TRUE, save.failures=TRUE, trace=0), gs=10)
-ans8
-ans8[, "gevals"]
-ans8["spg", ]
-summary(ans8, par.select = 1:3)
-summary(ans8, order = value)[1, ] # show best value
-head(summary(ans8, order = value)) # best few
+ans8z
+ans8z[, "gevals"]
+ans8z["spg", ]
+summary(ans8z, par.select = 1:3)
+summary(ans8z, order = value)[1, ] # show best value
+head(summary(ans8z, order = value)) # best few
 ## head(summary(ans8, order = "value")) # best few -- alternative syntax
 
 ## order by value.  Within those values the same to 3 decimals order by fevals.
 ## summary(ans8, order = list(round(value, 3), fevals), par.select = FALSE)
-summary(ans8, order = "list(round(value, 3), fevals)", par.select = FALSE)
+summary(ans8z, order = "list(round(value, 3), fevals)", par.select = FALSE)
 
 ## summary(ans8, order = rownames, par.select = FALSE) # order by method name
-summary(ans8, order = "rownames", par.select = FALSE) # same
+summary(ans8z, order = "rownames", par.select = FALSE) # same
 
-summary(ans8, order = NULL, par.select = FALSE) # use input order
+summary(ans8z, order = NULL, par.select = FALSE) # use input order
 ## summary(ans8, par.select = FALSE) # same
 

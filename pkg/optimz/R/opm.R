@@ -44,10 +44,10 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   print(dim(ans.ret))
   for (i in 1:nmeth) {
     meth <- method[i] # extract the method name
+    cat("Method: ",meth,"\n")
     # Note: not using try() here
     time <- system.time(ans <- optimr(par, fn, gr, method=meth, lower=lower, upper=upper, 
            hessian=hessian, control=control, ...))[1]
-    cat("Method: ",meth,"\n")
     print(ans)
     # add to list
 #    ans.ret <- c(ans.ret, c(method=meth, ans))

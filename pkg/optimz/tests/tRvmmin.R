@@ -9,10 +9,10 @@ fr <- function(x) {
     x2 <- x[2]
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
-ansrosenbrock <- Rvmmin(fn=fr,gr="grfwd", par=c(1,2))
+ansrosenbrock <- optimr(fn=fr,gr="grfwd", par=c(1,2), method="Rvmmin")
 print(ansrosenbrock) # use print to allow copy to separate file that 
 cat("No gr specified as a test\n")
-ansrosenbrock0 <- Rvmmin(fn=fr, par=c(1,2))
+ansrosenbrock0 <- optimr(fn=fr, par=c(1,2), method="Rvmmin")
 print(ansrosenbrock0) # use print to allow copy to separate file that 
 #    can be called using source()
 #####################
@@ -36,7 +36,7 @@ for (i in 1:n) {
    upper[i]<-1.0*i*(n+1)/n
 }
 xx<-0.5*(lower+upper)
-ansbt<-Rvmmin(xx, bt.f, bt.g, lower, upper, bdmsk, control=list(trace=1))
+ansbt<-optimr(xx, bt.f, bt.g, lower, upper, bdmsk, method="Rvmmin", control=list(trace=1))
 
 print(ansbt)
 
@@ -68,9 +68,9 @@ xx<-rep(pi,10)
 lower<-NULL
 upper<-NULL
 bdmsk<-NULL
-genrosea<-Rvmmin(xx,genrose.f, genrose.g, gs=10)
-genrosenf<-Rvmmin(xx,genrose.f, gr="grfwd", gs=10) # use local numerical gradient
-genrosenullgr<-Rvmmin(xx,genrose.f, gs=10) # no gradient specified
+genrosea<-optimr(xx,genrose.f, genrose.g, method="Rvmmin", gs=10)
+genrosenf<-optimr(xx,genrose.f, gr="grfwd", method="Rvmmin", gs=10) # use local numerical gradient
+genrosenullgr<-optimr(xx,genrose.f, method="Rvmmin", gs=10) # no gradient specified
 cat("genrosea uses analytic gradient\n")
 print(genrosea)
 cat("genrosenf uses grfwd standard numerical gradient\n")
@@ -80,6 +80,7 @@ print(genrosenullgr)
 cat("If optextras is loaded, then other numerical gradients can be used.\n")
 
 cat("timings B vs U\n")
+require(Rvmmin)
 lo<-rep(-100,10)
 up<-rep(100,10)
 bdmsk<-rep(1,10)

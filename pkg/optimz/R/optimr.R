@@ -58,17 +58,22 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   }
 # ?? do we want ehess ?    Not at 150714
 
+## Ensure we've checked for bounds
+   bdmsk <- bmchk(par, lower=lower, upper=upper)
+   control$have.bounds <- bdmsk$bounds # and set a control value
+   bdmsk <- bdmsk$bdmsk # Only need the masks bit from here on
+
 # replacement for optim to minimize using a single method
 
 # time is in opm(), but not here
 # The structure has   par, value, counts, convergence, message, hessian
 
 # Run a single method
-  if (is.null(control$have.bounds)) {
-     have.bounds <- bmchk(par, lower, upper)$bounds
-     control$have.bounds <- have.bounds # for safety
-     cat("optimr -- have.bounds =",have.bounds,"\n")
-  } else have.bounds <- control$have.bounds
+##  if (is.null(control$have.bounds)) {
+##     have.bounds <- bmchk(par, lower, upper)$bounds
+##     control$have.bounds <- have.bounds # for safety
+##     cat("optimr -- have.bounds =",have.bounds,"\n")
+##  } else have.bounds <- control$have.bounds
 
 # expand bounds
   if (length(lower) == 1) lower<-rep(lower,npar)
@@ -88,7 +93,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	mcontrol$parscale <- control$parscale # Use internal scaling
 # Note: hessian always FALSE
 
-        if (have.bounds) {
+        if (control$have.bounds) {
         if (orig.method != "L-BFGS-B") warning("optim() with bounds ONLY uses L-BFGS-B")
         time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, lower=lower, upper=upper, 
                 method="L-BFGS-B", hessian=FALSE, control=mcontrol, ...), silent=TRUE))[1]
@@ -154,7 +159,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "nlm") { # Use stats package nlm routine
         if (is.null(gr)) { stop("optimr -- nlm -- we do not allow gr = NULL") }
 #        cat("test nlmfn:")
-        ffval <- nlmfn(spar)
+#        ffval <- nlmfn(spar, ...)
 #        print(ffval)
 #        tmp <- readline("cont.")
 	if (! is.null(control$maxit) ) {iterlim <- control$maxit }
@@ -234,14 +239,18 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxit <- NULL # 150427 ensure nulled for ucminf
 #        if (hessian) uhessian <- 1 else uhessian <- 0
         errmsg <- NULL
-        if (have.bounds) {
+        if (control$have.bounds) {
               cat("ucminf cannot handle bounds\n")
               errmsg <- "ucminf cannot handle bounds\n"
-              stop("ucminf tried with bounds")
-        }
+            ##  stop("ucminf tried with bounds")
+            ans <- list()
+            class(ans)[1] <- "try-error"
+        } else {
+          
          uhessian <- 0 # Ensure hessian NOT computed
         time <- system.time(ans <- try(ucminf(par=spar, fn=efn, gr=egr, 
                  hessian = uhessian,  control=mcontrol, ...), silent=TRUE))[1]
+        }
         if (class(ans)[1] != "try-error") {
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
 #                                           2 Stopped by small step (xtol).
@@ -280,9 +289,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using ucminf
 ## --------------------------------------------
       else if (method == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
-	bdmsk <- bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
         mcontrol$trace <- control$trace
-	if (control$have.bounds) {
+        mcontrol$maxit <- control$maxit # 151217 JN
+	if (control$have.bounds) { # 151220 -- this was not defined
    	   time <- system.time(ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
@@ -347,7 +356,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rtnmin
 ## --------------------------------------------
       else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
-	bdmsk<-bmchk(par, lower=lower, upper=upper)$bdmsk ## 131027 removed
         mcontrol$maxit <- control$maxit
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
@@ -570,7 +578,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             mcontrol$info <- TRUE # logical needed, not integer         
          } else { mcontrol$info <- FALSE }
          mcontrol$maxfeval <- control$maxfeval
-         if (have.bounds) {
+         if (control$have.bounds) {
             time <- system.time(ans <- try(hjkb(par=spar, fn=efn, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
@@ -604,8 +612,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         mcontrol$trace <- control$trace
         if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
         # ?? use maxfevals rather than maxit for lbfgsb3 ?
-        if (control$trace > 0) cat("have.bounds =",have.bounds,"\n")
-        if (have.bounds) { ## Note call uses prm not par
+        if (control$trace > 0) cat("control$have.bounds =",control$have.bounds,"\n")
+        if (control$have.bounds) { ## Note call uses prm not par
             time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
         } else {

@@ -1,0 +1,45 @@
+\documentclass[10pt]{article}
+
+\usepackage{float}
+\usepackage{amsmath} %% Does this have equation*
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+
+\usepackage{Sweave}
+\begin{document}
+
+%\VignetteIndexEntry{optimr() Extension}
+%\VignetteDepends{numDeriv, setRNG}
+%\VignetteKeywords{extending optimr, additional optimizer}
+%\VignettePackage{optimz}
+
+
+\section{Extending the optimr() function in package \emph{optimz}}
+``optimz'' is a package intended to provide improved and extended 
+function minimization tools for \emph{R}. Such facilities are
+commonly referred to as ``optimization'', but the original \texttt{optim()}
+function and its replacement in this package, that is, \texttt{optimr()},
+only allow for the minimization or maximization of nonlinear functions of
+multiple parameters subject to at most bounds constraints. Some methods
+also permit fixed (masked) parameters.
+
+\begin{Schunk}
+\begin{Sinput}
+> require("setRNG") 
+> setRNG(list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=1236))
+\end{Sinput}
+\end{Schunk}
+
+
+\section{How to optimize a nonlinear objective function with BB?}
+The basic function for optimization is \emph{spg}.  It can solve smooth, 
+nonlinear optimization problems with box-constraints, and also other types of 
+constraints using projection.  
+We would like to direct the user to the help page for many examples of 
+how to use \emph{spg}.  Here we discuss an example involving estimation of 
+parameters maximizing a log-likelihood function for 
+a binary Poisson mixture distribution.  
+
+
+\end{document}

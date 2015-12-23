@@ -67,9 +67,11 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   \code{control$fnscale} to be set negative to accomplish this. DO NOT
   use both methods. 
 
-  Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
-  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa',
-  'nmkb', 'hjkb', 'Rcgmin', or 'Rvmmin'.
+  Possible method codes are 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'nlm', 
+  'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa', 'nmkb', 'hjkb', 'Rcgmin', 
+  'lbfgsb3' or 'Rvmmin'. These are in base R or in CRAN repositories. 
+  From R-forge, method 'Rtnmin' is available. Other methods are likely to
+  be added over time.
 
   The default methods for unconstrained problems (no \code{lower} or
   \code{upper} specified) are an implementation of the Nelder and Mead
@@ -89,18 +91,24 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   Method \code{"CG"} is a conjugate gradients method based on that by
   Fletcher and Reeves (1964) (but with the option of Polak--Ribiere or
   Beale--Sorenson updates). The particular implementation is now dated,
-  and improved yet simpler codes are being implemented (as at June 2009),
-  and furthermore a version with box constraints is being tested.
-  Conjugate gradient methods will generally be more fragile than the 
-  BFGS method, but as they do not store a matrix they may be successful 
-  in much larger optimization problems.
+  and improved yet simpler codes have been implemented. Furthermore, 
+  \code{"Rcgmin"} allows box constraints as well as fixed (masked)
+  parameters. Conjugate gradient methods will generally be more fragile 
+  than the BFGS method, but as they do not store a matrix they may be 
+  successful in optimization problems with a large number of parameters.
 
   Method \code{"L-BFGS-B"} is that of Byrd \emph{et. al.} (1995) which
   allows \emph{box constraints}, that is each variable can be given a lower
   and/or upper bound. The initial value must satisfy the constraints.
   This uses a limited-memory modification of the BFGS quasi-Newton
-  method. If non-trivial bounds are supplied, this method will be
-  selected, with a warning.
+  method. If non-trivial bounds are supplied, this method is selected
+  by the original \code{optim()} function, with a warning. Unfortunately,
+  the authors of the original Fortran version of this method released a
+  correction for bugs in 2011, but these have not been incorporated into
+  the distributed R codes, which are a C translation of a version that
+  appears to be from the mid-1990s. While it seems the errors affect 
+  very few computations, users may wish to use the Fortran codes in 
+  package \code{lbfgsb3}. 
 
   Nocedal and Wright (1999) is a comprehensive reference for the
   previous three methods.
@@ -134,8 +142,18 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   Method \code{"Rcgmin"} is from the package of that name. It implements a
   conjugate gradient algorithm with the Yuan/Dai update (ref??) and also 
   allows bounds constraints on the parameters. (Rcgmin also allows mask 
-  constraints -- fixing individual parameters -- but there is no interface
-  from \code{"optimx"}.) 
+  constraints -- fixing individual parameters -- but there is as yet no 
+  interface from \code{"optimr"}.) 
+
+  Method \code{"Rvmmin"} is from the package of that name. It implements 
+  the same variable metric method as the base optim() function with method
+  \code{"BFGS"} but allows bounds constraints on the parameters. (Rvmmin 
+  also allows mask constraints -- fixing individual parameters -- but 
+  there is as yet no interface from \code{"optimr"}.) 
+
+  Method \code{"Rtnmin"} is from the package of that name. It implements a
+  truncated Newton method of Stephen Nash translated from Matlab. It 
+  allows bounds constraints on the parameters. 
 
   Methods \code{"bobyqa"}, \code{"uobyqa"} and \code{"newuoa"} are from the 
   package \code{"minqa"} which implement optimization by quadratic approximation
@@ -144,6 +162,13 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   unconstrained minimization, while \code{"bobyqa"} is for box constrained
   problems. While \code{"uobyqa"} may be specified, it is NOT part of the 
   \code{all.methods = TRUE} set.
+
+  Methods \code{"nmkb"} and \code{"hjkb"} are from package dfoptim. They 
+  implement respectively variants of the Nelder-Mead and Hooke and Jeeves
+  derivative-free methods, but both allow bounds constraints. However, it is
+  important to note that \code{"nmkb"} must NOT have starting parameters on
+  a lower or upper bound, as a transformation of the paramters is used to
+  effect the constraints. 
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -274,6 +299,11 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
      URL http://www.jstatsoft.org/v43/i09/.
+
+ ?? Nocedal
+
+ ?? Yuan and Dai
+
 
 }
 

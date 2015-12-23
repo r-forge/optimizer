@@ -33,13 +33,15 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   if (is.null(gr)) gr <- defctrl$defgrapprox
   if (is.character(gr)) {
      egr <- function(spar, ...){
-        cat("fnscale =",fnscale,"  pscale=")
-        print(pscale)
-        cat("gr:")
-        print(gr)
-        par <- spar*pscale
-        cat("par:")
-        print(par)
+        if (control$trace > 1) {
+           cat("fnscale =",fnscale,"  pscale=")
+           print(pscale)
+           cat("gr:")
+           print(gr)
+           par <- spar*pscale
+           cat("par:")
+           print(par)
+        }
         result <- do.call(gr, list(par, userfn=fn, ...)) * fnscale
      }
   } else { 
@@ -69,11 +71,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # The structure has   par, value, counts, convergence, message, hessian
 
 # Run a single method
-##  if (is.null(control$have.bounds)) {
-##     have.bounds <- bmchk(par, lower, upper)$bounds
-##     control$have.bounds <- have.bounds # for safety
-##     cat("optimr -- have.bounds =",have.bounds,"\n")
-##  } else have.bounds <- control$have.bounds
 
 # expand bounds
   if (length(lower) == 1) lower<-rep(lower,npar)
@@ -82,7 +79,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   mcontrol <- list() # define the control list
 
 # Methods from optim()
-      if (method=="Nelder-Mead" || 
+      if (method== "Nelder-Mead" || 
           method == "BFGS" || 
           method == "L-BFGS-B" || 
           method == "CG" || 
@@ -94,21 +91,28 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # Note: hessian always FALSE
 
         if (control$have.bounds) {
-        if (orig.method != "L-BFGS-B") warning("optim() with bounds ONLY uses L-BFGS-B")
-        time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, lower=lower, upper=upper, 
-                method="L-BFGS-B", hessian=FALSE, control=mcontrol, ...), silent=TRUE))[1]
+          if (method != "L-BFGS-B") {
+              errmsg <- "optim() can only handle bounds with L-BFGS-B\n"
+              if (control$trace > 0) cat(errmsg,"\n")
+              ans <- list()
+              class(ans)[1] <- "try-error"
+              warning("optim() with bounds ONLY uses L-BFGS-B")
+          } else {
+              time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+                      lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
+                       control=mcontrol, ...), silent=TRUE))[1]
+          }
         } else {
-        time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+          time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
                 method=method, hessian=FALSE, control=mcontrol, ...), silent=TRUE))[1]
         }
-
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
         if (class(ans)[1] == "try-error") { # bad result -- What to do?
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
                 errmsg <- "optim method failure\n"
-                if (orig.method != "L-BFGS-B") errmsg <- paste("optim() with bounds ONLY uses L-BFGS-B: ", errmsg)
+                if (method != "L-BFGS-B") errmsg <- paste("optim() with bounds ONLY uses L-BFGS-B: ", errmsg)
 		if (control$trace>0) cat(errmsg)
 		ans$value <- control$badval
 		ans$par<-rep(NA,npar)
@@ -158,16 +162,21 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (method == "nlm") { # Use stats package nlm routine
         if (is.null(gr)) { stop("optimr -- nlm -- we do not allow gr = NULL") }
-#        cat("test nlmfn:")
-#        ffval <- nlmfn(spar, ...)
-#        print(ffval)
-#        tmp <- readline("cont.")
 	if (! is.null(control$maxit) ) {iterlim <- control$maxit }
         else { iterlim <- 100 }
 	print.level <- 0 
-        if (! is.null(control$trace) && (control$trace > 0) ) {print.level <- 2 } 
-        time <- system.time(ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, 
+        errmsg <- NULL
+        if (control$have.bounds) {
+              if(control$trace > 0) cat("nlm cannot handle bounds\n")
+              errmsg <- "nlm cannot handle bounds\n"
+            ##  stop("nlm tried with bounds")
+            ans <- list()
+            class(ans)[1] <- "try-error"
+        } else {
+          if (! is.null(control$trace) && (control$trace > 0) ) {print.level <- 2 } 
+          time <- system.time(ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, 
                     print.level=print.level, ...), silent=TRUE))[1]
+        }
         if (class(ans)[1] != "try-error") {
 		if (ans$code == 1 || ans$code == 2 || ans$code == 3) ans$convergence <- 0
 		if (ans$code == 4) ans$convergence <- 1
@@ -194,7 +203,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$counts[2] <- NA # save function and gradient count information
 	        ans$message <- NULL
                 ans$hessian <- NULL
-	}
+        }
         print.level <- NULL # clean up
         return(ans)
       } # end if using nlm
@@ -219,7 +228,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
            ans$gradient<-NULL # loss of information
         } else { # spg failed
 		if (control$trace > 0) cat("spg failed for this problem\n")
-		if (control$trace > 0) cat("nlm failed for this problem\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
 		ans$value <- control$badval
@@ -240,7 +248,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 #        if (hessian) uhessian <- 1 else uhessian <- 0
         errmsg <- NULL
         if (control$have.bounds) {
-              cat("ucminf cannot handle bounds\n")
+              if (control$trace > 0) cat("ucminf cannot handle bounds\n")
               errmsg <- "ucminf cannot handle bounds\n"
             ##  stop("ucminf tried with bounds")
             ans <- list()
@@ -468,7 +476,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using uobyqa
 ## --------------------------------------------
       else if (method == "newuoa") {# Use newuoa routine from minqa package
-        cat("Trying newuoa\n")
+        if (control$trace > 1) cat("Trying newuoa\n")
 	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
         if (control$have.bounds) {
@@ -545,8 +553,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             time <- system.time(ans <- try(nmk(par=spar, fn=efn, 
               control=mcontrol, ...), silent=TRUE))[1]
          }
-         cat("Outputting ans for nmkb:\n")
-         print(ans)
+         if (control$trace > 1) {
+            cat("Outputting ans for nmkb:\n")
+            print(ans)
+         }
 
          if (class(ans)[1] != "try-error") {
            ans$value <- as.numeric(ans$value)

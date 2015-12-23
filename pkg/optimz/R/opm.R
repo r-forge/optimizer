@@ -31,26 +31,28 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     pstring <- NULL
     for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
   } 
-#  cnames <- c(pstring, "value", "fevals", "gevals", "niter", "convergence", "kkt1", "kkt2", "xtimes")
    cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtimes")
-  ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
-  print(ans.ret)
-  tmp <- readline("continue after printing ans.ret initial")
+   ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
+  if (control$trace > 2) {
+      print(ans.ret)
+      tmp <- readline("continue after printing ans.ret initial")
+  }
   ans.ret <- data.frame(ans.ret)
   colnames(ans.ret)<-cnames
   row.names(ans.ret)<-method
   ans.details <- list()
-  cat("width of ans.ret =", npar+7,"\n")
-  print(dim(ans.ret))
+  if (control$trace > 2) {
+     cat("width of ans.ret =", npar+7,"\n")
+     print(dim(ans.ret))
+  }
   for (i in 1:nmeth) {
     meth <- method[i] # extract the method name
-    cat("Method: ",meth,"\n")
+    if (control$trace > 0) cat("Method: ",meth,"\n")
     # Note: not using try() here
     time <- system.time(ans <- optimr(par, fn, gr, method=meth, lower=lower, upper=upper, 
            hessian=hessian, control=control, ...))[1]
-    print(ans)
+    if (control$trace > 2) print(ans)
     # add to list
-#    ans.ret <- c(ans.ret, c(method=meth, ans))
 
 ## --------------------------------------------
 ## Post-processing -- Kuhn Karush Tucker conditions
@@ -80,26 +82,23 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
              ans$kkt2<-as.logical(kktres$kkt2)
           }
 # put together results
-#          cat("str(time):\n")
-#          print(time)
           ans$xtimes <- time
           # Do we want more information saved?
-          if (control$trace > 0) { 
+          if (control$trace > 1) { 
 		cat("Save results from method ",meth,"\n") 
 	  	print(ans)
 	  }
-	  if (control$trace>0) { cat("Assemble the answers\n") }
-          cat("ans.ret now\n")
-          print(ans.ret)
-#          ans$nitns <- NA
-#          cat("add ans for meth = ",meth,"\n")
-#          print(ans)
+	  if (control$trace > 2) { 
+             cat("Assemble the answers\n") 
+             cat("ans.ret now\n")
+             print(ans.ret)
+          }
           addvec <- c(ans$par, ans$value, ans$fevals, ans$gevals, 
                               ans$convergence, ans$kkt1, ans$kkt2, ans$xtimes)
-          cat("length addvec = ", length(addvec),"\n")
-          print(addvec)
-
-#          cat("length addvec = ",length(addvec),"\n")
+	  if (control$trace > 2) { 
+             cat("length addvec = ", length(addvec),"\n")
+             print(addvec)
+          }
           ans.ret[meth, ] <- addvec
       }  ## end post-processing of successful solution
       ans.details<-rbind(ans.details, list(method=meth, ngatend=kktres$ngatend, 

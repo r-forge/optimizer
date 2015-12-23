@@ -1,0 +1,20 @@
+Package: optimz
+Version: 2015.12.20
+Date: 2015-12-20
+Title: A Replacement and Extension of the 'optim' Function
+Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
+    c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
+    "Ravi", family = "Varadhan", role = "aut", email =
+    "RVaradhan@jhmi.edu"), person(given = "Gabor", family =
+    "Grothendieck", role = "ctb", email =
+    "ggrothendieck@gmail.com") )
+Author: John C Nash [aut, cre], Ravi Varadhan [aut], Gabor Grothendieck [ctb]
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Provides a test of replacement and extension of the optim()
+    function to unify and streamline optimization capabilities in R
+    for smooth, possibly box constrained functions of several or
+    many parameters. 
+License: GPL-2
+LazyLoad: Yes
+Imports: numDeriv, BB, ucminf, minqa, setRNG, dfoptim, Rtnmin, Rvmmin, Rcgmin, lbfgsb3
+NeedsCompilation: no

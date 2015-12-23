@@ -66,8 +66,36 @@ so that the output is suited to the method at hand.
 \item When derivative information is required by a method, we may also 
 need to incorporate the possibility of numerical 
 approximations to the derivative information. 
+\item Add code to check for situations where the new method cannot be applied, and
+in such cases return a result with appropriate diagnostic information so that the
+user can either adjust the inputs or else choose a different method.
 \end{itemize}
 
 
+\section{Adjusting the objective function}
+
+The method \code{"nlm"} provides a good example of a situation where the default
+\code{fn()}) and \code{gr()} are inappropriate to the method to be added to \code{optimr()}.
+
+\begin{Schunk}
+\begin{Sinput}
+  nlmfn <- function(spar, ...){
+     f <- efn(spar, ...)
+     g <- egr(spar, ...)
+     attr(f,"gradient") <- g
+     attr(f,"hessian") <- NULL # ?? maybe change later
+     f
+  }
+\end{Sinput}
+\end{Schunk}
+
+In the present \code{optimr()}, the definition of nlmfn is put near the top of 
+\code{optimr}, and it is always loaded. It is the author's understanding that such
+functions will always be loaded/interpreted no matter where they are in the 
+code of a function. For ease of finding the code, I have put it near the top, as
+the structure can be then shared across several similar optimizers. There are 
+other methods that compute the objective function and gradient at the same set of
+parameters. Though \code{nlm()} can make use of Hessian information, we have chosen
+here to omit the computation of the Hessian. 
 
 \end{document}

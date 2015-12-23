@@ -1,5 +1,11 @@
 Done:  Top MOST recent
 
+151221: - made a number of fixes to attempts to call bounds on unconstrained method
+        - noted that numerical derivatives fail for some bounded problems (boundstest)
+        - Should we implement a function builder for the hyperbolic transformation to 
+          allow bounded problems to be tackled by unconstrained methods as per nmkb?
+        - Started vignette to explain how to add an optimizer to optimr().
+
 150730: - fixup calls to several optimizers
 	- test hobbs15b
 150728: - optim() -- bounds method!

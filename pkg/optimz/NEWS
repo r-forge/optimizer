@@ -1,0 +1,11 @@
+NEWS about R package optimz
+
+TODO
+      o check on uobyqa and newuoa for controls rhobeg and rhoend.
+
+VERSION 2016-01-07
+      o realized control rhobeg needed to be set or bobyqa would fail.
+
+VERSION 2015-12-20
+      o first stable version
+

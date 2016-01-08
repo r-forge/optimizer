@@ -1,6 +1,6 @@
 Package: optimz
-Version: 2015.12.20
-Date: 2015-12-20
+Version: 2016.01.07
+Date: 2016-01-07
 Title: A Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =

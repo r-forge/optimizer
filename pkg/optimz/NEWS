@@ -2,6 +2,10 @@ NEWS about R package optimz
 
 TODO
       o check on uobyqa and newuoa for controls rhobeg and rhoend.
+      o Consider how the hyperbolic transformation (transfinite fn)
+        could be used in all unconstrained methods
+      o How can transfinite be made to work when start is on bounds?
+
 
 VERSION 2016-01-07
       o realized control rhobeg needed to be set or bobyqa would fail.

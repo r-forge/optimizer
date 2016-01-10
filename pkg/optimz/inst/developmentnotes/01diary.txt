@@ -1,5 +1,9 @@
 Done:  Top MOST recent
 
+160110: - some additions to bobyqa in optimr to fix rhobeg setting. However, this is
+	  very ad-hoc
+        - converting vignette to Rmd for extending optimr()
+        - in vignette call package optimr too.
 151221: - made a number of fixes to attempts to call bounds on unconstrained method
         - noted that numerical derivatives fail for some bounded problems (boundstest)
         - Should we implement a function builder for the hyperbolic transformation to 
@@ -20,8 +24,8 @@ Done:  Top MOST recent
 150721: - opm sort of working. Need to tidy output and ensure tested
 	- bounds tested with optimr
 150714: - got optimr working with scaling by putting efn, egr INSIDE optimr and using spar
-	and pscale and fnscale defined at top. Arguments are ORIGINAL par and fn and gr. No
-	hess at this point. Not are quoted grad routines available yet.R
+	  and pscale and fnscale defined at top. Arguments are ORIGINAL par and fn and gr. No
+	  hess at this point. Not are quoted grad routines available yet.R
 150710: - need to adjust bounds for parscale	
 	- the optest function more or less works. We can create the cfg using setup, and
 	  the scaled fn and gr work fine in optim() and Rvmmin and Rcgmin with minor setup

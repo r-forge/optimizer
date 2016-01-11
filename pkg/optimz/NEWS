@@ -5,6 +5,10 @@ TODO
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?
+	To work when end is on bounds?
+      o Rcgmin seems to report reset of parameters to bounds when parameter
+        is apparently on the bound. Could have rounding issues, and should
+        avoid this warning if it is really not needed.
 
 
 VERSION 2016-01-07

@@ -51,7 +51,7 @@ summary.nlmrt <- function(object, ...) {
           if (ndof < 0) { stop(paste("Inadmissible degrees of freedom =",ndof,sep='')) }
           else { sighat2 <- Inf }
     } else {
-       sighat2 <- ss/(ndof)
+       sighat2 <- as.numeric(ss)/(ndof) # 160302 NOT an array
     }
     dec <- svd(JJ)
     U <- dec$u
@@ -65,7 +65,7 @@ summary.nlmrt <- function(object, ...) {
        if (npar > 1) {
            VS <- crossprod(t(V), diag(Sinv))
        } else {
-           VS <- V/Sinv
+           VS <- V*Sinv
        }
        Jinv <- crossprod(t(VS))
        var <- Jinv * sighat2
@@ -75,7 +75,11 @@ summary.nlmrt <- function(object, ...) {
     if (any(is.na(SEs))) {
         tstat<-rep(NA, npar)
     } else {
-        tstat <- coeff/SEs
+        if (any(SEs == 0)){
+           tstat <- rep(0, npar)
+        } else {
+           tstat <- coeff/SEs
+        }
     }
     pval<-2*(1-pt(abs(tstat), df=ndof)) # This will carry through NAs
     object<-list(resname=resname, ssquares=ss, nobs=nobs, coeff=coeff, ct=ct, mt=mt, 

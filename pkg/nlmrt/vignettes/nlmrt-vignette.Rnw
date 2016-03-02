@@ -1,5 +1,6 @@
 \documentclass{article}
 
+%!\VignetteEncoding{UTF-8}
 %\VignetteIndexEntry{nlmrt Tutorial}
 %\VignetteDepends{}
 %\VignetteKeywords{nonlinear least squares, Levenberg-Marquardt method}
@@ -28,6 +29,7 @@
 %%% \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small,fontshape=n}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \maketitle
 
 \section*{Background}
@@ -301,6 +303,7 @@ valjjac <- jjac(ones, yield=pastured$yield, time=pastured$time)
 cat("valjac:")
 print(valjjac)
 # Now compute the numerical approximation
+require(numDeriv)
 Jn <- jacobian(jres, ones, , yield=pastured$yield, time=pastured$time)
 cat("maxabsdiff=",max(abs(Jn-valjjac)),"\n")
 @

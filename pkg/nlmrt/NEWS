@@ -20,6 +20,25 @@ To do
 
    o    Issue when npar = 1
 
+
+Changes in nlmrt version 2016.3.2
+
+   o    An example from Gabor Grothendieck with 0 sumsquares
+        raised an error in summary.nlmrt() due to crossprod()
+        returning a 1x1 matrix rather than a scalar. Fixed with
+        the use of as.numeric().
+
+   o    NAMESPACE exported summary, print and coef methods replaced
+        with S3method() statements
+
+   o    DESCRIPTION updated to current standards
+
+   o    Minor tweak in vignette (encoding line)
+
+Changes in nlmrt version 2014-7.16
+
+   o    These were, unfortunately, not recorded here
+
 Changes in nlmrt version 2013-8.26
 
    o    Relative offset convergence test (not exactly as in nls())

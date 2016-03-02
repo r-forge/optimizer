@@ -12,10 +12,10 @@ export(
    model2grfun,
    model2jacfun,
    model2resfun,
-   model2ssfun, 
-   print.nlmrt,
-   summary.nlmrt,
-   coef.nlmrt
+   model2ssfun
 )
-
+# S3 Methods
+S3method(print, nlmrt)
+S3method(summary, nlmrt)
+S3method(coef, nlmrt)
 # S4 Methods

@@ -115,7 +115,16 @@ y  <-  ydat  # for testing
 tdat  <-  seq_along(ydat) # for testing
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
 
+# Problem 2 - Gabor Grothendieck 2016-3-2
 
+DF <- data.frame(x = c(5, 4, 3, 2, 1), y = c(1, 2, 3, 4, 5))
+library(nlmrt)
+nlxb1 <- nlxb(y ~ A * x + B, data = DF, start = c(A = 1, B = 6), trace=T)
+print(nlxb1)
+tmp <- readline("continue with start at the minimum -- failed on 2014 version. ")
+
+nlxb0 <- nlxb(y ~ A * x + B, data = DF, start = c(A = -1, B = 6), trace=T)
+print(nlxb0) 
 
 \dontrun{
 

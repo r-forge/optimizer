@@ -97,6 +97,7 @@ traceval  <-  FALSE
 
 ## Problem in 1 parameter to ensure methods work in trivial case
 
+cat("Problem in 1 parameter to ensure methods work in trivial case\n")
 nobs<-8
 tt <- seq(1,nobs)
 dd <- 1.23*tt + 4*runif(nobs)
@@ -108,31 +109,44 @@ a1par
 
 
 # Data for Hobbs problem
-
+cat("Hobbs weed problem -- unscaled\n")
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 y  <-  ydat  # for testing
 tdat  <-  seq_along(ydat) # for testing
+
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
 
+cat("Hobbs unscaled with data in data frames\n")
+
+weeddata1  <-  data.frame(y=ydat, tt=tdat)
+# scale the data 
+weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
+start1  <-  c(b1=1, b2=1, b3=1)
+anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
+print(anlxb1)
+
+anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
+print(anlxb2)
+
 # Problem 2 - Gabor Grothendieck 2016-3-2
+
+cat("Gabor G problem with zero residuals\n")
 
 DF <- data.frame(x = c(5, 4, 3, 2, 1), y = c(1, 2, 3, 4, 5))
 library(nlmrt)
 nlxb1 <- nlxb(y ~ A * x + B, data = DF, start = c(A = 1, B = 6), trace=TRUE)
 print(nlxb1)
-tmp <- readline("continue with start at the minimum -- failed on 2014 version. ")
+
+# tmp <- readline("continue with start at the minimum -- failed on 2014 version. ")
 
 nlxb0 <- nlxb(y ~ A * x + B, data = DF, start = c(A = -1, B = 6), trace=TRUE)
 print(nlxb0) 
 
 \dontrun{
-
-
 # WARNING -- using T can get confusion with TRUE
 tt  <-  tdat
 # A simple starting vector -- must have named parameters for nlxb, nls, wrapnls.
-start1  <-  c(b1=1, b2=1, b3=1)
 
 cat("GLOBAL DATA\n")
 
@@ -148,21 +162,13 @@ print(anlxb1g)
 rm(y)
 rm(tt)
 
-cat("LOCAL DATA IN DATA FRAMES\n")
-weeddata1  <-  data.frame(y=ydat, tt=tdat)
-weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
-anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
-print(anlxb1)
-
-anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
-print(anlxb2)
 
 startf1  <-  c(b1=1, b2=1, b3=.1)
 
 
-## With BOUNDS
-
 \dontrun{
+
+## With BOUNDS
 
 anlxb1  <-  try(nlxb(eunsc, start=startf1, lower=c(b1=0, b2=0, b3=0), 
       upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1))
@@ -173,13 +179,14 @@ print(anlxb1)
 
 # Check nls too
 \dontrun{
-
+cat("check nls result\n")
 anlsb1  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
      upper=c(b1=500, b2=100, b3=5), trace=traceval, data=weeddata1, 
              algorithm='port'))
 print(anlsb1)
 
-tmp  <-  readline("next")
+# tmp  <-  readline("next")
+
 } # end dontrun
 
 \dontrun{
@@ -194,51 +201,52 @@ anlsb2  <-  try(nls(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0),
                 data=weeddata1, algorithm='port'))
 print(anlsb2)
 
-tmp  <-  readline("next")
+# tmp  <-  readline("next")
 } # end dontrun
 
 
-cat("TEST MASKS\n")
+\dontrun{
+cat("UNCONSTRAINED\n")
+an1q  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
+print(an1q)
+# tmp  <-  readline("next")
+} # end dontrun
+
 
 \dontrun{
+cat("TEST MASKS\n")
 
 anlsmnqm  <-  try(nlxb(eunsc, start=start1, lower=c(b1=0, b2=0, b3=0), 
    upper=c(b1=500, b2=100, b3=5), masked=c("b2"), trace=traceval, data=weeddata1))
 print(anlsmnqm)
 } # end dontrun
 
-cat("UNCONSTRAINED\n")
-\dontrun{
-an1q  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
-print(an1q)
-tmp  <-  readline("next")
-} # end dontrun
 
+\dontrun{
 
 cat("MASKED\n")
-
-\dontrun{
 
 an1qm3  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, 
                 masked=c("b3")))
 print(an1qm3)
-tmp  <-  readline("next")
+# tmp  <-  readline("next")
 
 # Note that the parameters are put in out of order to test code.
 an1qm123  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1, 
                   masked=c("b2","b1","b3")))
 print(an1qm123)
-tmp  <-  readline("next")
+# tmp  <-  readline("next")
 
 } # end dontrun
 
 
-cat("BOUNDS")
+cat("BOUNDS test problem for Hobbs")
 start2  <-  c(b1=100, b2=10, b3=0.1)
 an1qb1  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, 
                      lower=c(0,0,0), upper=c(200, 60, .3)))
 print(an1qb1)
-tmp  <-  readline("next")
+
+## tmp  <-  readline("next")
 
 
 cat("BOUNDS and MASK")
@@ -248,7 +256,8 @@ cat("BOUNDS and MASK")
 an1qbm2  <-  try(nlxb(eunsc, start=start2, trace=traceval, data=weeddata1, 
                       lower=c(0,0,0), upper=c(200, 60, .3), masked=c("b2")))
 print(an1qbm2)
-tmp  <-  readline("next")
+
+# tmp  <-  readline("next")
 
 } # end dontrun
 
@@ -298,6 +307,9 @@ print(anlmrt03)
 
 } # end dontrun
 
+
+\dontrun{
+
 shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
 # This variant uses looping
     if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
@@ -323,9 +335,6 @@ st  <-  c(b1=1, b2=1, b3=1)
 low  <-  -Inf
 up <- Inf
 
-
-\dontrun{
-
 ans1 <- nlfb(st, shobbs.res, shobbs.jac, trace=traceval)
 ans1
 cat("No jacobian function -- use internal approximation\n")
@@ -341,17 +350,17 @@ time2
 
 } # end dontrun
 
-
+\dontrun{
 
 cat("BOUNDS")
 st2s <- c(b1=1, b2=1, b3=1)
 
-\dontrun{
-
 an1qb1 <- try(nlxb(escal, start=st2s, trace=traceval, data=weeddata1, 
   lower=c(0,0,0), upper=c(2, 6, 3), control=list(watch=FALSE)))
 print(an1qb1)
-tmp <- readline("next")
+
+# tmp <- readline("next")
+
 ans2 <- nlfb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
    trace=traceval, control=list(watch=FALSE))
 print(ans2)
@@ -366,7 +375,8 @@ cat("BUT...crossprod(resid(anlsb))=",crossprod(resid(anlsb)),"\n")
 } # end dontrun
 
 
-tmp <- readline("next")
+# tmp <- readline("next")
+
 cat("Try wrapnls\n")
 traceval <- FALSE
 # Data for Hobbs problem
@@ -380,13 +390,11 @@ up2 <- c(1, 5, 9)
 
 weeddata1 <- data.frame(y=ydat, tt=tdat)
 
-
-\dontrun{
-
 an1w <- try(wrapnls(escal, start=start1, trace=traceval, data=weeddata1))
 print(an1w)
 
 
+\dontrun{
 
 cat("BOUNDED wrapnls\n")
 
@@ -417,10 +425,10 @@ printsum(an1fm1)
 
 } # end dontrun
 
-
 # Need to check when all parameters masked.??
 
 \dontrun{
+
 
 cat("\n\n Now check conversion of expression to function\n\n")
 cat("K Vandepoel function\n")

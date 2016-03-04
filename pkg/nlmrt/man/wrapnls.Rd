@@ -69,6 +69,8 @@ John C Nash <nashjc@uottawa.ca>
 }
 \examples{
 cat("See examples in nlmrt-package.Rd\n")
+
+\dontrun{
 cat("kvanderpoel.R test\n")
 # require(nlmrt)
 x<-c(1,3,5,7)
@@ -85,5 +87,7 @@ fit2<-wrapnls(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1),
               lower=-Inf, upper=Inf, trace = TRUE)
 
 }
+}
+
 \keyword{ nonlinear least squares }
 

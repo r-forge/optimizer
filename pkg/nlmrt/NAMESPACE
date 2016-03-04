@@ -2,6 +2,9 @@
 ##  NAMESPACE
 ##
 
+# We need the following routines from stats package for 
+# either nlmrt functions or the vignettes
+importFrom("stats", "deriv", "nls", "pt")
 # Public routines
 export(
    nlxb,

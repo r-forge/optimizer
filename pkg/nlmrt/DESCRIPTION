@@ -3,10 +3,10 @@ Type: Package
 Title: Functions for Nonlinear Least Squares Solutions
 Version: 2016.3.2
 Date: 2016-3-2
-Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
+Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca") )
-Author: John C Nash [aut, cre]
-Maintainer: John C Nash <nashjc@uottawa.ca>
+Author: John C. Nash [aut, cre]
+Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Replacement for nls() tools for working with nonlinear least squares problems.
       The calling structure is similar to, but much simpler than, that of the nls()
       function. Moreover, where nls() specifically does NOT deal with small or zero

@@ -1,7 +1,7 @@
 ## Optimization test function GENROSE
 ## ?? refs (put in .doc??)
 rm(list = ls())
-library(lbfgsb3)
+library(lbfgsb3q)
 
 genrose.f <- function(x, gs = NULL) {
     # objective function

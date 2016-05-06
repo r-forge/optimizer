@@ -10,77 +10,79 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-**Roptanimation** is an experimental R package intended to provide improved and extended 
-function minimization tools for R. Such facilities are
-commonly referred to as "optimization", but the original `optim()`
-function and its replacement in this package, which has the
-same name as the package, namely `optimr()`,
-only allow for the minimization or maximization of nonlinear functions of
-multiple parameters subject to at most bounds constraints. Some methods
-also permit fixed (masked) parameters, which could be considered
-as equal upper and lower bounds, though that is a VERY bad way 
-to implement masks. In general, we wish to find the
-vector of parameters `bestpar` that minimize an objective
-function specified by an
-R function `fn(par, ... )` where `par` is the general
-vector of parameters, initially provided as the vector start, and 
-the dot arguments are additional information needed to compute the function.
-Function minimization methods may require information on the gradient or 
-Hessian of the function, which we will identify as 
-`gr(par, ...)` and `hess(par, ....)`. 
+**Roptanimation** is an experimental R package to display the progress of 
+geometric animations. A classic example is the **largest small polygon** where
+we aim to maximize the area of the polygon subject to the constraint that no
+two vertices are separated by more than one unit of distance.
 
-##How the optimr() function works
+## Background
 
-`optimr()` is an aggregation of wrappers for a number of individual function
-minimization ("optimization") tools available for R. The individual
-wrappers are selected by a sequence of `if()` statements using the argument
-`method` in the call to `optimr()`. 
+The **The Largest Small Hexagon** is the title of a paper by
+Ron Graham (J. Combinatorial Theory (A), vol. 18, pp. 165-170, 1975). This did
+not introduce this problem, but served to bring it to wider attention. One of
+the authors (JCN) used this problem to illustrate constrained optimization using
+the tools in J.C. Nash and M. Walker-Smith (1987, Nonlinear parameter estimation:
+an integrated system in BASIC, now available online at ??)
 
-To add a new optimizer, we need in general terms to carry out the following:
+To provide a visual presentation of the optimization, Nash coded a display for the
+IBM PC family of MS DOS computers running GWBASIC. In May 2016, the discovery that
+files for this example would still execute more or less satisfactorily raised the
+possibility of bringing them up to date. R was a logical choice for such an 
+implementation, given that the authors all work with this software system. 
 
-* Ensure the new function is available, that is, the package containing it
-is installed;
-* Add an appropriate `if()` statement to select the new "method";
-* Translate the `control` list elements of `optimr()`
-into the corresponding control arguments (possibly not in a list of that name
-but in one or more other structures, or even arguments or environment variables)
-for the new "method";
-* If necessary, redefine the R function or functions to compute the 
-value of the function, gradient and possibly Hessian of the objective function
-so that the output is suited to the method at hand.
-* When derivative information is required by a method, we may also 
-need to incorporate the possibility of numerical 
-approximations to the derivative information. 
-* Add code to check for situations where the new method cannot be applied, and
-in such cases return a result with appropriate diagnostic information so that the
-user can either adjust the inputs or else choose a different method.
-\end{itemize}
+## Parametrization of the polygon
 
+For a polygon with \texttt{nv} vertices, we have \texttt{2*nv} cartesian (i.e., x, y)
+coordinates. However, use of cartesian coordinates as parameters for this problem 
+leads to a very complicated specification, since 3 parameters can be fixed right
+away. That is, we can fix one vertex at the (0, 0) or origin of our [2D] space.
+Moreover, we can put the second vertex at (b[1], 0) where b is a vector of
+(2*nv - 3) parameters. Changing to a representation that uses a radius from the
+origin for vertex L equal to b[L-1], we could use the angle of this vertex from the
+positive x axis as a parameter. Call this angle alpha(L). Clearly alpha[1] for 
+vertex 2 is 0, so the 2nd vertex is still at (b[1], 0). 
 
-\section{Adjusting the objective function}
+We could put the alpha angles in the parameter vector as b[L+lshift] where 
+lshift = nv - 3. Thus the first non-zero angle is for vertex 3 and is parameter
+3 + nv - 3 = nv. Check: there are (nv - 1) radius parameters, so the first angle
+parameter is in position nv. There may be good implementations based on having
+parameters b[nv] ... b[2*nv-3] equal to the angles for points 2...nv. However, 
+that then requires the angles to be monotonically increasing. By specifying that
+b[L+lshift] = alpha[L-1] - alpha[L-2] for L=3 ... nv, we automatically get the
+angles alpha monotonic by imposing a lower bound of 0 on the parameters b. 
 
-The method `nlm()` provides a good example of a situation where the default
-`fn()` and `gr()` are inappropriate to the method to be added to `optimr()`.
-Don't forget the dot arguments!
+Note that the radii cannot be negative (in fact, zero is a bad idea too), so a lower
+bound of 0 can be applied to all the parameters b. An upper bound of 1 clearly applies to
+the first (nv - 1) parameters. The other (nv - 2) parameters are angles in radians. If
+we are to have the polygon in the positive y half-space in cartesian coordinates, 
+then pi is an obvious (and likely conservative) bound on these angles. In fact,
+pi is a bound on their sum.
 
+## Problem setup
+
+The above parametrization is implemented in the function polysetup(nv, defsize, qpen),
+where defsize is the default "size" of a regular polygon for which initial parameters
+are established. qpen is a multiplicative factor for a penalty function that may be
+used to impose the distance constraints. However, the form of this penalty is not
+yet given. 
+
+<<external-code, cache=FALSE>>=
+read_chunk('../R/smallpoly.R')
+@
+
+JN: I have some work to do to sort out how to refer to the code directory to avoid
+having different code in package and in the vignette.
 
 ```
-  nlmfn <- function(spar, ...){
-     f <- efn(spar, ...)
-     g <- egr(spar, ...)
-     attr(f,"gradient") <- g
-     attr(f,"hessian") <- NULL # ?? maybe change later
-     f
-  }
+polysetup <- function(nv, defsize=0.98, qpen=.1){
+# Code is in the R/ directory.
+# Refer to the code,
+
+}
 ```
 
-In the present `optimr()`, the definition of `nlmfn` is put near the top of 
-`optimr()` and it is always loaded. It is the author's understanding that such
-functions will always be loaded/interpreted no matter where they are in the 
-code of a function. For ease of finding the code, I have put it near the top, as
-the structure can be then shared across several similar optimizers. There are 
-other methods that compute the objective function and gradient at the same set of
-parameters. Though `nlm()` can make use of Hessian information, we have chosen
-here to omit the computation of the Hessian. 
+
+
+
 
 

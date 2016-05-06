@@ -394,7 +394,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "bobyqa") {# Use bobyqa routine from minqa package
   	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
-        mcontrol$rhobeg <- min(supper - slower)/3 # JN 160107
+        mcontrol$rhobeg <- min(supper - slower)/3 # JN 160107 (3), 160125 (5)
         time <- system.time(ans <- try(bobyqa(par=spar, fn=efn, lower=slower,
                 upper=supper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {

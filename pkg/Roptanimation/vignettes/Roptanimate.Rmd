@@ -73,14 +73,17 @@ read_chunk('../R/smallpoly.R')
 ```
 
 
-JN: I have some work to do to sort out how to refer to the code directory to avoid
-having different code in package and in the vignette.
-
 ```{r polysetup}
 ```
 
 
+## The polygon area
 
+The parameterization of the problem allows the area to be computed as the sum of the areas of
+the triangles made up from vertex \texttt{1} with vertex \texttt{L} and \texttt{(L+1)}
+where \texttt{L} runs from \texttt{2} to \texttt{(nv-1)}.
 
+```{r polyarea}
+```
 
 

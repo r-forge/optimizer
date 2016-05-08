@@ -87,3 +87,34 @@ where \texttt{L} runs from \texttt{2} to \texttt{(nv-1)}.
 ```
 
 
+## Conversion of radial to cartesian coordinates
+
+For drawing the current polygon, we need cartesian coordinates rather than the specially 
+organized radial coordinates defined by the optimization parameters. The R function
+\texttt{polypar2XY} carries out this computation and puts the \texttt{x, y} coordinates
+in a two-vector list \texttt{XY}. \texttt{XY\$x} gives the \texttt{x} coordinates and 
+\texttt{XY\$y} gives the \texttt{y} coordinates. To simplify the plotting of the polygon
+the first and last values of each list are both 0 so that a graph with joining lines 
+automatically gives the closed figure polygon.
+
+```{r polypar2XY}
+```
+
+## Distance between polygon vertices
+
+To verify constraints and to construct penalty or barrier functions for the optimization
+process for this problem, we also need vertex to vertex distances. These are computed by 
+the function \texttt{polydistXY}. This function uses the cartesian coordinates for the 
+current polygon that result from running the function \texttt{polypar2XY}
+
+```{r polydistXY}
+```
+
+## Testing the functions presented so far.
+
+A very simple script calling the above functions allows us to verify that they are
+working as expected. Note that for this script to work properly, we need to ensure
+that the graph is drawn on a square grid. (?? here it is not!)
+
+```{r polyexample, fig.width=5, fig.height=5}
+```

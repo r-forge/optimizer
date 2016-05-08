@@ -114,7 +114,7 @@ current polygon that result from running the function \texttt{polypar2XY}
 
 A very simple script calling the above functions allows us to verify that they are
 working as expected. Note that for this script to work properly, we need to ensure
-that the graph is drawn on a square grid. (?? here it is not!)
+that the graph is drawn on a square grid. 
 
 ```{r polyexample, fig.width=5, fig.height=5}
 ```

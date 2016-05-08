@@ -1,3 +1,5 @@
+## @knitr polysetup
+
 polysetup <- function(nv, defsize=0.98, qpen=.1){
 # Function to set up animation of the "largest small polygon"
 #   problem. This attempts to find the polygon in nv vertices
@@ -58,6 +60,8 @@ polysetup <- function(nv, defsize=0.98, qpen=.1){
     res <- list(par0 = b, lb = lb, ub =ub)
 }
 
+## @knitr polypar2XY
+
 polypar2XY <- function(nv, b) {
     l8 <- nv - 3 # offset for indexing
     x <- rep(NA, nv+1)
@@ -84,6 +88,8 @@ polypar2XY <- function(nv, b) {
     XY
 }
 
+## @knitr polyarea
+
 polyarea<-function(nv, b) {
    # compute area of a polygon defined by radial coordinates
    area <- 0 
@@ -98,6 +104,8 @@ polyarea<-function(nv, b) {
    area <- area * 0.5
    area
 }
+
+## @knitr polydistXY
 
 polydistXY <- function(nv, XY) {
 #   compute point to point distances from XY data
@@ -118,6 +126,8 @@ polydistXY <- function(nv, XY) {
    dist2
 }
 
+## @knitr polyexample
+
 # Example code
 nv <- 6
 cat("Polygon data:\n")
@@ -135,3 +145,4 @@ myhexc<-polydistXY(nv, myheXY)
 print(myhexc)
 cat("Vertex distances:")
 print(sqrt(myhexc))
+

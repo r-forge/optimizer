@@ -2,6 +2,8 @@ NEWS about R package optimz
 
 TODO
       o check on uobyqa and newuoa for controls rhobeg and rhoend.
+        Especially when parameters all 0, program will fail so we need
+	to set these.
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?
@@ -9,6 +11,9 @@ TODO
       o Rcgmin seems to report reset of parameters to bounds when parameter
         is apparently on the bound. Could have rounding issues, and should
         avoid this warning if it is really not needed.
+      o Add nloptr methods -- there are a number and we need to choose how
+	to do so. 
+      o Do NOT add ipoptr due to non-standard install. 
 
 
 VERSION 2016-01-07

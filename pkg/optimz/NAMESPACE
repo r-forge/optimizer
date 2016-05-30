@@ -7,7 +7,6 @@ import(
   Rtnmin,
   Rvmmin,
   Rcgmin,
-  nloptr,
   lbfgsb3
 )
 # importFrom("minqa", "bobyqa", "newuoa", "uobyqa")

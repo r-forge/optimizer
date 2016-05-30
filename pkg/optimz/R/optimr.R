@@ -687,10 +687,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		"NLOPT_LN_SBPLX", 
 		"NLOPT_LN_BOBYQA")
           if (method %in% nloptmeth) {
-		myopts<-nl.opts()
+		myopts<-nloptr::nl.opts()
                 myopts$algorithm <- method
                 myopts$maxeval <- control$maxfeval
-                ans <- nloptr( x0=spar, 
+                ans <- nloptr::nloptr( x0=spar, 
                          eval_f=efn, 
                          eval_grad_f = egr,
                          lb = slower, 

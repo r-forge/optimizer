@@ -2,14 +2,17 @@ import(
   numDeriv,
   BB, 
   dfoptim,
-  minqa,
   setRNG,
   ucminf,
   Rtnmin,
   Rvmmin,
   Rcgmin,
-  lbfgsb3
+  lbfgsb3,
+  nloptr
 )
+importFrom("minqa", "bobyqa", "newuoa", "uobyqa")
+# import(nloptr, except(c(bobyqa, newuoa)))
+# importFrom("nloptr", "bobyqa", "newuoa")
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("utils", "str")
 export(

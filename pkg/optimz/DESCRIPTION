@@ -1,6 +1,6 @@
 Package: optimz
-Version: 2016.01.07
-Date: 2016-01-07
+Version: 2016.05.30
+Date: 2016-05-30
 Title: A Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -16,7 +16,7 @@ Description: Provides a test of replacement and extension of the optim()
     many parameters. 
 License: GPL-2
 LazyLoad: Yes
-Imports: numDeriv, BB, ucminf, minqa, setRNG, dfoptim, Rtnmin, Rvmmin, Rcgmin, lbfgsb3
+Imports: numDeriv, BB, ucminf, minqa, setRNG, dfoptim, Rtnmin, Rvmmin, Rcgmin, lbfgsb3, nloptr
 NeedsCompilation: no
 Suggests: knitr,
     rmarkdown

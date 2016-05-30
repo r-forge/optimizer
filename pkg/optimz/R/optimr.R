@@ -394,7 +394,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "bobyqa") {# Use bobyqa routine from minqa package
   	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
-        mcontrol$rhobeg <- min(supper - slower)/3 # JN 160107 (3), 160125 (5)
+        myrhobeg <- min(supper - slower)/3 # JN 160107 (3), 160125 (5)
+        if ((myrhobeg < 1e-8) || ! is.finite(myrhobeg) ) myrhobeg <- 0.5
+        mcontrol$rhobeg <- myrhobeg # to avoid 0 when parameters 0
         time <- system.time(ans <- try(bobyqa(par=spar, fn=efn, lower=slower,
                 upper=supper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
@@ -431,6 +433,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "uobyqa") {# Use uobyqa routine from minqa package
 	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
+        myrhobeg <- min(abs(spar)) # JN 160107 (3), 160125 (5)
+        if ((myrhobeg < 1e-8) || ! is.finite(myrhobeg) ) myrhobeg <- 0.5
+        mcontrol$rhobeg <- myrhobeg # to avoid 0 when parameters 0
         if (control$have.bounds) {
             warning("Cannot use uobyqa with bounds")
 		if (control$trace > 0) cat("Cannot use uobyqa with bounds\n")
@@ -480,6 +485,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         if (control$trace > 1) cat("Trying newuoa\n")
 	mcontrol$maxfun <- control$maxfeval
         mcontrol$iprint <- control$trace
+        myrhobeg <- min(abs(spar)) # JN 160107 (3), 160125 (5)
+        if ((myrhobeg < 1e-8) || ! is.finite(myrhobeg) ) myrhobeg <- 0.5
+        mcontrol$rhobeg <- myrhobeg # to avoid 0 when parameters 0
         if (control$have.bounds) {
             warning("Cannot use newuoa with bounds")
 		if (control$trace > 0) cat("Cannot use newuoa with bounds\n")
@@ -659,8 +667,71 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          return(ans)
       }  ## end if using lbfgsb3
 ## --------------------------------------------
+      else 
+      if (grep("NLOPT_", method) == 1) {# nloptr methods
+	  nloptmeth <- c("NLOPT_LD_SLSQP", 
+		"NLOPT_LD_LBFGS_NOCEDAL",
+		"NLOPT_LD_LBFGS", 
+		"NLOPT_LD_VAR1",
+		"NLOPT_LD_VAR2", 
+		"NLOPT_LD_TNEWTON",
+		"NLOPT_LD_TNEWTON_RESTART",
+		"NLOPT_LD_TNEWTON_PRECOND",
+		"NLOPT_LD_TNEWTON_PRECOND_RESTART",
+		"NLOPT_LD_MMA", 
+		"NLOPT_LN_PRAXIS", 
+		"NLOPT_LN_COBYLA", 
+		"NLOPT_LN_NEWUOA",
+		"NLOPT_LN_NEWUOA_BOUND", 
+		"NLOPT_LN_NELDERMEAD",
+		"NLOPT_LN_SBPLX", 
+		"NLOPT_LN_BOBYQA")
+          if (method %in% nloptmeth) {
+		myopts<-nl.opts()
+                myopts$algorithm <- method
+                myopts$maxeval <- control$maxfeval
+                ans <- nloptr( x0=spar, 
+                         eval_f=efn, 
+                         eval_grad_f = egr,
+                         lb = slower, 
+                         ub = supper, 
+                         eval_g_ineq = NULL, 
+                         eval_jac_g_ineq = NULL,
+                         eval_g_eq = NULL, 
+                         eval_jac_g_eq = NULL,
+                         opts = myopts,
+                         ... )
+             # translate answer back
+                if (ans$status == 0) {
+		   ans$value <- ans$objective
+                   ans$objective <- NULL
+                   ans$par <- ans$solution
+                   ans$solution <- NULL
+	           ans$convergence<-ans$status # failed in run
+                   ans$status <- NULL
+	           ans$counts[1] <- NA
+	           ans$counts[1] <- ans$iterations
+	           ans$hessian <- NULL
+                   # ans$message is OK
+                } else {
+	            if (control$trace>0) cat("lbfgsb3 failed for current problem \n")
+        	    ans<-list(fevals=NA) # ans not yet defined, so set as list
+	            ans$value <- control$badval
+	            ans$par<-rep(NA,npar)
+	            ans$convergence<-ans$status # failed in run
+                    ans$status <- NULL
+	            ans$counts[1] <- NA
+	            ans$counts[1] <- NA
+	            ans$hessian <- NULL
+                }
+                ans # return the answer 
+          } else {
+               errmsg<-paste("UNDEFINED NLOPT METHOD:", method, sep='')
+               stop(errmsg, call.=FALSE)
+          }
+      }
 # ---  UNDEFINED METHOD ---
-      else { errmsg<-paste("UNDEFINED METHOD: ", method, sep='')
+      else { errmsg<-paste("UNDEFINED METHOD:", method, sep='')
              stop(errmsg, call.=FALSE)
       }
 

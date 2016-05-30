@@ -1,9 +1,7 @@
 NEWS about R package optimz
 
 TODO
-      o check on uobyqa and newuoa for controls rhobeg and rhoend.
-        Especially when parameters all 0, program will fail so we need
-	to set these.
+      o Troubles with NAMESPACE collisions NOT resolved.
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?
@@ -14,7 +12,13 @@ TODO
       o Add nloptr methods -- there are a number and we need to choose how
 	to do so. 
       o Do NOT add ipoptr due to non-standard install. 
+      o Need to check that scaling of bounds is correct.
 
+
+VERSION 2016-05-30
+      o Crude setting of uobyqa and newuoa for control rhobeg.
+        Especially when parameters all 0, or bounds undefined, program 
+	will fail so we need to set this. May also be needed for rhoend.
 
 VERSION 2016-01-07
       o realized control rhobeg needed to be set or bobyqa would fail.

@@ -7,10 +7,10 @@ import(
   Rtnmin,
   Rvmmin,
   Rcgmin,
-  lbfgsb3,
-  nloptr
+  nloptr,
+  lbfgsb3
 )
-importFrom("minqa", "bobyqa", "newuoa", "uobyqa")
+# importFrom("minqa", "bobyqa", "newuoa", "uobyqa")
 # import(nloptr, except(c(bobyqa, newuoa)))
 # importFrom("nloptr", "bobyqa", "newuoa")
 importFrom("stats", "nlm", "nlminb", "optim")

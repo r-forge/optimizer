@@ -397,7 +397,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         myrhobeg <- min(supper - slower)/3 # JN 160107 (3), 160125 (5)
         if ((myrhobeg < 1e-8) || ! is.finite(myrhobeg) ) myrhobeg <- 0.5
         mcontrol$rhobeg <- myrhobeg # to avoid 0 when parameters 0
-        time <- system.time(ans <- try(bobyqa(par=spar, fn=efn, lower=slower,
+        time <- system.time(ans <- try(minqa::bobyqa(par=spar, fn=efn, lower=slower,
                 upper=supper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
@@ -449,7 +449,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
                 return(ans)
         }
-        time <- system.time(ans <- try(uobyqa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(minqa::uobyqa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
@@ -502,7 +502,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 return(ans)
         }
 
-        time <- system.time(ans <- try(newuoa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(minqa::newuoa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {

@@ -95,9 +95,9 @@ polyarea<-function(nv, b) {
    area <- 0 
    l8 <- nv-3
    for (l in 3:nv){
-      q1 <- b[l-2]
-      q2 <- b[l-1]
-      q3 <- b[l+l8]
+      q1 <- b[[l-2]]
+      q2 <- b[[l-1]]
+      q3 <- b[[l+l8]]
       atemp <- q1*q2*sin(q3)
       area <- area + atemp
    }
@@ -126,6 +126,17 @@ polydistXY <- function(nv, XY) {
    dist2
 }
 
+polyobj <- function(x, penfactor=0) {
+ # negative area + penfactor*(sum(squared violations))
+ nv = (length(x)+3)/2 # number of vertices
+ f <-  -polyarea(nv, x) # negative area
+ XY <- polypar2XY(nv, x)
+ dist2 <- polydistXY(nv, XY)
+ viol <- dist2[which(dist2 > 1)] - 1.0
+ f <- f + penfactor * sum(viol)
+ f
+}
+
 ## @knitr polyexample
 
 # Example code
@@ -146,3 +157,31 @@ print(myhexc)
 cat("Vertex distances:")
 print(sqrt(myhexc))
 
+pf <- 10 # penalty factor
+cat("initial penalized objective: ", polyobj(myhex$par0, pf),"\n")
+
+start<-myhex$par0
+# This fails -- angles get too big and it gets area wrong
+# by wrapping around
+# sol <- optim(start, polyobj, control=list(trace=1))
+library(minqa)
+ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
+lb <- c(rep(0, (2*nv-3)))
+sol <- bobyqa(start, polyobj, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
+xx<-sol$par
+
+solXY <- polypar2XY(nv, xx)
+points(solXY$x, solXY$y, col='red', type='l')
+
+library(Rvmmin)
+solvm<-Rvmmin(start, polyobj, lower=lb, upper=ub, control=list(trace=1), penfactor=10)
+xvm <- solvm$par
+areavm <- polyarea(nv, xvm)
+areabob <- polyarea(nv, xx)
+solvmXY <- polypar2XY(nv, xvm)
+points(solvmXY$x, solvmXY$y, col='green', type='l')
+newstart <- xvm
+pf <- 0.1
+solvm<-Rvmmin(start, polyobj, lower=lb, upper=ub, control=list(trace=1), penfactor=pf)
+solvmXY <- polypar2XY(nv, solvm$par)
+points(solvmXY$x, solvmXY$y, col='blue', type='l')

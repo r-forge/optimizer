@@ -116,5 +116,5 @@ A very simple script calling the above functions allows us to verify that they a
 working as expected. Note that for this script to work properly, we need to ensure
 that the graph is drawn on a square grid. 
 
-```{r polyexample, fig.width=5, fig.height=5}
+```{r polyex1, fig.width=5, fig.height=5}
 ```

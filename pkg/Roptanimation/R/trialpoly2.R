@@ -1,26 +1,24 @@
 library(R6)
 library(TeachingDemos)
 
-nvex <- as.numeric(readline("Number of vertices ="))
-# Note the as.numeric
-nv <- nvex # to copy value above
-cat("There are ",nv," vertices\n")
-
+## @knitr PolyTrack
 
 PolyTrack <- R6Class("PolyTrack",
   public = list(
     parms = list(),
     maxviol = list(),
     areas = list(),
+    fvals =list(),
     nv = nvex,
     PlotIt = TRUE,
     Delay = 0.25,
     nPolys = 5,
-    add = function(p,v,a) { # add points of polygon and area
+    add = function(p,v,a, fval) { # add points of polygon and area
       i <- length(self$parms) + 1
       self$parms[[i]] <- p # the points
       self$maxviol[[i]] <- v # maximum violation
       self$areas[[i]] <- a # the area
+      self$fvals[[i]] <- fval # objective
       if(self$PlotIt) { # here PlotIt in environment is TRUE so we'll likely always do this
         self$PlotPolys() # plot all polygons to date, then wait
         Sys.sleep(self$Delay)
@@ -42,19 +40,21 @@ PolyTrack <- R6Class("PolyTrack",
       plot.window( xlim=do.call(range, lapply(coords, function(xy) xy$x)),
                    ylim=do.call(range, lapply(coords, function(xy) xy$y)),
                    asp=1)
-      for(i in seq_len(n)) { # draw the edges of polygons in the set
-        polygon(coords[[i]]$x, coords[[i]]$y, border=cols[i], lwd=3)
+      for(ii in seq_len(n)) { # draw the edges of polygons in the set
+        polygon(coords[[ii]]$x, coords[[ii]]$y, border=cols[ii], lwd=3)
       }
       # Here should add display of area found
       carea <- max(unlist(self$areas))
       txt <- paste("Polygon area =",carea)
       title(main=txt)
-      title(sub=paste("Max violation=",self$maxviol[[i]]))
+      title(sub=paste("Max violation=",self$maxviol[[i]],"  obj.fn.=",self$fvals[[i]]))
     }
   ) # end of public list, no private list
 # NOTE: Need to change nv to whatever is current value
                      
 )
+
+## @knitr polyobj
 
 polyobj <- function(x, penfactor=0) {
   # negative area + penfactor*(sum(squared violations))
@@ -65,10 +65,11 @@ polyobj <- function(x, penfactor=0) {
   viol <- dist2[which(dist2 > 1)] - 1.0
   mviol <- max(viol, 0)
   f <- penfactor * sum(viol) - a
-  pt1$add(x, mviol, a)
+  pt1$add(x, mviol, a, f)
   f
 }
 
+## @knitr polysetup
 
 polysetup <- function(nv, defsize=0.98, qpen=.1){
 # Function to set up animation of the "largest small polygon"
@@ -185,10 +186,10 @@ polydistXY <- function(nv, XY) {
    dist2 <- rep(NA, ncon) # squared distances   
    ll <- 0 # index of constraint
    for (i in 2:nv){
+      xi <- XY$x[i]
+      yi <- XY$y[i]
       for (j in (1:(i-1))){
-         xi <- XY$x[i]
          xj <- XY$x[j]
-         yi <- XY$y[i]
          yj <- XY$y[j]
          dd <- (xi-xj)^2 + (yi-yj)^2
          ll <- ll + 1
@@ -203,6 +204,11 @@ polydistXY <- function(nv, XY) {
 # Example code -- seems to work for nv=6, but not otherwise
 # nv <- 6
 #nv <- 8
+nvex <- as.numeric(readline("Number of vertices ="))
+# Note the as.numeric
+nv <- nvex # to copy value above
+cat("There are ",nv," vertices\n")
+
 
 
 cat("Polygon data:\n")

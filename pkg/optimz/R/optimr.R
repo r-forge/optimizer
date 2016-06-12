@@ -1,6 +1,11 @@
 optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
+.checkfunargs = function( fun, arglist, funname ) {
+    return(0) # dummy to avoid issues
+}
+
+
   orig.method <- method
   orig.gr <- gr
   orig.fn <- fn
@@ -23,6 +28,24 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
           else stop("control$fnscale and control$maximize conflict")
        } # end ifelse
   } # end else
+
+# 160611 -- try to sort out nloptr
+nw <- local({
+    defaultControl <- list(algorithm="NLOPT_LD_MMA",
+                           xtol_abs=1e-6, ftol_abs=1e-6, maxeval=1e5)
+        function(par,fn,gr,lower,upper,control=list(),...) {
+        for (n in names(defaultControl))
+            if (is.null(control[[n]])) control[[n]] <- defaultControl[[n]]
+        cat("in nw, algorithm =",control$algorithm,"\n")
+        res <- nloptr::nloptr(x0=par, eval_f=fn, eval_grad_f=gr, lb=lower,ub=upper, opts=control, ...)
+        with(res,list(par=solution,
+                      fval=objective,
+                      feval=iterations,
+                      conv=if (status>0) 0 else status,
+                      message=message))
+    }
+})
+
 
   efn <- function(spar, ...) {
       # rely on pscale being defined in this enclosing environment
@@ -687,38 +710,40 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		"NLOPT_LN_SBPLX", 
 		"NLOPT_LN_BOBYQA")
           if (method %in% nloptmeth) {
+                control$algorithm <- method
 		myopts<-nloptr::nl.opts()
                 myopts$algorithm <- method
                 myopts$maxeval <- control$maxfeval
-                ans <- nloptr::nloptr( x0=spar, 
-                         eval_f=efn, 
-                         eval_grad_f = egr,
-                         lb = slower, 
-                         ub = supper, 
-                         eval_g_ineq = NULL, 
-                         eval_jac_g_ineq = NULL,
-                         eval_g_eq = NULL, 
-                         eval_jac_g_eq = NULL,
-                         opts = myopts,
-                         ... )
+                dotargs <- list(...)
+                cat("str(dotargs):")
+                print(str(dotargs))
+# following works OK without scaling, but efn, egr do not 160611
+#             ans <- nw(par, fn, gr, lower, upper, control=control, ...)
+             cat("about to try scaled call, fnscale, pscale: ", fnscale,"\n")
+             print(pscale)
+             print(efn)
+             print(egr)
+             ans <- nw(par=spar, fn=efn, gr=egr, lower=slower, upper=supper, control=control, ...)
+             print(ans)
              # translate answer back
-                if (ans$status == 0) {
-		   ans$value <- ans$objective
-                   ans$objective <- NULL
-                   ans$par <- ans$solution
-                   ans$solution <- NULL
-	           ans$convergence<-ans$status # failed in run
-                   ans$status <- NULL
+                if (ans$conv == 0) {
+		   ans$value <- ans$fval
+                   ans$fval <- NULL
+#                   ans$par <- ans$solution
+#                   ans$solution <- NULL
+	           ans$convergence<-ans$conv # failed in run
+#                   ans$status <- NULL
 	           ans$counts[1] <- NA
-	           ans$counts[1] <- ans$iterations
+	           ans$counts[1] <- ans$feval
+                   ans$feval <- NULL
 	           ans$hessian <- NULL
                    # ans$message is OK
                 } else {
-	            if (control$trace>0) cat("lbfgsb3 failed for current problem \n")
+	            if (control$trace>0) cat("nloptr call failed for current problem \n")
         	    ans<-list(fevals=NA) # ans not yet defined, so set as list
 	            ans$value <- control$badval
 	            ans$par<-rep(NA,npar)
-	            ans$convergence<-ans$status # failed in run
+	            ans$convergence<-ans$conv # failed in run
                     ans$status <- NULL
 	            ans$counts[1] <- NA
 	            ans$counts[1] <- NA

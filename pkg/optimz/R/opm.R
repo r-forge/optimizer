@@ -38,7 +38,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 		"NLOPT_LN_SBPLX", 
 		"NLOPT_LN_BOBYQA")
 
-  allmeth <- c(allmeth, nloptmeth)
+ # allmeth <- c(allmeth, nloptmeth) # 160612 remove nlopt for now
 
   if (length(method) == 1 && method == "ALL") control$all.methods <- TRUE
   if (control$all.methods) method <- allmeth # does not restrict if bounds??

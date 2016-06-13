@@ -118,3 +118,8 @@ that the graph is drawn on a square grid.
 
 ```{r polyex1, fig.width=5, fig.height=5}
 ```
+
+
+## Setup of the optimization
+
+The constrained optimization to maximize the area actually minimizes the negative area.

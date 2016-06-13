@@ -116,10 +116,35 @@ A very simple script calling the above functions allows us to verify that they a
 working as expected. Note that for this script to work properly, we need to ensure
 that the graph is drawn on a square grid. 
 
-```{r polyex1, fig.width=5, fig.height=5}
+```{r polyex0, fig.width=5, fig.height=5}
 ```
 
 
 ## Setup of the optimization
 
 The constrained optimization to maximize the area actually minimizes the negative area.
+However, we need to account for the constraints. Clearly since the radial parameters
+start at one vertex of the polygon, they are bounded above by 1. And naturally, we 
+cannot have a polygon with negative lengths, so 0 is an obvious lower bound, though
+realistically, some modest positive value would likely be workable. This accounts for
+constraints on distance from the first, or base, vertex. For the other distances, we 
+will apply a penalty function which will be added to the negative area. We can also
+put 0 as a lower bound on the angular parameters, and a reasonable upper bound as well.
+pi serves as a conservative bound for these parameters.
+
+## Quadratic penalty function
+
+Our first try (which we will state in advance does not work well) is to add a multiple
+of the sum of the distance violations. These are the pairwise squared distances for those
+inter-vertex distances that are not given by the radial parameters. We assume the simple
+bounds are in force for the radial and angular parameters. This results in the following
+objective function.
+
+```{r polyobj1}
+```
+
+Setting the penalty factor (penfactor) at 100, we use M. J. Powell's bobyqa minimizer
+to try to find the solution. 
+
+```{r polyex1}
+```

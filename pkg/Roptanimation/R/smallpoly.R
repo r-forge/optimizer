@@ -126,7 +126,9 @@ polydistXY <- function(nv, XY) {
    dist2
 }
 
-polyobj <- function(x, penfactor=0) {
+## @knitr polyobj1
+
+polyobj1 <- function(x, penfactor=0) {
  # negative area + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
  f <-  -polyarea(nv, x) # negative area
@@ -137,7 +139,7 @@ polyobj <- function(x, penfactor=0) {
  f
 }
 
-## @knitr polyex1
+## @knitr polyex0
 
 # Example code
 nv <- 6
@@ -157,6 +159,18 @@ print(myhexc)
 cat("Vertex distances:")
 print(sqrt(myhexc))
 
+
+## @knitr polyex1
+
+library(minqa)
+
+start <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+lb <- myhex$lb
+ub <- myhex$ub
+cat("Starting parameters:")
+print(start)
+sol1 <- bobyqa(start, polyobj1, lower=lb, upper=ub, control=list(iprint=2), penfactor=100)
+print(sol1)
 
 
 

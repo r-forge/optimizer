@@ -163,8 +163,8 @@ polypardist2 <- function(b) {
 
 ## @knitr polyobj
 
-polyobj <- function(x, penfactor=1e-8) {
- epsilon <- 0
+polyobj <- function(x, penfactor=1e-8, epsilon=0) {
+# epsilon <- 0
  bignum <- 1e+20
  # 2 * (negative area) + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
@@ -179,10 +179,10 @@ polyobj <- function(x, penfactor=1e-8) {
 
 ## @knitr polygrad
 
-polygrad <- function(x, penfactor=1e-8) {
+polygrad <- function(x, penfactor=1e-8, epsilon=0) {
  nv <- (length(x)+3)/2
  l8 <- nv - 3 # end of radii params
- epsilon <- 0
+# epsilon <- 0
  bignum <- 1e+20
  # 2 * (negative area) + penfactor*(sum(squared violations))
  nn <- length(x)
@@ -294,14 +294,14 @@ cat("Polygon data:\n")
 myhex <- polysetup(nv)
 print(myhex)
 cat("Area:\n")
-myhexa <- polyarea(nv, myhex$par0)
+myhexa <- polyarea(myhex$par0)
 print(myhexa)
 cat("XY coordinates\n")
-myheXY <- polypar2XY(nv, myhex$par0)
+myheXY <- polypar2XY(myhex$par0)
 print(myheXY)
 plot(myheXY$x, myheXY$y, type="l")
 cat("Constraints:\n")
-myhexc<-polydistXY(nv, myheXY)
+myhexc<-polydistXY(myheXY)
 print(myhexc)
 cat("Vertex distances:")
 print(sqrt(myhexc))
@@ -330,8 +330,11 @@ lb <- myhex$lb
 ub <- myhex$ub
 cat("Starting parameters:")
 print(start)
-sol2 <- bobyqa(start, polyobj2, lower=lb, upper=ub, control=list(iprint=2), penfactor=.01)
+sol2 <- bobyqa(start, polyobj2, lower=lb, upper=ub, control=list(iprint=2), penfactor=.001)
 print(sol2)
+
+## @knitr polyex2
+
 
 restart <- start
 bestarea <- 0
@@ -347,3 +350,10 @@ while (bestarea < area) {
   pf <- pf*0.1
   tmp <- readline("Next cycle")
 }
+
+x0 <- myhex$par0
+
+bmeth <- c("nmkb", "hjkb", "bobyqa")
+
+smult <- opm(x0, polyobj, lower=lb, upper=ub, method=bmeth, control=list(trace=1, maxit=10000), penfactor=1e-3)
+smult 

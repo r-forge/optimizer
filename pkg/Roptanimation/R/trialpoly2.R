@@ -54,9 +54,9 @@ PolyTrack <- R6Class("PolyTrack",
                      
 )
 
-## @knitr polyobj
+## @knitr polyobjq
 
-polyobj <- function(x, penfactor=0) {
+polyobjq <- function(x, penfactor=0) {
   # negative area + penfactor*(sum(squared violations))
   nv = (length(x)+3)/2 # number of vertices
   a <-  polyarea(nv, x) # area
@@ -213,6 +213,7 @@ cat("There are ",nv," vertices\n")
 
 cat("Polygon data:\n")
 myhex <- polysetup(nv)
+# Note: default "size" is 0.98, not 1
 print(myhex)
 cat("Area:\n")
 myhexa <- polyarea(nv, myhex$par0)
@@ -234,7 +235,7 @@ pt1 <- PolyTrack$new()
 library(minqa)
 ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
 lb <- c(rep(0, (2*nv-3)))
-sol <- bobyqa(start, polyobj, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
+sol <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
 
 # pt2 <- PolyTrack$new()
 

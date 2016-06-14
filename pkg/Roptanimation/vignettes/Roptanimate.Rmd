@@ -76,6 +76,14 @@ read_chunk('../R/smallpoly.R')
 ```{r polysetup}
 ```
 
+The parameters of a regular hexagon of size 1 can be created as follows.
+
+```{r}
+# A regular hexagon of size 1
+reghex1 <- polysetup(6, defsize=1)
+cat("Parameters of the regular hexagon of unit size\n")
+print(reghex1$par0)
+```
 
 ## The polygon area
 
@@ -86,6 +94,14 @@ where \texttt{L} runs from \texttt{2} to \texttt{(nv-1)}.
 ```{r polyarea}
 ```
 
+For reference, let us compute the area of this hexagon.
+
+```{r}
+reg1area <- polyarea(6, reghex1$par)
+cat("Reference area of regular hexagon of unit size=",reg1area,"\n")
+```
+
+This is in accord with R.L. Graham's paper (JOURNAL OF COMBINATORIAL THEORY (A) 18, 165 - 470 (1975) ).
 
 ## Conversion of radial to cartesian coordinates
 
@@ -143,8 +159,50 @@ objective function.
 ```{r polyobj1}
 ```
 
-Setting the penalty factor (penfactor) at 100, we use M. J. Powell's bobyqa minimizer
+Setting the penalty factor ($penfactor$) at 100, we use M. J. Powell's bobyqa minimizer
 to try to find the solution. 
 
 ```{r polyex1}
 ```
+The objective is the negative area PLUS the penalty, so (-1) times this value is a lower 
+bound on the area. But we see that it is smaller than the reference value (approximately
+0.64952) of the unit regular hexagon. We have more work to do.
+
+## Logarithmic barrier constraint
+
+A different kind of penalty is provided by the logarithmic barrier. This aims to keep
+the parameters feasible by adding a steeply increasing function to the negative area as 
+the constraint is approached. Let us first define the **slack** in a distance constraint
+as $slack = (1 - squared.distance)$. We could use the distance itself, but might as well 
+avoid the extra computation. As each slack goes to zero, then $- log(slack)$ goes to 
+infinity. We can scale this, as in the quadratic penalty, with $penfactor$.
+
+There is an annoying computational practicality that some optimization methods may take
+steps in the parameter vector that push some distances into infeasible territory. This
+will cause exceptions to be generated when the logarithm of a negative "slack" is 
+attempted. To avoid this, we will simply make the objective function very large at
+any time when there is a violation. However, this does cause grief for the evaluation
+of numerical approximations to gradients, so we may want to revise this policy later
+and seek more elegant (but likely more complicated) techniques to deal with this 
+possibility. The large number for now will be $ bignum = 1e20 $.
+
+Since the logarithmic barrier does not let the parameters end actually ON then bound,
+we may wish to move the constraint an epsilon beyond 1 by redefining the slack as
+
+$slack = (1 + epsilon - squared.distance)$
+
+But what should $epsilon$ be? We may revisit this later, but for the moment set the 
+value at 0, and the resulting code is as follows.
+
+```{r polyobj2 }
+```
+
+With Powell's bobyqa, we attempt to minimize this objective from the same start as
+before. We set the penalty factor quite small, in fact 0.01, as the barrier is non-zero within
+the feasible region.
+
+```{r polyex2}
+```
+
+
+        

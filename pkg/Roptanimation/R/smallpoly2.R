@@ -62,7 +62,8 @@ polysetup <- function(nv, defsize=0.98){
 
 ## @knitr polypar2XY
 
-polypar2XY <- function(nv, b) {
+polypar2XY <- function(b) {
+    nv <- (length(b)+3)/2
     l8 <- nv - 3 # offset for indexing
     x <- rep(NA, nv+1)
     y <- rep(NA, nv+1)
@@ -90,8 +91,9 @@ polypar2XY <- function(nv, b) {
 
 ## @knitr polyarea
 
-polyarea<-function(nv, b) {
+polyarea<-function(b) {
    # compute area of a polygon defined by radial coordinates
+   nv <- (length(b)+3)/2
    area <- 0 
    l8 <- nv-3
    for (l in 3:nv){
@@ -107,8 +109,9 @@ polyarea<-function(nv, b) {
 
 ## @knitr polydistXY
 
-polydistXY <- function(nv, XY) {
+polydistXY <- function(XY) {
 #   compute point to point distances from XY data
+   nv <- dim(XY)[1]
    ncon <- (nv - 1)*(nv - 2)/2
    dist2 <- rep(NA, ncon) # squared distances   
    ll <- 0 # index of constraint
@@ -126,28 +129,95 @@ polydistXY <- function(nv, XY) {
    dist2
 }
 
-## @knitr polydist2par
+## @knitr polypar2distXY
 
-polypar2dist2 <- function(pars) {
+polypar2distXY <- function(pars) {
    nv <- (length(pars) + 3)/2
    XY <- polypar2XY(nv, pars)
    dist2 <- polydistXY(nv, XY)
 }
 
 
+## @knitr polypardist2
 
-## @knitr polyobj1
+polypardist2 <- function(b) {
+   nv <- (length(b) + 3)/2 
+   l8 <- nv - 3 # end of radii params
+   ll <- 0 # count the distances (non-radii ones)
+   sqdist <- rep(NA, (nv-1)*(nv-2)/2)
+   for (ii in 2:(nv-1)){
+      for (jj in (ii+1):nv) {
+          ra <- b[ii-1]
+          rb <- b[jj-1]
+          angleab <- 0
+          for (kk in (ii+1):jj) { angleab <- angleab + b[kk+l8] }
+          d2 <- ra*ra+rb*rb -2*ra*rb*cos(angleab) # Cosine rule for squared dist
+          ll <- ll+1
+          sqdist[[ll]] <- d2
+      }
+   }  
+   sqdist
+}
 
-polyobj1 <- function(x, penfactor=0) {
- # negative area + penfactor*(sum(squared violations))
+
+
+## @knitr polyobj
+
+polyobj <- function(x, penfactor=1e-8) {
+ epsilon <- 0
+ bignum <- 1e+20
+ # 2 * (negative area) + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
- f <-  -polyarea(nv, x) # negative area
- XY <- polypar2XY(nv, x)
- dist2 <- polydistXY(nv, XY)
- viol <- dist2[which(dist2 > 1)] - 1.0
- f <- f + penfactor * sum(viol)
+ f <-  -2 * polyarea(x) # negative area
+ dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
+ slacks <- 1.0 + epsilon - dist2 # slack vector
+ if (any(slacks <= 0)) { f <- bignum } 
+ else {  f <- f - penfactor*sum(log(slacks)) }
  f
 }
+
+
+## @knitr polygrad
+
+polygrad <- function(x, penfactor=1e-8) {
+ nv <- (length(x)+3)/2
+ l8 <- nv - 3 # end of radii params
+ epsilon <- 0
+ bignum <- 1e+20
+ # 2 * (negative area) + penfactor*(sum(squared violations))
+ nn <- length(x)
+ gg <- rep(0, nn)
+ dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
+ slacks <- 1.0 + epsilon - dist2 # slack vector
+ if (any(slacks <= 0)) { stop("Infeasible") } 
+ for (ll in 3:nv) {
+    ra<-x[ll-1]
+    rb<-x[ll-2]
+    abangle <- x[l8 + ll]
+    # are is ra*rb*sin(abangle)
+    gg[ll-2] <- gg[ll-2] - ra*sin(abangle)
+    gg[ll-1] <- gg[ll-1] - rb*sin(abangle)
+    gg[ll+l8] <- gg[ll+l8] - ra*rb*cos(abangle)
+ }
+ ll <- 0
+ for (ii in 2:(nv-1)){
+    for (jj in (ii+1):nv) {
+       ll <- ll+1
+       ra <- x[ii-1]
+       rb <- x[jj-1]
+       angleab <- 0
+       for (kk in (ii+1):jj) { angleab <- angleab + x[kk+l8] }
+       gg[ii-1] <- gg[ii-1] + 2*penfactor*(ra-rb*cos(angleab))/slacks[ll]
+       gg[jj-1] <- gg[jj-1] + 2*penfactor*(rb-ra*cos(angleab))/slacks[ll]
+       for (kk in (ii+1):jj){
+          gg[kk+l8]<-gg[kk+l8]+2*penfactor*ra*rb*sin(angleab)/slacks[ll]
+       }
+    }
+ }
+ gg
+}
+
+
 
 ## @knitr polyobj2
 
@@ -215,8 +285,6 @@ polyobj3 <- function(x, penfactor=0) {
  }
  f
 }
-
-
 
 ## @knitr polyex0
 

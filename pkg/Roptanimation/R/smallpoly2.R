@@ -67,6 +67,7 @@ polypar2XY <- function(b) {
     l8 <- nv - 3 # offset for indexing
     x <- rep(NA, nv+1)
     y <- rep(NA, nv+1)
+    # One extra point to draw polygon (return to origin)
     x[1] <- 0
     y[1] <- 0
     x[2] <- b[1]
@@ -111,12 +112,12 @@ polyarea<-function(b) {
 
 polydistXY <- function(XY) {
 #   compute point to point distances from XY data
-   nv <- dim(XY)[1]
-   ncon <- (nv - 1)*(nv - 2)/2
+   nv <- length(XY$x)-1
+   ncon <- (nv - 1)*(nv)/2
    dist2 <- rep(NA, ncon) # squared distances   
    ll <- 0 # index of constraint
-   for (i in 2:nv){
-      for (j in (1:(i-1))){
+   for (i in 1:(nv-1)){
+      for (j in ((i+1):nv)){
          xi <- XY$x[i]
          xj <- XY$x[j]
          yi <- XY$y[i]
@@ -133,8 +134,8 @@ polydistXY <- function(XY) {
 
 polypar2distXY <- function(pars) {
    nv <- (length(pars) + 3)/2
-   XY <- polypar2XY(nv, pars)
-   dist2 <- polydistXY(nv, XY)
+   XY <- polypar2XY(pars)
+   dist2 <- polydistXY(XY)
 }
 
 
@@ -160,18 +161,17 @@ polypardist2 <- function(b) {
 }
 
 
-
 ## @knitr polyobj
 
 polyobj <- function(x, penfactor=1e-8, epsilon=0) {
 # epsilon <- 0
  bignum <- 1e+20
- # 2 * (negative area) + penfactor*(sum(squared violations))
+ # (negative area) + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
- f <-  -2 * polyarea(x) # negative area
+ f <-  - polyarea(x) # negative area
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
  slacks <- 1.0 + epsilon - dist2 # slack vector
- if (any(slacks <= 0)) { f <- bignum } 
+ if (any(slacks <= 0)) { f <- bignum } # in case of step into infeasible zone
  else {  f <- f - penfactor*sum(log(slacks)) }
  f
 }
@@ -184,7 +184,7 @@ polygrad <- function(x, penfactor=1e-8, epsilon=0) {
  l8 <- nv - 3 # end of radii params
 # epsilon <- 0
  bignum <- 1e+20
- # 2 * (negative area) + penfactor*(sum(squared violations))
+ # (negative area) + penfactor*(sum(squared violations))
  nn <- length(x)
  gg <- rep(0, nn)
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
@@ -194,10 +194,10 @@ polygrad <- function(x, penfactor=1e-8, epsilon=0) {
     ra<-x[ll-1]
     rb<-x[ll-2]
     abangle <- x[l8 + ll]
-    # are is ra*rb*sin(abangle)
-    gg[ll-2] <- gg[ll-2] - ra*sin(abangle)
-    gg[ll-1] <- gg[ll-1] - rb*sin(abangle)
-    gg[ll+l8] <- gg[ll+l8] - ra*rb*cos(abangle)
+    # are is 0.5*ra*rb*sin(abangle)
+    gg[ll-2] <- gg[ll-2] - 0.5*ra*sin(abangle)
+    gg[ll-1] <- gg[ll-1] - 0.5*rb*sin(abangle)
+    gg[ll+l8] <- gg[ll+l8] - 0.5*ra*rb*cos(abangle)
  }
  ll <- 0
  for (ii in 2:(nv-1)){
@@ -218,8 +218,51 @@ polygrad <- function(x, penfactor=1e-8, epsilon=0) {
 }
 
 
+## @knitr polyobju
 
-## @knitr polyobj2
+polyobju <- function(x, penfactor=1e-8, epsilon=0) {
+# polyobj with radial parameters constrained by log barrier
+# epsilon <- 0
+ bignum <- 1e+20
+ # (negative area) + penfactor*(sum(squared violations))
+ nv = (length(x)+3)/2 # number of vertices
+ f <-  - polyarea(x) # negative area
+ dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
+ dist2 <- c(x[1:(nv-1)]^2, dist2) # Note the squared distances used
+ slacks <- 1.0 + epsilon - dist2 # slack vector
+ if (any(slacks <= 0)) { f <- bignum } # in case of step into infeasible zone
+ else {  f <- f - penfactor*sum(log(slacks)) }
+ f
+}
+
+
+
+## @knitr polyobj1
+
+polyobj1 <- function(x, penfactor=0) {
+ # negative area + penfactor*(sum(squared violations))
+ nv = (length(x)+3)/2 # number of vertices
+ f <-  -polyarea(x) # negative area
+ XY <- polypar2XY(x)
+ dist2 <- polydistXY(XY)
+ viol <- dist2[which(dist2 > 1)] - 1.0
+ f <- f + penfactor * sum(viol)
+ f
+}
+
+## @knitr polyobjbig
+
+polyobjbig <- function(x, bignum=1e10) {
+ # Put objective to bignum when constraints violated
+ nv = (length(x)+3)/2 # number of vertices
+ d2 <- c(x[1:(nv-1)]^2, polypardist2(x)) # distances
+ if (any(d2 >=1)) { f <- bignum }
+ else { f <-  -polyarea(x) } # negative area
+ f
+}
+
+
+## @knitr polyobj2 -- UNUSED?
 
 polyobj2 <- function(x, penfactor=0) {
  epsilon <- 1e-6
@@ -227,9 +270,8 @@ polyobj2 <- function(x, penfactor=0) {
  # negative area - penfactor*(sum(log(slacks)))
 # but bail and set objective large if any slack <=0
  nv = (length(x)+3)/2 # number of vertices
- f <-  -polyarea(nv, x) # negative area
- XY <- polypar2XY(nv, x)
- dist2 <- polydistXY(nv, XY)
+ f <-  -polyarea(x) # negative area
+ dist2 <- polypardist2(x)
  if (any(dist2 <= 0)) {f <- bignum}
  else { 
     slacks <- 1.0 + epsilon - dist2
@@ -238,7 +280,7 @@ polyobj2 <- function(x, penfactor=0) {
  f
 }
 
-## @knitr polyobj2a
+## @knitr polyobj2a -- UNUSED??
 
 polyobj2a <- function(x, penfactor=0) {
  # version to allow general unconstrained minimizer
@@ -248,10 +290,9 @@ polyobj2a <- function(x, penfactor=0) {
  # negative area - penfactor*(sum(log(slacks)))
 # but bail and set objective large if any slack <=0
  nv <- (length(x)+3)/2 # number of vertices
- f <-  -polyarea(nv, x) # negative area
- XY <- polypar2XY(nv, x)
- dist2 <- polydistXY(nv, XY)
- dist2 <- c(dist2, (x[1:(nv-1)])^2)
+ f <-  -polyarea(x) # negative area
+ dist2 <- polypardist2(x)
+ dist2 <- c((x[1:(nv-1)])^2, dist2)
  if (any(dist2 >= 1)) {
     if(any(dist2 > 1)) {
       f <- bignum
@@ -293,11 +334,12 @@ nv <- 6
 cat("Polygon data:\n")
 myhex <- polysetup(nv)
 print(myhex)
+x0 <- myhex$par0 # initial parameters
 cat("Area:\n")
-myhexa <- polyarea(myhex$par0)
+myhexa <- polyarea(x0)
 print(myhexa)
 cat("XY coordinates\n")
-myheXY <- polypar2XY(myhex$par0)
+myheXY <- polypar2XY(x0)
 print(myheXY)
 plot(myheXY$x, myheXY$y, type="l")
 cat("Constraints:\n")
@@ -305,6 +347,15 @@ myhexc<-polydistXY(myheXY)
 print(myhexc)
 cat("Vertex distances:")
 print(sqrt(myhexc))
+cat("check distances with polypar2distXY\n")
+try1 <- polypar2distXY(x0)
+print(try1)
+cat("check distances with polypardist2 augmenting output with parameter squares\n")
+try2 <- polypardist2(x0)
+try2 <- c(x0[1:(nv-1)]^2, try2)
+print(try2)
+cat("Max abs difference = ",max(abs(try1-try2)),"\n")
+
 
 
 ## @knitr polyex1
@@ -318,42 +369,99 @@ cat("Starting parameters:")
 print(start)
 sol1 <- bobyqa(start, polyobj1, lower=lb, upper=ub, control=list(iprint=2), penfactor=100)
 print(sol1)
+cat("area = ",polyarea(sol1$par),"\n")
+
+## @knitr polyexbig
+
+library(optimz)
+cat("Attempt with setting objective big on violation\n")
+
+x0 <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+cat("Starting parameters:")
+print(x0)
+meths <- c("Nelder-Mead", "nmkb", "hjkb", "newuoa")
+solb <- opm(x0, polyobjbig, method=meths, bignum=1e+10)
+print(solb)
 
 
 ## @knitr polyex2
 
-## library(minqa)
+library(minqa)
 cat("Attempt with logarithmic barrier\n")
 
-start <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+x0 <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
 lb <- myhex$lb
 ub <- myhex$ub
 cat("Starting parameters:")
-print(start)
-sol2 <- bobyqa(start, polyobj2, lower=lb, upper=ub, control=list(iprint=2), penfactor=.001)
+print(x0)
+sol2 <- bobyqa(x0, polyobj, lower=lb, upper=ub, control=list(iprint=2), penfactor=1e-3)
 print(sol2)
+cat("Area found=",polyarea(sol2$par),"\n")
 
-## @knitr polyex2
+## @knitr polyex2a
+
+## library(optimz)
+## cat("Attempt with logarithmic barrier using nmkb and hjkb\n")
+
+## sol2a <- opm(x0, polyobjbig, method=meths, bignum=1e+10)
+## print(sol2a)
 
 
-restart <- start
+## @knitr polyex3
+
+library(dfoptim)
+cat("try to reduce the penalty factor. nmk minimizer on polyobju\n")
+restart <- x0
 bestarea <- 0
-area <- polyarea(nv, restart)
+area <- polyarea(x0)
 pf <- 0.01
 while (bestarea < area) {
   bestarea <- area
-  sol2a <- optim(start, polyobj2a, control=list(trace=2, maxit=10000), penfactor=pf)
-  sol2a
-  restart <- sol2a$par
-  area <- polyarea(nv, restart)
+  sol3n <- nmk(restart, polyobj2a, control=list(trace=2, maxit=10000), penfactor=pf)
+  sol3n
+  restart <- sol3n$par
+  area <- polyarea(restart)
   cat("penfactor = ", pf,"   area = ",area,"\n")
   pf <- pf*0.1
   tmp <- readline("Next cycle")
 }
 
+## @knitr polyex3g
+
+library(Rvmmin)
+cat("try to reduce the penalty factor. Rvmmin minimizer on polyobju\n")
+restart <- x0
+bestarea <- 0
+lb <- myhex$lb
+ub <- myhex$ub
+area <- polyarea(x0)
+pf <- 0.01
+while (bestarea + 1e-14 < area) {
+  bestarea <- area
+  sol3v <- Rvmmin(restart, polyobj, polygrad, lower=lb, upper=ub, control=list(trace=2, maxit=1000), penfactor=pf)
+  sol3v
+  restart <- sol3v$par
+  area <- polyarea(restart)
+  cat("penfactor = ", pf,"   area = ",area," change=",area-bestarea,"\n")
+  pf <- pf*0.1
+  tmp <- readline("Next cycle")
+}
+
+
+## @knitr polyex4
+
 x0 <- myhex$par0
-
 bmeth <- c("nmkb", "hjkb", "bobyqa")
-
+library(optimz)
 smult <- opm(x0, polyobj, lower=lb, upper=ub, method=bmeth, control=list(trace=1, maxit=10000), penfactor=1e-3)
-smult 
+print(smult )
+
+
+## @knitr polyex5
+
+## x0 <- myhex$par0
+## library(nloptr)
+## cat("Still have to put in nloptr calls\n")
+
+
+

@@ -1,6 +1,6 @@
 ---
 title: "Animating geometric optimization: small polygons"
-author: "John C. Nash, A. N. Other"
+author: "John C. Nash, Greg Snow"
 date: "`r Sys.Date()`"
 output: pdf_document
 ## output: rmarkdown::html_vignette
@@ -10,10 +10,25 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+## Abstract
+
 **Roptanimation** is an experimental R package to display the progress of 
 geometric animations. A classic example is the **largest small polygon** where
 we aim to maximize the area of the polygon subject to the constraint that no
-two vertices are separated by more than one unit of distance.
+two vertices are separated by more than one unit of distance. This article discusses 
+the problem and how the animation is created, but only shows snapshots of the 
+animation.
+
+
+## TODOS
+
+  - make sure animation is running
+  - comment and test the animation code
+  - try nloptr
+  - try ?? other optimizers
+  - polyobju -- put in log barrier for the radial parameters so unconstrained
+    minimizers can be used
+  - try shiny for running the animation
 
 ## Background
 
@@ -29,7 +44,7 @@ To provide a visual presentation of the optimization, Nash coded a display for t
 IBM PC family of MS DOS computers running GWBASIC. In May 2016, the discovery that
 files for this example would still execute more or less satisfactorily raised the
 possibility of bringing them up to date. R was a logical choice for such an 
-implementation, given that the authors all work with this software system. 
+implementation, given that the authors and many others work with this software system. 
 
 ## Parametrization of the polygon
 
@@ -59,17 +74,18 @@ we are to have the polygon in the positive y half-space in cartesian coordinates
 then pi is an obvious (and likely conservative) bound on these angles. In fact,
 pi is a bound on their sum.
 
+We make no assertion that this is the only or best parametrization of this problem, and
+welcome suggestions for other ways to prepare the optimization.
+
 ## Problem setup
 
-The above parametrization is implemented in the function \texttt{polysetup(nv, defsize, qpen)},
+The above parametrization is implemented in the function \texttt{polysetup(nv, defsize)},
 where \texttt{defsize} is the default "size" of a regular polygon for which initial parameters
-are established. \texttt{qpen} is a multiplicative factor for a penalty function that may be
-used to impose the distance constraints. However, the form of this penalty is not
-yet given. 
+are established. 
 
 ```{r cache=FALSE, echo=FALSE}
 library(knitr) # This is critical -- or you don't get read_chunk()
-read_chunk('../R/smallpoly.R')
+read_chunk('/home/john/rsvnall/optimizer/pkg/Roptanimation/R/smallpoly2.R')
 ```
 
 
@@ -97,11 +113,12 @@ where \texttt{L} runs from \texttt{2} to \texttt{(nv-1)}.
 For reference, let us compute the area of this hexagon.
 
 ```{r}
-reg1area <- polyarea(6, reghex1$par)
+reg1area <- polyarea(reghex1$par)
 cat("Reference area of regular hexagon of unit size=",reg1area,"\n")
 ```
 
 This is in accord with R.L. Graham's paper (JOURNAL OF COMBINATORIAL THEORY (A) 18, 165 - 470 (1975) ).
+
 
 ## Conversion of radial to cartesian coordinates
 
@@ -126,15 +143,36 @@ current polygon that result from running the function \texttt{polypar2XY}
 ```{r polydistXY}
 ```
 
-## Testing the functions presented so far.
+## Vertex distances from radial parameters
 
-A very simple script calling the above functions allows us to verify that they are
-working as expected. Note that for this script to work properly, we need to ensure
-that the graph is drawn on a square grid. 
+We could compute these vertex distances from the radial parameters of the polygon.
+The following function calls the conversion from radial to cartesian coordinates,
+then computes the distances.
+
+```{r polypar2distXY}
+```
+
+Alternatively, and perhaps more efficiently or at least elegantly, we can do a
+one-step calculation. However, the following function ONLY computes the non-radial
+inter-vertex differences. The first $nv - 1$ parameters where $nv$ is the number of 
+vertices give the other distances. Moreover, the positions of these distances in 
+the output of polypar2distXY are not obvious at first glance.
+
+```{r polypardist2}
+
+## Testing functions.
+
+Note that we tested our functions to create the original polygon and compute it's area. 
+This is a step that we recommend. In fact, one of us (JN) refuses to look at user queries
+about his optimization routines unless there is evidence that objective functions and gradients
+have been checked. It is an important part of the solution of EVERY optimization problem
+that users verify that they are solving the intended problem. Moreover, even in our own work,
+the simple checks often reveal silly but critical errors.
+
+An example of a test script follows.
 
 ```{r polyex0, fig.width=5, fig.height=5}
 ```
-
 
 ## Setup of the optimization
 
@@ -166,7 +204,50 @@ to try to find the solution.
 ```
 The objective is the negative area PLUS the penalty, so (-1) times this value is a lower 
 bound on the area. But we see that it is smaller than the reference value (approximately
-0.64952) of the unit regular hexagon. We have more work to do.
+0.64952) of the unit regular hexagon. We also display the computed area directly, and it
+shows that the constraint penalty is not appreciably contributing to the objective.
+We clearly have more work to do.
+
+## Making objective very large on constraint violation
+
+An old "trick" in optimization is to use a non-gradient direct search method that 
+assigns the objective function its correct value when the parameters are feasible 
+and a very large value when they are violated. We supply the value of $bignum$ 
+to the objective function via the call.
+
+```{r polyobjbig}
+```
+
+To test several optimizers at once, we use the \texttt{opm()} function of the
+R-forge package \texttt{optimz}. 
+
+```{r polyexbig}
+```
+
+The two Nelder-Mead inspired codes are the best of a bad lot here, though neither has
+got really close to the solution for the small hexagon problem. Note how different the
+solutions appear. Let us draw them.
+
+```{r fig.height=6, fig.width=6}
+NMpar <- unlist(solb["Nelder-Mead",1:9])
+nmkbpar <- unlist(solb["nmkb",1:9])
+print(NMpar)
+cat("Nelder-Mead area=", polyarea(NMpar))
+print(nmkbpar)
+cat("nmkb area=", polyarea(nmkbpar))
+NMXY <- polypar2XY(NMpar)
+nmkbXY <- polypar2XY(nmkbpar)
+plot(NMXY$x, NMXY$y, col="red", type="l")
+points(nmkbXY$x, nmkbXY$y, col="blue", type="l")
+title(main="Hexagons from NM (red) and nmkb (blue)")
+
+```
+Drawing these polygons so we can visually compare them involves transformations that
+must align the polygons so one edge is on the x axis. But which edge to choose as the
+first. Then we must note that a vertical reflection of the polygon about the mid-point
+of the chosen edge will result in an equivalent solution. These options remind us that
+the optimization problem has multiple solutions, all with equal optimal area, which
+is part of the difficulty of the largest small polygon problem.
 
 ## Logarithmic barrier constraint
 
@@ -175,7 +256,9 @@ the parameters feasible by adding a steeply increasing function to the negative 
 the constraint is approached. Let us first define the **slack** in a distance constraint
 as $slack = (1 - squared.distance)$. We could use the distance itself, but might as well 
 avoid the extra computation. As each slack goes to zero, then $- log(slack)$ goes to 
-infinity. We can scale this, as in the quadratic penalty, with $penfactor$.
+infinity. We can scale this, as in the quadratic penalty, with $penfactor$, but the
+actual numerical value will be much smaller now because $- log()$ increases much more
+quickly than the quadratic.
 
 There is an annoying computational practicality that some optimization methods may take
 steps in the parameter vector that push some distances into infeasible territory. This
@@ -194,7 +277,7 @@ $slack = (1 + epsilon - squared.distance)$
 But what should $epsilon$ be? We may revisit this later, but for the moment set the 
 value at 0, and the resulting code is as follows.
 
-```{r polyobj2 }
+```{r polyobj}
 ```
 
 With Powell's bobyqa, we attempt to minimize this objective from the same start as
@@ -204,5 +287,16 @@ the feasible region.
 ```{r polyex2}
 ```
 
+This is not too bad. Possibly another method could do better. We can adjust the objective 
+so the radial parameters are constrained using a logarithmic barrier, then use an unconstrained 
+optimization method.
 
+```{r polyobju}
+```
         
+```{r}
+library(dfoptim)
+sol2n <- nmk(x0, polyobju, penfactor=1e-3)
+print(sol2n)
+cat("Area found=",polyarea(sol2n$par),"\n")
+```

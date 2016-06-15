@@ -20,25 +20,6 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
                 "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
                 "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
-  nloptmeth <- c("NLOPT_LD_SLSQP", 
-		"NLOPT_LD_LBFGS_NOCEDAL",
-		"NLOPT_LD_LBFGS", 
-		"NLOPT_LD_VAR1",
-		"NLOPT_LD_VAR2", 
-		"NLOPT_LD_TNEWTON",
-		"NLOPT_LD_TNEWTON_RESTART",
-		"NLOPT_LD_TNEWTON_PRECOND",
-		"NLOPT_LD_TNEWTON_PRECOND_RESTART",
-		"NLOPT_LD_MMA", 
-		"NLOPT_LN_PRAXIS", 
-		"NLOPT_LN_COBYLA", 
-		"NLOPT_LN_NEWUOA",
-		"NLOPT_LN_NEWUOA_BOUND", 
-		"NLOPT_LN_NELDERMEAD",
-		"NLOPT_LN_SBPLX", 
-		"NLOPT_LN_BOBYQA")
-
- # allmeth <- c(allmeth, nloptmeth) # 160612 remove nlopt for now
 
   if (length(method) == 1 && method == "ALL") control$all.methods <- TRUE
   if (control$all.methods) method <- allmeth # does not restrict if bounds??

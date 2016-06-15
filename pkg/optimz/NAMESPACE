@@ -9,9 +9,6 @@ import(
   Rcgmin,
   lbfgsb3
 )
-# importFrom("minqa", "bobyqa", "newuoa", "uobyqa")
-# import(nloptr, except(c(bobyqa, newuoa)))
-# importFrom("nloptr", "bobyqa", "newuoa")
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("utils", "str")
 export(

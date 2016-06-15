@@ -34,9 +34,6 @@ print(alb)
 alkkt <- kktchk(alb$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maxfn=FALSE, control=list(trace=1))
 print(alkkt)
 
-abnlmmab <- optimr(xx, bt.f, bt.g, lower, upper, method="NLOPT_LD_MMA", control=list(trace=2))
-print(abnlmmab)
-
 
 #sink()
 

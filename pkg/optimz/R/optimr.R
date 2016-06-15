@@ -1,11 +1,6 @@
 optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
-.checkfunargs = function( fun, arglist, funname ) {
-    return(0) # dummy to avoid issues
-}
-
-
   orig.method <- method
   orig.gr <- gr
   orig.fn <- fn
@@ -29,23 +24,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
        } # end ifelse
   } # end else
 
-# 160611 -- try to sort out nloptr
-nw <- local({
-    defaultControl <- list(algorithm="NLOPT_LD_MMA",
-                           xtol_abs=1e-6, ftol_abs=1e-6, maxeval=1e5)
-        function(par,fn,gr,lower,upper,control=list(),...) {
-        for (n in names(defaultControl))
-            if (is.null(control[[n]])) control[[n]] <- defaultControl[[n]]
-        cat("in nw, algorithm =",control$algorithm,"\n")
-        res <- nloptr::nloptr(x0=par, eval_f=fn, eval_grad_f=gr, lb=lower,ub=upper, opts=control, ...)
-        with(res,list(par=solution,
-                      fval=objective,
-                      feval=iterations,
-                      conv=if (status>0) 0 else status,
-                      message=message))
-    }
-})
-
+# 160615 -- decided to abandon nloptr in optimz
 
   efn <- function(spar, ...) {
       # rely on pscale being defined in this enclosing environment
@@ -690,71 +669,6 @@ nw <- local({
          return(ans)
       }  ## end if using lbfgsb3
 ## --------------------------------------------
-      else 
-      if (grep("NLOPT_", method) == 1) {# nloptr methods
-	  nloptmeth <- c("NLOPT_LD_SLSQP", 
-		"NLOPT_LD_LBFGS_NOCEDAL",
-		"NLOPT_LD_LBFGS", 
-		"NLOPT_LD_VAR1",
-		"NLOPT_LD_VAR2", 
-		"NLOPT_LD_TNEWTON",
-		"NLOPT_LD_TNEWTON_RESTART",
-		"NLOPT_LD_TNEWTON_PRECOND",
-		"NLOPT_LD_TNEWTON_PRECOND_RESTART",
-		"NLOPT_LD_MMA", 
-		"NLOPT_LN_PRAXIS", 
-		"NLOPT_LN_COBYLA", 
-		"NLOPT_LN_NEWUOA",
-		"NLOPT_LN_NEWUOA_BOUND", 
-		"NLOPT_LN_NELDERMEAD",
-		"NLOPT_LN_SBPLX", 
-		"NLOPT_LN_BOBYQA")
-          if (method %in% nloptmeth) {
-                control$algorithm <- method
-		myopts<-nloptr::nl.opts()
-                myopts$algorithm <- method
-                myopts$maxeval <- control$maxfeval
-                dotargs <- list(...)
-                cat("str(dotargs):")
-                print(str(dotargs))
-# following works OK without scaling, but efn, egr do not 160611
-#             ans <- nw(par, fn, gr, lower, upper, control=control, ...)
-             cat("about to try scaled call, fnscale, pscale: ", fnscale,"\n")
-             print(pscale)
-             print(efn)
-             print(egr)
-             ans <- nw(par=spar, fn=efn, gr=egr, lower=slower, upper=supper, control=control, ...)
-             print(ans)
-             # translate answer back
-                if (ans$conv == 0) {
-		   ans$value <- ans$fval
-                   ans$fval <- NULL
-#                   ans$par <- ans$solution
-#                   ans$solution <- NULL
-	           ans$convergence<-ans$conv # failed in run
-#                   ans$status <- NULL
-	           ans$counts[1] <- NA
-	           ans$counts[1] <- ans$feval
-                   ans$feval <- NULL
-	           ans$hessian <- NULL
-                   # ans$message is OK
-                } else {
-	            if (control$trace>0) cat("nloptr call failed for current problem \n")
-        	    ans<-list(fevals=NA) # ans not yet defined, so set as list
-	            ans$value <- control$badval
-	            ans$par<-rep(NA,npar)
-	            ans$convergence<-ans$conv # failed in run
-                    ans$status <- NULL
-	            ans$counts[1] <- NA
-	            ans$counts[1] <- NA
-	            ans$hessian <- NULL
-                }
-                ans # return the answer 
-          } else {
-               errmsg<-paste("UNDEFINED NLOPT METHOD:", method, sep='')
-               stop(errmsg, call.=FALSE)
-          }
-      }
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD:", method, sep='')
              stop(errmsg, call.=FALSE)

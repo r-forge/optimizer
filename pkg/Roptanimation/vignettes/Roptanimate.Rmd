@@ -85,7 +85,7 @@ are established.
 
 ```{r cache=FALSE, echo=FALSE}
 library(knitr) # This is critical -- or you don't get read_chunk()
-read_chunk('/home/john/rsvnall/optimizer/pkg/Roptanimation/R/smallpoly2.R')
+read_chunk('/home/john/rsvnall/optimizer/pkg/Roptanimation/R/smallpoly.R')
 ```
 
 
@@ -194,13 +194,13 @@ inter-vertex distances that are not given by the radial parameters. We assume th
 bounds are in force for the radial and angular parameters. This results in the following
 objective function.
 
-```{r polyobj1}
+```{r polyobjq}
 ```
 
 Setting the penalty factor ($penfactor$) at 100, we use M. J. Powell's bobyqa minimizer
 to try to find the solution. 
 
-```{r polyex1}
+```{r polyexq}
 ```
 The objective is the negative area PLUS the penalty, so (-1) times this value is a lower 
 bound on the area. But we see that it is smaller than the reference value (approximately
@@ -228,23 +228,13 @@ The two Nelder-Mead inspired codes are the best of a bad lot here, though neithe
 got really close to the solution for the small hexagon problem. Note how different the
 solutions appear. Let us draw them.
 
-```{r fig.height=6, fig.width=6}
-NMpar <- unlist(solb["Nelder-Mead",1:9])
-nmkbpar <- unlist(solb["nmkb",1:9])
-print(NMpar)
-cat("Nelder-Mead area=", polyarea(NMpar))
-print(nmkbpar)
-cat("nmkb area=", polyarea(nmkbpar))
-NMXY <- polypar2XY(NMpar)
-nmkbXY <- polypar2XY(nmkbpar)
-plot(NMXY$x, NMXY$y, col="red", type="l")
-points(nmkbXY$x, nmkbXY$y, col="blue", type="l")
-title(main="Hexagons from NM (red) and nmkb (blue)")
-
+```{r polyexbigplot, fig.height=6, fig.width=6}
 ```
+
+
 Drawing these polygons so we can visually compare them involves transformations that
 must align the polygons so one edge is on the x axis. But which edge to choose as the
-first. Then we must note that a vertical reflection of the polygon about the mid-point
+first? Then we must note that a vertical reflection of the polygon about the mid-point
 of the chosen edge will result in an equivalent solution. These options remind us that
 the optimization problem has multiple solutions, all with equal optimal area, which
 is part of the difficulty of the largest small polygon problem.
@@ -289,14 +279,20 @@ the feasible region.
 
 This is not too bad. Possibly another method could do better. We can adjust the objective 
 so the radial parameters are constrained using a logarithmic barrier, then use an unconstrained 
-optimization method.
+optimization method. 
 
 ```{r polyobju}
 ```
-        
-```{r}
-library(dfoptim)
-sol2n <- nmk(x0, polyobju, penfactor=1e-3)
-print(sol2n)
-cat("Area found=",polyarea(sol2n$par),"\n")
+
+And here is the gradient code. Note that we need to be careful about the indexing. We don't show
+it here, but we did perform a quick check with package \texttt{numDeriv} that the gradient is 
+correctly computed for the starting vector $x0$.
+
+```{r polygradu}
+```
+
+There are a number of unconstrained optimization methods, and the \texttt{optimz} package lets
+us try them out all at once.
+
+```{r polyexuall}        
 ```

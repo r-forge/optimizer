@@ -32,8 +32,8 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
    if (control$trace > 0) { cat("kkttol=",kkttol,"   kkt2tol=",kkt2tol,
             "  control$trace=",control$trace,"\n") }
    dotargs <- list(...)
-   cat("dotargs:\n")
-   print(dotargs)
+#   cat("dotargs:\n")
+#   print(dotargs)
    fval <- fn(par, ...)
    npar<-length(par)
    if (control$trace > 0) { 

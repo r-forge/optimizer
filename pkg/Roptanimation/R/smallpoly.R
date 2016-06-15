@@ -247,7 +247,8 @@ polygradu <- function(x, penfactor=1e-8, epsilon=0) {
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
  dist2 <- c(x[1:(nv-1)]^2, dist2)
  slacks <- 1.0 + epsilon - dist2 # slack vector
- if (any(slacks <= 0)) { stop("Infeasible") } 
+ if (any(slacks <= 0)) { 
+     warning("Polygradu -- Infeasible") } 
  for (ll in 3:nv) {
     ra<-x[ll-1]
     rb<-x[ll-2]
@@ -480,6 +481,19 @@ print(smult )
 ## @knitr polyexuall
 
 library(optimz)
-soluall <- opm(x0, polyobju, polygradu, control=list(all.methods=TRUE), penfactor=1e-3)
-soluall <- summary(soluall, order=value)
-print(soluall)
+suall <- opm(x0, polyobju, polygradu, control=list(all.methods=TRUE, kkt=FALSE), penfactor=1e-5)
+# NOTE: Got complex Hessian eigenvalues when trying for KKT tests
+suall <- summary(suall, order=value)
+print(suall)
+resu <- coef(suall)
+nmeth <- dim(resu)[1]
+
+## @knitr allplot1
+
+plot(mheXY$x, mheXY$y, col='red', type='l', xlim=c(-0.5, 1.05), ylim=c(-0.1, 1.2), xlab='x', ylab='y')
+for (ii in 1:nmeth){
+   mpar <- resu[ii,]
+   XY <- polypar2XY(mpar)
+   points(XY$x, XY$y, type='l', col='green')
+}
+   

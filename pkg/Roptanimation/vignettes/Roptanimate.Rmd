@@ -311,4 +311,11 @@ Let us try all the bounds-constrained methods in \texttt{opm} from package \text
 ```{r polyexallb}        
 ```
 
-Graham reports largest area is approximately 0.674981.
+The Limited Memory BFGS codes and the Truncated Newton -- at least in the variants used here -- have 
+failed completely with this objective function. All have suffered some catastrophe in an internal 
+computation, but we have not yet had time to see if a workaround is possible. 
+
+On the other hand, the all-R routines Rcgmin and Rvmmin have done rather well. 
+Graham reports largest area is approximately 0.674981. We are close. Can we reduce the 
+penalty factor steadily and find a good approximation to the optimal area?
+

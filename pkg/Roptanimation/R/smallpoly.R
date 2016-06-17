@@ -469,7 +469,7 @@ for (ii in 1:nmeth){
 ## @knitr polyexallb
 
 # library(optimz)
-bmeth <- c("bobyqa", "L-BFGS-B", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb")
+bmeth <- c("bobyqa", "L-BFGS-B", "lbfgsb3", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb")
 suball <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method=bmeth, 
         control=list(kkt=FALSE), penfactor=1e-5)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests

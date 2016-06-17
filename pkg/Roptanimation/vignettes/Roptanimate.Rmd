@@ -296,3 +296,19 @@ us try them out all at once.
 
 ```{r polyexuall}        
 ```
+
+We note that the only bounds constrained minimizer in \texttt{R}'s base function \texttt{optim()} is
+that invoked by the method "L-BFGS-B", and this has done rather poorly. In fact, it does not even find
+the regular hexagon above. Possibly we should use the bounds constraints directly, but we can first 
+supply gradients.
+
+```{r polygrad}
+```
+
+
+Let us try all the bounds-constrained methods in \texttt{opm} from package \texttt{optimz.
+
+```{r polyexallb}        
+```
+
+Graham reports largest area is approximately 0.674981.

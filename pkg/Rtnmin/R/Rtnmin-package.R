@@ -795,7 +795,7 @@ modlnp <- function(d, x, g, maxit, upd1, ireset, bounds,
               p <- ztime(p, ipivot)
             }
             gtp <- crossprod(p, g)
-            cat("MODLNP 03: |p| = 0 \n") 
+##            cat("MODLNP 03: |p| = 0 \n") 
             ## pause(1) 
          }
 #%          cat("modlnp - dout03:")
@@ -824,7 +824,7 @@ modlnp <- function(d, x, g, maxit, upd1, ireset, bounds,
       qtest <- k * (1 - qold/q) 
       if (qtest <= 0.5)  {
          if (sqrt(sum(p^2))==0) {
-            cat("MODLNP 04: |p| = 0\n") 
+##            cat("MODLNP 04: |p| = 0\n") 
             ## pause(1) 
          }
 #%          cat("modlnp - dout04:")
@@ -839,7 +839,7 @@ modlnp <- function(d, x, g, maxit, upd1, ireset, bounds,
       if (gtp > 0) {
          ind <- 40  
          if (sqrt(sum(p^2))==0) {
-            cat("MODLNP 05: |p| = 0 \n") 
+##            cat("MODLNP 05: |p| = 0 \n") 
             ##   pause(1) 
          }
 #%          cat("modlnp - dout05:")
@@ -875,7 +875,7 @@ modlnp <- function(d, x, g, maxit, upd1, ireset, bounds,
    gtp  <- as.numeric(crossprod(p, g)) 
    ncg1 <- k + 1 
    if (sqrt(sum(p^2))==0) { 
-       cat("MODLNP 06: |p| = 0 \n")
+##       cat("MODLNP 06: |p| = 0 \n")
        ##    pause(1) 
    }
    ## cat("modlnp - dout06:")
@@ -1039,9 +1039,6 @@ stpmax <- function(stepmx, pe, x, p, ipivot, low, up) {
 ##------------------------------------------------
    spe  <- min(c(spe, al, au)) 
 }
-
-
-
 
 ztime<-function(x,ipivot) {
    ## ---------------------------------------------------------

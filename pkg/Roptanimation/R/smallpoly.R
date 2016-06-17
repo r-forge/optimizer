@@ -247,16 +247,22 @@ polygradu <- function(x, penfactor=1e-8, epsilon=0) {
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
  dist2 <- c(x[1:(nv-1)]^2, dist2)
  slacks <- 1.0 + epsilon - dist2 # slack vector
- if (any(slacks <= 0)) { 
-     warning("Polygradu -- Infeasible") } 
- for (ll in 3:nv) {
-    ra<-x[ll-1]
-    rb<-x[ll-2]
-    abangle <- x[l8 + ll]
-    # are is 0.5*ra*rb*sin(abangle)
-    gg[ll-2] <- gg[ll-2] - 0.5*ra*sin(abangle)
-    gg[ll-1] <- gg[ll-1] - 0.5*rb*sin(abangle)
-    gg[ll+l8] <- gg[ll+l8] - 0.5*ra*rb*cos(abangle)
+
+ if (any(slacks <= 0)) { # Leave gradient at 0, rely on bignum in polyobju
+     oldw <- getOption("warn")
+     options(warn = -1)
+     warning("Polygradu -- Infeasible")  
+     options(warn = oldw)
+ } else { 
+   for (ll in 3:nv) {
+     ra<-x[ll-1]
+     rb<-x[ll-2]
+     abangle <- x[l8 + ll]
+     # are is 0.5*ra*rb*sin(abangle)
+     gg[ll-2] <- gg[ll-2] - 0.5*ra*sin(abangle)
+     gg[ll-1] <- gg[ll-1] - 0.5*rb*sin(abangle)
+     gg[ll+l8] <- gg[ll+l8] - 0.5*ra*rb*cos(abangle)
+   }
  }
  ll <- 0
  # components from radial parameter constraints (upper bounds)
@@ -307,25 +313,6 @@ polyobjbig <- function(x, bignum=1e10) {
  f
 }
 
-
-## @knitr polyobj3 ?? UNUSED
-
-polyobj3 <- function(x, penfactor=0) {
- # version for DEoptim and similar methods
- epsilon <- 0
- bignum <- 1e+20
- # negative area - penfactor*(sum(log(slacks)))
-# but bail and set objective large if any slack <=0
- nv <- (length(x)+3)/2 # number of vertices
- f <-  -polyarea(nv, x) # negative area
- XY <- polypar2XY(nv, x)
- dist2 <- polydistXY(nv, XY)
- dist2 <- c(dist2, (x[1:(nv-1)])^2)
- if (any(dist2 > 1)) {
-      f <- bignum
- }
- f
-}
 
 ## @knitr polyex0
 
@@ -421,25 +408,6 @@ cat("Area found=",polyarea(sol2$par),"\n")
 ## print(sol2a)
 
 
-## @knitr polyex3
-
-library(dfoptim)
-cat("try to reduce the penalty factor. nmk minimizer on polyobju\n")
-restart <- x0
-bestarea <- 0
-area <- polyarea(x0)
-pf <- 0.01
-while (bestarea < area) {
-  bestarea <- area
-  sol3n <- nmk(restart, polyobj2a, control=list(trace=2, maxit=10000), penfactor=pf)
-  sol3n
-  restart <- sol3n$par
-  area <- polyarea(restart)
-  cat("penfactor = ", pf,"   area = ",area,"\n")
-  pf <- pf*0.1
-  tmp <- readline("Next cycle")
-}
-
 ## @knitr polyex3g
 
 library(Rvmmin)
@@ -488,8 +456,9 @@ print(suall)
 resu <- coef(suall)
 nmeth <- dim(resu)[1]
 
-## @knitr allplot1
+## @knitr allplotu
 
+mheXY <- polypar2XY(x0)
 plot(mheXY$x, mheXY$y, col='red', type='l', xlim=c(-0.5, 1.05), ylim=c(-0.1, 1.2), xlab='x', ylab='y')
 for (ii in 1:nmeth){
    mpar <- resu[ii,]
@@ -497,3 +466,15 @@ for (ii in 1:nmeth){
    points(XY$x, XY$y, type='l', col='green')
 }
    
+## @knitr polyexallb
+
+# library(optimz)
+bmeth <- c("bobyqa", "L-BFGS-B", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb")
+suball <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method=bmeth, 
+        control=list(kkt=FALSE), penfactor=1e-5)
+# NOTE: Got complex Hessian eigenvalues when trying for KKT tests
+suball <- summary(suball, order=value)
+print(suball)
+resb <- coef(suball)
+nmeth <- dim(resb)[1]
+

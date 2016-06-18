@@ -2,6 +2,9 @@ NEWS about R package optimz
 
 TODO
       o Troubles with NAMESPACE collisions NOT resolved.
+      o Unable to get nloptr to handle parameter scaling or dot arguments
+      o Problems with lbfgs package (unconstrained)
+      o test parameter scaling
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?

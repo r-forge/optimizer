@@ -669,6 +669,40 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          return(ans)
       }  ## end if using lbfgsb3
 ## --------------------------------------------
+      else 
+      if (method == "lbfgs") {# Use unconstrained method from lbfgs package
+        if (control$trace > 1) cat("lbfgs\n")
+        if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
+        if (control$trace > 0) cat("control$have.bounds =",control$have.bounds,"\n")
+        if (control$have.bounds) { 
+              if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
+              errmsg <- "lbfgs::lbfgs cannot handle bounds\n"
+            ##  stop("lbfgs::lbfgs tried with bounds")
+            ans <- list()
+            class(ans)[1] <- "try-error"            
+        } else {
+            time <- system.time(ans <- try(lbfgs::lbfgs(call_eval=efn, call_grad=egr,  
+		vars=spar, environment=NULL, ..., invisible=invisible), silent=TRUE))[1]
+        }
+        if (class(ans)[1] != "try-error") {
+ ## Need to check these carefully??
+            ans$par <- ans$par*pscale
+            ans$counts[1] <- NA # lbfgs seems to have no output like this
+            ans$counts[2] <- NA
+         } else {
+            if (control$trace>0) cat("lbfgsb3 failed for current problem \n")
+            ans<-list() # ans not yet defined, so set as list
+            ans$value <- control$badval
+            ans$par <- rep(NA,npar)
+            ans$convergence <- 9999 # failed in run
+            ans$counts[1] <- NA
+            ans$counts[1] <- NA
+            ans$hessian <- NULL
+            ans$message <- NA
+         }
+         return(ans)
+      }  ## end if using lbfgsb3
+## --------------------------------------------
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD:", method, sep='')
              stop(errmsg, call.=FALSE)

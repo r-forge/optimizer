@@ -16,7 +16,7 @@ Description: Provides a test of replacement and extension of the optim()
     many parameters. 
 License: GPL-2
 LazyLoad: Yes
-Imports: numDeriv, BB, ucminf, minqa, setRNG, dfoptim, Rtnmin, Rvmmin, Rcgmin, lbfgsb3
+Imports: numDeriv, BB, ucminf, minqa, setRNG, dfoptim, Rtnmin, Rvmmin, Rcgmin, lbfgsb3, lbfgs
 NeedsCompilation: no
 Suggests: knitr,
     rmarkdown

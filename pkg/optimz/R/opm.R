@@ -19,7 +19,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
   allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
                 "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
-                "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
+                "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", "lbfgs")
 
   if (length(method) == 1 && method == "ALL") control$all.methods <- TRUE
   if (control$all.methods) method <- allmeth # does not restrict if bounds??

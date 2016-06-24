@@ -3,6 +3,12 @@ rm(list=ls())
 # sink(fname, append=TRUE, split=TRUE)
 require("optimz")
 #####################
+
+# This test script illustrates the use of bounds in optimr() with the
+# optimizers Rvmmin and L-BFGS-B, as well as a Kuhn Karush Tucker check 
+# on the final parameters from the second optimization.
+
+
 # Simple bounds test for n=4
 bt.f<-function(x){
  sum(x*x)

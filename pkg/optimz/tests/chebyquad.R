@@ -71,26 +71,19 @@ cyq.g <- function (x) {
    gg<- as.vector(2.0* rv %*% cj)
 }
 
-cyq.setup <- function (n = NULL, probcase=NULL) {
+cyq.setup <- function (n = NULL) {
   cat("Fletcher chebyquad function in file cyq.R\n")
 
   if (is.null(n)) {
      n <- as.numeric(readline("order of problem (n) ="))
   }
 
-  if(is.null(probcase)) { probcase<-1 }
-  # ?? error checking
   lower<-rep(-10.0, n)
   upper<-rep(10.0, n) 
   bdmsk<-rep(1, n) # free all parameters
-  if (probcase == 1) {
-    x<-1:n
-    x<-x/(n+1.0) # Initial value suggested by Fletcher
-  } 
-  else if (probcase == 2) {
-  result<-list(x=x, lower=lower, upper=upper, bdmsk=bdmsk)
-  }
-
+  x <- 1:n
+  x <- x/(n+1.0) # Initial value suggested by Fletcher
+  result <- list(x=x, lower=lower, upper=upper, bdmsk=bdmsk)
 } # end cyq.setup
 
 # ------ end functions ------
@@ -100,6 +93,9 @@ cyq.setup <- function (n = NULL, probcase=NULL) {
 cat("Takes a long time, so there is an artificial variable skiprun set TRUE\n")
 
 skiprun <- TRUE
+## tmp <- readline("Skip run :")
+## if (length(tmp) == 0) { skiprun <- TRUE } else { skiprun <- FALSE }
+
 if (skiprun) {
     cat("Skipping Chebyquad\n")
 } else {
@@ -110,12 +106,14 @@ require(optimz)
 
 for (i in 1:length(nn)) {
    n <- nn[i]
+   cat("setting up problem of order=",n,"\n")
    strt <- cyq.setup(n)
    x0 <- strt$x
    lo <- strt$lower
    up <- strt$upper
    cat("n = ", n,"\n")
-   au <- optimx(x0, cyq.f, cyq.g, method="all", control=list(trace=0))
+#   au <- opm(x0, cyq.f, cyq.g, method="ALL", control=list(trace=1))
+    au <- opm(x0, cyq.f, cyq.g, control=list(all.methods=TRUE, trace=1))
    print(summary(au, order=value))
 }
 

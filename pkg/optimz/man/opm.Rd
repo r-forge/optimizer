@@ -172,7 +172,7 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       usage of these codes when maximize is TRUE. See \code{fnscale} below for 
       the method used in \code{optim} that we deprecate.}
     \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
-      methods.}
+      methods.  This is equivalent to setting \code{method="ALL"}}
     \item{\code{kkt}}{=FALSE if we do NOT want to test the Kuhn, Karush, Tucker
       optimality conditions. The default is TRUE. However, because the Hessian
       computation may be very slow, we set \code{kkt} to be FALSE if there are 

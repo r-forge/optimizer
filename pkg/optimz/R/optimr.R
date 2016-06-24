@@ -12,11 +12,13 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   defctrl <- ctrldefault(npar) # could leave this out in most cases
   if (is.null(control$parscale)) { 
         pscale <- rep(1,npar)
-        if(trace > 0) { cat("Unit parameter scaling\n") }
+        if(control$trace > 0) { cat("Unit parameter scaling\n") }
   } else { 
         pscale <- control$parscale 
-        cat("Parameter scaling:")
-        print(pscale)
+        if(control$trace > 0) {
+          cat("Parameter scaling:")
+          print(pscale)
+        }
   }
   spar <- par/pscale # scaled parameters
   slower <- lower/pscale

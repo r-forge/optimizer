@@ -16,12 +16,20 @@
   R tools for optimization, including the existing optim() function.
   \code{optimx} also tries to unify the calling sequence to allow
   a number of tools to use the same front-end. These include 
-  \code{spg} from the BB package, \code{ucminf}, \code{nlm}, and 
-  \code{nlminb}. Note that 
+  \code{spg} from the BB package, \code{ucminf}, \code{nlm}, \code{nlminb},
+  \code{Rtnmin}, \code{lbfgsb3}, \code{lbfgs}, \code{nmkb} and \code{hjkb}
+  from the dfoptim package, \code{uobyqa}, \code{newuoa} and \code{bobyqa} 
+  from the minqa package. 
+
+  Note that 
   optim() itself allows Nelder--Mead, quasi-Newton and 
   conjugate-gradient algorithms as well as box-constrained optimization 
   via L-BFGS-B. Because SANN does not return a meaningful convergence code
-  (conv), optimx() does not call the SANN method.
+  (conv), \code{opm()} does not call the SANN method, but it can be invoked 
+  in \code{optimr()}.
+
+  There is a pseudo-method "ALL" that runs all methods but SANN. Note that
+  this is upper-case.
 }
 \usage{
 opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 

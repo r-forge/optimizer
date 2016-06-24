@@ -20,7 +20,7 @@ start <- c(-1.2,1)
 
 methlist <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
               "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", "BFGS", "CG", "Nelder-Mead", 
-               "L-BFGS-B", "SANN", "nlm", "nlminb")
+               "L-BFGS-B", "SANN", "nlm", "nlminb", "lbfgs")
 
 for (meth in methlist){ 
    msg <- paste("Optimr attempt using ",meth)

@@ -3,8 +3,6 @@ NEWS about R package optimz
 TODO
       o Troubles with NAMESPACE collisions NOT resolved.
       o Unable to get nloptr to handle parameter scaling or dot arguments
-      o Problems with lbfgs package (unconstrained)
-      o test parameter scaling
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?
@@ -14,8 +12,13 @@ TODO
         avoid this warning if it is really not needed.
       o Add nloptr methods -- there are a number and we need to choose how
 	to do so. 
-      o Do NOT add ipoptr due to non-standard install. 
+      o Do NOT add ipoptr until non-standard install is fixed up.
       o Need to check that scaling of bounds is correct.
+
+Done as of 160624, but still in progress
+      o Problems with lbfgs package (unconstrained)
+      o test parameter scaling
+
 
 
 VERSION 2016-05-30

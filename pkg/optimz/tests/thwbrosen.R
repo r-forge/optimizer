@@ -5,6 +5,14 @@ require(optimz)
 
 cat("Run all optimizers on unconstrained HWB version of Rosenbrock\n")
 
+#  This test file is intended to show the results of all available
+#  optimizers (18 as of 2016-6-24) on the extended Rosenbrock function
+#  as implemented by Hans Werner Borchers. 
+#  The script also illustrates the use of the summary() function for
+#  ordering results by value.
+
+
+
 fnR <- function (x, gs=100.0) 
 {
     n <- length(x)

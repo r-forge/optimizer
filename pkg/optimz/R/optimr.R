@@ -10,8 +10,14 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   if (is.null(control$trace)) control$trace <- 0
   npar <- length(par)
   defctrl <- ctrldefault(npar) # could leave this out in most cases
-  if (is.null(control$parscale)) { pscale <- rep(1,npar) }
-  else { pscale <- control$parscale }
+  if (is.null(control$parscale)) { 
+        pscale <- rep(1,npar)
+        if(trace > 0) { cat("Unit parameter scaling\n") }
+  } else { 
+        pscale <- control$parscale 
+        cat("Parameter scaling:")
+        print(pscale)
+  }
   spar <- par/pscale # scaled parameters
   slower <- lower/pscale
   supper <- upper/pscale
@@ -681,16 +687,26 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans <- list()
             class(ans)[1] <- "try-error"            
         } else {
-            time <- system.time(ans <- try(lbfgs::lbfgs(call_eval=efn, call_grad=egr,  
-		vars=spar, environment=NULL, ..., invisible=invisible), silent=TRUE))[1]
+	    dotstuff <- list(...)
+	    cat("dotstuff:\n")
+	    print(dotstuff)
+	    dotstuff$pscale <- pscale
+	    dotstuff$fnscale <- fnscale
+	    eopt <- list2env(dotstuff) # put it in an environment
+	    print(ls(eopt))
+            time <- system.time(ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
+                environment=eopt, invisible=invisible), silent=TRUE))[1]
         }
+        cat("interim answer:")
+        print(ans)
         if (class(ans)[1] != "try-error") {
- ## Need to check these carefully??
+        ## Need to check these carefully??
             ans$par <- ans$par*pscale
+            ans$value <- ans$value*fnscale
             ans$counts[1] <- NA # lbfgs seems to have no output like this
             ans$counts[2] <- NA
          } else {
-            if (control$trace>0) cat("lbfgsb3 failed for current problem \n")
+            if (control$trace>0) cat("lbfgs failed for current problem \n")
             ans<-list() # ans not yet defined, so set as list
             ans$value <- control$badval
             ans$par <- rep(NA,npar)

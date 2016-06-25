@@ -593,6 +593,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
            ans <- list(fevals=NA) # ans not yet defined, so set as list
            ans$value <- control$badval
            ans$par <- rep(NA,npar)
+           ans$counts[1] <- NA
+           ans$counts[2] <- NA
            ans$convergence <- 9999 # failed in run
            ans$message<-"Failed"
            ans$hessian <- NULL

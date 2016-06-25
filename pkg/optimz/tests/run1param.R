@@ -38,8 +38,8 @@ library(optimz)
 # test 2
   x0 = 1
 #  ansoneb<-optimx(x0, f1, lower=c(-1), upper=c(10),control=list(all.methods=TRUE))
-   ansoneb<-optimx(x0, f1, lower=lb, upper=ub,control=list(all.methods=TRUE))
-  ansoneb.sum<-summary(ansoneb, order= "value")
+#   ansoneb<-optimx(x0, f1, lower=lb, upper=ub,control=list(all.methods=TRUE))
+#  ansoneb.sum<-summary(ansoneb, order= "value")
 
 #  ansoneb.sum.target<- structure(list(p1 = 0.555555555557684, value = 2.35390946502058, 
 #	    fevals = 17, gevals = NA_real_, niter = NA_real_, convcode = 0, 

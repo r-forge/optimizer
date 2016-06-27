@@ -14,10 +14,12 @@ TODO
 	to do so. 
       o Do NOT add ipoptr until non-standard install is fixed up.
       o Need to check that scaling of bounds is correct.
+      o Put axsearch() in the package, along with a test.
+      o hjkb does not seem to be working with bt.f etc.
 
 Done as of 160624, but still in progress
       o Problems with lbfgs package (unconstrained)
-      o test parameter scaling
+      o test parameter scaling (but this could be improved)
 
 
 

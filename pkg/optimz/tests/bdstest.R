@@ -43,3 +43,4 @@ print(alkkt)
 
 #sink()
 
+# allbds <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, control=list(trace=1))

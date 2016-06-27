@@ -21,10 +21,28 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                 "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
                 "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", "lbfgs")
 
-  if (length(method) == 1 && method == "ALL") control$all.methods <- TRUE
-  if (control$all.methods) method <- allmeth # does not restrict if bounds??
+  bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
+                "bobyqa", "nmkb", "hjkb")
 
+  maskmeth <- c("Rcgmin", "Rvmmin")
+
+
+  bmtst <- bmchk(par, lower=lower, upper=upper)
+  control$have.bounds <- bmtst$bounds # and set a control value
+  bdmsk <- bmtst$bdmsk # Only need the masks bit from here on
+  control$have.masks <- any(bdmsk == 0)
+
+  if (length(method) == 1 && method == "ALL") control$all.methods <- TRUE
+  if (control$all.methods) {
+       if (control$have.masks) { method <- maskmeth }
+       else { if (control$have.bounds) { method <- bdmeth }
+              else { method <- allmeth }
+       }
+  }
   nmeth <- length(method)
+
+
+
 
 # ?? do we need to restrict to bounded methods?? -- or leave to optimr??
   if (is.null(pstring)) {

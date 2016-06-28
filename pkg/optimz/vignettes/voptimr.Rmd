@@ -9,10 +9,7 @@ vignette: >
   %\VignetteEngine{rmarkdown::render}
   %\VignetteEncoding{UTF-8}
 ---
-##  %\VignetteEngine{knitr::rmarkdown}
-
-
-
+##  \VignetteEngine{knitr::rmarkdown}
 
 **optimr** is a package intended to provide improved and extended 
 function minimization tools for R. Such facilities are
@@ -27,13 +24,13 @@ to implement masks. In general, we wish to find the
 vector of parameters `bestpar` that minimize an objective
 function specified by an
 R function `fn(par, ... )` where `par` is the general
-vector of parameters, initially provided as the vector start, and 
+vector of parameters, initially provided as the vector `par0`, and 
 the dot arguments are additional information needed to compute the function.
 Function minimization methods may require information on the gradient or 
-Hessian of the function, which we will identify as 
-`gr(par, ...)` and `hess(par, ....)`. 
+Hessian of the function, which we will assume to be furnished, if required, 
+by functions `gr(par, ...)` and `hess(par, ....)`. 
 
-##How the optimr() function works
+##How the optimr() function (generally) works
 
 `optimr()` is an aggregation of wrappers for a number of individual function
 minimization ("optimization") tools available for R. The individual
@@ -58,20 +55,28 @@ approximations to the derivative information.
 * Add code to check for situations where the new method cannot be applied, and
 in such cases return a result with appropriate diagnostic information so that the
 user can either adjust the inputs or else choose a different method.
+* Provide, if required, appropriate links to modified function and gradient 
+routines that allow the parameter scaling `control\$parscale` to be applied
+if this funtionality is not present in the methods. To my knowledge, only the
+base `optim()` function methods do this.
+* As needed, back-transform scaled parameters and other output of the different
+optimization methods.
 \end{itemize}
 
 
-\section{Adjusting the objective function}
+##Adjusting the objective function
 
 The method `nlm()` provides a good example of a situation where the default
 `fn()` and `gr()` are inappropriate to the method to be added to `optimr()`.
 Don't forget the dot arguments!
 
 
+??? do we want spar? 
+
 ```
-  nlmfn <- function(spar, ...){
-     f <- efn(spar, ...)
-     g <- egr(spar, ...)
+  nlmfn <- function(par, ...){
+     f <- fn(par, ...)
+     g <- gr(par, ...)
      attr(f,"gradient") <- g
      attr(f,"hessian") <- NULL # ?? maybe change later
      f
@@ -87,4 +92,40 @@ other methods that compute the objective function and gradient at the same set o
 parameters. Though `nlm()` can make use of Hessian information, we have chosen
 here to omit the computation of the Hessian. 
 
+## Issues in adding a new method
+
+- scaling
+- nulling out unwanted controls
+   -- before call
+   -- after return
+- calling lbfgs(). Possibly nloptr()
+
+## Derivatives
+
+Derivative information is used by many optimization methods. In particular, the **gradient**
+is the vector of first derivatives of the objective function and the **hessian** is its
+second derivative. It is generally non-trivial to write a function for a gradient, and
+generally a lot of work to write the hessian function. 
+
+While there are derivative-free methods, we may also choose to employ numerical 
+approximations for derivatives. The package ```numDeriv``` has functions for the 
+gradient and hessian, and includes ??? Richardson extrapolation and complex step 
+derivatives. 
+
+Notes on numDeriv methods and costs. Notes on when complex step is appropriate.
+
+The methods of ```numDeriv``` generally require multiple evaluations of the objective
+function to approximate a derivative. There are simpler choices, namely, the forward,
+backward and central approximations, and routines for these are included in 
+```optimz```. 
+
+?? comparison of speed and accuracy??
+
+
+
+
+## Testing the package
+
+- individual method tests
+- problem tests
 

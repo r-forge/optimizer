@@ -40,28 +40,47 @@ trig.g <- function(x) { # unvectorized
 
 
 require(optimz)
-x<-rep(4,2)
+x<-rep(2,2)
 cat("opm\n")
 opt2<-optimr(x, trig.f, trig.g, method="BFGS")
 opt2
 opt2r<-optimr(x, trig.f, trig.g, method="Rvmmin")
 opt2r
 cat("====================")
-x<-rep(4,4)
+x<-rep(2,4)
 cat("optim(BFGS) vs Rvmmin\n")
 opt4<-optim(x, trig.f, trig.g, method="BFGS")
 opt4
 opt4r<-optimr(x, trig.f, trig.g, method="Rvmmin")
 opt4r
 cat("====================")
-x<-rep(4,8)
+x<-rep(2,8)
 cat("optim(BFGS) vs Rvmmin\n")
 opt8<-optim(x, trig.f, trig.g, method="BFGS")
 opt8
 opt8r<-optimr(x, trig.f, trig.g, method="Rvmmin")
 opt8r
 
-# this does NOT compute hessian in optimx -- why? 131022
 
 
-# tansxu<-optimx(st, trig.f, trig.g, method="all", hessian=TRUE, control=list(kkt=TRUE, trace=1))
+
+
+ttrig2<-opm(rep(2,2), trig.f, trig.g, method="ALL")
+summary(ttrig2, order=value)
+
+ttrig4<-opm(rep(2,4), trig.f, trig.g, method="ALL")
+summary(ttrig2, order=value)
+
+ttrig8<-opm(rep(2,8), trig.f, trig.g, method="ALL")
+summary(ttrig2, order=value)
+
+
+ttrig2b <- opm(rep(2,2), trig.f, trig.g, lower=rep(.1,2), upper=rep(pi,2), method="ALL")
+summary(ttrig2b, order=value)
+
+ttrig4b <- opm(rep(2,4), trig.f, trig.g, lower=rep(.1,4), upper=rep(pi,4), method="ALL")
+summary(ttrig4b, order=value)
+
+ttrig8b <- opm(rep(2,8), trig.f, trig.g, lower=rep(.1,8), upper=rep(pi,8), method="ALL")
+summary(ttrig8b, order=value)
+

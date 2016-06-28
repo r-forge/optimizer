@@ -16,12 +16,13 @@ TODO
       o Need to check that scaling of bounds is correct.
       o Put axsearch() in the package, along with a test.
       o hjkb does not seem to be working with bt.f etc.
+      o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
+      o jonesrun L-BFGS-B failure!
+      o grchk() -- can it be cleaned up
 
 Done as of 160624, but still in progress
       o Problems with lbfgs package (unconstrained)
       o test parameter scaling (but this could be improved)
-
-
 
 VERSION 2016-05-30
       o Crude setting of uobyqa and newuoa for control rhobeg.

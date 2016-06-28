@@ -46,14 +46,14 @@ methlist <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf",
                "L-BFGS-B", "SANN", "nlm", "nlminb")
 
  
-   msg <- paste("Opm attempt UNSCALED")
+   msg <- paste("opm attempt UNSCALED")
    cat(msg,"\n")
    mydou <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=1))
-   print(mydou)
-   msg <- paste("Opm attempt SCALED")
+   summary(mydou, order=value)
+   msg <- paste("opm attempt SCALED")
    cat(msg,"\n")
    mydos <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=1, parscale=c(100,10,.1)))
-   print(mydos)
+   summary(mydos, order=value)
 
 
 

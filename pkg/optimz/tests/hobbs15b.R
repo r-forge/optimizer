@@ -45,16 +45,25 @@ methlist <- c("lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf",
               "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", "BFGS", "CG", "Nelder-Mead", 
                "L-BFGS-B", "SANN", "nlm", "nlminb")
 
- 
-   msg <- paste("opm attempt UNSCALED")
-   cat(msg,"\n")
-   mydou <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=1))
-   summary(mydou, order=value)
-   msg <- paste("opm attempt SCALED")
-   cat(msg,"\n")
-   mydos <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=1, parscale=c(100,10,.1)))
-   summary(mydos, order=value)
+# Set trace=1 for lots of output on methods
+msg <- paste("opm attempt UNSCALED")
+cat(msg,"\n")
+mydou <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=0))
+summary(mydou, order=value)
+msg <- paste("opm attempt SCALED")
+cat(msg,"\n")
+mydos <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=0, parscale=c(100,10,.1)))
+summary(mydos, order=value)
 
+start <- c(1, 1, 1)
+msg <- paste("Bad start: opm attempt UNSCALED")
+cat(msg,"\n")
+mydoux <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=0))
+summary(mydoux, order=value)
+msg <- paste("Bad start: opm attempt SCALED")
+cat(msg,"\n")
+mydosx <- opm(start, hobbs.f, hobbs.g, method="ALL", control=list(trace=0, parscale=c(100,10,.1)))
+summary(mydosx, order=value)
 
 
 

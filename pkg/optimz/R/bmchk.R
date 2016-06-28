@@ -119,6 +119,7 @@ bmchk <- function(par, lower = NULL, upper = NULL,
         if (trace > 0) cat("admissible = ", admissible, "\n")
         if (any((upper - lower) < tol)) { # essentially masked
             makemask<-which(upper - lower < tol)
+            warning("Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!")
             if (trace > 0) {
                cat("Imposing mask as lower ~= upper for following parameters\n")
                print(makemask)

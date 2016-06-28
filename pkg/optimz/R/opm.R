@@ -17,19 +17,33 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   control <- ctrl
   if(control$trace > 0) cat("opm: wrapper to call optimr to run multiple optimizers\n")
 
+  fnscale <- 1 # default to ensure defined
+  if (is.null(control$fnscale)) {
+     if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
+  else if (! is.null(control$maximize)) {
+          if ( (control$fnscale < 0) && control$maximize) {fnscale <- -1} # this is OK
+          else stop("control$fnscale and control$maximize conflict")
+       } # end ifelse
+  } # end else
+  control$fnscale <- fnscale # to ensure set again
+
   allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
                 "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
-                "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", "lbfgs")
+                "newuoa", "bobyqa", "nmkb", "hjkb", "lbfgs")
+  # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
   bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
                 "bobyqa", "nmkb", "hjkb")
 
   maskmeth <- c("Rcgmin", "Rvmmin")
+  # Masks: As at 2016-6-28 do NOT provide for masks in package optimr
 
 
   bmtst <- bmchk(par, lower=lower, upper=upper)
   control$have.bounds <- bmtst$bounds # and set a control value
   bdmsk <- bmtst$bdmsk # Only need the masks bit from here on
+  # These are set free (1) or set -1 for upper bounds, -3 for lower bounds
+  # At this stage should NOT have masks (Or could they be added if upper=lower by bmchk
   control$have.masks <- any(bdmsk == 0)
 
   if (length(method) == 1 && method == "ALL") control$all.methods <- TRUE
@@ -41,10 +55,6 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   }
   nmeth <- length(method)
 
-
-
-
-# ?? do we need to restrict to bounded methods?? -- or leave to optimr??
   if (is.null(pstring)) {
     pstring <- NULL
     for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}

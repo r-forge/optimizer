@@ -1,12 +1,12 @@
 Package: Rtnmin
 Type: Package
 Title: Truncated Newton Function Minimization with Bounds Constraints
-Version: 2016-1.1
-Date: 2015-01-01
+Version: 2016-6.28
+Date: 2016-06-28
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca") )
 Author: John C Nash [aut, cre]
 Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Truncated Newton function minimization with bounds constraints
-	based on the Matlab/Octave codes of Stephen Nash. Intermediate private version.
+	based on the Matlab/Octave codes of Stephen Nash.
 License: GPL (>= 2)

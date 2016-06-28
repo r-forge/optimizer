@@ -11,16 +11,20 @@ vignette: >
 ---
 ##  \VignetteEngine{knitr::rmarkdown}
 
+## Overview
+
 **optimr** is a package intended to provide improved and extended 
 function minimization tools for R. Such facilities are
 commonly referred to as "optimization", but the original `optim()`
 function and its replacement in this package, which has the
 same name as the package, namely `optimr()`,
 only allow for the minimization or maximization of nonlinear functions of
-multiple parameters subject to at most bounds constraints. Some methods
-also permit fixed (masked) parameters, which could be considered
-as equal upper and lower bounds, though that is a VERY bad way 
-to implement masks. In general, we wish to find the
+multiple parameters subject to at most bounds constraints. Many methods
+offer extra facilities, but apart from **masks** (fixed parameters) for the 
+`Rcgmin` and `Rvmmin`, such features are
+likely inaccessible via this package.
+
+In general, we wish to find the
 vector of parameters `bestpar` that minimize an objective
 function specified by an
 R function `fn(par, ... )` where `par` is the general
@@ -28,7 +32,8 @@ vector of parameters, initially provided as the vector `par0`, and
 the dot arguments are additional information needed to compute the function.
 Function minimization methods may require information on the gradient or 
 Hessian of the function, which we will assume to be furnished, if required, 
-by functions `gr(par, ...)` and `hess(par, ....)`. 
+by functions `gr(par, ...)` and `hess(par, ....)`.  Bounds or box constraints,
+if they are to be imposed, are given in the vectors `lower` and `upper`
 
 ##How the optimr() function (generally) works
 
@@ -64,11 +69,16 @@ optimization methods.
 \end{itemize}
 
 
-##Adjusting the objective function
+## Issues in adding a new method
+
+
+### Adjusting the objective function for different methods
 
 The method `nlm()` provides a good example of a situation where the default
 `fn()` and `gr()` are inappropriate to the method to be added to `optimr()`.
-Don't forget the dot arguments!
+We need a function that returns not only the function value at the parameters
+but also the gradient and possibly the hessian. Don't forget the dot arguments
+which are the exogenous data for the function! 
 
 
 ??? do we want spar? 
@@ -92,9 +102,57 @@ other methods that compute the objective function and gradient at the same set o
 parameters. Though `nlm()` can make use of Hessian information, we have chosen
 here to omit the computation of the Hessian. 
 
-## Issues in adding a new method
 
-- scaling
+### Parameter scaling
+
+Parameter scaling is a feature of the original `optim()` but generally not provided in 
+many other optimizers. It has been included (at times with some difficulty) in the
+`optimr()` function. The construct is to provide a vector of scaling factors via the
+`control` list in the element `parscale`. In the tests of the package, we use the 
+Hobbs weed infestation problem (./tests/hobbs15b.R). This is a nonlinear least squares
+problem to estimate a three-parameter logistic function using data for 12 periods.
+This problem has a solution near the parameters c(196, 49, 0.3). In the test, we 
+try starting from c(300, 50, 0.3) and from the much less informed c(1,1,1). In both
+cases, the scaling lets us find the solution more reliably. The timings and number 
+of function and gradient evaluations are, however, not necessarily improved for
+the methods that "work" (though these measures are all somewhat unreliable
+because they may be defined or evaluated differently in different methods -- we use
+the information returned by the packages rather than insert counters into functions).
+However, what measures should we put in place for a failed method?
+
+### Function scaling
+
+`optim()` uses `control$fnscale` to "scale" the value of the function or gradient computed by
+`fn` or `gr` respectively. In practice, the only use for this scaling is to convert a 
+maximization to a minimization. Most of the methods applied are function **minimization** tools, 
+so that if we want to maximize a function, we minimize its negative. Some methods actually have
+the possibility of maximization, and include a `maximize` control. In these cases having both
+`fnscale` and `maximize` could create a conflict. We check for this in `optimr()` and try to 
+ensure both controls are set consistently.
+
+### Modified, Unused or unwanted controls
+
+Because different methods use different control parameters, and may even put them into 
+arguments rather than the `control` list, A lot of the code in `optimr()` is purely for
+translating or transforming the names and values to achieve the desired result. This is
+sometimes not possible precisely. A method which uses control$trace = TRUE (a logical
+element) has only "on" or "off" for controlling output. Other methods use an integer
+for this `trace` object, or call it something else that is an integer, in which case there
+are more levels of output possible. 
+
+I have found that it is important to remove (i.e., set NULL) controls that are not used for
+a method. Moreover, since R can leave objects in the workspace, I find it important to 
+set any unused or unwanted control to NULL both before and after calling a method. 
+
+Thus, if `print.level` is the desired control, and it more or less matches the `optimr()`
+`control$trace`, we need to set
+
+```{r}
+   print.level <- control$trace
+   control$trace <- NULL
+```
+
+
 - nulling out unwanted controls
    -- before call
    -- after return
@@ -121,7 +179,9 @@ backward and central approximations, and routines for these are included in
 
 ?? comparison of speed and accuracy??
 
-
+The methods
+`Rcgmin` and `Rvmmin` (and possibly others, but not obviously accessible
+via this package) also permit fixed (masked) parameters.
 
 
 ## Testing the package

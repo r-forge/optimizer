@@ -77,11 +77,8 @@ gtims <- function (v, x, g, accrcy, xnorm, sfun, ...) {
    tresult<-sfun(hg, ...)
 ##   cat("tresult: ")
 ##   print(tresult)
-#   gv <- attr(sfun(hg, ...), "gradient")
    gv <- attr(tresult, "gradient")
    gv <- (gv - g)/delta
-##   cat("returning gv:")
-##   print(gv)
    gv 
 }
 
@@ -161,7 +158,6 @@ lin1 <- function(p, x, f, alpha, g, sfun, ...){
       alpha1 <- alpha1 / 2
    }
    if (ierror == 3) { alpha1 <- 0 }
-##   cat("lin1: itcnt=",itcnt,"\n")
    nf1 <- itcnt 
 
    ## never used in SGN code
@@ -192,7 +188,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    gtn<-list(yrsr=0, yksk=0, yr = rep(0, n), yk = rep(0, n), 
         sr = rep(0, n),  sk = rep(0, n),
         hg=rep(0,n), hyk=rep(0,n), hyr=rep(0,n) )
-   envjn<<-list2env(gtn)
+   envjn<<-list2env(gtn) # Note this important tool for globals in Rtnmin
 # end globals
 
 ##   [ipivot, ierror, x] = crash(x, lower, upper) 
@@ -222,7 +218,6 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    ierror <- 0 
 
    if ( (stepmx < sqrt(accrcy)) || (maxfun < 1) ) { 
-      ## cat("stepmx < sqrt(accrcy) terminator\n")
       ierror <- -1 
       xstar <- x  
       almqn<-list(xstar=xstar, f=f, g=g, ierror=ierror,

@@ -10,6 +10,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   if (is.null(control$trace)) control$trace <- 0
   npar <- length(par)
   defctrl <- ctrldefault(npar) # could leave this out in most cases
+
+  ## ?? check if maximize and fnscale conflict ??
+
   if (is.null(control$parscale)) { 
         pscale <- rep(1,npar)
         if(control$trace > 0) { cat("Unit parameter scaling\n") }
@@ -31,6 +34,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
           else stop("control$fnscale and control$maximize conflict")
        } # end ifelse
   } # end else
+  control$fnscale <- fnscale # to ensure set again
 
 # 160615 -- decided to abandon nloptr in optimz
 
@@ -71,9 +75,17 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? do we want ehess ?    Not at 150714
 
 ## Ensure we've checked for bounds
+   maskmeth <- c("Rcgmin", "Rvmmin")
    bdmsk <- bmchk(par, lower=lower, upper=upper)
    control$have.bounds <- bdmsk$bounds # and set a control value
    bdmsk <- bdmsk$bdmsk # Only need the masks bit from here on
+   if (any(bdmsk == 0) ) {
+      if ( !(method %in% maskmeth) ) {
+         stopmsg <- paste("Method ",method," cannot handle masked (fixed) parameters")
+         stop(stopmsg)
+      }
+      if (control$trace > 0) cat("Masks present\n")
+   }
 
 # replacement for optim to minimize using a single method
 
@@ -335,7 +347,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         return(ans)
       }  ## end if using Rcgmin
 ## --------------------------------------------
-      else if (method == "Rtnmin") { # Use Rtnmin routines (ignoring masks)
+      else if (method == "Rtnmin") { # Use Rtnmin routines 
 	if (control$trace>0) {mcontrol$trace <- TRUE } else {mcontrol$trace <- FALSE}
 
 	if (control$have.bounds) {

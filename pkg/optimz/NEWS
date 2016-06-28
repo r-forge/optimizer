@@ -19,6 +19,9 @@ TODO
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o jonesrun L-BFGS-B failure!
       o grchk() -- can it be cleaned up
+      o Check that controls do not conflict, e.g., maximize and fnscale. Note that
+        maximize is NOT in optim() call.
+      o Put counters in efn, egr ??
 
 Done as of 160624, but still in progress
       o Problems with lbfgs package (unconstrained)

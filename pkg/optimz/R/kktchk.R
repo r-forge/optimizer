@@ -34,7 +34,9 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
    dotargs <- list(...)
 #   cat("dotargs:\n")
 #   print(dotargs)
-   fval <- fn(par, ...)
+   fval <- fn(par, ...) # Note: This requires extra effort to the optimization. 
+   # It could be avoided by some clever management of the computations, but there
+   # is then the risk we do not get the function value that matches the parameters.
    npar<-length(par)
    if (control$trace > 0) { 
       cat("KKT condition testing\n") 
@@ -91,31 +93,36 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
       if (control$trace > 0) cat("Maximizing: use negative Hessian\n")
    }
 
-   # ?? check for no free parameters
-   #  provide both free parameter and constrained parameter gradient and Hessian measures
+   # Could provide both free parameter and constrained parameter gradient and Hessian measures
+   # Decided to only provide "constrained" ones
+#   hev<- try(eigen(nHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
+#                                              # 20100711 silent
+#   if (class(hev) != "try-error") {
+#     if (control$trace > 0) {
+#        cat("Hessian eigenvalues of unconstrained Hessian:\n")
+#        print(hev) # ?? no check for errors
+#     }
+#   } else { 
+#      warning("Error during computation of unconstrained Hessian eigenvalues") 
+#      if(control$trace > 0) cat("Hessian eigenvalue calculation (unconstrained) has failed!\n") 
+#       # JN 111207 added
+#      hev <- rep(NA, npar) # try to avoid stopping the run, but there is no useful info
+#   }
 
-   hev<- try(eigen(nHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
-                                              # 20100711 silent
-   if (class(hev) != "try-error") {
-     if (control$trace > 0) {
-        cat("Hessian eigenvalues of unconstrained Hessian:\n")
-        print(hev) # ?? no check for errors
-     }
-   } else { warning("Error during computation of unconstrained Hessian eigenvalues") }
    pHes <- nHes # projected Hessian
    pHes[which(bdout$bdmsk != 1), ] <- 0.0
    pHes[ ,which(bdout$bdmsk != 1)] <- 0.0
    if (nfree > 0) {
-      phev<- try(eigen(pHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
+     phev<- try(eigen(pHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
                                               # 20100711 silent
-      if (class(phev) != "try-error") {
+     if (class(phev) != "try-error") {
         if (control$trace > 0) {
           cat("Hessian eigenvalues of constrained Hessian:\n")
           print(phev) # ?? no check for errors
         }
         # now look at Hessian
-        negeig<-(hev[npar] <= (-1)*kkt2tol*(1.0+abs(fval))) # 20100711 kkt2tol
-        evratio<-hev[npar-nbm]/hev[1]
+        negeig<-(phev[npar] <= (-1)*kkt2tol*(1.0+abs(fval))) # 20100711 kkt2tol
+        evratio<-phev[npar-nbm]/phev[1]
         # If non-positive definite, then there will be zero eigenvalues (from the projection)
         # in the place of the "last" eigenvalue and we'll have singularity.
         # WARNING: Could have a weak minimum if semi-definite.
@@ -123,12 +130,18 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
         if (control$trace > 0) {
           cat("KKT2 result = ",kkt2,"\n") 
         }
-        ans<-list(gmax,evratio,kkt1,kkt2,hev, ngatend=ngr, nhatend=nHes)
-        names(ans)<-c("gmax","evratio","kkt1","kkt2","hev", "ngatend", "nhatend")
+        ans<-list(gmax,evratio,kkt1,kkt2, phev, ngatend=ngr, nhatend=nHes)
+        names(ans)<-c("gmax","evratio","kkt1","kkt2", "hev", "ngatend", "nhatend")
         return(ans)
      } else {
-        warning("Eigenvalue failure for constrained Hessian")
-        if(control$trace > 0) cat("Eigenvalue calculation has failed!\n") # JN 111207 added \n
+        warning("Eigenvalue failure for projected Hessian")
+        if(control$trace > 0) cat("Hessian eigenvalue calculation (projected) has failed!\n") 
+        # JN 111207 added
+        phev <- rep(NA, npar) # try to avoid stopping the run, but there is no useful info
+        evratio <- NA
+        ans<-list(gmax,evratio,kkt1,kkt2, phev, ngatend=ngr, nhatend=nHes)
+        names(ans)<-c("gmax","evratio","kkt1","kkt2", "hev", "ngatend", "nhatend")
+        return(ans)
      }
   } else {
      warning("All parameters are constrained")

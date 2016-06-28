@@ -7,6 +7,8 @@ require("optimz")
 # This test script illustrates the use of bounds in optimr() with the
 # optimizers Rvmmin and L-BFGS-B, as well as a Kuhn Karush Tucker check 
 # on the final parameters from the second optimization.
+# Masks are tested at the very end for the two methods for which they are
+# available. Note that they must be called via the opm() function.
 
 
 # Simple bounds test for n=4
@@ -42,5 +44,19 @@ print(alkkt)
 
 
 #sink()
+cat("All bounded methods attempt with opm\n")
 
-# allbds <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, control=list(trace=1))
+allbds <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=1))
+summary(allbds, order=value)
+
+cat("Now force a mask and see what happens\n")
+upper[1] <- lower[1]
+
+allbdm <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=1))
+summary(allbdm, order=value)
+
+cat("And the following should fail because bobyqa cannot handle masks\n")
+## tfail <- optimr(xx, bt.f, lower=lower, upper=upper, method="bobyqa")
+cat(' tfail <- optimr(xx, bt.f, lower=lower, upper=upper, method="bobyqa") \n')
+
+

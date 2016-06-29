@@ -1,7 +1,7 @@
 NEWS about R package optimz
 
 TODO
-      o Troubles with NAMESPACE collisions NOT resolved.
+      o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
       o Unable to get nloptr to handle parameter scaling or dot arguments
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
@@ -22,6 +22,8 @@ TODO
       o Check that controls do not conflict, e.g., maximize and fnscale. Note that
         maximize is NOT in optim() call.
       o Put counters in efn, egr ??
+      o Demos still refer to optimx -- must be changed -- 160628 moved off to Roptimtest/current/
+      o rename package to optimr for optimR(eplacement)
 
 Done as of 160624, but still in progress
       o Problems with lbfgs package (unconstrained)

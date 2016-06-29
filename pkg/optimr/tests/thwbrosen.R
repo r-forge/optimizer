@@ -1,7 +1,7 @@
 ## thwbrosen.R   160624
 
 rm(list=ls())
-require(optimz)
+require(optimr)
 
 cat("Run all optimizers on unconstrained HWB version of Rosenbrock\n")
 

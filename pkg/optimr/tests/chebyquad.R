@@ -102,7 +102,7 @@ if (skiprun) {
 cat("running Chebyquad test\n")
 
 nn <- c(2, 4, 7, 10, 20)
-require(optimz)
+require(optimr)
 
 for (i in 1:length(nn)) {
    n <- nn[i]

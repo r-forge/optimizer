@@ -1,4 +1,4 @@
-require(optimz)
+require(optimr)
 
 #####################
 ## All examples are in this .Rd file

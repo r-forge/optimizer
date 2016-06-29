@@ -1,4 +1,4 @@
-require(optimz)
+require(optimr)
 
 cat("Show how bmchk works\n")
 

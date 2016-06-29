@@ -5,13 +5,13 @@
 #   source(runit.1); clearLog(); test.1()
 #   Log()
 
-library(optimz)
+library(optimr)
 
 # test.1 <- function() {
 
 # test 1 parameter function
 
-#  checkTrue(require(optimz))  # from svUnit
+#  checkTrue(require(optimr))  # from svUnit
 
   f1<-function(xx){ # function of one parameter
     ((3*xx+2)*xx-5)*xx+4

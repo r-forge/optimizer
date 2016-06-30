@@ -22,12 +22,13 @@ TODO
       o Check that controls do not conflict, e.g., maximize and fnscale. Note that
         maximize is NOT in optim() call.
       o Put counters in efn, egr ??
-      o Demos still refer to optimx -- must be changed -- 160628 moved off to Roptimtest/current/
-      o rename package to optimr for optimR(eplacement)
 
-Done as of 160624, but still in progress
-      o Problems with lbfgs package (unconstrained)
+
+VERSION 2016-06-28
+      o rename package to optimr for optimR(eplacement)
+      o Problems with lbfgs package (unconstrained) resolved
       o test parameter scaling (but this could be improved)
+      o Demos still refer to optimx -- must be changed -- 160628 moved off to Roptimtest/current/
 
 VERSION 2016-05-30
       o Crude setting of uobyqa and newuoa for control rhobeg.

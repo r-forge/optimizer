@@ -5,16 +5,10 @@
 \concept{minimization}
 \concept{maximization}
 \description{
-  General-purpose optimization wrapper function that calls other
-  R tools for optimization, including the existing optim() function.
-  \code{optimx} also tries to unify the calling sequence to allow
-  a number of tools to use the same front-end. These include 
-  \code{spg} from the BB package, \code{ucminf}, \code{nlm}, and 
-  \code{nlminb}. Note that 
-  optim() itself allows Nelder--Mead, quasi-Newton and 
-  conjugate-gradient algorithms as well as box-constrained optimization 
-  via L-BFGS-B. Because SANN does not return a meaningful convergence code
-  (conv), optimx() does not call the SANN method.
+  A wrapper function that attempts to check the objective function,
+  and optionally the gradient and hessian functions, supplied by the
+  user for optimization. It also tries to check the scale of the
+  parameters and bounds to see if they are reasonable. 
 }
 \usage{
 optchk(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
@@ -56,7 +50,7 @@ optchk(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
  \item{grOK}{TRUE if the analytic gradient and a numerical approximation via \code{numDeriv}
    agree within the \code{control$grtesttol} as per the \code{R} code in function 
    \code{grchk}. \code{NULL} if no analytic gradient function is provided. } 
- \item{grOK}{TRUE if the analytic hessian and a numerical approximation via \code{numDeriv::jacobian}
+ \item{hessOK}{TRUE if the analytic hessian and a numerical approximation via \code{numDeriv::jacobian}
    agree within the \code{control$hesstesttol} as per the \code{R} code in function 
    \code{hesschk}. NULL if no analytic hessian or no analytic gradient is provided. Note
    that since an analytic gradient must be available for this test, we use the Jacobian of the 
@@ -64,7 +58,7 @@ optchk(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    function can work without the gradient.}
  \item{scalebad}{TRUE if the larger of the \code{scaleratios} exceeds \code{control$scaletol}}
  \item{scaleratios}{A vector of the parameter and bounds scale ratios. See the function code
-   of \code{scalecheck} for the computation of these values.}
+   of \code{scalechk} for the computation of these values.}
  }
 } 
 \references{

@@ -1,5 +1,5 @@
-################### scalecheck #######################
-scalecheck<-function(par, lower=lower, upper=upper, bdmsk=NULL, dowarn=TRUE){
+################### scalechk #######################
+scalechk<-function(par, lower=lower, upper=upper, bdmsk=NULL, dowarn=TRUE){
    # a function to check the initial parameters and bounds for inputs to optimization codes
    # Arguments:
    #   par -- starting parameters supplied 
@@ -46,4 +46,4 @@ scalecheck<-function(par, lower=lower, upper=upper, bdmsk=NULL, dowarn=TRUE){
    }
    ratios<-list(lpratio=lpratio,lbratio=lbratio) # return(ratios)
 }
-################### end scalecheck #######################
+################### end scalechk #######################

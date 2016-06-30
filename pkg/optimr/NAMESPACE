@@ -27,7 +27,7 @@ export(
   "bmchk",
   "fnchk",
   "kktchk",
-  "scalecheck"
+  "scalechk"
 )
 S3method("[", "opm")
 S3method("as.data.frame", "opm")

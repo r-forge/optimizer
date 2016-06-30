@@ -1,5 +1,5 @@
-\name{scalecheck}
-\alias{scalecheck}
+\name{scalechk}
+\alias{scalechk}
 \encoding{UTF-8}
 \title{Check the scale of the initial parameters and bounds input to an optimization code
    used in nonlinear optimization}
@@ -7,10 +7,10 @@
 parameters. This function is intended to explore the differences in scale. It is, however,
 an imperfect and heuristic tool, and could be improved.
 
-At this time scalecheck does NOT take account of masks. (?? should 110702)
+At this time scalechk does NOT take account of masks. (?? should 110702)
 }
 \usage{
-   scalecheck(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE)
+   scalechk(par, lower = lower, upper = upper, bdmsk=NULL, dowarn = TRUE)
 }
 \arguments{
  \item{par}{A numeric vector of starting values of the optimization function parameters.}
@@ -23,7 +23,7 @@ At this time scalecheck does NOT take account of masks. (?? should 110702)
                Default TRUE.}
 }
 \details{
-     The scalecheck function will check that the bounds exist and are admissible, 
+     The scalechk function will check that the bounds exist and are admissible, 
      that is, that there are no lower bounds that exceed upper bounds. 
 
      NOTE: Free paramters outside bounds are adjusted to the nearest bound.
@@ -34,7 +34,7 @@ At this time scalecheck does NOT take account of masks. (?? should 110702)
      which case a mask is imposed and maskadded is set TRUE. NOTE: it is 
      generally a VERY BAD IDEA to have bounds close together in optimization,
      but here we use a tolerance based on the double precision machine 
-     epsilon. Thus it is not a good idea to rely on scalecheck() to test if 
+     epsilon. Thus it is not a good idea to rely on scalechk() to test if 
      bounds constraints are well-posed.
  
 }

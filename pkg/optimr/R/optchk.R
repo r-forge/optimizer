@@ -67,7 +67,7 @@ optchk <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
 # Scaling check  091219
   scalebad <- FALSE
-  srat<-scalecheck(par, lower, upper,control$dowarn)
+  srat<-scalechk(par, lower, upper,control$dowarn)
   sratv<-c(srat$lpratio, srat$lbratio)
   if (max(sratv,na.rm=TRUE) > control$scaletol) { 
      warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."

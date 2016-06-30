@@ -345,7 +345,7 @@ There are also attributes
       the supplied parameters and functions;}
   \item{\code{optimx.run()}}{which actually performs the optimization and post-solution
       computations;}
-  \item{\code{scalecheck()}}{ which actually carries out a check on the relative scaling
+  \item{\code{scalechk()}}{ which actually carries out a check on the relative scaling
       of the input parameters.}
   }
 

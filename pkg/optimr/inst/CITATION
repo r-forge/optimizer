@@ -1,4 +1,4 @@
-citHeader("To cite optimz in publications use:")
+citHeader("To cite optimr in publications use:")
 
 citEntry(entry = "Article",
   title        = "Unifying Optimization Algorithms to Aid Software System Users: {optimx} for {R}",

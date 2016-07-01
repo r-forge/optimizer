@@ -186,7 +186,8 @@ However, what values of these measures should we apply for a failed method?
 `optim()` uses `control$fnscale` to "scale" the value of the function or gradient computed by
 `fn` or `gr` respectively. In practice, the only use for this scaling is to convert a 
 maximization to a minimization. Most of the methods applied are function **minimization** tools, 
-so that if we want to maximize a function, we minimize its negative. Some methods actually have
+so that if we want to maximize a function, we minimize its negative. Some methods 
+actually have
 the possibility of maximization, and include a `maximize` control. In these cases having both
 `fnscale` and `maximize` could create a conflict. We check for this in `optimr()` and try to 
 ensure both controls are set consistently.
@@ -215,10 +216,23 @@ Thus, if `print.level` is the desired control, and it more or less matches the `
 
 ### Running multiple methods
 
-It is often convenient to be able to run multimple optimization methods on the same function and 
-gradient. To this end, the function `opm()` is supplied. The output of this by default includes
+It is often convenient to be able to run multimple 
+optimization methods on the same function and 
+gradient. To this end, the function `opm()` is supplied. The output of this by 
+default includes
 the KKT tests and other informatin in a data frame, and there are convenience methods `summary()` 
 and `coef()` to allow for display or extraction of results. 
+
+### Counting function, gradient and hessian evaluations
+
+Different methods take different approaches to counting the computational effort of
+performing optimizations. Sometimes this can make it difficult to compare methods.
+
+* When using numerical gradient approximations, it would be more sensible to report 0
+gradient evaluations, but count each function evaluation.
+* "Iterations" may be used as a measure of effort for some methods, but an "iteration"
+may not be comparable across methods.
+
 
 ## Derivatives
 

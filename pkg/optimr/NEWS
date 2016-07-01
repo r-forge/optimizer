@@ -1,6 +1,10 @@
-NEWS about R package optimz
+NEWS about R package optimr (formerly optimz in R-forge)
 
 TODO
+      o Need to check that scaling of bounds is correct. IT IS CURRENTLY WRONG --
+	call methods with spar, but bounds.
+        Create a test function that is simple but bounded and scaled badly
+      o Drop nmkb from methods for bounds if start is on bound
       o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
       o Unable to get nloptr to handle parameter scaling or dot arguments
       o Consider how the hyperbolic transformation (transfinite fn)
@@ -13,7 +17,6 @@ TODO
       o Add nloptr methods -- there are a number and we need to choose how
 	to do so. 
       o Do NOT add ipoptr until non-standard install is fixed up.
-      o Need to check that scaling of bounds is correct.
       o Put axsearch() in the package, along with a test.
       o hjkb does not seem to be working with bt.f etc.
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
@@ -22,6 +25,7 @@ TODO
       o Check that controls do not conflict, e.g., maximize and fnscale. Note that
         maximize is NOT in optim() call.
       o Put counters in efn, egr ??
+      o Make sure routines in optextras are same as those in optimr (or call optextras)
 
 
 VERSION 2016-06-28

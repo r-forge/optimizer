@@ -10,13 +10,15 @@ export(
   "ufn",
   "ugr",
   "uhess",
-  "kktc",
+  "kktchk",
   "gHgen",
   "gHgenb",
   "ugHgenb",
   "bmchk",
   "bmstep",
-  "scalecheck",
+  "scalechk",
   "grnd"
 )
+ importFrom("utils", "str")
+ importFrom("numDeriv", "grad", "hessian", "jacobian")
 

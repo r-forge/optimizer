@@ -1,6 +1,5 @@
 \name{grback}
 \alias{grback}
-\alias{optsp}
 
 \title{Backward difference numerical gradient approximation.}
 

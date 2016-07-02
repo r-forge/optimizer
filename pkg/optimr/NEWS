@@ -26,6 +26,8 @@ TODO
         maximize is NOT in optim() call.
       o Put counters in efn, egr ??
       o Make sure routines in optextras are same as those in optimr (or call optextras)
+      o replace coef.optimx with ???
+      o import from optextras
 
 
 VERSION 2016-06-28

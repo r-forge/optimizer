@@ -1,6 +1,6 @@
 \name{grcentral}
 \alias{grcentral}
-\alias{optsp}
+
 
 \title{Central difference numerical gradient approximation.}
 

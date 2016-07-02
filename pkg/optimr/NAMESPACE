@@ -11,23 +11,13 @@ import(
   lbfgs
 )
 importFrom("stats", "nlm", "nlminb", "optim")
-importFrom("utils", "str")
+importFrom("utils", "str", "optextras")
 export(
   "coef<-",
   "optimr",
   "opm",
   "optchk",
-  "grfwd",
-  "grback",
-  "grcentral",
-  "grchk",
-  "hesschk",
-  "grnd",
-  "ctrldefault",
-  "bmchk",
-  "fnchk",
-  "kktchk",
-  "scalechk"
+  "ctrldefault"
 )
 S3method("[", "opm")
 S3method("as.data.frame", "opm")

@@ -1,4 +1,5 @@
 import(
+  optextras,
   numDeriv,
   BB, 
   dfoptim,
@@ -11,7 +12,9 @@ import(
   lbfgs
 )
 importFrom("stats", "nlm", "nlminb", "optim")
-importFrom("utils", "str", "optextras")
+importFrom("utils", "str")
+## importFrom("optextras", "grnd", "grfwd", "grcentral", "grback")
+## importFrom("optextras", "bmchk", "grchk", "scalechk", "kktchk", "fnchk", "hesschk")
 export(
   "coef<-",
   "optimr",

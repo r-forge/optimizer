@@ -10,7 +10,7 @@ import(
   "svUnit",
   "lbfgsb3"
 )
-
+ importFrom("stats", "nlm", "nlminb", "optim")
 export(
   "optimx",
   "coef<-"

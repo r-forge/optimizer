@@ -1,8 +1,6 @@
-import(
-  "optextras"
-)
 export(
   "Rvmmin",
   "Rvmminb",
   "Rvmminu"
 )
+importFrom("optextras", "bmchk", "grfwd", "grchk")

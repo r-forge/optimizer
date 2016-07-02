@@ -53,15 +53,8 @@ grfwd        Forward numerical gradient approximation
 grnd         Gradient approximation using \code{numDeriv}
 hesschk      Check that Hessian function evaluation 
              matches numerical approximation
-kktc         Check the Karush-Kuhn-Tucker optimality conditions
-scalecheck   Check scale of initial parameters and bounds
-ufn          Wrapper for user objective function
-ugr          Wrapper for user gradient function
-ugHgenb      Compute gradient and Hessian as a given 
-             set of parameters appying bounds and masks
-             but using the opx12env list of fn, gr, and 
-             hess. Note FIXED name opx12env
-uhess        Wrapper for user Hessian function
+kktchk         Check the Karush-Kuhn-Tucker optimality conditions
+scalechk   Check scale of initial parameters and bounds
 }
 }
 \author{

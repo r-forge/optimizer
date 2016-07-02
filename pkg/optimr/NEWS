@@ -1,12 +1,8 @@
 NEWS about R package optimr (formerly optimz in R-forge)
 
 TODO
-      o Need to check that scaling of bounds is correct. IT IS CURRENTLY WRONG --
-	call methods with spar, but bounds.
-        Create a test function that is simple but bounded and scaled badly
       o Drop nmkb from methods for bounds if start is on bound
       o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
-      o Unable to get nloptr to handle parameter scaling or dot arguments
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?
@@ -15,22 +11,23 @@ TODO
         is apparently on the bound. Could have rounding issues, and should
         avoid this warning if it is really not needed.
       o Add nloptr methods -- there are a number and we need to choose how
-	to do so. 
+	to do so. Seems unable to handle parameter scaling or dot arguments
       o Do NOT add ipoptr until non-standard install is fixed up.
       o Put axsearch() in the package, along with a test.
       o hjkb does not seem to be working with bt.f etc.
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o jonesrun L-BFGS-B failure!
       o grchk() -- can it be cleaned up
-      o Check that controls do not conflict, e.g., maximize and fnscale. Note that
-        maximize is NOT in optim() call.
       o Put counters in efn, egr ??
-      o Make sure routines in optextras are same as those in optimr (or call optextras)
       o replace coef.optimx with ???
-      o import from optextras
 
 
 VERSION 2016-06-28
+      o Checked that controls do not conflict, e.g., maximize and fnscale. Note that
+        maximize is NOT in optim() call.
+      o Checked and fixed scaling of bounds in optimr. However, hjkb seems to fail
+      o Creates scbdtest.R,  a test function that is simple but bounded and scaled badly
+      o Get routines from optextras rather than have duplicates in optimr
       o rename package to optimr for optimR(eplacement)
       o Problems with lbfgs package (unconstrained) resolved
       o test parameter scaling (but this could be improved)

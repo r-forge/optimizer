@@ -578,8 +578,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          if (control$trace > 0) { mcontrol$trace <- TRUE } # logical needed, not integer         
          else { mcontrol$trace<-FALSE }
          if (control$have.bounds) {
-            time <- system.time(ans <- try(nmkb(par=spar, fn=efn, lower = lower, 
-              upper = upper, control=mcontrol, ...), silent=TRUE))[1]
+            time <- system.time(ans <- try(nmkb(par=spar, fn=efn, lower = slower, 
+              upper = supper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
             time <- system.time(ans <- try(nmk(par=spar, fn=efn, 
               control=mcontrol, ...), silent=TRUE))[1]
@@ -622,8 +622,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          } else { mcontrol$info <- FALSE }
          mcontrol$maxfeval <- control$maxfeval
          if (control$have.bounds) {
-            time <- system.time(ans <- try(hjkb(par=spar, fn=efn, lower = lower, 
-                upper = upper, control=mcontrol, ...), silent=TRUE))[1]
+            time <- system.time(ans <- try(hjkb(par=spar, fn=efn, lower = slower, 
+                upper = supper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
             time <- system.time(ans <- try(hjk(par=spar, fn=efn, 
                 control=mcontrol, ...), silent=TRUE))[1]
@@ -657,8 +657,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         # ?? use maxfevals rather than maxit for lbfgsb3 ?
         if (control$trace > 0) cat("control$have.bounds =",control$have.bounds,"\n")
         if (control$have.bounds) { ## Note call uses prm not par
-            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = lower, 
-                upper = upper, control=mcontrol, ...), silent=TRUE))[1]
+            slower <- lower/pscale
+            supper <- upper/pscale
+            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
+                upper = supper, control=mcontrol, ...), silent=TRUE))[1]
         } else {
             time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr,  
                 control=mcontrol, ...), silent=TRUE))[1]

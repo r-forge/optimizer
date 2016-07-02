@@ -2,8 +2,8 @@ Package: optextras
 Version: 2016-6.30
 Date: 2016-06-30
 Title: Tools to Support Optimization possibly with Bounds and Masks
-Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
-        c("aut", "cre"), email = "nashjc@uottawa.ca") )
+Authors@R: c( person(given = c("John", "C"), family = "Nash", 
+        role =c("aut", "cre"), email = "nashjc@uottawa.ca") )
 Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Tools to assist in safely applying user generated objective and 
    derivative function to optimization programs. These are primarily function 

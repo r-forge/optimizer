@@ -2,14 +2,14 @@
 title: "Using and extending the optimr package"
 author: "John C. Nash (nashjc _at_ uottawa.ca)"
 date: "`r Sys.Date()`"
-##output: pdf_document
-output: rmarkdown::html_vignette
+output: pdf_document
+## output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using and extending the optimr package}
-  %\VignetteEngine{rmarkdown::render}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{rmarkdown::render}
 ---
-##  \VignetteEngine{knitr::rmarkdown}
+
 
 ## Overview
 

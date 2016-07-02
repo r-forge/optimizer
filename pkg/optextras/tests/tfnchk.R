@@ -1,4 +1,4 @@
-require(optimr)
+require(optextras)
 
 cat("Show how fnchk works\n")
 

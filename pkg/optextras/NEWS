@@ -3,16 +3,15 @@ Changes in optextras
 Changes before 2012-5-26 not recorded 
 
 TODOS
-
-   o    The optsp environment is only currently used
-        with the simple numerical gradient approximations.
-        It needs to be added to ufn, ugr, uhess and some
-        other routines. 
-
-   o    Need to check that other packages can use the
-        optsp environment, e.g., Rtn.
+   o    Examples and tests for grchk, kktchk needed.
 
 Changes
+
+2016-6-30
+   o    Streamlined the package to get rid of ufn, ugr, etc.
+        that are so far unused. 
+   o    The optsp environment is only currently used
+        with the simple numerical gradient approximations.
 
 2013-10-27
    o    Inserted missing index in bmchk (bdmsk)

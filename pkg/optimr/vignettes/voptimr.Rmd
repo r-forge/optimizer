@@ -223,6 +223,39 @@ default includes
 the KKT tests and other informatin in a data frame, and there are convenience methods `summary()` 
 and `coef()` to allow for display or extraction of results. 
 
+### Polyalgorithms -- multiple methods in sequence
+
+Function `polyopt()` is intended to allow for attempts to optimize a function by running different
+methods in sequence. The call to polyopt() differs from that of `optimr()` or `opm()` in the following respects:
+
+* The `method` character argument or character vector is replaced by the `methcontrol` array which has a
+set of triplets consisting of a method name (character), an iteration count and a function evaluation count.
+* the `control$maxit` and `control$maxfeval` are replaced, if present, with values from the `methcontrol`
+argument list.
+
+The methods in `methcontrol` are executed in the sequence in which they appear. Each method runs until either
+the specified number of iterations (typically gradient evaluations) or function evaluations have been completed,
+after which the best set of parameters so far is passed to the next method specified, or the function exits.
+
+Polyalgorithms may be useful because some methods such as Nelder-Mead are fairly robust and efficient in 
+finding the region in which a minimum exists, but then very slow to obtain an accurate set of parameters.
+Gradients at points far from a solution may be such that gradient-based methods do poorly when started 
+far away from a solution, but are very efficient when started "nearby".  Caution, however, is recommended.
+Such approaches need to be tested for particular applications.
+
+
+### Multiple sets of starting parameters
+
+For problems with multiple minima, or which are otherwise difficult to solve, it is sometimes
+helpful to attempt an optimization from several starting points. `multistart()` is a simple wrapper
+to allow this to be carried out. Instead of the vector `par` for the starting parameters argument,
+however, we now have a matrix `parmat`, each **row** of which is a set of starting parameters.
+
+In setting up this functionality, I chose NOT to allow mixing of multiple starts with a 
+polyalgorithm or multiple methods. For users really wishing to do this, I believe the 
+available source codes `opm.R`, `polyopt.R` and `multistart.R` provide a sufficient base
+that the required tools can be fashioned fairly easily.
+
 ### Counting function, gradient and hessian evaluations
 
 Different methods take different approaches to counting the computational effort of
@@ -255,11 +288,10 @@ controlled by an extra argument `side` to the `grad()` function. The complex ste
 essentially analytic precision from a very efficient computation, is unfortunately only applicable if
 the objective function has specific properties. That is, according to the documentation:
 
-     This method requires that the function be able to
-     handle complex valued arguments and return the appropriate complex
-     valued result, even though the user may only be interested in the
-     real-valued derivatives.  It also requires that the complex
-     function be analytic.
+     This method requires that the function be able to handle complex valued 
+     arguments and return the appropriate complex valued result, even though 
+     the user may only be interested in the real-valued derivatives.  It also
+     requires that the complex function be analytic.
 
 The default method of `numDeriv` generally require multiple evaluations of the objective
 function to approximate a derivative. The simpler choices, namely, the forward,

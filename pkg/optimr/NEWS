@@ -20,6 +20,10 @@ TODO
       o grchk() -- can it be cleaned up
       o Put counters in efn, egr ??
       o replace coef.optimx with ???
+      o polyalgorithm wrapper -- "follow-on" control
+      o multistart wrapper
+      o check if hessian= argument to optimr is properly executed
+      o time (xtimes) NOT yet returned from optimr, then opm() does it AGAIN
 
 
 VERSION 2016-06-28

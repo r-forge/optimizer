@@ -79,6 +79,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     # Note: not using try() here
     time <- system.time(ans <- optimr(par, fn, gr, method=meth, lower=lower, upper=upper, 
            hessian=hessian, control=control, ...))[1]
+    # ?? FIX -- time is ALREADY done in optimr()
     if (control$trace > 2) print(ans)
     # add to list
 

@@ -1,37 +1,41 @@
-polyopt <- function(par, fn, gr=NULL, lower=NULL, upper=NULL, 
+polyopt <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             methcontrol=NULL, hessian=FALSE, control=list(), ...) {
-   print(str(methcontrol))
    nmeth <- nrow(methcontrol)
-   cat(nmeth," Methods\n")
    npar <- length(par)
    if (nmeth < 1) stop("polyopt: no starting parameters!")
-   ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
+   ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+4)
    ans.ret <- data.frame(ans.ret)
    pstring<-names(par)
-   cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtimes")
-   colnames(ans.ret)<-cnames
-   row.names(ans.ret)<-1:nmeth
+   if (is.null(pstring)) {
+     pstring <- NULL
+     for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
+   }  
+   cnames <- c(pstring, "value", "fevals", "gevals", "convergence")
+   colnames(ans.ret) <- cnames
+   row.names(ans.ret) <- 1:nmeth
    cpar <- par # use initial parameters here
 # ?? may want a lot of checks here
    for (imeth in 1:nmeth){
-       method <- methcontrol[[imeth,1]] # name of method
-       cat("Method ",imeth," :",method,"\n")
-       cat("imeth =",imeth,"\n")
+       meth <- as.character(methcontrol[imeth,1]) # name of method
+       cat("Method ",imeth," :",meth,"\n")
        control$maxit <- methcontrol[[imeth,2]]
        control$maxfeval <- methcontrol[imeth,3]
-       if (is.null(lower) && is.null(upper)) {
-           cat("calling optimr unconstrained\n")
+   ## ?? do we need this -- should be able to handle infinite or null bounds
+       if ((is.null(lower) && is.null(upper)) || (is.infinite(lower) && is.infinite(upper))) {
+#           cat("calling optimr unconstrained\n")
            ans <- optimr(cpar, fn=fn, gr=gr, 
-            method=method, hessian=FALSE, control=control, ...)
+            method=meth, hessian=FALSE, control=control, ...)
        } else {
-           cat("calling optimr bounded\n")
+#          cat("calling optimr bounded\n")
           ans <- optimr(cpar, fn=fn, gr=gr, lower=lower, upper=upper, 
-            method=method, hessian=FALSE, control=control, ...)
+            method=meth, hessian=FALSE, control=control, ...)
        }
-       ans$xtimes <- NA # 160703 -- not yet available
-       addvec <- c(ans$par, ans$value, ans$fevals, ans$gevals, 
-                     ans$convergence, ans$kkt1, ans$kkt2, ans$xtimes)
+#       ans$xtimes <- NA # 160703 -- not yet available
+       addvec <- c(ans$par, ans$value, ans$counts[1], ans$counts[2], 
+                     ans$convergence)
+#       print(addvec)
        cpar <- ans$par # copy the parameters for next method
+#       print(cpar)
        ans.ret[imeth,] <- addvec
    }
    ans.ret

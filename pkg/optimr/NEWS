@@ -19,11 +19,13 @@ TODO
       o jonesrun L-BFGS-B failure!
       o grchk() -- can it be cleaned up
       o Put counters in efn, egr ??
-      o replace coef.optimx with ???
-      o polyalgorithm wrapper -- "follow-on" control
-      o multistart wrapper
       o check if hessian= argument to optimr is properly executed
-      o time (xtimes) NOT yet returned from optimr, then opm() does it AGAIN
+
+VERSION 2016-07-03
+      o time (xtimes) removed from optimr, but timing is included in opm()
+      o polyalgorithm wrapper polyopt() included and documented with example
+      o multistart wrapper multistart() included and documented with example
+      o renamed coef.optimx to coef.opm
 
 
 VERSION 2016-06-28

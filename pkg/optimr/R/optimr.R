@@ -1,6 +1,12 @@
 optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
+# Check if bounded
+  bdmsk <- bmchk(par, lower=lower, upper=upper)
+  control$have.bounds <- bdmsk$bounds # and set a control value
+#  cat("control$have.bounds =",control$have.bounds,"\n")
+
+
   orig.method <- method
   orig.gr <- gr
   orig.fn <- fn
@@ -24,8 +30,12 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         }
   }
   spar <- par/pscale # scaled parameters
-  slower <- lower/pscale
-  supper <- upper/pscale
+  slower <- -Inf
+  supper <- Inf # to ensure defined
+  if (control$have.bounds) {
+    slower <- lower/pscale
+    supper <- upper/pscale
+  }
   fnscale <- 1 # default to ensure defined
   if (is.null(control$fnscale)) {
      if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
@@ -74,10 +84,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   }
 # ?? do we want ehess ?    Not at 150714
 
-## Ensure we've checked for bounds
+## Masks 
    maskmeth <- c("Rcgmin", "Rvmmin")
-   bdmsk <- bmchk(par, lower=lower, upper=upper)
-   control$have.bounds <- bdmsk$bounds # and set a control value
    bdmsk <- bdmsk$bdmsk # Only need the masks bit from here on
    if (any(bdmsk == 0) ) {
       if ( !(method %in% maskmeth) ) {
@@ -112,24 +120,27 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	mcontrol$parscale <- control$parscale # Use internal scaling
 # Note: hessian always FALSE
 
+#        cat("Before optim() call - control$have.bounds =",control$have.bounds,"\n")
+
         if (control$have.bounds) {
           if (method != "L-BFGS-B") {
               errmsg <- "optim() can only handle bounds with L-BFGS-B\n"
               if (control$trace > 0) cat(errmsg,"\n")
               ans <- list()
               class(ans)[1] <- "try-error"
-              warning("optim() with bounds ONLY uses L-BFGS-B")
+              warning("optimr: optim() with bounds ONLY uses L-BFGS-B")
           } else {
-              time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+              ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
                       lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
-                       control=mcontrol, ...), silent=TRUE))[1]
+                       control=mcontrol, ...))
           }
         } else {
-          time <- system.time(ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
-                method=method, hessian=FALSE, control=mcontrol, ...), silent=TRUE))[1]
+#          cat("calling optim() with no bounds\n")
+          ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+                method=method, hessian=FALSE, control=mcontrol, ...))
+#          print(ans)
+
         }
-        # The time is the index=1 element of the system.time for the process, 
-        # which is a 'try()' of the regular optim() function
         if (class(ans)[1] == "try-error") { # bad result -- What to do?
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
@@ -156,8 +167,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	} else { 
 		mcontrol$trace = 1 # this is EVERY iteration. nlminb trace is freq of reporting.
 	}
-        time <- system.time(ans <- try(nlminb(start=spar, objective=efn, gradient=egr, lower=slower, 
-		upper=supper, control=mcontrol,  ...), silent=TRUE))[1]
+        ans <- try(nlminb(start=spar, objective=efn, gradient=egr, lower=slower, 
+		upper=supper, control=mcontrol,  ...))
         if (class(ans)[1] != "try-error") {
 		# Translate output to common format and names
         	ans$value<-ans$objective
@@ -196,8 +207,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             class(ans)[1] <- "try-error"
         } else {
           if (! is.null(control$trace) && (control$trace > 0) ) {print.level <- 2 } 
-          time <- system.time(ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, 
-                    print.level=print.level, ...), silent=TRUE))[1]
+          ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, print.level=print.level, ...))
         }
         if (class(ans)[1] != "try-error") {
 		if (ans$code == 1 || ans$code == 2 || ans$code == 3) ans$convergence <- 0
@@ -238,8 +248,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             mcontrol$trace <- TRUE
             if (control$trace > 1) mcontrol$triter <- 1 # default is 10
         } else { mcontrol$trace <- FALSE }
-        time <- system.time(ans <- try(spg(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,  
-		control=mcontrol, ...), silent=TRUE))[1]
+        ans <- try(spg(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,  
+		control=mcontrol, ...))
         if (class(ans)[1] != "try-error") { 
            ans$par <- ans$par*pscale
            ans$counts[1] <- ans$feval
@@ -278,8 +288,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         } else {
           
          uhessian <- 0 # Ensure hessian NOT computed
-        time <- system.time(ans <- try(ucminf(par=spar, fn=efn, gr=egr, 
-                 hessian = uhessian,  control=mcontrol, ...), silent=TRUE))[1]
+         ans <- try(ucminf(par=spar, fn=efn, gr=egr, 
+                   hessian = uhessian,  control=mcontrol, ...))
         }
         if (class(ans)[1] != "try-error") {
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
@@ -322,11 +332,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
 	if (control$have.bounds) { # 151220 -- this was not defined
-   	   time <- system.time(ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
-                upper=supper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+   	   ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=bdmsk, control=mcontrol, ...))
 	} else {
-   	   time <- system.time(ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, 
-		control=mcontrol, ...), silent=TRUE))[1]
+   	   ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	}
         if (class(ans)[1] != "try-error") {
                 ans$par <- ans$par*pscale
@@ -351,11 +360,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	if (control$trace>0) {mcontrol$trace <- TRUE } else {mcontrol$trace <- FALSE}
 
 	if (control$have.bounds) {
-   	   time <- system.time(ans <- try(tnbc(x=spar, fgfun=nlmfn, lower=slower,
-                upper=supper, trace=mcontrol$trace, ...), silent=TRUE))[1]
+   	   ans <- try(tnbc(x=spar, fgfun=nlmfn, lower=slower,
+                upper=supper, trace=mcontrol$trace, ...))
 	} else {
-   	   time <- system.time(ans <- try(tn(x=spar, fgfun=nlmfn, 
-		  trace=mcontrol$trace, ...), silent=TRUE))[1]
+   	   ans <- try(tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
 	}
         if (class(ans)[1] != "try-error") {
                 ans$par <- ans$xstar*pscale
@@ -390,11 +398,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
 	if (control$have.bounds) {
-   	   time <- system.time(ans <- try(Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
-                upper=supper, bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
+   	   ans <- try(Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=bdmsk, control=mcontrol, ...))
 	} else {
-   	   time <- system.time(ans <- try(Rvmminu(par=spar, fn=efn, gr=egr, 
-		control=mcontrol, ...), silent=TRUE))[1]
+   	   ans <- try(Rvmminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	}
         if (class(ans)[1] != "try-error") {
             ans$par <- ans$par*pscale
@@ -419,8 +426,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         myrhobeg <- min(supper - slower)/3 # JN 160107 (3), 160125 (5)
         if ((myrhobeg < 1e-8) || ! is.finite(myrhobeg) ) myrhobeg <- 0.5
         mcontrol$rhobeg <- myrhobeg # to avoid 0 when parameters 0
-        time <- system.time(ans <- try(minqa::bobyqa(par=spar, fn=efn, lower=slower,
-                upper=supper, control=mcontrol,...), silent=TRUE))[1]
+        ans <- try(minqa::bobyqa(par=spar, fn=efn, lower=slower,
+                upper=supper, control=mcontrol,...))
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
@@ -471,7 +478,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
                 return(ans)
         }
-        time <- system.time(ans <- try(minqa::uobyqa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
+        ans <- try(minqa::uobyqa(par=spar, fn=efn, control=mcontrol,...))
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
@@ -523,8 +530,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
                 return(ans)
         }
-
-        time <- system.time(ans <- try(minqa::newuoa(par=spar, fn=efn, control=mcontrol,...), silent=TRUE))[1]
+        ans <- try(minqa::newuoa(par=spar, fn=efn, control=mcontrol,...))
         if (class(ans)[1] != "try-error") {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
@@ -578,11 +584,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          if (control$trace > 0) { mcontrol$trace <- TRUE } # logical needed, not integer         
          else { mcontrol$trace<-FALSE }
          if (control$have.bounds) {
-            time <- system.time(ans <- try(nmkb(par=spar, fn=efn, lower = slower, 
-              upper = supper, control=mcontrol, ...), silent=TRUE))[1]
+            ans <- try(nmkb(par=spar, fn=efn, lower = slower, 
+              upper = supper, control=mcontrol, ...))
          } else {
-            time <- system.time(ans <- try(nmk(par=spar, fn=efn, 
-              control=mcontrol, ...), silent=TRUE))[1]
+            ans <- try(nmk(par=spar, fn=efn, control=mcontrol, ...))
          }
          if (control$trace > 1) {
             cat("Outputting ans for nmkb:\n")
@@ -622,11 +627,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          } else { mcontrol$info <- FALSE }
          mcontrol$maxfeval <- control$maxfeval
          if (control$have.bounds) {
-            time <- system.time(ans <- try(hjkb(par=spar, fn=efn, lower = slower, 
-                upper = supper, control=mcontrol, ...), silent=TRUE))[1]
+            ans <- try(hjkb(par=spar, fn=efn, lower = slower, 
+                upper = supper, control=mcontrol, ...))
          } else {
-            time <- system.time(ans <- try(hjk(par=spar, fn=efn, 
-                control=mcontrol, ...), silent=TRUE))[1]
+            ans <- try(hjk(par=spar, fn=efn, control=mcontrol, ...))
          }
          if (class(ans)[1] != "try-error") {
            ans$value <- as.numeric(ans$value)
@@ -659,11 +663,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         if (control$have.bounds) { ## Note call uses prm not par
             slower <- lower/pscale
             supper <- upper/pscale
-            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
-                upper = supper, control=mcontrol, ...), silent=TRUE))[1]
+            ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
+                upper = supper, control=mcontrol, ...))
         } else {
-            time <- system.time(ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr,  
-                control=mcontrol, ...), silent=TRUE))[1]
+            ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
         if (class(ans)[1] != "try-error") {
  ## Need to check these carefully??
@@ -712,8 +715,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	    dotstuff$fnscale <- fnscale
 	    eopt <- list2env(dotstuff) # put it in an environment
 	    print(ls(eopt))
-            time <- system.time(ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
-                environment=eopt, invisible=invisible), silent=TRUE))[1]
+            ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
+                    environment=eopt, invisible=invisible))
         }
         cat("interim answer:")
         print(ans)

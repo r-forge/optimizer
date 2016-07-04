@@ -4,10 +4,14 @@ multistart <- function(parmat, fn, gr=NULL, lower=-Inf, upper=Inf,
    nset <- nrow(parmat)
    npar <- ncol(parmat)
    if (nset < 1) stop("multistart: no starting parameters!")
-   ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
+   ans.ret <- matrix(NA, nrow=nset, ncol=npar+4)
    ans.ret <- data.frame(ans.ret)
    pstring<-colnames(parmat)
-   cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtimes")
+   if (is.null(pstring)) {
+     pstring <- NULL
+     for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
+   }  
+   cnames <- c(pstring, "value", "fevals", "gevals", "convergence")
    colnames(ans.ret)<-cnames
    row.names(ans.ret)<-1:nset
 
@@ -15,9 +19,8 @@ multistart <- function(parmat, fn, gr=NULL, lower=-Inf, upper=Inf,
        start <- parmat[imeth, ]
        ans <- optimr(par=start, fn=fn, gr=gr, lower=lower, upper=upper, 
             method=method, hessian=hessian, control=control, ...)
-       addvec <- c(ans$par, ans$value, ans$fevals, ans$gevals, 
-                     ans$convergence, ans$kkt1, ans$kkt2, ans$xtimes)
-       
+       addvec <- c(ans$par, ans$value, ans$counts[1], ans$counts[2], ans$convergence)
+       print(addvec)
        ans.ret[imeth,] <- addvec
    }
    ans.ret

@@ -15,7 +15,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
     pstring <- NULL
     for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
   }  
-  cnames <- c(pstring, "value", "fevals", "gevals", "niter", "convcode", "kkt1", "kkt2", "xtimes")
+  cnames <- c(pstring, "value", "fevals", "gevals", "niter", "convcode", "kkt1", "kkt2", "xtime")
   ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+8)
   colnames(ans.ret)<-cnames
   row.names(ans.ret)<-method

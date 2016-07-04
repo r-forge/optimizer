@@ -90,12 +90,20 @@ grR <- function (x, gs=100.0)
 }
 
 x0 <- rep(pi, 4)
-mc <- c("Nelder-Mead", 10, 100, "Rvmmin", 100, 1000)
-mc <- as.matrix(mc, nrow=2, ncol=3)
+mc <- data.frame(method=c("Nelder-Mead","Rvmmin"), maxit=c(1000, 100), maxfeval= c(1000, 1000))
 
-
-ans <- polyopt(x0, fnR, grR, methcontrol=mc, control=list(trace=1))
+ans <- polyopt(x0, fnR, grR, methcontrol=mc, control=list(trace=0))
 ans
+mc <- data.frame(method=c("Nelder-Mead","Rvmmin"), maxit=c(100, 100), maxfeval= c(100, 1000))
+
+ans <- polyopt(x0, fnR, grR, methcontrol=mc, control=list(trace=0))
+ans
+
+mc <- data.frame(method=c("Nelder-Mead","Rvmmin"), maxit=c(10, 100), maxfeval= c(10, 1000))
+
+ans <- polyopt(x0, fnR, grR, methcontrol=mc, control=list(trace=0))
+ans
+
 
 
 }

@@ -20,6 +20,8 @@ export(
   "optimr",
   "opm",
   "optchk",
+  "polyopt",
+  "multistart",
   "ctrldefault"
 )
 S3method("[", "opm")

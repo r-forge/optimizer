@@ -373,7 +373,43 @@ which is used to compute values for termination tolerances and limits on functio
 evaluations. However, while I believe the values computed are "reasonable" in general, for 
 specific problems they may be wildly inappropriate.
 
+## Program inefficiencies
 
+One of the unfortunate, and only partially avoidable, inefficiencies in a wrapper function such
+as `optimr()` is that there will be duplication of much of the setup and error-avoidance that 
+a properly constructed optimization program requires. That is, both the wrapper and the called
+programs will have code to accomplish similar goals. Some of these relate to the following.
+
+* Bounds constraints should be checked to ensure that lower bounds do not exceed upper bounds.
+* Parameters should be feasible with respect to the bounds.
+* Function and gradient evaluations should be counted.
+* Function and gradient code should satisfy some minimal tests.
+* Timing of execution may be performed surrounding different aspects of the computations, and
+the positioning of the timing code may be awkward to place so the timing measures equivalent
+operations. For example, if there is a significant setup within some routines and not others, 
+we should try to time either setup and optimization, or just optimization. However, there is
+often some awkwardness that prevents a clean placement of the timing.
+
+Besides these sources of inefficiency, there is a potential cost in both human effort and 
+program execution if we "specialize" variants of a code. For example, there can be separate
+unconstrained and constrained routines, and the wrapper should call the appropriate version.
+`Rvmmin` has a top-level routine to decide between `Rvmminu` and `Rvmminb`, but `optimr()`
+takes over this selection. A similar choice exists within `dfoptim` for the Hooke and Jeeves
+codes. While previously, I would have chosen to separate the bounded and unconstrained routines,
+I am now leaning towards a combined routine for the Hooke and Jeeves. First, I discovered that
+the separation seems to have introduced a bug, since the code was structured to allow a 
+similar organization for both choices, where possibly a different structure would have been
+better adapted for efficient R. Note, however, that I have not performed appropriate timings
+to support this conjecture. Second, I managed to implement a bounds constrained HJ code from
+a description in one of may own books in less time than it took to try (not fully successfully)
+to correct the code from `dfoptim`, in part because the development and stable versions of the
+latter are quite different, though both failed the test function `bt.f()` example. I did get
+a modified `dfoptim` code to function correctly, but am not fully sure why my changes worked.
+
+Note that this is not a criticism of the creators of `dfoptim`. I have made similar choices
+myself with other packages.
+And it is challenging to balance clarity, maintainability, efficiency, and common
+structure for a suite of related program codes. 
 
 
 ## Testing the package

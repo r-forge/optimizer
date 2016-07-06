@@ -85,7 +85,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? do we want ehess ?    Not at 150714
 
 ## Masks 
-   maskmeth <- c("Rcgmin", "Rvmmin")
+   maskmeth <- control$maskmeth
    bdmsk <- bdmsk$bdmsk # Only need the masks bit from here on
    if (any(bdmsk == 0) ) {
       if ( !(method %in% maskmeth) ) {
@@ -738,7 +738,34 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$message <- NA
          }
          return(ans)
-      }  ## end if using lbfgsb3
+      }  ## end if using lbfgs
+## --------------------------------------------
+      else 
+      if (method == "hjn") {# Use JN Hooke and Jeeves
+        if (control$trace > 1) cat("hjn\n")
+        if (control$trace > 0) {
+           cat("control$have.bounds =",control$have.bounds,"\n")
+        }
+        ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=bdmsk, 
+                        control=control, ...))
+        if (class(ans)[1] != "try-error") {
+            ## Need to check these carefully??
+            ans$par <- ans$par*pscale
+            ans$value <- ans$value*fnscale
+            ans$message <- NA # Should add a msg ??
+         } else {
+            if (control$trace>0) cat("hjn failed for current problem \n")
+            ans<-list() # ans not yet defined, so set as list
+            ans$value <- control$badval
+            ans$par <- rep(NA,npar)
+            ans$convergence <- 9999 # failed in run
+            ans$counts[1] <- NA
+            ans$counts[1] <- NA
+            ans$hessian <- NULL
+            ans$message <- NA
+         }
+         return(ans)
+      }  ## end if using lbfgs
 ## --------------------------------------------
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD:", method, sep='')

@@ -14,12 +14,24 @@ TODO
 	to do so. Seems unable to handle parameter scaling or dot arguments
       o Do NOT add ipoptr until non-standard install is fixed up.
       o Note axsearch() is in the optextras package, but needs a good test.
-      o hjkb does not seem to be working with bt.f etc.
+        May want to include a maximization test too.
+      o hjkb does not seem to be working with bt.f etc. -- Note that on 160705
+	managed to modify it by removing . on function names. Also hjn working.
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o jonesrun L-BFGS-B failure!
       o grchk() -- can it be cleaned up
       o Put counters in efn, egr ??
       o check if hessian= argument to optimr is properly executed
+      o Test function for hj and nm with different scalings
+      o Set up optimrx on R-forge or/and github, and optimr for CRAN with only
+	optim, nlm, nlminb, Rvmmin, Rtnmin, Rcgmin and hjn methods.
+	Put list(s) of methods in ctrldefault.
+	Consider check to see if other package is loaded e.g., don't want
+	optimr and optimrx to be loaded simulataneously, but possibly R takes
+	care of that.
+      o Move allmeth, bdmeth, maskmeth into ctrldefault so we have just in
+	one place. Note that this will change with optimr/optimrx
+      o Masks for hjn(), and incorporate hjn in optimr
 
 VERSION 2016-07-03
       o time (xtimes) removed from optimr, but timing is included in opm()

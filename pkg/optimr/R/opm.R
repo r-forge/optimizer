@@ -27,15 +27,12 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   } # end else
   control$fnscale <- fnscale # to ensure set again
 
-  allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
-                "newuoa", "bobyqa", "nmkb", "hjkb", "lbfgs")
+  allmeth <- control$allmeth
   # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
-  bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
-                "bobyqa", "nmkb", "hjkb")
+  bdmeth <- control$bdmeth
 
-  maskmeth <- c("Rcgmin", "Rvmmin")
+  maskmeth <- control$maskmeth
   # Masks: As at 2016-6-28 do NOT provide for masks in package optimr
 
 

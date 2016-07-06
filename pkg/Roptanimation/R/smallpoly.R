@@ -360,7 +360,7 @@ cat("area = ",polyarea(sol1$par),"\n")
 
 ## @knitr polyexbig
 
-library(optimz)
+library(optimr)
 cat("Attempt with setting objective big on violation\n")
 
 x0 <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
@@ -401,7 +401,7 @@ cat("Area found=",polyarea(sol2$par),"\n")
 
 ## @knitr polyex2a
 
-## library(optimz)
+## library(optimr)
 ## cat("Attempt with logarithmic barrier using nmkb and hjkb\n")
 
 ## sol2a <- opm(x0, polyobjbig, method=meths, bignum=1e+10)
@@ -434,7 +434,7 @@ while (bestarea + 1e-14 < area) {
 
 x0 <- myhex$par0
 bmeth <- c("nmkb", "hjkb", "bobyqa")
-library(optimz)
+library(optimr)
 smult <- opm(x0, polyobj, lower=lb, upper=ub, method=bmeth, control=list(trace=1, maxit=10000), penfactor=1e-3)
 print(smult )
 
@@ -448,7 +448,7 @@ print(smult )
 
 ## @knitr polyexuall
 
-library(optimz)
+library(optimr)
 suall <- opm(x0, polyobju, polygradu, control=list(all.methods=TRUE, kkt=FALSE), penfactor=1e-5)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests
 suall <- summary(suall, order=value)
@@ -468,7 +468,7 @@ for (ii in 1:nmeth){
    
 ## @knitr polyexallb
 
-# library(optimz)
+# library(optimr)
 bmeth <- c("bobyqa", "L-BFGS-B", "lbfgsb3", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb")
 suball <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method=bmeth, 
         control=list(kkt=FALSE), penfactor=1e-5)

@@ -2,8 +2,8 @@
 title: "Animating geometric optimization: small polygons"
 author: "John C. Nash, Greg Snow"
 date: "`r Sys.Date()`"
-output: pdf_document
-## output: rmarkdown::html_vignette
+## output: pdf_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using and extending the optimr package}
   %\VignetteEngine{knitr::rmarkdown}
@@ -219,7 +219,7 @@ to the objective function via the call.
 ```
 
 To test several optimizers at once, we use the \texttt{opm()} function of the
-R-forge package \texttt{optimz}. 
+R-forge package \texttt{optimr}. 
 
 ```{r polyexbig}
 ```
@@ -291,7 +291,7 @@ correctly computed for the starting vector $x0$.
 ```{r polygradu}
 ```
 
-There are a number of unconstrained optimization methods, and the \texttt{optimz} package lets
+There are a number of unconstrained optimization methods, and the \texttt{optimr} package lets
 us try them out all at once.
 
 ```{r polyexuall}        
@@ -306,7 +306,7 @@ supply gradients.
 ```
 
 
-Let us try all the bounds-constrained methods in \texttt{opm} from package \texttt{optimz.
+Let us try all the bounds-constrained methods in \texttt{opm} from package \texttt{optimr.
 
 ```{r polyexallb}        
 ```

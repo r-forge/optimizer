@@ -709,12 +709,12 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             class(ans)[1] <- "try-error"            
         } else {
 	    dotstuff <- list(...)
-	    cat("dotstuff:\n")
+	    # cat("dotstuff:\n")
 	    print(dotstuff)
 	    dotstuff$pscale <- pscale
 	    dotstuff$fnscale <- fnscale
 	    eopt <- list2env(dotstuff) # put it in an environment
-	    print(ls(eopt))
+	    # print(ls(eopt))
             ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
                     environment=eopt, invisible=invisible))
         }

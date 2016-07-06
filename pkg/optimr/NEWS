@@ -29,11 +29,11 @@ TODO
 	Consider check to see if other package is loaded e.g., don't want
 	optimr and optimrx to be loaded simulataneously, but possibly R takes
 	care of that.
+
+VERSION 2016-07-03
       o Move allmeth, bdmeth, maskmeth into ctrldefault so we have just in
 	one place. Note that this will change with optimr/optimrx
       o Masks for hjn(), and incorporate hjn in optimr
-
-VERSION 2016-07-03
       o time (xtimes) removed from optimr, but timing is included in opm()
       o polyalgorithm wrapper polyopt() included and documented with example
       o multistart wrapper multistart() included and documented with example

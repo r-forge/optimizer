@@ -10,6 +10,18 @@ vignette: >
   %\VignetteEngine{rmarkdown::render}
 ---
 
+## Abstract
+
+`optimr` is a wrapper R package to allow the regular R `optim()` 
+structure to be applied when using many different optimization 
+packages available to R users. In particular, we want
+
+* to use the structure of the `optim()` call
+* to provide for parameter scaling for all methods via `control$parscale`
+* to return a consistent result structure
+* to allow a number of methods to be compared easily via the `opm()`
+function (as such, `optimr` replaces the `optimx` package)
+
 
 ## Overview
 

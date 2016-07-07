@@ -1,8 +1,11 @@
 ##################################################################
 ctrldefault <- function(npar) { 
-#  THIS VERSION FOR optimr (reduced set of methods)
-#
+# THIS IS FULL VERSION FOR optimrx
 ## setoptctrl is new name
+#   possmeths = c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "SANN", "nlm", 
+#	"nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",
+#	"spg", "ucminf", "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
+#
 #   usenumDeriv = FALSE
 #	follow.on = FALSE, 
 #        grcheckfwithg = 500,
@@ -13,9 +16,12 @@ ctrldefault <- function(npar) {
      ## These are DEFAULTS. They may be nonsense in some contexts.
 
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "Rcgmin", "Rvmmin", "hjn")
+                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
+                "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", "lbfgs")
+     # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
-      bdmeth <- c("L-BFGS-B", "nlminb", "Rcgmin", "Rvmmin",  "hjn")
+      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
+                "bobyqa", "nmkb", "hjkb", "hjn")
 
       maskmeth <- c("Rcgmin", "Rvmmin", "hjn")
  

@@ -1,7 +1,7 @@
-Package: optimr
+Package: optimrx
 Version: 2016.7.3
 Date: 2016-07-03
-Title: A Replacement and Extension of the 'optim' Function
+Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
     "Ravi", family = "Varadhan", role = "aut", email =
@@ -13,11 +13,12 @@ Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Provides a test of replacement and extension of the optim()
     function to unify and streamline optimization capabilities in R
     for smooth, possibly box constrained functions of several or
-    many parameters. This version has a reduced set of methods and is
-    intended to be on CRAN.
+    many parameters. This is a much expanded version of the optimr package,
+    and is NOT intended for CRAN.
 License: GPL-2
 LazyLoad: Yes
-Imports: optextras, numDeriv, setRNG, Rvmmin, Rcgmin
+Imports: optextras, numDeriv, BB, ucminf, minqa, setRNG, dfoptim, 
+         Rtnmin, Rvmmin, Rcgmin, lbfgsb3, lbfgs
 NeedsCompilation: no
 Suggests: knitr,
     rmarkdown

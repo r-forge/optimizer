@@ -1,9 +1,15 @@
 import(
   optextras,
   numDeriv,
+  BB, 
+  dfoptim,
   setRNG,
+  ucminf,
+  Rtnmin,
   Rvmmin,
-  Rcgmin
+  Rcgmin,
+  lbfgsb3,
+  lbfgs
 )
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("utils", "str")

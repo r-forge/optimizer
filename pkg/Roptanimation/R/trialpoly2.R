@@ -3,6 +3,8 @@ library(TeachingDemos)
 
 ## @knitr PolyTrack
 
+nvex <- 6
+
 PolyTrack <- R6Class("PolyTrack",
   public = list(
     parms = list(),

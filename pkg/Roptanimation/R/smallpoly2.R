@@ -373,7 +373,7 @@ cat("area = ",polyarea(sol1$par),"\n")
 
 ## @knitr polyexbig
 
-library(optimz)
+library(optimr)
 cat("Attempt with setting objective big on violation\n")
 
 x0 <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
@@ -400,7 +400,7 @@ cat("Area found=",polyarea(sol2$par),"\n")
 
 ## @knitr polyex2a
 
-## library(optimz)
+## library(optimr)
 ## cat("Attempt with logarithmic barrier using nmkb and hjkb\n")
 
 ## sol2a <- opm(x0, polyobjbig, method=meths, bignum=1e+10)
@@ -452,7 +452,7 @@ while (bestarea + 1e-14 < area) {
 
 x0 <- myhex$par0
 bmeth <- c("nmkb", "hjkb", "bobyqa")
-library(optimz)
+library(optimr)
 smult <- opm(x0, polyobj, lower=lb, upper=ub, method=bmeth, control=list(trace=1, maxit=10000), penfactor=1e-3)
 print(smult )
 

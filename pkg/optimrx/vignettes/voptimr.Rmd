@@ -34,8 +34,13 @@ It is fully intended that users may wish to extend the packages, especially
 their `optimr()` functions. `optimr()` and `ctrldefault` are the only places
 where the functions in the packages differ, with `ctrldefault.R` listing
 the optimizers available in each package and `optimr.R` having relevant
-code to match. Package `optimrx` may also be expected to contain extra tests, 
-commentary, and other material.
+code to match. Note that there are multiple package lists in the `ctrldefault()`
+function for unconstrained, bounded and masked parameters. 
+
+Package `optimrx` may also be expected to contain extra tests, 
+commentary, and other material of a developmental or experimental nature.
+Nevertheless, I believe users may find this larger collection more useful if
+they are having to attack difficult problems. 
 
 
 ## Overview
@@ -48,8 +53,8 @@ same name as the package, namely `optimr()`,
 only allow for the minimization or maximization of nonlinear functions of
 multiple parameters subject to at most bounds constraints. Many methods
 offer extra facilities, but apart from **masks** (fixed parameters) for the 
-`Rcgmin` and `Rvmmin`, such features are
-likely inaccessible via this package.
+`hjn`, `Rcgmin` and `Rvmmin`, such features are
+likely inaccessible via this package without some customization of the code.
 
 In general, we wish to find the
 vector of parameters `bestpar` that minimize an objective
@@ -118,12 +123,13 @@ optimization methods.
 ### Bounds
 
 A number of methods support the inclusion of box (or bounds) constraints. This 
-includes the function `nmkb()` from package `dfoptim`. Unfortunately, this function
+includes the function `nmkb()` from package `dfoptim`. Unfortunately, this method
 uses the transfinite transformation of the objective function to impose the bounds
-(ref??), which causes and error if any of the initial parameters are on one of the
-bounds. 
+(Chapter 11 of Nash, 2014), which causes an error if any of the initial parameters 
+are on one of the bounds. 
 
-There are several improvements in the `optimr` package that would be especially nice to
+There are several improvements in the `optimr` and `optimrx` packages relating to 
+bounds that would be especially nice to
 see, but I do not have any good ideas yet how to implement them all. Among these 
 unresolved improvements are:
 
@@ -133,9 +139,10 @@ unconstrained optimization methods;
 sets to be provided with the initial parameters on a bound. I think it would be important
 to issue a warning in such cases.
 * to flag or otherwise indicate to the user which approach has been used, and also to allow
-control of the approach. For example, the transfinite approach could be used with some of
-the methods that allow bounds. Note that these possibilities increase the complexity of the
-code and may be prone to bugs. 
+control of the approach. For example, the transfinite approach could be used with unconstrained
+versions of some of the methods that allow bounds to permit comparisons of the effectiveness
+of transfinite versus active-set approaches. Note that these possibilities increase the complexity 
+of the code and may be prone to bugs. 
 
 
 ### Masks (fixed parameters)
@@ -166,18 +173,19 @@ We need a function that returns not only the function value at the parameters
 but also the gradient and possibly the hessian. Don't forget the dot arguments
 which are the exogenous data for the function! 
 
-
-??? do we want spar? 
-
-```
-  nlmfn <- function(par, ...){
-     f <- fn(par, ...)
-     g <- gr(par, ...)
+```{r}
+  nlmfn <- function(spar, ...){
+     f <- efn(spar, ...)
+     g <- egr(spar, ...)
      attr(f,"gradient") <- g
      attr(f,"hessian") <- NULL # ?? maybe change later
      f
   }
 ```
+
+Note that we have defined `nlmfn` using the scaled parameters `spar` and the
+scaled function `efn` and gradient `egr`. That is, we develop the unified
+objective plus gradient AFTER the parameters are scaled. 
 
 In the present `optimr()`, the definition of `nlmfn` is put near the top of 
 `optimr()` and it is always loaded. It is the author's understanding that such
@@ -195,7 +203,9 @@ here to omit the computation of the Hessian.
 Parameter scaling is a feature of the original `optim()` but generally not provided in 
 many other optimizers. It has been included (at times with some difficulty) in the
 `optimr()` function. The construct is to provide a vector of scaling factors via the
-`control` list in the element `parscale`. In the tests of the package, and as an example
+`control` list in the element `parscale`. 
+
+In the tests of the package, and as an example
 of the use and utility of scaling, we use the 
 Hobbs weed infestation problem (./tests/hobbs15b.R). This is a nonlinear least squares
 problem to estimate a three-parameter logistic function using data for 12 periods.
@@ -207,6 +217,9 @@ the methods that "work" (though these measures are all somewhat unreliable
 because they may be defined or evaluated differently in different methods -- we use
 the information returned by the packages rather than insert counters into functions).
 However, what values of these measures should we apply for a failed method?
+
+As a warning -- having made the mistake myself -- scaling must be applied to bounds 
+when calling a bounds-capable method.
 
 ### Function scaling
 
@@ -240,23 +253,49 @@ Thus, if `print.level` is the desired control, and it more or less matches the `
    print.level <- control$trace
    control$trace <- NULL
 ```
+After the method has run, we may need to reset `control$trace`.
 
-### Running multiple methods
+### Methods in other computing languages
 
-It is often convenient to be able to run multimple 
+When the method we wish to call is not written in R, special care is generally needed
+to get a reliable and consistent operation. Typically we call an R routine from `optimr()`.
+Let us call this routine `myop()`.  then `myop()` will set up and call the underlying
+optimizer.
+
+For FORTRAN programs, Nash (2014), Chapter 18, has some suggestions. Particular issues
+concern the dot arguments (ellipsis or ... entries to allow exogenous data for the
+objective function and gradient), which can raise difficulties. In package `optimrx`
+the interface to the `lbfgs` shows one approach, which consolidates the arguments for
+`lbfgs()` into a list, then converts the list to an environment. 
+
+
+## Running multiple methods
+
+It is often convenient to be able to run multiple 
 optimization methods on the same function and 
 gradient. To this end, the function `opm()` is supplied. The output of this by 
 default includes
 the KKT tests and other informatin in a data frame, and there are convenience methods `summary()` 
 and `coef()` to allow for display or extraction of results. 
 
-### Polyalgorithms -- multiple methods in sequence
+`opm()` is extremely useful for comparing methods easily. I caution that it is not an efficient
+way to run problems, even though it can be extremely helpful in deciding which method to apply 
+to a class of problems. 
+
+An important use of `opm()` is to discover cases where methods fail on particular problems and 
+initial conditions of parameters and settings. This has proven over time to help discover 
+weaknesses and bugs in codes for different methods. If you find that such cases, and your 
+code and data can be rendered as an easily executed example, I strongly recommend posting it
+to one of the R lists or communicating with the package maintainers. That really is one of the
+few ways that our codes come to be improved.
+
+## Polyalgorithms -- multiple methods in sequence
 
 Function `polyopt()` is intended to allow for attempts to optimize a function by running different
 methods in sequence. The call to polyopt() differs from that of `optimr()` or `opm()` in the following respects:
 
 * The `method` character argument or character vector is replaced by the `methcontrol` array which has a
-set of triplets consisting of a method name (character), an iteration count and a function evaluation count.
+set of triplets consisting of a method name (character), a function evaluation count and an iteration count.
 * the `control$maxit` and `control$maxfeval` are replaced, if present, with values from the `methcontrol`
 argument list.
 
@@ -271,7 +310,7 @@ far away from a solution, but are very efficient when started "nearby".  Caution
 Such approaches need to be tested for particular applications.
 
 
-### Multiple sets of starting parameters
+## Multiple sets of starting parameters
 
 For problems with multiple minima, or which are otherwise difficult to solve, it is sometimes
 helpful to attempt an optimization from several starting points. `multistart()` is a simple wrapper
@@ -325,19 +364,14 @@ function to approximate a derivative. The simpler choices, namely, the forward,
 backward and central approximations, require respectively 1, 1, and 2 function evaluations.
 
 To keep the code straightforward, I decided that if an approximate gradient is to be used by 
-`optimr` (or by extension the multiple method routine `opm()`), then the user should specify
+`optimr()` (or by extension the multiple method routine `opm()`), then the user should specify
 the name of the approximation routine as a character string in quotations marks. The package
 supplies four gradient approximation functions for this purpose, namely "grfwd" and "grback"
 for the forward and backward simple approximations, "grcentral" for the central approximation,
 and "grnd" for the default Richardson method via `numDeriv`. It should be fairly straightforward
 for a user to copy the structure of any of these routines and call their own gradient, but at
 the time of writing this (2016-6-29) I have not tried to do so. An example using the complex
-step derivative would be useful to include in this vignette.
-
-
-
-?? comparison of speed and accuracy??
-
+step derivative would also be useful to include in this vignette.
 
 
 ## Functions besides `optimr()` in the package
@@ -348,6 +382,25 @@ As mentioned above, this routine allows a vector of methods to be applied to a g
 function and (optionally) gradient. The pseudo-method "ALL" (upper case) can be given on its own
 (not in a vector) to run all available methods. If bounds are given, "ALL" restricts the set to
 the methods that can deal with bounds. 
+
+### optchk()
+
+This routine is an attempt to consolidate the function, gradient and scale checks. 
+
+
+### ctrldefault()
+
+This routine provides default values for the `control` vector that is applicable to all the methods
+for a given size of problem. The single argument to this function is the number of parameters, 
+which is used to compute values for termination tolerances and limits on function and gradient 
+evaluations. However, while I believe the values computed are "reasonable" in general, for 
+specific problems they may be wildly inappropriate.
+
+
+## Functions used from the `optextras` package
+
+Optimization methods share a lot of common infrastructure, and much of this has been 
+collected in my `optextras` package. The routines used in the current packages are as follows.
 
 ### kktchk()
 
@@ -387,18 +440,8 @@ Unequal scaling can result in poor outcomes when trying to optimize functions us
 free methods that try to search the paramter space. Note that the attempt to include parameter
 scaling for all methods is intended to provide a work-around for such bad scaling.
 
-### optchk()
-
-This routine is an attempt to consolidate the function, gradient and scale checks. 
 
 
-### ctrldefault()
-
-This routine provides default values for the `control` vector that is applicable to all the methods
-for a given size of problem. The single argument to this function is the number of parameters, 
-which is used to compute values for termination tolerances and limits on function and gradient 
-evaluations. However, while I believe the values computed are "reasonable" in general, for 
-specific problems they may be wildly inappropriate.
 
 ## Program inefficiencies
 
@@ -441,6 +484,12 @@ structure for a suite of related program codes.
 
 ## Testing the package
 
-- individual method tests
-- problem tests
+There are examples and tests within the packages. These include
 
+- simple examples to illustrate the usage
+- individual method tests
+- problem tests over many methods
+
+## References
+
+Nash, John C. (2014) Nonlinear Parameter Optimization Using R Tools, Wiley: Chichester.

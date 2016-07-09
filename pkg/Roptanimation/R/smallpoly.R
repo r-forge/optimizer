@@ -168,11 +168,14 @@ polyobj <- function(x, penfactor=1e-8, epsilon=0) {
  bignum <- 1e+20
  # (negative area) + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
- f <-  - polyarea(x) # negative area
+ area <- polyarea(x) # negative area
+ f <- - area 
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
  slacks <- 1.0 + epsilon - dist2 # slack vector
  if (any(slacks <= 0)) { f <- bignum } # in case of step into infeasible zone
  else {  f <- f - penfactor*sum(log(slacks)) }
+ attr(f,"area") <- area
+ attr(f,"minslack") <- min(slacks)
  f
 }
 
@@ -411,7 +414,7 @@ cat("Area found=",polyarea(sol2$par),"\n")
 ## @knitr polyex3g
 
 library(Rvmmin)
-cat("try to reduce the penalty factor. Rvmmin minimizer on polyobju\n")
+cat("try to reduce the penalty factor. Rvmmin minimizer on polyobj\n")
 restart <- x0
 bestarea <- 0
 lb <- myhex$lb
@@ -428,6 +431,10 @@ while (bestarea + 1e-14 < area) {
   pf <- pf*0.1
   tmp <- readline("Next cycle")
 }
+cat("Parameters from polyex3g\n")
+sol3vpar <- sol3v$par
+f <- polyobj(sol3vpar, penfactor=pf)
+cat("Objective =", f," area =",attr(f,"area"),"  minslack=",attr(f,minslack),"\n")
 
 
 ## @knitr polyex4

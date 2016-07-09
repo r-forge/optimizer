@@ -41,46 +41,47 @@ an integrated system in BASIC, now available online at
 https://archive.org/details/ost-engineering-jnmws2004).
 
 To provide a visual presentation of the optimization, Nash coded a display for the
-IBM PC family of MS DOS computers running GWBASIC. In May 2016, the discovery that
+IBM PC family of MS DOS computers running GWBASIC. (?? Do we want to make these available?)
+In May 2016, the discovery that
 files for this example would still execute more or less satisfactorily raised the
 possibility of bringing them up to date. R was a logical choice for such an 
 implementation, given that the authors and many others work with this software system. 
 
 ## Parametrization of the polygon
 
-For a polygon with \texttt{nv} vertices, we have \texttt{2*nv} cartesian (i.e., x, y)
+For a polygon with `nv` vertices, we have `2*nv` cartesian (i.e., x, y)
 coordinates. However, use of cartesian coordinates as parameters for this problem 
 leads to a very complicated specification, since 3 parameters can be fixed right
-away. That is, we can fix one vertex at the \texttt{(0, 0)} or origin of our [2D] space.
-Moreover, we can put the second vertex at \texttt{(b[1], 0)} where \texttt{b} is a vector of
-\texttt{(2*nv - 3)} parameters. Changing to a representation that uses a radius from the
-origin for vertex \texttt{L} equal to \texttt{b[L-1]}, we could use the angle of this vertex from the
-positive \texttt{x} axis as a parameter. Call this angle \texttt{alpha[L]}. Clearly \texttt{alpha[1]} for 
-vertex 2 is 0, so the 2nd vertex is still at \texttt{(b[1], 0)}. 
+away. That is, we can fix one vertex at the `(0, 0)` or origin of our [2D] space.
+Moreover, we can put the second vertex at `(b[1], 0)` where `b` is a vector of
+`(2*nv - 3)` parameters. Changing to a representation that uses a radius from the
+origin for vertex `L` equal to `b[L-1]`, we could use the angle of this vertex from the
+positive x axis as a parameter. Call this angle `alpha[L]`. Clearly `alpha[1]` for 
+vertex 2 is 0, so the 2nd vertex is still at `(b[1], 0)`. 
 
-We could put the alpha angles in the parameter vector as b[L+lshift] where 
-lshift = nv - 3. Thus the first non-zero angle is for vertex 3 and is parameter
-3 + nv - 3 = nv. Check: there are (nv - 1) radius parameters, so the first angle
-parameter is in position nv. There may be good implementations based on having
-parameters b[nv] ... b[2*nv-3] equal to the angles for points 2...nv. However, 
+We could put the alpha angles in the parameter vector as `b[L+lshift]` where 
+`lshift = nv - 3`. Thus the first non-zero angle is for vertex 3 and is parameter
+`3 + nv - 3 = nv`. Check: there are `(nv - 1)` radius parameters, so the first angle
+parameter is in position `nv`. There may be good implementations based on having
+parameters `b[nv] ... b[2*nv-3]` equal to the angles for points `2...nv`. However, 
 that then requires the angles to be monotonically increasing. By specifying that
-b[L+lshift] = alpha[L-1] - alpha[L-2] for L=3 ... nv, we automatically get the
-angles alpha monotonic by imposing a lower bound of 0 on the parameters b. 
+  `b[L+lshift] = alpha[L-1] - alpha[L-2]` for `L=3 ... nv`, we automatically get the
+angles alpha monotonic by imposing a lower bound of 0 on the parameters `b`. 
 
 Note that the radii cannot be negative (in fact, zero is a bad idea too), so a lower
-bound of 0 can be applied to all the parameters b. An upper bound of 1 clearly applies to
-the first (nv - 1) parameters. The other (nv - 2) parameters are angles in radians. If
+bound of 0 can be applied to all the parameters `b`. An upper bound of 1 clearly applies to
+the first `(nv - 1)` parameters. The other `(nv - 2)` parameters are angles in radians. If
 we are to have the polygon in the positive y half-space in cartesian coordinates, 
 then pi is an obvious (and likely conservative) bound on these angles. In fact,
-pi is a bound on their sum.
+`pi` is a bound on their sum.
 
 We make no assertion that this is the only or best parametrization of this problem, and
 welcome suggestions for other ways to prepare the optimization.
 
 ## Problem setup
 
-The above parametrization is implemented in the function \texttt{polysetup(nv, defsize)},
-where \texttt{defsize} is the default "size" of a regular polygon for which initial parameters
+The above parametrization is implemented in the function `polysetup(nv, defsize)`,
+where `defsize` is the default "size" of a regular polygon for which initial parameters
 are established. 
 
 ```{r cache=FALSE, echo=FALSE}
@@ -104,8 +105,8 @@ print(reghex1$par0)
 ## The polygon area
 
 The parameterization of the problem allows the area to be computed as the sum of the areas of
-the triangles made up from vertex \texttt{1} with vertex \texttt{L} and \texttt{(L+1)}
-where \texttt{L} runs from \texttt{2} to \texttt{(nv-1)}.
+the triangles made up from vertex `1` with vertex `L` and `(L+1)`
+where `L` runs from `2` to `(nv-1)`.
 
 ```{r polyarea}
 ```
@@ -117,16 +118,16 @@ reg1area <- polyarea(reghex1$par)
 cat("Reference area of regular hexagon of unit size=",reg1area,"\n")
 ```
 
-This is in accord with R.L. Graham's paper (JOURNAL OF COMBINATORIAL THEORY (A) 18, 165 - 470 (1975) ).
+This is in accord with R.L. Graham's paper (J. Combinatorial Theory (A), vol. 18, pp. 165-170, 1975).
 
 
 ## Conversion of radial to cartesian coordinates
 
 For drawing the current polygon, we need cartesian coordinates rather than the specially 
 organized radial coordinates defined by the optimization parameters. The R function
-\texttt{polypar2XY} carries out this computation and puts the \texttt{x, y} coordinates
-in a two-vector list \texttt{XY}. \texttt{XY\$x} gives the \texttt{x} coordinates and 
-\texttt{XY\$y} gives the \texttt{y} coordinates. To simplify the plotting of the polygon
+`polypar2XY` carries out this computation and puts the `x, y` coordinates
+in a two-vector list `XY`. `XY\$x` gives the `x` coordinates and 
+`XY\$y` gives the `y` coordinates. To simplify the plotting of the polygon
 the first and last values of each list are both 0 so that a graph with joining lines 
 automatically gives the closed figure polygon.
 
@@ -137,8 +138,8 @@ automatically gives the closed figure polygon.
 
 To verify constraints and to construct penalty or barrier functions for the optimization
 process for this problem, we also need vertex to vertex distances. These are computed by 
-the function \texttt{polydistXY}. This function uses the cartesian coordinates for the 
-current polygon that result from running the function \texttt{polypar2XY}
+the function `polydistXY`. This function uses the cartesian coordinates for the 
+current polygon that result from running the function `polypar2XY`
 
 ```{r polydistXY}
 ```
@@ -152,13 +153,14 @@ then computes the distances.
 ```{r polypar2distXY}
 ```
 
-Alternatively, and perhaps more efficiently or at least elegantly, we can do a
+Alternatively, and perhaps more efficiently or at least more elegantly, we can do a
 one-step calculation. However, the following function ONLY computes the non-radial
-inter-vertex differences. The first $nv - 1$ parameters where $nv$ is the number of 
+inter-vertex differences. The first `nv - 1` parameters where `nv` is the number of 
 vertices give the other distances. Moreover, the positions of these distances in 
 the output of polypar2distXY are not obvious at first glance.
 
 ```{r polypardist2}
+```
 
 ## Testing functions.
 
@@ -197,7 +199,7 @@ objective function.
 ```{r polyobjq}
 ```
 
-Setting the penalty factor ($penfactor$) at 100, we use M. J. Powell's bobyqa minimizer
+Setting the penalty factor (`penfactor`) at 100, we use M. J. Powell's bobyqa minimizer
 to try to find the solution. 
 
 ```{r polyexq}
@@ -212,14 +214,14 @@ We clearly have more work to do.
 
 An old "trick" in optimization is to use a non-gradient direct search method that 
 assigns the objective function its correct value when the parameters are feasible 
-and a very large value when they are violated. We supply the value of $bignum$ 
+and a very large value when they are violated. We supply the value of `bignum` 
 to the objective function via the call.
 
 ```{r polyobjbig}
 ```
 
-To test several optimizers at once, we use the \texttt{opm()} function of the
-R-forge package \texttt{optimr}. 
+To test several optimizers at once, we use the `opm()} function of the
+R-forge package `optimr}. 
 
 ```{r polyexbig}
 ```
@@ -244,10 +246,10 @@ is part of the difficulty of the largest small polygon problem.
 A different kind of penalty is provided by the logarithmic barrier. This aims to keep
 the parameters feasible by adding a steeply increasing function to the negative area as 
 the constraint is approached. Let us first define the **slack** in a distance constraint
-as $slack = (1 - squared.distance)$. We could use the distance itself, but might as well 
-avoid the extra computation. As each slack goes to zero, then $- log(slack)$ goes to 
-infinity. We can scale this, as in the quadratic penalty, with $penfactor$, but the
-actual numerical value will be much smaller now because $- log()$ increases much more
+as `slack = (1 - squared.distance)`. We could use the distance itself, but might as well 
+avoid the extra computation. As each slack goes to zero, then `- log(slack)` goes to 
+infinity. We can scale this, as in the quadratic penalty, with `penfactor`, but the
+actual numerical value will be much smaller now because `- log()` increases much more
 quickly than the quadratic.
 
 There is an annoying computational practicality that some optimization methods may take
@@ -257,14 +259,14 @@ attempted. To avoid this, we will simply make the objective function very large 
 any time when there is a violation. However, this does cause grief for the evaluation
 of numerical approximations to gradients, so we may want to revise this policy later
 and seek more elegant (but likely more complicated) techniques to deal with this 
-possibility. The large number for now will be $ bignum = 1e20 $.
+possibility. The large number for now will be ` bignum = 1e20 `.
 
 Since the logarithmic barrier does not let the parameters end actually ON then bound,
 we may wish to move the constraint an epsilon beyond 1 by redefining the slack as
 
-$slack = (1 + epsilon - squared.distance)$
+``slack = (1 + epsilon - squared.distance)``
 
-But what should $epsilon$ be? We may revisit this later, but for the moment set the 
+But what should `epsilon` be? We may revisit this later, but for the moment set the 
 value at 0, and the resulting code is as follows.
 
 ```{r polyobj}
@@ -285,19 +287,19 @@ optimization method.
 ```
 
 And here is the gradient code. Note that we need to be careful about the indexing. We don't show
-it here, but we did perform a quick check with package \texttt{numDeriv} that the gradient is 
-correctly computed for the starting vector $x0$.
+it here, but we did perform a quick check with package `numDeriv} that the gradient is 
+correctly computed for the starting vector `x0`.
 
 ```{r polygradu}
 ```
 
-There are a number of unconstrained optimization methods, and the \texttt{optimr} package lets
+There are a number of unconstrained optimization methods, and the `optimr} package lets
 us try them out all at once.
 
 ```{r polyexuall}        
 ```
 
-We note that the only bounds constrained minimizer in \texttt{R}'s base function \texttt{optim()} is
+We note that the only bounds constrained minimizer in `R}'s base function `optim()} is
 that invoked by the method "L-BFGS-B", and this has done rather poorly. In fact, it does not even find
 the regular hexagon above. Possibly we should use the bounds constraints directly, but we can first 
 supply gradients.
@@ -306,7 +308,7 @@ supply gradients.
 ```
 
 
-Let us try all the bounds-constrained methods in \texttt{opm} from package \texttt{optimr.
+Let us try all the bounds-constrained methods in `opm} from package `optimr.
 
 ```{r polyexallb}        
 ```
@@ -319,3 +321,7 @@ On the other hand, the all-R routines Rcgmin and Rvmmin have done rather well.
 Graham reports largest area is approximately 0.674981. We are close. Can we reduce the 
 penalty factor steadily and find a good approximation to the optimal area?
 
+## Issues
+
+- polyex3g shows that it is difficult to stay in feasible zone with gradients. Need to stabilize!
+- Can we get transfinite approach??

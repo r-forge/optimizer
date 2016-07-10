@@ -16,8 +16,18 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
   if (length(upper) == 1) upper <- rep(upper, n)
   if (length(lower) == 1) lower <- rep(lower, n)
   if (is.null(bdmsk)) { 
+      bdmsk <- rep(1,n)
       idx <- 1:n 
   } else { idx <- which(bdmsk != 0) } # define masks
+  if (any(lower >= upper)){
+      warning("hjn: lower >= upper for some parameters -- set masks")
+      bdmsk[which(lower >= upper)] <- 0
+      idx <- which(bdmsk != 0)
+  }
+  cat("bdmsk:")
+  print(bdmsk)
+  cat("idx:")
+  print(idx)
   nac <- length(idx)
   offset = 100. # get from control() -- used for equality check
   if (any(par < lower) || any(par > upper)) stop("hjn: initial parameters out of bounds")

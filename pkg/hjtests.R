@@ -18,8 +18,18 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
   if (length(upper) == 1) upper <- rep(upper, n)
   if (length(lower) == 1) lower <- rep(lower, n)
   if (is.null(bdmsk)) { 
+      bdmsk <- rep(1,n)
       idx <- 1:n 
   } else { idx <- which(bdmsk != 0) } # define masks
+  if (any(lower >= upper)){
+      warning("hjn: lower >= upper for some parameters -- set masks")
+      bdmsk[which(lower >= upper)] <- 0
+      idx <- which(bdmsk != 0)
+  }
+  cat("bdmsk:")
+  print(bdmsk)
+  cat("idx:")
+  print(idx)
   nac <- length(idx)
   offset = 100. # get from control() -- used for equality check
   if (any(par < lower) || any(par > upper)) stop("hjn: initial parameters out of bounds")
@@ -154,10 +164,45 @@ library(adagio)   # fnRosenbrock
 ans2 <- hjn(rep(0,10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(trace=2, stepredn=0.2))
 print(ans2)
 
+library(dfoptim)
 ans2h <- hjkb(rep(0,10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(info=2))
 print(ans2h)
 
 library(dfoptim)  # hjkb
 
 ans3 <- hjkb(rep(0, 10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(info=1))
+
+# Simple bounds test for n=4
+bt.f<-function(x){
+ sum(x*x)
+}
+bt.g<-function(x){
+  gg<-2.0*x
+}
+n<-4
+lower<-rep(0,n)
+upper<-lower # to get arrays set
+bdmsk<-rep(1,n)
+# bdmsk[(trunc(n/2)+1)]<-0
+for (i in 1:n) { 
+    lower[i]<-1.0*(i-1)*(n-1)/n
+    upper[i]<-1.0*i*(n+1)/n
+}
+xx<-0.5*(lower+upper)
+
+alhn<-hjn(xx, bt.f, lower=lower, upper=upper, control=list(trace=2))
+alhn
+
+cat("Now force a mask upper=lower for parameter 3 and see what happens\n")
+upper[3] <- lower[3]
+xx[3] <- lower[3] # and set parameter
+
+am <- hjn(xx, bt.f, lower=lower, upper=upper, control=list(trace=2))
+am
+
+require(optimr)
+allbdm <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=0))
+summary(allbdm, order=value)
+
+
 

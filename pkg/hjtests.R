@@ -465,24 +465,42 @@ hjnpm <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace
 
 fn <- function(x) sum(x*x)
 
-ans1 <- hjn(c(1, 1), fn, control=list(trace=1))
+time1 <- system.time(ans1 <- hjn(c(1, 1), fn, control=list(trace=1)))
+print(time1)
 print(ans1)
-ans1p <- hjnpm(c(1, 1), fn, control=list(trace=1))
+time1p<- system.time(ans1p <- hjnpm(c(1, 1), fn, control=list(trace=1)))
+print(time1p)
 print(ans1p)
 
 
 library(adagio)   # fnRosenbrock
 
-ans2 <- hjn(rep(0,10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(trace=2, stepredn=0.2))
-print(ans2)
+time2<-system.time(ans2 <- hjn(rep(0,10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(trace=1, stepredn=0.2)))
+time2p<-system.time(ans2p <- hjnpm(rep(0,10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(trace=1, stepredn=0.2)))
 
 library(dfoptim)
-ans2h <- hjkb(rep(0,10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(info=2))
+time2h <- system.time(ans2h <- hjkb(rep(0,10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(info=1)))
+print(time2)
+print(ans2)
+print(time2p)
+print(ans2p)
+print(time2h)
 print(ans2h)
 
 library(dfoptim)  # hjkb
 
-ans3 <- hjkb(rep(0, 10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(info=1))
+
+time3<-system.time(ans3 <- hjn(rep(0, 10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(trace=0)))
+time3p<-system.time(ans3p <- hjnpm(rep(0, 10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(trace=0)))
+time3h<-system.time(ans3h <- hjkb(rep(0, 10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(info=1)))
+print(time3)
+print(ans3)
+print(time3p)
+print(ans3p)
+print(time3h)
+print(ans3h)
+
+
 
 # Simple bounds test for n=4
 bt.f<-function(x){
@@ -504,6 +522,8 @@ xx<-0.5*(lower+upper)
 
 alhn<-hjn(xx, bt.f, lower=lower, upper=upper, control=list(trace=2))
 alhn
+alhnp<-hjnpm(xx, bt.f, lower=lower, upper=upper, control=list(trace=2))
+alhnp
 
 cat("Now force a mask upper=lower for parameter 3 and see what happens\n")
 upper[3] <- lower[3]
@@ -511,6 +531,8 @@ xx[3] <- lower[3] # and set parameter
 
 am <- hjn(xx, bt.f, lower=lower, upper=upper, control=list(trace=2))
 am
+amp <- hjnpm(xx, bt.f, lower=lower, upper=upper, control=list(trace=2))
+amp
 
 require(optimr)
 allbdm <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=0))

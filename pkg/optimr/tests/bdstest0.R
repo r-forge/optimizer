@@ -51,8 +51,9 @@ cat("All bounded methods attempt with opm\n")
 allbds <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=1))
 summary(allbds, order=value)
 
-cat("Now force a mask upper=lower for parameter 1 and see what happens\n")
-upper[1] <- lower[1]
+cat("Now force a mask upper=lower for parameter 3 and see what happens\n")
+upper[3] <- lower[3]
+xx[3] <- lower[3] # MUST reset parameter also
 
 allbdm <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=1))
 summary(allbdm, order=value)

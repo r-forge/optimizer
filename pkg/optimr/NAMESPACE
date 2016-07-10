@@ -7,8 +7,8 @@ import(
 )
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("utils", "str")
-## importFrom("optextras", "grnd", "grfwd", "grcentral", "grback")
-## importFrom("optextras", "bmchk", "grchk", "scalechk", "kktchk", "fnchk", "hesschk")
+importFrom("optextras", "grnd", "grfwd", "grcentral", "grback")
+importFrom("optextras", "bmchk", "grchk", "scalechk", "kktchk", "fnchk", "hesschk")
 export(
   "coef<-",
   "optimr",

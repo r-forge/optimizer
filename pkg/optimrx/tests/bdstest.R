@@ -39,6 +39,8 @@ print(abtrvm)
 alb<-optimr(xx,bt.f, bt.g, lower=lower, upper=upper, method="L-BFGS-B", control=list(trace=3))
 print(alb)
 
+alhn<-optimr(xx, bt.f, lower=lower, upper=upper, method="hjn", control=list(trace=3))
+
 alkkt <- optextras::kktchk(alb$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maxfn=FALSE, control=list(trace=1))
 print(alkkt)
 
@@ -49,14 +51,12 @@ cat("All bounded methods attempt with opm\n")
 allbds <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=1))
 summary(allbds, order=value)
 
-cat("Now force a mask and see what happens\n")
+cat("Now force a mask upper=lower for parameter 1 and see what happens\n")
 upper[1] <- lower[1]
 
 allbdm <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=1))
 summary(allbdm, order=value)
 
-cat("And the following should fail because bobyqa cannot handle masks\n")
-## tfail <- optimr(xx, bt.f, lower=lower, upper=upper, method="bobyqa")
-cat(' tfail <- optimr(xx, bt.f, lower=lower, upper=upper, method="bobyqa") \n')
+
 
 

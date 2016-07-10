@@ -9,7 +9,7 @@ scalechk<-function(par, lower=lower, upper=upper, bdmsk=NULL, dowarn=TRUE){
    # Returns:
    #   list(lpratio, lbratio) -- the log of the ratio of largest to smallest parameters
    #      and bounds intervals (upper-lower) in absolute value (ignoring Inf, NULL, NA)
-   ######################################
+   #######################################
    if (is.null(par)) { stop("Null parameter vector") }
    npar<-length(par)
    if (is.null(bdmsk)) bdmsk <- rep(1,npar) # ensure bdmsk defined

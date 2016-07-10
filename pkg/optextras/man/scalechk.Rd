@@ -7,6 +7,7 @@
 parameters. This function is intended to explore the differences in scale. It is, however,
 an imperfect and heuristic tool, and could be improved.
 
+
 At this time scalechk does NOT take account of masks. (?? should 110702)
 }
 \usage{

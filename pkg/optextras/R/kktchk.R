@@ -1,7 +1,7 @@
 kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, control=list(), ...) {
 # Provide a check on Kuhn-Karush-Tucker conditions based on quantities
 # already computed. Some of these used only for reporting.
-#
+##
 # Input:
 #  par = a single vector of starting values
 #  fval = objective function value

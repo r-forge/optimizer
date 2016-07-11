@@ -1,8 +1,17 @@
-NEWS about R package optimr (formerly optimz in R-forge)
+NEWS about R package optimr and optimrx (formerly optimz in R-forge)
+
+NOTE: optimr is intended for CRAN and has a limited set of solvers to avoid
+      issues of maintenance if those solvers become deprecated or otherwise
+      non-functional. optimrx has a more extensive set of solvers and lives
+      (at 2016-7-11) on R-forge. The test scripts in the tests directory have
+      a "0" at the end of the script name e.g. hobbs15b0.R for optimr because
+      of the appropriate library() call.
 
 TODO
       o Drop nmkb from methods for bounds if start is on bound
       o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
+      o Add nloptr methods -- there are a number and we need to choose how
+	to do so. Seems unable to handle parameter scaling or dot arguments
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?
@@ -10,8 +19,6 @@ TODO
       o Rcgmin seems to report reset of parameters to bounds when parameter
         is apparently on the bound. Could have rounding issues, and should
         avoid this warning if it is really not needed.
-      o Add nloptr methods -- there are a number and we need to choose how
-	to do so. Seems unable to handle parameter scaling or dot arguments
       o Do NOT add ipoptr until non-standard install is fixed up.
       o Note axsearch() is in the optextras package, but needs a good test.
         May want to include a maximization test too.
@@ -19,16 +26,19 @@ TODO
 	managed to modify it by removing . on function names. Also hjn working.
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o jonesrun L-BFGS-B failure!
-      o grchk() -- can it be cleaned up
+      o grchk() -- can it be cleaned up -- it is in optextras
       o Put counters in efn, egr ??
       o check if hessian= argument to optimr is properly executed
-      o Test function for hj and nm with different scalings
       o Set up optimrx on R-forge or/and github, and optimr for CRAN with only
 	optim, nlm, nlminb, Rvmmin, Rtnmin, Rcgmin and hjn methods.
-	Put list(s) of methods in ctrldefault.
 	Consider check to see if other package is loaded e.g., don't want
 	optimr and optimrx to be loaded simulataneously, but possibly R takes
 	care of that.
+
+VERSION 2016-07-10
+      o Test function hobbs15b illustrates different scalings across all methods
+      o Appropriate lists of "ALL", "bounded" and "masked" methods are defined 
+        in the ctrldefault() function.
 
 VERSION 2016-07-03
       o Move allmeth, bdmeth, maskmeth into ctrldefault so we have just in

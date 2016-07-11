@@ -44,7 +44,7 @@ tufn <- function (par) {
 # tmp <- readline("continue")
 
 
-require(optimr)
+library(optimr)
 
 xx<-0.5*c(pi,pi)
 ans<-opm(xx, jones, jonesg, method="ALL", control=list(trace=1))
@@ -57,7 +57,13 @@ ansb<-opm(xx, jones, jonesg, lower=lo, upper=up, method="ALL", control=list(trac
 print(summary(ansb, order=value))
 tmp <- readline("continue")
 
-ansbn<-opm(xx, jones, gr="grfwd", lower=lo, upper=up, method="ALL", control=list(trace=1))
-print(summary(ansbn, order=value))
+cat("Note: ansbnf shows failure for L-BFGS-B when trying to use forward diff approximation\n")
+
+ansbnf<-opm(xx, jones, gr="grfwd", lower=lo, upper=up, method="ALL", control=list(trace=1))
+print(summary(ansbnf, order=value))
+tmp <- readline("continue")
+
+ansbnn<-opm(xx, jones, gr="grnd", lower=lo, upper=up, method="ALL", control=list(trace=1))
+print(summary(ansbnn, order=value))
 tmp <- readline("continue")
 

@@ -28,7 +28,6 @@ TODO
       o jonesrun L-BFGS-B failure!
       o grchk() -- can it be cleaned up -- it is in optextras
       o Put counters in efn, egr ??
-      o check if hessian= argument to optimr is properly executed
       o Set up optimrx on R-forge or/and github, and optimr for CRAN with only
 	optim, nlm, nlminb, Rvmmin, Rtnmin, Rcgmin and hjn methods.
 	Consider check to see if other package is loaded e.g., don't want
@@ -36,6 +35,7 @@ TODO
 	care of that.
 
 VERSION 2016-07-10
+      o hessian=TRUE is NOT properly executed
       o Test function hobbs15b illustrates different scalings across all methods
       o Appropriate lists of "ALL", "bounded" and "masked" methods are defined 
         in the ctrldefault() function.

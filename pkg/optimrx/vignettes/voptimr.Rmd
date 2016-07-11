@@ -16,11 +16,16 @@ vignette: >
 structure to be applied when using many different optimization 
 packages available to R users. In particular, we want
 
-* to use the structure of the `optim()` call
-* to provide for parameter scaling for all methods via `control$parscale`
-* to return a consistent result structure
+* to use the structure of the `optim()` call;
+* to provide for parameter scaling for all methods via `control$parscale`;
+* to return a consistent result structure that as far as possible
+  matches the list `optim()` returns;
 * to allow a number of methods to be compared easily via the `opm()`
-function (as such, `optimr` replaces the `optimx` package).
+function (as such, `optimr` replaces the `optimx` package);
+* to employ some of the checks and extra optimization infrastructure
+of the `optextras` package;
+* to allow for experimentation in different approaches to bounds constraints
+and fixed (masked) parameters.
 
 The package `optimr` is intended to be available as an official CRAN
 package, so has a limited set of underlying optimizers. `optimrx` will be
@@ -32,11 +37,13 @@ or else not be part of the official R repositories, I expect that the
 
 It is fully intended that users may wish to extend the packages, especially
 their `optimr()` functions. `optimr()` and `ctrldefault` are the only places
-where the functions in the packages differ, with `ctrldefault.R` listing
+where the R functions in the packages differ, with `ctrldefault.R` listing
 the optimizers available in each package and `optimr.R` having relevant
-code to match. Note that there are multiple package lists in the `ctrldefault()`
+code to match. Note that there are multiple 
+package lists in the `ctrldefault()`
 function for unconstrained, bounded and masked parameters. 
-
+There are particularizations in the test scripts, but these
+are restricted to the `library()` statements. 
 Package `optimrx` may also be expected to contain extra tests, 
 commentary, and other material of a developmental or experimental nature.
 Nevertheless, I believe users may find this larger collection more useful if
@@ -60,7 +67,8 @@ In general, we wish to find the
 vector of parameters `bestpar` that minimize an objective
 function specified by an
 R function `fn(par, ... )` where `par` is the general
-vector of parameters, initially provided as the vector `par0`, and 
+vector of parameters, initially provided as a vector that is either the
+first argument to `optimr()` else specified by a `par= ` argument, and 
 the dot arguments are additional information needed to compute the function.
 Function minimization methods may require information on the gradient or 
 Hessian of the function, which we will assume to be furnished, if required, 

@@ -50,3 +50,22 @@ x0<-rep(pi,20)
 a20.100 <- opm(x0, fnR, grR, method="ALL", control=list(trace=1), gs=100.0)
 summary(a20.100, order=value)
 
+cat("Test the hessian calculation\n")
+
+x0 <- rep(pi,4)
+
+thjn <- optimr(x0, fnR, method="hjn", hessian=TRUE)
+print(thjn)
+thjn0 <-  optimr(x0, fnR, method="hjn")
+print(thjn0)
+
+tlb <- optimr(x0, fnR, grR, method="L-BFGS-B", hessian=TRUE)
+print(tlb)
+tlb0 <-  optimr(x0, fnR, grR, method="L-BFGS-B")
+print(tlb0)
+
+tlbx <- optimr(x0, fnR, method="L-BFGS-B", hessian=TRUE)
+print(tlbx)
+tlbx0 <-  optimr(x0, fnR, method="L-BFGS-B")
+print(tlbx0)
+

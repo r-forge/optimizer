@@ -10,6 +10,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   orig.method <- method
   orig.gr <- gr
   orig.fn <- fn
+  savehess <- hessian
+  hessian <- FALSE
 
   if (is.null(method)) method <- "Nelder-Mead"
 
@@ -153,7 +155,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$counts[2] <- NA # save function and gradient count information
 	        ans$message <- errmsg
         } # otherwise ans is OK and we return it
-        return(ans) # to ensure we return
+        ## return(ans) # to ensure we return
       }   # end if using optim() methods
 ## --------------------------------------------
       else if (method == "nlminb") {
@@ -190,7 +192,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$message <- NULL
                 ans$hessian <- NULL
         }
-        return(ans)
+        ## return(ans)
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (method == "nlm") { # Use stats package nlm routine
@@ -237,7 +239,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
         }
         print.level <- NULL # clean up
-        return(ans)
+        ## return(ans)
       } # end if using nlm
 ## --------------------------------------------
       else if (method == "spg") { # Use BB package routine spg as minimizer
@@ -269,7 +271,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$message <- NULL
                 ans$hessian <- NULL
         }
-        return(ans)
+        ## return(ans)
       }  # end if using spg
 ## --------------------------------------------
       else if (method == "ucminf") {
@@ -325,7 +327,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
         }
         uhessian <- NULL
-        return(ans)
+        ## return(ans)
       }  ## end if using ucminf
 ## --------------------------------------------
       else if (method == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
@@ -353,7 +355,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$message <- NULL        
                 ans$hessian <- NULL
         }
-        return(ans)
+        ## return(ans)
       }  ## end if using Rcgmin
 ## --------------------------------------------
       else if (method == "Rtnmin") { # Use Rtnmin routines 
@@ -390,7 +392,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
         }
         tufn <- NULL # 140902 -- clear function
-        return(ans)
+        ## return(ans)
       }  ## end if using Rtnmin
 ## --------------------------------------------
       else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
@@ -417,7 +419,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$message <- NULL        
                 ans$hessian <- NULL
         }
-        return(ans)
+        ## return(ans)
       }  ## end if using Rvmmin
 ## --------------------------------------------
       else if (method == "bobyqa") {# Use bobyqa routine from minqa package
@@ -456,7 +458,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
         }
         ans <- unclass(ans) # because minqa does strange things!
-        return(ans)
+        ## return(ans)
       }  ## end if using bobyqa
 ## --------------------------------------------
       else if (method == "uobyqa") {# Use uobyqa routine from minqa package
@@ -476,7 +478,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$counts[2] <- NA # save function and gradient count information
 	        ans$message <- NULL        
                 ans$hessian <- NULL
-                return(ans)
+                ## return(ans)
         }
         ans <- try(minqa::uobyqa(par=spar, fn=efn, control=mcontrol,...))
         if (class(ans)[1] != "try-error") {
@@ -507,7 +509,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
         }
         ans <- unclass(ans) # because minqa does strange things!
-        return(ans)
+        ## return(ans)
       }  ## end if using uobyqa
 ## --------------------------------------------
       else if (method == "newuoa") {# Use newuoa routine from minqa package
@@ -528,7 +530,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	        ans$counts[2] <- NA # save function and gradient count information
 	        ans$message <- NULL        
                 ans$hessian <- NULL
-                return(ans)
+                ## return(ans)
         }
         ans <- try(minqa::newuoa(par=spar, fn=efn, control=mcontrol,...))
         if (class(ans)[1] != "try-error") {
@@ -559,7 +561,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
         }
         ans <- unclass(ans) # because minqa does strange things!
-        return(ans)
+        ## return(ans)
       }  ## end if using newuoa
 ## --------------------------------------------
       else 
@@ -617,7 +619,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
            ans$hessian <- NULL
          }
        } # end of check for parameter on bound
-       return(ans)
+       ## return(ans)
      }  ## end if using nmkb
 ## --------------------------------------------
       else 
@@ -650,7 +652,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$counts[2]<- NA 
             ans$hessian <- NULL
          }
-         return(ans)
+         ## return(ans)
       }  ## end if using hjkb
 ## --------------------------------------------
       else 
@@ -693,7 +695,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$hessian <- NULL
             ans$message <- NA
          }
-         return(ans)
+         ## return(ans)
       }  ## end if using lbfgsb3
 ## --------------------------------------------
       else 
@@ -737,7 +739,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$hessian <- NULL
             ans$message <- NA
          }
-         return(ans)
+         ## return(ans)
       }  ## end if using lbfgs
 ## --------------------------------------------
       else 
@@ -764,12 +766,22 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$hessian <- NULL
             ans$message <- NA
          }
-         return(ans)
+         ## return(ans)
       }  ## end if using lbfgs
 ## --------------------------------------------
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD:", method, sep='')
              stop(errmsg, call.=FALSE)
       }
-
-} ## end of optimx.run
+# Exit from routine
+      ## optexit -- function for return from routine adding in hessian
+      if (savehess) { # compute hessian
+         if (is.null(orig.gr)) {
+            hess <- hessian(orig.fn, ans$par, ...) # from numDeriv
+         } else { 
+            hess <- jacobian(orig.gr, ans$par, ...) # use Jacobian of gradient
+         }
+         ans$hessian <- hess
+      }
+      ans # last statement of routine
+} ## end of optimrx

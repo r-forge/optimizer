@@ -487,7 +487,7 @@ print(ans2p)
 print(time2h)
 print(ans2h)
 
-library(dfoptim)  # hjkb
+#library(dfoptim)  # hjkb
 
 
 time3<-system.time(ans3 <- hjn(rep(0, 10), fnRosenbrock, lower = rep(-5.12,10), upper = rep(5.12,10), control=list(trace=0)))

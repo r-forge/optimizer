@@ -184,7 +184,52 @@ take part in the optimization
 * `idx` can be passed into the working function and gradient routines `efn` and `egr`
 in the same way scaling is performed.
 
-At the time of writing (2016-7-11) this has yet to be tried.
+At the time of writing (2016-7-11) this has yet to be tried. However, we have got a 
+test of the transformation.
+
+```{r}
+## test masked transformation
+
+# set of 10 parameters
+par <- 3*(1:10)
+cat("par:")
+print(par)
+
+cat("Mask 3rd, 5th, 7th\n")
+bdmsk<-rep(1,10) # indicator of parameters that are free
+bdmsk[3] <- 0
+bdmsk[5] <- 0
+bdmsk[7] <- 0
+cat("bdmsk:")
+print(bdmsk)
+
+# want to produce xpar which are the reduced parameters
+iactive <- which(bdmsk == 1)
+cat("iactive (length=",length(iactive),"):")
+print(iactive)
+
+xpar <- par[iactive]
+cat("xpar:")
+print(xpar)
+xpar <- - xpar
+print("altered xpar:")
+print(xpar)
+
+cat("expand back to newpar\n")
+newpar <- par
+newpar[iactive] <- xpar
+cat("newpar:")
+print(newpar)
+
+# Need to combine with scaling to get full setup for optimr()
+
+# Then also think of the transfinite approach for bounds on unconstrained
+## Or even for bounds methods but using unconstrained part.
+
+```
+
+
+
 
 ## Issues in adding a new method
 
@@ -516,3 +561,6 @@ There are examples and tests within the packages. These include
 ## References
 
 Nash, John C. (2014) Nonlinear Parameter Optimization Using R Tools, Wiley: Chichester.
+
+Nash, John C. and Walker-Smith, Mary (1987) Nonlinear Parameter Estimation: An Integrated System in BASIC",
+New York: Dekker, now available online with software at https://archive.org/details/NLPE87plus.

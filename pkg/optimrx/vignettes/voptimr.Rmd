@@ -106,26 +106,29 @@ To add a new optimizer, we need in general terms to carry out the following:
 
 * Ensure the new function is available, that is, the package containing it
 is installed, and the functions `import`ed into `optimr`;
+* Include the function in one or more of the lists of methods in  the 
+`ctrldefault()` function;
 * Add an appropriate `if()` statement to select the new "method";
 * Translate the `control` list elements of `optimr()`
 into the corresponding control arguments (possibly not in a list of that name
 but in one or more other structures, or even arguments or environment variables)
 for the new "method";
-* If necessary, redefine the R function or functions to compute the 
+* if necessary, redefine the R function or functions to compute the 
 value of the function, gradient and possibly Hessian of the objective function
-so that the output is suited to the method at hand.
-* When derivative information is required by a method, we may also 
+so that the output is suited to the method at hand (see the section of 
+`optimr()` for the `nlm()` function, for example);
+* when derivative information is required by a method, we may also 
 need to incorporate the possibility of numerical 
-approximations to the derivative information. 
-* Add code to check for situations where the new method cannot be applied, and
+approximations to the derivative information;
+* add code to check for situations where the new method cannot be applied, and
 in such cases return a result with appropriate diagnostic information so that the
-user can either adjust the inputs or else choose a different method.
-* Provide, if required, appropriate links to modified function and gradient 
+user can either adjust the inputs or else choose a different method;
+* provide, if required, appropriate links to modified function and gradient 
 routines that allow the parameter scaling `control$parscale` to be applied
 if this funtionality is not present in the methods. To my knowledge, only the
 base `optim()` function methods do not need such special scaling provisions.
 * As needed, back-transform scaled parameters and other output of the different
-optimization methods.
+optimization methods, and reset any `control` items.
 
 
 ### Bounds
@@ -155,7 +158,7 @@ of the code and may be prone to bugs.
 
 ### Masks (fixed parameters)
 
-The methods `Rcgmin` and `Rvmmin` (and possibly others, but not obviously accessible
+The methods `hjn`, `Rcgmin` and `Rvmmin` (and possibly others, but not obviously accessible
 via this package) also permit fixed (masked) parameters. This is useful when we want
 to establish an objective function where one or more of the parameters is supplied
 a value in most situations, or for which we want to fix a value while we optimize
@@ -165,11 +168,23 @@ be part of the optimization process.
 In principle, we could fix parameters in methods that allow bounds constraints by
 simply setting the lower and upper bounds equal for the parameters to be masked.
 As a computational approach, this is generally a very bad idea, but in the present
-`optimr()` this is permitted for methods `Rcgmin` and `Rvmmin` but should give an
-error for other bounds-capable methods. In the case of the two methods mentioned,
-the bounds signal that masks are active, and the parameters in question are more
-or less excluded from the computations except for their role in evaluating function
-and gradient values.
+`optimr()` this is permitted as a way to signal that a parameter is fixed. 
+
+The method `hjn` is a Hooke and Jeeves axial search method that allows masks and bounds.
+It is coded using explicit loops, so will generally be much slower than an implementation
+(e.g., `hjkb` from `dfoptim` or the similar code in package `pracma`) that try to 
+employ vectorized computations. `hjn` was included in `optimr` and `optimrx` to provide
+an example of a direct search method with masks.
+
+There is a possibility that masks could be implemented globally in optimr. 
+
+* masked parameters can be selected by `mskd <- which(lower >= upper)`
+* if `idx <- 1:length(par)`, then `idx <- idx[which(lower<=upper)] are parameters that
+take part in the optimization
+* `idx` can be passed into the working function and gradient routines `efn` and `egr`
+in the same way scaling is performed.
+
+At the time of writing (2016-7-11) this has yet to be tried.
 
 ## Issues in adding a new method
 

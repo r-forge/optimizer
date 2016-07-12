@@ -24,10 +24,10 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
       bdmsk[which(lower >= upper)] <- 0
       idx <- which(bdmsk != 0)
   }
-  cat("bdmsk:")
-  print(bdmsk)
-  cat("idx:")
-  print(idx)
+#  cat("bdmsk:")
+#  print(bdmsk)
+#  cat("idx:")
+#  print(idx)
   nac <- length(idx)
   offset = 100. # get from control() -- used for equality check
   if (any(par < lower) || any(par > upper)) stop("hjn: initial parameters out of bounds")
@@ -36,8 +36,8 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
   fmin <- fold <- f # "best" function so far
   pbest <- par # Not really needed 
   fcount <- 1 # count function evaluations, compare with maxfeval
-    cat(fcount, "  f=",fold," at ")
-    print(par)
+#    cat(fcount, "  f=",fold," at ")
+#    print(par)
 #    tmp <- readline("cont.")
   keepgoing <- TRUE
   ccode <- 1 # start assuming won't get to solution before feval limit
@@ -58,12 +58,12 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
           if ((par[j] + offset) != (ptmp + offset)) {
              fcount <- fcount + 1
              f <- fn(par, ...)
-               cat(fcount, "  f=",f," at ")
-               print(par)
+#               cat(fcount, "  f=",f," at ")
+#               print(par)
              if (f < fmin) {
                 fmin <- f
                 pbest <- par
-                  cat("*")
+#                  cat("*")
                 doneg <- FALSE # only case where we don't do neg
                 resetpar <- FALSE
              } 
@@ -77,12 +77,12 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
             if ((par[j] + offset) != (ptmp + offset)) {
                fcount <- fcount + 1
                f <- fn(par, ...)
-                 cat(fcount, "  f=",f," at ")
-                 print(par)
+#                 cat(fcount, "  f=",f," at ")
+#                 print(par)
                if (f < fmin) {
                   fmin <- f
                   pbest <- par
-                  cat("*")
+#                  cat("*")
                   resetpar <- FALSE # don't reset parameter
                } 
 #              tmp <- readline("cont<")
@@ -133,7 +133,7 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
        samepoint <- identical((par + offset),(pbase + offset))
        if (samepoint) { 
           stepsize <- stepsize*stepredn
-          cat("Reducing step to ",stepsize,"\n")
+          if (control$trace > 1) cat("Reducing step to ",stepsize,"\n")
           if (stepsize <= steptol) keepgoing <- FALSE
           ccode <- 0 # successful convergence
        } else { # return to old base point
@@ -145,8 +145,10 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
        }
     }
   } # end keepgoing loop 
-  if (identical(pbest, pbase)) {cat("pbase = pbest\n") }
-  else { cat("BAD!: pbase != pbest\n") }
+  if ( control$trace > 1 ) {
+    if (identical(pbest, pbase)) {cat("pbase = pbest\n") }
+    else { cat("BAD!: pbase != pbest\n") } 
+  }
    
   ans <- list(par=pbest, value=fmin, counts=c(fcount, NA), convergence=ccode)
 }

@@ -22,10 +22,7 @@ TODO
       o Do NOT add ipoptr until non-standard install is fixed up.
       o Note axsearch() is in the optextras package, but needs a good test.
         May want to include a maximization test too.
-      o hjkb does not seem to be working with bt.f etc. -- Note that on 160705
-	managed to modify it by removing . on function names. Also hjn working.
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
-      o jonesrun L-BFGS-B failure!
       o grchk() -- can it be cleaned up -- it is in optextras
       o Put counters in efn, egr ??
       o Set up optimrx on R-forge or/and github, and optimr for CRAN with only
@@ -39,6 +36,8 @@ VERSION 2016-07-10
       o Test function hobbs15b illustrates different scalings across all methods
       o Appropriate lists of "ALL", "bounded" and "masked" methods are defined 
         in the ctrldefault() function.
+      o jonesrun L-BFGS-B fails with numerical gradient approximation.
+      o dfoptim hjkb was fixed by Ravi Varadhan
 
 VERSION 2016-07-03
       o Move allmeth, bdmeth, maskmeth into ctrldefault so we have just in

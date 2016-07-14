@@ -6,12 +6,17 @@ polysetup <- function(nv, defsize=0.98){
 #   that has the largest area inside the polygon subject to
 #   the constraint that no two vertices are more than 1 unit
 #   distant from each other.
-# Ref. Graham, "The largest small hexagon" ....???
-#    nv <- readline("number of vertices = ")
+#   Ref. Graham, "The largest small hexagon" 
+#    (J. Combinatorial Theory (A), vol. 18, pp. 165-170, 1975)
+
     nvmax <- 100 # Arbitrary limit -- change ??
+
     if (nv > nvmax) { stop("Too many vertices for polygon") }
+
     mcon <- (nv-2)*(nv-1)/2 # Number of distance constraints
+
     n <- 2*nv - 3 # Number of parameters in the problem
+
     # Thus we use a vector b[] of length n
     # Note that we use RADIAL coordinates to simplify the
     # optimization, but convert to cartesian to plot them
@@ -29,40 +34,44 @@ polysetup <- function(nv, defsize=0.98){
     # Distances between points can be worked out by cosine rule for
     # triangles i.e. D = sqrt(ra^2 + rb^2 - 2 ra rb cos(angle)
     # Now set lower and upper bounds
+
     lb <- rep(0, n) # all angles and distances non-negative
+
     ub <- c(rep(1, (nv-1)), rep(pi, (nv-2))) # distances <=1, angles <= pi
+
     # if we have angles > pi, then we are reflecting the polygon about an edge
     # set inital parameters to a regular polygon of size .98
 #    defsize <- 0.98
-    regangle <- pi/nv #  pi/no. of vertices
+    regangle <- pi/nv #  pi/(no. of vertices)
 # test to define polygon
-    q5<-defsize*sin(regangle) # REM regangle/nv = alpha
-    b<-rep(NA,n)
+    q5 <- defsize * sin(regangle) # REM regangle/nv = alpha
+    b <- rep(NA,n)
 #    x <- rep(NA, nv)
 #    y <- rep(NA, nv)
 #    x[1] <- 0
 #    y[1] <- 0
 #    x[2] <- q5
 #    y[2] <- 0
-    b[1]<-q5
+    b[1] <- q5
     q1 <- q5
     q2 <- 0 # x2 and y2
     l8 <- nv - 3 # offset for indexing
     for (ll in 3:nv){
         b[ll+l8] <- regangle
-        q1 <- q1+q5*cos(2*(ll-2)*regangle)
-        q2 <- q2+q5*sin(2*(ll-2)*regangle)
+        q1 <- q1 + q5*cos(2 * (ll-2) * regangle)
+        q2 <- q2 + q5 * sin(2 * (ll-2) * regangle)
 #        x[ll]<-q1
 #        y[ll]<-q2
-        b[ll-1]<-sqrt(q1*q1+q2*q2)
+        b[ll-1] <- sqrt(q1*q1 + q2*q2) # radius
     }
-#    par0 <- b # return the parameters as par0
-    res <- list(par0 = b, lb = lb, ub =ub)
+    res <- list(par0 = b, lb = lb, ub = ub)
 }
 
 ## @knitr polypar2XY
 
 polypar2XY <- function(b) {
+# converts radial coordinates for polygon into Cartesian coordinates
+#  that are more suitable for plotting
     nv <- (length(b)+3)/2
     l8 <- nv - 3 # offset for indexing
     x <- rep(NA, nv+1)
@@ -97,10 +106,10 @@ polyarea<-function(b) {
    nv <- (length(b)+3)/2
    area <- 0 
    l8 <- nv-3
-   for (l in 3:nv){
-      q1 <- b[[l-2]]
-      q2 <- b[[l-1]]
-      q3 <- b[[l+l8]]
+   for (l in 3:nv){ # nv - 2 triangles
+      q1 <- b[[l-2]] # side 1
+      q2 <- b[[l-1]] # side 2
+      q3 <- b[[l+l8]] # angle
       atemp <- q1*q2*sin(q3)
       area <- area + atemp
    }
@@ -133,6 +142,7 @@ polydistXY <- function(XY) {
 ## @knitr polypar2distXY
 
 polypar2distXY <- function(pars) {
+# compute the pairwise distances using two calls
    nv <- (length(pars) + 3)/2
    XY <- polypar2XY(pars)
    dist2 <- polydistXY(XY)
@@ -142,6 +152,7 @@ polypar2distXY <- function(pars) {
 ## @knitr polypardist2
 
 polypardist2 <- function(b) {
+# compute the pairwise distances for non-radii lines
    nv <- (length(b) + 3)/2 
    l8 <- nv - 3 # end of radii params
    ll <- 0 # count the distances (non-radii ones)
@@ -363,7 +374,7 @@ cat("area = ",polyarea(sol1$par),"\n")
 
 ## @knitr polyexbig
 
-library(optimr)
+library(optimrx)
 cat("Attempt with setting objective big on violation\n")
 
 x0 <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
@@ -404,7 +415,7 @@ cat("Area found=",polyarea(sol2$par),"\n")
 
 ## @knitr polyex2a
 
-## library(optimr)
+## library(optimrx)
 ## cat("Attempt with logarithmic barrier using nmkb and hjkb\n")
 
 ## sol2a <- opm(x0, polyobjbig, method=meths, bignum=1e+10)
@@ -441,7 +452,7 @@ cat("Objective =", f," area =",attr(f,"area"),"  minslack=",attr(f,minslack),"\n
 
 x0 <- myhex$par0
 bmeth <- c("nmkb", "hjkb", "bobyqa")
-library(optimr)
+library(optimrx)
 smult <- opm(x0, polyobj, lower=lb, upper=ub, method=bmeth, control=list(trace=1, maxit=10000), penfactor=1e-3)
 print(smult )
 
@@ -455,7 +466,7 @@ print(smult )
 
 ## @knitr polyexuall
 
-library(optimr)
+library(optimrx)
 suall <- opm(x0, polyobju, polygradu, control=list(all.methods=TRUE, kkt=FALSE), penfactor=1e-5)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests
 suall <- summary(suall, order=value)
@@ -475,7 +486,7 @@ for (ii in 1:nmeth){
    
 ## @knitr polyexallb
 
-# library(optimr)
+# library(optimrx)
 bmeth <- c("bobyqa", "L-BFGS-B", "lbfgsb3", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb")
 suball <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method=bmeth, 
         control=list(kkt=FALSE), penfactor=1e-5)

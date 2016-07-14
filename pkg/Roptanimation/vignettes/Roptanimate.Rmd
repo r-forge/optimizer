@@ -37,7 +37,7 @@ Ron Graham (J. Combinatorial Theory (A), vol. 18, pp. 165-170, 1975). This did
 not introduce this problem, but served to bring it to wider attention. One of
 the authors (JCN) used this problem to illustrate constrained optimization using
 the tools in J.C. Nash and M. Walker-Smith (1987, Nonlinear parameter estimation:
-an integrated system in BASIC, now available online at 
+an integrated system in BASIC, New York: Marcel Dekker, now available online at 
 https://archive.org/details/ost-engineering-jnmws2004).
 
 To provide a visual presentation of the optimization, Nash coded a display for the
@@ -57,18 +57,24 @@ Moreover, we can put the second vertex at `(b[1], 0)` where `b` is a vector of
 `(2*nv - 3)` parameters. Changing to a representation that uses a radius from the
 origin for vertex `L` equal to `b[L-1]`, we could use the angle of this vertex from the
 positive x axis as a parameter. Call this angle `alpha[L]`. Clearly `alpha[1]` for 
-vertex 2 is 0, so the 2nd vertex is still at `(b[1], 0)`. 
+vertex 2 is 0, so the 2nd vertex is still at `(b[1], 0)`.  Note that there is no `b[0]`, 
+which would be the distance of vertex 1 from itself. 
 
 We could put the alpha angles in the parameter vector as `b[L+lshift]` where 
 `lshift = nv - 3`. Thus the first non-zero angle is for vertex 3 and is parameter
 `3 + nv - 3 = nv`. Check: there are `(nv - 1)` radius parameters, so the first angle
-parameter is in position `nv`. There may be good implementations based on having
-parameters `b[nv] ... b[2*nv-3]` equal to the angles for points `2...nv`. However, 
+parameter is in position `nv`. 
+
+There may be good implementations based on having
+parameters `b[nv] ... b[2*nv-3]` equal to the angles for vertices `3...nv` from
+the x axis. However, 
 that then requires the angles to be monotonically increasing. By specifying that
-  `b[L+lshift] = alpha[L-1] - alpha[L-2]` for `L=3 ... nv`, we automatically get the
+  `b[L+lshift] = alpha[L-1] - alpha[L-2]` for `L=3 ... nv`, and noting that 
+  `alpha[1]=0`
+we automatically get the
 angles alpha monotonic by imposing a lower bound of 0 on the parameters `b`. 
 
-Note that the radii cannot be negative (in fact, zero is a bad idea too), so a lower
+Note that the radii already cannot be negative (in fact, zero is a bad idea too), so a lower
 bound of 0 can be applied to all the parameters `b`. An upper bound of 1 clearly applies to
 the first `(nv - 1)` parameters. The other `(nv - 2)` parameters are angles in radians. If
 we are to have the polygon in the positive y half-space in cartesian coordinates, 
@@ -82,7 +88,9 @@ welcome suggestions for other ways to prepare the optimization.
 
 The above parametrization is implemented in the function `polysetup(nv, defsize)`,
 where `defsize` is the default "size" of a regular polygon for which initial parameters
-are established. 
+are established. Generally we will begin our optimization with a polygon for which the 
+size is smaller than 1. Note that for drawing the polygon, it is useful to think of a
+vertex `L+1` which is at the same position as vertex 1.
 
 ```{r cache=FALSE, echo=FALSE}
 library(knitr) # This is critical -- or you don't get read_chunk()
@@ -105,8 +113,11 @@ print(reghex1$par0)
 ## The polygon area
 
 The parameterization of the problem allows the area to be computed as the sum of the areas of
-the triangles made up from vertex `1` with vertex `L` and `(L+1)`
-where `L` runs from `2` to `(nv-1)`.
+the triangles made up from vertices `1`, `L` and `(L+1)`
+where `L` runs from `2` to `(nv-1)`. That is, there are `nv - 2` triangles. For the 
+hexagon, the 4 triangles are made up of the vertices (1   2   3), (1   3   4),
+(1   4   5), and (1   5   6).
+
 
 ```{r polyarea}
 ```

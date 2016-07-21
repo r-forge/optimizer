@@ -103,6 +103,7 @@ polypar2XY <- function(b) {
 
 polyarea<-function(b) {
    # compute area of a polygon defined by radial coordinates
+   # This IGNORES constraints
    nv <- (length(b)+3)/2
    area <- 0 
    l8 <- nv-3
@@ -244,8 +245,16 @@ polyobju <- function(x, penfactor=1e-8, epsilon=0) {
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
  dist2 <- c(x[1:(nv-1)]^2, dist2) # Note the squared distances used
  slacks <- 1.0 + epsilon - dist2 # slack vector
- if (any(slacks <= 0)) { f <- bignum } # in case of step into infeasible zone
- else {  f <- f - penfactor*sum(log(slacks)) }
+ if (any(slacks <= 0)) { 
+    f <- bignum 
+    attr(f,"area") <- -area
+ } # in case of step into infeasible zone
+ else {  
+    f <- f - penfactor*sum(log(slacks)) 
+    attr(f,"area") <- area
+ }
+ attr(f,"minslack") <- min(slacks)
+#  pt1$add(x, -attr(f,"minslack"), attr(f, area), f)
  f
 }
 
@@ -308,11 +317,15 @@ polygradu <- function(x, penfactor=1e-8, epsilon=0) {
 polyobjq <- function(x, penfactor=0) {
  # negative area + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
- f <-  -polyarea(x) # negative area
+ area  <-  polyarea(x) # negative area
+ f <- -area
  XY <- polypar2XY(x)
  dist2 <- polydistXY(XY)
  viol <- dist2[which(dist2 > 1)] - 1.0
  f <- f + penfactor * sum(viol)
+ slacks <- 1.0 + epsilon - dist2 # slack vector
+ attr(f,"area") <- area
+ attr(f,"minslack") <- min(slacks)
  f
 }
 
@@ -326,6 +339,66 @@ polyobjbig <- function(x, bignum=1e10) {
  else { f <-  -polyarea(x) } # negative area
  f
 }
+
+
+## @knitr PolyTrack
+
+library(R6)
+library(TeachingDemos)
+
+ nvex <- 6 # default value -- need to check if we can change 
+
+PolyTrack <- R6Class("PolyTrack",
+  public = list(
+    parms = list(),
+    maxviol = list(),
+    areas = list(),
+    fvals =list(),
+    nv = nvex,
+    PlotIt = TRUE,
+    Delay = 0.25,
+    nPolys = 5,
+    add = function(p,v,a, fval) { # add points of polygon and area
+      i <- length(self$parms) + 1
+      self$parms[[i]] <- p # the points
+      self$maxviol[[i]] <- v # maximum violation
+      self$areas[[i]] <- a # the area
+      self$fvals[[i]] <- fval # objective
+      if(self$PlotIt) { # here PlotIt in environment is TRUE so we'll likely always do this
+        self$PlotPolys() # plot all polygons to date, then wait
+        Sys.sleep(self$Delay)
+      }
+      return(a)
+    },
+    PlotPolys = function(i=-1) { # to draw the polygons
+      if(i<0) i <- length(self$parms)
+      if(i==0) return()
+      cols <- hsv(0.6, (1:self$nPolys)/self$nPolys, 1)
+      # sets up a vector of colours. In this case we want gradual fade-out
+      # of the older polygons so we can see the latest the best
+      start <- pmax(1, i-self$nPolys+1)
+      plotParms <- self$parms[seq(start,i)]
+      n <- length(plotParms)
+      if(n < self$nPolys) cols <- tail(cols, n)
+      coords <- lapply(plotParms, function(x) polypar2XY(self$nv, x))
+      plot.new()
+      plot.window( xlim=do.call(range, lapply(coords, function(xy) xy$x)),
+                   ylim=do.call(range, lapply(coords, function(xy) xy$y)),
+                   asp=1)
+      for(ii in seq_len(n)) { # draw the edges of polygons in the set
+        polygon(coords[[ii]]$x, coords[[ii]]$y, border=cols[ii], lwd=3)
+      }
+      # Here add display of area found
+      carea <- max(unlist(self$areas))
+#      txt <- paste("Max polygon area =",carea,"  last=",unlist(self$areas)[-1])
+      txt <- paste("Max polygon area =",carea)
+      title(main=txt)
+      title(sub=paste("Max violation=",self$maxviol[[i]],"  obj.fn.=",self$fvals[[i]]))
+    }
+  ) # end of public list, no private list
+# NOTE: Need to change nv to whatever is current value
+                     
+)
 
 
 ## @knitr polyex0

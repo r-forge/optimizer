@@ -1,9 +1,9 @@
-library(R6)
-library(TeachingDemos)
+nvex <- 6
 
 ## @knitr PolyTrack
 
-nvex <- 6
+library(R6)
+library(TeachingDemos)
 
 PolyTrack <- R6Class("PolyTrack",
   public = list(
@@ -45,9 +45,10 @@ PolyTrack <- R6Class("PolyTrack",
       for(ii in seq_len(n)) { # draw the edges of polygons in the set
         polygon(coords[[ii]]$x, coords[[ii]]$y, border=cols[ii], lwd=3)
       }
-      # Here should add display of area found
+      # Here add display of area found
       carea <- max(unlist(self$areas))
-      txt <- paste("Polygon area =",carea)
+#      txt <- paste("Max polygon area =",carea,"  last=",unlist(self$areas)[-1])
+      txt <- paste("Max polygon area =",carea)
       title(main=txt)
       title(sub=paste("Max violation=",self$maxviol[[i]],"  obj.fn.=",self$fvals[[i]]))
     }

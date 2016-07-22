@@ -8,10 +8,12 @@ TODOS
 Changes
 
 2016-6-30
-   o    Streamlined the package to get rid of ufn, ugr, etc.
-        that are so far unused. 
+   o    Streamlined the package to get rid of ufn, ugr, uhess, 
+        ugHgenb that are so far unused. 
    o    The optsp environment is only currently used
         with the simple numerical gradient approximations.
+   o    kktc renamed to kktchk. scalecheck renamed to scalechk
+        for consistency with other naming.
 
 2013-10-27
    o    Inserted missing index in bmchk (bdmsk)

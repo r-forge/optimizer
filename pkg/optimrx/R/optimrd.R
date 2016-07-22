@@ -39,7 +39,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
           cat("Masked parameters:")
           print(mskd)
        } else { cat("No masked parameters\n") }
-
+   }
 
 
   if (is.null(control$parscale)) { 

@@ -176,15 +176,19 @@ polypardist2 <- function(b) {
 ## @knitr polyobj
 
 polyobj <- function(x, penfactor=1e-8, epsilon=0) {
+# log barrier objective function for small polygon
 # epsilon <- 0
  bignum <- 1e+20
  # (negative area) + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
- area <- polyarea(x) # negative area
+ area <- polyarea(x) # area
  f <- - area 
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
  slacks <- 1.0 + epsilon - dist2 # slack vector
- if (any(slacks <= 0)) { f <- bignum } # in case of step into infeasible zone
+ if (any(slacks <= 0)) { 
+     f <- bignum 
+     area <- -area # to code for infeasible and avoid plotting
+ } # in case of step into infeasible zone
  else {  f <- f - penfactor*sum(log(slacks)) }
  attr(f,"area") <- area
  attr(f,"minslack") <- min(slacks)
@@ -195,6 +199,7 @@ polyobj <- function(x, penfactor=1e-8, epsilon=0) {
 ## @knitr polygrad
 
 polygrad <- function(x, penfactor=1e-8, epsilon=0) {
+# log barrier gradient function for small polygon
  nv <- (length(x)+3)/2
  l8 <- nv - 3 # end of radii params
 # epsilon <- 0
@@ -243,7 +248,7 @@ polyobju <- function(x, penfactor=1e-8, epsilon=0) {
  nv = (length(x)+3)/2 # number of vertices
  f <-  - polyarea(x) # negative area
  dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
- dist2 <- c(x[1:(nv-1)]^2, dist2) # Note the squared distances used
+ dist2 <- c(x[1:(nv-1)]^2, dist2) # Add in radials. Note the squared distances used
  slacks <- 1.0 + epsilon - dist2 # slack vector
  if (any(slacks <= 0)) { 
     f <- bignum 
@@ -314,7 +319,7 @@ polygradu <- function(x, penfactor=1e-8, epsilon=0) {
 
 ## @knitr polyobjq
 
-polyobjq <- function(x, penfactor=0) {
+polyobjq <- function(x, penfactor=0, epsilon=0) {
  # negative area + penfactor*(sum(squared violations))
  nv = (length(x)+3)/2 # number of vertices
  area  <-  polyarea(x) # negative area
@@ -324,19 +329,32 @@ polyobjq <- function(x, penfactor=0) {
  viol <- dist2[which(dist2 > 1)] - 1.0
  f <- f + penfactor * sum(viol)
  slacks <- 1.0 + epsilon - dist2 # slack vector
- attr(f,"area") <- area
+ if (any(slacks <= 0)) { 
+    attr(f,"area") <- -area
+ } # in case of step into infeasible zone
+ else {  
+    attr(f,"area") <- area
+ }
  attr(f,"minslack") <- min(slacks)
  f
 }
 
 ## @knitr polyobjbig
 
-polyobjbig <- function(x, bignum=1e10) {
+polyobjbig <- function(x, bignum=1e10, epsilon=0) {
  # Put objective to bignum when constraints violated
  nv = (length(x)+3)/2 # number of vertices
+ area <- polyarea(x)
  d2 <- c(x[1:(nv-1)]^2, polypardist2(x)) # distances
- if (any(d2 >=1)) { f <- bignum }
- else { f <-  -polyarea(x) } # negative area
+ slacks <- 1.0 + epsilon - d2 # slack vector
+ if (any(d2 >=1) ) { 
+     f <- bignum 
+     attr(f,"area") <- -area
+ } else { 
+    f <-  -area 
+    attr(f,"area") <- area
+ } # negative area
+ attr(f,"minslack") <- min(slacks)
  f
 }
 
@@ -513,12 +531,12 @@ while (bestarea + 1e-14 < area) {
   area <- polyarea(restart)
   cat("penfactor = ", pf,"   area = ",area," change=",area-bestarea,"\n")
   pf <- pf*0.1
-  tmp <- readline("Next cycle")
+#  tmp <- readline("Next cycle")
 }
 cat("Parameters from polyex3g\n")
 sol3vpar <- sol3v$par
 f <- polyobj(sol3vpar, penfactor=pf)
-cat("Objective =", f," area =",attr(f,"area"),"  minslack=",attr(f,minslack),"\n")
+cat("Objective =", f," area =",attr(f,"area"),"  minslack=",attr(f,"minslack"),"\n")
 
 
 ## @knitr polyex4
@@ -540,7 +558,7 @@ print(smult )
 ## @knitr polyexuall
 
 library(optimrx)
-suall <- opm(x0, polyobju, polygradu, control=list(all.methods=TRUE, kkt=FALSE), penfactor=1e-5)
+suall <- opm(x0, polyobju, polygradu, control=list(trace=1, all.methods=TRUE, kkt=FALSE), penfactor=1e-5)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests
 suall <- summary(suall, order=value)
 print(suall)
@@ -560,12 +578,19 @@ for (ii in 1:nmeth){
 ## @knitr polyexallb
 
 # library(optimrx)
-bmeth <- c("bobyqa", "L-BFGS-B", "lbfgsb3", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb")
+bmeth <- c("bobyqa", "L-BFGS-B", "lbfgsb3", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb", "hjn")
 suball <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method=bmeth, 
-        control=list(kkt=FALSE), penfactor=1e-5)
+        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests
 suball <- summary(suball, order=value)
 print(suball)
 resb <- coef(suball)
 nmeth <- dim(resb)[1]
 
+shjnp <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", 
+        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
+
+shjnp1 <- optimr(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", 
+        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
+
+shjn0p <- hjn(x0, polyobj, lower=lb, upper=ub, bdmsk=NULL, control=list(trace=1), penfactor=1e-5)

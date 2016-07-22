@@ -88,8 +88,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 
 ## Masks 
    maskmeth <- control$maskmeth
-   bdmsk <- bdmsk$bdmsk # Only need the masks bit from here on
-   if (any(bdmsk == 0) ) {
+   msk <- bdmsk$bdmsk # Only need the masks bit from here on
+   if (any(msk == 0) ) {
       if ( !(method %in% maskmeth) ) {
          stopmsg <- paste("Method ",method," cannot handle masked (fixed) parameters")
          stop(stopmsg)
@@ -335,7 +335,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxit <- control$maxit # 151217 JN
 	if (control$have.bounds) { # 151220 -- this was not defined
    	   ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
-                upper=supper, bdmsk=bdmsk, control=mcontrol, ...))
+                upper=supper, bdmsk=msk, control=mcontrol, ...))
 	} else {
    	   ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	}
@@ -401,7 +401,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
 	if (control$have.bounds) {
    	   ans <- try(Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
-                upper=supper, bdmsk=bdmsk, control=mcontrol, ...))
+                upper=supper, bdmsk=msk, control=mcontrol, ...))
 	} else {
    	   ans <- try(Rvmminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	}
@@ -747,8 +747,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         if (control$trace > 1) cat("hjn\n")
         if (control$trace > 0) {
            cat("control$have.bounds =",control$have.bounds,"\n")
+           cat("optimr - msk:")
+           print(msk)
         }
-        ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=bdmsk, 
+        ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=msk, 
                         control=control, ...))
         if (class(ans)[1] != "try-error") {
             ## Need to check these carefully??

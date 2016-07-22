@@ -16,6 +16,7 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
   if (length(upper) == 1) upper <- rep(upper, n)
   if (length(lower) == 1) lower <- rep(lower, n)
   if (is.null(bdmsk)) { 
+      if (control$trace > 0) cat("hjn:bdmsk is NULL\n")
       bdmsk <- rep(1,n)
       idx <- 1:n 
   } else { idx <- which(bdmsk != 0) } # define masks

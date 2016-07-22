@@ -661,7 +661,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         mcontrol$trace <- control$trace
         if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
         # ?? use maxfevals rather than maxit for lbfgsb3 ?
-        if (control$trace > 0) cat("control$have.bounds =",control$have.bounds,"\n")
+        if (control$trace > 0) cat("lbfgsb3:control$have.bounds =",control$have.bounds,"\n")
         if (control$have.bounds) { ## Note call uses prm not par
             slower <- lower/pscale
             supper <- upper/pscale
@@ -702,7 +702,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       if (method == "lbfgs") {# Use unconstrained method from lbfgs package
         if (control$trace > 1) cat("lbfgs\n")
         if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
-        if (control$trace > 0) cat("control$have.bounds =",control$have.bounds,"\n")
+        if (control$trace > 0) cat("lbfgs:control$have.bounds =",control$have.bounds,"\n")
         if (control$have.bounds) { 
               if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
               errmsg <- "lbfgs::lbfgs cannot handle bounds\n"
@@ -743,11 +743,11 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using lbfgs
 ## --------------------------------------------
       else 
+      print(control)
       if (method == "hjn") {# Use JN Hooke and Jeeves
-        if (control$trace > 1) cat("hjn\n")
         if (control$trace > 0) {
-           cat("control$have.bounds =",control$have.bounds,"\n")
-           cat("optimr - msk:")
+           cat("hjn:control$have.bounds =",control$have.bounds,"\n")
+           cat("optimr - hjn - msk:")
            print(msk)
         }
         ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=msk, 
@@ -758,7 +758,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$value <- ans$value*fnscale
             ans$message <- NA # Should add a msg ??
          } else {
-            if (control$trace>0) cat("hjn failed for current problem \n")
+            if (control$trace > 0) cat("hjn failed for current problem \n")
             ans<-list() # ans not yet defined, so set as list
             ans$value <- control$badval
             ans$par <- rep(NA,npar)

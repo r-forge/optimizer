@@ -448,28 +448,17 @@ print(try2)
 cat("Max abs difference = ",max(abs(try1-try2)),"\n")
 
 
-library(optimrx)
-start <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
-lb <- myhex$lb
-ub <- myhex$ub
-cat("Starting parameters:")
-print(start)
-x0 <- start
-
-shjnp <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", 
-        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
-tmp <- readline("continue")
-
-shjnp1 <- optimr(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", hessian=FALSE,
-        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
-tmp <- readline("continue")
-
-shjn0p <- hjn(x0, polyobj, lower=lb, upper=ub, bdmsk=NULL, control=list(trace=1), penfactor=1e-5)
 
 tmp <- readline("continue to rest of examples")
 
 
 ## @knitr polyexq
+
+start <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+lb <- myhex$lb
+ub <- myhex$ub
+cat("Starting parameters:")
+print(start)
 
 library(minqa)
 cat("Attempt with quadratic penalty\n")
@@ -601,3 +590,23 @@ print(suball)
 resb <- coef(suball)
 nmeth <- dim(resb)[1]
 
+## @knitr polyexhjn
+
+library(optimrx)
+# repeat of earlier code to ensure we have start and bounds
+start <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+lb <- myhex$lb
+ub <- myhex$ub
+cat("Starting parameters:")
+print(start)
+x0 <- start
+
+shjnp <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", 
+        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
+tmp <- readline("continue")
+
+shjnp1 <- optimr(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", hessian=FALSE,
+        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
+tmp <- readline("continue")
+
+shjn0p <- hjn(x0, polyobj, lower=lb, upper=ub, bdmsk=NULL, control=list(trace=1), penfactor=1e-5)

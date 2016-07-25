@@ -43,8 +43,8 @@ https://archive.org/details/ost-engineering-jnmws2004).
 To provide a visual presentation of the optimization, Nash coded a display for the
 IBM PC family of MS DOS computers running GWBASIC. (?? Do we want to make these available?)
 In May 2016, the discovery that
-files for this example would still execute more or less satisfactorily raised the
-possibility of bringing them up to date. R was a logical choice for such an 
+files for this example could still execute, albeit clumsily, under Linux using DosBox or 
+PCBasic raised the possibility of bringing them up to date. R was a logical choice for such an 
 implementation, given that the authors and many others work with this software system. 
 
 ## Parametrization of the polygon
@@ -52,7 +52,7 @@ implementation, given that the authors and many others work with this software s
 For a polygon with `nv` vertices, we have `2*nv` cartesian (i.e., x, y)
 coordinates. However, use of cartesian coordinates as parameters for this problem 
 leads to a very complicated specification, since 3 parameters can be fixed right
-away. That is, we can fix one vertex at the `(0, 0)` or origin of our [2D] space.
+away. That is, we can arbitrarily fix vertex 1 at the `(0, 0)` or origin of our [2D] space.
 Moreover, we can put the second vertex at `(b[1], 0)` where `b` is a vector of
 `(2*nv - 3)` parameters. Changing to a representation that uses a radius from the
 origin for vertex `L` equal to `b[L-1]`, we could use the angle of this vertex from the
@@ -89,7 +89,8 @@ welcome suggestions for other ways to prepare the optimization.
 The above parametrization is implemented in the function `polysetup(nv, defsize)`,
 where `defsize` is the default "size" of a regular polygon for which initial parameters
 are established. Generally we will begin our optimization with a polygon for which the 
-size is smaller than 1. Note that for drawing the polygon, it is useful to think of a
+size is smaller than 1. This ensures that our initial polygon is feasible, and some 
+optimization methods such as `nmkb` require that. Note that for drawing the polygon, it is useful to think of a
 vertex `L+1` which is at the same position as vertex 1.
 
 ```{r cache=FALSE, echo=FALSE}
@@ -175,7 +176,7 @@ the output of polypar2distXY are not obvious at first glance.
 
 ## Testing functions.
 
-Note that we tested our functions to create the original polygon and compute it's area. 
+Note that we tested our functions to create the original polygon and compute its area. 
 This is a step that we recommend. In fact, one of us (JN) refuses to look at user queries
 about his optimization routines unless there is evidence that objective functions and gradients
 have been checked. It is an important part of the solution of EVERY optimization problem

@@ -111,7 +111,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   mcontrol <- list() # define the control list
 
 # Methods from optim()
-      if (method== "Nelder-Mead" || 
+      if (method == "Nelder-Mead" || 
           method == "BFGS" || 
           method == "L-BFGS-B" || 
           method == "CG" || 
@@ -564,8 +564,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         ## return(ans)
       }  ## end if using newuoa
 ## --------------------------------------------
-      else 
-      if (method == "nmkb") {# Use nmkb routine from dfoptim package
+      else if (method == "nmkb") {# Use nmkb routine from dfoptim package
         if (any(par == lower) || any(par==upper)) {
            if (control$trace>0) cat("nmkb cannot start if on any bound \n")
            warning("nmkb() cannot be started if any parameter on a bound")
@@ -622,8 +621,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
        ## return(ans)
      }  ## end if using nmkb
 ## --------------------------------------------
-      else 
-      if (method == "hjkb") {# Use hjkb routine from dfoptim package
+      else if (method == "hjkb") {# Use hjkb routine from dfoptim package
          if (control$trace > 0) {
             mcontrol$info <- TRUE # logical needed, not integer         
          } else { mcontrol$info <- FALSE }
@@ -655,8 +653,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          ## return(ans)
       }  ## end if using hjkb
 ## --------------------------------------------
-      else 
-      if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
+      else if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
         if (control$trace > 1) cat("lbfgsb3\n")
         mcontrol$trace <- control$trace
         if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
@@ -698,11 +695,10 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          ## return(ans)
       }  ## end if using lbfgsb3
 ## --------------------------------------------
-      else 
-      if (method == "lbfgs") {# Use unconstrained method from lbfgs package
+      else if (method == "lbfgs") {# Use unconstrained method from lbfgs package
         if (control$trace > 1) cat("lbfgs\n")
         if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
-        if (control$trace > 0) cat("lbfgs:control$have.bounds =",control$have.bounds,"\n")
+        if (control$trace > 1) cat("lbfgs:control$have.bounds =",control$have.bounds,"\n")
         if (control$have.bounds) { 
               if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
               errmsg <- "lbfgs::lbfgs cannot handle bounds\n"
@@ -712,7 +708,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         } else {
 	    dotstuff <- list(...)
 	    # cat("dotstuff:\n")
-	    print(dotstuff)
+#	    print(dotstuff)
 	    dotstuff$pscale <- pscale
 	    dotstuff$fnscale <- fnscale
 	    eopt <- list2env(dotstuff) # put it in an environment
@@ -720,8 +716,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
                     environment=eopt, invisible=invisible))
         }
-        cat("interim answer:")
-        print(ans)
+#        cat("interim answer:")
+#        print(ans)
         if (class(ans)[1] != "try-error") {
         ## Need to check these carefully??
             ans$par <- ans$par*pscale
@@ -742,9 +738,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          ## return(ans)
       }  ## end if using lbfgs
 ## --------------------------------------------
-      else 
-      print(control)
-      if (method == "hjn") {# Use JN Hooke and Jeeves
+      else if (method == "hjn") {# Use JN Hooke and Jeeves
         if (control$trace > 0) {
            cat("hjn:control$have.bounds =",control$have.bounds,"\n")
            cat("optimr - hjn - msk:")

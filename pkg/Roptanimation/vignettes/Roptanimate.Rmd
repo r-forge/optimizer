@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 ## output: pdf_document
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using and extending the optimr package}
+  %\VignetteIndexEntry{Animating geometric optimization: small polygons}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -26,8 +26,6 @@ animation.
   - comment and test the animation code
   - try nloptr
   - try ?? other optimizers
-  - polyobju -- put in log barrier for the radial parameters so unconstrained
-    minimizers can be used
   - try shiny for running the animation
 
 ## Background
@@ -233,7 +231,7 @@ to the objective function via the call.
 ```
 
 To test several optimizers at once, we use the `opm()} function of the
-R-forge package `optimr}. 
+R-forge package `optimrx`. 
 
 ```{r polyexbig}
 ```
@@ -256,7 +254,8 @@ is part of the difficulty of the largest small polygon problem.
 ## Logarithmic barrier constraint
 
 A different kind of penalty is provided by the logarithmic barrier. This aims to keep
-the parameters feasible by adding a steeply increasing function to the negative area as 
+the parameters feasible by adding a steeply increasing function to the objective (the 
+negative area) as 
 the constraint is approached. Let us first define the **slack** in a distance constraint
 as `slack = (1 - squared.distance)`. We could use the distance itself, but might as well 
 avoid the extra computation. As each slack goes to zero, then `- log(slack)` goes to 
@@ -299,19 +298,19 @@ optimization method.
 ```
 
 And here is the gradient code. Note that we need to be careful about the indexing. We don't show
-it here, but we did perform a quick check with package `numDeriv} that the gradient is 
+it here, but we did perform a quick check with package `numDeriv` that the gradient is 
 correctly computed for the starting vector `x0`.
 
 ```{r polygradu}
 ```
 
-There are a number of unconstrained optimization methods, and the `optimr} package lets
+There are a number of unconstrained optimization methods, and the `optimrx` package lets
 us try them out all at once.
 
 ```{r polyexuall}        
 ```
 
-We note that the only bounds constrained minimizer in `R}'s base function `optim()} is
+We note that the only bounds constrained minimizer in `R`'s base function `optim()` is
 that invoked by the method "L-BFGS-B", and this has done rather poorly. In fact, it does not even find
 the regular hexagon above. Possibly we should use the bounds constraints directly, but we can first 
 supply gradients.
@@ -320,7 +319,7 @@ supply gradients.
 ```
 
 
-Let us try all the bounds-constrained methods in `opm} from package `optimr.
+Let us try all the bounds-constrained methods in `opm` from package `optimrx`.
 
 ```{r polyexallb}        
 ```
@@ -337,3 +336,8 @@ penalty factor steadily and find a good approximation to the optimal area?
 
 - polyex3g shows that it is difficult to stay in feasible zone with gradients. Need to stabilize!
 - Can we get transfinite approach??
+
+## Acknowledgement
+
+Email discussions with Prof. S. G. Nash of George Mason University have been helpful in 
+developing some of the ideas in this article.

@@ -192,14 +192,14 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
 # end globals
 
 ##   [ipivot, ierror, x] = crash(x, lower, upper) 
-   cat("lmqnbc -- crout:")
+   if (trace) cat("lmqnbc -- crout:")
    crout<-crash(x, lower, upper)
-   ## print(crout)
+   if (trace) print(crout)
    ierror <- crout$ierror
    ipivot <- crout$ipivot
    x<-crout$xnew # in case x changed by bounds
-   f = 0 
-   g = rep(0,n) 
+   f <- 0 
+   g <- rep(0,n) 
    if (ierror != 0) {
       stop('LMQNBC: terminating (no feasible point)')
       ##   return 
@@ -230,7 +230,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
 ##  compute initial function value and related information
 ## ---------------------------------------------------------
 #   cat("Try initial fn\n")
-   fg<- sfun(x, ...)
+   fg <- sfun(x, ...)
    nf     <- 1 
    nit    <- 0 
    g<- attr(fg,"gradient")

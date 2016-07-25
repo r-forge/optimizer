@@ -1,0 +1,32 @@
+Changes in Rtnmin
+
+TODOS
+   o    Simplification and streamlining of code to mesh
+	better with other R optimization tools.
+
+   o    Put maxit, maxfun in control list somehow.
+
+   o    Setup trace as integer to work properly
+
+2016-06-28
+
+   o    Removed development files from inst, and inst directory
+
+2013-09-12
+
+   o    Modlnp fix from SGN implemented so jones function works.
+
+2013-09-03
+
+   o    Some fixes, particularly to dot-arguments missing
+	from calls to user function.
+
+   o    Changed returned user fgfun to f with g as attribute.
+
+2013-06-03
+
+   o    Properly packaged version of Rtnmin. 
+
+2013-11-11 
+   
+   o    First version of Rtn.

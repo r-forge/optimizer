@@ -705,3 +705,22 @@ print(suball)
 resb <- coef(suball)
 nmeth <- dim(resb)[1]
 
+
+
+## @knitr drawpoly1
+
+start <- myhex$par0
+
+pt1 <- PolyTrack$new()
+
+library(minqa)
+ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
+lb <- c(rep(0, (2*nv-3)))
+sol <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
+
+## @knitr redrawpoly1
+
+# Redo the plots/animation after the optimization
+# JN June 3 -- not quite working. Looks like almost.
+tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)))
+

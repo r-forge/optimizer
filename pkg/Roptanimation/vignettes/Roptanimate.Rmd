@@ -337,6 +337,35 @@ penalty factor steadily and find a good approximation to the optimal area?
 - polyex3g shows that it is difficult to stay in feasible zone with gradients. Need to stabilize!
 - Can we get transfinite approach??
 
+## Animating the progress to an optimum
+
+If we want to visualize the progress of our optimization, then we need to draw the polygons as the
+relevant parameter vectors are tried. However, we really only want to draw the polygon when we have 
+found a feasible one that increases the area. Furthermore, as we progress, it is helpful to 
+indicate the rank of the polygons in order of area. This can be accomplished by "fading out"
+polygons that are already drawn, though that means keeping a record of all the feasible, larger
+area polygons. 
+
+We can achieve all these desiderata by means of the following function.
+
+```{r PolyTrack}
+```
+
+Calling the PolyTrack function creates a new environment to hold all the sets of points. Each
+time a new "better" polygon is found, all the polygons are redrawn using the vector of (fading)
+colours. 
+
+```{r drawpoly1, eval=FALSE}
+```
+
+??? add more details
+
+When the optimization terminates, we can, moreover, redraw the polygons at will using the 
+following code.
+
+```{r redrawpoly1, eval=FALSE}
+```
+
 ## Acknowledgement
 
 Email discussions with Prof. S. G. Nash of George Mason University have been helpful in 

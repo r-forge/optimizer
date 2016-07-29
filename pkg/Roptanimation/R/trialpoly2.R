@@ -1,6 +1,7 @@
 nvex <- 6
 
 ## @knitr PolyTrack
+nvex <- 6
 
 library(R6)
 library(TeachingDemos)

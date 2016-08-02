@@ -38,7 +38,7 @@ PolyTrack <- R6Class("PolyTrack",
       plotParms <- self$parms[seq(start,i)]
       n <- length(plotParms)
       if(n < self$nPolys) cols <- tail(cols, n)
-      coords <- lapply(plotParms, function(x) polypar2XY(self$nv, x))
+      coords <- lapply(plotParms, function(x) polypar2XY(x))
       plot.new()
       plot.window( xlim=do.call(range, lapply(coords, function(xy) xy$x)),
                    ylim=do.call(range, lapply(coords, function(xy) xy$y)),
@@ -64,8 +64,8 @@ polyobjq <- function(x, penfactor=0) {
   # negative area + penfactor*(sum(squared violations))
   nv = (length(x)+3)/2 # number of vertices
   a <-  polyarea(nv, x) # area
-  XY <- polypar2XY(nv, x)
-  dist2 <- polydistXY(nv, XY)
+  XY <- polypar2XY(x)
+  dist2 <- polydistXY(XY)
   viol <- dist2[which(dist2 > 1)] - 1.0
   mviol <- max(viol, 0)
   f <- penfactor * sum(viol) - a
@@ -139,10 +139,14 @@ polysetup <- function(nv, defsize=0.98, qpen=.1){
 
 ## @knitr polypar2XY
 
-polypar2XY <- function(nv, b) {
+polypar2XY <- function(b) {
+# converts radial coordinates for polygon into Cartesian coordinates
+#  that are more suitable for plotting
+    nv <- (length(b)+3)/2
     l8 <- nv - 3 # offset for indexing
     x <- rep(NA, nv+1)
     y <- rep(NA, nv+1)
+    # One extra point to draw polygon (return to origin)
     x[1] <- 0
     y[1] <- 0
     x[2] <- b[1]
@@ -184,16 +188,17 @@ polyarea<-function(nv, b) {
 
 ## @knitr polydistXY
 
-polydistXY <- function(nv, XY) {
+polydistXY <- function(XY) {
 #   compute point to point distances from XY data
-   ncon <- (nv - 1)*(nv - 2)/2
+   nv <- length(XY$x)-1
+   ncon <- (nv - 1)*(nv)/2
    dist2 <- rep(NA, ncon) # squared distances   
    ll <- 0 # index of constraint
-   for (i in 2:nv){
-      xi <- XY$x[i]
-      yi <- XY$y[i]
-      for (j in (1:(i-1))){
+   for (i in 1:(nv-1)){
+      for (j in ((i+1):nv)){
+         xi <- XY$x[i]
          xj <- XY$x[j]
+         yi <- XY$y[i]
          yj <- XY$y[j]
          dd <- (xi-xj)^2 + (yi-yj)^2
          ll <- ll + 1
@@ -223,11 +228,11 @@ cat("Area:\n")
 myhexa <- polyarea(nv, myhex$par0)
 print(myhexa)
 cat("XY coordinates\n")
-myheXY <- polypar2XY(nv, myhex$par0)
+myheXY <- polypar2XY(myhex$par0)
 print(myheXY)
 plot(myheXY$x, myheXY$y, type="l")
 cat("Constraints:\n")
-myhexc<-polydistXY(nv, myheXY)
+myhexc<-polydistXY(myheXY)
 print(myhexc)
 cat("Vertex distances:")
 print(sqrt(myhexc))

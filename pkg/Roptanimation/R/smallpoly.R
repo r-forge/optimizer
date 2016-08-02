@@ -695,7 +695,27 @@ shjn0p <- hjn(x0, polyobj, lower=lb, upper=ub, bdmsk=NULL, control=list(trace=1)
 
 ## @knitr polyexlbfgs
 
+   newfn <- function(spar, fonly=FALSE,  ...){
+      f <- efn(spar, ...)
+      if (! fonly) { 
+         g <- egr(spar, ...)
+         attr(f,"gradient") <- g
+      } else { attr(f, "gradient") <- NULL }
+      attr(f,"hessian") <- NULL # ?? maybe change later
+      f
+   }
+   efn <- polyobj
+   egr <- polygrad # to define
+
+ library(Rtnmin)
+ stnb <- tnbc(x0, newfn, lower=lb, upper=ub, trace=TRUE)
+ stnb
+
+
+
 # library(optimrx)
+
+
 bmeth <- c("L-BFGS-B", "lbfgsb3", "Rtnmin")
 suball <- opm(x0, polyobjp, polygrad, lower=lb, upper=ub, method=bmeth, 
         control=list(trace=1, kkt=FALSE), penfactor=1e-5)
@@ -704,23 +724,4 @@ suball <- summary(suball, order=value)
 print(suball)
 resb <- coef(suball)
 nmeth <- dim(resb)[1]
-
-
-
-## @knitr drawpoly1
-
-start <- myhex$par0
-
-pt1 <- PolyTrack$new()
-
-library(minqa)
-ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
-lb <- c(rep(0, (2*nv-3)))
-sol <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
-
-## @knitr redrawpoly1
-
-# Redo the plots/animation after the optimization
-# JN June 3 -- not quite working. Looks like almost.
-tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)))
 

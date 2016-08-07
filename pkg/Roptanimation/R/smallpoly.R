@@ -479,7 +479,7 @@ PolyTrack <- R6Class("PolyTrack",
       plotParms <- self$parms[seq(start,i)]
       n <- length(plotParms)
       if(n < self$nPolys) cols <- tail(cols, n)
-      coords <- lapply(plotParms, function(x) polypar2XY(self$nv, x))
+      coords <- lapply(plotParms, function(x) polypar2XY(x))
       plot.new()
       plot.window( xlim=do.call(range, lapply(coords, function(xy) xy$x)),
                    ylim=do.call(range, lapply(coords, function(xy) xy$y)),
@@ -527,6 +527,24 @@ try2 <- polypardist2(x0)
 try2 <- c(x0[1:(nv-1)]^2, try2)
 print(try2)
 cat("Max abs difference = ",max(abs(try1-try2)),"\n")
+
+tmp <- readline("Now try animation")
+
+start <- myhex$par0
+pt1 <- PolyTrack$new()
+
+library(minqa)
+ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
+lb <- c(rep(0, (2*nv-3)))
+sol <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
+
+# pt2 <- PolyTrack$new()
+
+
+# Redo the plots/animation after the optimization
+# JN June 3 -- not quite working. Looks like almost.
+tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)))
+
 
 
 
@@ -724,4 +742,6 @@ suball <- summary(suball, order=value)
 print(suball)
 resb <- coef(suball)
 nmeth <- dim(resb)[1]
+
+
 

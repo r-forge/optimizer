@@ -60,10 +60,13 @@ PolyTrack <- R6Class("PolyTrack",
       # Here add display of area found
       carea <- max(unlist(self$areas))
 #      txt <- paste("Max polygon area =",carea,"  last=",unlist(self$areas)[-1])
-      txt <- paste("Max polygon area =",carea," after", self$countobj)
+      sarea <- sprintf("%.5f",carea)
+      txt <- paste("Max polygon area =",sarea," after", self$countobj)
       title(main=txt)
-      title(sub=paste("Max violation=",self$maxviol[[i]],"  obj.fn.=",self$fvals[[i]],
-            " i=",i))
+      sobj <- sprintf("%.5f",self$fvals[[i]])
+      sviol <- sprintf("%.5f",self$maxviol[[i]])
+      title(sub=paste("Max violation=",sviol,"  obj.fn.=",sobj,
+               " i=",i))
     }
   ) # end of public list, no private list
 # NOTE: Need to change nv to whatever is current value

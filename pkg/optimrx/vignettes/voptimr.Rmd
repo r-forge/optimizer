@@ -5,10 +5,12 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ## output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Using and extending the optimr package}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{rmarkdown::render}
 ---
+
+%% note VignetteEngine line -- other forms gave "no prebuilt vignette index" msg
 
 ## Abstract
 

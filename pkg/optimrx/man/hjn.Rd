@@ -72,7 +72,7 @@ fr <- function(x) {
     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
 
-ansrosenbrock0 <- hjn(fn=fr, par=c(1,2), control=list(maxfeval=2000))
+ansrosenbrock0 <- hjn(fn=fr, par=c(1,2), control=list(maxfeval=2000, trace=0))
 print(ansrosenbrock0) # use print to allow copy to separate file that 
 #    can be called using source()
 #####################
@@ -116,8 +116,9 @@ cat("timings B vs U\n")
 lo<-rep(-100,10)
 up<-rep(100,10)
 bdmsk<-rep(1,10)
-tb<-system.time(ab<-hjn(xx,genrose.f, lower=lo, upper=up, bdmsk=bdmsk, control=list(maxfeval=2000)))[1]
-tu<-system.time(au<-hjn(xx,genrose.f, control=list(maxfeval=2000)))[1]
+tb<-system.time(ab<-hjn(xx,genrose.f, lower=lo, upper=up,
+          bdmsk=bdmsk, control=list(trace=0, maxfeval=2000)))[1]
+tu<-system.time(au<-hjn(xx,genrose.f, control=list(maxfeval=2000, trace=0)))[1]
 cat("times U=",tu,"   B=",tb,"\n")
 cat("solution hjnu\n")
 print(au)
@@ -158,7 +159,7 @@ nn<-4
 startx<-rep(pi,nn)
 lo<-rep(2,nn)
 up<-rep(10,nn)
-grbds1<-hjn(startx,genrose.f, lower=lo,upper=up, control=list(maxfeval=2000)) 
+grbds1<-hjn(startx,genrose.f, lower=lo,upper=up, control=list(maxfeval=2000, trace=0)) 
 print(grbds1)
 
 cat("test lower bound only\n")

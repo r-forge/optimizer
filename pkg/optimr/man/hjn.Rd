@@ -116,7 +116,8 @@ cat("timings B vs U\n")
 lo<-rep(-100,10)
 up<-rep(100,10)
 bdmsk<-rep(1,10)
-tb<-system.time(ab<-hjn(xx,genrose.f, lower=lo, upper=up, bdmsk=bdmsk, control=list(trace=0, maxfeval=2000)))[1]
+tb<-system.time(ab<-hjn(xx,genrose.f, lower=lo, upper=up,
+          bdmsk=bdmsk, control=list(trace=0, maxfeval=2000)))[1]
 tu<-system.time(au<-hjn(xx,genrose.f, control=list(maxfeval=2000, trace=0)))[1]
 cat("times U=",tu,"   B=",tb,"\n")
 cat("solution hjnu\n")

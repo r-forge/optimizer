@@ -60,7 +60,7 @@ same name as the package, namely `optimr()`,
 only allow for the minimization or maximization of nonlinear functions of
 multiple parameters subject to at most bounds constraints. Many methods
 offer extra facilities, but apart from **masks** (fixed parameters) for the 
-`hjn`, `Rcgmin` and `Rvmmin`, such features are
+`hjn`, `Rcgmin` and `Rvmmin` methods, such features are
 likely inaccessible via this package without some customization of the code.
 
 In general, we wish to find the
@@ -78,8 +78,9 @@ if they are to be imposed, are given in the vectors `lower` and `upper`.
 As far as I am aware, all the optimizers included in the `optimr` package are
 **local** minimizers. That is, they attempt to find a local minimum of the 
 objective function. Global optimization is a much bigger problem. Even finding
-a local minimum can often be difficult, and to that end, the package includes
-a function `kktchk()` to test the Kuhn-Karush-Tucker conditions. These essentially
+a local minimum can often be difficult, and to that end, the package uses the
+function `kktchk()` from package `optextras` to test the 
+Kuhn-Karush-Tucker conditions. These essentially
 require that a local minumum has a zero gradient and all nearby points on the 
 function surface have a greater function value. There are many details that 
 are ignored in this very brief explanation. 
@@ -90,7 +91,8 @@ an R user reasonably proficient in programming R scripts. These changes would, o
 course, be made by downloading the source of the package and modifying the R code to 
 make a new, but only locally available, package. The author does, on the other hand,
 welcome suggestions for inclusion in the distributed package, especially if these 
-have been well-documented and tested. Over 95% of the effort in building `optimr`
+have been well-documented and tested. I caution, however, that over 95% of the 
+effort in building `optimr`
 has been to try to ensure that errors and conflicts are purged, and that the code is
 resistant to mistakes in user inputs.
 
@@ -113,17 +115,17 @@ is installed, and the functions `import`ed into `optimr`;
 into the corresponding control arguments (possibly not in a list of that name
 but in one or more other structures, or even arguments or environment variables)
 for the new "method";
-* if necessary, redefine the R function or functions to compute the 
+* If necessary, redefine the R function or functions to compute the 
 value of the function, gradient and possibly Hessian of the objective function
 so that the output is suited to the method at hand (see the section of 
 `optimr()` for the `nlm()` function, for example);
-* when derivative information is required by a method, we may also 
+* When derivative information is required by a method, we may also 
 need to incorporate the possibility of numerical 
 approximations to the derivative information;
-* add code to check for situations where the new method cannot be applied, and
+* Add code to check for situations where the new method cannot be applied, and
 in such cases return a result with appropriate diagnostic information so that the
 user can either adjust the inputs or else choose a different method;
-* provide, if required, appropriate links to modified function and gradient 
+* Provide, if required, appropriate links to modified function and gradient 
 routines that allow the parameter scaling `control$parscale` to be applied
 if this funtionality is not present in the methods. To my knowledge, only the
 base `optim()` function methods do not need such special scaling provisions.
@@ -174,7 +176,7 @@ The method `hjn` is a Hooke and Jeeves axial search method that allows masks and
 It is coded using explicit loops, so will generally be much slower than an implementation
 (e.g., `hjkb` from `dfoptim` or the similar code in package `pracma`) that try to 
 employ vectorized computations. `hjn` was included in `optimr` and `optimrx` to provide
-an example of a direct search method with masks.
+an example of a direct search method with masks. I do NOT recommend it for general use.
 
 There is a possibility that masks could be implemented globally in optimr. 
 
@@ -303,7 +305,7 @@ ensure both controls are set consistently.
 ### Modified, unused or unwanted controls
 
 Because different methods use different control parameters, and may even put them into 
-arguments rather than the `control` list, A lot of the code in `optimr()` is purely for
+arguments rather than the `control` list, a lot of the code in `optimr()` is purely for
 translating or transforming the names and values to achieve the desired result. This is
 sometimes not possible precisely. A method which uses `control$trace = TRUE` (a logical
 element) has only "on" or "off" for controlling output. Other methods use an integer
@@ -369,7 +371,9 @@ argument list.
 
 The methods in `methcontrol` are executed in the sequence in which they appear. Each method runs until either
 the specified number of iterations (typically gradient evaluations) or function evaluations have been completed,
-after which the best set of parameters so far is passed to the next method specified, or the function exits.
+or termination tests cause the method to be exited, 
+after which the best set of parameters so far is passed to the next method specified. If there is no further
+method, `polyopt()` exits.
 
 Polyalgorithms may be useful because some methods such as Nelder-Mead are fairly robust and efficient in 
 finding the region in which a minimum exists, but then very slow to obtain an accurate set of parameters.
@@ -427,9 +431,10 @@ the objective function has specific properties. That is, according to the docume
      the user may only be interested in the real-valued derivatives.  It also
      requires that the complex function be analytic.
 
-The default method of `numDeriv` generally require multiple evaluations of the objective
+The default method of `numDeriv` generally requires multiple evaluations of the objective
 function to approximate a derivative. The simpler choices, namely, the forward,
-backward and central approximations, require respectively 1, 1, and 2 function evaluations.
+backward and central approximations, require respectively 1, 1, and 2 (extra) function evaluations
+for each parameter.
 
 To keep the code straightforward, I decided that if an approximate gradient is to be used by 
 `optimr()` (or by extension the multiple method routine `opm()`), then the user should specify
@@ -439,8 +444,7 @@ for the forward and backward simple approximations, "grcentral" for the central 
 and "grnd" for the default Richardson method via `numDeriv`. It should be fairly straightforward
 for a user to copy the structure of any of these routines and call their own gradient, but at
 the time of writing this (2016-6-29) I have not tried to do so. An example using the complex
-step derivative would also be useful to include in this vignette.
-
+step derivative would also be useful to include in this vignette. I welcome contributions!
 
 ## Functions besides `optimr()` in the package
 
@@ -509,8 +513,6 @@ free methods that try to search the paramter space. Note that the attempt to inc
 scaling for all methods is intended to provide a work-around for such bad scaling.
 
 
-
-
 ## Program inefficiencies
 
 One of the unfortunate, and only partially avoidable, inefficiencies in a wrapper function such
@@ -525,8 +527,8 @@ programs will have code to accomplish similar goals. Some of these relate to the
 * Timing of execution may be performed surrounding different aspects of the computations, and
 the positioning of the timing code may be awkward to place so the timing measures equivalent
 operations. For example, if there is a significant setup within some routines and not others, 
-we should try to time either setup and optimization, or just optimization. However, there is
-often some awkwardness that prevents a clean placement of the timing.
+we should try to time either setup and optimization, or just optimization. However, there are
+often coding peculiarities that prevent a clean placement of the timing.
 
 Besides these sources of inefficiency, there is a potential cost in both human effort and 
 program execution if we "specialize" variants of a code. For example, there can be separate
@@ -539,10 +541,10 @@ the separation seems to have introduced a bug, since the code was structured to 
 similar organization for both choices, where possibly a different structure would have been
 better adapted for efficient R. Note, however, that I have not performed appropriate timings
 to support this conjecture. Second, I managed to implement a bounds constrained HJ code from
-a description in one of may own books in less time than it took to try (not fully successfully)
+a description in one of my own books in less time than it took to try (not fully successfully)
 to correct the code from `dfoptim`, in part because the development and stable versions of the
-latter are quite different, though both failed the test function `bt.f()` example. I did get
-a modified `dfoptim` code to function correctly, but am not fully sure why my changes worked.
+latter are quite different, though both failed the test function `bt.f()` example. Ravi Varadhan
+has corrected the codes on CRAN. 
 
 Note that this is not a criticism of the creators of `dfoptim`. I have made similar choices
 myself with other packages.
@@ -557,6 +559,8 @@ There are examples and tests within the packages. These include
 - simple examples to illustrate the usage
 - individual method tests
 - problem tests over many methods
+
+At some future opportunity, I hope to be able to document these tests more fully.
 
 ## References
 

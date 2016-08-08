@@ -67,9 +67,11 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   \code{control$fnscale} to be set negative to accomplish this. DO NOT
   use both methods. 
 
+       "Rtnmin", "hjn", "lbfgs")
+
   Possible method codes are 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'nlm', 
   'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa', 'nmkb', 'hjkb', 'Rcgmin', 
-  'lbfgsb3' or 'Rvmmin'. These are in base R or in CRAN repositories. 
+  'lbfgsb3', 'Rtnmin', 'hjn', 'lbfgs' or 'Rvmmin'. These are in base R or in CRAN repositories. 
   From R-forge, method 'Rtnmin' is available. Other methods are likely to
   be added over time.
 
@@ -169,6 +171,19 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   important to note that \code{"nmkb"} must NOT have starting parameters on
   a lower or upper bound, as a transformation of the paramters is used to
   effect the constraints. 
+
+  Method \code{ucminf} is an unconstrained minimizer based on a
+     BFGS update of the inverse Hessian approximation, much like
+     that of methods 'BFGS' or 'Rvmmin' but with a more 
+     sophisticated line search. See Nielsen (2000).
+
+  Method \code{lbfgs} is an unconstrained minimizer based on 
+     the libLBFGS library by Naoaki Okazaki, in turn based on an
+     implementation of the L-BFGS method written by Jorge Nocedal.
+
+
+  Method \code{"hjn"} is a conservative implementation of a Hooke and 
+  Jeeves (1961) 
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -296,15 +311,25 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
  See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
+Dai YH, and Yuan Y (2001). An efficient hybrid conjugate 
+      gradient method for unconstrained optimization. Annals of 
+       Operations Research 103 (1-4), 33–47.
+
+ Hooke R. and Jeeves, TA (1961). Direct search solution of numerical and statistical problems. 
+   Journal of the Association for Computing Machinery (ACM). 8 (2): 212–229.
+
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
      URL http://www.jstatsoft.org/v43/i09/.
 
- ?? Nocedal
+ Nielsen HB (2000). UCMINF - An Algorithm For Unconstrained,
+     Nonlinear Optimization, Report IMM-REP-2000-18, Department of
+     Mathematical Modelling, Technical University of Denmark. <URL:
+     http://www2.imm.dtu.dk/~hbn/publ/TR0019.ps> or <URL:
+     http://orbit.dtu.dk/recid/200975>.
 
- ?? Yuan and Dai
-
-
+ Nocedal J, and Wright SJ (1999). Numerical optimization. New York: Springer. 2nd Edition 2006.
+ 
 }
 
 \keyword{nonlinear}

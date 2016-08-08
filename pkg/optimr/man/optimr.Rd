@@ -62,16 +62,20 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 \details{
   Note that arguments after \code{\dots} must be matched exactly.
 
+  This routine is essentially the same as that in package \code{optimrx} which is
+  NOT in CRAN. This version permits the selection of fewer optimizers in the 
+  \code{method} argument. This reduced selection is intended to avoid failures if dependencies
+  are not available. The available methods are listed in the variable \code{allmeth}
+  in the file \code{ctrldefault.R}.
+
   By default this function performs minimization, but it will maximize
   if \code{control$maximize} is TRUE. The original optim() function allows
   \code{control$fnscale} to be set negative to accomplish this. DO NOT
   use both methods. 
 
   Possible method codes are 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'nlm', 
-  'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa', 'nmkb', 'hjkb', 'Rcgmin', 
-  'lbfgsb3' or 'Rvmmin'. These are in base R or in CRAN repositories. 
-  From R-forge, method 'Rtnmin' is available. Other methods are likely to
-  be added over time.
+  'nlminb', 'Rcgmin', 'Rvmmin' and 'hjn'. These are in base R or in CRAN repositories
+  or part of this package. 
 
   The default methods for unconstrained problems (no \code{lower} or
   \code{upper} specified) are an implementation of the Nelder and Mead
@@ -106,12 +110,11 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   the authors of the original Fortran version of this method released a
   correction for bugs in 2011, but these have not been incorporated into
   the distributed R codes, which are a C translation of a version that
-  appears to be from the mid-1990s. While it seems the errors affect 
-  very few computations, users may wish to use the Fortran codes in 
-  package \code{lbfgsb3}. 
+  appears to be from the mid-1990s. Conversations with Jorge Nocedal
+  suggest that the bug should NOT affect L-BFGS-B. However, CRAN does
+  have a direct translation of the 2001 Fortran in package \code{lbfgsb3}. 
 
-  Nocedal and Wright (1999) is a comprehensive reference for the
-  previous three methods.
+  Nocedal and Wright (1999) is a comprehensive reference for such methods.
 
   Function \code{fn} can return \code{NA} or \code{Inf} if the function
   cannot be evaluated at the supplied value, but the initial value must
@@ -120,9 +123,9 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   returned should always be finite.
 
   While \code{optim} can be used recursively, and for a single parameter
-  as well as many, this may not be true for \code{optimx}. \code{optim}
+  as well as many, this may not be true for \code{optimr}. \code{optim}
   also accepts a zero-length \code{par}, and just evaluates the function 
-  with that argument.
+  with that argument, but such an input is not recommended.
 
   Method \code{"nlm"} is from the package of the same name that implements
   ideas of Dennis and Schnabel (1983) and Schnabel et al. (1985). See nlm()
@@ -133,14 +136,8 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   <URL: http://netlib.bell-labs.com/cm/cs/cstr/153.pdf>. See nlminb()
   for details. (Though there is very little information about the methods.)
 
-  Method \code{"spg"} is from package BB implementing a spectral projected 
-  gradient method for large-scale optimization with simple constraints due
-  R adaptation, with significant modifications, by Ravi Varadhan,
-  Johns Hopkins University (Varadhan and Gilbert, 2009), from the original
-  FORTRAN code of Birgin, Martinez, and Raydan (2001). 
-
   Method \code{"Rcgmin"} is from the package of that name. It implements a
-  conjugate gradient algorithm with the Yuan/Dai update (ref??) and also 
+  conjugate gradient algorithm with the Dai and Yuan update (2001) and also 
   allows bounds constraints on the parameters. (Rcgmin also allows mask 
   constraints -- fixing individual parameters -- but there is as yet no 
   interface from \code{"optimr"}.) 
@@ -151,24 +148,9 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   also allows mask constraints -- fixing individual parameters -- but 
   there is as yet no interface from \code{"optimr"}.) 
 
-  Method \code{"Rtnmin"} is from the package of that name. It implements a
-  truncated Newton method of Stephen Nash translated from Matlab. It 
-  allows bounds constraints on the parameters. 
+  Method \code{"hjn"} is a conservative implementation of a Hooke and 
+  Jeeves (1961) 
 
-  Methods \code{"bobyqa"}, \code{"uobyqa"} and \code{"newuoa"} are from the 
-  package \code{"minqa"} which implement optimization by quadratic approximation
-  routines of the similar names due to M J D Powell (2009). See package minqa 
-  for details. Note that \code{"uobyqa"} and \code{"newuoa"} are for 
-  unconstrained minimization, while \code{"bobyqa"} is for box constrained
-  problems. While \code{"uobyqa"} may be specified, it is NOT part of the 
-  \code{all.methods = TRUE} set.
-
-  Methods \code{"nmkb"} and \code{"hjkb"} are from package dfoptim. They 
-  implement respectively variants of the Nelder-Mead and Hooke and Jeeves
-  derivative-free methods, but both allow bounds constraints. However, it is
-  important to note that \code{"nmkb"} must NOT have starting parameters on
-  a lower or upper bound, as a transformation of the paramters is used to
-  effect the constraints. 
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -296,15 +278,19 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
  See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{suggests}.
 
+ Dai YH, and Yuan Y (2001). An efficient hybrid conjugate 
+      gradient method for unconstrained optimization. Annals of 
+       Operations Research 103 (1-4), 33–47.
+
+ Hooke R. and Jeeves, TA (1961). Direct search solution of numerical and statistical problems. 
+   Journal of the Association for Computing Machinery (ACM). 8 (2): 212–229.
+
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
      URL http://www.jstatsoft.org/v43/i09/.
 
- ?? Nocedal
-
- ?? Yuan and Dai
-
-
+ Nocedal J, and Wright SJ (1999). Numerical optimization. New York: Springer. 2nd Edition 2006.
+ 
 }
 
 \keyword{nonlinear}

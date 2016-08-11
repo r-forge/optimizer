@@ -1,4 +1,4 @@
-Changes in BB version 2015.10-1
+Changes in BB version 2015.12-1
 
    o	Added gcFirst=FALSE in spg timing test. In certain cases, especially
    	simulation, gc added significantly to execution time. (Suggested 

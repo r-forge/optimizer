@@ -20,38 +20,26 @@ b <- c(1, 0)
 #  bvec = b - c(A %*% par),  : 
 #  Error in projection
 
-ans <- spg(par=p0, fn=rosbkext.f, project="projectLinear", projectArgs=list(A=Amat, b=b, meq=1)) 
+ans <- spg(par=p0, fn=rosbkext.f, project="projectLinear", 
+   projectArgs=list(A=Amat, b=b, meq=1), control=list(maxit=2500)) 
 
-fuzz <- 5e-7
 
-if(fuzz < max(abs(ans$par -
-   c(5.46001058136910467e-01,  3.00133145466337903e-01,  9.30077533280728036e-02,
-     1.18680513875347674e-02,  3.38851273609307169e-03,  3.25955271864946869e-03,
-     3.25870517822328398e-03,  3.25869904467344929e-03,  3.25870153610197805e-03,
-     3.25869504035516781e-03,  3.25869964139831152e-03,  3.25870210072135361e-03,
-     3.25869386108257157e-03,  3.25870148633357684e-03,  3.25869879980698884e-03,
-     3.25869926113893892e-03,  3.25869852720016805e-03,  3.25856193090499902e-03,
-     3.23766981846091914e-03, -6.09863722023096244e-19)))){	
+if(1e-3 < max(abs(ans$par -  1.0 ))){	
    print(ans$par, digits=18)
    cat("difference:\n")
-   print(ans$par -   
-   c(5.46001058136910467e-01,  3.00133145466337903e-01,  9.30077533280728036e-02,
-     1.18680513875347674e-02,  3.38851273609307169e-03,  3.25955271864946869e-03,
-     3.25870517822328398e-03,  3.25869904467344929e-03,  3.25870153610197805e-03,
-     3.25869504035516781e-03,  3.25869964139831152e-03,  3.25870210072135361e-03,
-     3.25869386108257157e-03,  3.25870148633357684e-03,  3.25869879980698884e-03,
-     3.25869926113893892e-03,  3.25869852720016805e-03,  3.25856193090499902e-03,
-     3.23766981846091914e-03, -6.09863722023096244e-19),
-    digits=18)
+   print(ans$par -  1.0 , digits=18)
    stop("converged to different parameter values!")
    }
 
-if(fuzz < max(abs(ans$value - 17.4152583859326917))){
+if(1e-6 < max(abs(ans$value - 0.0 ))){
    print(ans$value, digits=18)
    stop("converged to different function value!")
    }
 
 ans
+
+# 2014 version and previous gave following but was indicating
+#  convergence when it had not really been obtained.
 # $par
 #  [1]  5.460011e-01  3.001331e-01  9.300775e-02  1.186805e-02  3.388513e-03
 #  [6]  3.259553e-03  3.258705e-03  3.258699e-03  3.258702e-03  3.258695e-03

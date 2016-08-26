@@ -116,9 +116,15 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                 ans$convcode<-9999 # failed in run
 		if (ctrl$trace>0) cat("nlminb function evaluation failure\n")
 		ans$value= ctrl$badval
+	        ans$objective<-NULL
 		ans$par<-rep(NA,npar)
         	ans$nitns<-NA # not used
                 ans$gevals<-NA ## ?? missing 130929
+	        ans$objective<-NULL
+	        ans$fevals<-ans$evaluations[1]
+        	ans$gevals<-ans$evaluations[2]
+		ans$evaluations<-NULL # cleanup
+	        ans$iterations<-NULL
         }
         ans$convergence<-NULL
 ##	if (ctrl$maximize) {

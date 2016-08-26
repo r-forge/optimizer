@@ -439,6 +439,61 @@ polyobjbig <- function(x, bignum=1e10, epsilon=0) {
  f
 }
 
+## @knitr polyex0
+
+# Example code
+nv <- 6
+cat("Polygon data:\n")
+myhex <- polysetup(nv)
+print(myhex)
+x0 <- myhex$par0 # initial parameters
+cat("Area:\n")
+myhexa <- polyarea(x0)
+print(myhexa)
+cat("XY coordinates\n")
+myheXY <- polypar2XY(x0)
+print(myheXY)
+plot(myheXY$x, myheXY$y, type="l")
+cat("Constraints:\n")
+myhexc<-polydistXY(myheXY)
+print(myhexc)
+cat("Vertex distances:")
+print(sqrt(myhexc))
+cat("check distances with polypar2distXY\n")
+try1 <- polypar2distXY(x0)
+print(try1)
+cat("check distances with polypardist2 augmenting output with parameter squares\n")
+try2 <- polypardist2(x0)
+try2 <- c(x0[1:(nv-1)]^2, try2)
+print(try2)
+cat("Max abs difference = ",max(abs(try1-try2)),"\n")
+
+## @knitr animation1
+
+tmp <- readline("Now try animation")
+
+start <- myhex$par0
+pt1 <- PolyTrack$new()
+
+library(minqa)
+ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
+lb <- c(rep(0, (2*nv-3)))
+sol <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
+
+# pt2 <- PolyTrack$new()
+
+
+# Redo the plots/animation after the optimization
+# JN June 3 -- not quite working. Looks like almost.
+tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)))
+
+
+
+
+tmp <- readline("continue to rest of examples")
+
+
+
 
 ## @knitr PolyTrack
 
@@ -498,57 +553,6 @@ PolyTrack <- R6Class("PolyTrack",
 # NOTE: Need to change nv to whatever is current value
                      
 )
-
-## @knitr polyex0
-
-# Example code
-nv <- 6
-cat("Polygon data:\n")
-myhex <- polysetup(nv)
-print(myhex)
-x0 <- myhex$par0 # initial parameters
-cat("Area:\n")
-myhexa <- polyarea(x0)
-print(myhexa)
-cat("XY coordinates\n")
-myheXY <- polypar2XY(x0)
-print(myheXY)
-plot(myheXY$x, myheXY$y, type="l")
-cat("Constraints:\n")
-myhexc<-polydistXY(myheXY)
-print(myhexc)
-cat("Vertex distances:")
-print(sqrt(myhexc))
-cat("check distances with polypar2distXY\n")
-try1 <- polypar2distXY(x0)
-print(try1)
-cat("check distances with polypardist2 augmenting output with parameter squares\n")
-try2 <- polypardist2(x0)
-try2 <- c(x0[1:(nv-1)]^2, try2)
-print(try2)
-cat("Max abs difference = ",max(abs(try1-try2)),"\n")
-
-tmp <- readline("Now try animation")
-
-start <- myhex$par0
-pt1 <- PolyTrack$new()
-
-library(minqa)
-ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
-lb <- c(rep(0, (2*nv-3)))
-sol <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
-
-# pt2 <- PolyTrack$new()
-
-
-# Redo the plots/animation after the optimization
-# JN June 3 -- not quite working. Looks like almost.
-tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)))
-
-
-
-
-tmp <- readline("continue to rest of examples")
 
 
 ## @knitr polyexq

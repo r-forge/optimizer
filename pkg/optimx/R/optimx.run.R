@@ -120,11 +120,13 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		ans$par<-rep(NA,npar)
         	ans$nitns<-NA # not used
                 ans$gevals<-NA ## ?? missing 130929
+                ans$gevals<-NA ## 160826 added
 	        ans$objective<-NULL
-	        ans$fevals<-ans$evaluations[1]
-        	ans$gevals<-ans$evaluations[2]
+	#       ans$fevals<-ans$evaluations[1] ## 160826 removed
+        #	ans$gevals<-ans$evaluations[2] ## 160826 removed
 		ans$evaluations<-NULL # cleanup
 	        ans$iterations<-NULL
+                ans$message <- "nlminb failure" # 160826 added
         }
         ans$convergence<-NULL
 ##	if (ctrl$maximize) {

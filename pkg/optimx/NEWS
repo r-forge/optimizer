@@ -2,6 +2,10 @@ NEWS about R package optimx
 
 TODO
 
+VERSION 2016-08-26
+      o Thanks to Henrik Singmann for spotting a bug in optimx.run.R
+        for the case where nlminb fails. I had missed resetting some
+        elements of the solution object in this case.
 
 VERSION 2015-06-03
       o Added index to bstate in optimx.check.R to avoid unwanted 

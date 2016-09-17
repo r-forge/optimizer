@@ -74,6 +74,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     meth <- method[i] # extract the method name
     if (control$trace > 0) cat("Method: ",meth,"\n")
     # Note: not using try() here
+    if (is.character(gr) && (control$trace>0)) cat("Using numerical gradient ",gr," for method ", meth,"\n")
     time <- system.time(ans <- optimr(par, fn, gr, method=meth, lower=lower, upper=upper, 
            hessian=hessian, control=control, ...))[1]
     # ?? FIX -- time is ALREADY done in optimr()

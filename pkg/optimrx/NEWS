@@ -30,6 +30,17 @@ TODO
 	Consider check to see if other package is loaded e.g., don't want
 	optimr and optimrx to be loaded simulataneously, but possibly R takes
 	care of that.
+      o Check all failures reported below are fixed!
+
+
+VERSION 2016-09-16
+      o Harry Joe reported troubles with numerical gradient approximations. Found
+	some glitches and conflicts to fix. Also documentation is less than ideal.
+        Scaling spar to par was INSIDE control$trace
+
+
+VERSION 2016-08-16
+      o checked and released on CRAN
 
 VERSION 2016-07-10
       o hessian=TRUE is NOT properly executed

@@ -30,4 +30,3 @@ S3method("as.data.frame", "opm")
 S3method("coef", "opm")
 S3method("coef<-", "opm")
 S3method("summary", "opm")
-

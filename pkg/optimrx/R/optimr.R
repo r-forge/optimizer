@@ -91,7 +91,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 
   nlmfn <- function(spar, ...){
      f <- efn(spar, ...)
-     g <- egr(spar, ...)
+     if (is.null(egr)) {g <- NULL} else {g <- egr(spar, ...)}
      attr(f,"gradient") <- g
      attr(f,"hessian") <- NULL # ?? maybe change later
      f
@@ -388,14 +388,34 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (method == "Rtnmin") { # Use Rtnmin routines 
 	if (control$trace>0) {mcontrol$trace <- TRUE } else {mcontrol$trace <- FALSE}
-
+	ans<-list() # ans not yet defined, so set as list
+        errmsg <- NA
+        class(ans)[1] <- "undefined" # initial setting
+        if (is.null(egr)) {
+            if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
+            errmsg <- "Rtnmin MUST have gradient provided"
+            class(ans)[1] <- "try-error"            
+        }
 	if (control$have.bounds) {
    	   ans <- try(tnbc(x=spar, fgfun=nlmfn, lower=slower,
                 upper=supper, trace=mcontrol$trace, ...))
 	} else {
    	   ans <- try(tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
 	}
-        if (class(ans)[1] != "try-error") {
+        if (class(ans)[1] == "try-error") {
+        	if (control$trace>0) cat("Rtnmin failed for current problem \n")
+                ans$convergence <- 9999 # failed in run
+	        ans$message <- "Rtnmin failed fo current problem"        
+                if (is.null(egr)) {
+                   ans$convergence <- 9998
+                   ans$message <- errmsg
+                } 
+		ans$value <- control$badval
+		ans$par<-rep(NA,npar)
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA 
+                ans$hessian <- NULL
+        } else {
                 ans$par <- ans$xstar*pscale
                 ans$xstar <- NULL
                 ans$value <- as.numeric(ans$f)
@@ -408,16 +428,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$nfngr <- NULL
                 ans$hessian <- NULL
 	        ans$message <- NA
-        } else {
-		if (control$trace>0) cat("Rtnmin failed for current problem \n")
-		ans<-list() # ans not yet defined, so set as list
-                ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
-		ans$par<-rep(NA,npar)
-	        ans$counts[1] <- NA # save function and gradient count information
-	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- NULL        
-                ans$hessian <- NULL
         }
         tufn <- NULL # 140902 -- clear function
         ## return(ans)
@@ -736,14 +746,23 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         if (control$trace > 1) cat("lbfgs\n")
         if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
         if (control$trace > 1) cat("lbfgs:control$have.bounds =",control$have.bounds,"\n")
+        ans <- list() # to define the answer object
+        errmsg <- NA
+        class(ans)[1] <- "undefined" # initial setting
         if (control$have.bounds) { 
               if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
               errmsg <- "lbfgs::lbfgs cannot handle bounds\n"
             ##  stop("lbfgs::lbfgs tried with bounds")
-            ans <- list()
             class(ans)[1] <- "try-error"            
-        } else {
-	    dotstuff <- list(...)
+        }
+        if (is.null(egr)) {
+            if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
+            errmsg <- "lbfgs::lbfgs MUST have gradient provided\n"
+            ##  stop("lbfgs::lbfgs tried with bounds")
+            class(ans)[1] <- "try-error"            
+        }
+        if (class(ans)[1] == "undefined"){
+            dotstuff <- list(...)
 	    # cat("dotstuff:\n")
 #	    print(dotstuff)
 	    dotstuff$pscale <- pscale
@@ -767,10 +786,11 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$value <- control$badval
             ans$par <- rep(NA,npar)
             ans$convergence <- 9999 # failed in run
+            if (is.null(egr)) ans$convergence <- 9998 # no gradient
             ans$counts[1] <- NA
             ans$counts[1] <- NA
             ans$hessian <- NULL
-            ans$message <- NA
+            if (! is.na(errmsg)) ans$message <- errmsg
          }
          ## return(ans)
       }  ## end if using lbfgs

@@ -100,7 +100,8 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       if ( control$save.failures || (ans$convergence < 1) ){# Save soln if converged or directed to save
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 
 # Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
-          if ((control$kkt || hessian) && (ans$convergence != 9999)) {
+#          if ((control$kkt || hessian) && (ans$convergence != 9999)) {
+           if ((control$kkt || hessian) && (ans$convergence < 9900)) { # chg 160917 for no gradient
              wgr <- gr
              if (is.null(wgr)) wgr <- control$defgrapprox
              kktres <- kktchk(ans$par, fn, wgr, hess=NULL, upper=NULL, lower=NULL, 

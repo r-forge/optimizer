@@ -8,6 +8,9 @@ TODOS
 
    o    Setup trace as integer to work properly
 
+
+??2016-09-22 account for null gradient 
+
 2016-06-28
 
    o    Removed development files from inst, and inst directory

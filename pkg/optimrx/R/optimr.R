@@ -21,8 +21,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   npar <- length(par)
   defctrl <- ctrldefault(npar) # could leave this out in most cases
 
-  ## ?? check if maximize and fnscale conflict ??
-
   if (is.null(control$parscale)) { 
         pscale <- rep(1,npar)
         if(control$trace > 0) { cat("Unit parameter scaling\n") }
@@ -99,7 +97,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? do we want ehess ?    Not at 150714
 
 ## Masks 
-   maskmeth <- control$maskmeth
+   maskmeth <- defctrl$maskmeth
    msk <- bdmsk$bdmsk # Only need the masks bit from here on
    if (any(msk == 0) ) {
       if ( !(method %in% maskmeth) ) {
@@ -129,7 +127,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
           method == "CG" || 
           method == "SANN") {
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
-        mcontrol$maxit <- control$maxit 
+        mcontrol$maxit <- defctrl$maxit # 160922 
         mcontrol$trace <- control$trace
 ##	mcontrol$parscale <- control$parscale # Use internal scaling
         mcontrol$parscale <- NULL # using user fn 
@@ -168,7 +166,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 errmsg <- "optim method failure\n"
                 if (method != "L-BFGS-B") errmsg <- paste("optim() with bounds ONLY uses L-BFGS-B: ", errmsg)
 		if (control$trace>0) cat(errmsg)
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -204,7 +202,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
 		if (control$trace>0) cat("nlminb failure\n")
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -250,7 +248,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("nlm failed for this problem\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -283,7 +281,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("spg failed for this problem\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -338,7 +336,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("ucminf failed for this problem\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -372,7 +370,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 }
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -409,8 +407,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 if (is.null(egr)) {
                    ans$convergence <- 9998
                    ans$message <- errmsg
+                   ans$value <- 1234567E20
                 } 
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA 
@@ -455,7 +454,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             }
 	    ans<-list() # ans not yet defined, so set as list
             ans$convergence <- 9999 # failed in run
-	    ans$value <- control$badval
+	    ans$value <- defctrl$badval
 	    ans$par<-rep(NA,npar)
 	    ans$counts[1] <- NA # save function and gradient count information
 	    ans$counts[2] <- NA # save function and gradient count information
@@ -497,7 +496,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("bobyqa failed for current problem \n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -519,7 +518,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("Cannot use uobyqa with bounds\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -548,7 +547,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("uobyqa failed for current problem \n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -571,7 +570,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("Cannot use newuoa with bounds\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -600,7 +599,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("bobyqa failed for current problem \n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -616,7 +615,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
            if (control$trace>0) cat("nmkb cannot start if on any bound \n")
            warning("nmkb() cannot be started if any parameter on a bound")
            ans <- list() # ans not yet defined, so set as list
-           ans$value <- control$badval
+           ans$value <- defctrl$badval
            ans$par <- rep(NA,npar)
            ans$convcode <- 9999 # failed in run - ?? consider special code for nmkb on bounds
            ans$fevals <- NA 
@@ -656,7 +655,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          } else {
            if (control$trace>0) cat("nmkb failed for current problem \n")
            ans <- list(fevals=NA) # ans not yet defined, so set as list
-           ans$value <- control$badval
+           ans$value <- defctrl$badval
            ans$par <- rep(NA,npar)
            ans$counts[1] <- NA
            ans$counts[2] <- NA
@@ -691,7 +690,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
            ans$nitns <- NULL # loss of information
          } else {
             if (control$trace>0) cat("hjkb failed for current problem \n")
-            ans <- list(value=control$badval, par=rep(NA,npar), message="Failed",
+            ans <- list(value=defctrl$badval, par=rep(NA,npar), message="Failed",
                 convergence=9999)
             ans$counts[1]<- NA
             ans$counts[2]<- NA 
@@ -731,7 +730,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          } else {
             if (control$trace>0) cat("lbfgsb3 failed for current problem \n")
             ans<-list(fevals=NA) # ans not yet defined, so set as list
-            ans$value <- control$badval
+            ans$value <- defctrl$badval
             ans$par<-rep(NA,npar)
             ans$convergence<-9999 # failed in run
             ans$counts[1] <- NA
@@ -783,7 +782,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          } else {
             if (control$trace>0) cat("lbfgs failed for current problem \n")
             ans<-list() # ans not yet defined, so set as list
-            ans$value <- control$badval
+            ans$value <- defctrl$badval
             ans$par <- rep(NA,npar)
             ans$convergence <- 9999 # failed in run
             if (is.null(egr)) ans$convergence <- 9998 # no gradient
@@ -811,7 +810,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          } else {
             if (control$trace > 0) cat("hjn failed for current problem \n")
             ans<-list() # ans not yet defined, so set as list
-            ans$value <- control$badval
+            ans$value <- defctrl$badval
             ans$par <- rep(NA,npar)
             ans$convergence <- 9999 # failed in run
             ans$counts[1] <- NA

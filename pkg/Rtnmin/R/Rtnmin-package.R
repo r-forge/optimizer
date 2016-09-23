@@ -236,7 +236,9 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    g<- attr(fg,"gradient")
    f<-fg
    flast  <- f
-   gnorm  <- max(abs(g)) ##  norm(g,'inf') 
+   if (is.null(g) ) { ## 160922 change
+     gnorm <- 1.0/eps 
+   } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
 ## ---------------------------------------------------------
 ##  Test if Lagrange multipliers are non-negative.
 ##  Because the constraints are only bounds, the Lagrange
@@ -249,7 +251,9 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
       ipivot[ind] <- rep(0, length(ind)) 
    } 
    g <- ztime (g, ipivot) 
-   gnorm <- max(abs(g)) 
+   if (is.null(g) ) { ## 160922 change
+     gnorm <- 1.0/eps 
+   } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
    cat(nit,"\t", nf,"\t", ncg,"\t", f,"  ", gnorm,"\n")
    ## print(x)
    ## print(g)
@@ -502,7 +506,9 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 #%    print(fg)
    g<- attr(fg, "gradient")
    f<-fg
-   gnorm  <- max(abs(g)) ##  norm(g,'inf') 
+   if (is.null(g) ) { ## 160922 change
+     gnorm <- 1.0/eps 
+   } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
    nf     <- 1 
    nit    <- 0 
    if (trace)  cat("Itn ",nit," ",nf," ",ncg, " ",f, " ", gnorm,"\n")
@@ -578,8 +584,10 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 
      nf <- nf + nf1 
 ## ---------------------------------------------------------
-      nit <- nit + 1 
-      gnorm <- max(abs(g)) # norm(g,'inf') 
+      nit <- nit + 1
+      if (is.null(g) ) { ## 160922 change
+        gnorm <- 1.0/eps 
+      } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
 ### Display info
       if (trace) cat("Itn ",nit," ",nf," ",ncg, " ",f, " ", gnorm,"\n")
       if (ierror == 3) { 

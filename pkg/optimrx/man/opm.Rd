@@ -78,6 +78,15 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       there are six levels of tracing. trace = 0 gives no output 
       (To understand exactly what these do see the source code: higher 
       levels give more detail.)}
+    \item{\code{fnscale}}{An overall scaling to be applied to the value
+      of \code{fn} and \code{gr} during optimization. If negative,
+      turns the problem into a maximization problem. Optimization is
+      performed on \code{fn(par)/fnscale}. For methods from the set in
+      \code{optim()}. Note potential conflicts with the control \code{maximize}.}
+    \item{\code{parscale}}{A vector of scaling values for the parameters.
+	Optimization is performed on \code{par/parscale} and these should be
+	comparable in the sense that a unit change in any element produces
+	about a unit change in the scaled value.For \code{optim}.}
     \item{\code{save.failures}}{ = TRUE (default) if we wish to keep "answers" from runs 
       where the method does not return convcode==0. FALSE otherwise.}
     \item{\code{maximize}}{ = TRUE if we want to maximize rather than minimize 
@@ -110,62 +119,15 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       Default is (0.5)*.Machine$double.xmax }
   }
 
-  The following \code{control} elements apply only to some of the methods. The list
-  may be incomplete. See individual packages for details. 
-
-  \describe{
-
-    \item{\code{fnscale}}{An overall scaling to be applied to the value
-      of \code{fn} and \code{gr} during optimization. If negative,
-      turns the problem into a maximization problem. Optimization is
-      performed on \code{fn(par)/fnscale}. For methods from the set in
-      \code{optim()}. Note potential conflicts with the control \code{maximize}.}
-    \item{\code{parscale}}{A vector of scaling values for the parameters.
-	Optimization is performed on \code{par/parscale} and these should be
-	comparable in the sense that a unit change in any element produces
-	about a unit change in the scaled value.For \code{optim}.}
-    \item{\code{ndeps}}{A vector of step sizes for the finite-difference
-      approximation to the gradient, on \code{par/parscale}
-      scale. Defaults to \code{1e-3}. For \code{optim}.}
-    \item{\code{maxit}}{The maximum number of iterations. Defaults to
-      \code{100} for the derivative-based methods, and
-      \code{500} for \code{"Nelder-Mead"}.}
-    \item{\code{abstol}}{The absolute convergence tolerance. Only
-      useful for non-negative functions, as a tolerance for reaching zero.}
-    \item{\code{reltol}}{Relative convergence tolerance.  The algorithm
-      stops if it is unable to reduce the value by a factor of
-      \code{reltol * (abs(val) + reltol)} at a step.  Defaults to
-      \code{sqrt(.Machine$double.eps)}, typically about \code{1e-8}. For \code{optim}.}
-    \item{\code{alpha}, \code{beta}, \code{gamma}}{Scaling parameters
-      for the \code{"Nelder-Mead"} method. \code{alpha} is the reflection
-      factor (default 1.0), \code{beta} the contraction factor (0.5) and
-      \code{gamma} the expansion factor (2.0).}
-    \item{\code{REPORT}}{The frequency of reports for the \code{"BFGS"} and
-      \code{"L-BFGS-B"} methods if \code{control$trace}
-      is positive. Defaults to every 10 iterations for \code{"BFGS"} and
-      \code{"L-BFGS-B"}.}
-    \item{\code{type}}{for the conjugate-gradients method. Takes value
-      \code{1} for the Fletcher--Reeves update, \code{2} for
-      Polak--Ribiere and \code{3} for Beale--Sorenson.}
-    \item{\code{lmm}}{is an integer giving the number of BFGS updates
-      retained in the \code{"L-BFGS-B"} method, It defaults to \code{5}.}
-    \item{\code{factr}}{controls the convergence of the \code{"L-BFGS-B"}
-      method. Convergence occurs when the reduction in the objective is
-      within this factor of the machine tolerance. Default is \code{1e7},
-      that is a tolerance of about \code{1e-8}.}
-    \item{\code{pgtol}}{helps control the convergence of the \code{"L-BFGS-B"}
-      method. It is a tolerance on the projected gradient in the current
-      search direction. This defaults to zero, when the check is
-      suppressed.}
-  }
+  There may be \code{control} elements that apply only to some of the methods. Using these
+  may or may not "work" with \code{opm()}, and errors may occur with methods for which 
+  the controls have no meaning. 
+  However, it should be possible to call the underlying \code{optimr()} function with 
+  these method-specific controls.
 
   Any names given to \code{par} will be copied to the vectors passed to
   \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
   are copied over. (We have not verified this as at 2009-07-29.)
-
-%  There are \code{[.optimx}, \code{as.data.frame.optimx}, \code{\link{coef.optimx}} 
-%  and \code{\link{summary.optimx}} methods available.
-
 }
 \value{
 
@@ -200,6 +162,9 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
       \item{\code{52}}{indicates an error from the \code{"L-BFGS-B"}
       method; see component \code{message} for further details.}
+      \item{\code{9998}}{indicates that the method has been called with a NULL 'gr'
+         function, and the method requires that such a function be supplied.}
+      \item{\code{9999}}{indicates the method has failed.}
     }
   }
   \item{kkt1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}

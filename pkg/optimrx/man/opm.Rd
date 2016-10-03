@@ -1,34 +1,18 @@
-% File src/library/stats/man/optimx.Rd
-% Part of the R package, http://www.R-project.org
-% Copyright 1995-2007 R Core Development Team
-% Distributed under GPL 2 or later
-
 \name{opm}
 \alias{opm}
-% \alias{[.optimx}
-% \alias{as.data.frame.optimx}
 \encoding{UTF-8}
 \title{General-purpose optimization}
 \concept{minimization}
 \concept{maximization}
 \description{
-  General-purpose optimization wrapper function that calls other
-  R tools for optimization, including the existing optim() function.
-  \code{optimx} also tries to unify the calling sequence to allow
-  a number of tools to use the same front-end. These include 
-  \code{spg} from the BB package, \code{ucminf}, \code{nlm}, \code{nlminb},
-  \code{Rtnmin}, \code{lbfgsb3}, \code{lbfgs}, \code{nmkb} and \code{hjkb}
-  from the dfoptim package, \code{uobyqa}, \code{newuoa} and \code{bobyqa} 
-  from the minqa package. 
+  General-purpose optimization wrapper function that calls multiple other
+  R tools for optimization, including the existing optim() function tools.
 
-  Note that 
-  optim() itself allows Nelder--Mead, quasi-Newton and 
-  conjugate-gradient algorithms as well as box-constrained optimization 
-  via L-BFGS-B. Because SANN does not return a meaningful convergence code
+  Because SANN does not return a meaningful convergence code
   (conv), \code{opm()} does not call the SANN method, but it can be invoked 
   in \code{optimr()}.
 
-  There is a pseudo-method "ALL" that runs all methods but SANN. Note that
+  There is a pseudo-method "ALL" that runs all available methods. Note that
   this is upper-case.
 }
 \usage{
@@ -41,20 +25,26 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
  \item{par}{a vector of initial values for the parameters 
    for which optimal values are to be found. Names on the elements
    of this vector are preserved and used in the results data frame.}  
- \item{fn}{A function to be minimized (or maximized), with first
+ \item{fn}{A function to be minimized (or maximized), with a first
    argument the vector of parameters over which minimization is to take
    place.  It should return a scalar result.}
  \item{gr}{A function to return (as a vector) the gradient for those methods that 
    can use this information.
 
-   If 'gr' is \code{NULL}, a finite-difference approximation will be used.
-   An open question concerns whether the SAME approximation code used for all methods, 
-   or whether there are differences that could/should be examined? }
+   If 'gr' is \code{NULL}, whatever default actions are supplied by the methods
+   specified will be used. However, some methods REQUIRE a gradient function, so 
+   will fail in this case. \code{opm()} will generally return with \code{convergence}
+   set to 9998 for such methods.
 
+   If 'gr' is a character string, this character string will be taken to be the name
+   of an available gradient approximation function. Examples are "grfwd", "grback", 
+   "grcentral" and "grnd", with the last name referring to the default method of 
+   package \code{numDeriv}.}
  \item{hess}{A function to return (as a symmetric matrix) the Hessian of the objective 
-   function for those methods that can use this information.}
+   function for those methods that can use this information. At the time of writing,
+   we know of none in the methods which can be called by \code{opm()}.}
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can
-   handle box (or bounds) constraints.}
+   handle box (or bounds) constraints. These are vectors.}
  \item{method}{A vector of the methods to be used, each as a character string.
        Note that this is an important change from optim() that allows
        just one method to be specified. See \sQuote{Details}. If \code{method}
@@ -72,83 +62,11 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 \details{
   Note that arguments after \code{\dots} must be matched exactly.
 
-  Possible method codes at the time of writing are 'Nelder-Mead', 'BFGS',
-  'CG', 'L-BFGS-B', 'nlm', 'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa',
-  'nmkb', 'hjkb', 'Rcgmin', or 'Rvmmin'.
-
-  The default methods for unconstrained problems (no \code{lower} or
-  \code{upper} specified) are an implementation of the Nelder and Mead
-  (1965) and a Variable Metric method based on the ideas of Fletcher
-  (1970) as modified by him in conversation with Nash (1979). Nelder-Mead
-  uses only function values and is robust but relatively slow.  It will 
-  work reasonably well for non-differentiable functions. The Variable
-  Metric method, \code{"BFGS"} updates an approximation to the inverse
-  Hessian using the BFGS update formulas, along with an acceptable point
-  line search strategy. This method appears to work best with analytic
-  gradients. (\code{"Rvmmmin"} provides a box-constrained version of this
-  algorithm.
-
-  If no \code{method} is given, and there are bounds constraints provided,
-  the method is set to \code{"L-BFGS-B"}.
-
-  Method \code{"CG"} is a conjugate gradients method based on that by
-  Fletcher and Reeves (1964) (but with the option of Polak--Ribiere or
-  Beale--Sorenson updates). The particular implementation is now dated,
-  and improved yet simpler codes are being implemented (as at June 2009),
-  and furthermore a version with box constraints is being tested.
-  Conjugate gradient methods will generally be more fragile than the 
-  BFGS method, but as they do not store a matrix they may be successful 
-  in much larger optimization problems.
-
-  Method \code{"L-BFGS-B"} is that of Byrd \emph{et. al.} (1995) which
-  allows \emph{box constraints}, that is each variable can be given a lower
-  and/or upper bound. The initial value must satisfy the constraints.
-  This uses a limited-memory modification of the BFGS quasi-Newton
-  method. If non-trivial bounds are supplied, this method will be
-  selected, with a warning.
-
-  Nocedal and Wright (1999) is a comprehensive reference for the
-  previous three methods.
-
-  Function \code{fn} can return \code{NA} or \code{Inf} if the function
-  cannot be evaluated at the supplied value, but the initial value must
-  have a computable finite value of \code{fn}. However, some methods, of
-  which \code{"L-BFGS-B"} is known to be a case, require that the values
-  returned should always be finite.
-
-  While \code{optim} can be used recursively, and for a single parameter
-  as well as many, this may not be true for \code{optimx}. \code{optim}
-  also accepts a zero-length \code{par}, and just evaluates the function 
-  with that argument.
-
-  Method \code{"nlm"} is from the package of the same name that implements
-  ideas of Dennis and Schnabel (1983) and Schnabel et al. (1985). See nlm()
-  for more details.
-
-  Method \code{"nlminb"} is the package of the same name that uses the
-  minimization tools of the PORT library.  The PORT documentation is at 
-  <URL: http://netlib.bell-labs.com/cm/cs/cstr/153.pdf>. See nlminb()
-  for details. (Though there is very little information about the methods.)
-
-  Method \code{"spg"} is from package BB implementing a spectral projected 
-  gradient method for large-scale optimization with simple constraints due
-  R adaptation, with significant modifications, by Ravi Varadhan,
-  Johns Hopkins University (Varadhan and Gilbert, 2009), from the original
-  FORTRAN code of Birgin, Martinez, and Raydan (2001). 
-
-  Method \code{"Rcgmin"} is from the package of that name. It implements a
-  conjugate gradient algorithm with the Yuan/Dai update (ref??) and also 
-  allows bounds constraints on the parameters. (Rcgmin also allows mask 
-  constraints -- fixing individual parameters -- but there is no interface
-  from \code{"optimx"}.) 
-
-  Methods \code{"bobyqa"}, \code{"uobyqa"} and \code{"newuoa"} are from the 
-  package \code{"minqa"} which implement optimization by quadratic approximation
-  routines of the similar names due to M J D Powell (2009). See package minqa 
-  for details. Note that \code{"uobyqa"} and \code{"newuoa"} are for 
-  unconstrained minimization, while \code{"bobyqa"} is for box constrained
-  problems. While \code{"uobyqa"} may be specified, it is NOT part of the 
-  \code{all.methods = TRUE} set.
+  For details of how \code{opm()} calls the methods, see the documentation
+  and code for \code{optimr()}. The documentation and code for individual
+  methods may also be useful. Note that some simplification of the calls
+  may have been necessary, for example, to provide reasonable default values
+  for method controls.
 
   The \code{control} argument is a list that can supply any of the
   following components:
@@ -160,11 +78,8 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       there are six levels of tracing. trace = 0 gives no output 
       (To understand exactly what these do see the source code: higher 
       levels give more detail.)}
-    \item{\code{follow.on }}{ = TRUE or FALSE. If TRUE, and there are multiple 
-      methods, then the last set of 
-      parameters from one method is used as the starting set for the next. }
-    \item{\code{save.failures}}{ = TRUE if we wish to keep "answers" from runs 
-      where the method does not return convcode==0. FALSE otherwise (default).}
+    \item{\code{save.failures}}{ = TRUE (default) if we wish to keep "answers" from runs 
+      where the method does not return convcode==0. FALSE otherwise.}
     \item{\code{maximize}}{ = TRUE if we want to maximize rather than minimize 
       a function. (Default FALSE). Methods nlm, nlminb, ucminf cannot maximize a
       function, so the user must explicitly minimize and carry out the adjustment
@@ -174,30 +89,25 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
       methods.  This is equivalent to setting \code{method="ALL"}}
     \item{\code{kkt}}{=FALSE if we do NOT want to test the Kuhn, Karush, Tucker
-      optimality conditions. The default is TRUE. However, because the Hessian
+      optimality conditions. The default is generally TRUE. However, because the Hessian
       computation may be very slow, we set \code{kkt} to be FALSE if there are 
       more than than 50 parameters when the gradient function \code{gr} is not 
       provided, and more than 500
       parameters when such a function is specified. We return logical values \code{KKT1}
       and \code{KKT2} TRUE if first and second order conditions are satisfied approximately.
       Note, however, that the tests are sensitive to scaling, and users may need
-      to perform additional verification. If \code{kkt} is FALSE but \code{hessian}
-      is TRUE, then \code{KKT1} is generated, but \code{KKT2} is not.}
+      to perform additional verification. If \code{hessian} is TRUE, this overrides 
+      control \code{kkt}.}
     \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
       methods.}
     \item{\code{kkttol}}{= value to use to check for small gradient and negative
       Hessian eigenvalues. Default = .Machine$double.eps^(1/3) }
     \item{\code{kkt2tol}}{= Tolerance for eigenvalue ratio in KKT test of positive 
       definite Hessian. Default same as for kkttol }
-    \item{\code{starttests}}{= TRUE if we want to run tests of the function and 
-      parameters: feasibility relative to bounds, analytic vs numerical gradient, 
-      scaling tests, before we try optimization methods. Default is TRUE.}
     \item{\code{dowarn}}{= FALSE if we want to suppress warnings generated by \code{opm()} or
       \code{optimr()}. Default is TRUE.}
     \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.
       Default is (0.5)*.Machine$double.xmax }
-    \item{\code{usenumDeriv}}{= TRUE if the \code{numDeriv} function \code{grad()} is
-      to be used to compute gradients when the argument \code{gr} is NULL or not supplied.}
   }
 
   The following \code{control} elements apply only to some of the methods. The list

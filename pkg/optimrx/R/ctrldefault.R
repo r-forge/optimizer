@@ -1,17 +1,6 @@
 ##################################################################
 ctrldefault <- function(npar) { 
 # THIS IS FULL VERSION FOR optimrx
-## setoptctrl is new name
-#   possmeths = c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "SANN", "nlm", 
-#	"nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",
-#	"spg", "ucminf", "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb")
-#
-#   usenumDeriv = FALSE
-#	follow.on = FALSE, 
-#        grcheckfwithg = 500,
-#        grcheckfnog = 50,
-#
-#        starttests = TRUE,
 #
      ## These are DEFAULTS. They may be nonsense in some contexts.
 

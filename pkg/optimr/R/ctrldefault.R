@@ -2,20 +2,15 @@
 ctrldefault <- function(npar) { 
 #  THIS VERSION FOR optimr (reduced set of methods)
 #
-## setoptctrl is new name
-#   usenumDeriv = FALSE
-#	follow.on = FALSE, 
-#        grcheckfwithg = 500,
-#        grcheckfnog = 50,
-#
-#        starttests = TRUE,
-#
      ## These are DEFAULTS. They may be nonsense in some contexts.
 
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "Rcgmin", "Rvmmin", "hjn")
+               "Rcgmin", "Rvmmin", "hjn")
+
+
 
       bdmeth <- c("L-BFGS-B", "nlminb", "Rcgmin", "Rvmmin",  "hjn")
+
 
       maskmeth <- c("Rcgmin", "Rvmmin", "hjn")
  

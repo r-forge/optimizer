@@ -473,19 +473,32 @@ cat("Max abs difference = ",max(abs(try1-try2)),"\n")
 tmp <- readline("Now try animation")
 
 start <- myhex$par0
-pt1 <- PolyTrack$new()
+# pt1 <- PolyTrack$new()
 
 library(minqa)
 ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
 lb <- c(rep(0, (2*nv-3)))
-sol <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
+# sol <- bobyqa(start, polyobj, lower=lb, upper=ub, control=list(rhobeg=1, rhoend=1e-8, iprint=3), penfactor=10)
 
+pf <- 1e-4
+
+while (pf > 1e-12) {
+sol <- bobyqa(start, polyobj, lower=lb, upper=ub, control=list(iprint=1), penfactor=pf)
+   start <- sol$par
+   carea <- polyarea(start)
+   cat("area=", carea,"  penfactor = ",pf,"\n")
+   pf <- pf / 10
+}
+
+tmp <- readline("stop here")
 # pt2 <- PolyTrack$new()
 
 
 # Redo the plots/animation after the optimization
 # JN June 3 -- not quite working. Looks like almost.
-tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)))
+# tkexamp(pt1$PlotPolys(), 
+#    list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)),
+#    hscale=1.25, vscale=1.25)
 
 
 

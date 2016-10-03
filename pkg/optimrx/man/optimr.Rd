@@ -19,7 +19,7 @@
   optim() itself allows Nelder--Mead, quasi-Newton and 
   conjugate-gradient algorithms as well as box-constrained optimization 
   via L-BFGS-B. Because SANN does not return a meaningful convergence code
-  (conv), optimrx::optimr() does not call the SANN method.
+  (conv), optimr::optimr() and optimrx::optimr() do not call the SANN method.
 }
 \usage{
 optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
@@ -40,7 +40,8 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
    If 'gr' is \code{NULL}, whatever default action is specified for the 
    chosen method for the case of a null gradient code
    is used. For many methods, this is a finite-difference approximation, 
-   but some methods require user input for the gradient. 
+   but some methods require user input for the gradient and will fail
+   otherwise. In such cases, we try to return \code{convergence} of 9998. 
    
    If 'gr' is a character string, then that string is taken as the name of 
    a gradient approximation function, for example, "grfwd", "grback" and
@@ -56,7 +57,7 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
    from the lower/upper bounds set,
    but this behaviour has NOT yet been defined and users are cautioned.)}
  \item{method}{A character string giving the name of the optimization method to be
-    applied.}
+    applied. See the ??}
  \item{hessian}{A logical control that if TRUE forces the computation of an approximation 
        to the Hessian at the final set of parameters. Note that this will NOT necessarily
        use the same approximation as may be provided by the method called. Instead, 

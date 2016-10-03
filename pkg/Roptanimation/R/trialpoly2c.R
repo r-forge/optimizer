@@ -66,7 +66,7 @@ PolyTrack <- R6Class("PolyTrack",
       sobj <- sprintf("%.5f",self$fvals[[i]])
       sviol <- sprintf("%.5f",self$maxviol[[i]])
       title(sub=paste("Max violation=",sviol,"  obj.fn.=",sobj,
-               " i=",i))
+               " i=",i)) # i is the index of the plot (only draw "better" ones)
     }
   ) # end of public list, no private list
 # NOTE: Need to change nv to whatever is current value
@@ -249,6 +249,28 @@ polyarea<-function(b) {
    area
 }
 
+## @knitr polypardist2
+
+polypardist2 <- function(b) {
+# compute the pairwise distances for non-radii lines
+   nv <- (length(b) + 3)/2 
+   l8 <- nv - 3 # end of radii params
+   ll <- 0 # count the distances (non-radii ones)
+   sqdist <- rep(NA, (nv-1)*(nv-2)/2)
+   for (ii in 2:(nv-1)){
+      for (jj in (ii+1):nv) {
+          ra <- b[ii-1]
+          rb <- b[jj-1]
+          angleab <- 0
+          for (kk in (ii+1):jj) { angleab <- angleab + b[kk+l8] }
+          d2 <- ra*ra+rb*rb -2*ra*rb*cos(angleab) # Cosine rule for squared dist
+          ll <- ll+1
+          sqdist[[ll]] <- d2
+      }
+   }  
+   sqdist
+}
+
 ## @knitr polydistXY
 
 polydistXY <- function(XY) {
@@ -311,10 +333,11 @@ lb <- c(rep(0, (2*nv-3)))
 # solq <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=3), penfactor=10)
 sol <- bobyqa(start, polyobj, lower=lb, upper=ub, control=list(iprint=3), penfactor=1e-4)
 
-# pt2 <- PolyTrack$new()
-
+str(pt1)
+tmp <- readline("cont.")
 
 # Redo the plots/animation after the optimization
 # JN June 3 -- not quite working. Looks like almost.
-tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)))
+tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), 
+   delay=pt1$Delay*100)), vscale=1.25, hscale=1.25)
 

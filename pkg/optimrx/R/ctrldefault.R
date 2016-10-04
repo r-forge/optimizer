@@ -21,6 +21,7 @@ ctrldefault <- function(npar) {
 	badval = (0.5)*.Machine$double.xmax,
         bdmeth = bdmeth,
         defgrapprox = "grfwd",
+        defmethod = "Nelder-Mead",
         dowarn = TRUE, 
         eps = 1e-07, 
         fnscale = 1.0, 

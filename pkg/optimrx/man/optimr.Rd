@@ -1,8 +1,3 @@
-% File src/library/stats/man/optim.Rd
-% Part of the R package, http://www.R-project.org
-% Copyright 1995-2007 R Core Development Team
-% Distributed under GPL 2 or later
-
 \name{optimr}
 \alias{optimr}
 \encoding{UTF-8}
@@ -12,14 +7,9 @@
 \description{
   General-purpose optimization wrapper function that calls other
   R tools for optimization, including the existing optim() function.
-  \code{optim} also tries to unify the calling sequence to allow
-  a number of tools to use the same front-end. These include 
-  \code{spg} from the BB package, \code{ucminf}, \code{nlm}, and 
-  \code{nlminb}. Note that 
-  optim() itself allows Nelder--Mead, quasi-Newton and 
-  conjugate-gradient algorithms as well as box-constrained optimization 
-  via L-BFGS-B. Because SANN does not return a meaningful convergence code
-  (conv), optimr::optimr() and optimrx::optimr() do not call the SANN method.
+  \code{optimr} also tries to unify the calling sequence to allow
+  a number of tools to use the same front-end, in fact using the
+  calling sequence of the R function \code{optim()}.
 }
 \usage{
 optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
@@ -48,7 +38,6 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
    "grcentral" for standard forward, backward and central approximations.
    (See the code in package \code{optextras} for details.) Method "grnd" 
    uses the \code{grad()} function from package \code{numDeriv}.
-
  }   
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can
    handle box (or bounds) constraints. A small set of methods can handle masks, that is,
@@ -57,7 +46,8 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
    from the lower/upper bounds set,
    but this behaviour has NOT yet been defined and users are cautioned.)}
  \item{method}{A character string giving the name of the optimization method to be
-    applied. See the ??}
+    applied. See the list \code{allmeth} in file 
+  \code{ctrldefault.R} which is part of this package.}
  \item{hessian}{A logical control that if TRUE forces the computation of an approximation 
        to the Hessian at the final set of parameters. Note that this will NOT necessarily
        use the same approximation as may be provided by the method called. Instead, 
@@ -66,7 +56,8 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
        is applied to the gradient function \code{gr}.}
  \item{control}{A list of control parameters. See \sQuote{Details}.}
  \item{\dots}{Further arguments to be passed to \code{fn} 
-    and \code{gr} if needed for computation of these quantities; otherwise, further arguments are not used.}
+    and \code{gr} if needed for computation of these quantities; otherwise, further 
+    arguments are not used.}
 }
 \details{
   Note that arguments after \code{\dots} should be matched exactly.
@@ -76,19 +67,23 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   \code{control$fnscale} to be set negative to accomplish this. DO NOT
   use both mechanisms simultaneously. 
 
-  Possible method codes are 'Nelder-Mead', 'BFGS', 'CG', 'L-BFGS-B', 'nlm', 
-  'nlminb', 'spg', 'ucminf', 'newuoa', 'bobyqa', 'nmkb', 'hjkb', 'Rcgmin', 
-  'lbfgsb3', 'Rtnmin', 'hjn', 'lbfgs' or 'Rvmmin'. These are in base R or in CRAN repositories. 
+  Possible method choices are specified by the list \code{allmeth} in the file
+  \code{ctrldefault.R} which is part of this package. Fewer methods are available in 
+  packge \code{optimr} on CRAN than package \code{optimrx} which is NOT on CRAN to
+  avoid issues if packages on which function \code{optimr()} is dependent become
+  unavailable. 
 
-  If no method is specified, "Nelder-Mead" will be attempted.
+  If no method is specified, the method specified by \code{defmethod} in file 
+  \code{ctrldefault.R} (which is part of this package) will be attempted. 
   
-  Function \code{fn} must return a finite value at the initial set
+  Function \code{fn} must return a finite scalar value at the initial set
   of parameters. Some methods can handle \code{NA} or \code{Inf} 
   if the function cannot be evaluated at the supplied value. However, some methods, of
   which \code{"L-BFGS-B"} is known to be a case, require that the values
   returned should always be finite.
 
-  While \code{optim} can be used recursively, and for a single parameter
+  While methods from the base R function \code{optim()} can be used recursively, 
+  and for a single parameter
   as well as many, this may not be true for other methods in \code{optimrx}. 
   \code{optim} also accepts a zero-length \code{par}, and just evaluates the function 
   with that argument. 
@@ -99,39 +94,25 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   For details of methods, please consult the documentation of the individual methods.
   (The NAMESPACE file lists the packages from which functions are imported.)
   However, method \code{"hjn"} is a conservative implementation of a Hooke and 
-  Jeeves (1961) and is part of this package.
+  Jeeves (1961) and is part of this package. It is provided as a simple example of
+  a very crude optimization method; it is NOT intended as a production method, but
+  may be useful for didactic purposes.
 
   The \code{control} argument is a list that can supply any of the
-  following components (and may supply others eventually):
+  components in the file \code{ctrldefault.R} which is part of this 
+  package. It may supply others that are
+  useful or required for particular methods, but users are warned to be careful to
+  ensure that extraneous or incorrect components and values are not passed.
 
-  \describe{
-    \item{\code{trace}}{Non-negative integer. If positive,
-      tracing information on the
-      progress of the optimization is produced. Higher values may
-      produce more tracing information: for method \code{"L-BFGS-B"}
-      there are six levels of tracing. trace = 0 gives no output 
-      (To understand exactly what these do see the source code: higher 
-      levels give more detail.)}
-    \item{\code{save.failures}}{ = TRUE (default) if we wish to keep "answers" from runs 
-      where the method does not return convcode==0. FALSE otherwise.}
-    \item{\code{maximize}}{ = TRUE if we want to maximize rather than minimize 
-      a function. (Default FALSE). }
-    \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
-      methods. Default FALSE.}
-    \item{\code{dowarn}}{= TRUE if we want warnings generated by optimx. Default is 
-      TRUE.}
-    \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.
-      Default is (0.5)*.Machine$double.xmax }
-  }
-
-  NOte that some \code{control} elements apply only to some of methods. 
+  Note that some \code{control} elements apply only to some of methods. 
   See individual packages for details. 
 
   Any names given to \code{par} will be copied to the vectors passed to
   \code{fn} and \code{gr}.  Apparently no other attributes of \code{par}
-  are copied over. (We have not verified this as at 2009-07-29.)
-
+  are copied over, but this may need to be verified, especially if parameters
+  are passed to non-R routines.
 }
+
 \value{
 
     A list with components:
@@ -142,13 +123,15 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
           ‘fn’ and ‘gr’ respectively. This excludes those calls needed
           to compute the Hessian, if requested, and any calls to ‘fn’
           to compute a finite-difference approximation to the gradient.}
-   \item{convergence}{ An integer code. ‘0’ indicates successful completion. }
+   \item{convergence}{ An integer code. ‘0’ indicates successful completion. The
+   documentation for function \code{opm()} gives some other possible values and
+   their meaning. }
    \item{ message}{ A character string giving any additional information returned
           by the optimizer, or ‘NULL’.}
    \item{hessian}{If requested, an approximation to the hessian of ‘fn’
         at the final parameters.}
   }
-  }
+}
 \source{
 See the manual pages for \code{optim()} and the packages listed in NAMESPACE.
 }
@@ -163,6 +146,8 @@ See the manual pages for \code{optim()} and the packages listed in NAMESPACE.
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
      URL http://www.jstatsoft.org/v43/i09/.
 
+ Nocedal J, and Wright SJ (1999). Numerical optimization. New York: Springer. 2nd Edition 2006.
+ 
 }
 \keyword{nonlinear}
 \keyword{optimize}

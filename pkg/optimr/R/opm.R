@@ -74,6 +74,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     meth <- method[i] # extract the method name
     if (control$trace > 0) cat("Method: ",meth,"\n")
     # Note: not using try() here
+    if (is.character(gr) && (control$trace>0)) cat("Using numerical gradient ",gr," for method ", meth,"\n")
     time <- system.time(ans <- optimr(par, fn, gr, method=meth, lower=lower, upper=upper, 
            hessian=hessian, control=control, ...))[1]
     # ?? FIX -- time is ALREADY done in optimr()
@@ -99,7 +100,8 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       if ( control$save.failures || (ans$convergence < 1) ){# Save soln if converged or directed to save
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 
 # Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
-          if ((control$kkt || hessian) && (ans$convergence != 9999)) {
+#          if ((control$kkt || hessian) && (ans$convergence != 9999)) {
+           if ((control$kkt || hessian) && (ans$convergence < 9900)) { # chg 160917 for no gradient
              wgr <- gr
              if (is.null(wgr)) wgr <- control$defgrapprox
              kktres <- kktchk(ans$par, fn, wgr, hess=NULL, upper=NULL, lower=NULL, 

@@ -13,13 +13,13 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   savehess <- hessian
   hessian <- FALSE
 
-  if (is.null(method)) method <- "Nelder-Mead"
-
-  if (is.null(control$trace)) control$trace <- 0
   npar <- length(par)
   defctrl <- ctrldefault(npar) # could leave this out in most cases
 
-  ## ?? check if maximize and fnscale conflict ??
+
+  if (is.null(method)) method <- defctrl$defmethod
+
+  if (is.null(control$trace)) control$trace <- defctrl$trace
 
   if (is.null(control$parscale)) { 
         pscale <- rep(1,npar)
@@ -56,30 +56,40 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       val <- fn(par, ...) * fnscale
   }
 
-  if (is.null(gr)) gr <- defctrl$defgrapprox
+  appgr<-FALSE # so far assuming analytic gradient
+#  DO NOT PROVIDE A DEFAULT -- LET METHOD DO THIS
+#  if (is.null(gr)) gr <- defctrl$defgrapprox
+#  if (is.null(gr)) cat("gr is NULL\n")
   if (is.character(gr)) {
+     appgr <- TRUE # to inform us that we are using approximation
      egr <- function(spar, ...){
         if (control$trace > 1) {
            cat("fnscale =",fnscale,"  pscale=")
            print(pscale)
            cat("gr:")
            print(gr)
-           par <- spar*pscale
+# 160917           par <- spar*pscale
            cat("par:")
            print(par)
         }
+        par <- spar*pscale
         result <- do.call(gr, list(par, userfn=fn, ...)) * fnscale
      }
   } else { 
-    egr <- function(spar, ...) {
+    if (is.null(gr)) {egr <- NULL}
+    else {
+       egr <- function(spar, ...) {
        par <- spar*pscale
        result <- gr(par, ...) * pscale * fnscale
+      }
     }
   } # end egr definition
 
+  if (appgr && (control$trace>0)) cat("Using numerical approximation '",gr,"' to gradient in optimru()\n")
+
   nlmfn <- function(spar, ...){
      f <- efn(spar, ...)
-     g <- egr(spar, ...)
+     if (is.null(egr)) {g <- NULL} else {g <- egr(spar, ...)}
      attr(f,"gradient") <- g
      attr(f,"hessian") <- NULL # ?? maybe change later
      f
@@ -87,9 +97,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # ?? do we want ehess ?    Not at 150714
 
 ## Masks 
-   maskmeth <- control$maskmeth
-   bdmsk <- bdmsk$bdmsk # Only need the masks bit from here on
-   if (any(bdmsk == 0) ) {
+   maskmeth <- defctrl$maskmeth
+   msk <- bdmsk$bdmsk # Only need the masks bit from here on
+   if (any(msk == 0) ) {
       if ( !(method %in% maskmeth) ) {
          stopmsg <- paste("Method ",method," cannot handle masked (fixed) parameters")
          stop(stopmsg)
@@ -111,15 +121,17 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   mcontrol <- list() # define the control list
 
 # Methods from optim()
-      if (method== "Nelder-Mead" || 
+      if (method == "Nelder-Mead" || 
           method == "BFGS" || 
           method == "L-BFGS-B" || 
           method == "CG" || 
           method == "SANN") {
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
-        mcontrol$maxit <- control$maxit 
+        mcontrol$maxit <- defctrl$maxit # 160922 
         mcontrol$trace <- control$trace
-	mcontrol$parscale <- control$parscale # Use internal scaling
+##	mcontrol$parscale <- control$parscale # Use internal scaling
+        mcontrol$parscale <- NULL # using user fn 
+
 # Note: hessian always FALSE
 
 #        cat("Before optim() call - control$have.bounds =",control$have.bounds,"\n")
@@ -132,13 +144,18 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
               class(ans)[1] <- "try-error"
               warning("optimr: optim() with bounds ONLY uses L-BFGS-B")
           } else {
-              ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+#              ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+#                      lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
+#                       control=mcontrol, ...))
+              ans <- try(optim(par=par, fn=efn, gr=egr, 
                       lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
                        control=mcontrol, ...))
           }
         } else {
 #          cat("calling optim() with no bounds\n")
-          ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+#          ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+#                method=method, hessian=FALSE, control=mcontrol, ...))
+          ans <- try(optim(par=par, fn=efn, gr=egr, 
                 method=method, hessian=FALSE, control=mcontrol, ...))
 #          print(ans)
 
@@ -149,7 +166,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 errmsg <- "optim method failure\n"
                 if (method != "L-BFGS-B") errmsg <- paste("optim() with bounds ONLY uses L-BFGS-B: ", errmsg)
 		if (control$trace>0) cat(errmsg)
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -185,7 +202,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
 		if (control$trace>0) cat("nlminb failure\n")
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -196,7 +213,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (method == "nlm") { # Use stats package nlm routine
-        if (is.null(gr)) { stop("optimr -- nlm -- we do not allow gr = NULL") }
+#        if (is.null(gr)) { stop("optimr -- nlm -- we do not allow gr = NULL") }
 	if (! is.null(control$maxit) ) {iterlim <- control$maxit }
         else { iterlim <- 100 }
 	print.level <- 0 
@@ -231,7 +248,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 		if (control$trace > 0) cat("nlm failed for this problem\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
@@ -245,26 +262,35 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
       else if (method == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
-	if (control$have.bounds) { # 151220 -- this was not defined
-   	   ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
-                upper=supper, bdmsk=bdmsk, control=mcontrol, ...))
-	} else {
-   	   ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
-	}
-        if (class(ans)[1] != "try-error") {
+        if (! is.null(egr)) {
+  	  if (control$have.bounds) { # 151220 -- this was not defined
+   	    ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=msk, control=mcontrol, ...))
+	  } else {
+   	     ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
+	  }
+        }
+        if (!is.null(egr) && (class(ans)[1] != "try-error")) {
                 ans$par <- ans$par*pscale
 	        ans$message <- NA        
                 ans$hessian <- NULL
                 ans$bdmsk <- NULL # clear this
         } else {
-		if (control$trace>0) cat("Rcgmin failed for current problem \n")
+		if (control$trace>0) {
+                    cat("Rcgmin failed for current problem \n")
+                    if(is.null(egr)) cat("Note: Rcgmin needs gradient function specified\n")
+                }
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
+		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- NULL        
+	        ans$message <- NULL
+                if(is.null(egr)) {
+                   ans$message <- "Must specify gradient function for Rcgmin"       
+                   ans$convergence <- 9998 # for no gradient where needed
+                }
                 ans$hessian <- NULL
         }
         ## return(ans)
@@ -274,36 +300,45 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxit <- control$maxit
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
-	if (control$have.bounds) {
-   	   ans <- try(Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
-                upper=supper, bdmsk=bdmsk, control=mcontrol, ...))
-	} else {
-   	   ans <- try(Rvmminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
-	}
-        if (class(ans)[1] != "try-error") {
+	if (! is.null(egr)) {
+          if(control$have.bounds) {
+   	     ans <- try(Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=msk, control=mcontrol, ...))
+	  } else {
+             ans <- try(Rvmminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
+	  }
+        }
+        if (! is.null(egr) && (class(ans)[1] != "try-error")) {
             ans$par <- ans$par*pscale
             ans$bdmsk <- NULL
         } else {
-            if (control$trace>0) cat("Rvmmin failed for current problem \n")
-		ans<-list() # ans not yet defined, so set as list
-                ans$convergence <- 9999 # failed in run
-		ans$value <- control$badval
-		ans$par<-rep(NA,npar)
-	        ans$counts[1] <- NA # save function and gradient count information
-	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- NULL        
-                ans$hessian <- NULL
+            if (control$trace>0) {
+                cat("Rvmmin failed for current problem \n")
+                if(is.null(egr)) cat("Note: Rcgmin needs gradient function specified\n")
+            }
+	    ans<-list() # ans not yet defined, so set as list
+            ans$convergence <- 9999 # failed in run
+	    ans$value <- defctrl$badval
+	    ans$par<-rep(NA,npar)
+	    ans$counts[1] <- NA # save function and gradient count information
+	    ans$counts[2] <- NA # save function and gradient count information
+	    ans$message <- NULL        
+            if(is.null(egr)) {
+               ans$message <- "Must specify gradient function for Rvmmin"
+               ans$convergence <- 9998 # for no gradient where needed
+            }
+            ans$hessian <- NULL
         }
         ## return(ans)
       }  ## end if using Rvmmin
 ## --------------------------------------------
-      else 
-      if (method == "hjn") {# Use JN Hooke and Jeeves
-        if (control$trace > 1) cat("hjn\n")
+      else if (method == "hjn") {# Use JN Hooke and Jeeves
         if (control$trace > 0) {
-           cat("control$have.bounds =",control$have.bounds,"\n")
+           cat("hjn:control$have.bounds =",control$have.bounds,"\n")
+           cat("optimr - hjn - msk:")
+           print(msk)
         }
-        ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=bdmsk, 
+        ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=msk, 
                         control=control, ...))
         if (class(ans)[1] != "try-error") {
             ## Need to check these carefully??
@@ -311,9 +346,9 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$value <- ans$value*fnscale
             ans$message <- NA # Should add a msg ??
          } else {
-            if (control$trace>0) cat("hjn failed for current problem \n")
+            if (control$trace > 0) cat("hjn failed for current problem \n")
             ans<-list() # ans not yet defined, so set as list
-            ans$value <- control$badval
+            ans$value <- defctrl$badval
             ans$par <- rep(NA,npar)
             ans$convergence <- 9999 # failed in run
             ans$counts[1] <- NA
@@ -322,21 +357,20 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
             ans$message <- NA
          }
          ## return(ans)
-      }  ## end if using lbfgs
+      }  ## end if using hjn
 ## --------------------------------------------
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD:", method, sep='')
              stop(errmsg, call.=FALSE)
       }
 # Exit from routine
-      ## optexit -- function for return from routine adding in hessian
       if (savehess) { # compute hessian
          if (is.null(orig.gr)) {
             hess <- hessian(orig.fn, ans$par, ...) # from numDeriv
          } else { 
             hess <- jacobian(orig.gr, ans$par, ...) # use Jacobian of gradient
          }
-         ans$hessian <- hess
-      }
+      } else { hess <- NULL } # to ensure it is defined
+      ans$hessian <- hess
       ans # last statement of routine
 } ## end of optimr

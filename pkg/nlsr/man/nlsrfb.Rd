@@ -1,5 +1,5 @@
-\name{nls14fb}
-\alias{nls14fb}
+\name{nlsrfb}
+\alias{nlsrfb}
 \title{Nash variant of Marquardt nonlinear least squares solution via
      qr linear solver.
 }
@@ -12,7 +12,7 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   nls14fb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
+   nlsrfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
          maskidx=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -80,7 +80,7 @@
 }
 }
 \details{
-    \code{nls14fb} attempts to solve the nonlinear sum of squares problem by using
+    \code{nlsrfb} attempts to solve the nonlinear sum of squares problem by using
     a variant of Marquardt's approach to stabilizing the Gauss-Newton method using
     the Levenberg-Marquardt adjustment. This is explained in Nash (1979 or 1990) in
     the sections that discuss Algorithm 23.
@@ -120,7 +120,7 @@ John C Nash <nashjc@uottawa.ca>
 }
 
 \examples{
-cat("See examples in nls14-package.Rd\n")
+cat("See examples in nlsr-package.Rd\n")
 
 }
 \keyword{ nonlinear least squares }

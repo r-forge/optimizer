@@ -1,26 +1,26 @@
-\name{print.nls14}
-\alias{print.nls14}
-\title{Print method for an object of class nls14.
+\name{print.nlsr}
+\alias{print.nlsr}
+\title{Print method for an object of class nlsr.
 }
 \description{
     Print summary output (but involving some serious computations!) of
-    an object of class nls14 from \code{nlxb} or \code{nlfb} from package
-    \code{nls14}.
+    an object of class nlsr from \code{nlxb} or \code{nlfb} from package
+    \code{nlsr}.
 }
 \usage{
-    \method{print}{nls14}(x, ...)
+    \method{print}{nlsr}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
-     An object of class 'nls14'
+     An object of class 'nlsr'
 }
   \item{\dots}{
      Any data needed for the function. We do not know of any!
 }
 }
 \details{
-    \code{printsum.nls14} performs a print method for an object of class 'nls14' that
+    \code{printsum.nlsr} performs a print method for an object of class 'nlsr' that
     has been created by a routine such as \code{nlfb} or \code{nlxb} for nonlinear
     least squares problems.
 }

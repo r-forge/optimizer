@@ -1,30 +1,30 @@
-\name{coef.nls14}
-\alias{coef.nls14}
-\title{Output model coefficients for nls14 object.
+\name{coef.nlsr}
+\alias{coef.nlsr}
+\title{Output model coefficients for nlsr object.
 }
 \description{
-    \code{coef.nls14} extracts and displays the coefficients for a model 
-    estimated by \code{nlxb} or \code{nlfb} in the \code{nls14} structured
+    \code{coef.nlsr} extracts and displays the coefficients for a model 
+    estimated by \code{nlxb} or \code{nlfb} in the \code{nlsr} structured
     \code{object}. 
 }
 \usage{
-    \method{coef}{nls14}(object, ...)
+    \method{coef}{nlsr}(object, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
-     An object of class 'nls14'
+     An object of class 'nlsr'
 }
   \item{\dots}{
      Any data needed for the function. We do not know of any!
 }
 }
 \details{
-    \code{coef.nls14} extracts and displays the coefficients for a model 
+    \code{coef.nlsr} extracts and displays the coefficients for a model 
     estimated by \code{nlxb} or \code{nlfb}. 
 }
 \value{
-    returns the coefficients from the nls14 object.
+    returns the coefficients from the nlsr object.
 }
 \author{
 John C Nash <nashjc@uottawa.ca>

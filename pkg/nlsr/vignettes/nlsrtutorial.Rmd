@@ -1,5 +1,5 @@
 ---
-title: "nls14 Background, Examples and Discussion"
+title: "nlsr Background, Examples and Discussion"
 author: "John C. Nash"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -9,11 +9,11 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-This vignette is to explain **nls14**, an R package to try to bring
+This vignette is to explain **nlsr**, an R package to try to bring
 the **R** function nls() up to date and to add capabilities for the
 extension of the symbolic and automatic derivative tools in **R**.
 
-A particular goal in **nls14** is to attempt, wherever possible, to
+A particular goal in **nlsr** is to attempt, wherever possible, to
 use analytic or automatic derivatives. The function nls() uses a
 rather weak forward derivative approximation. A second objective 
 is to use a Marquardt stabilization of the Gauss-Newton equations
@@ -36,11 +36,11 @@ Differentiation, version 2.0, http://CRAN.R-project.org/package=Deriv)
 
 ## Summary of capabilities
 
-### Functions in **nls14**
+### Functions in **nlsr**
 
-#### coef.nls14 
+#### coef.nlsr 
 extracts and displays the coefficients for a model 
-    estimated by nlxb() or nlfb() in the nls14 structured object. 
+    estimated by nlxb() or nlfb() in the nlsr structured object. 
 
 #### Deriv, fnDeriv, newDeriv
 
@@ -77,7 +77,7 @@ this function is to provide a record of the details underlying the function
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method.
 
-#### nls14fb
+#### nlsrfb
    Given a nonlinear model expressed as an expression of the form
          lhs ~ formula_for_rhs
    and a start vector where parameters used in the model formula are named,
@@ -85,7 +85,7 @@ this function is to provide a record of the details underlying the function
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method.
 
-#### nls14xb
+#### nlsrxb
 
    Given a nonlinear model expressed as an expression of the form
          lhs ~ formula_for_rhs
@@ -94,11 +94,11 @@ this function is to provide a record of the details underlying the function
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method.
 
-#### print.nls14
+#### print.nlsr
 
 Print summary output (but involving some serious computations!) of
-    an object of class nls14 from \code{nlxb} or \code{nlfb} from package
-    \code{nls14}.
+    an object of class nlsr from \code{nlxb} or \code{nlfb} from package
+    \code{nlsr}.
 
 #### resgr
 
@@ -122,12 +122,12 @@ Functions to simplify expressions.
 \code{Simplify} simplifies expressions according to rules specified
 by \code{newSimplification}.
 
-#### summary.nls14
+#### summary.nlsr
 
 Provide a summary output (but involving some serious computations!) of an object of
-class nls14 from nls14xb or nls14fb from package nls14.
+class nlsr from nlsrxb or nlsrfb from package nlsr.
 
-#### wrap14nls
+#### wrapnlsr
 
 Given a nonlinear model expressed as an expression of the form
 
@@ -149,7 +149,7 @@ such as *if* statements.
 
 We would like to be able to find the Jacobian or gradient of functions
 that have as their parameters a vector, e.g., *prm*. At time of writing
-(January 2015) we cannot specify such a vector within **nls14**. The
+(January 2015) we cannot specify such a vector within **nlsr**. The
 following script shows things that work or fail.
 
 ```{r}
@@ -172,7 +172,7 @@ start1 <- c(200, 50, .3)
 cat("residuals at start1:")
 r1 <- hobbs.res(start1)
 print(r1)
-require(nls14)
+require(nlsr)
 Jr1a <- try(fnDeriv(r1, "x"))
 
 
@@ -320,19 +320,19 @@ some index of health).
 Difficulty in such a problem is that the residuals are then a
 matrix, and the nlfb rather than nlxb is a better approach.
 However, fitting 1 series would still need this data, and example
-nls14tryextraparms.txt shows that the extra parm (ms in this case)
+nlsrtryextraparms.txt shows that the extra parm (ms in this case)
 needs to be in the user's globalenv.
 
 ```{r}
 rm(list=ls())
-require(nls14)
+require(nlsr)
 # want to have data AND extra parameters (NOT to be estimated)
 traceval  <-  TRUE  # traceval set TRUE to debug or give full history
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
-# A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 startf1  <-  c(b1=1, b2=1, b3=.1)
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
@@ -344,19 +344,19 @@ cat("wdata scales y by ms =",ms,"\n")
 wdata <- data.frame(y=ydat/ms, tt=tdat)
 wdata
 cat("estimate the UNSCALED model with SCALED data\n")
-anls14xbs  <-  try(nls14xb(eunsc, start=start1, trace=traceval, data=wdata))
-print(anls14xbs)
+anlsrxbs  <-  try(nlsrxb(eunsc, start=start1, trace=traceval, data=wdata))
+print(anlsrxbs)
 escal <-  y ~ ms*b1/(1+b2*exp(-b3*tt))
 cat("estimate the SCALED model with scaling provided in the call (ms=0.5)\n")
-anls14xbh  <-  try(nls14xb(escal, start=start1, trace=traceval, data=weeddata1, ms=0.5))
-print(anls14xbh)
+anlsrxbh  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1, ms=0.5))
+print(anlsrxbh)
 cat("\n scaling is now using the globally defined value of ms=",ms,"\n")
-anls14xb1a  <-  try(nls14xb(escal, start=start1, trace=traceval, data=weeddata1))
-print(anls14xb1a)
+anlsrxb1a  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1))
+print(anlsrxb1a)
 ms <- 1
 cat("\n scaling is now using the globally re-defined value of ms=",ms,"\n")
-anls14xb1b  <-  try(nls14xb(escal, start=start1, trace=traceval, data=weeddata1))
-print(anls14xb1b)
+anlsrxb1b  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1))
+print(anlsrxb1b)
 ```
 
 
@@ -371,7 +371,7 @@ Deriv() and fnDeriv() with the **stats** package tools D(), deriv() and deriv3()
 See specific notes either in comments or at the end.
 
 ```{r}
-library(nls14)
+library(nlsr)
 
 # Various derivatives 
 
@@ -615,24 +615,24 @@ fnDeriv(quote(sign(x)), "x")
 Notes:
 
 - the base tool deriv (and likely deriv3 ?? need to explore and explain) and 
-nls14::fnDeriv are intended to output a function to compute a derivative. 
+nlsr::fnDeriv are intended to output a function to compute a derivative. 
 deriv generates an expression object, while fnDeriv will generate a language object. 
 Do we need to explain this more??  Note that input to deriv is of the form of a 
 tilde expression with no left hand side, while fnDeriv uses a quoted expression. ?? We
 should explore more ways to input things to these tools. 
 
-- the base tool D and nls14::Deriv generate expressions, but D requires an
+- the base tool D and nlsr::Deriv generate expressions, but D requires an
 expression, while Deriv can handle the expression without a wrapper. ?? Do we need 
 to discuss more??
 
-- nls14 includes abs(x) and sign(x) in the derivatives table despite conventional
+- nlsr includes abs(x) and sign(x) in the derivatives table despite conventional
 wisdom that these are not differentiable. However, abs(x) clearly has a defined
 derivative everywhere except at x = 0, where assigning a value of 0 to the 
 derivative is almost certainly acceptable in computations. Similarly for sign(x).
 
 ### Simplifying algebraic expressions
  
-**nls14** also includes some tools for simplification of algebraic expressions.
+**nlsr** also includes some tools for simplification of algebraic expressions.
 Such simplification does not appear to be available / exposed in the 
 
 
@@ -708,10 +708,10 @@ There is at least one other symbolic package for R. Here we look at
 **Ryacas**. The following example was provided by Gabor Grothendieck.
 
 ```{r}
-library(nls14)
-dnls14 <- Deriv(sin(x+y), "x")
-print(dnls14)
-class(dnls14)
+library(nlsr)
+dnlsr <- Deriv(sin(x+y), "x")
+print(dnlsr)
+class(dnlsr)
 
 library(Ryacas)
 x <- Sym("x")
@@ -731,14 +731,14 @@ We use the Hobbs Weeds problem (Nash, 1979 and Nash, 2014). Note that
 nls() fails from start1.
 
 ```{r}
-require(nls14)
+require(nlsr)
 traceval <- FALSE
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
 
-# A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
@@ -747,15 +747,15 @@ cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
 
-anls14xb1  <-  try(nls14xb(eunsc, start=start1, trace=TRUE, data=weeddata1,
+anlsrxb1  <-  try(nlsrxb(eunsc, start=start1, trace=TRUE, data=weeddata1,
                      control=list(watch=FALSE)))
-print(anls14xb1)
+print(anlsrxb1)
 
 anlsb1 <-  try(nls(eunsc, start=start1, trace=TRUE, data=weeddata1))
 print(anlsb1)
 ```
 
-A different start causes nls14xb to return a large sum of squares. Note
+A different start causes nlsrxb to return a large sum of squares. Note
 that nls() again fails. 
 
 ```{r}
@@ -764,12 +764,12 @@ anlsf1 <-  try(nls(eunsc, start=startf1, trace=TRUE, data=weeddata1))
 print(anlsf1)
 
 
-anls14xf1  <-  try(nls14xb(eunsc, start=startf1, trace=TRUE, data=weeddata1,
+anlsrxf1  <-  try(nlsrxb(eunsc, start=startf1, trace=TRUE, data=weeddata1,
                      control=list(watch=FALSE)))
-print(anls14xf1)
+print(anlsrxf1)
 
-# anls14xb2  <-  try(nls14xb(eunsc, start=start1, trace=FALSE, data=weeddata2))
-# print(anls14xb2)
+# anlsrxb2  <-  try(nlsrxb(eunsc, start=start1, trace=FALSE, data=weeddata2))
+# print(anlsrxb2)
 ```
 
 We can discover quickly the difficulty here by computing the Jacobian
@@ -777,9 +777,9 @@ at this "solution" and checking its singular values.
 
 ```{r}
 
-cf1 <- coef(anls14xf1)
+cf1 <- coef(anlsrxf1)
 print(cf1)
-jf1 <- anls14xf1$jacobian
+jf1 <- anlsrxf1$jacobian
 svals <- svd(jf1)$d
 print(svals)
 ```
@@ -792,18 +792,18 @@ squares program has concluded we are unable to make further progress.
 
 We can run the same example as above using **R** functions rather than 
 expressions, but now we need to have a gradient function as well as one to
-compute residuals. **nls14** has tools to create these functions from expressions,
+compute residuals. **nlsr** has tools to create these functions from expressions,
 as we shall see here. First we again set up the data and load the package.
 
 ```{r}
-require(nls14)
+require(nlsr)
 traceval <- FALSE
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
 
-# A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
@@ -869,7 +869,7 @@ of accurate gradients of the objective functions. While differentiation is
 relatively straightforward, it is tedious and error-prone.
 
 At 2015-1-24, I have not determined how to automate the use the output
-of the derivatives generated by **nls14** to create a working gradient
+of the derivatives generated by **nlsr** to create a working gradient
 function. However, the following write-up shows how such a function can
 be generated in a semi-automatic way.
 
@@ -903,7 +903,7 @@ partial derivatives. The expression is:
 
 ```{r}
 # Put in the main expression for the Nweibull pdf.
-require(nls14)
+require(nlsr)
 
 ## we generate the three gradient components
 g1n <- Deriv(la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "la")
@@ -998,8 +998,8 @@ We also note that the different tools for symbolic derivatives use slightly
 different inputs. For example, for the derivative of log(x), we have
 
 ```{r}
-require(nls14)
-dlogx <- nls14::Deriv(log(x), "x")
+require(nlsr)
+dlogx <- nlsr::Deriv(log(x), "x")
 str(dlogx)
 print(dlogx)
 ```
@@ -1009,7 +1009,7 @@ we need to specify that we do NOT execute the *substitute()* function. Here we
 show how to do this implicitly and with an explicit object.
 
 ```{r}
-dlogxs <- nls14::Deriv(expression(log(x)), "x", do_substitute=FALSE)
+dlogxs <- nlsr::Deriv(expression(log(x)), "x", do_substitute=FALSE)
 str(dlogxs)
 print(dlogxs)
 cat(as.character(dlogxs), "\n")
@@ -1042,12 +1042,12 @@ show the example and its resolution, then give an explanation.
 ```{r}
 zzz <- expression(y[3]*r1 + r2)
 try(deriv(zzz,c("r1","r2")))
-require(nls14)
-try(nls14::Deriv(zzz, c("r1","r2")))
+require(nlsr)
+try(nlsr::Deriv(zzz, c("r1","r2")))
 try(fnDeriv(zzz, c("r1","r2")))
 newDeriv(`[`(x,y), stop("no derivative when indexing"))
-try(nls14::Deriv(zzz, c("r1","r2")))
-try(nls14::fnDeriv(zzz, c("r1","r2")))
+try(nlsr::Deriv(zzz, c("r1","r2")))
+try(nlsr::fnDeriv(zzz, c("r1","r2")))
 ```
 
 Richard Heiberger pointed out that internally, **R** stores
@@ -1059,7 +1059,7 @@ as
     "["(y,3)
 
 that is, as a function. Duncan Murdoch pointed out the availability of
-**nls14** and the use of newDeriv() to redefine the "[" function for
+**nlsr** and the use of newDeriv() to redefine the "[" function for
 the purposes of derivatives. 
 
 This is not an ideal resolution, especially as we would like to be able
@@ -1071,7 +1071,7 @@ following examples illustrate this.
 
 
 ```{r}
-try(nls14::Deriv(zzz, "y[3]"))
-try(nls14::Deriv(y3*r1+r2,"y3"))
-try(nls14::Deriv(y[3]*r1+r2,"y[3]"))
+try(nlsr::Deriv(zzz, "y[3]"))
+try(nlsr::Deriv(y3*r1+r2,"y3"))
+try(nlsr::Deriv(y[3]*r1+r2,"y[3]"))
 ```

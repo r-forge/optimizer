@@ -78,7 +78,7 @@ fit0<-try(nls(y~(a+b*exp(1)^(-c*x)), data=pks28, start=c(a=0,b=1,c=1),
           trace=TRUE))
 print(fit0)
 cat("\n\n")
-fit1<-nls14xb(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace = TRUE)
+fit1<-nlsrxb(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace = TRUE)
 print(fit1) 
 cat("\n\nor better\n")
 fit2<-wrapnlsr(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), 

@@ -34,5 +34,6 @@ export(
 )
 
 importFrom(digest, digest)
+importFrom("stats", "deriv", "nls", "pt")
 
 S3method(print, modeldoc)

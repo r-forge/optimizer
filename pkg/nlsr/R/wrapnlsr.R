@@ -1,4 +1,4 @@
-wrap14nls <- function(formula, start, trace = FALSE, data, lower = -Inf, 
+wrapnlsr <- function(formula, start, trace = FALSE, data, lower = -Inf,
     upper = Inf, control = list(), ...) {
     # A wrapper to call nlsmnq() and then call nls() with the
     # solution.  The calling sequence matches that of nlsmnq()
@@ -29,7 +29,7 @@ wrap14nls <- function(formula, start, trace = FALSE, data, lower = -Inf,
         print(upper)
     }
     # Note that there are no bounds or masks.
-    first <- nls14xb(formula, start, trace = trace, data = data, 
+    first <- nlsrxb(formula, start, trace = trace, data = data,
         lower = lower, upper = upper, control = control, ...)
     # Should check this has worked, but ...
     if (trace) 

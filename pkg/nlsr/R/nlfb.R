@@ -2,7 +2,7 @@ nlfb <-function(start, resfn, jacfn = NULL, trace = FALSE,
 		lower = -Inf, upper = Inf, maskidx = NULL, 
 		data=NULL, control=list(), ...){
 #
-#  A stripped down nlfb (nls14fb does the checking of inputs).
+#  A stripped down nlfb (nlsrfb does the checking of inputs).
 showprms<-function(SS, pnum){
     pnames<-names(pnum)
     npar<-length(pnum)

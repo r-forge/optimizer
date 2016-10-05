@@ -1,11 +1,11 @@
-# nls14.R -- print and summary methods
+# nlsr-package.R -- print and summary methods
 #   result <- list(resid = resbest, jacobian = Jac, feval = feval, 
 #        jeval = jeval, coefficients = pnum, ssquares = ssbest)
 #    class(result) <- "nlmrt"
 
 
-summary.nls14 <- function(object, ...) {
-    sumnls14<-list() # set up the stub
+summary.nlsr <- function(object, ...) {
+    sumnlsr<-list() # set up the stub
     smalltol <- .Machine$double.eps * 1000
     options(digits = 5) # 7 is default
     resname <- deparse(substitute(object))
@@ -88,17 +88,17 @@ summary.nls14 <- function(object, ...) {
 }
 
 # ?? coef() function
-coef.nls14 <- function(object, ...) {
+coef.nlsr <- function(object, ...) {
        out <- object$coefficients
        # print(object$coefficients)
-       attr(out,"pkgname")<-"nls14"
+       attr(out,"pkgname")<-"nlsr"
        invisible(out)
 }
 
-print.nls14 <- function(x, ...) {
+print.nlsr <- function(x, ...) {
     xx<-summary(x)
     with(xx, { 
-	cat("nls14 class object:",resname,"\n")
+	cat("nlsr class object:",resname,"\n")
 	pname<-names(coeff)
 	npar <- length(coeff)
         cat("residual sumsquares = ",ssquares," on ",nobs,"observations\n")

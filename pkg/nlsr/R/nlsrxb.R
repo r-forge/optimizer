@@ -1,10 +1,10 @@
-nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
+nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
                  upper = Inf, masked = NULL, control=list(), ...) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes
     # 'formula' to give a minimal residual sum of squares.
     # 
-    # nls14xb is particularly intended to allow for the
+    # nlsrxb is particularly intended to allow for the
     # resolution of very ill-conditioned or else near
     # zero-residual problems for which the regular nls()
     # function is ill-suited. 
@@ -145,6 +145,6 @@ nls14xb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     names(pnum) <- pnames # Make sure names re-attached. ??Is this needed??
     resfb$coefficients <- pnum
     result <- resfb
-    class(result) <- "nls14"
+    class(result) <- "nlsr"
     result
 }

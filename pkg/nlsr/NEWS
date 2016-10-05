@@ -28,6 +28,14 @@ To do
 
    o    partially linear nls models. How to incorporate? Note Rust and Oleary.
 
+   o    nlsr when it exceeds fn or jac count, returns bad solutions that won't print.
+	161005
+
+Changes in nlsr version 2016-10.3
+
+    o   name change to nlsr and consequent changes
+
+    o   minor fixes
 
 Changes in nlsr version 2014-7.28
 

@@ -47,13 +47,13 @@ John Nash and Duncan Murdoch
 }
 \examples{
 
-## require(nls14)
+## require(nlsr)
 traceval  <-  TRUE  # traceval set TRUE to debug or give full history
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
-# A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
 escal <-  y ~ ms*b1/(1+b2*exp(-b3*tt))

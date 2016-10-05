@@ -43,7 +43,7 @@
      parameters. Default Inf.
 } 
   \item{control}{ 
-     A list of controls for the algorithm. These are as for \code{nls14xb()}.
+     A list of controls for the algorithm. These are as for \code{nlsrxb()}.
 
 }
   \item{\dots}{
@@ -70,7 +70,7 @@ John C Nash <nashjc@uottawa.ca>
 \examples{
 cat("See more examples in nlmrt-package.Rd\n")
 cat("kvanderpoel.R test of wrapnlsr\n")
-# require(nls14)
+# require(nlsr)
 x<-c(1,3,5,7)
 y<-c(37.98,11.68,3.65,3.93)
 pks28<-data.frame(x=x,y=y)

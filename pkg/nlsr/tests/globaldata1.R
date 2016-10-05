@@ -1,5 +1,5 @@
 ## globaldata1.R
-## tests to see that nls14xb fails if user assumes that workspace
+## tests to see that nlsrxb fails if user assumes that workspace
 ## data for y and tt will be used.
 
 # traceval set TRUE to debug or give full history
@@ -12,7 +12,7 @@ y  <-  ydat  # for testing
 tdat  <-  seq_along(ydat) # for testing
 # WARNING -- using T can get confusion with TRUE
 tt  <-  tdat
-# A simple starting vector -- must have named parameters for nls14xb, nls, wrap14nls.
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
@@ -23,7 +23,7 @@ anls1g  <-  try(nls(eunsc, start=start1, trace=traceval))
 print(anls1g)
 
 cat("GLOBAL DATA AND EXPRESSION\n")
-anls14xb1g  <-  try(nls14xb(eunsc, start=start1, trace=traceval))
-print(anls14xb1g)
+anlsrxb1g  <-  try(nlsrxb(eunsc, start=start1, trace=traceval))
+print(anlsrxb1g)
 
 

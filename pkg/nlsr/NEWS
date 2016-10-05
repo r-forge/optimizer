@@ -24,23 +24,23 @@ To do
 
    o    check impact of use of Deriv vs deriv and document!
 
-   o    make sure change to rjfun using "gradient" is clean in nls14xb
+   o    make sure change to rjfun using "gradient" is clean in nlsrxb
 
    o    partially linear nls models. How to incorporate? Note Rust and Oleary.
 
 
-Changes in nls14 version 2014-7.28
+Changes in nlsr version 2014-7.28
 
 
-Changes in nls14 version 2014-7.27
+Changes in nlsr version 2014-7.27
 
    o    Deriv() etc.
 
    o    model2rjfun() etc. 
 
-   o    changes to nls14xb structure
+   o    changes to nlsrxb structure
 
-Changes in nls14 version 2014-7.19
+Changes in nlsr version 2014-7.19
 
    o    The parameters MUST be named when setting up model2resfun etc.,
 	but the resulting function can be called with an un-named
@@ -48,12 +48,12 @@ Changes in nls14 version 2014-7.19
 
    o    Name reset to reflect intent to substitute for nls()
 
-   o    wrapnls replaced by wrap14nls
+   o    wrapnls replaced by wrapnlsr
 
    o    use of ... args replaced with data = mydata (dataframe)
 
    o    1-sided models which start with the tilde are now allowed in
-	nls14 functions.
+	nlsr functions.
 
 Changes in nlmrt version 2013-8.26
 

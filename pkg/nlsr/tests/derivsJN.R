@@ -1,4 +1,4 @@
-library(nls14)
+library(nlsr)
 
 # Various derivatives 
 

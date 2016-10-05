@@ -4,9 +4,9 @@
 
 # Public routines
 export(
-   nls14xb,
-   nls14fb,
-   wrap14nls,
+   nlsrxb,
+   nlsrfb,
+   wrapnlsr,
    resss,
    resgr,
    modelexpr,
@@ -15,9 +15,9 @@ export(
    model2rjfunx,
    model2ssgrfun,
    model2ssgrfunx,
-   print.nls14,
-   summary.nls14,
-   coef.nls14,
+   print.nlsr,
+   summary.nlsr,
+   coef.nlsr,
    Deriv, 
    fnDeriv,
    Simplify,

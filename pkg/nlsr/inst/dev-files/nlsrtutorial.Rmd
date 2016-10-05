@@ -1,0 +1,1077 @@
+---
+title: "nlsr Background, Examples and Discussion"
+author: "John C. Nash"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+This vignette is to explain **nlsr**, an R package to try to bring
+the **R** function nls() up to date and to add capabilities for the
+extension of the symbolic and automatic derivative tools in **R**.
+
+A particular goal in **nlsr** is to attempt, wherever possible, to
+use analytic or automatic derivatives. The function nls() uses a
+rather weak forward derivative approximation. A second objective 
+is to use a Marquardt stabilization of the Gauss-Newton equations
+to avoid the commonly encountered "singular gradient" failure
+of nls(). This refers to the loss of rank of the Jacobian at the
+parameters for evaluation. The particular stabilization also 
+incorporates a very simple trick to avoid very small diagonal
+elements of the Jacobian inner product, though in the present
+implementations, this is accomplished indirectly.
+See the section below **Implementation of method**
+
+A large part of the work of this package was carried out by Duncan
+Murdoch. Without his input, much of the capability of the package
+would not exist.
+
+The package and this vignette are a work in progress, and assistance
+and examples are welcome. Note that there is similar work in the 
+package Deriv (Andrew Clausen and Serguei Sokol (2015) Symbolic 
+Differentiation, version 2.0, http://CRAN.R-project.org/package=Deriv)
+
+## Summary of capabilities
+
+### Functions in **nlsr**
+
+#### coef.nlsr 
+extracts and displays the coefficients for a model 
+    estimated by nlxb() or nlfb() in the nlsr structured object. 
+
+#### Deriv, fnDeriv, newDeriv
+
+Functions **Deriv** and **fnDeriv** are designed as replacements 
+for the stats package functions **D** and **deriv**
+respectively, though the argument lists do not match exactly.
+
+#### findSubexprs
+
+This function finds common subexpressions in an expression vector
+so that duplicate computation can be avoided.
+
+#### model2rjfun, model2ssgrfun, modelexpr
+
+These functions create functions to evaluate residuals or sums of squares at particular parameter locations.
+
+#### model2rjfunx, model2ssgrfunx
+
+These functions create functions to evaluate residuals or sums of squares at particular parameter locations. The attempt is to have
+dot-args available. This is experimental.
+
+#### modeldoc, print.modeldoc
+
+Output a description of the model and the data that was used at the time
+of its creation to the console and optionally to a file. The purpose of 
+this function is to provide a record of the details underlying the function
+
+#### nlfb
+
+   Given a nonlinear model expressed as an expression of the form
+         lhs ~ formula_for_rhs
+   and a start vector where parameters used in the model formula are named,
+   attempts to find the minimum of the residual sum of squares using the
+   Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
+   sub-problem is solved by a qr method.
+
+#### nlsrfb
+   Given a nonlinear model expressed as an expression of the form
+         lhs ~ formula_for_rhs
+   and a start vector where parameters used in the model formula are named,
+   attempts to find the minimum of the residual sum of squares using the
+   Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
+   sub-problem is solved by a qr method.
+
+#### nlsrxb
+
+   Given a nonlinear model expressed as an expression of the form
+         lhs ~ formula_for_rhs
+   and a start vector where parameters used in the model formula are named,
+   attempts to find the minimum of the residual sum of squares using the
+   Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
+   sub-problem is solved by a qr method.
+
+#### print.nlsr
+
+Print summary output (but involving some serious computations!) of
+    an object of class nlsr from \code{nlxb} or \code{nlfb} from package
+    \code{nlsr}.
+
+#### resgr
+
+   For a nonlinear model originally expressed as an expression of the form
+         lhs ~ formula_for_rhs
+   assume we have a resfn and jacfn that compute the residuals and the 
+   Jacobian at a set of parameters. This routine computes the gradient, 
+   that is, t(Jacobian) . residuals. 
+
+#### resss
+
+   For a nonlinear model originally expressed as an expression of the form
+         lhs ~ formula_for_rhs
+   assume we have a resfn and jacfn that compute the residuals and the 
+   Jacobian at a set of parameters. This routine computes the gradient, 
+   that is, t(Jacobian) %*% residuals. 
+
+#### newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE
+
+Functions to simplify expressions.
+\code{Simplify} simplifies expressions according to rules specified
+by \code{newSimplification}.
+
+#### summary.nlsr
+
+Provide a summary output (but involving some serious computations!) of an object of
+class nlsr from nlsrxb or nlsrfb from package nlsr.
+
+#### wrapnlsr
+
+Given a nonlinear model expressed as an expression of the form
+
+    lhs ~ formula_for_rhs
+
+and a start vector where parameters used in the model formula are named, attempts to find the minimum of the residual sum of squares using the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear sub-problem is solved by a qr method.
+
+### Missing capabilities
+
+#### Multi-line functions
+
+Multi-line functions present a challenge. This is in part because
+the chain rule may have to be applied backwards (last line first), but
+also because there may be structures that are not always differentiable,
+such as *if* statements.
+
+
+#### Vector parameters
+
+We would like to be able to find the Jacobian or gradient of functions
+that have as their parameters a vector, e.g., *prm*. At time of writing
+(January 2015) we cannot specify such a vector within **nlsr**. The
+following script shows things that work or fail.
+
+```{r}
+# tryhobbsderiv.R
+
+hobbs.res<-function(x){ # Hobbs weeds problem -- residual
+  # This variant uses looping
+#  if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
+  y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
+       75.995, 91.972)
+  t<-1:12
+#  if(abs(12*x[3])>50) {
+#    res<-rep(Inf,12)
+#  } else {
+    res<-x[1]/(1+x[2]*exp(-x[3]*t)) - y
+#  }
+}
+# test it
+start1 <- c(200, 50, .3)
+cat("residuals at start1:")
+r1 <- hobbs.res(start1)
+print(r1)
+require(nlsr)
+Jr1a <- try(fnDeriv(r1, "x"))
+
+
+y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
+     75.995, 91.972)
+t <- 1:12
+hobbs1 <- function(x){ res<-x[1]/(1+x[2]*exp(-x[3]*t)) - y }
+hobbs1m <- function(x){ res<-x001/(1+x002*exp(-x003*t)) - y }
+Jr11m <- try(fnDeriv(hobbs1m, c("x001", "x002", "x003")))
+hobbs1me <- function(x){ expression(x001/(1+x002*exp(-x003*t)) - y) }
+Jr11me <- try(fnDeriv(hobbs1me, c("x001", "x002", "x003")))
+Jr11ex <- try(fnDeriv(expression(x001/(1+x002*exp(-x003*t)) - y)
+                  , c("x001", "x002", "x003")))
+Jr11ex
+x001 <- start1[1]
+x002 <- start1[2]
+x003 <- start1[3]
+print(hobbs1m(start1)) # start1 actually ignored
+print(eval(hobbs1me(start1))) # start1 actually ignored
+print(try(eval(Jr11ex)))
+resx <- expression(x001/(1+x002*exp(-x003*t)) - y)
+res1 <- Deriv(resx, "x001", do_substitute=FALSE)
+res1
+col1 <- eval(res1)
+res2 <- Deriv(resx, "x002", do_substitute=FALSE)
+res2
+col2 <- eval(res2)
+res3 <- Deriv(resx, "x003", do_substitute=FALSE)
+res3
+col3 <- eval(res3)
+hobJac <- cbind(col1, col2, col3)
+print(hobJac)
+```
+
+### Jacobians
+
+Jacobians, the matrices of partial derivatives of residuals with respect
+to the parameters, have a vector input.
+
+
+
+
+
+
+## Implementation of optimization methods
+
+### Nonlinear least squares
+
+Nonlinear least squares methods are mostly founded on some or
+other variant of the Gauss-Newton algorithm. The function we
+wish to minimize is the sum of squares of the (nonlinear) 
+residuals r(x) where there are m observations (elements of r)
+and n parameters x. Hence the function is
+
+    f(x) = sum(r(k)^2)
+
+Newton's method starts with an original set of parameters x[0].
+At a given iteraion, which could be the first, we want to solve
+
+    x[k+1]  =  x[k]  -   H^(-1) g
+   
+where H is the Hessian and g is the gradient at x[k]. We can 
+rewrite this as a solution, at each iteration, of 
+  
+    H delta = -g
+
+with
+
+    x[k+1]  =  x[k] + delta
+         
+For the particular sum of squares, the gradient is 
+
+    g(x) = 2 * r(k)
+
+and 
+
+    H(x) = 2 ( J' J  +  sum(r * Z))
+
+where J is the Jacobian (first derivatives of r w.r.t. x)
+and Z is the tensor of second derivatives of r w.r.t. x).
+Note that J' is the transpose of J. 
+
+The primary simplification of the Gauss-Newton method is to
+assume that the second term above is negligible. As there is
+a common factor of 2 on each side of the Newton iteration 
+after the simplification of the Hessian, the Gauss-Newton
+iteration equation is
+
+    J' J  delta = - J' r
+           
+This iteration frequently fails. The approximation of the Hessian
+by the Jacobian inner-product is one reason, but there is also
+the possibility that the sum of squares function is not
+"quadratic" enough that the unit step reduces it. Hartley
+introduced a line search along delta, while Marquardt suggested
+replacing J' J with (J' J + lambda * D) where D is a diagonal
+matrix intended to partially approximate the omitted portion of
+the Hessian. 
+
+Marquardt suggested D = I (a unit matrix) or D = (diagonal part
+of J' J). The former approach, when lambda is large enough that
+the iteration is essentially
+
+    delta = - g / lambda
+      
+we get a version of the steepest descents algorithm. Using the 
+diagonal of J' J, we have a scaled version of this 
+(see http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm)
+
+Nash (1977) ??ref?? found that on low precision machines, it
+was common for diagonal elements of J' J to underflow. A very
+small modification to solve
+
+    (J' J + lambda * (D + phi * I)) * delta = - g
+    
+where phi is a small number (phi = 1 seems to work quite well) ??
+check??. 
+
+In Nash (1979), the iteration equation was solved as stated. However, this
+involves forming the sum of squares and cross products of J, a process that
+loses some numerical precision. A better way to solve the linear equations is
+to apply the QR decomposition to the matrix J itself. However, we still need
+to incorporate the lambda * I or lambda * D adjustments. This is done by 
+adding rows to J that are the square roots of the "pieces". We add 1 row for
+each diagonal element of I and each diagonal element of D. 
+
+In each iteration, we reduce the lambda parameter before solution. If the
+resulting sum of squares is not reduced, lambda is increased, otherwise we
+move to the next iteration.
+
+
+## Providing extra data to expressions
+
+Almost all statistical functions have exogenous data that is needed
+to compute residuals or likelihoods and is not dependent on the
+model parameters. (This section starts from Notes140806.)
+
+model2rjfun does NOT have ... args. 
+
+Should it have? i.e., a problem where we are fitting a set of 
+time series, 1 for each plant/animal, with some sort of start
+parameter for each that is NOT estimated (e.g., pH of soil, 
+some index of health). 
+
+Difficulty in such a problem is that the residuals are then a
+matrix, and the nlfb rather than nlxb is a better approach.
+However, fitting 1 series would still need this data, and example
+nlsrtryextraparms.txt shows that the extra parm (ms in this case)
+needs to be in the user's globalenv.
+
+```{r}
+rm(list=ls())
+require(nlsr)
+# want to have data AND extra parameters (NOT to be estimated)
+traceval  <-  TRUE  # traceval set TRUE to debug or give full history
+# Data for Hobbs problem
+ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+tdat  <-  seq_along(ydat) # for testing
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
+start1  <-  c(b1=1, b2=1, b3=1)
+startf1  <-  c(b1=1, b2=1, b3=.1)
+eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
+cat("LOCAL DATA IN DATA FRAMES\n")
+weeddata1  <-  data.frame(y=ydat, tt=tdat)
+cat("weeddata contains the original data\n")
+ms <- 2 # define the external parameter here
+cat("wdata scales y by ms =",ms,"\n")
+wdata <- data.frame(y=ydat/ms, tt=tdat)
+wdata
+cat("estimate the UNSCALED model with SCALED data\n")
+anlsrxbs  <-  try(nlsrxb(eunsc, start=start1, trace=traceval, data=wdata))
+print(anlsrxbs)
+escal <-  y ~ ms*b1/(1+b2*exp(-b3*tt))
+cat("estimate the SCALED model with scaling provided in the call (ms=0.5)\n")
+anlsrxbh  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1, ms=0.5))
+print(anlsrxbh)
+cat("\n scaling is now using the globally defined value of ms=",ms,"\n")
+anlsrxb1a  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1))
+print(anlsrxb1a)
+ms <- 1
+cat("\n scaling is now using the globally re-defined value of ms=",ms,"\n")
+anlsrxb1b  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1))
+print(anlsrxb1b)
+```
+
+
+## Derivatives table
+
+Note that this derivatives table is accomplished by example. We would like
+to have as many examples of different ways to use the tools as possible in
+order to provide a good understanding of the tools and their appropriate usage.
+In particular we want to know of errors. We compare the derivative tools 
+Deriv() and fnDeriv() with the **stats** package tools D(), deriv() and deriv3().
+
+See specific notes either in comments or at the end.
+
+```{r}
+library(nlsr)
+
+# Various derivatives 
+
+new <- fnDeriv(quote(1 + x + y), c("x", "y"))
+old <- deriv(quote(1 + x + y), c("x", "y"))
+print(new)
+# Following generates a very long line on output of knitr (for markdown)
+class(new)
+str(new)
+as.expression(new)
+print(old)
+class(old)
+str(old)
+```
+
+Unfortunately, the inputs and outputs are not always easily transformed so that the
+symbolic derivatives can be found. (?? Need to codify this and provide filters so we
+can get things to work nicely.)
+
+As an example, how could we take object **new** and embed it in a function we can then use
+in **R**? We can certainly copy and paste the output into a function template, as follows,
+
+```{r}
+fnfromnew <- function(x,y){
+    .value <- 1 + x + y
+    .grad <- array(0, c(length(.value), 2L), list(NULL, c("x", 
+    "y")))
+    .grad[, "x"] <- 1
+    .grad[, "y"] <- 1
+    attr(.value, "gradient") <- .grad
+    .value
+}
+
+print(fnfromnew(3,5))
+
+```
+
+However, we would ideally like to be able to automate this to generate functions and
+gradients for nonlinear least squares and optimization calculations. The same criticism
+applies to the object **old**
+
+####Another issue: 
+
+If we have x and y set such that the function is not admissible, then 
+both our old and new functions give a gradient that is seemingly reasonable. While the
+gradient of this simple function could be considered to be defined for ANY values of x and
+y, I (JN) am sure most users would wish for a warning at the very least in such cases.
+
+```{r}
+x <- NA
+y <- Inf
+print(eval(new))
+print(eval(old))
+```
+
+####SafeD
+
+We could define a way to avoid the issue of character vs. expression (and possibly
+other classes) as follows:
+
+
+```{r}
+safeD <- function(obj, var) {
+   # safeguarded D() function for symbolic derivs
+   if (! is.character(var) ) stop("The variable var MUST be character type")
+   if (is.character(obj) ) {
+       eobj <- parse(text=obj)
+       result <- D(eobj, var)
+   } else {
+       result <- D(obj, var)
+   }
+}
+
+lxy2 <- expression(log(x+y^2))
+clxy2 <- "log(x+y^2)"
+print(D(clxy2, "y"))
+print(D(lxy2, "y"))
+print(safeD(clxy2, "y"))
+print(safeD(lxy2, "y"))
+```
+
+## Derivatives table - 2
+
+```{r}
+## Try different ways to supply the log function
+aDeriv <- Deriv(log(x), "x")
+class(aDeriv)
+aDeriv
+aderiv <- deriv( ~ log(x), "x")
+class(aderiv)
+aderiv
+aD <- D(expression(log(x)), "x")
+class(aD)
+aD
+cat("but \n")
+D( "~ log(x)", "x") # fails -- gives NA rather than expected answer due to quotes
+try(D( ~ log(x), "x"))
+interm <- ~ log(x)
+interm
+class(interm)
+interme <- as.expression(interm)
+class(interme)
+try(D(interme, "x"))
+try(deriv(interme, "x"))
+try(deriv(interm, "x"))
+
+
+Deriv(log(x, base=3), "x" ) # OK
+try(D(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
+try(deriv(~ log(x, base=3), "x" )) # fails - only single-argument calls supported
+try(deriv(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
+try(deriv3(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
+fnDeriv(quote(log(x, base=3)), "x" )
+
+Deriv(exp(x), "x")
+D(expression(exp(x)), "x") # OK
+deriv(~exp(x), "x") # OK, but much more complicated
+fnDeriv(quote(exp(x)), "x")
+
+Deriv(sin(x), "x")
+D(expression(sin(x)), "x")
+deriv(~sin(x), "x")
+fnDeriv(quote(sin(x)), "x")
+
+Deriv(cos(x), "x")
+D(expression(cos(x)), "x")
+deriv(~ cos(x), "x")
+fnDeriv(quote(cos(x)), "x")
+
+Deriv(tan(x), "x")
+D(expression(tan(x)), "x")
+deriv(~ tan(x), "x")
+fnDeriv(quote(tan(x)), "x")
+
+Deriv(sinh(x), "x")
+D(expression(sinh(x)), "x")
+deriv(~sinh(x), "x")
+fnDeriv(quote(sinh(x)), "x")
+
+Deriv(cosh(x), "x")
+D(expression(cosh(x)), "x")
+deriv(~cosh(x), "x")
+fnDeriv(quote(cosh(x)), "x")
+
+Deriv(sqrt(x), "x")
+D(expression(sqrt(x)), "x")
+deriv(~sqrt(x), "x")
+fnDeriv(quote(sqrt(x)), "x")
+
+Deriv(pnorm(q), "q")
+D(expression(pnorm(q)), "q")
+deriv(~pnorm(q), "q")
+fnDeriv(quote(pnorm(q)), "q")
+
+Deriv(dnorm(x, mean), "mean")
+D(expression(dnorm(x, mean)), "mean")
+deriv(~dnorm(x, mean), "mean")
+fnDeriv(quote(dnorm(x, mean)), "mean")
+
+Deriv(asin(x), "x")
+D(expression(asin(x)), "x")
+deriv(~asin(x), "x")
+fnDeriv(quote(asin(x)), "x")
+
+Deriv(acos(x), "x")
+D(expression(acos(x)), "x")
+deriv(~acos(x), "x")
+fnDeriv(quote(acos(x)), "x")
+
+Deriv(atan(x), "x")
+D(expression(atan(x)), "x")
+deriv(~atan(x), "x")
+fnDeriv(quote(atan(x)), "x")
+
+Deriv(gamma(x), "x")
+D(expression(gamma(x)), "x")
+deriv(~gamma(x), "x")
+fnDeriv(quote(gamma(x)), "x")
+
+Deriv(lgamma(x), "x")
+D(expression(lgamma(x)), "x")
+deriv(~lgamma(x), "x")
+fnDeriv(quote(lgamma(x)), "x")
+
+Deriv(digamma(x), "x")
+D(expression(digamma(x)), "x")
+deriv(~digamma(x), "x")
+fnDeriv(quote(digamma(x)), "x")
+
+Deriv(trigamma(x), "x")
+D(expression(trigamma(x)), "x")
+deriv(~trigamma(x), "x")
+fnDeriv(quote(trigamma(x)), "x")
+
+Deriv(psigamma(x, deriv = 5), "x")
+D(expression(psigamma(x, deriv = 5)), "x")
+deriv(~psigamma(x, deriv = 5), "x")
+fnDeriv(quote(psigamma(x, deriv = 5)), "x")
+
+Deriv(x*y, "x")
+D(expression(x*y), "x")
+deriv(~x*y, "x")
+fnDeriv(quote(x*y), "x")
+
+Deriv(x/y, "x")
+D(expression(x/y), "x")
+deriv(~x/y, "x")
+fnDeriv(quote(x/y), "x")
+
+Deriv(x^y, "x")
+D(expression(x^y), "x")
+deriv(~x^y, "x")
+fnDeriv(quote(x^y), "x")
+
+Deriv((x), "x")
+D(expression((x)), "x")
+deriv(~(x), "x")
+fnDeriv(quote((x)), "x")
+
+Deriv(+x, "x")
+D(expression(+x), "x")
+deriv(~ +x, "x")
+fnDeriv(quote(+x), "x")
+
+Deriv(-x, "x")
+D(expression(- x), "x")
+deriv(~ -x, "x")
+fnDeriv(quote(-x), "x")
+
+Deriv(abs(x), "x")
+try(D(expression(abs(x)), "x")) # 'abs' not in derivatives table
+try(deriv(~ abs(x), "x"))
+fnDeriv(quote(abs(x)), "x")
+
+Deriv(sign(x), "x")
+try(D(expression(sign(x)), "x")) # 'sign' not in derivatives table
+try(deriv(~ sign(x), "x"))
+fnDeriv(quote(sign(x)), "x")
+```
+
+Notes:
+
+- the base tool deriv (and likely deriv3 ?? need to explore and explain) and 
+nlsr::fnDeriv are intended to output a function to compute a derivative. 
+deriv generates an expression object, while fnDeriv will generate a language object. 
+Do we need to explain this more??  Note that input to deriv is of the form of a 
+tilde expression with no left hand side, while fnDeriv uses a quoted expression. ?? We
+should explore more ways to input things to these tools. 
+
+- the base tool D and nlsr::Deriv generate expressions, but D requires an
+expression, while Deriv can handle the expression without a wrapper. ?? Do we need 
+to discuss more??
+
+- nlsr includes abs(x) and sign(x) in the derivatives table despite conventional
+wisdom that these are not differentiable. However, abs(x) clearly has a defined
+derivative everywhere except at x = 0, where assigning a value of 0 to the 
+derivative is almost certainly acceptable in computations. Similarly for sign(x).
+
+### Simplifying algebraic expressions
+ 
+**nlsr** also includes some tools for simplification of algebraic expressions.
+Such simplification does not appear to be available / exposed in the 
+
+
+```{r}
+# Various simplifications
+
+Simplify(quote(+(a+b)))
+Simplify(quote(-5))
+Simplify(quote(--(a+b)))
+
+Simplify(quote(exp(log(a+b))))
+Simplify(quote(exp(1)))
+
+Simplify(quote(log(exp(a+b))))
+Simplify(quote(log(1)))
+
+Simplify(quote(!TRUE))
+Simplify(quote(!FALSE))
+
+Simplify(quote((a+b)))
+
+Simplify(quote(a + b + 0))
+Simplify(quote(0 + a + b))
+Simplify(quote((a+b) + (a+b)))
+Simplify(quote(1 + 4))
+
+Simplify(quote(a + b - 0))
+Simplify(quote(0 - a - b))
+Simplify(quote((a+b) - (a+b)))
+Simplify(quote(5 - 3))
+
+Simplify(quote(0*(a+b)))
+Simplify(quote((a+b)*0))
+Simplify(quote(1L * (a+b)))
+Simplify(quote((a+b) * 1))
+Simplify(quote((-1)*(a+b)))
+Simplify(quote((a+b)*(-1)))
+Simplify(quote(2*5))
+
+Simplify(quote((a+b) / 1))
+Simplify(quote((a+b) / (-1)))
+Simplify(quote(0/(a+b)))
+Simplify(quote(1/3))
+
+Simplify(quote((a+b) ^ 1))
+Simplify(quote(2^10))
+
+Simplify(quote(log(exp(a), 3)))
+
+Simplify(quote(FALSE && b))
+Simplify(quote(a && TRUE))
+Simplify(quote(TRUE && b))
+
+Simplify(quote(a || TRUE))
+Simplify(quote(FALSE || b))
+Simplify(quote(a || FALSE))
+
+Simplify(quote(if (TRUE) a+b))
+Simplify(quote(if (FALSE) a+b))
+
+Simplify(quote(if (TRUE) a+b else a*b))
+Simplify(quote(if (FALSE) a+b else a*b))
+Simplify(quote(if (cond) a+b else a+b))
+
+# This one was wrong...
+Simplify(quote(--(a+b)))
+
+```
+
+### Comparison with other approaches
+
+There is at least one other symbolic package for R. Here we look at 
+**Ryacas**. The following example was provided by Gabor Grothendieck.
+
+```{r}
+library(nlsr)
+dnlsr <- Deriv(sin(x+y), "x")
+print(dnlsr)
+class(dnlsr)
+
+library(Ryacas)
+x <- Sym("x")
+y <- Sym("y")
+dryacas <- deriv(sin(x+y), x)
+print(dryacas)
+class(dryacas)
+
+```
+
+
+## Examples of use
+
+### Nonlinear least squares with expressions
+
+We use the Hobbs Weeds problem (Nash, 1979 and Nash, 2014). Note that
+nls() fails from start1.
+
+```{r}
+require(nlsr)
+traceval <- FALSE
+# Data for Hobbs problem
+ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+tdat  <-  seq_along(ydat) # for testing
+
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
+start1  <-  c(b1=1, b2=1, b3=1)
+
+eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
+
+cat("LOCAL DATA IN DATA FRAMES\n")
+weeddata1  <-  data.frame(y=ydat, tt=tdat)
+weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
+
+anlsrxb1  <-  try(nlsrxb(eunsc, start=start1, trace=TRUE, data=weeddata1,
+                     control=list(watch=FALSE)))
+print(anlsrxb1)
+
+anlsb1 <-  try(nls(eunsc, start=start1, trace=TRUE, data=weeddata1))
+print(anlsb1)
+```
+
+A different start causes nlsrxb to return a large sum of squares. Note
+that nls() again fails. 
+
+```{r}
+startf1  <-  c(b1=1, b2=1, b3=.1)
+anlsf1 <-  try(nls(eunsc, start=startf1, trace=TRUE, data=weeddata1))
+print(anlsf1)
+
+
+anlsrxf1  <-  try(nlsrxb(eunsc, start=startf1, trace=TRUE, data=weeddata1,
+                     control=list(watch=FALSE)))
+print(anlsrxf1)
+
+# anlsrxb2  <-  try(nlsrxb(eunsc, start=start1, trace=FALSE, data=weeddata2))
+# print(anlsrxb2)
+```
+
+We can discover quickly the difficulty here by computing the Jacobian
+at this "solution" and checking its singular values.
+
+```{r}
+
+cf1 <- coef(anlsrxf1)
+print(cf1)
+jf1 <- anlsrxf1$jacobian
+svals <- svd(jf1)$d
+print(svals)
+```
+
+Here we see that the Jacobian is only rank 1, even though there are 3
+coefficients. It is therefore not surprising that our nonlinear least 
+squares program has concluded we are unable to make further progress.
+
+### Nonlinear least squares with functions
+
+We can run the same example as above using **R** functions rather than 
+expressions, but now we need to have a gradient function as well as one to
+compute residuals. **nlsr** has tools to create these functions from expressions,
+as we shall see here. First we again set up the data and load the package.
+
+```{r}
+require(nlsr)
+traceval <- FALSE
+# Data for Hobbs problem
+ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+tdat  <-  seq_along(ydat) # for testing
+
+# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
+start1  <-  c(b1=1, b2=1, b3=1)
+
+eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
+
+cat("LOCAL DATA IN DATA FRAMES\n")
+weeddata1  <-  data.frame(y=ydat, tt=tdat)
+```
+
+
+
+
+```{r}
+weedrj <- model2rjfun(modelformula=eunsc, pvec=start1, data=weeddata1)
+
+
+
+weedrj
+modeldoc(weedrj) # Note how useful this is to report status
+
+```
+
+
+
+#### check modelexpr() works with an ssgrfun ??
+
+#### test model2rjfun vs model2rjfunx ??
+
+#### Why is resss difficult to use in optimization?
+
+```{r}
+y <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558,
+50.156, 62.948, 75.995, 91.972)
+tt <- seq_along(y) # for testing
+mydata <- data.frame(y = y, tt = tt)
+f <- y ~ 100*b1/(1 + 10*b2 * exp(-0.1 * b3 * tt))
+p <- c(b1 = 1, b2 = 1, b3 = 1)
+rjfn <- model2rjfun(f, p, data = mydata)
+rjfn(p)
+
+myfn <- function(p, resfn=rjfn){
+  val <- resss(p, resfn)
+}
+
+p <- c(b1 = 2, b2=2, b3=1)
+
+a1 <- optim(p, myfn, control=list(trace=0))
+a1
+```
+
+We can also embed the function directly. 
+
+```{r}
+a2 <- optim(p, function(p,resfn=rjfn){resss(p,resfn)}, control=list(trace=0))
+a2
+```
+
+### Need more extensive discussion of Simplify??
+
+## Using derivative functions to generate gradient functions
+
+One of the common needs for optimization computations is the availability
+of accurate gradients of the objective functions. While differentiation is
+relatively straightforward, it is tedious and error-prone.
+
+At 2015-1-24, I have not determined how to automate the use the output
+of the derivatives generated by **nlsr** to create a working gradient
+function. However, the following write-up shows how such a function can
+be generated in a semi-automatic way.
+
+We use an example that appeared on the R-help mailing list on Jan 14, 2015. 
+Responses by Ravi Varadhan and others, along with some modification I made,
+gave the following negative log likelihood function to be minimized.
+
+```{r}
+y=c(5,11,21,31,46,75,98,122,145,165,195,224,245,293,321,330,350,420) # data set
+
+Nweibull2 <- function(x,prm){
+  la <- prm[1]
+  al <- prm[2]
+  be<- prm[3]
+  val2 <- la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) )
+  val2
+}
+LL2J <- function(par,y) {
+R = Nweibull2(y,par)
+-sum(log(R))
+}
+```
+
+We want the gradient of LL3J() with respect to *par*, and first compute the
+derivatives of Nweibull2() with respect to the paramters *prm*
+
+We start with the central expression in Nweibull2() and compute its
+partial derivatives. The expression is:
+
+      la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) )
+
+```{r}
+# Put in the main expression for the Nweibull pdf.
+require(nlsr)
+
+## we generate the three gradient components
+g1n <- Deriv(la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "la")
+g1n
+g2n <- Deriv(la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "al")
+g2n
+g3n <- Deriv(la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "be")
+g3n
+```
+
+By copying and pasting the output above into a function structure, we get
+Nwei2g() below.
+
+```{r}
+Nwei2g <- function(x, prm){
+  la <- prm[1]
+  al <- prm[2]
+  be<- prm[3]
+g1v <- la * be * (x/al)^(be - 1) * (exp((x/al)^be + la * al * (1 - exp((x/al)^be))) * 
+    (al * (1 - exp((x/al)^be)))) + be * (x/al)^(be - 1) * exp((x/al)^be + 
+    la * al * (1 - exp((x/al)^be)))
+
+g2v <- la * be * (x/al)^(be - 1) * (exp((x/al)^be + la * al * (1 - exp((x/al)^be))) * 
+    (be * (x/al)^(be - 1) * -(x/al^2) + (la * al * -(exp((x/al)^be) * 
+        (be * (x/al)^(be - 1) * -(x/al^2))) + la * (1 - exp((x/al)^be))))) + 
+    la * be * ((be - 1) * (x/al)^(be - 1 - 1) * -(x/al^2)) * 
+        exp((x/al)^be + la * al * (1 - exp((x/al)^be)))
+
+g3v <- la * be * (x/al)^(be - 1) * (exp((x/al)^be + la * al * (1 - exp((x/al)^be))) * 
+    ((x/al)^be * log(x/al) + la * al * -(exp((x/al)^be) * ((x/al)^be * 
+        log(x/al))))) + (la * be * ((x/al)^(be - 1) * log(x/al)) + 
+    la * (x/al)^(be - 1)) * exp((x/al)^be + la * al * (1 - exp((x/al)^be)))
+gg <- matrix(data=c(g1v, g2v, g3v), ncol=3)
+}
+```
+
+We can check this gradient functionusing the grad() function from package
+**numDeriv**.
+
+```{r}
+start1 <- c(lambda=.01,alpha=340,beta=.8)
+start2 <- c(lambda=.01,alpha=340,beta=.7)
+
+require(numDeriv)
+ganwei <- Nwei2g(y, prm=start1)
+
+require(numDeriv)
+Nw <- function(x, y) {
+   Nweibull2(y, x)
+} # to allow grad() to work
+
+gnnwei <- matrix(NA, nrow=length(y), ncol=3)
+for (i in 1:length(y)){
+   gnrow <- grad(Nw, x=start1, y=y[i])
+   gnnwei[i,] <- gnrow
+}
+gnnwei
+ganwei
+cat("max(abs(gnnwei - ganwei))= ",   max(abs(gnnwei - ganwei)),"\n")
+```
+
+Now we can build the gradient of the objective function. This requires
+an application of the chain rule to the summation of logs of the
+elements of the quantity *R*. Since the derivative of log(R) w.r.t. R is
+simply 1/R, this is relatively simple. However, I have not found how
+to automate this.
+
+```{r}
+## and now we can build the gradient of LL2J
+LL2Jg <- function(prm, y) {
+    R = Nweibull2(y,prm)
+    gNN <- Nwei2g(y, prm)
+#    print(str(gNN)
+    gL <- - as.vector( t(1/R) %*% gNN) 
+}
+# test
+gaLL2J <- LL2Jg(start1, y)
+gaLL2J
+gnLL2J <- grad(LL2J, start1, y=y)
+gnLL2J
+cat("max(abs(gaLL2J-gnLL2J))= ", max(abs(gaLL2J-gnLL2J)), "\n" )
+```
+## Issues of programming on the language
+
+One of the key tasks with tools for derivatives is that of taking objects
+in one or other form (that is, **R** class) and using it as an input for
+a symbolic function. The object may, of course, be an output from another
+such function, and this is one of the reasons we need to do such 
+transformations.
+
+We also note that the different tools for symbolic derivatives use slightly
+different inputs. For example, for the derivative of log(x), we have
+
+```{r}
+require(nlsr)
+dlogx <- nlsr::Deriv(log(x), "x")
+str(dlogx)
+print(dlogx)
+```
+
+Unfortunately, there are complications when we have an expression object, and 
+we need to specify that we do NOT execute the *substitute()* function. Here we
+show how to do this implicitly and with an explicit object.
+
+```{r}
+dlogxs <- nlsr::Deriv(expression(log(x)), "x", do_substitute=FALSE)
+str(dlogxs)
+print(dlogxs)
+cat(as.character(dlogxs), "\n")
+fne <- expression(log(x))
+dlogxe <- Deriv(fne, "x", do_substitute=FALSE)
+str(dlogxe)
+print(dlogxe)
+
+
+# base R
+dblogx <- D(expression(log(x)), "x")
+str(dblogx)
+print(dblogx)
+
+require(Deriv)
+ddlogx <- Deriv::Deriv(expression(log(x)), "x")
+str(ddlogx)
+print(ddlogx)
+cat(as.character(ddlogx), "\n")
+ddlogxf <- ~ ddlogx
+str(ddlogxf)
+```
+
+## Indexed parameters or variables
+
+Erin Hodgess on R-help in January 2015 raised the issue of taking the 
+derivative of an expression that contains an indexed variable. We
+show the example and its resolution, then give an explanation.
+
+```{r}
+zzz <- expression(y[3]*r1 + r2)
+try(deriv(zzz,c("r1","r2")))
+require(nlsr)
+try(nlsr::Deriv(zzz, c("r1","r2")))
+try(fnDeriv(zzz, c("r1","r2")))
+newDeriv(`[`(x,y), stop("no derivative when indexing"))
+try(nlsr::Deriv(zzz, c("r1","r2")))
+try(nlsr::fnDeriv(zzz, c("r1","r2")))
+```
+
+Richard Heiberger pointed out that internally, **R** stores
+
+    y[3]
+
+as
+
+    "["(y,3)
+
+that is, as a function. Duncan Murdoch pointed out the availability of
+**nlsr** and the use of newDeriv() to redefine the "[" function for
+the purposes of derivatives. 
+
+This is not an ideal resolution, especially as we would like to be able
+to get the gradients of functions with respect to vectors of parameters
+(Noted also by Sergei Sokol in the manual for package **Deriv**). The 
+following examples illustrate this.
+
+
+
+
+```{r}
+try(nlsr::Deriv(zzz, "y[3]"))
+try(nlsr::Deriv(y3*r1+r2,"y3"))
+try(nlsr::Deriv(y[3]*r1+r2,"y[3]"))
+```

@@ -25,7 +25,9 @@ elements of the Jacobian inner product, though in the present
 implementations, this is accomplished indirectly.
 See the section below **Implementation of method**
 
-A large part of the work of this package was carried out by Duncan
+A large part of the work for this package -- particularly the parts
+concerning derivatives and R language structures -- was 
+carried out by Duncan
 Murdoch. Without his input, much of the capability of the package
 would not exist.
 
@@ -212,14 +214,14 @@ print(hobJac)
 Jacobians, the matrices of partial derivatives of residuals with respect
 to the parameters, have a vector input.
 
+?? what did we want to say here?? Possibly talk about Hessian?
 
 
 
 
+## Implementation of nonlinear least squares methods
 
-## Implementation of optimization methods
-
-### Nonlinear least squares
+### Gauss-Newton variants
 
 Nonlinear least squares methods are mostly founded on some or
 other variant of the Gauss-Newton algorithm. The function we
@@ -263,6 +265,8 @@ iteration equation is
 
     J' J  delta = - J' r
            
+??references to Hartley, Marquardt (??levenberg)           
+           
 This iteration frequently fails. The approximation of the Hessian
 by the Jacobian inner-product is one reason, but there is also
 the possibility that the sum of squares function is not
@@ -302,6 +306,33 @@ each diagonal element of I and each diagonal element of D.
 In each iteration, we reduce the lambda parameter before solution. If the
 resulting sum of squares is not reduced, lambda is increased, otherwise we
 move to the next iteration.
+
+### Termination and convergence tests
+
+?? talk about the relative offset test
+
+example of issues when we have zero residuals
+
+### Nonlinear equations
+
+Solution of sets of nonlinear equations is generally NOT a problem that
+is commonly required for statisticians or data analysts. My experience is that
+the occasions where it does arise are when workers try to solve the first order
+conditions for optimality of a function, rather than try to optimize the
+function. If this function is a sum of squares, then we have a nonlinear
+least squares problem, and generally such problems are best approached my
+methods of the type discussed in this article. 
+
+Conversely, since our problem is, using the notation above, equivalent to
+
+   r(x) = 0 
+  
+the solution of a nonlinear least squares problem for which the final sum
+of squares is zero provides a solution to the nonlinear equations. In my 
+experience this is a valid approach to the nonlinear equations problem, 
+especially if there is concern that a solution may not exist. Note that
+there are methods for nonlinear equations, some of which (??ref) are 
+available in R packages.
 
 
 ## Providing extra data to expressions
@@ -447,8 +478,8 @@ safeD <- function(obj, var) {
 
 lxy2 <- expression(log(x+y^2))
 clxy2 <- "log(x+y^2)"
-print(D(clxy2, "y"))
-print(D(lxy2, "y"))
+try(print(D(clxy2, "y")))
+print(try(D(lxy2, "y")))
 print(safeD(clxy2, "y"))
 print(safeD(lxy2, "y"))
 ```
@@ -460,14 +491,14 @@ print(safeD(lxy2, "y"))
 aDeriv <- Deriv(log(x), "x")
 class(aDeriv)
 aDeriv
-aderiv <- deriv( ~ log(x), "x")
+aderiv <- try(deriv( ~ log(x), "x"))
 class(aderiv)
 aderiv
 aD <- D(expression(log(x)), "x")
 class(aD)
 aD
 cat("but \n")
-D( "~ log(x)", "x") # fails -- gives NA rather than expected answer due to quotes
+try(D( "~ log(x)", "x")) # fails -- gives NA rather than expected answer due to quotes
 try(D( ~ log(x), "x"))
 interm <- ~ log(x)
 interm
@@ -988,6 +1019,8 @@ cat("max(abs(gaLL2J-gnLL2J))= ", max(abs(gaLL2J-gnLL2J)), "\n" )
 ```
 ## Issues of programming on the language
 
+?? need to explain where Deriv package comes from
+
 One of the key tasks with tools for derivatives is that of taking objects
 in one or other form (that is, **R** class) and using it as an input for
 a symbolic function. The object may, of course, be an output from another
@@ -1004,8 +1037,10 @@ str(dlogx)
 print(dlogx)
 ```
 
-Unfortunately, there are complications when we have an expression object, and 
-we need to specify that we do NOT execute the *substitute()* function. Here we
+Unfortunately, there are complications when we have an 
+expression object, and 
+we need to specify that we do NOT execute the *substitute()* function. 
+Here we
 show how to do this implicitly and with an explicit object.
 
 ```{r}

@@ -3,6 +3,7 @@ title: "nlsr Background, Examples and Discussion"
 author: "John C. Nash"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: nlpd.bib
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -25,8 +26,13 @@ elements of the Jacobian inner product, though in the present
 implementations, this is accomplished indirectly.
 See the section below **Implementation of method**
 
+In preparing the **nlsr** package there is a sub-goal to unify, 
+or at least render compatible, various
+packages in **R** for the estimation or analysis of problems amenable
+to nonlinear least squares solution.
+
 A large part of the work for this package -- particularly the parts
-concerning derivatives and R language structures -- was 
+concerning derivatives and R language structures -- was initially
 carried out by Duncan
 Murdoch. Without his input, much of the capability of the package
 would not exist.
@@ -34,9 +40,11 @@ would not exist.
 The package and this vignette are a work in progress, and assistance
 and examples are welcome. Note that there is similar work in the 
 package Deriv (Andrew Clausen and Serguei Sokol (2015) Symbolic 
-Differentiation, version 2.0, http://CRAN.R-project.org/package=Deriv)
+Differentiation, version 2.0, http://CRAN.R-project.org/package=Deriv),
+and making the current work "play nicely" with that package is 
+desirable.
 
-## Summary of capabilities
+## Summary of capabilities in `nlsr`
 
 ### Functions in **nlsr**
 
@@ -139,20 +147,27 @@ and a start vector where parameters used in the model formula are named, attempt
 
 ### Missing capabilities
 
-#### Multi-line functions
+#### Multi-line function expressions
 
 Multi-line functions present a challenge. This is in part because
 the chain rule may have to be applied backwards (last line first), but
 also because there may be structures that are not always differentiable,
 such as *if* statements.
 
+Note that the functional approach to nonlinear least squares -- accessible via
+function `nlsrfb` -- does let us prepare residuals and Jacobians of complexity
+limited only by the capabilities of **R**.
 
 #### Vector parameters
 
 We would like to be able to find the Jacobian or gradient of functions
 that have as their parameters a vector, e.g., *prm*. At time of writing
-(January 2015) we cannot specify such a vector within **nlsr**. The
-following script shows things that work or fail.
+(January 2015) we cannot specify such a vector within **nlsr**. 
+
+
+#### Examples of capabilities and weaknesses
+
+The following (rather long) script shows things that work or fail.
 
 ```{r}
 # tryhobbsderiv.R
@@ -286,7 +301,7 @@ we get a version of the steepest descents algorithm. Using the
 diagonal of J' J, we have a scaled version of this 
 (see http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm)
 
-Nash (1977) ??ref?? found that on low precision machines, it
+Nash (1977) @jn77ima found that on low precision machines, it
 was common for diagonal elements of J' J to underflow. A very
 small modification to solve
 
@@ -1110,3 +1125,6 @@ try(nlsr::Deriv(zzz, "y[3]"))
 try(nlsr::Deriv(y3*r1+r2,"y3"))
 try(nlsr::Deriv(y[3]*r1+r2,"y[3]"))
 ```
+
+
+# References

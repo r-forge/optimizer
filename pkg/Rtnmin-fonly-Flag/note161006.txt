@@ -1,0 +1,6 @@
+fonly in Rtnminx does not work in optimrx/opm -- needs a fix.
+
+Note that this may be both useful and also difficult to implement for 
+all the methods that compute f and g simultaneously e.g. nlm.
+
+161005

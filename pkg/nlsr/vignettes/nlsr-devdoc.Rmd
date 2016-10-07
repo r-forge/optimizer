@@ -389,14 +389,11 @@ library(nlsr)
 nlsrfit0 <- try(nlsrxb(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=FALSE))
 nlsrfit0
 ```
-We can approximate what `nls()` is doing by forcing `nlsrxb()` to use a Gauss-Newton
-approach.
+We can approximate what `nls()` is doing by running a simple Gauss-Newton method one
+step at a time. (Prob easier to do this in functional form to avoid having to
+take derivs. Could also use approximations?)
 
-```{r}
-nlsrfit00 <- try(nlsrxb(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=FALSE, 
-      control=list(rofftest=FALSE, smallsstest=FALSE, lambda=0, laminc=0, lamdec=0)))
-nlsrfit00
-```
+
 
 
 ### Nonlinear equations

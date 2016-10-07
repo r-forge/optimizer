@@ -1,5 +1,5 @@
 ---
-title: "nlsr Background, Examples and Discussion"
+title: "nlsr Background, Development, Examples and Discussion"
 author: "John C. Nash"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -10,7 +10,8 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-This vignette is to explain **nlsr**, an R package to try to bring
+This rather long vignette is to explain the development and testing
+of **nlsr**, an R package to try to bring
 the **R** function nls() up to date and to add capabilities for the
 extension of the symbolic and automatic derivative tools in **R**.
 
@@ -280,13 +281,11 @@ iteration equation is
 
     J' J  delta = - J' r
            
-??references to Hartley, Marquardt (??levenberg)           
-           
 This iteration frequently fails. The approximation of the Hessian
 by the Jacobian inner-product is one reason, but there is also
 the possibility that the sum of squares function is not
-"quadratic" enough that the unit step reduces it. Hartley
-introduced a line search along delta, while Marquardt suggested
+"quadratic" enough that the unit step reduces it. @Hartley61
+introduced a line search along delta, while @Marq63 suggested
 replacing J' J with (J' J + lambda * D) where D is a diagonal
 matrix intended to partially approximate the omitted portion of
 the Hessian. 
@@ -301,7 +300,7 @@ we get a version of the steepest descents algorithm. Using the
 diagonal of J' J, we have a scaled version of this 
 (see http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm)
 
-Nash (1977) @jn77ima found that on low precision machines, it
+@jn77ima found that on low precision machines, it
 was common for diagonal elements of J' J to underflow. A very
 small modification to solve
 
@@ -310,7 +309,7 @@ small modification to solve
 where phi is a small number (phi = 1 seems to work quite well) ??
 check??. 
 
-In Nash (1979), the iteration equation was solved as stated. However, this
+In jncnm79, the iteration equation was solved as stated. However, this
 involves forming the sum of squares and cross products of J, a process that
 loses some numerical precision. A better way to solve the linear equations is
 to apply the QR decomposition to the matrix J itself. However, we still need
@@ -320,9 +319,36 @@ each diagonal element of I and each diagonal element of D.
 
 In each iteration, we reduce the lambda parameter before solution. If the
 resulting sum of squares is not reduced, lambda is increased, otherwise we
-move to the next iteration.
+move to the next iteration. Various authors (including the present one)
+have suggested different strategies for this. My current opinion is that
+a "quick" increase, say a factor of 10, and a "slow" decrease, say a factor
+of 0.2, work quite well. However, it is important to check that lambda has
+not got too small or underflowed before applying the increase factor. On
+the other hand, it is useful to be able to set lambda = 0 in the code so
+that a pure Gauss-Newton method can be evaluated with the program(s). The
+current code `nlfb()` uses the line
+
+   `if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps`
+   
+to ensure we get an increase. To force a Gauss-Newton algorithm, the 
+controls `laminc` and `lamdec` are set to 0.
 
 ### Termination and convergence tests
+
+The success of many optimization codes often depends on knowing when no more
+progress can be made. For the present codes, one simple procedure increases
+the damping parameter lamda whenever the sum of squares cannot be 
+decreased, with termination when the parameters are not altered by the addition
+of delta. While this "works", it does incur unnecessary computational effort.
+
+A better approach is that of @BatesWatts81. Their relative offset criterion 
+considers the potential progress that could be made in reducing the current
+residuals to the initial sum of squares. This is a sensible and very effective
+strategy for most situations, but is dangerous where the problem has very 
+small or zero residuals, as in the case of an interpolation problem or nonlinear
+equations. 
+
+
 
 ?? talk about the relative offset test
 

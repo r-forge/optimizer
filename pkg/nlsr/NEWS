@@ -1,5 +1,16 @@
 To do
 
+161007   o    Sort out nlsrxb to use Deriv vs deriv (vs Deriv from French) ??
+
+161007   o    Note the ?? in all the codes. Simplify!
+
+161007   o    More detailed build of rjfun to use approximations when derivs
+		not available.
+
+161007   o    Simple GN code needed to show what happens -- should be able
+        to write a VERY simple one for the vignette. Possibly not include
+        in the code of nlsr.
+
    o    Origin of NaN's in bounded examples. Can they be avoided?
 	Handling of NaN in Jacfun ?? Need an example.
 

@@ -15,9 +15,92 @@ mydata <- data.frame(tt, y0, y1, y2)
 
 st <- c(aa=1, bb=1, cc=1)
 
+gnjn <- function(start, resfn, jacfn = NULL, trace = FALSE, 
+		data=NULL, control=list(), ...){
+# simplified Gauss Newton
+   offset = 1e6 # for no change in parms
+   stepred <- 0.5 # start with this as per nls()
+   par <- start
+   cat("starting parameters:")
+   print(par)
+   res <- resfn(par, data, ...)
+   ssbest <- as.numeric(crossprod(res))
+   cat("initial ss=",ssbest,"\n")
+   par0 <- par
+   keepon <- TRUE
+   while (keepon) {
+      cat("SSbest now ", ssbest,"\n")
+      JJ <- jacfn(par, data, ...)
+      QJ <- qr(JJ)
+      delta <- qr.coef(QJ, -res)
+      ss <- ssbest + offset*offset # force evaluation
+      step <- 1.0
+      if (as.numeric(max(par0+delta)+offset) != as.numeric(max(par0+offset)) ) {
+         while (ss > ssbest) {
+           par <- par0+delta * step
+           res <- resfn(par, data, ...)
+           ss <- as.numeric(crossprod(res))
+           cat("step =", step,"  ss=",ss,"\n")
+           print(par)
+           tmp <- readline("continue")
+           if (ss > ssbest) {
+              step <- step * stepred
+           } else {
+              par0 <- par
+              ssbest <- ss
+           }
+         } # end inner loop
+      } else { keepon <- FALSE # done }
+   } # end main iteration
+} # seems to need this
+
+} # end gnjn
+
+gnjn2 <- function(start, resfn, jacfn = NULL, trace = FALSE, 
+		data=NULL, control=list(), ...){
+# simplified Gauss Newton
+   offset = 1e6 # for no change in parms
+   stepred <- 0.5 # start with this as per nls()
+   par <- start
+   cat("starting parameters:")
+   print(par)
+   res <- resfn(par, data, ...)
+   ssbest <- as.numeric(crossprod(res))
+   cat("initial ss=",ssbest,"\n")
+   par0 <- par
+   keepon <- TRUE
+   while (keepon) {
+      cat("SSbest now ", ssbest,"\n")
+      JJ <- jacfn(par, data, ...)
+      JTJ <- crossprod (JJ)
+      JTr <- crossprod (JJ, res)
+      delta <- - as.vector(solve(JTJ, JTr))
+      ss <- ssbest + offset*offset # force evaluation
+      step <- 1.0
+      if (as.numeric(max(par0+delta)+offset) != as.numeric(max(par0+offset)) ) {
+         while (ss > ssbest) {
+           par <- par0+delta * step
+           res <- resfn(par, data, ...)
+           ss <- as.numeric(crossprod(res))
+           cat("step =", step,"  ss=",ss,"  best is",ssbest,"\n")
+           print(par)
+           tmp <- readline("continue")
+           if (ss > ssbest) {
+              step <- step * stepred
+           } else {
+              par0 <- par
+              ssbest <- ss
+           }
+         } # end inner loop
+      } else { keepon <- FALSE # done }
+   } # end main iteration
+} # seems to need this
+} # end gnjn2
+
+
 trf <- function(par, data) {
     tt <- data[,"tt"]
-    res <- par["aa"]*exp(-par["bb"]*tt) + par["cc"]
+    res <- par["aa"]*exp(-par["bb"]*tt) + par["cc"] - y0
 }
 print(trf(st, data=mydata))
 tmp <- readline("cont.")
@@ -31,13 +114,26 @@ trj <- function(par, data) {
     JJ[,3] <- 1
     JJ
 }
-print(trj(st, data=mydata))
+Ja <- trj(st, data=mydata)
+print(Ja)
 tmp <- readline("cont.")
+
+library(numDeriv)
+Jn <- jacobian(trf, st, data=mydata)
+print(Jn)
+print(max(abs(Jn-Ja)))
+tmp <- readline("cont.")
+
 
 ssf <- function(par, data){
    rr <- trf(par, data)
    ss <- crossprod(rr)
 }
+
+print(ssf(st, data=mydata))
+tmp <- readline("cont.")
+
+
 library(numDeriv)
 print(jacobian(trf, st, data=mydata))
 tmp <- readline("cont.")

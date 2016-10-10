@@ -390,9 +390,162 @@ nlsrfit0 <- try(nlsrxb(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=
 nlsrfit0
 ```
 We can approximate what `nls()` is doing by running a simple Gauss-Newton method one
-step at a time. (Prob easier to do this in functional form to avoid having to
-take derivs. Could also use approximations?)
+step at a time. It is (or was at the time of writing) easier to do this in functional 
+form with explicit derivatives. Note that we test these functions! 
 
+```{r}
+trf <- function(par, data) {
+    tt <- data[,"tt"]
+    res <- par["aa"]*exp(-par["bb"]*tt) + par["cc"] - y0
+}
+print(trf(st, data=mydata))
+trj <- function(par, data) {
+    tt <- data[,"tt"]
+    m <- dim(data)[1]
+    JJ <- matrix(NA, nrow=m, ncol=3)
+    JJ[,1] <- exp(-par["bb"]*tt)
+    JJ[,2] <- - tt * par["aa"] * exp(-par["bb"]*tt)
+    JJ[,3] <- 1
+    JJ
+}
+Ja <- trj(st, data=mydata)
+print(Ja)
+
+library(numDeriv)
+Jn <- jacobian(trf, st, data=mydata)
+print(Jn)
+print(max(abs(Jn-Ja)))
+ssf <- function(par, data){
+   rr <- trf(par, data)
+   ss <- crossprod(rr)
+}
+print(ssf(st, data=mydata))
+
+library(numDeriv)
+print(jacobian(trf, st, data=mydata))
+```
+
+The traditional way to implement a Gauss Newton method was to form the sum of 
+squares and cross-products matrix at in traditional linear regression, using
+the Jacobian as the data matrix. The right hand side uses the inner product
+of the Jacobian with the negative residuals. This approach increases the 
+condition number of the problem, and a more direct QR decomposition of the
+Jacobian is now the preferred approach. However, let us try both to ensure we
+are getting similar answers. First the QR approach.
+
+```{r}
+gnjn <- function(start, resfn, jacfn = NULL, trace = FALSE, 
+		data=NULL, control=list(), ...){
+# simplified Gauss Newton
+   offset = 1e6 # for no change in parms
+   stepred <- 0.5 # start with this as per nls()
+   par <- start
+   cat("starting parameters:")
+   print(par)
+   res <- resfn(par, data, ...)
+   ssbest <- as.numeric(crossprod(res))
+   cat("initial ss=",ssbest,"\n")
+   par0 <- par
+   kres <- 1
+   kjac <- 0
+   keepon <- TRUE
+   while (keepon) {
+      cat("kjac=",kjac,"  kres=",kres,"  SSbest now ", ssbest,"\n")
+      print(par)
+      JJ <- jacfn(par, data, ...)
+      kjac <- kjac + 1
+      QJ <- qr(JJ)
+      delta <- qr.coef(QJ, -res)
+      ss <- ssbest + offset*offset # force evaluation
+      step <- 1.0
+      if (as.numeric(max(par0+delta)+offset) != as.numeric(max(par0+offset)) ) {
+         while (ss > ssbest) {
+           par <- par0+delta * step
+           res <- resfn(par, data, ...)
+           ss <- as.numeric(crossprod(res))
+           kres <- kres + 1
+##           cat("step =", step,"  ss=",ss,"\n")
+##           tmp <- readline("continue")
+           if (ss > ssbest) {
+              step <- step * stepred
+           } else {
+              par0 <- par
+              ssbest <- ss
+           }
+         } # end inner loop
+         if (kjac >= 4)  { 
+            keepon = FALSE
+            cat("artificial stop at kjac=4 -- we only want to check output") 
+         }
+      } else { keepon <- FALSE # done }
+   } # end main iteration
+} # seems to need this
+
+} # end gnjn
+
+fitgnjn0 <- gnjn(st, trf, trj, data=mydata)
+```
+
+The first iteration more or less matches the `nls()` result. The problem is quite
+ill-conditioned, and `nls()` is using a numerical approximation to the Jacobian,
+so deviations of this magnitude from the iterations are not unexpected.
+
+Let us test with a traditional Gauss-Newton.
+
+
+```{r}
+gnjn2 <- function(start, resfn, jacfn = NULL, trace = FALSE, 
+		data=NULL, control=list(), ...){
+# simplified Gauss Newton
+   offset = 1e6 # for no change in parms
+   stepred <- 0.5 # start with this as per nls()
+   par <- start
+   cat("starting parameters:")
+   print(par)
+   res <- resfn(par, data, ...)
+   ssbest <- as.numeric(crossprod(res))
+   cat("initial ss=",ssbest,"\n")
+   kres <- 1
+   kjac <- 0
+   par0 <- par
+   keepon <- TRUE
+   while (keepon) {
+      cat("kres=",kres,"  kjac=",kjac,"   SSbest now ", ssbest,"\n")
+      print(par)
+      JJ <- jacfn(par, data, ...)
+      kjac <- kjac + 1
+      JTJ <- crossprod (JJ)
+      JTr <- crossprod (JJ, res)
+      delta <- - as.vector(solve(JTJ, JTr))
+      ss <- ssbest + offset*offset # force evaluation
+      step <- 1.0
+      if (as.numeric(max(par0+delta)+offset) != as.numeric(max(par0+offset)) ) {
+         while (ss > ssbest) {
+           par <- par0+delta * step
+           res <- resfn(par, data, ...)
+           ss <- as.numeric(crossprod(res))
+           kres <- kres + 1
+##           cat("step =", step,"  ss=",ss,"  best is",ssbest,"\n")
+##           tmp <- readline("continue")
+           if (ss > ssbest) {
+              step <- step * stepred
+           } else {
+              par0 <- par
+              ssbest <- ss
+           }
+         } # end inner loop
+         if (kjac >= 4)  { 
+            keepon = FALSE
+            cat("artificial stop at kjac=4 -- we only want to check output") 
+         }
+      } else { keepon <- FALSE # done }
+   } # end main iteration
+} # seems to need this
+} # end gnjn2
+
+fitgnjn20 <- gnjn2(st, trf, trj, data=mydata)
+
+```
 
 
 

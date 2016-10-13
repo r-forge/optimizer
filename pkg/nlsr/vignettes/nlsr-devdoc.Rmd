@@ -169,6 +169,7 @@ that have as their parameters a vector, e.g., *prm*. At time of writing
 #### Examples of capabilities and weaknesses
 
 The following (rather long) script shows things that work or fail.
+First we set up the Hobbs weed problem.
 
 ```{r}
 # tryhobbsderiv.R
@@ -190,6 +191,10 @@ start1 <- c(200, 50, .3)
 cat("residuals at start1:")
 r1 <- hobbs.res(start1)
 print(r1)
+```
+Now we try some of the derivative capabilities of `nlsr`.
+
+```{r}
 require(nlsr)
 Jr1a <- try(fnDeriv(r1, "x"))
 

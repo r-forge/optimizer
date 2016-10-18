@@ -45,8 +45,9 @@
 } 
   \item{masked}{
      Character vector of quoted parameter names. These parameters will NOT be altered
-     by the algorithm.
-%% ?? NOT useable easily
+     by the algorithm. Masks may also be defined by setting lower and upper bounds
+     equal for the parameters to be fixed. Note that the starting parameter value
+     must also be the same as the lower and upper bound value.
 } 
 
    \item{control}{ 

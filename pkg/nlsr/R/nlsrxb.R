@@ -45,15 +45,15 @@ nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
 #    } else stop("'data' must be a list or an environment")
 # ensure params in vector
     pnames <- names(start)
-    start <- as.numeric(start)
-    names(start) <- pnames ## ?? do we need this for safety??
+    start <- as.numeric(start) # ensure we convert (e.g., if matrix)
+    names(start) <- pnames ## as.numeric strips names, so this is needed
     # bounds
     npar <- length(start)  # number of parameters
     if (length(lower) == 1) 
-        lower <- rep(lower, npar)
+        lower <- rep(lower, npar) # expand to full dimension
     if (length(upper) == 1) 
         upper <- rep(upper, npar)
-# ?? more tests on bounds
+# more tests on bounds
     if (length(lower) != npar) 
         stop("Wrong length: lower")
     if (length(upper) != npar) 
@@ -73,30 +73,22 @@ nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
         laminc = 10, lamdec = 4, femax = 10000, jemax = 5000, rofftest = TRUE, 
         smallsstest = TRUE)
 ##      maxlamda <- 1e+60) ## dropped 130709 ??why?
-    epstol <- (.Machine$double.eps) * ctrl$offset
+##    epstol <- (.Machine$double.eps) * ctrl$offset # ??161018 - not used elsewhere
     ncontrol <- names(control)
     nctrl <- names(ctrl)
     for (onename in ncontrol) {
         if (!(onename %in% nctrl)) {
-            if (trace) 
-                cat("control ", onename, " is not in default set\n")
+            if (trace) cat("control ", onename, " is not in default set\n")
+            stop(onename," is not a control for nlsrxb")
         }
         ctrl[onename] <- control[onename]
     }
-    if (trace) 
-        print(ctrl)
+    if (trace) print(ctrl)
     phiroot <- sqrt(ctrl$phi)
-    lamda <- ctrl$lamda # Note spelling -- a throwback to Ag Can 1974 and
-	## way to see if folk are copying code.
-    offset <- ctrl$offset
-    laminc <- ctrl$laminc
-    lamdec <- ctrl$lamdec  # save typing
-    watch <- ctrl$watch
-    femax <- ctrl$femax
-    jemax <- ctrl$jemax
-# First get all the variable names:
-#    vn <- all.vars(parse(text = formula))
-# ??? need to fix
+ # Note spelling of lamda -- a throwback to Ag Can 1974 and way to see if folk are copying code.
+ # First get all the variable names:
+ #    vn <- all.vars(parse(text = formula))
+ # ??? need to fix -- why?, what is wrong
     vn <- all.vars(formula)
     # Then see which ones are parameters (get their positions
     # in the set xx
@@ -105,7 +97,8 @@ nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     cat("vn:")
     print(vn)
     bdmsk <- rep(1, npar)  # set all params free for now
-    maskidx <- which(pnames %in% masked)  
+    # ?? put in  lower==upper mask defn
+    maskidx <- union(which(lower==upper), which(pnames %in% masked)) # use both methods for masks  
           # NOTE: %in% not == or order gives trouble
     if (length(maskidx) > 0 && trace) {
         cat("The following parameters are masked:")
@@ -134,7 +127,6 @@ nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     print(trjfn)
 
     ## Call the nlfb function here
-##    ctrl$watch<-TRUE
 ## ?? problem is getting the data into the tresfn and tjacfn?? How?
 ## which gets data into the functions
     resfb <- nlfb(start=pnum, resfn=trjfn, jacfn=trjfn, trace=trace, 

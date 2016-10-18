@@ -72,3 +72,4 @@ modelexpr <- function(fun) {
 	env <- environment(env$rjfun)
     env$residexpr
 }
+

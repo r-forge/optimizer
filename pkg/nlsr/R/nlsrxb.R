@@ -105,7 +105,8 @@ nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
         print(pnames[maskidx])
     }
     bdmsk[maskidx] <- 0  # fixed parameters
-    if (trace) {
+    if (trace) { # diagnostic printout
+        cat("Finished masks check\n")
         parpos <- match(pnames, vn) # ?? check this is right??
         datvar <- vn[-parpos]  # NOT the parameters
         cat("datvar:")
@@ -120,12 +121,11 @@ nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
             }
         }
     }
-    cat("Finished masks check\n")
-    resexp <- formula # ?? simplify to remove resexp
-    trjfn<-model2rjfun(resexp, pnum, data=data) 
-    cat("trjfn:\n")
-    print(trjfn)
-
+    trjfn<-model2rjfun(formula, pnum, data=data) 
+    if (trace) {
+       cat("trjfn:\n")
+       print(trjfn)
+    }
     ## Call the nlfb function here
 ## ?? problem is getting the data into the tresfn and tjacfn?? How?
 ## which gets data into the functions

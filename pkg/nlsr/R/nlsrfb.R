@@ -158,6 +158,7 @@ if (trace) {
           }
           if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
           else Jac<-jacfn(pbest, ...)
+          ## ?? should call nlfb and use same structure
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
           JTJ<-crossprod(Jac)

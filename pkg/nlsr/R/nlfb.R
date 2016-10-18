@@ -137,6 +137,8 @@ print(pnum)
           }
           if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
           else Jac<-attr(jacfn(pbest, ...),"gradient") ## ?? JN 140730
+          ## NOTE: by insisting on using the "gradient" attribute, we can use same
+          ## fn for gradient and residual
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
           JTJ<-crossprod(Jac)

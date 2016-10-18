@@ -18,7 +18,7 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
     
     if (jacobian)
         residexpr <- deriv(residexpr, names(pvec))
-## SHOULD TRY:
+## SHOULD TRY:??
 ##	residexpr <- fnDeriv(residexpr, names(pvec))
 	
     if (is.null(data))

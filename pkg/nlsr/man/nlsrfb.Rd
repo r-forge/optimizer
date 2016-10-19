@@ -13,7 +13,7 @@
 }
 \usage{
    nlsrfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
-         maskidx=NULL, control, ...)
+         maskidx=NULL, data=NULL,  control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -47,9 +47,16 @@
      Vector if indices of the parameters to be masked. These parameters will NOT be altered
      by the algorithm. Note that the mechanism here is different from that in \code{nlxb}
      which uses the names of the parameters.
+}
+  \item{data}{
+     A dataframe with the variables used in the problem (though they may
+     be in the dot arguments or parent environment too). Default NULL.
+     ??? Need to check that it works with environment or dot args??
+}
 
-} 
-  \item{control}{ 
+
+
+  \item{control}{
      A list of controls for the algorithm. These are:
      \describe{
       \item{\code{watch}}{Monitor progress if TRUE. Default is FALSE.}

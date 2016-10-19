@@ -1,5 +1,8 @@
 nlsrfb <-function(start, resfn, jacfn=NULL, trace=FALSE, 
-            lower=-Inf, upper=Inf, maskidx=NULL, control=list(), ...){
+            lower=-Inf, upper=Inf, maskidx=NULL, data =NULL, control=list(), ...){
+
+# 161018 -- added data, but we may want NOT to use it, and work with ... or environment
+#  instead. Need tests to see if different methods work.
 #
 #  A simplified and hopefully robust alternative to finding the 
 #  nonlinear least squares minimizer that causes 'formula' to 

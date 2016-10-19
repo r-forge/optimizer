@@ -32,17 +32,17 @@ named in the start vector.
 The main functions in \code{nlsr} are:
 
 \preformatted{
-   nlsrfb - Nash variant of the Marquardt procedure for nonlinear least squares,
+   nlfb - Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using a residual and optionally Jacobian
 	described as \code{R} functions. 
-    20120803: Todo: Make masks more consistent between nlsrfb and nlsrxb.
+    20120803: Todo: Make masks more consistent between nlfb and nlxb.??
 
-   nlsrxb - Nash variant of the Marquardt procedure for nonlinear least squares,
+   nlxb - Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using an expression to describe the residual via
         an \code{R} modeling expression. The Jacobian is computed via symbolic
 	differentiation.
             
-   wrapnlsr - Uses nlsrxb to solve nonlinear least squares then calls nls() to
+   wrapnlsr - Uses nlxb to solve nonlinear least squares then calls nls() to
             create an object of type nls.
 
    model2rjfun - returns a function with header function{prm}, which
@@ -88,7 +88,7 @@ ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
 
-# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
+# A simple starting vector -- must have named parameters for nlxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 startf1  <-  c(b1=1, b2=1, b3=.1)
 
@@ -98,11 +98,11 @@ cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
 
-anlsrxb1  <-  try(nlsrxb(eunsc, start=start1, trace=traceval, data=weeddata1))
-print(anlsrxb1)
+anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata1))
+print(anlxb1)
 
-anlsrxb2  <-  try(nlsrxb(eunsc, start=start1, trace=traceval, data=weeddata2))
-print(anlsrxb2)
+anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
+print(anlxb2)
 
 
 escal  <-   y ~ 100*b1/(1+10*b2*exp(-0.1*b3*tt))
@@ -132,7 +132,7 @@ shobbs.jac  <-  function(x) { # scaled Hobbs weeds problem -- Jacobian
     return(jj)
 }
 
-cat("try nlsrfb\n")
+cat("try nlfb\n")
 st  <-  c(b1=1, b2=1, b3=1)
 low  <-  -Inf
 up <- Inf
@@ -140,14 +140,14 @@ up <- Inf
 
 \dontrun{
 
-ans1 <- nlsrfb(st, shobbs.res, shobbs.jac, trace=traceval)
+ans1 <- nlfb(st, shobbs.res, shobbs.jac, trace=traceval)
 ans1
 cat("No jacobian function -- use internal approximation\n")
-ans1n <- nlsrfb(st, shobbs.res, trace=TRUE, control=list(watch=TRUE)) # NO jacfn
+ans1n <- nlfb(st, shobbs.res, trace=TRUE, control=list(watch=TRUE)) # NO jacfn
 ans1n
 
 # tmp <- readline("Try with bounds at 2")
-time2 <- system.time(ans2 <- nlsrfb(st, shobbs.res, shobbs.jac, upper=c(2,2,2), 
+time2 <- system.time(ans2 <- nlfb(st, shobbs.res, shobbs.jac, upper=c(2,2,2), 
                                   trace=traceval))
 ans2
 time2
@@ -162,11 +162,11 @@ st2s <- c(b1=1, b2=1, b3=1)
 
 \dontrun{
 
-an1qb1 <- try(nlsrxb(escal, start=st2s, trace=traceval, data=weeddata1, 
+an1qb1 <- try(nlxb(escal, start=st2s, trace=traceval, data=weeddata1, 
   lower=c(0,0,0), upper=c(2, 6, 3), control=list(watch=FALSE)))
 print(an1qb1)
 tmp <- readline("next")
-ans2 <- nlsrfb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
+ans2 <- nlfb(st2s,shobbs.res, shobbs.jac, lower=c(0,0,0), upper=c(2, 6, 3), 
    trace=traceval, control=list(watch=FALSE))
 print(ans2)
 
@@ -215,18 +215,20 @@ print(an2wb)
 
 cat("TRY MASKS ONLY\n")
 
-an1xm3 <- try(nlsrxb(escal, start1, trace=traceval, data=weeddata1, 
+an1xm3 <- try(nlxb(escal, start1, trace=traceval, data=weeddata1, 
                    masked=c("b3")))
 printsum(an1xm3)
-an1fm3 <- try(nlsrfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
-                   data=weeddata1, maskidx=c(3)))
-printsum(an1fm3)
+#an1fm3 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
+#                   data=weeddata1, maskidx=c(3)))
+an1fm3 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
+                   data=weeddata1, maskidx=c(3)))printsum(an1fm3)
 
-an1xm1 <- try(nlsrxb
+an1xm1 <- try(nlxb
 (escal, start1, trace=traceval, data=weeddata1, 
                    masked=c("b1")))
 printsum(an1xm1)
-an1fm1 <- try(nlsrfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
+#an1fm1 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
+ an1fm1 <- try(nlfb(start1, shobbs.res, shobbs.jac, trace=traceval, 
                    data=weeddata1, maskidx=c(1)))
 printsum(an1fm1)
 

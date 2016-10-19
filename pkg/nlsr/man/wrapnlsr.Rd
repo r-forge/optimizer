@@ -43,7 +43,7 @@
      parameters. Default Inf.
 } 
   \item{control}{ 
-     A list of controls for the algorithm. These are as for \code{nlsrxb()}.
+     A list of controls for the algorithm. These are as for \code{nlxb()}.
 
 }
   \item{\dots}{
@@ -78,7 +78,7 @@ fit0<-try(nls(y~(a+b*exp(1)^(-c*x)), data=pks28, start=c(a=0,b=1,c=1),
           trace=TRUE))
 print(fit0)
 cat("\n\n")
-fit1<-nlsrxb(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace = TRUE)
+fit1<-nlxb(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), trace = TRUE)
 print(fit1) 
 cat("\n\nor better\n")
 fit2<-wrapnlsr(y~(a+b*exp(-c*x)), data=pks28, start=c(a=0,b=1,c=1), 

@@ -1,5 +1,8 @@
 To do
 
+161019   o    Changed names nlsrxb and nlsrfb to nlxb and nlfb and removed
+              superfluous nlfb.
+
 161018   o    Problem with vignettes (why?). optimx is needed (why?)
 
 161007   o    Sort out nlsrxb to use Deriv vs deriv (vs Deriv from French) ??

@@ -26,6 +26,10 @@
      is, the matrix of partial derivatives of the residuals with respect to each
      of the parameters. If NULL (default), uses an approximation.
      ?? put in character form as in optimx??
+
+     The Jacobian must be returned as the attribute "gradient" of this function,
+     allowing \code{jacfn} to have the same name and be the same code block
+     as \code{resfn}, which may permit some efficiencies of computation.
 }
   \item{start}{
      A named parameter vector. For our example, we could use

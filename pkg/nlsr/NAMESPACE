@@ -4,8 +4,8 @@
 
 # Public routines
 export(
-   nlsrxb,
-   nlsrfb,
+   nlxb,
+   nlfb,
    wrapnlsr,
    resss,
    resgr,

@@ -1,10 +1,10 @@
-nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
+nlxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
                  upper = Inf, masked = NULL, control=list(), ...) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes
     # 'formula' to give a minimal residual sum of squares.
     # 
-    # nlsrxb is particularly intended to allow for the
+    # nlxb is particularly intended to allow for the
     # resolution of very ill-conditioned or else near
     # zero-residual problems for which the regular nls()
     # function is ill-suited. 
@@ -79,7 +79,7 @@ nlsrxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     for (onename in ncontrol) {
         if (!(onename %in% nctrl)) {
             if (trace) cat("control ", onename, " is not in default set\n")
-            stop(onename," is not a control for nlsrxb")
+            stop(onename," is not a control for nlxb")
         }
         ctrl[onename] <- control[onename]
     }

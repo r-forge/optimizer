@@ -45,7 +45,7 @@ Differentiation, version 2.0, http://CRAN.R-project.org/package=Deriv),
 and making the current work "play nicely" with that package is 
 desirable.
 
-## TODOS
+## TODOS ???
 
 -- functions in nlsr-package.R, esp fnDeriv, need to be explained
 -- how to insert numerical derivatives when Deriv unable to get result
@@ -85,31 +85,42 @@ Output a description of the model and the data that was used at the time
 of its creation to the console and optionally to a file. The purpose of 
 this function is to provide a record of the details underlying the function
 
-#### nlfb (NOT exported)
+#### nlfb 
+
+   Given a nonlinear model expressed as an expression of the form of a function
+   that computes the residuals from the model and a start vector `par` , tries
+   to minimize the nonlinear sum of squares of these residuals w.r.t. `par`. 
+   If `model(par, mydata)` computes
+   an a vector of numbers that are presumed to be able to fit data `lhs`, then
+   the residual vector is `(model(par,mydata) - lhs)` ,
+   though traditionally we write the negative of this vector. (Writing it this
+   way allows the derivatives of the residuals w.r.t. the parameters `par` to be
+   the same as those for `model(par,mydata).) `nlfb` tries to minimize the sum
+   of squares of the residuals with respect to the parameters. At the time of 
+   writing, users must provide weights explicitly. (??? to be added???)
+  
+   The method takes a parameter `jacfn` which returns the Jacobian matrix of
+   derivatives of the residuals w.r.t. the parameters in an attribute `gradient`.
+   If this is NULL, then a numerical approximation to derivatives is used.
+   (??which -- and can we use the character method to define these?? What 
+   about for nlxb??) Putting the Jacobian in the attribute `gradient` allows
+   us to combine the computation of the residual and Jacobian in the same code
+   block if we wish, since there are generally common computations.
+
+   The start vector should use named parameters (especially if there is an 
+   underlying formula). The attempted minimization of the sum of squares
+   uses the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
+   sub-problem is solved by a qr method.
+
+#### nlxb
 
    Given a nonlinear model expressed as an expression of the form
          lhs ~ formula_for_rhs
    and a start vector where parameters used in the model formula are named,
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
-
-#### nlsrfb
-   Given a nonlinear model expressed as an expression of the form
-         lhs ~ formula_for_rhs
-   and a start vector where parameters used in the model formula are named,
-   attempts to find the minimum of the residual sum of squares using the
-   Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
-
-#### nlsrxb
-
-   Given a nonlinear model expressed as an expression of the form
-         lhs ~ formula_for_rhs
-   and a start vector where parameters used in the model formula are named,
-   attempts to find the minimum of the residual sum of squares using the
-   Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
+   sub-problem is solved by a qr method. The process is to develop the 
+   residual and Jacobian functions using `model2rjfun`, then call `nlfb`.
 
 #### print.nlsr
 
@@ -142,7 +153,7 @@ by \code{newSimplification}.
 #### summary.nlsr
 
 Provide a summary output (but involving some serious computations!) of an object of
-class nlsr from nlsrxb or nlsrfb from package nlsr.
+class nlsr from nlxb or nlfb from package nlsr.
 
 #### wrapnlsr
 
@@ -183,7 +194,7 @@ also because there may be structures that are not always differentiable,
 such as *if* statements.
 
 Note that the functional approach to nonlinear least squares -- accessible via
-function `nlsrfb` -- does let us prepare residuals and Jacobians of complexity
+function `nlfb` -- does let us prepare residuals and Jacobians of complexity
 limited only by the capabilities of **R**.
 
 #### Vector parameters
@@ -467,7 +478,7 @@ st <- c(aa=1, bb=1, cc=1)
 ```
 We provide three sizes of residuals here, but will only illustrate the consequences of
 zero residuals (the problem with y0). Let us run the nonlinear least squares problem
-to get the interpolating function, first with `nls()`, then with `nlsrxb()`. In the
+to get the interpolating function, first with `nls()`, then with `nlxb()`. In the
 second case we have turned off the trace, as the approach "works" because we have 
 taken care in the code to provide for problems with small residuals. 
 
@@ -475,7 +486,7 @@ taken care in the code to provide for problems with small residuals.
 nlsfit0 <-  try(nls(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=TRUE))
 nlsfit0
 library(nlsr)
-nlsrfit0 <- try(nlsrxb(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=FALSE))
+nlsrfit0 <- try(nlxb(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=FALSE))
 nlsrfit0
 ```
 We can approximate what `nls()` is doing by running a simple Gauss-Newton method one
@@ -661,11 +672,11 @@ available in R packages.
 
 In `nlsr`, we provide for modelling via R functions that generate
 the residuals and Jacobian, and we call the nonlinear least squares
-minimizer through `nlsrfb`. Alternatively, we can do the modelling
-via the `nlsrxb` function that
+minimizer through `nlfb`. Alternatively, we can do the modelling
+via the `nlxb` function that
 takes a model expression as an argument and converts it to the 
 functional form. The actual least squares minimization is then
-carried out by a common routine (`nlfb`). Generally `nlsrxb` is a 
+carried out by a common routine (`nlfb`). Generally `nlxb` is a 
 lot less programming work, but it is also more limited, as we can
 only handle single line expressions, and some expressions may not
 be differentiable within the package, even if there are mathematically
@@ -700,7 +711,7 @@ traceval  <-  TRUE  # traceval set TRUE to debug or give full history
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
-# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
+# A simple starting vector -- must have named parameters for nlxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 startf1  <-  c(b1=1, b2=1, b3=.1)
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
@@ -712,19 +723,19 @@ cat("wdata scales y by ms =",ms,"\n")
 wdata <- data.frame(y=ydat/ms, tt=tdat)
 wdata
 cat("estimate the UNSCALED model with SCALED data\n")
-anlsrxbs  <-  try(nlsrxb(eunsc, start=start1, trace=traceval, data=wdata))
-print(anlsrxbs)
+anlxbs  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=wdata))
+print(anlxbs)
 escal <-  y ~ ms*b1/(1+b2*exp(-b3*tt))
 cat("estimate the SCALED model with scaling provided in the call (ms=0.5)\n")
-anlsrxbh  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1, ms=0.5))
-print(anlsrxbh)
+anlxbh  <-  try(nlxb(escal, start=start1, trace=traceval, data=weeddata1, ms=0.5))
+print(anlxbh)
 cat("\n scaling is now using the globally defined value of ms=",ms,"\n")
-anlsrxb1a  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1))
-print(anlsrxb1a)
+anlxb1a  <-  try(nlxb(escal, start=start1, trace=traceval, data=weeddata1))
+print(anlxb1a)
 ms <- 1
 cat("\n scaling is now using the globally re-defined value of ms=",ms,"\n")
-anlsrxb1b  <-  try(nlsrxb(escal, start=start1, trace=traceval, data=weeddata1))
-print(anlsrxb1b)
+anlxb1b  <-  try(nlxb(escal, start=start1, trace=traceval, data=weeddata1))
+print(anlxb1b)
 ```
 
 
@@ -1118,7 +1129,7 @@ ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
 
-# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
+# A simple starting vector -- must have named parameters for nlxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
@@ -1127,15 +1138,15 @@ cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
 
-anlsrxb1  <-  try(nlsrxb(eunsc, start=start1, trace=TRUE, data=weeddata1,
+anlxb1  <-  try(nlxb(eunsc, start=start1, trace=TRUE, data=weeddata1,
                      control=list(watch=FALSE)))
-print(anlsrxb1)
+print(anlxb1)
 
 anlsb1 <-  try(nls(eunsc, start=start1, trace=TRUE, data=weeddata1))
 print(anlsb1)
 ```
 
-A different start causes nlsrxb to return a large sum of squares. Note
+A different start causes nlxb to return a large sum of squares. Note
 that nls() again fails. 
 
 ```{r}
@@ -1144,12 +1155,12 @@ anlsf1 <-  try(nls(eunsc, start=startf1, trace=TRUE, data=weeddata1))
 print(anlsf1)
 
 
-anlsrxf1  <-  try(nlsrxb(eunsc, start=startf1, trace=TRUE, data=weeddata1,
+anlxf1  <-  try(nlxb(eunsc, start=startf1, trace=TRUE, data=weeddata1,
                      control=list(watch=FALSE)))
-print(anlsrxf1)
+print(anlxf1)
 
-# anlsrxb2  <-  try(nlsrxb(eunsc, start=start1, trace=FALSE, data=weeddata2))
-# print(anlsrxb2)
+# anlxb2  <-  try(nlxb(eunsc, start=start1, trace=FALSE, data=weeddata2))
+# print(anlxb2)
 ```
 
 We can discover quickly the difficulty here by computing the Jacobian
@@ -1157,9 +1168,9 @@ at this "solution" and checking its singular values.
 
 ```{r}
 
-cf1 <- coef(anlsrxf1)
+cf1 <- coef(anlxf1)
 print(cf1)
-jf1 <- anlsrxf1$jacobian
+jf1 <- anlxf1$jacobian
 svals <- svd(jf1)$d
 print(svals)
 ```
@@ -1183,7 +1194,7 @@ ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
           38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
 
-# A simple starting vector -- must have named parameters for nlsrxb, nls, wrapnlsr.
+# A simple starting vector -- must have named parameters for nlxb, nls, wrapnlsr.
 start1  <-  c(b1=1, b2=1, b3=1)
 
 eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))

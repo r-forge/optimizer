@@ -2,7 +2,32 @@ nlfb <-function(start, resfn, jacfn = NULL, trace = FALSE,
 		lower = -Inf, upper = Inf, maskidx = NULL, 
 		data=NULL, control=list(), ...){
 #
-#  A stripped down nlfb (nlsrfb does the checking of inputs).
+#  A simplified and hopefully robust alternative to finding the 
+#  nonlinear least squares minimizer that causes 'formula' to 
+#  give a minimal residual sum of squares. 
+#
+#  nlsrfb is particularly intended to allow for the resolution of 
+#  very ill-conditioned or else near zero-residual problems for 
+#  which the regular nls() function is ill-suited. 
+#  
+#  J C Nash  2012-3-4   nashjc _at_  uottawa.ca
+#
+#  start MUST be a vector where all the elements are named:
+#     e.g., start=c(b1=200, b2=50, b3=0.3)
+#  trace -- TRUE for console output 
+#  lower is a vector of lower bounds
+#  upper is a vector of upper bounds
+#  maskidx is an index vector of positions of parameters that are fixed.
+#  control is a list of control parameters. These are:
+#     ...
+#  
+#  ... will need to contain data for other variables that appear in
+#  the functions
+#
+#  This variant uses a qr solution without forming the sum of squares and cross
+#  products t(J)%*%J 
+# 
+# Function to display SS and point
 showprms<-function(SS, pnum){
     pnames<-names(pnum)
     npar<-length(pnum)
@@ -22,7 +47,18 @@ names(start)<-pnames # ?? needed
 npar<-length(start) # number of parameters
 if (length(lower)==1) lower<-rep(lower,npar)
 if (length(upper)==1) upper<-rep(upper,npar) 
-# controls leave these here ?? Should trace be in control?
+# ?? more tests on bounds
+if (length(lower)!=npar) stop("Wrong length: lower")
+if (length(upper)!=npar) stop("Wrong length: upper")
+if (any(start<lower) || any(start>upper)) stop("Infeasible start")
+if (trace) {
+   cat("lower:")
+   print(lower)
+   cat("upper:")
+   print(upper)
+}
+# Should make this more informative??
+# controls
    ctrl<-list(
     watch=FALSE, # monitor progress
     phi=1, # the phi parameter
@@ -59,7 +95,7 @@ if (length(upper)==1) upper<-rep(upper,npar)
     pnames<-names(pnum)
     bdmsk<-rep(1,npar) # set all params free for now
     if (length(maskidx)>0 && trace) {
-       cat("The parameters are masked:")
+       cat("The following parameters are masked:")
        print(pnames[maskidx]) # Change 140716
     }
     bdmsk[maskidx]<-0 # fixed parameters

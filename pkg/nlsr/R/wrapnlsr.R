@@ -29,7 +29,7 @@ wrapnlsr <- function(formula, start, trace = FALSE, data, lower = -Inf,
         print(upper)
     }
     # Note that there are no bounds or masks.
-    first <- nlsrxb(formula, start, trace = trace, data = data,
+    first <- nlxb(formula, start, trace = trace, data = data,
         lower = lower, upper = upper, control = control, ...)
     # Should check this has worked, but ...
     if (trace) 

@@ -18,5 +18,5 @@ License: GPL-2
 Depends: R (>= 3.0)
 Imports: digest
 Suggests: minpack.lm, optimx, Rvmmin, Rcgmin, numDeriv,
-    knitr, rmarkdown
+    knitr, rmarkdown, Ryacas, Deriv
 VignetteBuilder: knitr

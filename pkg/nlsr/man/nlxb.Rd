@@ -1,5 +1,5 @@
-\name{nlsrxb}
-\alias{nlsrxb}
+\name{nlxb}
+\alias{nlxb}
 \title{Nash variant of Marquardt nonlinear least squares solution via
      qr linear solver.
 }
@@ -12,7 +12,7 @@
    sub-problem is solved by a qr method.
 }
 \usage{
-   nlsrxb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, 
+   nlxb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf,
         masked=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -84,7 +84,7 @@
 }
 }
 \details{
-    \code{nlsrxb} attempts to solve the nonlinear sum of squares problem by using
+    \code{nlxb} attempts to solve the nonlinear sum of squares problem by using
     a variant of Marquardt's approach to stabilizing the Gauss-Newton method using
     the Levenberg-Marquardt adjustment. This is explained in Nash (1979 or 1990) in
     the sections that discuss Algorithm 23. (?? do we want a vignette. Yes, because

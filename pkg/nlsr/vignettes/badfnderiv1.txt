@@ -1,0 +1,323 @@
+gnjn <- function(start, resfn, jacfn = NULL, trace = FALSE,
+data=NULL, control=list(), ...){
+# simplified Gauss Newton
+offset = 1e6 # for no change in parms
+stepred <- 0.5 # start with this as per nls()
+par <- start
+cat("starting parameters:")
+print(par)
+res <- resfn(par, data, ...)
+ssbest <- as.numeric(crossprod(res))
+cat("initial ss=",ssbest,"\n")
+par0 <- par
+kres <- 1
+kjac <- 0
+keepon <- TRUE
+while (keepon) {
+cat("kjac=",kjac,"  kres=",kres,"  SSbest now ", ssbest,"\n")
+JJ <- jacfn(par, data, ...)
+kjac <- kjac + 1
+QJ <- qr(JJ)
+delta <- qr.coef(QJ, -res)
+ss <- ssbest + offset*offset # force evaluation
+step <- 1.0
+if (as.numeric(max(par0+delta)+offset) != as.numeric(max(par0+offset)) ) {
+while (ss > ssbest) {
+par <- par0+delta * step
+res <- resfn(par, data, ...)
+ss <- as.numeric(crossprod(res))
+kres <- kres + 1
+##           cat("step =", step,"  ss=",ss,"\n")
+print(par)
+tmp <- readline("continue")
+if (ss > ssbest) {
+step <- step * stepred
+} else {
+par0 <- par
+ssbest <- ss
+}
+} # end inner loop
+if (kjac >= 4)  {
+keepon = FALSE
+cat("artificial stop at kjac=4 -- we only want to check output") }
+}
+} else { keepon <- FALSE # done }
+} # end main iteration
+} # seems to need this
+} # end gnjn
+# Chunk 1
+# tryhobbsderiv.R
+hobbs.res<-function(x){ # Hobbs weeds problem -- residual
+# This variant uses looping
+#  if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
+y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
+75.995, 91.972)
+t<-1:12
+#  if(abs(12*x[3])>50) {
+#    res<-rep(Inf,12)
+#  } else {
+res<-x[1]/(1+x[2]*exp(-x[3]*t)) - y
+#  }
+}
+# test it
+start1 <- c(200, 50, .3)
+## residuals at start1
+r1 <- hobbs.res(start1)
+print(r1)
+## ERRORS NOT SHOWING IN OUTPUT!!
+require(nlsr)
+# Try directly to differentiate the residual vector
+Jr1a <- try(fnDeriv(r1, "x"))
+# expression with subscripted parameters x[]
+hobbs1 <- try(function(x){ res<-x[1]/(1+x[2]*exp(-x[3]*t)) - y })
+hobbs1
+# expression with named (with numbers) parameters
+hobbs1m <- function(x){ res<-x001/(1+x002*exp(-x003*t)) - y }
+hobbs1m
+Jr11m <- try(fnDeriv(hobbs1m, c("x001", "x002", "x003")))
+# explicit use of the expression()
+hobbs1me <- function(x){ expression(x001/(1+x002*exp(-x003*t)) - y) }
+Jr11me <- try(fnDeriv(hobbs1me, c("x001", "x002", "x003")))
+Jr11ex <- try(fnDeriv(expression(x001/(1+x002*exp(-x003*t)) - y)
+, c("x001", "x002", "x003")))
+Jr11ex
+x001 <- start1[1]
+x002 <- start1[2]
+x003 <- start1[3]
+print(hobbs1m(start1)) # start1 actually ignored
+print(eval(hobbs1me(start1))) # start1 actually ignored
+print(try(eval(Jr11ex)))
+resx <- expression(x001/(1+x002*exp(-x003*t)) - y)
+res1 <- Deriv(resx, "x001", do_substitute=FALSE)
+res1
+col1 <- eval(res1)
+res2 <- Deriv(resx, "x002", do_substitute=FALSE)
+res2
+col2 <- eval(res2)
+res3 <- Deriv(resx, "x003", do_substitute=FALSE)
+res3
+col3 <- eval(res3)
+hobJac <- cbind(col1, col2, col3)
+print(hobJac)
+## SOME ERRORS NOT SHOWING IN OUTPUT!!
+require(nlsr)
+# Try directly to differentiate the residual vector
+Jr1a <- fnDeriv(r1, "x")
+# expression with subscripted parameters x[]
+hobbs1 <- function(x){ res<-x[1]/(1+x[2]*exp(-x[3]*t)) - y }
+hobbs1
+# expression with named (with numbers) parameters
+hobbs1m <- function(x){ res<-x001/(1+x002*exp(-x003*t)) - y }
+hobbs1m
+Jr11m <- try(fnDeriv(hobbs1m, c("x001", "x002", "x003")))
+# explicit use of the expression()
+hobbs1me <- function(x){ expression(x001/(1+x002*exp(-x003*t)) - y) }
+Jr11me <- try(fnDeriv(hobbs1me, c("x001", "x002", "x003")))
+Jr11ex <- try(fnDeriv(expression(x001/(1+x002*exp(-x003*t)) - y)
+, c("x001", "x002", "x003")))
+Jr11ex
+x001 <- start1[1]
+x002 <- start1[2]
+x003 <- start1[3]
+print(hobbs1m(start1)) # start1 actually ignored
+print(eval(hobbs1me(start1))) # start1 actually ignored
+print(try(eval(Jr11ex)))
+resx <- expression(x001/(1+x002*exp(-x003*t)) - y)
+res1 <- Deriv(resx, "x001", do_substitute=FALSE)
+res1
+col1 <- eval(res1)
+res2 <- Deriv(resx, "x002", do_substitute=FALSE)
+res2
+col2 <- eval(res2)
+res3 <- Deriv(resx, "x003", do_substitute=FALSE)
+res3
+col3 <- eval(res3)
+hobJac <- cbind(col1, col2, col3)
+print(hobJac)
+?D
+dx2x <- deriv(~ x^2, "x") ; dx2x
+dx2x <- deriv(~ x^2, "x") ; dx2x
+mode(dx2x)
+x <- -1:2
+eval(dx2x)
+uDx2x <- D(x^2, "x")
+uDx2x
+uDx2x <- D(x^2, x)
+uDx2x <- D(x^2, "x")
+mode(uDx2x)
+uDx2x <- D(expr(x^2), x)
+uDx2x <- D(expression(x^2), x)
+uDx2x <- D("x^2", x)
+uDx2x <- D(as.character("x^2"), x)
+a.exp <- expression(x^2)
+uD <- D(a.exp,"x")
+uD
+uDb <- D(expression(x^2), "x")
+uDb
+D(uDb, "x")
+D(uDb, "2")
+str(uDb)
+ac.exp<-expression("x^2")
+a.exp
+ac.exp
+uDc <- D(ac.exp,"x")
+acp.exp<-expression(parse("x^2"))
+uDcp <- D(acp.exp,"x")
+acp.exp<-expression(unquote("x^2"))
+uDcp <- D(acp.exp,"x")
+ace <- as.expression("x^2")
+uDce <- D(ace,"x")
+ace
+?unquote
+?quote
+acl <- as.language("x^2")
+acl <- deparse("x^2")
+acl
+tt <- D(acl, "x")
+acp <- parse(text="x^2")
+tt <- D(acp, "x")
+tt
+uDsx2x <- D(parse(text=sx2), "x")
+sx2 <- "x^2"
+uDsx2x <- D(parse(text=sx2), "x")
+uDx2x <- D(x^2, "x")
+uDx2x
+x <- -1:2
+eval(dx2x)
+uDx2x <- D(x^2, "x")
+uDx2x
+eval(uDx2x)
+uDx2x <- D(expressionx^2), "x")
+uDx2x <- D(expression(x^2), "x")
+eval(uDx2x)
+uDx2x
+eval(uDx2x)
+uDx2xx <- D((x^2), "x")
+uDx2xx
+eval(uDx2xx)
+dx2x <- deriv(~ x^2, "x") ; dx2x
+mode(dx2x)
+x <- -1:2
+eval(dx2x) # This is evaluated at -1, 0, 1, 2
+eval(dx2x) # This is evaluated at -1, 0, 1, 2, with the result in the "gradient" attribute
+firstd <- attr(dx2x,"gradient")
+firstd
+d2x2x <- deriv(firstd, "x")
+d2x2x
+str(dx2x)
+str(attr(dx2x,"gradient"))
+Dx2x <- D(expression(x^2), "x")
+Dx2x
+x <- -1:2
+eval(Dx2x)
+D(Dx2x, "x")
+parse(dx2x)
+parse(text=dx2x)
+pdx2x<-parse(text=dx2x)
+str(pdx2x)
+pdx2x$.grad
+attr(pdx2x,"gradient")
+Dx2x <- D(expression(x^2), "x")
+Dx2x
+x <- -1:2
+eval(Dx2x)
+# We can differentiate aggain
+D2x2x <- D(Dx2x,"x")
+D2x2x
+eval(D2x2x)
+dx2x <- deriv(~ x^2, "x")
+dx2x
+mode(dx2x)
+x <- -1:2
+dx2x <- deriv(~ x^2, "x")
+acp <- parse(text="x^2")
+dx2x
+mode(dx2x)
+x <- -1:2
+eval(dx2x) # This is evaluated at -1, 0, 1, 2, with the result in the "gradient" attribute
+# Note that we cannot (easily) differentiate this again.
+firstd <- attr(dx2x,"gradient")
+str(firstd)
+d2x2x <- deriv(firstd, "x")
+d2x2x <- try(deriv(firstd, "x"))
+str(d2x2x)
+d2x2x <- try(deriv(firstd, "x"))
+str(d2x2x)
+d2x2x <- deriv(firstd, "x")
+?D
+require(nlsr)
+?Deriv
+new <- fnDeriv(quote(1 + x + y), c("x", "y"))
+old <- deriv(quote(1 + x + y), c("x", "y"))
+print(new)
+# Following generates a very long line on output of knitr (for markdown)
+class(new)
+str(new)
+as.expression(new)
+print(old)
+class(old)
+str(old)
+fnfromnew <- function(x,y){
+.value <- 1 + x + y
+.grad <- array(0, c(length(.value), 2L), list(NULL, c("x",
+"y")))
+.grad[, "x"] <- 1
+.grad[, "y"] <- 1
+attr(.value, "gradient") <- .grad
+.value
+}
+print(fnfromnew(3,5))
+x <- NA
+y <- Inf
+print(eval(new))
+print(eval(old))
+?D
+(fx <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
+function(b0, b1, th, x = 1:7){} ) )
+fx(2,3,4)
+?fnDeriv
+(fj <- fnDeriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
+function(b0, b1, th, x = 1:7){} ) )
+(fj <- fnDeriv( ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
+function(b0, b1, th, x = 1:7){} ) )
+(fj <- fnDeriv(b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
+function(b0, b1, th, x = 1:7){} ) )
+(fj <- fnDeriv(b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),verbose=TRUE,
+x = 1:7){} ) )
+fj(2,3,4)
+fj
+(fj <- fnDeriv(b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),verbose=TRUE)
+fj(2,3,4)
+(fj <- fnDeriv(b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),verbose=TRUE)
+fj(2,3,4)
+(fj <- fnDeriv(b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),verbose=TRUE)
+fj(2,3,4)```
+fj <- fnDeriv(b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),verbose=TRUE)
+fj <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"),verbose=TRUE)
+fj(2,3,4)```
+fj(2,3,4)
+fj <- function(x) {
+fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"),verbose=TRUE)
+}
+fj(2,3,4)
+fj(2)
+fj <- function(x) {
+fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
+}
+fj(2,3,4)
+fj(x=1, b0=2, b1=3, th=4)
+fj <- function(x, b0, b1, th) {
+fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
+}
+fj(x=1, b0=2, b1=3, th=4)
+eval(fj(x=1, b0=2, b1=3, th=4))
+str(fj)
+is.call(fj)
+is.expression(fj)
+is.function(fj)
+ff <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
+is.call(ff)
+.call(ff, x=1, b0=2, b1=3, th=4)
+.Call(ff, x=1, b0=2, b1=3, th=4)
+.Call("ff", x=1, b0=2, b1=3, th=4)
+savehistory("badfnderiv1.txt")

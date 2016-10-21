@@ -1,45 +1,4 @@
----
-title: "nlsr Derivatives"
-author: "John C. Nash"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-bibliography: nlpd.bib
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\usepackage[utf8]{inputenc}
----
-
-This vignette is to check the differentiation capabilities of 
-different packages in **R**, namely `nlsr`, `Deriv`, `Ryacas` and 
-the base R facilities `D` and `deriv`..
-
-
-## TODOS ???
-
-## Available analytic differentiation tools
-
-**R** has a number of tools for finding derivatives, apart from the package
-`numDeriv` which is for numerical approximations to derivatives.
-
-- **stats**: tools D(), deriv() and deriv3()
-
-- **nlsr**: tools ??
-
-- **Deriv**: tools ??
-
-- **Ryacas**: tools ??
-
-- ?? any others
-
-## How the tools are used
-
-### stats
-
-`D()`, `deriv()` and `deriv3()`. As `deriv3()` is stated to be the same as `deriv()` but with
-argument `hessian=TRUE`, we will for now only consider the first two.
-
-```{r}
+## ------------------------------------------------------------------------
 
 dx2x <- deriv(~ x^2, "x") 
 dx2x
@@ -111,51 +70,37 @@ DD(expression(sin(x^2)), "x", 3)
 ## -sin(x^2) * (2 * x) * 2 + ((cos(x^2) * (2 * x) * (2 * x) + sin(x^2) *
 ##    2) * (2 * x) + sin(x^2) * (2 * x) * 2)
 
-```
 
-### nlsr
-
-```{r}
-fj <- function(x, b0, b1, th) {
-     fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
-}
-fj(x=1, b0=2, b1=3, th=4)
-## Get errors ???
-```
-
-
-### Deriv
-
-```{r}
-require(Deriv)
-
-
-
-```
-
-
-### Ryacas
-
-- ?? any others
-
-
-
-
-## Derivatives table
-
-See specific notes either in comments or at the end.
-
-??? do each example by all methods and by numDeriv and put in dataframe for later
-presentation in a table.
-
-Do we want examples in columns or rows. Probably 1 fn per row and work out
-a name for the row that is reasonably meaningful. Probably want an index column
-as well that is a list of strings. Can we then act on those strings to automate
-the whole setup?
-
-
-```{r}
+## ------------------------------------------------------------------------
 require(nlsr)
+
+# Examples
+
+newDeriv()
+newDeriv(sin(x))
+Deriv(sin(x+y), "x")
+
+f <- function(x) x^2 # a "new" function
+newDeriv(f(x), 2*x*D(x)) # and its derivative definition
+Deriv(f(abs(x)), "x") # and the derivative of the function of abs(x)
+
+# try fnDeriv
+myfd <- fnDeriv(f(abs(x)), "x") # and the derivative of the function of abs(x)
+myfd
+
+# a different example
+Deriv(pnorm(x, sd=2, log = TRUE), "x")
+
+
+
+
+
+
+
+
+
+
+
 # require(stats)
 # require(Deriv)
 # require(Ryacas)
@@ -172,16 +117,8 @@ as.expression(new)
 print(old)
 class(old)
 str(old)
-```
 
-Unfortunately, the inputs and outputs are not always easily transformed so that the
-symbolic derivatives can be found. (?? Need to codify this and provide filters so we
-can get things to work nicely.)
-
-As an example, how could we take object **new** and embed it in a function we can then use
-in **R**? We can certainly copy and paste the output into a function template, as follows,
-
-```{r}
+## ------------------------------------------------------------------------
 fnfromnew <- function(x,y){
     .value <- 1 + x + y
     .grad <- array(0, c(length(.value), 2L), list(NULL, c("x", 
@@ -194,33 +131,14 @@ fnfromnew <- function(x,y){
 
 print(fnfromnew(3,5))
 
-```
 
-However, we would ideally like to be able to automate this to generate functions and
-gradients for nonlinear least squares and optimization calculations. The same criticism
-applies to the object **old**
-
-####Another issue: 
-
-If we have x and y set such that the function is not admissible, then 
-both our old and new functions give a gradient that is seemingly reasonable. While the
-gradient of this simple function could be considered to be defined for ANY values of x and
-y, I (JN) am sure most users would wish for a warning at the very least in such cases.
-
-```{r}
+## ------------------------------------------------------------------------
 x <- NA
 y <- Inf
 print(eval(new))
 print(eval(old))
-```
 
-####SafeD
-
-We could define a way to avoid the issue of character vs. expression (and possibly
-other classes) as follows:
-
-
-```{r}
+## ------------------------------------------------------------------------
 safeD <- function(obj, var) {
    # safeguarded D() function for symbolic derivs
    if (! is.character(var) ) stop("The variable var MUST be character type")
@@ -238,11 +156,8 @@ try(print(D(clxy2, "y")))
 print(try(D(lxy2, "y")))
 print(safeD(clxy2, "y"))
 print(safeD(lxy2, "y"))
-```
 
-### Derivatives table - 2
-
-```{r}
+## ------------------------------------------------------------------------
 ## Try different ways to supply the log function
 aDeriv <- Deriv(log(x), "x")
 class(aDeriv)
@@ -397,33 +312,8 @@ Deriv(sign(x), "x")
 try(D(expression(sign(x)), "x")) # 'sign' not in derivatives table
 try(deriv(~ sign(x), "x"))
 fnDeriv(quote(sign(x)), "x")
-```
 
-### Notes:
-
-- the base tool deriv (and likely deriv3 ?? need to explore and explain) and 
-nlsr::fnDeriv are intended to output a function to compute a derivative. 
-deriv generates an expression object, while fnDeriv will generate a language object. 
-Do we need to explain this more??  Note that input to deriv is of the form of a 
-tilde expression with no left hand side, while fnDeriv uses a quoted expression. ?? We
-should explore more ways to input things to these tools. 
-
-- the base tool D and nlsr::Deriv generate expressions, but D requires an
-expression, while Deriv can handle the expression without a wrapper. ?? Do we need 
-to discuss more??
-
-- nlsr includes abs(x) and sign(x) in the derivatives table despite conventional
-wisdom that these are not differentiable. However, abs(x) clearly has a defined
-derivative everywhere except at x = 0, where assigning a value of 0 to the 
-derivative is almost certainly acceptable in computations. Similarly for sign(x).
-
-### Simplifying algebraic expressions
- 
-**nlsr** also includes some tools for simplification of algebraic expressions.
-Such simplification does not appear to be available / exposed in the 
-
-
-```{r}
+## ------------------------------------------------------------------------
 # Various simplifications
 
 Simplify(quote(+(a+b)))
@@ -487,14 +377,8 @@ Simplify(quote(if (cond) a+b else a+b))
 # This one was wrong...
 Simplify(quote(--(a+b)))
 
-```
 
-### Comparison with other approaches
-
-There is at least one other symbolic package for R. Here we look at 
-**Ryacas**. The following example was provided by Gabor Grothendieck.
-
-```{r}
+## ------------------------------------------------------------------------
 require(nlsr)
 dnlsr <- Deriv(sin(x+y), "x")
 print(dnlsr)
@@ -507,45 +391,14 @@ dryacas <- deriv(sin(x+y), x)
 print(dryacas)
 class(dryacas)
 
-```
 
-
-
-### check modelexpr() works with an ssgrfun ??
-
-### test model2rjfun vs model2rjfunx ??
-
-
-### Need more extensive discussion of Simplify??
-
-
-## Issues of programming on the language
-
-?? need to explain where Deriv package comes from
-
-One of the key tasks with tools for derivatives is that of taking objects
-in one or other form (that is, **R** class) and using it as an input for
-a symbolic function. The object may, of course, be an output from another
-such function, and this is one of the reasons we need to do such 
-transformations.
-
-We also note that the different tools for symbolic derivatives use slightly
-different inputs. For example, for the derivative of log(x), we have
-
-```{r}
+## ------------------------------------------------------------------------
 require(nlsr)
 dlogx <- nlsr::Deriv(log(x), "x")
 str(dlogx)
 print(dlogx)
-```
 
-Unfortunately, there are complications when we have an 
-expression object, and 
-we need to specify that we do NOT execute the *substitute()* function. 
-Here we
-show how to do this implicitly and with an explicit object.
-
-```{r}
+## ------------------------------------------------------------------------
 dlogxs <- nlsr::Deriv(expression(log(x)), "x", do_substitute=FALSE)
 str(dlogxs)
 print(dlogxs)
@@ -568,15 +421,8 @@ print(ddlogx)
 cat(as.character(ddlogx), "\n")
 ddlogxf <- ~ ddlogx
 str(ddlogxf)
-```
 
-## Indexed parameters or variables
-
-Erin Hodgess on R-help in January 2015 raised the issue of taking the 
-derivative of an expression that contains an indexed variable. We
-show the example and its resolution, then give an explanation.
-
-```{r}
+## ------------------------------------------------------------------------
 zzz <- expression(y[3]*r1 + r2)
 try(deriv(zzz,c("r1","r2")))
 require(nlsr)
@@ -585,33 +431,9 @@ try(fnDeriv(zzz, c("r1","r2")))
 newDeriv(`[`(x,y), stop("no derivative when indexing"))
 try(nlsr::Deriv(zzz, c("r1","r2")))
 try(nlsr::fnDeriv(zzz, c("r1","r2")))
-```
 
-Richard Heiberger pointed out that internally, **R** stores
-
-    y[3]
-
-as
-
-    "["(y,3)
-
-that is, as a function. Duncan Murdoch pointed out the availability of
-**nlsr** and the use of newDeriv() to redefine the "[" function for
-the purposes of derivatives. 
-
-This is not an ideal resolution, especially as we would like to be able
-to get the gradients of functions with respect to vectors of parameters
-(Noted also by Sergei Sokol in the manual for package **Deriv**). The 
-following examples illustrate this.
-
-
-
-
-```{r}
+## ------------------------------------------------------------------------
 try(nlsr::Deriv(zzz, "y[3]"))
 try(nlsr::Deriv(y3*r1+r2,"y3"))
 try(nlsr::Deriv(y[3]*r1+r2,"y[3]"))
-```
 
-
-# References

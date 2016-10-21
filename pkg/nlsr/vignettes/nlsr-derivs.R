@@ -92,6 +92,7 @@ myfd
 Deriv(pnorm(x, sd=2, log = TRUE), "x")
 
 
+require(Deriv)
 
 
 
@@ -102,10 +103,11 @@ Deriv(pnorm(x, sd=2, log = TRUE), "x")
 
 
 # require(stats)
-# require(Deriv)
 # require(Ryacas)
 
 # Various derivatives 
+
+require(nlsr)
 
 new <- fnDeriv(quote(1 + x + y), c("x", "y"))
 old <- deriv(quote(1 + x + y), c("x", "y"))
@@ -114,6 +116,10 @@ print(new)
 class(new)
 str(new)
 as.expression(new)
+newf <- function(x, y){
+   eval(new)
+}
+newf(3,5)
 print(old)
 class(old)
 str(old)

@@ -17,31 +17,79 @@ the base R facilities `D` and `deriv`..
 
 ## TODOS ???
 
+## Available analytic differentiation tools
 
-## Derivatives table
+**R** has a number of tools for finding derivatives, apart from the package
+`numDeriv` which is for numerical approximations to derivatives.
 
-Need to make it clear which package is in use
+- **stats**: tools D(), deriv() and deriv3()
 
-- stats
+- **nlsr**: tools ??
 
-- nlsr
+- **Deriv**: tools ??
 
-- Deriv
-
-- ryacas
+- **Ryacas**: tools ??
 
 - ?? any others
 
-Note that this derivatives table is accomplished by example. We would like
-to have as many examples of different ways to use the tools as possible in
-order to provide a good understanding of the tools and their appropriate usage.
-In particular we want to know of errors. We compare the derivative tools 
-Deriv() and fnDeriv() with the **stats** package tools D(), deriv() and deriv3().
+## How the tools are used
+
+### stats
+
+`D()`, `deriv()` and `deriv3()`. As `deriv3()` is stated to be the same as `deriv()` but with
+argument `hessian=TRUE`, we will for now only consider the first two.
+
+```{r}
+## formula argument :
+dx2x <- deriv(~ x^2, "x") ; dx2x
+
+mode(dx2x)
+x <- -1:2
+eval(dx2x)
+
+uDx2x <- D(expression(x^2), "x")
+uDx2x
+eval(uDx2x)
+# Note how we handle an expression stored in a string via parse(text=  ))
+sx2 <- "x^2"
+uDsx2x <- D(parse(text=sx2), "x")
+uDsx2x
+# But watch out!
+uDx2xx <- D((x^2), "x")
+uDx2xx
+eval(uDx2xx)
+
+```
+
+### nlsr
+
+### Deriv
+
+### Ryacas
+
+- ?? any others
+
+
+
+
+## Derivatives table
 
 See specific notes either in comments or at the end.
 
+??? do each example by all methods and by numDeriv and put in dataframe for later
+presentation in a table.
+
+Do we want examples in columns or rows. Probably 1 fn per row and work out
+a name for the row that is reasonably meaningful. Probably want an index column
+as well that is a list of strings. Can we then act on those strings to automate
+the whole setup?
+
+
 ```{r}
-library(nlsr)
+require(nlsr)
+# require(stats)
+# require(Deriv)
+# require(Ryacas)
 
 # Various derivatives 
 
@@ -378,12 +426,12 @@ There is at least one other symbolic package for R. Here we look at
 **Ryacas**. The following example was provided by Gabor Grothendieck.
 
 ```{r}
-library(nlsr)
+require(nlsr)
 dnlsr <- Deriv(sin(x+y), "x")
 print(dnlsr)
 class(dnlsr)
 
-library(Ryacas)
+require(Ryacas)
 x <- Sym("x")
 y <- Sym("y")
 dryacas <- deriv(sin(x+y), x)

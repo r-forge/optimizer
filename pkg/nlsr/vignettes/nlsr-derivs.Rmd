@@ -1,0 +1,500 @@
+---
+title: "nlsr Derivatives"
+author: "John C. Nash"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: nlpd.bib
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+This vignette is to check the differentiation capabilities of 
+different packages in **R**, namely `nlsr`, `Deriv`, `Ryacas` and 
+the base R facilities `D` and `deriv`..
+
+
+## TODOS ???
+
+
+## Derivatives table
+
+Need to make it clear which package is in use
+
+- stats
+
+- nlsr
+
+- Deriv
+
+- ryacas
+
+- ?? any others
+
+Note that this derivatives table is accomplished by example. We would like
+to have as many examples of different ways to use the tools as possible in
+order to provide a good understanding of the tools and their appropriate usage.
+In particular we want to know of errors. We compare the derivative tools 
+Deriv() and fnDeriv() with the **stats** package tools D(), deriv() and deriv3().
+
+See specific notes either in comments or at the end.
+
+```{r}
+library(nlsr)
+
+# Various derivatives 
+
+new <- fnDeriv(quote(1 + x + y), c("x", "y"))
+old <- deriv(quote(1 + x + y), c("x", "y"))
+print(new)
+# Following generates a very long line on output of knitr (for markdown)
+class(new)
+str(new)
+as.expression(new)
+print(old)
+class(old)
+str(old)
+```
+
+Unfortunately, the inputs and outputs are not always easily transformed so that the
+symbolic derivatives can be found. (?? Need to codify this and provide filters so we
+can get things to work nicely.)
+
+As an example, how could we take object **new** and embed it in a function we can then use
+in **R**? We can certainly copy and paste the output into a function template, as follows,
+
+```{r}
+fnfromnew <- function(x,y){
+    .value <- 1 + x + y
+    .grad <- array(0, c(length(.value), 2L), list(NULL, c("x", 
+    "y")))
+    .grad[, "x"] <- 1
+    .grad[, "y"] <- 1
+    attr(.value, "gradient") <- .grad
+    .value
+}
+
+print(fnfromnew(3,5))
+
+```
+
+However, we would ideally like to be able to automate this to generate functions and
+gradients for nonlinear least squares and optimization calculations. The same criticism
+applies to the object **old**
+
+####Another issue: 
+
+If we have x and y set such that the function is not admissible, then 
+both our old and new functions give a gradient that is seemingly reasonable. While the
+gradient of this simple function could be considered to be defined for ANY values of x and
+y, I (JN) am sure most users would wish for a warning at the very least in such cases.
+
+```{r}
+x <- NA
+y <- Inf
+print(eval(new))
+print(eval(old))
+```
+
+####SafeD
+
+We could define a way to avoid the issue of character vs. expression (and possibly
+other classes) as follows:
+
+
+```{r}
+safeD <- function(obj, var) {
+   # safeguarded D() function for symbolic derivs
+   if (! is.character(var) ) stop("The variable var MUST be character type")
+   if (is.character(obj) ) {
+       eobj <- parse(text=obj)
+       result <- D(eobj, var)
+   } else {
+       result <- D(obj, var)
+   }
+}
+
+lxy2 <- expression(log(x+y^2))
+clxy2 <- "log(x+y^2)"
+try(print(D(clxy2, "y")))
+print(try(D(lxy2, "y")))
+print(safeD(clxy2, "y"))
+print(safeD(lxy2, "y"))
+```
+
+### Derivatives table - 2
+
+```{r}
+## Try different ways to supply the log function
+aDeriv <- Deriv(log(x), "x")
+class(aDeriv)
+aDeriv
+aderiv <- try(deriv( ~ log(x), "x"))
+class(aderiv)
+aderiv
+aD <- D(expression(log(x)), "x")
+class(aD)
+aD
+cat("but \n")
+try(D( "~ log(x)", "x")) # fails -- gives NA rather than expected answer due to quotes
+try(D( ~ log(x), "x"))
+interm <- ~ log(x)
+interm
+class(interm)
+interme <- as.expression(interm)
+class(interme)
+try(D(interme, "x"))
+try(deriv(interme, "x"))
+try(deriv(interm, "x"))
+
+
+Deriv(log(x, base=3), "x" ) # OK
+try(D(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
+try(deriv(~ log(x, base=3), "x" )) # fails - only single-argument calls supported
+try(deriv(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
+try(deriv3(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
+fnDeriv(quote(log(x, base=3)), "x" )
+
+Deriv(exp(x), "x")
+D(expression(exp(x)), "x") # OK
+deriv(~exp(x), "x") # OK, but much more complicated
+fnDeriv(quote(exp(x)), "x")
+
+Deriv(sin(x), "x")
+D(expression(sin(x)), "x")
+deriv(~sin(x), "x")
+fnDeriv(quote(sin(x)), "x")
+
+Deriv(cos(x), "x")
+D(expression(cos(x)), "x")
+deriv(~ cos(x), "x")
+fnDeriv(quote(cos(x)), "x")
+
+Deriv(tan(x), "x")
+D(expression(tan(x)), "x")
+deriv(~ tan(x), "x")
+fnDeriv(quote(tan(x)), "x")
+
+Deriv(sinh(x), "x")
+D(expression(sinh(x)), "x")
+deriv(~sinh(x), "x")
+fnDeriv(quote(sinh(x)), "x")
+
+Deriv(cosh(x), "x")
+D(expression(cosh(x)), "x")
+deriv(~cosh(x), "x")
+fnDeriv(quote(cosh(x)), "x")
+
+Deriv(sqrt(x), "x")
+D(expression(sqrt(x)), "x")
+deriv(~sqrt(x), "x")
+fnDeriv(quote(sqrt(x)), "x")
+
+Deriv(pnorm(q), "q")
+D(expression(pnorm(q)), "q")
+deriv(~pnorm(q), "q")
+fnDeriv(quote(pnorm(q)), "q")
+
+Deriv(dnorm(x, mean), "mean")
+D(expression(dnorm(x, mean)), "mean")
+deriv(~dnorm(x, mean), "mean")
+fnDeriv(quote(dnorm(x, mean)), "mean")
+
+Deriv(asin(x), "x")
+D(expression(asin(x)), "x")
+deriv(~asin(x), "x")
+fnDeriv(quote(asin(x)), "x")
+
+Deriv(acos(x), "x")
+D(expression(acos(x)), "x")
+deriv(~acos(x), "x")
+fnDeriv(quote(acos(x)), "x")
+
+Deriv(atan(x), "x")
+D(expression(atan(x)), "x")
+deriv(~atan(x), "x")
+fnDeriv(quote(atan(x)), "x")
+
+Deriv(gamma(x), "x")
+D(expression(gamma(x)), "x")
+deriv(~gamma(x), "x")
+fnDeriv(quote(gamma(x)), "x")
+
+Deriv(lgamma(x), "x")
+D(expression(lgamma(x)), "x")
+deriv(~lgamma(x), "x")
+fnDeriv(quote(lgamma(x)), "x")
+
+Deriv(digamma(x), "x")
+D(expression(digamma(x)), "x")
+deriv(~digamma(x), "x")
+fnDeriv(quote(digamma(x)), "x")
+
+Deriv(trigamma(x), "x")
+D(expression(trigamma(x)), "x")
+deriv(~trigamma(x), "x")
+fnDeriv(quote(trigamma(x)), "x")
+
+Deriv(psigamma(x, deriv = 5), "x")
+D(expression(psigamma(x, deriv = 5)), "x")
+deriv(~psigamma(x, deriv = 5), "x")
+fnDeriv(quote(psigamma(x, deriv = 5)), "x")
+
+Deriv(x*y, "x")
+D(expression(x*y), "x")
+deriv(~x*y, "x")
+fnDeriv(quote(x*y), "x")
+
+Deriv(x/y, "x")
+D(expression(x/y), "x")
+deriv(~x/y, "x")
+fnDeriv(quote(x/y), "x")
+
+Deriv(x^y, "x")
+D(expression(x^y), "x")
+deriv(~x^y, "x")
+fnDeriv(quote(x^y), "x")
+
+Deriv((x), "x")
+D(expression((x)), "x")
+deriv(~(x), "x")
+fnDeriv(quote((x)), "x")
+
+Deriv(+x, "x")
+D(expression(+x), "x")
+deriv(~ +x, "x")
+fnDeriv(quote(+x), "x")
+
+Deriv(-x, "x")
+D(expression(- x), "x")
+deriv(~ -x, "x")
+fnDeriv(quote(-x), "x")
+
+Deriv(abs(x), "x")
+try(D(expression(abs(x)), "x")) # 'abs' not in derivatives table
+try(deriv(~ abs(x), "x"))
+fnDeriv(quote(abs(x)), "x")
+
+Deriv(sign(x), "x")
+try(D(expression(sign(x)), "x")) # 'sign' not in derivatives table
+try(deriv(~ sign(x), "x"))
+fnDeriv(quote(sign(x)), "x")
+```
+
+### Notes:
+
+- the base tool deriv (and likely deriv3 ?? need to explore and explain) and 
+nlsr::fnDeriv are intended to output a function to compute a derivative. 
+deriv generates an expression object, while fnDeriv will generate a language object. 
+Do we need to explain this more??  Note that input to deriv is of the form of a 
+tilde expression with no left hand side, while fnDeriv uses a quoted expression. ?? We
+should explore more ways to input things to these tools. 
+
+- the base tool D and nlsr::Deriv generate expressions, but D requires an
+expression, while Deriv can handle the expression without a wrapper. ?? Do we need 
+to discuss more??
+
+- nlsr includes abs(x) and sign(x) in the derivatives table despite conventional
+wisdom that these are not differentiable. However, abs(x) clearly has a defined
+derivative everywhere except at x = 0, where assigning a value of 0 to the 
+derivative is almost certainly acceptable in computations. Similarly for sign(x).
+
+### Simplifying algebraic expressions
+ 
+**nlsr** also includes some tools for simplification of algebraic expressions.
+Such simplification does not appear to be available / exposed in the 
+
+
+```{r}
+# Various simplifications
+
+Simplify(quote(+(a+b)))
+Simplify(quote(-5))
+Simplify(quote(--(a+b)))
+
+Simplify(quote(exp(log(a+b))))
+Simplify(quote(exp(1)))
+
+Simplify(quote(log(exp(a+b))))
+Simplify(quote(log(1)))
+
+Simplify(quote(!TRUE))
+Simplify(quote(!FALSE))
+
+Simplify(quote((a+b)))
+
+Simplify(quote(a + b + 0))
+Simplify(quote(0 + a + b))
+Simplify(quote((a+b) + (a+b)))
+Simplify(quote(1 + 4))
+
+Simplify(quote(a + b - 0))
+Simplify(quote(0 - a - b))
+Simplify(quote((a+b) - (a+b)))
+Simplify(quote(5 - 3))
+
+Simplify(quote(0*(a+b)))
+Simplify(quote((a+b)*0))
+Simplify(quote(1L * (a+b)))
+Simplify(quote((a+b) * 1))
+Simplify(quote((-1)*(a+b)))
+Simplify(quote((a+b)*(-1)))
+Simplify(quote(2*5))
+
+Simplify(quote((a+b) / 1))
+Simplify(quote((a+b) / (-1)))
+Simplify(quote(0/(a+b)))
+Simplify(quote(1/3))
+
+Simplify(quote((a+b) ^ 1))
+Simplify(quote(2^10))
+
+Simplify(quote(log(exp(a), 3)))
+
+Simplify(quote(FALSE && b))
+Simplify(quote(a && TRUE))
+Simplify(quote(TRUE && b))
+
+Simplify(quote(a || TRUE))
+Simplify(quote(FALSE || b))
+Simplify(quote(a || FALSE))
+
+Simplify(quote(if (TRUE) a+b))
+Simplify(quote(if (FALSE) a+b))
+
+Simplify(quote(if (TRUE) a+b else a*b))
+Simplify(quote(if (FALSE) a+b else a*b))
+Simplify(quote(if (cond) a+b else a+b))
+
+# This one was wrong...
+Simplify(quote(--(a+b)))
+
+```
+
+### Comparison with other approaches
+
+There is at least one other symbolic package for R. Here we look at 
+**Ryacas**. The following example was provided by Gabor Grothendieck.
+
+```{r}
+library(nlsr)
+dnlsr <- Deriv(sin(x+y), "x")
+print(dnlsr)
+class(dnlsr)
+
+library(Ryacas)
+x <- Sym("x")
+y <- Sym("y")
+dryacas <- deriv(sin(x+y), x)
+print(dryacas)
+class(dryacas)
+
+```
+
+
+
+### check modelexpr() works with an ssgrfun ??
+
+### test model2rjfun vs model2rjfunx ??
+
+
+### Need more extensive discussion of Simplify??
+
+
+## Issues of programming on the language
+
+?? need to explain where Deriv package comes from
+
+One of the key tasks with tools for derivatives is that of taking objects
+in one or other form (that is, **R** class) and using it as an input for
+a symbolic function. The object may, of course, be an output from another
+such function, and this is one of the reasons we need to do such 
+transformations.
+
+We also note that the different tools for symbolic derivatives use slightly
+different inputs. For example, for the derivative of log(x), we have
+
+```{r}
+require(nlsr)
+dlogx <- nlsr::Deriv(log(x), "x")
+str(dlogx)
+print(dlogx)
+```
+
+Unfortunately, there are complications when we have an 
+expression object, and 
+we need to specify that we do NOT execute the *substitute()* function. 
+Here we
+show how to do this implicitly and with an explicit object.
+
+```{r}
+dlogxs <- nlsr::Deriv(expression(log(x)), "x", do_substitute=FALSE)
+str(dlogxs)
+print(dlogxs)
+cat(as.character(dlogxs), "\n")
+fne <- expression(log(x))
+dlogxe <- Deriv(fne, "x", do_substitute=FALSE)
+str(dlogxe)
+print(dlogxe)
+
+
+# base R
+dblogx <- D(expression(log(x)), "x")
+str(dblogx)
+print(dblogx)
+
+require(Deriv)
+ddlogx <- Deriv::Deriv(expression(log(x)), "x")
+str(ddlogx)
+print(ddlogx)
+cat(as.character(ddlogx), "\n")
+ddlogxf <- ~ ddlogx
+str(ddlogxf)
+```
+
+## Indexed parameters or variables
+
+Erin Hodgess on R-help in January 2015 raised the issue of taking the 
+derivative of an expression that contains an indexed variable. We
+show the example and its resolution, then give an explanation.
+
+```{r}
+zzz <- expression(y[3]*r1 + r2)
+try(deriv(zzz,c("r1","r2")))
+require(nlsr)
+try(nlsr::Deriv(zzz, c("r1","r2")))
+try(fnDeriv(zzz, c("r1","r2")))
+newDeriv(`[`(x,y), stop("no derivative when indexing"))
+try(nlsr::Deriv(zzz, c("r1","r2")))
+try(nlsr::fnDeriv(zzz, c("r1","r2")))
+```
+
+Richard Heiberger pointed out that internally, **R** stores
+
+    y[3]
+
+as
+
+    "["(y,3)
+
+that is, as a function. Duncan Murdoch pointed out the availability of
+**nlsr** and the use of newDeriv() to redefine the "[" function for
+the purposes of derivatives. 
+
+This is not an ideal resolution, especially as we would like to be able
+to get the gradients of functions with respect to vectors of parameters
+(Noted also by Sergei Sokol in the manual for package **Deriv**). The 
+following examples illustrate this.
+
+
+
+
+```{r}
+try(nlsr::Deriv(zzz, "y[3]"))
+try(nlsr::Deriv(y3*r1+r2,"y3"))
+try(nlsr::Deriv(y[3]*r1+r2,"y[3]"))
+```
+
+
+# References

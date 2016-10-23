@@ -52,7 +52,7 @@ firstd <- attr(dx2x,"gradient")
 str(firstd)
 d2x2x <- try(deriv(firstd, "x"))
 str(d2x2x)
-### Now try D()
+#- # Now try D()
 Dx2x <- D(expression(x^2), "x")
 Dx2x
 x <- -1:2
@@ -70,7 +70,7 @@ Dx2xx <- D((x^2), "x")
 Dx2xx
 eval(Dx2xx)
 
-## Something 'tougher':
+#-  Something 'tougher':
 trig.exp <- expression(sin(cos(x + y^2)))
 ( D.sc <- D(trig.exp, "x") )
 all.equal(D(trig.exp[[1]], "x"), D.sc)
@@ -80,36 +80,36 @@ y <- 1
 eval(dxy)
 eval(D.sc)
 
-## function returned:
+#-  function returned:
 deriv((y ~ sin(cos(x) * y)), c("x","y"), func = TRUE)
-##??## Surely there is an error, since docs say no lhs!
+#- ??#-  Surely there is an error, since docs say no lhs!
 
-## function with defaulted arguments:
+#-  function with defaulted arguments:
 (fx <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
              function(b0, b1, th, x = 1:7){} ) )
 fx(2, 3, 4)
 
-## First derivative
+#-  First derivative
 
 D(expression(x^2), "x")
-stopifnot(D(as.name("x"), "x") == 1)
+#-  stopifnot(D(as.name("x"), "x") == 1) # A way of testing. How does it work??
 
-## Higher derivatives
+#-  Higher derivatives
 myd3 <- deriv3(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
      c("b0", "b1", "th", "x") )
 myd3(2,3,4, x=1:7)
 
 
-## Higher derivatives:
+#-  Higher derivatives:
 DD <- function(expr, name, order = 1) {
    if(order < 1) stop("'order' must be >= 1")
    if(order == 1) D(expr, name)
    else DD(D(expr, name), name, order - 1)
 }
 DD(expression(sin(x^2)), "x", 3)
-## showing the limits of the internal "simplify()" :
-## -sin(x^2) * (2 * x) * 2 + ((cos(x^2) * (2 * x) * (2 * x) + sin(x^2) *
-##    2) * (2 * x) + sin(x^2) * (2 * x) * 2)
+#-  showing the limits of the internal "simplify()" :
+#-  -sin(x^2) * (2 * x) * 2 + ((cos(x^2) * (2 * x) * (2 * x) + sin(x^2) *
+#-     2) * (2 * x) + sin(x^2) * (2 * x) * 2)
 
 ```
 
@@ -121,7 +121,7 @@ fj <- function(x, b0, b1, th) {
      fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
 }
 fj(x=1, b0=2, b1=3, th=4)
-## Get errors ???
+#-  Get errors ???
 ```
 
 

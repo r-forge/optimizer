@@ -119,7 +119,7 @@ myd3(2,3,4, x=1:7)
 myd3a <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
      c("b0", "b1", "th", "x"), hessian=TRUE )
 myd3a(2,3,4, x=1:7)
-all.equal(myd3a, myd3) #- Remember to check things!
+identical(myd3a, myd3) #- Remember to check things!
 
 
 #-  Higher derivatives:
@@ -142,7 +142,7 @@ require(nlsr)
 #- fj <- function(x) {
 #-      eval(fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) )
 #- }
-#- fj.1 <- try(fj(x=1, b0=2, b1=3, th=4)) #-  Get errors ???
+#- fj.1 <- try(fj(x=1, b0=2, b1=3, th=4)) #-  Get errors ??
 b0 <- 2
 b1 <- 3
 th <- 4
@@ -152,9 +152,7 @@ th <- 4
 x <- 1
 #- eval(fje)
 #- Need to sort out the above ???
-
-
-dx2xn <- try(Deriv(~ x^2, "x")) #- Does not work for nlsr
+#?? dx2xn <- try(Deriv(~ x^2, "x")) #- Does not work for nlsr
 dx2xn <- try(Deriv(x^2, "x")) #- But this does -- the tilde is not used in nlsr::Deriv
 dx2xn
 mode(dx2xn)
@@ -163,109 +161,56 @@ x <- -1:2
 eval(dx2xn) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
 #-  NOT in "gradient" attribute
 # Note that we cannot (easily) differentiate this again.
-firstd <- dx2xn
-str(firstd)
-d2x2xn <- try(Deriv(firstd, "x")) #- this APPEARS to work, but WRONG answer ??
+firstdn <- dx2xn
+str(firstdn)
+d2x2xn <- Deriv(firstdn, "x") #- this APPEARS to work, but WRONG answer ??
+#- ?? We don't seem to be able to iterate the derivatives
 str(d2x2xn)
+mode(d2x2xn)
 d2x2xn
 eval(d2x2xn)
-firstde <- quote(firstd)
-firstde
-firstde <- bquote(firstd)
-firstde
-Deriv(firstde, "x")
-Deriv(2*x, "x")
-firstc <- as.call(firstd)
-Deriv(firstc, "x")
+#?? firstde <- quote(firstd)
+#?? firstde
+#?? firstde <- bquote(firstd)
+#?? firstde
+#?? Deriv(firstde, "x")
+d2 <- Deriv(2 * x, "x")
+str(d2)
+d2
+#?? firstc <- as.call(firstd)
+#?? Deriv(firstc, "x")
 #- Build a function from the expression
-fdx2xn<-function(x){eval(dx2xn)}
-fdx2xn(1)
-fdx2xn(3.21)
-fdx2xn(1:5)
+#?? fdx2xn<-function(x){eval(dx2xn)}
+#?? fdx2xn(1)
+#?? fdx2xn(3.21)
+#?? fdx2xn(1:5)
 ```
 
 The tool `fnDeriv` seems more problematic. ??
 
 ```{r}
-
-
-
 dx2xnf <- try(fnDeriv(~ x^2, "x")) #- Does not work for nlsr
-dx2xnf <- try(fnDeriv(expression(x^2))) #- But this does -- the tilde is not used in nlsr::Deriv
+dx2xnf <- try(fnDeriv(expression(x^2), "x")) #- But this does -- the tilde is not used in nlsr::Deriv
 dx2xnf
 mode(dx2xnf)
 str(dx2xnf)
 x <- -1:2
-eval(dx2xnf) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
+#?? eval(dx2xnf) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
 #-  NOT in "gradient" attribute
 # Note that we cannot (easily) differentiate this again.
-firstd <- dx2xnf
-str(firstd)
-d2x2xnf <- try(Deriv(firstd, "x")) #- this APPEARS to work, but WRONG answer ??
-str(d2x2xnf)
-d2x2xnf
-eval(d2x2xnf)
+#?? firstd <- dx2xnf
+#?? str(firstd)
+#?? d2x2xnf <- try(Deriv(firstd, "x")) #- this APPEARS to work, but WRONG answer ??
+#?? str(d2x2xnf)
+#?? d2x2xnf
+#?? eval(d2x2xnf)
 
-
-#- # Now try D()
-Dx2x <- D(expression(x^2), "x")
-Dx2x
-x <- -1:2
-eval(Dx2x)
-# We can differentiate aggain
-D2x2x <- D(Dx2x,"x")
-D2x2x
-eval(D2x2x) #- But we don't get a vector -- could be an issue in gradients/Jacobians
-#- Note how we handle an expression stored in a string via parse(text=  ))
-sx2 <- "x^2"
-sDx2x <- D(parse(text=sx2), "x")
-sDx2x
-#- But watch out! The following "seems" to work, but the answer is not as intended
-Dx2xx <- D((x^2), "x")
-Dx2xx
-eval(Dx2xx)
-#-  Something 'tougher':
-trig.exp <- expression(sin(cos(x + y^2)))
-( D.sc <- D(trig.exp, "x") )
-all.equal(D(trig.exp[[1]], "x"), D.sc)
-( dxy <- deriv(trig.exp, c("x", "y")) )
-y <- 1
-eval(dxy)
-eval(D.sc)
-#-  function returned:
-deriv((y ~ sin(cos(x) * y)), c("x","y"), func = TRUE)
-#- ??#-  Surely there is an error, since docs say no lhs!
-#-  function with defaulted arguments:
-(fx <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
-             function(b0, b1, th, x = 1:7){} ) )
-fx(2, 3, 4)
-#-  First derivative
-D(expression(x^2), "x")
-#-  stopifnot(D(as.name("x"), "x") == 1) #- A way of testing. How does it work??
-#-  Higher derivatives showing deriv3
-myd3 <- deriv3(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
-     c("b0", "b1", "th", "x") )
-myd3(2,3,4, x=1:7)
-#- check against deriv()
-myd3a <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
-     c("b0", "b1", "th", "x"), hessian=TRUE )
-myd3a(2,3,4, x=1:7)
-all.equal(myd3a, myd3) #- Remember to check things!
-
-
-#-  Higher derivatives:
-DD <- function(expr, name, order = 1) {
-   if(order < 1) stop("'order' must be >= 1")
-   if(order == 1) D(expr, name)
-   else DD(D(expr, name), name, order - 1)
-}
-DD(expression(sin(x^2)), "x", 3)
-#-  showing the limits of the internal "simplify()" :
-#-  -sin(x^2) * (2 * x) * 2 + ((cos(x^2) * (2 * x) * (2 * x) + sin(x^2) *
-#-     2) * (2 * x) + sin(x^2) * (2 * x) * 2)
-
-
-
+#?? dx2xnfh <- fnDeriv(expression(x^2), "x", hessian=TRUE) #- Try for second derivatives
+#?? dx2xnfh
+#?? mode(dx2xnfh)
+#?? str(dx2xnfh)
+#?? x <- -1
+#?? eval(dx2xnfh) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
 ```
 
 
@@ -278,6 +223,10 @@ f <- function(x) x^2
 Deriv(f)
 # function (x)
 # 2 * x
+f1 <- Deriv(f)
+f1
+f2 <- Deriv(f1)
+f2
 
 f <- function(x, y) sin(x) * cos(y)
 Deriv(f)

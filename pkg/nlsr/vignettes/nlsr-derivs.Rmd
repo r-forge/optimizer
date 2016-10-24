@@ -28,6 +28,8 @@ As a way of recording where attention is needed either to this document
 or to the functions and methods describle, I have put double question marks
 in various places.
 
+Note: To distinguish output results (which are prefaced '`## `' by **knitr**, 
+comments in the **R** code are prefaced by '`#- `'.)
 
 ## TODOS 
 
@@ -39,11 +41,11 @@ in various places.
 
 - **stats**: tools `D()` and `deriv()`
 
-- **nlsr**: tools ??
+- **nlsr**: tools `Deriv()`, `fnDeriv()`, and possibly ?? `model2rjfun`
 
-- **Deriv**: tools ??
+- **Deriv**: tools `Deriv()`
 
-- **Ryacas**: tools ??
+- **Ryacas**: tools ?? 
 
 - ?? any others
 
@@ -221,43 +223,89 @@ require(Deriv)
 
 f <- function(x) x^2
 Deriv(f)
-# function (x)
-# 2 * x
+#- Should see
+#- function (x)
+#- 2 * x
+#- Now save the derivative
 f1 <- Deriv(f)
-f1
-f2 <- Deriv(f1)
-f2
+f1 #- print it
+f2 <- Deriv(f1) #- and take second derivative
+f2 #- print it
 
 f <- function(x, y) sin(x) * cos(y)
-Deriv(f)
-# function (x, y)
-# c(x = cos(x) * cos(y), y = -(sin(x) * sin(y)))
-
+#- Try again??
 f_ <- Deriv(f)
-f_
+f_ #- print it
+#- Should see
+#- function (x, y)
+#- c(x = cos(x) * cos(y), y = -(sin(x) * sin(y)))
 f_(3, 4)
-#              x         y
-# [1,] 0.6471023 0.1068000
+#- Should see
+#-              x         y
+#- [1,] 0.6471023 0.1068000
 
-Deriv(~ f(x, y^2), "y")
-# -(2 * (y * sin(x) * sin(y^2)))
+f2 <- Deriv(~ f(x, y^2), "y") #- This has a tilde to render the 1st argument as a formula object
+#- Also we are substituting in y^2 for y
+f2 #- print it
+#- -(2 * (y * sin(x) * sin(y^2)))
+mode(f2) #- check what type of object it is
+arg1 <- ~ f(x,y^2)
+mode(arg1) #- check the type
+f2a <- Deriv(arg1, "y")
+#- try evaluation of f using current x and y
+x
+y
+f(x,y^2)
 
-Deriv(quote(f(x, y^2)), c("x", "y"), cache.exp=FALSE)
-# c(x = cos(x) * cos(y^2), y = -(2 * (y * sin(x) * sin(y^2))))
+f3 <- Deriv(quote(f(x, y^2)), c("x", "y"), cache.exp=FALSE) #- check cache.exp operation
+#- Note that we need to quote or will get evaluation at current x, y values (if they exist)
+f3 #- print it
+#- c(x = cos(x) * cos(y^2), y = -(2 * (y * sin(x) * sin(y^2))))
+f3c <- Deriv(quote(f(x, y^2)), c("x", "y"), cache.exp=TRUE) #- check cache.exp operation
+f3c #- print it
+#- Now want to evaluate the results
+#- First must provide some data
+x <- 3
+y <- 4
+eval(f3c)
+#- Should see
+#- x         y 
+#- 0.9480757 0.3250313 
+eval(f3) #- check this also
+#- or we can create functions
+f3cf <- function(x, y){eval(f3c)}
+f3cf(x=1, y=2)
+#-          x          y 
+#- -0.3531652  2.5473094 
+f3f <- function(x,y){eval(f3)}
+f3f(x=3, y=4)
+#-         x         y 
+#- 0.9480757 0.3250313 
 
+#- try an expression
 Deriv(expression(sin(x^2) * y), "x")
-# expression(2 * (x * y * cos(x^2)))
+#- should see
+#- expression(2 * (x * y * cos(x^2)))
 
+#- quoted string
 Deriv("sin(x^2) * y", "x") # differentiate only by x
-# "2 * (x * y * cos(x^2))"
+#- Should see
+#- "2 * (x * y * cos(x^2))"
 
-Deriv("sin(x^2) * y", cache.exp=FALSE) # differentiate by all variables (here by x and y)
-"c(x = 2 * (x * y * cos(x^2)), y = sin(x^2))"
+Deriv("sin(x^2) * y", cache.exp=FALSE) #- differentiate by all variables (here by x and y)
+#- Note that default is to differentiate by all variables.
+#- Should see
+#- "c(x = 2 * (x * y * cos(x^2)), y = sin(x^2))"
 
-# Compound function example (here abs(x) smoothed near 0)
+#- Compound function example (here abs(x) smoothed near 0)
+#- Note that this introduces the possibilty of `if` statements in the code
 fc <- function(x, h=0.1) if (abs(x) < h) 0.5*h*(x/h)**2 else abs(x)-0.5*h
 Deriv("fc(x)", "x", cache.exp=FALSE)
-# "if (abs(x) < h) x/h else sign(x)"
+#- "if (abs(x) < h) x/h else sign(x)"
+fc(1)
+fc(0.001)
+fc(-0.001)
+fc(-10)
 
 # Example of a first argument that cannot be evaluated in the current environment:
   suppressWarnings(rm("xx", "yy"))

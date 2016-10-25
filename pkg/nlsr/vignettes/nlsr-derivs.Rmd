@@ -35,6 +35,9 @@ comments in the **R** code are prefaced by '`#- `'.)
 
 ?? in nlsr and Deriv, does a new derivative rule replace existing one? Warning?
 
+?? Change name of Deriv and fnDeriv in nlsr to Drv, fnDrv to avoid conflict and allow
+simultaneous load. Simplify -> Smplfy etc. Any others?
+
 ## Available analytic differentiation tools
 
 **R** has a number of tools for finding analytic derivatives.
@@ -105,14 +108,17 @@ eval(dxy)
 eval(D.sc)
 #-  function returned:
 deriv((y ~ sin(cos(x) * y)), c("x","y"), func = TRUE)
-#- ??#-  Surely there is an error, since docs say no lhs!
+#- ??#-  Surely there is an error, since documnetation says no lhs! i.e.,
+#- "expr: a ‘expression’ or ‘call’ or (except ‘D’) a formula with no lhs."
 #-  function with defaulted arguments:
 (fx <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
              function(b0, b1, th, x = 1:7){} ) )
 fx(2, 3, 4)
 #-  First derivative
 D(expression(x^2), "x")
-#-  stopifnot(D(as.name("x"), "x") == 1) #- A way of testing. How does it work??
+#-  stopifnot(D(as.name("x"), "x") == 1) #- A way of testing. 
+#- This works by coercing "x" to name/symbol, and derivative should be 1.
+#- Would fail only if "x" cannot be so coerced. How could this happen??
 #-  Higher derivatives showing deriv3
 myd3 <- deriv3(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
      c("b0", "b1", "th", "x") )
@@ -141,20 +147,7 @@ DD(expression(sin(x^2)), "x", 3)
 
 ```{r}
 require(nlsr)
-#- fj <- function(x) {
-#-      eval(fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) )
-#- }
-#- fj.1 <- try(fj(x=1, b0=2, b1=3, th=4)) #-  Get errors ??
-b0 <- 2
-b1 <- 3
-th <- 4
-#- fj.2 <- try(fj(1))
-#- fje <- try(fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")))
-#- str(fje)
-x <- 1
-#- eval(fje)
-#- Need to sort out the above ???
-#?? dx2xn <- try(Deriv(~ x^2, "x")) #- Does not work for nlsr
+#- ?? dx2xn <- try(Deriv(~ x^2, "x")) #- Does not work for nlsr
 dx2xn <- try(Deriv(x^2, "x")) #- But this does -- the tilde is not used in nlsr::Deriv
 dx2xn
 mode(dx2xn)
@@ -191,6 +184,20 @@ d2
 The tool `fnDeriv` seems more problematic. ??
 
 ```{r}
+#- fj <- function(x) {
+#-      eval(fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) )
+#- }
+#- fj(2) #- get errors even if b0, b1, and th defined.
+#- fj.1 <- try(fj(x=1, b0=2, b1=3, th=4)) #-  Get errors because fj() not OK??
+b0 <- 2
+b1 <- 3
+th <- 4
+#- fj.2 <- try(fj(1))
+#- fje <- try(fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")))
+#- str(fje)
+x <- 1
+#- eval(fje)
+#- Need to sort out the above ???
 dx2xnf <- try(fnDeriv(~ x^2, "x")) #- Does not work for nlsr
 dx2xnf <- try(fnDeriv(expression(x^2), "x")) #- But this does -- the tilde is not used in nlsr::Deriv
 dx2xnf
@@ -200,23 +207,25 @@ x <- -1:2
 #?? eval(dx2xnf) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
 #-  NOT in "gradient" attribute
 # Note that we cannot (easily) differentiate this again.
-#?? firstd <- dx2xnf
-#?? str(firstd)
-#?? d2x2xnf <- try(Deriv(firstd, "x")) #- this APPEARS to work, but WRONG answer ??
-#?? str(d2x2xnf)
-#?? d2x2xnf
-#?? eval(d2x2xnf)
+# firstd <- dx2xnf
+# str(firstd)
+# d2x2xnf <- try(Deriv(firstd, "x")) #- this APPEARS to work, but WRONG answer 
+# str(d2x2xnf)
+# d2x2xnf
+# eval(d2x2xnf)
 
-#?? dx2xnfh <- fnDeriv(expression(x^2), "x", hessian=TRUE) #- Try for second derivatives
-#?? dx2xnfh
-#?? mode(dx2xnfh)
-#?? str(dx2xnfh)
-#?? x <- -1
-#?? eval(dx2xnfh) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
+# dx2xnfh <- fnDeriv(expression(x^2), "x", hessian=TRUE) #- Try for second derivatives
+# dx2xnfh
+# mode(dx2xnfh)
+# str(dx2xnfh)
+# x <- -1
+# eval(dx2xnfh) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
 ```
 
 
 ### Deriv
+
+The following examples are drawn from the `example(Deriv)` contained in the `Deriv` package.
 
 ```{r}
 require(Deriv)
@@ -233,7 +242,6 @@ f2 <- Deriv(f1) #- and take second derivative
 f2 #- print it
 
 f <- function(x, y) sin(x) * cos(y)
-#- Try again??
 f_ <- Deriv(f)
 f_ #- print it
 #- Should see
@@ -252,10 +260,12 @@ mode(f2) #- check what type of object it is
 arg1 <- ~ f(x,y^2)
 mode(arg1) #- check the type
 f2a <- Deriv(arg1, "y")
+f2a #- and print to see if same as before
 #- try evaluation of f using current x and y
 x
 y
 f(x,y^2)
+eval(f2a) #- We need x and y defined to do this.
 
 f3 <- Deriv(quote(f(x, y^2)), c("x", "y"), cache.exp=FALSE) #- check cache.exp operation
 #- Note that we need to quote or will get evaluation at current x, y values (if they exist)
@@ -299,7 +309,7 @@ Deriv("sin(x^2) * y", cache.exp=FALSE) #- differentiate by all variables (here b
 
 #- Compound function example (here abs(x) smoothed near 0)
 #- Note that this introduces the possibilty of `if` statements in the code
-#- BUT (JN) seems to give back quoted string, so we must parse. ?? check
+#- BUT (JN) seems to give back quoted string, so we must parse.
 fc <- function(x, h=0.1) if (abs(x) < h) 0.5*h*(x/h)**2 else abs(x)-0.5*h
 efc1 <- Deriv("fc(x)", "x", cache.exp=FALSE) 
 #- "if (abs(x) < h) x/h else sign(x)"
@@ -325,13 +335,13 @@ fc1(0.001, 1)
 #- ?? Is following really AD?  
 #- Automatic differentiation (AD), note intermediate variable 'd' assignment
 Deriv(~{d <- ((x-m)/s)^2; exp(-0.5*d)}, "x")
-# Note that the result we see does NOT match what follows (JN ??)
+# Note that the result we see does NOT match what follows in the example(Deriv) (JN ??)
 #{
 #   d <- ((x - m)/s)^2
 #   .d_x <- 2 * ((x - m)/s^2)
 #   -(0.5 * (.d_x * exp(-(0.5 * d))))
 #}
-#- For some reason the intermediate variable is NOT included.??
+#- For some reason the intermediate variable d is NOT included.??
 
 
 #- Custom derivative rule. Note that this needs explanations??
@@ -358,13 +368,14 @@ fld(2) #- and evaluate at a value
 
 ### Ryacas
 
+There is at least one other symbolic package for R. Here we look at 
+**Ryacas**. 
 The structures for using yacas tools do not seem at the time of writing
 (2016-10-21) to be suitable for working with nonlinear least squares or
 optimization facilities of **R**. Thus, for the moment, we will not pursue
-the derivatives available in `Ryacas`.
+the derivatives available in `Ryacas` beyond the following example 
+provided by Gabor Grothendieck.
 
-There is at least one other symbolic package for R. Here we look at 
-**Ryacas**. The following example was provided by Gabor Grothendieck.
 
 ```{r}
 require(nlsr)
@@ -383,17 +394,24 @@ class(dryacas)
 detach("package:Ryacas", unload=TRUE)
 ```
 
-- ?? any others
+- ?? any other packages that give analytic derivatives?
 
 
 
+## Derivatives and simplifications -- base **R**
+
+See specific notes either in comments or at the end of the section.
+
+?? What are the functions for which we can take derivatives
 
 ## Derivatives and simplifications -- package `nlsr`
 
-See specific notes either in comments or at the end.
-
+See specific notes either in comments or at the end of the section.
 
 ### Derivatives table
+
+Here is a slightly expanded testing of the elements of the `nlsr` derivatives
+table.
 
 ```{r}
 require(nlsr)

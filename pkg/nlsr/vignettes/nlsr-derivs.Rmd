@@ -371,6 +371,7 @@ require(nlsr)
 dnlsr <- nlsr::Deriv(sin(x+y), "x")
 print(dnlsr)
 class(dnlsr)
+detach("package:nlsr", unload=TRUE)
 
 require(Ryacas)
 x <- Sym("x")
@@ -379,6 +380,7 @@ dryacas <- deriv(sin(x+y), x)
 print(dryacas)
 class(dryacas)
 
+detach("package:Ryacas", unload=TRUE)
 ```
 
 - ?? any others
@@ -386,119 +388,15 @@ class(dryacas)
 
 
 
-## Derivatives table
+## Derivatives and simplifications -- package `nlsr`
 
 See specific notes either in comments or at the end.
 
-??? do each example by all methods and by numDeriv and put in dataframe for later
-presentation in a table.
 
-Do we want examples in columns or rows. Probably 1 fn per row and work out
-a name for the row that is reasonably meaningful. Probably want an index column
-as well that is a list of strings. Can we then act on those strings to automate
-the whole setup?
-
+### Derivatives table
 
 ```{r}
 require(nlsr)
-# require(stats)
-# require(Deriv)
-# require(Ryacas)
-
-# Various derivatives 
-
-new <- fnDeriv(quote(1 + x + y), c("x", "y"))
-old <- deriv(quote(1 + x + y), c("x", "y"))
-print(new)
-# Following generates a very long line on output of knitr (for markdown)
-class(new)
-str(new)
-as.expression(new)
-newf <- function(x, y){
-   eval(new)
-}
-newf(3,5)
-
-print(old)
-class(old)
-str(old)
-oldf <- function(x,y){
-    eval(old)
-}
-oldf(3,5)
-
-
-```
-
-Unfortunately, the inputs and outputs are not always easily transformed so that the
-symbolic derivatives can be found. (?? Need to codify this and provide filters so we
-can get things to work nicely.)
-
-As an example, how could we take object **new** and embed it in a function we can then use
-in **R**? We can certainly copy and paste the output into a function template, as follows,
-
-```{r}
-fnfromnew <- function(x,y){
-    .value <- 1 + x + y
-    .grad <- array(0, c(length(.value), 2L), list(NULL, c("x", 
-    "y")))
-    .grad[, "x"] <- 1
-    .grad[, "y"] <- 1
-    attr(.value, "gradient") <- .grad
-    .value
-}
-
-print(fnfromnew(3,5))
-
-```
-
-However, we would ideally like to be able to automate this to generate functions and
-gradients for nonlinear least squares and optimization calculations. The same criticism
-applies to the object **old**
-
-####Another issue: 
-
-If we have x and y set such that the function is not admissible, then 
-both our old and new functions give a gradient that is seemingly reasonable. While the
-gradient of this simple function could be considered to be defined for ANY values of x and
-y, I (JN) am sure most users would wish for a warning at the very least in such cases.
-
-```{r}
-x <- NA
-y <- Inf
-print(eval(new))
-print(eval(old))
-```
-
-####SafeD
-
-We could define a way to avoid the issue of character vs. expression (and possibly
-other classes) as follows:
-
-
-```{r}
-safeD <- function(obj, var) {
-   # safeguarded D() function for symbolic derivs
-   if (! is.character(var) ) stop("The variable var MUST be character type")
-   if (is.character(obj) ) {
-       eobj <- parse(text=obj)
-       result <- D(eobj, var)
-   } else {
-       result <- D(obj, var)
-   }
-}
-
-lxy2 <- expression(log(x+y^2))
-clxy2 <- "log(x+y^2)"
-try(print(D(clxy2, "y")))
-print(try(D(lxy2, "y")))
-print(safeD(clxy2, "y"))
-print(safeD(lxy2, "y"))
-```
-
-### Derivatives table - 2
-
-```{r}
 ## Try different ways to supply the log function
 aDeriv <- Deriv(log(x), "x")
 class(aDeriv)
@@ -692,14 +590,16 @@ Such simplification does not appear to be available / exposed in the package `De
 ```{r}
 #- ?? For some reason, if we leave packages attached, we get errors.
 #- Here we detach all the non-base packages and then reload nlsr
-detach("package:Deriv", unload=TRUE)
-detach("package:nlsr", unload=TRUE)
-detach("package:Ryacas", unload=TRUE)
-require(nlsr)
 sessionInfo()
+if ("Deriv" %in% loadedNamespaces()){detach("package:Deriv", unload=TRUE)} 
+  #- ?? Do we need to unload too.
+if ("Deriv" %in% loadedNamespaces() ){detach("package:nlsr", unload=TRUE)}
+if ("Deriv" %in% loadedNamespaces() ){detach("package:Ryacas", unload=TRUE)}
+require(nlsr)
 #- require(Deriv)
 #- require(stats)
 #- Various simplifications
+#- ?? Do we need quote() to stop attempt to evaluate before applying simplification
 
 Simplify(quote(+(a+b)))
 Simplify(quote(-5))
@@ -759,9 +659,102 @@ Simplify(quote(if (TRUE) a+b else a*b))
 Simplify(quote(if (FALSE) a+b else a*b))
 Simplify(quote(if (cond) a+b else a+b))
 
-# This one was wrong...
+#- This one is wrong... the double minus is an error, yet it works ??.
 Simplify(quote(--(a+b)))
+#- By comparison
+Simplify(quote(-(-(a+b))))
 ```
+
+
+
+
+## Derivatives and simplifications -- package `Deriv`
+
+### Derivatives table
+
+
+
+
+### Simplifications
+
+
+
+```{r}
+#- ?? For some reason, if we leave packages attached, we get errors.
+#- Here we detach all the non-base packages and then reload nlsr
+sessionInfo()
+if ("Deriv" %in% loadedNamespaces()){detach("package:Deriv", unload=TRUE)} 
+  #- ?? Do we need to unload too.
+if ("Deriv" %in% loadedNamespaces() ){detach("package:nlsr", unload=TRUE)}
+if ("Deriv" %in% loadedNamespaces() ){detach("package:Ryacas", unload=TRUE)}
+require(Deriv)
+#- Various simplifications
+#- ?? Do we need quote() to stop attempt to evaluate before applying simplification
+
+Simplify(quote(+(a+b)))
+Simplify(quote(-5))
+Simplify(quote(--(a+b)))
+
+Simplify(quote(exp(log(a+b))))
+Simplify(quote(exp(1)))
+
+Simplify(quote(log(exp(a+b))))
+Simplify(quote(log(1)))
+
+Simplify(quote(!TRUE))
+Simplify(quote(!FALSE))
+
+Simplify(quote((a+b)))
+
+Simplify(quote(a + b + 0))
+Simplify(quote(0 + a + b))
+Simplify(quote((a+b) + (a+b)))
+Simplify(quote(1 + 4))
+
+Simplify(quote(a + b - 0))
+Simplify(quote(0 - a - b))
+Simplify(quote((a+b) - (a+b)))
+Simplify(quote(5 - 3))
+
+Simplify(quote(0*(a+b)))
+Simplify(quote((a+b)*0))
+Simplify(quote(1L * (a+b)))
+Simplify(quote((a+b) * 1))
+Simplify(quote((-1)*(a+b)))
+Simplify(quote((a+b)*(-1)))
+Simplify(quote(2*5))
+
+Simplify(quote((a+b) / 1))
+Simplify(quote((a+b) / (-1)))
+Simplify(quote(0/(a+b)))
+Simplify(quote(1/3))
+
+Simplify(quote((a+b) ^ 1))
+Simplify(quote(2^10))
+
+Simplify(quote(log(exp(a), 3)))
+
+Simplify(quote(FALSE && b))
+Simplify(quote(a && TRUE))
+Simplify(quote(TRUE && b))
+
+Simplify(quote(a || TRUE))
+Simplify(quote(FALSE || b))
+Simplify(quote(a || FALSE))
+
+Simplify(quote(if (TRUE) a+b))
+Simplify(quote(if (FALSE) a+b))
+
+Simplify(quote(if (TRUE) a+b else a*b))
+Simplify(quote(if (FALSE) a+b else a*b))
+Simplify(quote(if (cond) a+b else a+b))
+
+#- This one is wrong... the double minus is an error, yet it works ??.
+Simplify(quote(--(a+b)))
+#- By comparison
+Simplify(quote(-(-(a+b))))
+```
+
 
 
 ### Comparison with other approaches
@@ -828,6 +821,113 @@ cat(as.character(ddlogx), "\n")
 ddlogxf <- ~ ddlogx
 str(ddlogxf)
 ```
+
+??? do each example by all methods and by numDeriv and put in dataframe for later
+presentation in a table.
+
+Do we want examples in columns or rows. Probably 1 fn per row and work out
+a name for the row that is reasonably meaningful. Probably want an index column
+as well that is a list of strings. Can we then act on those strings to automate
+the whole setup?
+
+
+```{r}
+require(nlsr)
+# require(stats)
+# require(Deriv)
+# require(Ryacas)
+
+# Various derivatives 
+
+new <- fnDeriv(quote(1 + x + y), c("x", "y"))
+old <- deriv(quote(1 + x + y), c("x", "y"))
+print(new)
+# Following generates a very long line on output of knitr (for markdown)
+class(new)
+str(new)
+as.expression(new)
+newf <- function(x, y){
+   eval(new)
+}
+newf(3,5)
+
+print(old)
+class(old)
+str(old)
+oldf <- function(x,y){
+    eval(old)
+}
+oldf(3,5)
+
+
+```
+
+Unfortunately, the inputs and outputs are not always easily transformed so that the
+symbolic derivatives can be found. (?? Need to codify this and provide filters so we
+can get things to work nicely.)
+
+As an example, how could we take object **new** and embed it in a function we can then use
+in **R**? We can certainly copy and paste the output into a function template, as follows,
+
+```{r}
+fnfromnew <- function(x,y){
+    .value <- 1 + x + y
+    .grad <- array(0, c(length(.value), 2L), list(NULL, c("x", 
+    "y")))
+    .grad[, "x"] <- 1
+    .grad[, "y"] <- 1
+    attr(.value, "gradient") <- .grad
+    .value
+}
+
+print(fnfromnew(3,5))
+
+```
+
+However, we would ideally like to be able to automate this to generate functions and
+gradients for nonlinear least squares and optimization calculations. The same criticism
+applies to the object **old**
+
+####Another issue: 
+
+If we have x and y set such that the function is not admissible, then 
+both our old and new functions give a gradient that is seemingly reasonable. While the
+gradient of this simple function could be considered to be defined for ANY values of x and
+y, I (JN) am sure most users would wish for a warning at the very least in such cases.
+
+```{r}
+x <- NA
+y <- Inf
+print(eval(new))
+print(eval(old))
+```
+
+####SafeD
+
+We could define a way to avoid the issue of character vs. expression (and possibly
+other classes) as follows:
+
+
+```{r}
+safeD <- function(obj, var) {
+   # safeguarded D() function for symbolic derivs
+   if (! is.character(var) ) stop("The variable var MUST be character type")
+   if (is.character(obj) ) {
+       eobj <- parse(text=obj)
+       result <- D(eobj, var)
+   } else {
+       result <- D(obj, var)
+   }
+}
+
+lxy2 <- expression(log(x+y^2))
+clxy2 <- "log(x+y^2)"
+try(print(D(clxy2, "y")))
+print(try(D(lxy2, "y")))
+print(safeD(clxy2, "y"))
+print(safeD(lxy2, "y"))
+```
+
 
 ## Indexed parameters or variables
 

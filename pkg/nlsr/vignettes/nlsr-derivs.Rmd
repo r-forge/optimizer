@@ -33,7 +33,7 @@ comments in the **R** code are prefaced by '`#- `'.)
 
 ## TODOS 
 
-??
+?? in nlsr and Deriv, does a new derivative rule replace existing one? Warning?
 
 ## Available analytic differentiation tools
 
@@ -299,44 +299,60 @@ Deriv("sin(x^2) * y", cache.exp=FALSE) #- differentiate by all variables (here b
 
 #- Compound function example (here abs(x) smoothed near 0)
 #- Note that this introduces the possibilty of `if` statements in the code
+#- BUT (JN) seems to give back quoted string, so we must parse. ?? check
 fc <- function(x, h=0.1) if (abs(x) < h) 0.5*h*(x/h)**2 else abs(x)-0.5*h
-Deriv("fc(x)", "x", cache.exp=FALSE)
+efc1 <- Deriv("fc(x)", "x", cache.exp=FALSE) 
 #- "if (abs(x) < h) x/h else sign(x)"
-fc(1)
-fc(0.001)
-fc(-0.001)
-fc(-10)
+#- A few checks on the results
+efc1
 
-# Example of a first argument that cannot be evaluated in the current environment:
-  suppressWarnings(rm("xx", "yy"))
+fc1 <- function(x,h=0.1){ eval(parse(text=efc1)) }
+fc1
+## h=0.1
+fc1(1)
+fc1(0.001)
+fc1(-0.001)
+fc1(-10)
+fc1(0.001, 1)
+
+#- Example of a first argument that cannot be evaluated in the current environment:
+  suppressWarnings(rm("xx", "yy")) #- Make sure there are no objects xx or yy
   Deriv(xx^2+yy^2)
-# c(xx = 2 * xx, yy = 2 * yy)
-
-# Automatic differentiation (AD), note itermediate variable 'd' assignment
+#- Should show
+#- c(xx = 2 * xx, yy = 2 * yy)
+#- ?? What is the meaning / purpose of this construct?
+  
+#- ?? Is following really AD?  
+#- Automatic differentiation (AD), note intermediate variable 'd' assignment
 Deriv(~{d <- ((x-m)/s)^2; exp(-0.5*d)}, "x")
-# Note that the result we see does NOT match what follows
+# Note that the result we see does NOT match what follows (JN ??)
 #{
 #   d <- ((x - m)/s)^2
 #   .d_x <- 2 * ((x - m)/s^2)
 #   -(0.5 * (.d_x * exp(-(0.5 * d))))
 #}
+#- For some reason the intermediate variable is NOT included.??
 
-# Custom derivation rule
-  myfun <- function(x, y=TRUE) NULL # do something usefull
-  dmyfun <- function(x, y=TRUE) NULL # myfun derivative by x.
-  drule[["myfun"]] <- alist(x=dmyfun(x, y), y=NULL) # y is just a logical
+
+#- Custom derivative rule. Note that this needs explanations??
+  myfun <- function(x, y=TRUE) NULL #- do something useful
+  dmyfun <- function(x, y=TRUE) NULL #- myfun derivative by x.
+  drule[["myfun"]] <- alist(x=dmyfun(x, y), y=NULL) #- y is just a logical
   Deriv(myfun(z^2, FALSE), "z")
   # 2 * (z * dmyfun(z^2, FALSE))
 
-# Differentiation by list components
-  theta <- list(m=0.1, sd=2.)
-  x <- names(theta)
+#- Differentiation by list components
+  theta <- list(m=0.1, sd=2.) #- Why do we set values??
+  x <- names(theta) #- and why these particular names??
   names(x)=rep("theta", length(theta))
   Deriv(~exp(-(x-theta$m)**2/(2*theta$sd)), x, cache.exp=FALSE)
-# c(theta_m = exp(-((x - theta$m)^2/(2 * theta$sd))) *
-#  (x - theta$m)/theta$sd, theta_sd = 2 * (exp(-((x - theta$m)^2/
-#  (2 * theta$sd))) * (x - theta$m)^2/(2 * theta$sd)^2))
-
+#- Should show the following (but why??)
+#- c(theta_m = exp(-((x - theta$m)^2/(2 * theta$sd))) *
+#-  (x - theta$m)/theta$sd, theta_sd = 2 * (exp(-((x - theta$m)^2/
+#-  (2 * theta$sd))) * (x - theta$m)^2/(2 * theta$sd)^2))
+lderiv <-  Deriv(~exp(-(x-theta$m)**2/(2*theta$sd)), x, cache.exp=FALSE)
+fld <- function(x){ eval(lderiv)} #- put this in a function
+fld(2) #- and evaluate at a value
 ```
 
 
@@ -347,6 +363,23 @@ The structures for using yacas tools do not seem at the time of writing
 optimization facilities of **R**. Thus, for the moment, we will not pursue
 the derivatives available in `Ryacas`.
 
+There is at least one other symbolic package for R. Here we look at 
+**Ryacas**. The following example was provided by Gabor Grothendieck.
+
+```{r}
+require(nlsr)
+dnlsr <- nlsr::Deriv(sin(x+y), "x")
+print(dnlsr)
+class(dnlsr)
+
+require(Ryacas)
+x <- Sym("x")
+y <- Sym("y")
+dryacas <- deriv(sin(x+y), x)
+print(dryacas)
+class(dryacas)
+
+```
 
 - ?? any others
 
@@ -643,11 +676,20 @@ derivative is almost certainly acceptable in computations. Similarly for sign(x)
 ### Simplifying algebraic expressions
  
 **nlsr** also includes some tools for simplification of algebraic expressions.
-Such simplification does not appear to be available / exposed in the 
+Such simplification does not appear to be available / exposed in the package `Deriv`.
 
 
 ```{r}
-# Various simplifications
+#- ?? For some reason, if we leave packages attached, we get errors.
+#- Here we detach all the non-base packages and then reload nlsr
+detach("package:Deriv", unload=TRUE)
+detach("package:nlsr", unload=TRUE)
+detach("package:Ryacas", unload=TRUE)
+require(nlsr)
+sessionInfo()
+#- require(Deriv)
+#- require(stats)
+#- Various simplifications
 
 Simplify(quote(+(a+b)))
 Simplify(quote(-5))
@@ -709,28 +751,11 @@ Simplify(quote(if (cond) a+b else a+b))
 
 # This one was wrong...
 Simplify(quote(--(a+b)))
-
 ```
+
 
 ### Comparison with other approaches
 
-There is at least one other symbolic package for R. Here we look at 
-**Ryacas**. The following example was provided by Gabor Grothendieck.
-
-```{r}
-require(nlsr)
-dnlsr <- nlsr::Deriv(sin(x+y), "x")
-print(dnlsr)
-class(dnlsr)
-
-require(Ryacas)
-x <- Sym("x")
-y <- Sym("y")
-dryacas <- deriv(sin(x+y), x)
-print(dryacas)
-class(dryacas)
-
-```
 
 
 

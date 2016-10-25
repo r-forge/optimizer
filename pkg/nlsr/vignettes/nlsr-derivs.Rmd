@@ -383,6 +383,7 @@ dnlsr <- nlsr::Deriv(sin(x+y), "x")
 print(dnlsr)
 class(dnlsr)
 detach("package:nlsr", unload=TRUE)
+detach("package:Deriv", unload=TRUE)
 
 require(Ryacas)
 x <- Sym("x")

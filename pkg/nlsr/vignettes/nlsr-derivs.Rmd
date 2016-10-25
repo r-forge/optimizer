@@ -678,6 +678,16 @@ derivative is almost certainly acceptable in computations. Similarly for sign(x)
 **nlsr** also includes some tools for simplification of algebraic expressions.
 Such simplification does not appear to be available / exposed in the package `Deriv`.
 
+```{r}
+#- Remove ##? to see reproducible error
+#- ?? For some reason, if we leave packages attached, we get errors.
+#- Here we detach all the non-base packages and then reload nlsr
+##? require(nlsr)
+##? sessionInfo()
+##? ##? Simplify(quote(+(a+b)))
+##? Simplify(quote(-5))
+```
+
 
 ```{r}
 #- ?? For some reason, if we leave packages attached, we get errors.

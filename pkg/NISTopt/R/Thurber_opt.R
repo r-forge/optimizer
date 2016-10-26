@@ -70,7 +70,7 @@ Thurber.g<-function(x) {
 
 Thurber.setup<-function() {
 #   library(NISTnls) # get parent collection
-   data(Thurber) # and load up the data into x and y
+#   data(Thurber) # and load up the data into x and y
   start1<-c(1000,1000,400,40,0.7,0.3,0.03)
   start2<-c(1300,1500,500,75,1,0.4,0.05)
   start3<-rep(1,7)

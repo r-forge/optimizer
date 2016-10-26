@@ -27,3 +27,9 @@ Note that the problems here are **NOT** good illustrations of tasks to which the
 function minimization (also called "optimization", though that generally implies that there
 are also constraints) tools should be applied. However, they do suggest limits 
 of performance of these tools. 
+
+# Approach
+
+?? We need to be able to set things up so that a separate command is not needed for each start
+or example. Need to think about this. Also the "setup" approach doesn't seem too helpful.
+

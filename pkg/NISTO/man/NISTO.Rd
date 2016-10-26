@@ -45,8 +45,8 @@
    The problems are as follows:
 
   \describe{
-  \item{\code{Chwirut1}: Ultrasonic calibration study 1}
-  { The \code{Chwirut1} data frame has 214 rows and 2 columns.
+  \item{\code{Chwirut1}: Ultrasonic calibration study 1}{ 
+    The \code{Chwirut1} data frame has 214 rows and 2 columns.
 
   \describe{
     \item{y}{
@@ -66,8 +66,7 @@
   Chwirut, D., NIST (197?).   Ultrasonic Reference Block Study. 
   } 
 
-  \item{ \code{DanielWood}: Radiated energy}
-  {
+  \item{ \code{DanielWood}: Radiated energy}{
 The \code{DanielWood} data frame has 6 rows and 2 columns giving the
 energy radiated from a carbon filament versus the absolute temperature
 of the filament.
@@ -97,8 +96,7 @@ Fitting Equations to Data, Second Edition.
 New York, NY:  John Wiley and Sons, pp. 428-431.
 }
 
-\item{\code{Ratkowsky2}: Pasture yield data}
-{
+\item{\code{Ratkowsky2}: Pasture yield data}{
   The \code{Ratkowsky2} data frame has 9 rows and 2 columns.
 
 
@@ -123,6 +121,7 @@ Nonlinear Regression Modeling.
 New York, NY:  Marcel Dekker, pp. 61 and 88.
 }
  
+}
 }
 %%% End of describe
 \keyword{datasets}

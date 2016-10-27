@@ -200,7 +200,7 @@ statement that contains a source vector.
 
 
 
-# Appendix A: Use of a data frame
+## Appendix A: Use of a data frame
 
 The following script shows that we can store problem materials, including functions,
 **INSIDE** an **R** data frame.
@@ -274,4 +274,35 @@ ls()
 eval(parse(text=myprobs.d[1,5]))
 ls()
 savehistory("NISTOx1.txt")
+```
+
+```{r, eval=FALSE}
+# NISTOx2.txt
+test <- "
+# Chwirut1 - Jacobian
+Chwirut1.jac <- function(b) {
+   xx<-Chwirut1$x
+   yy<-Chwirut1$y
+   n<-length(b)
+   m<-length(xx)
+   b1<-b[1]
+   b2<-b[2]
+   b3<-b[3]
+   J<-matrix(0,m,n) # define the size of the Jacobian
+   expr3 <- exp(-b1 * xx)
+   expr5 <- b2 + b3 * xx
+   expr7 <- expr3 * xx
+   expr10 <- expr5*expr5
+   value <- expr3/expr5
+   J[,1] <- -(expr7/expr5)
+   J[,2] <- -(expr3/expr10)
+   J[,3] <- -(expr7/expr10)
+   return(J)
+}
+"
+ftest <- eval(parse(test))
+ftest <- eval(parse(text=test))
+bstart <- c(1,1,1)
+print(ftest(bstart))
+savehistory("NISTOx2.txt")
 ```

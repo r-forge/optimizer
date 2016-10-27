@@ -24,7 +24,8 @@ is an attempt to better document that effort and in the process force a review o
 package. Furthermore, it raises the question of how to **efficiently** add and run
 new test problems. 
 
-Note that the problems here are **NOT** always good illustrations of tasks to which the various
+Note that the problems here are **NOT** always good illustrations of tasks to 
+which the various
 function minimization (also called "optimization", though that generally implies that there
 are also constraints) tools should be applied. However, they do suggest limits 
 of performance of these tools. 
@@ -32,16 +33,19 @@ of performance of these tools.
 # Approach
 
 We need to be able to set things up so that a separate command is not needed for each start
-or example. Such a structure needs a lot of careful thought to avoid awkwardness. In particular,
+or example. Such a structure needs a lot of careful thought to 
+avoid awkwardness. In particular,
 the existing trial (from 2008/9) of package `NISTopt` shows that its structure has a lot of
 code, much of which is common in nature. Moreover, we want to be able to add new problems 
 easily. Also the "Name.setup" functions do not seem very helpful for the long term.
 
 ## Restrictions on the problems
 
-We do not wish to (at the moment) include general optimization problems with general constraints.
+We do not wish (at the moment) to 
+include general optimization problems with general constraints.
 In fact, we will limit our attention to at most bounds constrained nonlinear optimization and
-nonlinear least squares problems. There are, however, a lot of these. By considering lower and
+nonlinear least squares problems. There are, however, a lot of 
+these. By considering lower and
 upper bounds that are equal, we can extend the constraints to fixed or **masked** parameters.
 
 # Design I
@@ -49,7 +53,13 @@ upper bounds that are equal, we can extend the constraints to fixed or **masked*
 We may be willing to have a single file to describe a single (but more or less complete)
 problem, but we ultimately want
 a **set** of problems, all of which can be accessed through a single structure. Through 
-some experiments, detailed in *Appendix A: Use of a data frame*. 
+some experiments, detailed in *Appendix A: Use of a data frame*, suggest that one could,
+if desired, store the problems in a data frame. Other structures are, of course, 
+equally possible. 
+
+Using a data frame may, however, be overly complex. With suitable tools, one should be
+able to easily create and manipulate the objects created in the 
+flat (i.e., plain text) file of a single problem. 
 
 This design is not, of course, the only possibility. However, it is likely that something
 based on the "single problem" **R** code file illustrated in the next section will prove
@@ -119,7 +129,7 @@ gr <- "DanielWood.g<-function(x) {
    return(gg)
 }"
 
-
+# setup functions
 psetup <- "DanielWood.setup<-function() {
    data(DanielWood) # and load up the data into x and y
    start1 = c( 1, 5)

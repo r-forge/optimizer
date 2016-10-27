@@ -53,7 +53,7 @@ upper bounds that are equal, we can extend the constraints to fixed or **masked*
 We may be willing to have a single file to describe a single (but more or less complete)
 problem, but we ultimately want
 a **set** of problems, all of which can be accessed through a single structure. Through 
-some experiments, detailed in *Appendix A: Use of a data frame*, suggest that one could,
+some experiments, detailed in *Appendix A: Use of a data frame*, we find that one could,
 if desired, store the problems in a data frame. Other structures are, of course, 
 equally possible. 
 
@@ -73,7 +73,12 @@ problem of Daniel and Wood (??citation).
 
 ```{r}
 probname <- "DanielWood"
-probtype <- "nls" # nls is more restrictive than function minimization
+probdesc <- "
+
+?? need to put this in place
+
+"
+probtype <- "nls" # nls offers more possibilities than function minimization
 mformula <- ( y ~ (b1+x*(b2+x*(b3+b4*x))) / (1+x*(b5+x*(b6+x*b7)) ) )
 # The above is a "formula". But we could also possibl also use a character string or expression,
 # but need to know how to do so carefully. ??
@@ -145,17 +150,128 @@ ptest <- "DanielWood.test<-function() {
 
 ```
 
+## Tools for preparing and using problem files
 
-## Combining single problems
+### Access to files
+
+In order to use problem files, we need a way to list them, display their content in
+both summary and detail, and attempt to use them with various nonlinear least squares
+and/or function minimization software.
+
+#### Command line file lister and display tool
+
+#### GUI file lister and display tool
+
+### Building problem files
+
+#### Data frame or matrix to source vector
+
+If problem files are to be self contained, we do not want to need to access external
+files. The simplest way to present a variable to **R** is to input data as a simple
+list and then name it. To prepare the problem file, we therefore want to be able to
+get data into the local **R** environment and prepare the text for an assignment
+statement that contains a source vector.
+
+?? code
 
 
 ## Running problems
 
+`runoptprob` -- ?? how it should be used
 
-## Extracting single problems
 
+## Running multiple problems
 
+- prepare "problem list", like a play list
+
+- run them in sequence
+
+- try to figure out how to save the output 
+    
+    -- sink
+    
+    -- summaries
+    
+    -- test against expected output
+    
+    -- timings
+    
+    -- measures of success
 
 
 
 # Appendix A: Use of a data frame
+
+The following script shows that we can store problem materials, including functions,
+**INSIDE** an **R** data frame.
+
+```{r, eval=FALSE}
+require(NISTO)
+ls(package:NISTO)
+NISTO::DanielWood.res
+NISTO:::DanielWood.res
+f1 <- y ~ (b1+x*(b2+x*(b3+b4*x))) / (1+x*(b5+x*(b6+x*b7)))
+str(f1)
+?NISTO
+?DanielWood
+data(DanielWood)
+DanielWood
+dwprob <- list(mform = f1, mdata=DanielWood, pname="DanielWood", ptype="nls")
+dwprob
+data()
+f2 <- y ~ b1 / (1+exp(b2-b3*x))
+r2data <-Ratkowsky2
+r2data
+r2prob <- list(mform = f2, mdata=Ratkowsky2, pname="Ratkowsky2", ptype="nls")
+r2prob
+myprobs <- rbind(dwprob, r2prob)
+myprobs
+str(myprobs)
+myprobs.d <- as.data.frame(myprobs)
+str(myprobs.d)
+f3 <- y ~ exp(-b1*x)/(b2+b3*x)
+c1data <- Chwirut1
+c1name <- "Chwirut1"
+c1prob <- list(mform = f3, mdata=Chwirut1, pname=c1name, ptype="nls")
+myprobs.d[3,] <- c1prob
+myprobs.d <- as.dataframe(rbind(myprobs.d, c1prob))
+myprobs.d <- as.data.frame(rbind(myprobs.d, c1prob))
+myprobs.d <- as.data.frame(rbind(myprobs, c1prob))
+myprobs.d
+str(myprobs.d)
+myprobs.d[,5] <- NA
+str(myprobs.d)
+colnames(myprobs.d[,5] <- "resfn")
+colnames(myprobs.d[,5]) <- "resfn"
+colnames(myprobs.d)[5] <- "resfn"
+myprobs.d
+DanielWood.res <- function(b) {
+   xx<-DanielWood$x # case !!
+   yy<-DanielWood$y
+   res <- rep(NA, length(xx))
+   b1<-b[1]
+   b2<-b[2]
+   res<-b1*(xx**b2) - yy
+   return(res)
+}
+myprobs.d[1,5] <- DanielWood.res
+myprobs.d[1,5] <- quote(DanielWood.res)
+dwreschr <- "DanielWood.res <- function(b) {;xx<-DanielWood$x; yy<-DanielWood$y; res <- rep(NA, length(xx)); b1<-b[1];  b2<-b[2];   res<-b1*(xx**b2) - yy;   return(res);}"
+myprobs.d[1,5] <- dwreschr
+ls()
+rm DanielWood.res
+rm( DanielWood.res)
+ls
+ls()
+source("myprobs.d[1,5])
+"
+)
+source("myprobs.d[1,5]")
+source(text="myprobs.d[1,5]")
+?source
+parse(text=myprobs.d[1,5])
+ls()
+eval(parse(text=myprobs.d[1,5]))
+ls()
+savehistory("NISTOx1.txt")
+```

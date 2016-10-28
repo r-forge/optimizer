@@ -160,7 +160,23 @@ and/or function minimization software.
 
 #### Command line file lister and display tool
 
+We need a tool that 
+
+- sets the directory where problems are found
+
+- lists the files
+
+- allows one file to be selected
+
+- displays information in a structured way (possibly according to some profile)
+
+- allows the profile for display to be edited somehow
+
 #### GUI file lister and display tool
+
+Likely tied into command line tool by allowing command line to be executed when
+mouse or pointer clicks are executed. Check existing GUI tools to see what is 
+possible.
 
 ### Building problem files
 
@@ -173,12 +189,91 @@ get data into the local **R** environment and prepare the text for an assignment
 statement that contains a source vector.
 
 ?? code
+```{r, eval=FALSE}
+
+# Use paste() to build the c(...) structure
+
+```
 
 
 ## Running problems
 
 `runoptprob` -- ?? how it should be used
 
+- provide 
+
+    -- filename (at least the root)
+
+    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
+
+    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
+
+    -- controls -- as per the control list in programs
+
+    -- other arguments
+
+    -- xdata or dotargs (how to specify might be interesting)
+    
+    -- timing control (e.g., microbenchmark or simple timing)
+
+- read output control profile (initially just use sink())
+
+- read the file and execute it (make sure it has **R** commands so we can
+actually source() it)
+
+- analyze the call to runprob and do the appropriate call
+
+- format output and extract and store summaries
+
+  -- this may be multilayerd and take a lot of work
+  
+  -- start with no formatting, and gradually add features
+  
+  -- need to save conditions
+  
+  -- make sure we have time/date stamp on all runs
+
+```{r}
+runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL, 
+                       options=list(args=NULL, control=NULL) ) {
+    optecho <- TRUE # temporarily at least, or put in a profile
+    # Get the path to the files (where should these be? Probably somehow related to pkg)   
+    pfile <- paste(pfilename, ".prb", sep='')
+    source(pfile, echo=optecho) # -- filename (at least the root)
+    # now have a lot of the information
+
+#    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
+
+#    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
+
+#    -- controls -- as per the control list in programs
+
+#    -- other arguments
+
+#    -- xdata or dotargs (how to specify might be interesting)
+    
+#    -- timing control (e.g., microbenchmark or simple timing)
+
+# - read output control profile (initially just use sink())
+
+# - read the file and execute it (make sure it has **R** commands so we can
+#   actually source() it)
+
+# - analyze the call to runprob and do the appropriate call
+
+# - format output and extract and store summaries
+
+#  -- this may be multilayerd and take a lot of work
+  
+#  -- start with no formatting, and gradually add features
+  
+#  -- need to save conditions
+  
+#  -- make sure we have time/date stamp on all runs
+  
+
+}
+```
 
 ## Running multiple problems
 

@@ -10,6 +10,8 @@ vignette: >
 ---
 
 
+Note: This is now in a project with GIT/SVN support. 161031.
+
 # Motivation
 
 

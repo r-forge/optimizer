@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="John C. Nash" />
+
+<meta name="date" content="2016-10-31" />
+
+<title>A structure for building optimization and nonlinear least squares tests for R</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">A structure for building optimization and nonlinear least squares tests for <strong>R</strong></h1>
+<h4 class="author"><em>John C. Nash</em></h4>
+<h4 class="date"><em>2016-10-31</em></h4>
+
+
+
+<div id="motivation" class="section level1">
+<h1>Motivation</h1>
+<p><a href="http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml" class="uri">http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml</a> presents a number of nonlinear regression (nonlinear least squares) problems that are more or less difficult to solve numerically. Doug Bates prepared an <strong>R</strong> package <code>NISTnls</code> which adapted these problems to <strong>R</strong> and tested them with the <code>nls()</code> function of which he was a major author. I built a related package to allow the same problems to be approached as unconstrained function minimization problems, which I named <code>NISTopt</code>. However, this package was, when I prepared it in 2009, incomplete, particularly in respect to the manuals (Rd files). This vignette is an attempt to better document that effort and in the process force a review of the package. Furthermore, it raises the question of how to <strong>efficiently</strong> add and run new test problems.</p>
+<p>Note that the problems here are <strong>NOT</strong> always good illustrations of tasks to which the various function minimization (also called “optimization”, though that generally implies that there are also constraints) tools should be applied. However, they do suggest limits of performance of these tools.</p>
+</div>
+<div id="approach" class="section level1">
+<h1>Approach</h1>
+<p>We need to be able to set things up so that a separate command is not needed for each start or example. Such a structure needs a lot of careful thought to avoid awkwardness. In particular, the existing trial (from 2008/9) of package <code>NISTopt</code> shows that its structure has a lot of code, much of which is common in nature. Moreover, we want to be able to add new problems easily. Also the “Name.setup” functions do not seem very helpful for the long term.</p>
+<div id="restrictions-on-the-problems" class="section level2">
+<h2>Restrictions on the problems</h2>
+<p>We do not wish (at the moment) to include general optimization problems with general constraints. In fact, we will limit our attention to at most bounds constrained nonlinear optimization and nonlinear least squares problems. There are, however, a lot of these. By considering lower and upper bounds that are equal, we can extend the constraints to fixed or <strong>masked</strong> parameters.</p>
+</div>
+</div>
+<div id="design-i" class="section level1">
+<h1>Design I</h1>
+<p>We may be willing to have a single file to describe a single (but more or less complete) problem, but we ultimately want a <strong>set</strong> of problems, all of which can be accessed through a single structure. Through some experiments, detailed in <em>Appendix A: Use of a data frame</em>, we find that one could, if desired, store the problems in a data frame. Other structures are, of course, equally possible.</p>
+<p>Using a data frame may, however, be overly complex. With suitable tools, one should be able to easily create and manipulate the objects created in the flat (i.e., plain text) file of a single problem.</p>
+<p>This design is not, of course, the only possibility. However, it is likely that something based on the “single problem” <strong>R</strong> code file illustrated in the next section will prove useful.</p>
+<div id="a-single-problem" class="section level2">
+<h2>A single problem</h2>
+<p>Let us consider how we might, in <strong>R</strong>, specify a nonlinear least squares problem that also can be presented as an optimization problem. Here is a possible file for the problem of Daniel and Wood (??citation).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">probname &lt;-<span class="st"> &quot;DanielWood&quot;</span>
+probdesc &lt;-<span class="st"> &quot;</span>
+
+<span class="st">?? need to put this in place</span>
+
+<span class="st">&quot;</span>
+probtype &lt;-<span class="st"> &quot;nls&quot;</span> <span class="co"># nls offers more possibilities than function minimization</span>
+mformula &lt;-<span class="st"> </span>( y ~<span class="st"> </span>(b1+x*(b2+x*(b3+b4*x))) /<span class="st"> </span>(<span class="dv">1</span>+x*(b5+x*(b6+x*b7)) ) )
+<span class="co"># The above is a &quot;formula&quot;. But we could also possibl also use a character string or expression,</span>
+<span class="co"># but need to know how to do so carefully. ??</span>
+## ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
+y &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">2.138</span>, <span class="fl">3.421</span>, <span class="fl">3.597</span>, <span class="fl">4.340</span>, <span class="fl">4.882</span>, <span class="fl">5.660</span>)
+x &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">1.309</span>, <span class="fl">1.471</span>, <span class="fl">1.490</span>, <span class="fl">1.565</span>, <span class="fl">1.611</span>, <span class="fl">1.680</span>)
+dframe &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
+<span class="co"># This is the local data frame. We need to rename this when we put it into a global structure</span>
+<span class="co"># Now add various functions for optimization or nls-by-function</span>
+<span class="co"># ?? We could have problems with quotation marks WITHIN the code.</span>
+fn &lt;-<span class="st"> &quot;</span>
+<span class="st">DanielWood.f &lt;- function(x) {</span>
+<span class="st">   res&lt;-DanielWood.res(x)</span>
+<span class="st">   f&lt;-sum(res*res)</span>
+<span class="st">}&quot;</span>
+
+resfn &lt;-<span class="st"> &quot;DanielWood.res &lt;- function(b) {</span>
+<span class="st">   xx&lt;-DanielWood$x # case !!</span>
+<span class="st">   yy&lt;-DanielWood$y</span>
+<span class="st">   res &lt;- rep(NA, length(xx))</span>
+<span class="st">   b1&lt;-b[1]</span>
+<span class="st">   b2&lt;-b[2]</span>
+<span class="st">   res&lt;-b1*(xx**b2) - yy</span>
+<span class="st">   return(res)</span>
+<span class="st">}&quot;</span>
+
+jacfn &lt;-<span class="st"> &quot;# DanielWood - Jacobian</span>
+<span class="st">DanielWood.jac &lt;- function(b) {</span>
+<span class="st">   xx&lt;-DanielWood$x</span>
+<span class="st">   yy&lt;-DanielWood$y</span>
+<span class="st">   n&lt;-length(b)</span>
+<span class="st">   m&lt;-length(xx)</span>
+<span class="st">   b1&lt;-b[1]</span>
+<span class="st">   b2&lt;-b[2]</span>
+<span class="st">   J&lt;-matrix(0,m,n) # define the size of the Jacobian</span>
+<span class="st">   expr1 &lt;- xx^b2</span>
+<span class="st">   J[, 1] &lt;- expr1</span>
+<span class="st">   J[, 2] &lt;- b1 * (expr1 * log(xx))</span>
+<span class="st">   return(J)</span>
+<span class="st">}&quot;</span>
+
+hessfn &lt;-<span class="st"> &quot;DanielWood.h &lt;- function(x) {</span>
+<span class="st">   JJ&lt;-DanielWood.jac(x)</span>
+<span class="st">   H &lt;- t(JJ) %*% JJ</span>
+<span class="st">   res&lt;-DanielWood.res(x)</span>
+<span class="st">}&quot;</span>
+
+gr &lt;-<span class="st"> &quot;DanielWood.g&lt;-function(x) {</span>
+<span class="st">#   stop('not defined')</span>
+<span class="st">   JJ&lt;-DanielWood.jac(x)</span>
+<span class="st">   res&lt;-DanielWood.res(x)</span>
+<span class="st">   gg&lt;-as.vector(2.0*t(JJ) %*% res)</span>
+<span class="st">   return(gg)</span>
+<span class="st">}&quot;</span>
+
+<span class="co"># setup functions</span>
+psetup &lt;-<span class="st"> &quot;DanielWood.setup&lt;-function() {</span>
+<span class="st">   data(DanielWood) # and load up the data into x and y</span>
+<span class="st">   start1 = c( 1, 5)</span>
+<span class="st">   start2 = c( 0.7, 4)</span>
+<span class="st">   out&lt;-list(start1=start1, start2=start2)</span>
+<span class="st">   return(out)</span>
+<span class="st">}&quot;</span>
+
+ptest &lt;-<span class="st"> &quot;DanielWood.test&lt;-function() {</span>
+<span class="st">}&quot;</span>   
+
+<span class="co"># We can &quot;install&quot; these functions via eval(parse(name))</span></code></pre></div>
+</div>
+<div id="tools-for-preparing-and-using-problem-files" class="section level2">
+<h2>Tools for preparing and using problem files</h2>
+<div id="access-to-files" class="section level3">
+<h3>Access to files</h3>
+<p>In order to use problem files, we need a way to list them, display their content in both summary and detail, and attempt to use them with various nonlinear least squares and/or function minimization software.</p>
+<div id="command-line-file-lister-and-display-tool" class="section level4">
+<h4>Command line file lister and display tool</h4>
+<p>We need a tool that</p>
+<ul>
+<li><p>sets the directory where problems are found</p></li>
+<li><p>lists the files</p></li>
+<li><p>allows one file to be selected</p></li>
+<li><p>displays information in a structured way (possibly according to some profile)</p></li>
+<li><p>allows the profile for display to be edited somehow</p></li>
+</ul>
+</div>
+<div id="gui-file-lister-and-display-tool" class="section level4">
+<h4>GUI file lister and display tool</h4>
+<p>Likely tied into command line tool by allowing command line to be executed when mouse or pointer clicks are executed. Check existing GUI tools to see what is possible.</p>
+</div>
+</div>
+<div id="building-problem-files" class="section level3">
+<h3>Building problem files</h3>
+<div id="data-frame-or-matrix-to-source-vector" class="section level4">
+<h4>Data frame or matrix to source vector</h4>
+<p>If problem files are to be self contained, we do not want to need to access external files. The simplest way to present a variable to <strong>R</strong> is to input data as a simple list and then name it. To prepare the problem file, we therefore want to be able to get data into the local <strong>R</strong> environment and prepare the text for an assignment statement that contains a source vector.</p>
+<p>?? code</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Use paste() to build the c(...) structure</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="running-problems" class="section level2">
+<h2>Running problems</h2>
+<p><code>runoptprob</code> – ?? how it should be used</p>
+<ul>
+<li><p>provide</p>
+<p>– filename (at least the root)</p>
+<p>– which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</p>
+<p>– choice of gradient function or approximation (gr= (gr, “grfwd”, etc.))</p>
+<p>– controls – as per the control list in programs</p>
+<p>– other arguments</p>
+<p>– xdata or dotargs (how to specify might be interesting)</p>
+<p>– timing control (e.g., microbenchmark or simple timing)</p></li>
+<li><p>read output control profile (initially just use sink())</p></li>
+<li><p>read the file and execute it (make sure it has <strong>R</strong> commands so we can actually source() it)</p></li>
+<li><p>analyze the call to runprob and do the appropriate call</p></li>
+<li><p>format output and extract and store summaries</p></li>
+</ul>
+<p>– this may be multilayerd and take a lot of work</p>
+<p>– start with no formatting, and gradually add features</p>
+<p>– need to save conditions</p>
+<p>– make sure we have time/date stamp on all runs</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">runoptprob &lt;-<span class="st"> </span>function(<span class="dt">pfilename=</span><span class="ot">NULL</span>, <span class="dt">minmeth=</span><span class="st">'nls'</span>, <span class="dt">submeth=</span><span class="ot">NULL</span>, 
+                       <span class="dt">options=</span><span class="kw">list</span>(<span class="dt">args=</span><span class="ot">NULL</span>, <span class="dt">control=</span><span class="ot">NULL</span>) ) {
+    optecho &lt;-<span class="st"> </span><span class="ot">TRUE</span> <span class="co"># temporarily at least, or put in a profile</span>
+    <span class="co"># Get the path to the files (where should these be? Probably somehow related to pkg)   </span>
+    pfile &lt;-<span class="st"> </span><span class="kw">paste</span>(pfilename, <span class="st">&quot;.prb&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)
+    <span class="kw">source</span>(pfile, <span class="dt">echo=</span>optecho) <span class="co"># -- filename (at least the root)</span>
+    <span class="co"># now have a lot of the information</span>
+
+<span class="co">#    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</span>
+
+<span class="co">#    -- choice of gradient function or approximation (gr= (gr, &quot;grfwd&quot;, etc.))</span>
+
+<span class="co">#    -- controls -- as per the control list in programs</span>
+
+<span class="co">#    -- other arguments</span>
+
+<span class="co">#    -- xdata or dotargs (how to specify might be interesting)</span>
+    
+<span class="co">#    -- timing control (e.g., microbenchmark or simple timing)</span>
+
+<span class="co"># - read output control profile (initially just use sink())</span>
+
+<span class="co"># - read the file and execute it (make sure it has **R** commands so we can</span>
+<span class="co">#   actually source() it)</span>
+
+<span class="co"># - analyze the call to runprob and do the appropriate call</span>
+
+<span class="co"># - format output and extract and store summaries</span>
+
+<span class="co">#  -- this may be multilayerd and take a lot of work</span>
+  
+<span class="co">#  -- start with no formatting, and gradually add features</span>
+  
+<span class="co">#  -- need to save conditions</span>
+  
+<span class="co">#  -- make sure we have time/date stamp on all runs</span>
+  
+
+}</code></pre></div>
+</div>
+<div id="running-multiple-problems" class="section level2">
+<h2>Running multiple problems</h2>
+<ul>
+<li><p>prepare “problem list”, like a play list</p></li>
+<li><p>run them in sequence</p></li>
+<li><p>try to figure out how to save the output</p>
+<p>– sink</p>
+<p>– summaries</p>
+<p>– test against expected output</p>
+<p>– timings</p>
+<p>– measures of success</p></li>
+</ul>
+</div>
+<div id="appendix-a-use-of-a-data-frame" class="section level2">
+<h2>Appendix A: Use of a data frame</h2>
+<p>The following script shows that we can store problem materials, including functions, <strong>INSIDE</strong> an <strong>R</strong> data frame.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(NISTO)
+<span class="kw">ls</span>(package:NISTO)
+NISTO::DanielWood.res
+NISTO:::DanielWood.res
+f1 &lt;-<span class="st"> </span>y ~<span class="st"> </span>(b1+x*(b2+x*(b3+b4*x))) /<span class="st"> </span>(<span class="dv">1</span>+x*(b5+x*(b6+x*b7)))
+<span class="kw">str</span>(f1)
+?NISTO
+?DanielWood
+<span class="kw">data</span>(DanielWood)
+DanielWood
+dwprob &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">mform =</span> f1, <span class="dt">mdata=</span>DanielWood, <span class="dt">pname=</span><span class="st">&quot;DanielWood&quot;</span>, <span class="dt">ptype=</span><span class="st">&quot;nls&quot;</span>)
+dwprob
+<span class="kw">data</span>()
+f2 &lt;-<span class="st"> </span>y ~<span class="st"> </span>b1 /<span class="st"> </span>(<span class="dv">1</span>+<span class="kw">exp</span>(b2-b3*x))
+r2data &lt;-Ratkowsky2
+r2data
+r2prob &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">mform =</span> f2, <span class="dt">mdata=</span>Ratkowsky2, <span class="dt">pname=</span><span class="st">&quot;Ratkowsky2&quot;</span>, <span class="dt">ptype=</span><span class="st">&quot;nls&quot;</span>)
+r2prob
+myprobs &lt;-<span class="st"> </span><span class="kw">rbind</span>(dwprob, r2prob)
+myprobs
+<span class="kw">str</span>(myprobs)
+myprobs.d &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(myprobs)
+<span class="kw">str</span>(myprobs.d)
+f3 &lt;-<span class="st"> </span>y ~<span class="st"> </span><span class="kw">exp</span>(-b1*x)/(b2+b3*x)
+c1data &lt;-<span class="st"> </span>Chwirut1
+c1name &lt;-<span class="st"> &quot;Chwirut1&quot;</span>
+c1prob &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">mform =</span> f3, <span class="dt">mdata=</span>Chwirut1, <span class="dt">pname=</span>c1name, <span class="dt">ptype=</span><span class="st">&quot;nls&quot;</span>)
+myprobs.d[<span class="dv">3</span>,] &lt;-<span class="st"> </span>c1prob
+myprobs.d &lt;-<span class="st"> </span><span class="kw">as.dataframe</span>(<span class="kw">rbind</span>(myprobs.d, c1prob))
+myprobs.d &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">rbind</span>(myprobs.d, c1prob))
+myprobs.d &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">rbind</span>(myprobs, c1prob))
+myprobs.d
+<span class="kw">str</span>(myprobs.d)
+myprobs.d[,<span class="dv">5</span>] &lt;-<span class="st"> </span><span class="ot">NA</span>
+<span class="kw">str</span>(myprobs.d)
+<span class="kw">colnames</span>(myprobs.d[,<span class="dv">5</span>] &lt;-<span class="st"> &quot;resfn&quot;</span>)
+<span class="kw">colnames</span>(myprobs.d[,<span class="dv">5</span>]) &lt;-<span class="st"> &quot;resfn&quot;</span>
+<span class="kw">colnames</span>(myprobs.d)[<span class="dv">5</span>] &lt;-<span class="st"> &quot;resfn&quot;</span>
+myprobs.d
+DanielWood.res &lt;-<span class="st"> </span>function(b) {
+   xx&lt;-DanielWood$x <span class="co"># case !!</span>
+   yy&lt;-DanielWood$y
+   res &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(xx))
+   b1&lt;-b[<span class="dv">1</span>]
+   b2&lt;-b[<span class="dv">2</span>]
+   res&lt;-b1*(xx**b2) -<span class="st"> </span>yy
+   <span class="kw">return</span>(res)
+}
+myprobs.d[<span class="dv">1</span>,<span class="dv">5</span>] &lt;-<span class="st"> </span>DanielWood.res
+myprobs.d[<span class="dv">1</span>,<span class="dv">5</span>] &lt;-<span class="st"> </span><span class="kw">quote</span>(DanielWood.res)
+dwreschr &lt;-<span class="st"> &quot;DanielWood.res &lt;- function(b) {;xx&lt;-DanielWood$x; yy&lt;-DanielWood$y; res &lt;- rep(NA, length(xx)); b1&lt;-b[1];  b2&lt;-b[2];   res&lt;-b1*(xx**b2) - yy;   return(res);}&quot;</span>
+myprobs.d[<span class="dv">1</span>,<span class="dv">5</span>] &lt;-<span class="st"> </span>dwreschr
+<span class="kw">ls</span>()
+rm DanielWood.res
+<span class="kw">rm</span>( DanielWood.res)
+ls
+<span class="kw">ls</span>()
+<span class="kw">source</span>(<span class="st">&quot;myprobs.d[1,5])</span>
+<span class="st">&quot;</span>
+)
+<span class="kw">source</span>(<span class="st">&quot;myprobs.d[1,5]&quot;</span>)
+<span class="kw">source</span>(<span class="dt">text=</span><span class="st">&quot;myprobs.d[1,5]&quot;</span>)
+?source
+<span class="kw">parse</span>(<span class="dt">text=</span>myprobs.d[<span class="dv">1</span>,<span class="dv">5</span>])
+<span class="kw">ls</span>()
+<span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span>myprobs.d[<span class="dv">1</span>,<span class="dv">5</span>]))
+<span class="kw">ls</span>()
+<span class="kw">savehistory</span>(<span class="st">&quot;NISTOx1.txt&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># NISTOx2.txt</span>
+test &lt;-<span class="st"> &quot;</span>
+<span class="st"># Chwirut1 - Jacobian</span>
+<span class="st">Chwirut1.jac &lt;- function(b) {</span>
+<span class="st">   xx&lt;-Chwirut1$x</span>
+<span class="st">   yy&lt;-Chwirut1$y</span>
+<span class="st">   n&lt;-length(b)</span>
+<span class="st">   m&lt;-length(xx)</span>
+<span class="st">   b1&lt;-b[1]</span>
+<span class="st">   b2&lt;-b[2]</span>
+<span class="st">   b3&lt;-b[3]</span>
+<span class="st">   J&lt;-matrix(0,m,n) # define the size of the Jacobian</span>
+<span class="st">   expr3 &lt;- exp(-b1 * xx)</span>
+<span class="st">   expr5 &lt;- b2 + b3 * xx</span>
+<span class="st">   expr7 &lt;- expr3 * xx</span>
+<span class="st">   expr10 &lt;- expr5*expr5</span>
+<span class="st">   value &lt;- expr3/expr5</span>
+<span class="st">   J[,1] &lt;- -(expr7/expr5)</span>
+<span class="st">   J[,2] &lt;- -(expr3/expr10)</span>
+<span class="st">   J[,3] &lt;- -(expr7/expr10)</span>
+<span class="st">   return(J)</span>
+<span class="st">}</span>
+<span class="st">&quot;</span>
+ftest &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(test))
+ftest &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span>test))
+bstart &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>)
+<span class="kw">print</span>(<span class="kw">ftest</span>(bstart))
+<span class="kw">savehistory</span>(<span class="st">&quot;NISTOx2.txt&quot;</span>)</code></pre></div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

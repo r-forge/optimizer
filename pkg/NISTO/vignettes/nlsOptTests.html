@@ -12,7 +12,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2016-10-31" />
+<meta name="date" content="2016-11-08" />
 
 <title>A structure for building optimization and nonlinear least squares tests for R</title>
 
@@ -70,18 +70,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">A structure for building optimization and nonlinear least squares tests for <strong>R</strong></h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2016-10-31</em></h4>
+<h4 class="date"><em>2016-11-08</em></h4>
 
 
 
+<p>Note: This is now in a project with GIT/SVN support. 161031.</p>
 <div id="motivation" class="section level1">
 <h1>Motivation</h1>
 <p><a href="http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml" class="uri">http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml</a> presents a number of nonlinear regression (nonlinear least squares) problems that are more or less difficult to solve numerically. Doug Bates prepared an <strong>R</strong> package <code>NISTnls</code> which adapted these problems to <strong>R</strong> and tested them with the <code>nls()</code> function of which he was a major author. I built a related package to allow the same problems to be approached as unconstrained function minimization problems, which I named <code>NISTopt</code>. However, this package was, when I prepared it in 2009, incomplete, particularly in respect to the manuals (Rd files). This vignette is an attempt to better document that effort and in the process force a review of the package. Furthermore, it raises the question of how to <strong>efficiently</strong> add and run new test problems.</p>
-<p>Note that the problems here are <strong>NOT</strong> always good illustrations of tasks to which the various function minimization (also called “optimization”, though that generally implies that there are also constraints) tools should be applied. However, they do suggest limits of performance of these tools.</p>
+<p>Note that the problems here are <strong>NOT</strong> always good illustrations of tasks to which the various function minimization tools should be applied. However, they do suggest limits of performance of these tools.</p>
+<p>In <strong>R</strong> circles, function minimization is often called “optimization”, though that generally implies that there are also constraints.</p>
 </div>
-<div id="approach" class="section level1">
-<h1>Approach</h1>
-<p>We need to be able to set things up so that a separate command is not needed for each start or example. Such a structure needs a lot of careful thought to avoid awkwardness. In particular, the existing trial (from 2008/9) of package <code>NISTopt</code> shows that its structure has a lot of code, much of which is common in nature. Moreover, we want to be able to add new problems easily. Also the “Name.setup” functions do not seem very helpful for the long term.</p>
+<div id="approach-and-review-of-a-previous-effort" class="section level1">
+<h1>Approach and review of a previous effort</h1>
+<p>We need to be able to set things up so that a separate command is not needed for each start or example. Such a structure needs a lot of careful thought to avoid awkwardness. In particular, the existing trial (from 2008/9) of package <code>NISTopt</code> shows that its structure has a lot of code, much of which is common in nature. Moreover, we want to be able to add new problems easily. Furthermore the “Name.setup” functions do not seem very helpful for the long term.</p>
 <div id="restrictions-on-the-problems" class="section level2">
 <h2>Restrictions on the problems</h2>
 <p>We do not wish (at the moment) to include general optimization problems with general constraints. In fact, we will limit our attention to at most bounds constrained nonlinear optimization and nonlinear least squares problems. There are, however, a lot of these. By considering lower and upper bounds that are equal, we can extend the constraints to fixed or <strong>masked</strong> parameters.</p>
@@ -94,24 +96,25 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>This design is not, of course, the only possibility. However, it is likely that something based on the “single problem” <strong>R</strong> code file illustrated in the next section will prove useful.</p>
 <div id="a-single-problem" class="section level2">
 <h2>A single problem</h2>
-<p>Let us consider how we might, in <strong>R</strong>, specify a nonlinear least squares problem that also can be presented as an optimization problem. Here is a possible file for the problem of Daniel and Wood (??citation).</p>
+<p>Let us consider how we might, in <strong>R</strong>, specify a nonlinear least squares problem that also can be presented as an optimization problem. Here is a possible file for the problem of <span class="citation">Daniel and Wood (1980)</span>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">probname &lt;-<span class="st"> &quot;DanielWood&quot;</span>
-probdesc &lt;-<span class="st"> &quot;</span>
-
-<span class="st">?? need to put this in place</span>
-
+probdesc &lt;-<span class="st"> &quot;These data and model are described in Daniel and Wood (1980), and</span>
+<span class="st">originally published in E.S.Keeping, 'Introduction to Statistical Inference,'</span>
+<span class="st">Van Nostrand Company, Princeton, NJ, 1962, p. 354. The response variable is </span>
+<span class="st">energy radieted from a carbon filament lamp per cm**2 per second, and the </span>
+<span class="st">predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. </span>
 <span class="st">&quot;</span>
 probtype &lt;-<span class="st"> &quot;nls&quot;</span> <span class="co"># nls offers more possibilities than function minimization</span>
 mformula &lt;-<span class="st"> </span>( y ~<span class="st"> </span>(b1+x*(b2+x*(b3+b4*x))) /<span class="st"> </span>(<span class="dv">1</span>+x*(b5+x*(b6+x*b7)) ) )
-<span class="co"># The above is a &quot;formula&quot;. But we could also possibl also use a character string or expression,</span>
-<span class="co"># but need to know how to do so carefully. ??</span>
-## ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
+<span class="co">#- The above is a &quot;formula&quot;. But we could also possibl also use a character string or expression,</span>
+<span class="co">#- but need to know how to do so carefully. ??</span>
+##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
 y &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">2.138</span>, <span class="fl">3.421</span>, <span class="fl">3.597</span>, <span class="fl">4.340</span>, <span class="fl">4.882</span>, <span class="fl">5.660</span>)
 x &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">1.309</span>, <span class="fl">1.471</span>, <span class="fl">1.490</span>, <span class="fl">1.565</span>, <span class="fl">1.611</span>, <span class="fl">1.680</span>)
 dframe &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
-<span class="co"># This is the local data frame. We need to rename this when we put it into a global structure</span>
-<span class="co"># Now add various functions for optimization or nls-by-function</span>
-<span class="co"># ?? We could have problems with quotation marks WITHIN the code.</span>
+<span class="co">#- This is the local data frame. We need to rename this when we put it into a global structure</span>
+<span class="co">#- Now add various functions for optimization or nls-by-function</span>
+<span class="co">#- ?? We could have problems with quotation marks WITHIN the code.</span>
 fn &lt;-<span class="st"> &quot;</span>
 <span class="st">DanielWood.f &lt;- function(x) {</span>
 <span class="st">   res&lt;-DanielWood.res(x)</span>
@@ -150,14 +153,14 @@ hessfn &lt;-<span class="st"> &quot;DanielWood.h &lt;- function(x) {</span>
 <span class="st">}&quot;</span>
 
 gr &lt;-<span class="st"> &quot;DanielWood.g&lt;-function(x) {</span>
-<span class="st">#   stop('not defined')</span>
+<span class="st">#-   stop('not defined')</span>
 <span class="st">   JJ&lt;-DanielWood.jac(x)</span>
 <span class="st">   res&lt;-DanielWood.res(x)</span>
 <span class="st">   gg&lt;-as.vector(2.0*t(JJ) %*% res)</span>
 <span class="st">   return(gg)</span>
 <span class="st">}&quot;</span>
 
-<span class="co"># setup functions</span>
+<span class="co">#- setup functions</span>
 psetup &lt;-<span class="st"> &quot;DanielWood.setup&lt;-function() {</span>
 <span class="st">   data(DanielWood) # and load up the data into x and y</span>
 <span class="st">   start1 = c( 1, 5)</span>
@@ -186,10 +189,12 @@ ptest &lt;-<span class="st"> &quot;DanielWood.test&lt;-function() {</span>
 <li><p>displays information in a structured way (possibly according to some profile)</p></li>
 <li><p>allows the profile for display to be edited somehow</p></li>
 </ul>
+<p>?? code here</p>
 </div>
 <div id="gui-file-lister-and-display-tool" class="section level4">
 <h4>GUI file lister and display tool</h4>
 <p>Likely tied into command line tool by allowing command line to be executed when mouse or pointer clicks are executed. Check existing GUI tools to see what is possible.</p>
+<p>?? code here</p>
 </div>
 </div>
 <div id="building-problem-files" class="section level3">
@@ -209,9 +214,9 @@ ptest &lt;-<span class="st"> &quot;DanielWood.test&lt;-function() {</span>
 <li><p>provide</p>
 <p>– filename (at least the root)</p>
 <p>– which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</p>
-<p>– choice of gradient function or approximation (gr= (gr, “grfwd”, etc.))</p>
+<p>– choice of gradient function or approximation (gr= (gr, “grfwd”, etc.)) ?? optional?</p>
 <p>– controls – as per the control list in programs</p>
-<p>– other arguments</p>
+<p>– other arguments ?? how to provide? dotargs as below?</p>
 <p>– xdata or dotargs (how to specify might be interesting)</p>
 <p>– timing control (e.g., microbenchmark or simple timing)</p></li>
 <li><p>read output control profile (initially just use sink())</p></li>
@@ -226,39 +231,50 @@ ptest &lt;-<span class="st"> &quot;DanielWood.test&lt;-function() {</span>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">runoptprob &lt;-<span class="st"> </span>function(<span class="dt">pfilename=</span><span class="ot">NULL</span>, <span class="dt">minmeth=</span><span class="st">'nls'</span>, <span class="dt">submeth=</span><span class="ot">NULL</span>, 
                        <span class="dt">options=</span><span class="kw">list</span>(<span class="dt">args=</span><span class="ot">NULL</span>, <span class="dt">control=</span><span class="ot">NULL</span>) ) {
     optecho &lt;-<span class="st"> </span><span class="ot">TRUE</span> <span class="co"># temporarily at least, or put in a profile</span>
-    <span class="co"># Get the path to the files (where should these be? Probably somehow related to pkg)   </span>
+    <span class="co">#- Get the path to the files (where should these be? Probably somehow related to pkg)   </span>
     pfile &lt;-<span class="st"> </span><span class="kw">paste</span>(pfilename, <span class="st">&quot;.prb&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)
     <span class="kw">source</span>(pfile, <span class="dt">echo=</span>optecho) <span class="co"># -- filename (at least the root)</span>
-    <span class="co"># now have a lot of the information</span>
+    <span class="co">#- now have a lot of the information</span>
 
-<span class="co">#    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</span>
+<span class="co">#-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</span>
 
-<span class="co">#    -- choice of gradient function or approximation (gr= (gr, &quot;grfwd&quot;, etc.))</span>
+<span class="co">#-    -- choice of gradient function or approximation (gr= (gr, &quot;grfwd&quot;, etc.))</span>
 
-<span class="co">#    -- controls -- as per the control list in programs</span>
+<span class="co">#-    -- controls -- as per the control list in programs</span>
 
-<span class="co">#    -- other arguments</span>
+<span class="co">#-    -- other arguments</span>
 
-<span class="co">#    -- xdata or dotargs (how to specify might be interesting)</span>
+<span class="co">#-    -- xdata or dotargs (how to specify might be interesting)</span>
     
-<span class="co">#    -- timing control (e.g., microbenchmark or simple timing)</span>
+<span class="co">#-    -- timing control (e.g., microbenchmark or simple timing)</span>
 
-<span class="co"># - read output control profile (initially just use sink())</span>
+<span class="co">#-  - read output control profile (initially just use sink())</span>
+<span class="co">#-  -- make sure we have time/date stamp on all runs</span>
+     fname&lt;-<span class="kw">paste</span>(pfilename, <span class="kw">format</span>(<span class="kw">Sys.time</span>(), <span class="st">&quot;%Y%m%d%H%M&quot;</span>),<span class="st">&quot;.out&quot;</span>,<span class="dt">sep=</span><span class="st">''</span>)
+     <span class="kw">sink</span>(fname, <span class="dt">append=</span><span class="ot">TRUE</span>, <span class="dt">split=</span><span class="ot">TRUE</span>)
 
-<span class="co"># - read the file and execute it (make sure it has **R** commands so we can</span>
-<span class="co">#   actually source() it)</span>
+<span class="co">#-  - read the file and execute it (make sure it has **R** commands so we can</span>
+<span class="co">#-   actually source() it)</span>
+     <span class="kw">eval</span>(<span class="kw">parse</span>(pfilename)) <span class="co">#- should set up functions</span>
+     
+<span class="co">#- - analyze the call to runprob and do the appropriate call</span>
 
-<span class="co"># - analyze the call to runprob and do the appropriate call</span>
+<span class="co">#- - format output and extract and store summaries</span>
 
-<span class="co"># - format output and extract and store summaries</span>
-
-<span class="co">#  -- this may be multilayerd and take a lot of work</span>
+<span class="co">#-  -- this may be multilayerd and take a lot of work</span>
   
-<span class="co">#  -- start with no formatting, and gradually add features</span>
+<span class="co">#-  -- start with no formatting, and gradually add features</span>
   
-<span class="co">#  -- need to save conditions</span>
-  
-<span class="co">#  -- make sure we have time/date stamp on all runs</span>
+<span class="co">#-  -- need to save conditions</span>
+     if (minmeth ==<span class="st"> 'nls'</span>) {
+        <span class="kw">nls</span>(<span class="st">&quot;&quot;</span>)
+       
+       
+       
+       
+       
+       
+     }  
   
 
 }</code></pre></div>
@@ -375,6 +391,11 @@ ftest &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw
 bstart &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>)
 <span class="kw">print</span>(<span class="kw">ftest</span>(bstart))
 <span class="kw">savehistory</span>(<span class="st">&quot;NISTOx2.txt&quot;</span>)</code></pre></div>
+<div id="refs" class="references">
+<div id="ref-danwood1980">
+<p>Daniel, C., and F. S. Wood. 1980. <em>Fitting Equations to Data: Computer Analysis of Multifactor Data, Second Edition</em>. Wiley.</p>
+</div>
+</div>
 </div>
 </div>
 

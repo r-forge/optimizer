@@ -3,6 +3,7 @@ title: "A structure for building optimization and nonlinear least squares tests 
 author: "John C. Nash"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: nlsOptTests.bib
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -28,18 +29,21 @@ new test problems.
 
 Note that the problems here are **NOT** always good illustrations of tasks to 
 which the various
-function minimization (also called "optimization", though that generally implies that there
-are also constraints) tools should be applied. However, they do suggest limits 
+function minimization tools should be applied. However, they do suggest limits 
 of performance of these tools. 
 
-# Approach
+In **R** circles, function minimization
+is often called "optimization", though that generally implies that there
+are also constraints. 
+
+# Approach and review of a previous effort
 
 We need to be able to set things up so that a separate command is not needed for each start
 or example. Such a structure needs a lot of careful thought to 
 avoid awkwardness. In particular,
 the existing trial (from 2008/9) of package `NISTopt` shows that its structure has a lot of
 code, much of which is common in nature. Moreover, we want to be able to add new problems 
-easily. Also the "Name.setup" functions do not seem very helpful for the long term.
+easily. Furthermore the "Name.setup" functions do not seem very helpful for the long term.
 
 ## Restrictions on the problems
 
@@ -71,26 +75,27 @@ useful.
 
 Let us consider how we might, in **R**, specify a nonlinear least squares problem that
 also can be presented as an optimization problem. Here is a possible file for the 
-problem of Daniel and Wood (??citation).
+problem of @danwood1980.
 
 ```{r}
 probname <- "DanielWood"
-probdesc <- "
-
-?? need to put this in place
-
+probdesc <- "These data and model are described in Daniel and Wood (1980), and
+originally published in E.S.Keeping, 'Introduction to Statistical Inference,'
+Van Nostrand Company, Princeton, NJ, 1962, p. 354. The response variable is 
+energy radieted from a carbon filament lamp per cm**2 per second, and the 
+predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
 "
 probtype <- "nls" # nls offers more possibilities than function minimization
 mformula <- ( y ~ (b1+x*(b2+x*(b3+b4*x))) / (1+x*(b5+x*(b6+x*b7)) ) )
-# The above is a "formula". But we could also possibl also use a character string or expression,
-# but need to know how to do so carefully. ??
-## ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
+#- The above is a "formula". But we could also possibl also use a character string or expression,
+#- but need to know how to do so carefully. ??
+##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
 y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
 x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
 dframe <- data.frame(x,y)
-# This is the local data frame. We need to rename this when we put it into a global structure
-# Now add various functions for optimization or nls-by-function
-# ?? We could have problems with quotation marks WITHIN the code.
+#- This is the local data frame. We need to rename this when we put it into a global structure
+#- Now add various functions for optimization or nls-by-function
+#- ?? We could have problems with quotation marks WITHIN the code.
 fn <- "
 DanielWood.f <- function(x) {
    res<-DanielWood.res(x)
@@ -129,14 +134,14 @@ hessfn <- "DanielWood.h <- function(x) {
 }"
 
 gr <- "DanielWood.g<-function(x) {
-#   stop('not defined')
+#-   stop('not defined')
    JJ<-DanielWood.jac(x)
    res<-DanielWood.res(x)
    gg<-as.vector(2.0*t(JJ) %*% res)
    return(gg)
 }"
 
-# setup functions
+#- setup functions
 psetup <- "DanielWood.setup<-function() {
    data(DanielWood) # and load up the data into x and y
    start1 = c( 1, 5)
@@ -174,11 +179,15 @@ We need a tool that
 
 - allows the profile for display to be edited somehow
 
+?? code here
+
 #### GUI file lister and display tool
 
 Likely tied into command line tool by allowing command line to be executed when
 mouse or pointer clicks are executed. Check existing GUI tools to see what is 
 possible.
+
+?? code here
 
 ### Building problem files
 
@@ -191,6 +200,7 @@ get data into the local **R** environment and prepare the text for an assignment
 statement that contains a source vector.
 
 ?? code
+
 ```{r, eval=FALSE}
 
 # Use paste() to build the c(...) structure
@@ -208,11 +218,11 @@ statement that contains a source vector.
 
     -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
 
-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
+    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.)) ?? optional?
 
     -- controls -- as per the control list in programs
 
-    -- other arguments
+    -- other arguments ?? how to provide? dotargs as below?
 
     -- xdata or dotargs (how to specify might be interesting)
     
@@ -239,39 +249,50 @@ actually source() it)
 runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL, 
                        options=list(args=NULL, control=NULL) ) {
     optecho <- TRUE # temporarily at least, or put in a profile
-    # Get the path to the files (where should these be? Probably somehow related to pkg)   
+    #- Get the path to the files (where should these be? Probably somehow related to pkg)   
     pfile <- paste(pfilename, ".prb", sep='')
     source(pfile, echo=optecho) # -- filename (at least the root)
-    # now have a lot of the information
+    #- now have a lot of the information
 
-#    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
+#-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
 
-#    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
+#-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
 
-#    -- controls -- as per the control list in programs
+#-    -- controls -- as per the control list in programs
 
-#    -- other arguments
+#-    -- other arguments
 
-#    -- xdata or dotargs (how to specify might be interesting)
+#-    -- xdata or dotargs (how to specify might be interesting)
     
-#    -- timing control (e.g., microbenchmark or simple timing)
+#-    -- timing control (e.g., microbenchmark or simple timing)
 
-# - read output control profile (initially just use sink())
+#-  - read output control profile (initially just use sink())
+#-  -- make sure we have time/date stamp on all runs
+     fname<-paste(pfilename, format(Sys.time(), "%Y%m%d%H%M"),".out",sep='')
+     sink(fname, append=TRUE, split=TRUE)
 
-# - read the file and execute it (make sure it has **R** commands so we can
-#   actually source() it)
+#-  - read the file and execute it (make sure it has **R** commands so we can
+#-   actually source() it)
+     eval(parse(pfilename)) #- should set up functions
+     
+#- - analyze the call to runprob and do the appropriate call
 
-# - analyze the call to runprob and do the appropriate call
+#- - format output and extract and store summaries
 
-# - format output and extract and store summaries
-
-#  -- this may be multilayerd and take a lot of work
+#-  -- this may be multilayerd and take a lot of work
   
-#  -- start with no formatting, and gradually add features
+#-  -- start with no formatting, and gradually add features
   
-#  -- need to save conditions
-  
-#  -- make sure we have time/date stamp on all runs
+#-  -- need to save conditions
+     if (minmeth == 'nls') {
+        nls("")
+       
+       
+       
+       
+       
+       
+     }  
   
 
 }

@@ -60,11 +60,10 @@ be used quickly.
 
 ### stats
 
-`D()`, `deriv()` and `deriv3()`. As `deriv3()` is stated to be the same as `deriv()` but with
+`D()`, `deriv()` and `deriv3()`: As `deriv3()` is stated to be the same as `deriv()` but with
 argument `hessian=TRUE`, we will for now only consider the first two.
 
 ```{r}
-
 dx2x <- deriv(~ x^2, "x") 
 dx2x
 mode(dx2x)
@@ -129,7 +128,6 @@ myd3a <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
 myd3a(2,3,4, x=1:7)
 identical(myd3a, myd3) #- Remember to check things!
 
-
 #-  Higher derivatives:
 DD <- function(expr, name, order = 1) {
    if(order < 1) stop("'order' must be >= 1")
@@ -140,7 +138,6 @@ DD(expression(sin(x^2)), "x", 3)
 #-  showing the limits of the internal "simplify()" :
 #-  -sin(x^2) * (2 * x) * 2 + ((cos(x^2) * (2 * x) * (2 * x) + sin(x^2) *
 #-     2) * (2 * x) + sin(x^2) * (2 * x) * 2)
-
 ```
 
 ### nlsr

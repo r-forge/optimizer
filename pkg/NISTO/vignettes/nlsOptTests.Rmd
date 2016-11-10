@@ -78,6 +78,7 @@ also can be presented as an optimization problem. Here is a possible file for th
 problem of @danwood1980.
 
 ```{r}
+# This is file DanielWood.prb
 probname <- "DanielWood"
 probdesc <- "These data and model are described in Daniel and Wood (1980), and
 originally published in E.S.Keeping, 'Introduction to Statistical Inference,'
@@ -86,75 +87,81 @@ energy radieted from a carbon filament lamp per cm**2 per second, and the
 predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
 "
 probtype <- "nls" # nls offers more possibilities than function minimization
-mformula <- ( y ~ (b1+x*(b2+x*(b3+b4*x))) / (1+x*(b5+x*(b6+x*b7)) ) )
+#- Other types??  "fmin", "ssmin" (for resid ss)
+mformula <- ( y ~ b1*x**b2 )
 #- The above is a "formula". But we could also possibl also use a character string or expression,
 #- but need to know how to do so carefully. ??
 ##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
-y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
-x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
-dframe <- data.frame(x,y)
 #- This is the local data frame. We need to rename this when we put it into a global structure
 #- Now add various functions for optimization or nls-by-function
 #- ?? We could have problems with quotation marks WITHIN the code.
-fn <- "
+
 DanielWood.f <- function(x) {
-   res<-DanielWood.res(x)
-   f<-sum(res*res)
-}"
+res<-DanielWood.res(x)
+f<-sum(res*res)
+}
 
-resfn <- "DanielWood.res <- function(b) {
-   xx<-DanielWood$x # case !!
-   yy<-DanielWood$y
-   res <- rep(NA, length(xx))
-   b1<-b[1]
-   b2<-b[2]
-   res<-b1*(xx**b2) - yy
-   return(res)
-}"
+#- resfn
+DanielWood.res <- function(b) {
+xx<-DanielWood.df$x # case !!
+yy<-DanielWood.df$y
+res <- rep(NA, length(xx))
+b1<-b[1]
+b2<-b[2]
+res<-b1*(xx**b2) - yy
+return(res)
+}
 
-jacfn <- "# DanielWood - Jacobian
+#- jacfn
+# DanielWood - Jacobian
 DanielWood.jac <- function(b) {
-   xx<-DanielWood$x
-   yy<-DanielWood$y
-   n<-length(b)
-   m<-length(xx)
-   b1<-b[1]
-   b2<-b[2]
-   J<-matrix(0,m,n) # define the size of the Jacobian
-   expr1 <- xx^b2
-   J[, 1] <- expr1
-   J[, 2] <- b1 * (expr1 * log(xx))
-   return(J)
-}"
+xx<-DanielWood.df$x
+yy<-DanielWood.df$y
+n<-length(b)
+m<-length(xx)
+b1<-b[1]
+b2<-b[2]
+J<-matrix(0,m,n) # define the size of the Jacobian
+expr1 <- xx^b2
+J[, 1] <- expr1
+J[, 2] <- b1 * (expr1 * log(xx))
+return(J)
+}
 
-hessfn <- "DanielWood.h <- function(x) {
-   JJ<-DanielWood.jac(x)
-   H <- t(JJ) %*% JJ
-   res<-DanielWood.res(x)
-}"
+#- hessfn
+DanielWood.h <- function(x) {
+JJ<-DanielWood.jac(x)
+H <- t(JJ) %*% JJ
+res<-DanielWood.res(x)
+}
 
-gr <- "DanielWood.g<-function(x) {
+#- gr
+DanielWood.g<-function(x) {
 #-   stop('not defined')
-   JJ<-DanielWood.jac(x)
-   res<-DanielWood.res(x)
-   gg<-as.vector(2.0*t(JJ) %*% res)
-   return(gg)
-}"
+JJ<-DanielWood.jac(x)
+res<-DanielWood.res(x)
+gg<-as.vector(2.0*t(JJ) %*% res)
+return(gg)
+}
 
-#- setup functions
-psetup <- "DanielWood.setup<-function() {
-   data(DanielWood) # and load up the data into x and y
-   start1 = c( 1, 5)
-   start2 = c( 0.7, 4)
-   out<-list(start1=start1, start2=start2)
-   return(out)
-}"
+#- setup
+#- DanielWood.setup<-function() {
+y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
+x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
+DanielWood.df <- data.frame(x,y)
+rm(x)
+rm(y)
+start1 = c(b1= 1, b2 = 5)
+start2 = c(b1 = 0.7,b2 = 4)
+starts <- rbind(start1, start2)
+# out<-list(starts=starts, df=DanielWood.df)
+#- return(out)
+#- }
 
-ptest <- "DanielWood.test<-function() {
-}"   
+#- pstart <- c(b1= 1, b2 = 5) # fix later for more starts
 
-# We can "install" these functions via eval(parse(name))
-
+DanielWood.test<-function() {
+}   
 ```
 
 ## Tools for preparing and using problem files
@@ -247,54 +254,94 @@ actually source() it)
 
 ```{r}
 runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL, 
-                       options=list(args=NULL, control=NULL) ) {
-    optecho <- TRUE # temporarily at least, or put in a profile
-    #- Get the path to the files (where should these be? Probably somehow related to pkg)   
-    pfile <- paste(pfilename, ".prb", sep='')
-    source(pfile, echo=optecho) # -- filename (at least the root)
-    #- now have a lot of the information
-
-#-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
-
-#-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
-
-#-    -- controls -- as per the control list in programs
-
-#-    -- other arguments
-
-#-    -- xdata or dotargs (how to specify might be interesting)
-    
-#-    -- timing control (e.g., microbenchmark or simple timing)
-
-#-  - read output control profile (initially just use sink())
-#-  -- make sure we have time/date stamp on all runs
-     fname<-paste(pfilename, format(Sys.time(), "%Y%m%d%H%M"),".out",sep='')
-     sink(fname, append=TRUE, split=TRUE)
-
-#-  - read the file and execute it (make sure it has **R** commands so we can
-#-   actually source() it)
-     eval(parse(pfilename)) #- should set up functions
-     
-#- - analyze the call to runprob and do the appropriate call
-
-#- - format output and extract and store summaries
-
-#-  -- this may be multilayerd and take a lot of work
+                       nstart = 0, options=list(args=NULL, control=NULL) ) {
+  #- ?? Need to eval(parse()) ALL functions available, since f calls res etc.
+  #- Need to carefully ensure these exist to avoid errors??
+  #- ?? can we simplify and NOT have to eval(parse()) them, but simply source the prb file?
   
-#-  -- start with no formatting, and gradually add features
+  print(options$args)
+  print(options$controls)
+  optecho <- TRUE # temporarily at least, or put in a profile
+  #- Get the path to the files (where should these be? Probably somehow related to pkg)   
+  pfile <- paste(pfilename, ".prb", sep='')
+  source(pfile, echo=optecho) # -- filename (at least the root)
+  #- now have a lot of the information
   
-#-  -- need to save conditions
-     if (minmeth == 'nls') {
-        nls("")
-       
-       
-       
-       
-       
-       
-     }  
+  #-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
   
-
+  #-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
+  
+  #-    -- controls -- as per the control list in programs
+  
+  #-    -- other arguments
+  
+  #-    -- xdata or dotargs (how to specify might be interesting)
+  
+  #-    -- timing control (e.g., microbenchmark or simple timing)
+  
+  #-  - read output control profile (initially just use sink())
+  #-  -- make sure we have time/date stamp on all runs
+  fname<-paste(pfilename, format(Sys.time(), "%Y%m%d%H%M"),".out",sep='')
+  sink(fname, append=TRUE, split=TRUE)
+  
+  #-  - read the file and execute it (make sure it has **R** commands so we can
+  #-   actually source() it)
+  #- ?? not needed eval(parse(text=paste(pfilename,".setup", sep=''))) #- setup function
+  #- get the data and the starts
+  dfname <- eval(parse(text=paste(pfilename,".df", sep='')))
+  print(dfname)
+  
+  #- - analyze the call to runprob and do the appropriate call
+  
+  #- - format output and extract and store summaries
+  
+  #-  -- this may be multilayerd and take a lot of work
+  
+  #-  -- start with no formatting, and gradually add features
+  
+  #-  -- need to save conditions
+  if (nstart == 0) { # need to loop
+    nst <- seq(1: dim(starts)[1])
+  } else { nst <- nstart }
+  if (minmeth == 'nls') {
+    for (istrt in nst){
+      #- ?? need to extract options and arguments like trace
+      #- some documentation output needed ??
+      sol <- nls(mformula, data=dfname, start=starts[istrt,], trace=TRUE)      
+      print(sol)
+      print(summary(sol))
+    }    
+  }  
+  if (minmeth == 'nlxb') {
+      require(nlmrt)
+      for (istrt in nst){
+      #- ?? need to extract options and arguments like trace
+      #- some documentation output needed ??
+      sol <- nlxb(mformula, data=dfname, start=starts[istrt,], trace=TRUE)      
+      print(sol)
+      print(summary(sol))
+    }    
+  }  
+  if (minmeth == "optimr") {
+     require(optimrx)
+    #- here need to check if they exist??
+     ufn <- eval(parse(text=paste(pfilename,".f", sep='')))
+     eval(parse(text=paste(pfilename,".res", sep='')))
+     eval(parse(text=paste(pfilename,".jac", sep='')))
+     eval(parse(text=paste(pfilename,".g", sep='')))
+     if( is.null(options$args[["gr"]]) || ! is.character(options$args[["gr"]]) ) {
+       #- name.gr now a function      
+       ugr <- eval(parse(text=paste(pfilename,".g", sep='')))
+     } else { ugr <- (options$args[["gr"]]) }
+     ufn <-  eval(parse(text=paste(pfilename,".f", sep='')))
+     for (istrt in nst){
+        sol <- optimr(starts[istrt,], ufn, ugr, method=submeth, control=list(trace=1))
+        print(sol)
+     }
+  }
+    #- result should be a list of things run
+  sink()
+  testsol <- list(pfilename=pfilename, nstart=nstart, minmeth=minmeth, submeth=submeth)
 }
 ```
 
@@ -317,7 +364,23 @@ runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL,
     -- measures of success
 
 
+For the moment, let us just call runoptprob(). Note that it creates a sinkfile for each
+call.
 
+```{r}
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+test1
+tmp <- readline("continue")
+
+test2 <- runoptprob(pfilename=pfname, minmeth="nlxb")
+test2
+tmp <- readline("continue")
+
+test3 <- runoptprob(pfilename=pfname, minmeth="optimr", submeth="L-BFGS-B")
+test3
+```
 ## Appendix A: Use of a data frame
 
 The following script shows that we can store problem materials, including functions,

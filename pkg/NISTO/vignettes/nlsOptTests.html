@@ -12,7 +12,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2016-11-08" />
+<meta name="date" content="2016-11-10" />
 
 <title>A structure for building optimization and nonlinear least squares tests for R</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">A structure for building optimization and nonlinear least squares tests for <strong>R</strong></h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2016-11-08</em></h4>
+<h4 class="date"><em>2016-11-10</em></h4>
 
 
 
@@ -97,7 +97,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="a-single-problem" class="section level2">
 <h2>A single problem</h2>
 <p>Let us consider how we might, in <strong>R</strong>, specify a nonlinear least squares problem that also can be presented as an optimization problem. Here is a possible file for the problem of <span class="citation">Daniel and Wood (1980)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">probname &lt;-<span class="st"> &quot;DanielWood&quot;</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This is file DanielWood.prb</span>
+probname &lt;-<span class="st"> &quot;DanielWood&quot;</span>
 probdesc &lt;-<span class="st"> &quot;These data and model are described in Daniel and Wood (1980), and</span>
 <span class="st">originally published in E.S.Keeping, 'Introduction to Statistical Inference,'</span>
 <span class="st">Van Nostrand Company, Princeton, NJ, 1962, p. 354. The response variable is </span>
@@ -105,74 +106,81 @@ probdesc &lt;-<span class="st"> &quot;These data and model are described in Dani
 <span class="st">predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. </span>
 <span class="st">&quot;</span>
 probtype &lt;-<span class="st"> &quot;nls&quot;</span> <span class="co"># nls offers more possibilities than function minimization</span>
-mformula &lt;-<span class="st"> </span>( y ~<span class="st"> </span>(b1+x*(b2+x*(b3+b4*x))) /<span class="st"> </span>(<span class="dv">1</span>+x*(b5+x*(b6+x*b7)) ) )
+<span class="co">#- Other types??  &quot;fmin&quot;, &quot;ssmin&quot; (for resid ss)</span>
+mformula &lt;-<span class="st"> </span>( y ~<span class="st"> </span>b1*x**b2 )
 <span class="co">#- The above is a &quot;formula&quot;. But we could also possibl also use a character string or expression,</span>
 <span class="co">#- but need to know how to do so carefully. ??</span>
 ##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
-y &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">2.138</span>, <span class="fl">3.421</span>, <span class="fl">3.597</span>, <span class="fl">4.340</span>, <span class="fl">4.882</span>, <span class="fl">5.660</span>)
-x &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">1.309</span>, <span class="fl">1.471</span>, <span class="fl">1.490</span>, <span class="fl">1.565</span>, <span class="fl">1.611</span>, <span class="fl">1.680</span>)
-dframe &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
 <span class="co">#- This is the local data frame. We need to rename this when we put it into a global structure</span>
 <span class="co">#- Now add various functions for optimization or nls-by-function</span>
 <span class="co">#- ?? We could have problems with quotation marks WITHIN the code.</span>
-fn &lt;-<span class="st"> &quot;</span>
-<span class="st">DanielWood.f &lt;- function(x) {</span>
-<span class="st">   res&lt;-DanielWood.res(x)</span>
-<span class="st">   f&lt;-sum(res*res)</span>
-<span class="st">}&quot;</span>
 
-resfn &lt;-<span class="st"> &quot;DanielWood.res &lt;- function(b) {</span>
-<span class="st">   xx&lt;-DanielWood$x # case !!</span>
-<span class="st">   yy&lt;-DanielWood$y</span>
-<span class="st">   res &lt;- rep(NA, length(xx))</span>
-<span class="st">   b1&lt;-b[1]</span>
-<span class="st">   b2&lt;-b[2]</span>
-<span class="st">   res&lt;-b1*(xx**b2) - yy</span>
-<span class="st">   return(res)</span>
-<span class="st">}&quot;</span>
+DanielWood.f &lt;-<span class="st"> </span>function(x) {
+res&lt;-<span class="kw">DanielWood.res</span>(x)
+f&lt;-<span class="kw">sum</span>(res*res)
+}
 
-jacfn &lt;-<span class="st"> &quot;# DanielWood - Jacobian</span>
-<span class="st">DanielWood.jac &lt;- function(b) {</span>
-<span class="st">   xx&lt;-DanielWood$x</span>
-<span class="st">   yy&lt;-DanielWood$y</span>
-<span class="st">   n&lt;-length(b)</span>
-<span class="st">   m&lt;-length(xx)</span>
-<span class="st">   b1&lt;-b[1]</span>
-<span class="st">   b2&lt;-b[2]</span>
-<span class="st">   J&lt;-matrix(0,m,n) # define the size of the Jacobian</span>
-<span class="st">   expr1 &lt;- xx^b2</span>
-<span class="st">   J[, 1] &lt;- expr1</span>
-<span class="st">   J[, 2] &lt;- b1 * (expr1 * log(xx))</span>
-<span class="st">   return(J)</span>
-<span class="st">}&quot;</span>
+<span class="co">#- resfn</span>
+DanielWood.res &lt;-<span class="st"> </span>function(b) {
+xx&lt;-DanielWood.df$x <span class="co"># case !!</span>
+yy&lt;-DanielWood.df$y
+res &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(xx))
+b1&lt;-b[<span class="dv">1</span>]
+b2&lt;-b[<span class="dv">2</span>]
+res&lt;-b1*(xx**b2) -<span class="st"> </span>yy
+<span class="kw">return</span>(res)
+}
 
-hessfn &lt;-<span class="st"> &quot;DanielWood.h &lt;- function(x) {</span>
-<span class="st">   JJ&lt;-DanielWood.jac(x)</span>
-<span class="st">   H &lt;- t(JJ) %*% JJ</span>
-<span class="st">   res&lt;-DanielWood.res(x)</span>
-<span class="st">}&quot;</span>
+<span class="co">#- jacfn</span>
+<span class="co"># DanielWood - Jacobian</span>
+DanielWood.jac &lt;-<span class="st"> </span>function(b) {
+xx&lt;-DanielWood.df$x
+yy&lt;-DanielWood.df$y
+n&lt;-<span class="kw">length</span>(b)
+m&lt;-<span class="kw">length</span>(xx)
+b1&lt;-b[<span class="dv">1</span>]
+b2&lt;-b[<span class="dv">2</span>]
+J&lt;-<span class="kw">matrix</span>(<span class="dv">0</span>,m,n) <span class="co"># define the size of the Jacobian</span>
+expr1 &lt;-<span class="st"> </span>xx^b2
+J[, <span class="dv">1</span>] &lt;-<span class="st"> </span>expr1
+J[, <span class="dv">2</span>] &lt;-<span class="st"> </span>b1 *<span class="st"> </span>(expr1 *<span class="st"> </span><span class="kw">log</span>(xx))
+<span class="kw">return</span>(J)
+}
 
-gr &lt;-<span class="st"> &quot;DanielWood.g&lt;-function(x) {</span>
-<span class="st">#-   stop('not defined')</span>
-<span class="st">   JJ&lt;-DanielWood.jac(x)</span>
-<span class="st">   res&lt;-DanielWood.res(x)</span>
-<span class="st">   gg&lt;-as.vector(2.0*t(JJ) %*% res)</span>
-<span class="st">   return(gg)</span>
-<span class="st">}&quot;</span>
+<span class="co">#- hessfn</span>
+DanielWood.h &lt;-<span class="st"> </span>function(x) {
+JJ&lt;-<span class="kw">DanielWood.jac</span>(x)
+H &lt;-<span class="st"> </span><span class="kw">t</span>(JJ) %*%<span class="st"> </span>JJ
+res&lt;-<span class="kw">DanielWood.res</span>(x)
+}
 
-<span class="co">#- setup functions</span>
-psetup &lt;-<span class="st"> &quot;DanielWood.setup&lt;-function() {</span>
-<span class="st">   data(DanielWood) # and load up the data into x and y</span>
-<span class="st">   start1 = c( 1, 5)</span>
-<span class="st">   start2 = c( 0.7, 4)</span>
-<span class="st">   out&lt;-list(start1=start1, start2=start2)</span>
-<span class="st">   return(out)</span>
-<span class="st">}&quot;</span>
+<span class="co">#- gr</span>
+DanielWood.g&lt;-function(x) {
+<span class="co">#-   stop('not defined')</span>
+JJ&lt;-<span class="kw">DanielWood.jac</span>(x)
+res&lt;-<span class="kw">DanielWood.res</span>(x)
+gg&lt;-<span class="kw">as.vector</span>(<span class="fl">2.0</span>*<span class="kw">t</span>(JJ) %*%<span class="st"> </span>res)
+<span class="kw">return</span>(gg)
+}
 
-ptest &lt;-<span class="st"> &quot;DanielWood.test&lt;-function() {</span>
-<span class="st">}&quot;</span>   
+<span class="co">#- setup</span>
+<span class="co">#- DanielWood.setup&lt;-function() {</span>
+y &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">2.138</span>, <span class="fl">3.421</span>, <span class="fl">3.597</span>, <span class="fl">4.340</span>, <span class="fl">4.882</span>, <span class="fl">5.660</span>)
+x &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">1.309</span>, <span class="fl">1.471</span>, <span class="fl">1.490</span>, <span class="fl">1.565</span>, <span class="fl">1.611</span>, <span class="fl">1.680</span>)
+DanielWood.df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
+<span class="kw">rm</span>(x)
+<span class="kw">rm</span>(y)
+start1 =<span class="st"> </span><span class="kw">c</span>(<span class="dt">b1=</span> <span class="dv">1</span>, <span class="dt">b2 =</span> <span class="dv">5</span>)
+start2 =<span class="st"> </span><span class="kw">c</span>(<span class="dt">b1 =</span> <span class="fl">0.7</span>,<span class="dt">b2 =</span> <span class="dv">4</span>)
+starts &lt;-<span class="st"> </span><span class="kw">rbind</span>(start1, start2)
+<span class="co"># out&lt;-list(starts=starts, df=DanielWood.df)</span>
+<span class="co">#- return(out)</span>
+<span class="co">#- }</span>
 
-<span class="co"># We can &quot;install&quot; these functions via eval(parse(name))</span></code></pre></div>
+<span class="co">#- pstart &lt;- c(b1= 1, b2 = 5) # fix later for more starts</span>
+
+DanielWood.test&lt;-function() {
+}   </code></pre></div>
 </div>
 <div id="tools-for-preparing-and-using-problem-files" class="section level2">
 <h2>Tools for preparing and using problem files</h2>
@@ -229,54 +237,94 @@ ptest &lt;-<span class="st"> &quot;DanielWood.test&lt;-function() {</span>
 <p>– need to save conditions</p>
 <p>– make sure we have time/date stamp on all runs</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">runoptprob &lt;-<span class="st"> </span>function(<span class="dt">pfilename=</span><span class="ot">NULL</span>, <span class="dt">minmeth=</span><span class="st">'nls'</span>, <span class="dt">submeth=</span><span class="ot">NULL</span>, 
-                       <span class="dt">options=</span><span class="kw">list</span>(<span class="dt">args=</span><span class="ot">NULL</span>, <span class="dt">control=</span><span class="ot">NULL</span>) ) {
-    optecho &lt;-<span class="st"> </span><span class="ot">TRUE</span> <span class="co"># temporarily at least, or put in a profile</span>
-    <span class="co">#- Get the path to the files (where should these be? Probably somehow related to pkg)   </span>
-    pfile &lt;-<span class="st"> </span><span class="kw">paste</span>(pfilename, <span class="st">&quot;.prb&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)
-    <span class="kw">source</span>(pfile, <span class="dt">echo=</span>optecho) <span class="co"># -- filename (at least the root)</span>
-    <span class="co">#- now have a lot of the information</span>
-
-<span class="co">#-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</span>
-
-<span class="co">#-    -- choice of gradient function or approximation (gr= (gr, &quot;grfwd&quot;, etc.))</span>
-
-<span class="co">#-    -- controls -- as per the control list in programs</span>
-
-<span class="co">#-    -- other arguments</span>
-
-<span class="co">#-    -- xdata or dotargs (how to specify might be interesting)</span>
-    
-<span class="co">#-    -- timing control (e.g., microbenchmark or simple timing)</span>
-
-<span class="co">#-  - read output control profile (initially just use sink())</span>
-<span class="co">#-  -- make sure we have time/date stamp on all runs</span>
-     fname&lt;-<span class="kw">paste</span>(pfilename, <span class="kw">format</span>(<span class="kw">Sys.time</span>(), <span class="st">&quot;%Y%m%d%H%M&quot;</span>),<span class="st">&quot;.out&quot;</span>,<span class="dt">sep=</span><span class="st">''</span>)
-     <span class="kw">sink</span>(fname, <span class="dt">append=</span><span class="ot">TRUE</span>, <span class="dt">split=</span><span class="ot">TRUE</span>)
-
-<span class="co">#-  - read the file and execute it (make sure it has **R** commands so we can</span>
-<span class="co">#-   actually source() it)</span>
-     <span class="kw">eval</span>(<span class="kw">parse</span>(pfilename)) <span class="co">#- should set up functions</span>
-     
-<span class="co">#- - analyze the call to runprob and do the appropriate call</span>
-
-<span class="co">#- - format output and extract and store summaries</span>
-
-<span class="co">#-  -- this may be multilayerd and take a lot of work</span>
+                       <span class="dt">nstart =</span> <span class="dv">0</span>, <span class="dt">options=</span><span class="kw">list</span>(<span class="dt">args=</span><span class="ot">NULL</span>, <span class="dt">control=</span><span class="ot">NULL</span>) ) {
+  <span class="co">#- ?? Need to eval(parse()) ALL functions available, since f calls res etc.</span>
+  <span class="co">#- Need to carefully ensure these exist to avoid errors??</span>
+  <span class="co">#- ?? can we simplify and NOT have to eval(parse()) them, but simply source the prb file?</span>
   
-<span class="co">#-  -- start with no formatting, and gradually add features</span>
+  <span class="kw">print</span>(options$args)
+  <span class="kw">print</span>(options$controls)
+  optecho &lt;-<span class="st"> </span><span class="ot">TRUE</span> <span class="co"># temporarily at least, or put in a profile</span>
+  <span class="co">#- Get the path to the files (where should these be? Probably somehow related to pkg)   </span>
+  pfile &lt;-<span class="st"> </span><span class="kw">paste</span>(pfilename, <span class="st">&quot;.prb&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)
+  <span class="kw">source</span>(pfile, <span class="dt">echo=</span>optecho) <span class="co"># -- filename (at least the root)</span>
+  <span class="co">#- now have a lot of the information</span>
   
-<span class="co">#-  -- need to save conditions</span>
-     if (minmeth ==<span class="st"> 'nls'</span>) {
-        <span class="kw">nls</span>(<span class="st">&quot;&quot;</span>)
-       
-       
-       
-       
-       
-       
-     }  
+  <span class="co">#-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</span>
   
-
+  <span class="co">#-    -- choice of gradient function or approximation (gr= (gr, &quot;grfwd&quot;, etc.))</span>
+  
+  <span class="co">#-    -- controls -- as per the control list in programs</span>
+  
+  <span class="co">#-    -- other arguments</span>
+  
+  <span class="co">#-    -- xdata or dotargs (how to specify might be interesting)</span>
+  
+  <span class="co">#-    -- timing control (e.g., microbenchmark or simple timing)</span>
+  
+  <span class="co">#-  - read output control profile (initially just use sink())</span>
+  <span class="co">#-  -- make sure we have time/date stamp on all runs</span>
+  fname&lt;-<span class="kw">paste</span>(pfilename, <span class="kw">format</span>(<span class="kw">Sys.time</span>(), <span class="st">&quot;%Y%m%d%H%M&quot;</span>),<span class="st">&quot;.out&quot;</span>,<span class="dt">sep=</span><span class="st">''</span>)
+  <span class="kw">sink</span>(fname, <span class="dt">append=</span><span class="ot">TRUE</span>, <span class="dt">split=</span><span class="ot">TRUE</span>)
+  
+  <span class="co">#-  - read the file and execute it (make sure it has **R** commands so we can</span>
+  <span class="co">#-   actually source() it)</span>
+  <span class="co">#- ?? not needed eval(parse(text=paste(pfilename,&quot;.setup&quot;, sep=''))) #- setup function</span>
+  <span class="co">#- get the data and the starts</span>
+  dfname &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.df&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
+  <span class="kw">print</span>(dfname)
+  
+  <span class="co">#- - analyze the call to runprob and do the appropriate call</span>
+  
+  <span class="co">#- - format output and extract and store summaries</span>
+  
+  <span class="co">#-  -- this may be multilayerd and take a lot of work</span>
+  
+  <span class="co">#-  -- start with no formatting, and gradually add features</span>
+  
+  <span class="co">#-  -- need to save conditions</span>
+  if (nstart ==<span class="st"> </span><span class="dv">0</span>) { <span class="co"># need to loop</span>
+    nst &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span>:<span class="st"> </span><span class="kw">dim</span>(starts)[<span class="dv">1</span>])
+  } else { nst &lt;-<span class="st"> </span>nstart }
+  if (minmeth ==<span class="st"> 'nls'</span>) {
+    for (istrt in nst){
+      <span class="co">#- ?? need to extract options and arguments like trace</span>
+      <span class="co">#- some documentation output needed ??</span>
+      sol &lt;-<span class="st"> </span><span class="kw">nls</span>(mformula, <span class="dt">data=</span>dfname, <span class="dt">start=</span>starts[istrt,], <span class="dt">trace=</span><span class="ot">TRUE</span>)      
+      <span class="kw">print</span>(sol)
+      <span class="kw">print</span>(<span class="kw">summary</span>(sol))
+    }    
+  }  
+  if (minmeth ==<span class="st"> 'nlxb'</span>) {
+      <span class="kw">require</span>(nlmrt)
+      for (istrt in nst){
+      <span class="co">#- ?? need to extract options and arguments like trace</span>
+      <span class="co">#- some documentation output needed ??</span>
+      sol &lt;-<span class="st"> </span><span class="kw">nlxb</span>(mformula, <span class="dt">data=</span>dfname, <span class="dt">start=</span>starts[istrt,], <span class="dt">trace=</span><span class="ot">TRUE</span>)      
+      <span class="kw">print</span>(sol)
+      <span class="kw">print</span>(<span class="kw">summary</span>(sol))
+    }    
+  }  
+  if (minmeth ==<span class="st"> &quot;optimr&quot;</span>) {
+     <span class="kw">require</span>(optimrx)
+    <span class="co">#- here need to check if they exist??</span>
+     ufn &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.f&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
+     <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.res&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
+     <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.jac&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
+     <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.g&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
+     if( <span class="kw">is.null</span>(options$args[[<span class="st">&quot;gr&quot;</span>]]) ||<span class="st"> </span>!<span class="st"> </span><span class="kw">is.character</span>(options$args[[<span class="st">&quot;gr&quot;</span>]]) ) {
+       <span class="co">#- name.gr now a function      </span>
+       ugr &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.g&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
+     } else { ugr &lt;-<span class="st"> </span>(options$args[[<span class="st">&quot;gr&quot;</span>]]) }
+     ufn &lt;-<span class="st">  </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.f&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
+     for (istrt in nst){
+        sol &lt;-<span class="st"> </span><span class="kw">optimr</span>(starts[istrt,], ufn, ugr, <span class="dt">method=</span>submeth, <span class="dt">control=</span><span class="kw">list</span>(<span class="dt">trace=</span><span class="dv">1</span>))
+        <span class="kw">print</span>(sol)
+     }
+  }
+    <span class="co">#- result should be a list of things run</span>
+  <span class="kw">sink</span>()
+  testsol &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">pfilename=</span>pfilename, <span class="dt">nstart=</span>nstart, <span class="dt">minmeth=</span>minmeth, <span class="dt">submeth=</span>submeth)
 }</code></pre></div>
 </div>
 <div id="running-multiple-problems" class="section level2">
@@ -291,6 +339,619 @@ ptest &lt;-<span class="st"> &quot;DanielWood.test&lt;-function() {</span>
 <p>– timings</p>
 <p>– measures of success</p></li>
 </ul>
+<p>For the moment, let us just call runoptprob(). Note that it creates a sinkfile for each call.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pfname &lt;-<span class="st"> &quot;DanielWood&quot;</span>
+<span class="co"># try it</span>
+test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span class="dt">pfilename=</span>pfname, <span class="dt">minmeth=</span><span class="st">&quot;nls&quot;</span>)</code></pre></div>
+<pre><code>## NULL
+## NULL
+## 
+## &gt; probname &lt;- &quot;DanielWood&quot;
+## 
+## &gt; probdesc &lt;- &quot;These data and model are described in Daniel and Wood (1980), and\noriginally published in E.S.Keeping, 'Introduction to Statistical In ...&quot; ... [TRUNCATED] 
+## 
+## &gt; probtype &lt;- &quot;nls&quot;
+## 
+## &gt; mformula &lt;- (y ~ b1 * x^b2)
+## 
+## &gt; DanielWood.f &lt;- function(x) {
+## +     res &lt;- DanielWood.res(x)
+## +     f &lt;- sum(res * res)
+## + }
+## 
+## &gt; DanielWood.res &lt;- function(b) {
+## +     xx &lt;- DanielWood.df$x
+## +     yy &lt;- DanielWood.df$y
+## +     res &lt;- rep(NA, length(xx))
+## +     b1 &lt;- b[1]
+## +     b2 &lt; .... [TRUNCATED] 
+## 
+## &gt; DanielWood.jac &lt;- function(b) {
+## +     xx &lt;- DanielWood.df$x
+## +     yy &lt;- DanielWood.df$y
+## +     n &lt;- length(b)
+## +     m &lt;- length(xx)
+## +     b1 &lt;- b[1]
+##  .... [TRUNCATED] 
+## 
+## &gt; DanielWood.h &lt;- function(x) {
+## +     JJ &lt;- DanielWood.jac(x)
+## +     H &lt;- t(JJ) %*% JJ
+## +     res &lt;- DanielWood.res(x)
+## + }
+## 
+## &gt; DanielWood.g &lt;- function(x) {
+## +     JJ &lt;- DanielWood.jac(x)
+## +     res &lt;- DanielWood.res(x)
+## +     gg &lt;- as.vector(2 * t(JJ) %*% res)
+## +     return(gg) .... [TRUNCATED] 
+## 
+## &gt; y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
+## 
+## &gt; x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
+## 
+## &gt; DanielWood.df &lt;- data.frame(x, y)
+## 
+## &gt; rm(x)
+## 
+## &gt; rm(y)
+## 
+## &gt; start1 = c(b1 = 1, b2 = 5)
+## 
+## &gt; start2 = c(b1 = 0.7, b2 = 4)
+## 
+## &gt; starts &lt;- rbind(start1, start2)
+## 
+## &gt; DanielWood.test &lt;- function() {
+## + }
+##       x     y
+## 1 1.309 2.138
+## 2 1.471 3.421
+## 3 1.490 3.597
+## 4 1.565 4.340
+## 5 1.611 4.882
+## 6 1.680 5.660
+## 149.7192 :  1 5
+## 4.610878 :  0.7061691 4.4567375
+## 0.03168417 :  0.7499191 3.9483634
+## 0.004320594 :  0.7685973 3.8607752
+## 0.004317308 :  0.7688633 3.8604026
+## 0.004317308 :  0.7688623 3.8604056
+## Nonlinear regression model
+##   model: y ~ b1 * x^b2
+##    data: dfname
+##     b1     b2 
+## 0.7689 3.8604 
+##  residual sum-of-squares: 0.004317
+## 
+## Number of iterations to convergence: 5 
+## Achieved convergence tolerance: 2.529e-07
+## 
+## Formula: y ~ b1 * x^b2
+## 
+## Parameters:
+##    Estimate Std. Error t value Pr(&gt;|t|)    
+## b1  0.76886    0.01828   42.06 1.91e-06 ***
+## b2  3.86041    0.05173   74.63 1.93e-07 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.03285 on 4 degrees of freedom
+## 
+## Number of iterations to convergence: 5 
+## Achieved convergence tolerance: 2.529e-07
+## 
+## 0.1037647 :  0.7 4.0
+## 0.005930406 :  0.7679852 3.8542844
+## 0.004317316 :  0.7688429 3.8604767
+## 0.004317308 :  0.7688625 3.8604050
+## Nonlinear regression model
+##   model: y ~ b1 * x^b2
+##    data: dfname
+##     b1     b2 
+## 0.7689 3.8604 
+##  residual sum-of-squares: 0.004317
+## 
+## Number of iterations to convergence: 3 
+## Achieved convergence tolerance: 5.447e-06
+## 
+## Formula: y ~ b1 * x^b2
+## 
+## Parameters:
+##    Estimate Std. Error t value Pr(&gt;|t|)    
+## b1  0.76886    0.01828   42.06 1.91e-06 ***
+## b2  3.86041    0.05173   74.63 1.93e-07 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.03285 on 4 degrees of freedom
+## 
+## Number of iterations to convergence: 3 
+## Achieved convergence tolerance: 5.447e-06</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test1</code></pre></div>
+<pre><code>## $pfilename
+## [1] &quot;DanielWood&quot;
+## 
+## $nstart
+## [1] 0
+## 
+## $minmeth
+## [1] &quot;nls&quot;
+## 
+## $submeth
+## NULL</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">readline</span>(<span class="st">&quot;continue&quot;</span>)</code></pre></div>
+<pre><code>## continue</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test2 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span class="dt">pfilename=</span>pfname, <span class="dt">minmeth=</span><span class="st">&quot;nlxb&quot;</span>)</code></pre></div>
+<pre><code>## NULL
+## NULL
+## 
+## &gt; probname &lt;- &quot;DanielWood&quot;
+## 
+## &gt; probdesc &lt;- &quot;These data and model are described in Daniel and Wood (1980), and\noriginally published in E.S.Keeping, 'Introduction to Statistical In ...&quot; ... [TRUNCATED] 
+## 
+## &gt; probtype &lt;- &quot;nls&quot;
+## 
+## &gt; mformula &lt;- (y ~ b1 * x^b2)
+## 
+## &gt; DanielWood.f &lt;- function(x) {
+## +     res &lt;- DanielWood.res(x)
+## +     f &lt;- sum(res * res)
+## + }
+## 
+## &gt; DanielWood.res &lt;- function(b) {
+## +     xx &lt;- DanielWood.df$x
+## +     yy &lt;- DanielWood.df$y
+## +     res &lt;- rep(NA, length(xx))
+## +     b1 &lt;- b[1]
+## +     b2 &lt; .... [TRUNCATED] 
+## 
+## &gt; DanielWood.jac &lt;- function(b) {
+## +     xx &lt;- DanielWood.df$x
+## +     yy &lt;- DanielWood.df$y
+## +     n &lt;- length(b)
+## +     m &lt;- length(xx)
+## +     b1 &lt;- b[1]
+##  .... [TRUNCATED] 
+## 
+## &gt; DanielWood.h &lt;- function(x) {
+## +     JJ &lt;- DanielWood.jac(x)
+## +     H &lt;- t(JJ) %*% JJ
+## +     res &lt;- DanielWood.res(x)
+## + }
+## 
+## &gt; DanielWood.g &lt;- function(x) {
+## +     JJ &lt;- DanielWood.jac(x)
+## +     res &lt;- DanielWood.res(x)
+## +     gg &lt;- as.vector(2 * t(JJ) %*% res)
+## +     return(gg) .... [TRUNCATED] 
+## 
+## &gt; y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
+## 
+## &gt; x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
+## 
+## &gt; DanielWood.df &lt;- data.frame(x, y)
+## 
+## &gt; rm(x)
+## 
+## &gt; rm(y)
+## 
+## &gt; start1 = c(b1 = 1, b2 = 5)
+## 
+## &gt; start2 = c(b1 = 0.7, b2 = 4)
+## 
+## &gt; starts &lt;- rbind(start1, start2)
+## 
+## &gt; DanielWood.test &lt;- function() {
+## + }
+##       x     y
+## 1 1.309 2.138
+## 2 1.471 3.421
+## 3 1.490 3.597
+## 4 1.565 4.340
+## 5 1.611 4.882
+## 6 1.680 5.660</code></pre>
+<pre><code>## Loading required package: nlmrt</code></pre>
+<pre><code>## formula: y ~ b1 * x^b2
+## lower:[1] -Inf -Inf
+## upper:[1] Inf Inf
+## $watch
+## [1] FALSE
+## 
+## $phi
+## [1] 1
+## 
+## $lamda
+## [1] 1e-04
+## 
+## $offset
+## [1] 100
+## 
+## $laminc
+## [1] 10
+## 
+## $lamdec
+## [1] 4
+## 
+## $femax
+## [1] 10000
+## 
+## $jemax
+## [1] 5000
+## 
+## $rofftest
+## [1] TRUE
+## 
+## $smallsstest
+## [1] TRUE
+## 
+## Data variable  y :[1] 2.138 3.421 3.597 4.340 4.882 5.660
+## Data variable  x :[1] 1.309 1.471 1.490 1.565 1.611 1.680
+## ssminval = 3.639473e-53 
+## Start:lamda: 1e-04  SS= 149.7192  at  b1 = 1  b2 = 5  1 / 0
+## roff = 0.08104665   converged =  FALSE 
+## delta:        b1         b2 
+## -0.2935688 -0.5437644 
+## gjty:       [,1]
+## b1 273.4627
+## b2 127.6840
+## gradient projection =  -149.7101  g-delta-angle= 143.3924 
+## Stepsize= 1 
+## &lt;&lt;lamda: 4e-05  SS= 4.617901  at  b1 = 0.7064312  b2 = 4.456236  2 / 1
+## roff = 0.01403555   converged =  FALSE 
+## delta:         b1          b2 
+##  0.04300627 -0.50629468 
+## gjty:       [,1]
+## b1 36.84083
+## b2 12.24312
+## gradient projection =  -4.614241  g-delta-angle= 103.5277 
+## Stepsize= 1 
+## &lt;&lt;lamda: 1.6e-05  SS= 0.03204775  at  b1 = 0.7494375  b2 = 3.949941  3 / 2
+## roff = 0.001038332   converged =  FALSE 
+## delta:         b1          b2 
+##  0.01910095 -0.08902608 
+## gjty:        [,1]
+## b1 2.1613197
+## b2 0.7754481
+## gradient projection =  -0.02775185  g-delta-angle= 97.62772 
+## Stepsize= 1 
+## &lt;&lt;lamda: 6.4e-06  SS= 0.00432114  at  b1 = 0.7685384  b2 = 3.860915  4 / 3
+## roff = 1.280769e-05   converged =  FALSE 
+## delta:           b1            b2 
+##  0.0003250606 -0.0005128129 
+## gjty:           [,1]
+## b1 -0.025599344
+## b2 -0.008753529
+## gradient projection =  -3.832416e-06  g-delta-angle= 103.4919 
+## Stepsize= 1 
+## &lt;&lt;lamda: 2.56e-06  SS= 0.004317308  at  b1 = 0.7688635  b2 = 3.860402  5 / 4
+## roff = 1.531446e-08   converged =  TRUE 
+## delta:           b1            b2 
+## -1.215752e-06  3.633677e-06 
+## gjty:            [,1]
+## b1 -9.960217e-06
+## b2 -4.954001e-06
+## gradient projection =  -5.892083e-12  g-delta-angle= 97.94562 
+## Stepsize= 1 
+## &lt;&lt;lamda: 1.024e-06  SS= 0.004317308  at  b1 = 0.7688623  b2 = 3.860406  6 / 5
+## nlmrt class object: x 
+## residual sumsquares =  0.0043173  on  6 observations
+##     after  5    Jacobian and  6 function evaluations
+##   name            coeff          SE       tstat      pval      gradient    JSingval   
+## b1              0.768862       0.01828      42.06  1.911e-06    3.85e-10       14.05  
+## b2               3.86041       0.05173      74.63  1.932e-07  -2.715e-10      0.5994  
+## $resname
+## [1] &quot;sol&quot;
+## 
+## $ssquares
+## [1] 0.0043173
+## 
+## $nobs
+## [1] 6
+## 
+## $coeff
+##      b1      b2 
+## 0.76886 3.86041 
+## 
+## $ct
+## [1] &quot; &quot; &quot; &quot;
+## 
+## $mt
+## [1] &quot; &quot; &quot; &quot;
+## 
+## $SEs
+## [1] 0.018282 0.051727
+## 
+## $tstat
+##     b1     b2 
+## 42.056 74.631 
+## 
+## $pval
+##         b1         b2 
+## 1.9108e-06 1.9318e-07 
+## 
+## $Sd
+## [1] 14.04921  0.59937
+## 
+## $gr
+##           [,1]
+## b1  3.8503e-10
+## b2 -2.7148e-10
+## 
+## $jeval
+## [1] 5
+## 
+## $feval
+## [1] 6
+## 
+## formula: y ~ b1 * x^b2
+## lower:[1] -Inf -Inf
+## upper:[1] Inf Inf
+## $watch
+## [1] FALSE
+## 
+## $phi
+## [1] 1
+## 
+## $lamda
+## [1] 1e-04
+## 
+## $offset
+## [1] 100
+## 
+## $laminc
+## [1] 10
+## 
+## $lamdec
+## [1] 4
+## 
+## $femax
+## [1] 10000
+## 
+## $jemax
+## [1] 5000
+## 
+## $rofftest
+## [1] TRUE
+## 
+## $smallsstest
+## [1] TRUE
+## 
+## Data variable  y :[1] 2.138 3.421 3.597 4.340 4.882 5.660
+## Data variable  x :[1] 1.309 1.471 1.490 1.565 1.611 1.680
+## ssminval = 2.5224e-56 
+## Start:lamda: 1e-04  SS= 0.10376  at  b1 = 0.7  b2 = 4  1 / 0
+## roff = 0.27419   converged =  FALSE 
+## delta:      b1       b2 
+##  0.06734 -0.14372 
+## gjty:      [,1]
+## b1 -4.2765
+## b2 -1.3123
+## gradient projection =  -0.099372  g-delta-angle= 98.046 
+## Stepsize= 1 
+## &lt;&lt;lamda: 4e-05  SS= 0.0058663  at  b1 = 0.76734  b2 = 3.8563  2 / 1
+## roff = 0.035577   converged =  FALSE 
+## delta:       b1        b2 
+## 0.0015102 0.0041697 
+## gjty:       [,1]
+## b1 -0.51966
+## b2 -0.18327
+## gradient projection =  -0.001549  g-delta-angle= 129.34 
+## Stepsize= 1 
+## &lt;&lt;lamda: 1.6e-05  SS= 0.0043173  at  b1 = 0.76885  b2 = 3.8605  3 / 2
+## roff = 5.0601e-05   converged =  FALSE 
+## delta:         b1          b2 
+##  1.2589e-05 -4.7982e-05 
+## gjty:         [,1]
+## b1 0.00074052
+## b2 0.00027869
+## gradient projection =  -4.0498e-09  g-delta-angle= 95.922 
+## Stepsize= 1 
+## &lt;&lt;lamda: 6.4e-06  SS= 0.0043173  at  b1 = 0.76886  b2 = 3.8604  4 / 3
+## roff = 1.7412e-07   converged =  FALSE 
+## delta:         b1          b2 
+## -1.0563e-07  3.0249e-07 
+## gjty:          [,1]
+## b1 -5.1091e-08
+## b2 -1.4000e-07
+## gradient projection =  -3.6951e-14  g-delta-angle= 140.7 
+## Stepsize= 1 
+## &lt;&lt;lamda: 2.56e-06  SS= 0.0043173  at  b1 = 0.76886  b2 = 3.8604  5 / 4
+## roff = 1.2461e-09   converged =  TRUE 
+## delta:         b1          b2 
+##  7.5754e-10 -2.1652e-09 
+## gjty:         [,1]
+## b1 1.1826e-10
+## b2 9.1510e-10
+## gradient projection =  -1.8918e-18  g-delta-angle= 153.35 
+## Stepsize= 1 
+## lamda: 2.56e-05  SS= 0.0043173  at  b1 = 0.76886  b2 = 3.8604  6 / 5
+## nlmrt class object: x 
+## residual sumsquares =  0.0043173  on  6 observations
+##     after  5    Jacobian and  6 function evaluations
+##   name            coeff          SE       tstat      pval      gradient    JSingval   
+## b1              0.768862       0.01828      42.06  1.911e-06   1.183e-10       14.05  
+## b2               3.86041       0.05173      74.63  1.932e-07   9.151e-10      0.5994  
+## $resname
+## [1] &quot;sol&quot;
+## 
+## $ssquares
+## [1] 0.0043173
+## 
+## $nobs
+## [1] 6
+## 
+## $coeff
+##      b1      b2 
+## 0.76886 3.86041 
+## 
+## $ct
+## [1] &quot; &quot; &quot; &quot;
+## 
+## $mt
+## [1] &quot; &quot; &quot; &quot;
+## 
+## $SEs
+## [1] 0.018282 0.051727
+## 
+## $tstat
+##     b1     b2 
+## 42.056 74.631 
+## 
+## $pval
+##         b1         b2 
+## 1.9108e-06 1.9318e-07 
+## 
+## $Sd
+## [1] 14.04923  0.59937
+## 
+## $gr
+##          [,1]
+## b1 1.1826e-10
+## b2 9.1510e-10
+## 
+## $jeval
+## [1] 5
+## 
+## $feval
+## [1] 6</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test2</code></pre></div>
+<pre><code>## $pfilename
+## [1] &quot;DanielWood&quot;
+## 
+## $nstart
+## [1] 0
+## 
+## $minmeth
+## [1] &quot;nlxb&quot;
+## 
+## $submeth
+## NULL</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">readline</span>(<span class="st">&quot;continue&quot;</span>)</code></pre></div>
+<pre><code>## continue</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test3 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span class="dt">pfilename=</span>pfname, <span class="dt">minmeth=</span><span class="st">&quot;optimr&quot;</span>, <span class="dt">submeth=</span><span class="st">&quot;L-BFGS-B&quot;</span>)</code></pre></div>
+<pre><code>## NULL
+## NULL
+## 
+## &gt; probname &lt;- &quot;DanielWood&quot;
+## 
+## &gt; probdesc &lt;- &quot;These data and model are described in Daniel and Wood (1980), and\noriginally published in E.S.Keeping, 'Introduction to Statistical In ...&quot; ... [TRUNCATED] 
+## 
+## &gt; probtype &lt;- &quot;nls&quot;
+## 
+## &gt; mformula &lt;- (y ~ b1 * x^b2)
+## 
+## &gt; DanielWood.f &lt;- function(x) {
+## +     res &lt;- DanielWood.res(x)
+## +     f &lt;- sum(res * res)
+## + }
+## 
+## &gt; DanielWood.res &lt;- function(b) {
+## +     xx &lt;- DanielWood.df$x
+## +     yy &lt;- DanielWood.df$y
+## +     res &lt;- rep(NA, length(xx))
+## +     b1 &lt;- b[1]
+## +     b2 &lt; .... [TRUNCATED] 
+## 
+## &gt; DanielWood.jac &lt;- function(b) {
+## +     xx &lt;- DanielWood.df$x
+## +     yy &lt;- DanielWood.df$y
+## +     n &lt;- length(b)
+## +     m &lt;- length(xx)
+## +     b1 &lt;- b[1]
+##  .... [TRUNCATED] 
+## 
+## &gt; DanielWood.h &lt;- function(x) {
+## +     JJ &lt;- DanielWood.jac(x)
+## +     H &lt;- t(JJ) %*% JJ
+## +     res &lt;- DanielWood.res(x)
+## + }
+## 
+## &gt; DanielWood.g &lt;- function(x) {
+## +     JJ &lt;- DanielWood.jac(x)
+## +     res &lt;- DanielWood.res(x)
+## +     gg &lt;- as.vector(2 * t(JJ) %*% res)
+## +     return(gg) .... [TRUNCATED] 
+## 
+## &gt; y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
+## 
+## &gt; x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
+## 
+## &gt; DanielWood.df &lt;- data.frame(x, y)
+## 
+## &gt; rm(x)
+## 
+## &gt; rm(y)
+## 
+## &gt; start1 = c(b1 = 1, b2 = 5)
+## 
+## &gt; start2 = c(b1 = 0.7, b2 = 4)
+## 
+## &gt; starts &lt;- rbind(start1, start2)
+## 
+## &gt; DanielWood.test &lt;- function() {
+## + }
+##       x     y
+## 1 1.309 2.138
+## 2 1.471 3.421
+## 3 1.490 3.597
+## 4 1.565 4.340
+## 5 1.611 4.882
+## 6 1.680 5.660</code></pre>
+<pre><code>## Loading required package: optimrx</code></pre>
+<pre><code>## Unit parameter scaling
+## iter   10 value 0.011817
+## final  value 0.004317 
+## converged
+## $par
+##      b1      b2 
+## 0.76885 3.86043 
+## 
+## $value
+## [1] 0.0043173
+## 
+## $counts
+## function gradient 
+##       21       21 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## [1] &quot;CONVERGENCE: REL_REDUCTION_OF_F &lt;= FACTR*EPSMCH&quot;
+## 
+## Unit parameter scaling
+## iter   10 value 0.004317
+## final  value 0.004317 
+## converged
+## $par
+##      b1      b2 
+## 0.76886 3.86041 
+## 
+## $value
+## [1] 0.0043173
+## 
+## $counts
+## function gradient 
+##       14       14 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## [1] &quot;CONVERGENCE: REL_REDUCTION_OF_F &lt;= FACTR*EPSMCH&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test3</code></pre></div>
+<pre><code>## $pfilename
+## [1] &quot;DanielWood&quot;
+## 
+## $nstart
+## [1] 0
+## 
+## $minmeth
+## [1] &quot;optimr&quot;
+## 
+## $submeth
+## [1] &quot;L-BFGS-B&quot;</code></pre>
 </div>
 <div id="appendix-a-use-of-a-data-frame" class="section level2">
 <h2>Appendix A: Use of a data frame</h2>

@@ -23,10 +23,12 @@ animation.
 ## TODOS
 
   - make sure animation is running
+  - sort out what is going on with tkrplot
   - comment and test the animation code
   - try nloptr
-  - try ?? other optimizers
+  - try other optimizers
   - try shiny for running the animation
+  - Do we want to make VMPOLY files available?)
 
 ## Background
 
@@ -39,7 +41,7 @@ an integrated system in BASIC, New York: Marcel Dekker, now available online at
 https://archive.org/details/ost-engineering-jnmws2004).
 
 To provide a visual presentation of the optimization, Nash coded a display for the
-IBM PC family of MS DOS computers running GWBASIC. (?? Do we want to make these available?)
+IBM PC family of MS DOS computers running GWBASIC. 
 In May 2016, the discovery that
 files for this example could still execute, albeit clumsily, under Linux using DosBox or 
 PCBasic raised the possibility of bringing them up to date. R was a logical choice for such an 
@@ -358,7 +360,7 @@ colours.
 ```{r drawpoly1, eval=FALSE}
 ```
 
-??? add more details
+As of Nov 10, 2016, replay of the stored points with `tkrplot` does not seem to work reliably. 
 
 ## Saved results
 

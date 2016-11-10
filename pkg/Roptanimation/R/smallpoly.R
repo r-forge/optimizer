@@ -677,7 +677,8 @@ print(smult )
 ## @knitr polyexuall
 
 library(optimrx)
-suall <- opm(x0, polyobju, polygradu, control=list(trace=1, all.methods=TRUE, kkt=FALSE), penfactor=1e-5)
+methset <- c("Rvmmin", "L-BFGS-B", "nlminb")
+suall <- opm(x0, polyobju, polygradu, method=methset, control=list(trace=0, kkt=FALSE), penfactor=1e-5)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests
 suall <- summary(suall, order=value)
 print(suall)
@@ -699,7 +700,7 @@ for (ii in 1:nmeth){
 # library(optimrx)
 bmeth <- c("bobyqa", "L-BFGS-B", "lbfgsb3", "Rvmmin", "Rtnmin", "Rcgmin", "nlminb", "nmkb", "hjkb", "hjn")
 suball <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method=bmeth, 
-        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
+        control=list(trace=0, kkt=FALSE), penfactor=1e-5)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests
 suball <- summary(suball, order=value)
 print(suball)
@@ -718,15 +719,17 @@ print(start)
 x0 <- start
 
 shjnp <- opm(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", 
-        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
+        control=list(trace=0, kkt=FALSE), penfactor=1e-5)
+shjnp
 tmp <- readline("continue")
 
 shjnp1 <- optimr(x0, polyobj, polygrad, lower=lb, upper=ub, method="hjn", hessian=FALSE,
-        control=list(trace=1, kkt=FALSE), penfactor=1e-5)
+        control=list(trace=0, kkt=FALSE), penfactor=1e-5)
+shjnp1
 tmp <- readline("continue")
 
-shjn0p <- hjn(x0, polyobj, lower=lb, upper=ub, bdmsk=NULL, control=list(trace=1), penfactor=1e-5)
-
+shjn0p <- hjn(x0, polyobj, lower=lb, upper=ub, bdmsk=NULL, control=list(trace=0), penfactor=1e-5)
+shjn0p
 
 ## @knitr polyexlbfgs
 

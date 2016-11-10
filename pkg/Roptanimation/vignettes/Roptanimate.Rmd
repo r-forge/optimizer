@@ -334,8 +334,8 @@ penalty factor steadily and find a good approximation to the optimal area?
 
 ## Issues
 
-- polyex3g shows that it is difficult to stay in feasible zone with gradients. Need to stabilize!
-- Can we get transfinite approach??
+- polyex3g shows that it is difficult to stay in feasible zone with gradients. We need to stabilize this calculation.
+- Can we use a transfinite function approach to this problem? This transforms the range (a, b) into (-Inf, Inf) using an inverse hyperbolic tangent. However, this can destabilize the optimization.
 
 ## Animating the progress to an optimum
 

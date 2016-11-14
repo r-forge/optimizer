@@ -7,11 +7,24 @@ Van Nostrand Company, Princeton, NJ, 1962, p. 354. The response variable is
 energy radieted from a carbon filament lamp per cm**2 per second, and the 
 predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
 "
+#- setup
+DanielWood.setup<-function() {
+y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
+x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
+DanielWood.df <- data.frame(x,y)
+rm(x)
+rm(y)
+start1 = c(b1= 1, b2 = 5)
+start2 = c(b1 = 0.7,b2 = 4)
+starts <- rbind(start1, start2)
 probtype <- "nls" # nls offers more possibilities than function minimization
 #- Other types??  "fmin", "ssmin" (for resid ss)
 mformula <- ( y ~ b1*x**b2 )
 #- The above is a "formula". But we could also possibl also use a character string or expression,
 #- but need to know how to do so carefully. ??
+out<-list(starts=starts, df=DanielWood.df, mformula=mformula, probtype=probtype)
+#- return(out)
+}
 ##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
 #- This is the local data frame. We need to rename this when we put it into a global structure
 #- Now add various functions for optimization or nls-by-function
@@ -65,19 +78,6 @@ gg<-as.vector(2.0*t(JJ) %*% res)
 return(gg)
 }
 
-#- setup
-#- DanielWood.setup<-function() {
-y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
-x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
-DanielWood.df <- data.frame(x,y)
-rm(x)
-rm(y)
-start1 = c(b1= 1, b2 = 5)
-start2 = c(b1 = 0.7,b2 = 4)
-starts <- rbind(start1, start2)
-# out<-list(starts=starts, df=DanielWood.df)
-#- return(out)
-#- }
 
 #- pstart <- c(b1= 1, b2 = 5) # fix later for more starts
 

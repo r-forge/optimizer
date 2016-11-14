@@ -84,7 +84,7 @@ problem of @danwood1980.
 ```{r cache=FALSE, echo=FALSE}
 require(knitr)
 # read chunk (does not run code)
-read_chunk('../data/DanielWood.prb')
+read_chunk('../inst/extdata/DanielWood.prb')
 ```
 
 ```{r}

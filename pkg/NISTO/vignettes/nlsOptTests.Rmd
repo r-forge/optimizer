@@ -179,6 +179,14 @@ actually source() it)
   
   -- make sure we have time/date stamp on all runs
 
+```{r cache=FALSE, echo=FALSE}
+require(knitr)
+# read chunk (does not run code)
+read_chunk('../R/runoptprob.R')
+```
+
+```{r}
+<<../R/runoptprob.R>>
   
 ```{r}  
     runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL, 

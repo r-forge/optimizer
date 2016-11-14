@@ -10,6 +10,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 
 Note: This is now in a project with GIT/SVN support. 161031.
 
@@ -77,91 +81,14 @@ Let us consider how we might, in **R**, specify a nonlinear least squares proble
 also can be presented as an optimization problem. Here is a possible file for the 
 problem of @danwood1980.
 
+```{r cache=FALSE, echo=FALSE}
+require(knitr)
+# read chunk (does not run code)
+read_chunk('../data/DanielWood.prb')
+```
+
 ```{r}
-# This is file DanielWood.prb
-probname <- "DanielWood"
-probdesc <- "These data and model are described in Daniel and Wood (1980), and
-originally published in E.S.Keeping, 'Introduction to Statistical Inference,'
-Van Nostrand Company, Princeton, NJ, 1962, p. 354. The response variable is 
-energy radieted from a carbon filament lamp per cm**2 per second, and the 
-predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
-"
-probtype <- "nls" # nls offers more possibilities than function minimization
-#- Other types??  "fmin", "ssmin" (for resid ss)
-mformula <- ( y ~ b1*x**b2 )
-#- The above is a "formula". But we could also possibl also use a character string or expression,
-#- but need to know how to do so carefully. ??
-##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
-#- This is the local data frame. We need to rename this when we put it into a global structure
-#- Now add various functions for optimization or nls-by-function
-#- ?? We could have problems with quotation marks WITHIN the code.
-
-DanielWood.f <- function(x) {
-res<-DanielWood.res(x)
-f<-sum(res*res)
-}
-
-#- resfn
-DanielWood.res <- function(b) {
-xx<-DanielWood.df$x # case !!
-yy<-DanielWood.df$y
-res <- rep(NA, length(xx))
-b1<-b[1]
-b2<-b[2]
-res<-b1*(xx**b2) - yy
-return(res)
-}
-
-#- jacfn
-# DanielWood - Jacobian
-DanielWood.jac <- function(b) {
-xx<-DanielWood.df$x
-yy<-DanielWood.df$y
-n<-length(b)
-m<-length(xx)
-b1<-b[1]
-b2<-b[2]
-J<-matrix(0,m,n) # define the size of the Jacobian
-expr1 <- xx^b2
-J[, 1] <- expr1
-J[, 2] <- b1 * (expr1 * log(xx))
-return(J)
-}
-
-#- hessfn
-DanielWood.h <- function(x) {
-JJ<-DanielWood.jac(x)
-H <- t(JJ) %*% JJ
-res<-DanielWood.res(x)
-}
-
-#- gr
-DanielWood.g<-function(x) {
-#-   stop('not defined')
-JJ<-DanielWood.jac(x)
-res<-DanielWood.res(x)
-gg<-as.vector(2.0*t(JJ) %*% res)
-return(gg)
-}
-
-#- setup
-#- DanielWood.setup<-function() {
-y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
-x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
-DanielWood.df <- data.frame(x,y)
-rm(x)
-rm(y)
-start1 = c(b1= 1, b2 = 5)
-start2 = c(b1 = 0.7,b2 = 4)
-starts <- rbind(start1, start2)
-# out<-list(starts=starts, df=DanielWood.df)
-#- return(out)
-#- }
-
-#- pstart <- c(b1= 1, b2 = 5) # fix later for more starts
-
-DanielWood.test<-function() {
-}   
+<<DanielWood.prb>>
 ```
 
 ## Tools for preparing and using problem files
@@ -252,8 +179,9 @@ actually source() it)
   
   -- make sure we have time/date stamp on all runs
 
-```{r}
-runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL, 
+  
+```{r}  
+    runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL, 
                        nstart = 0, options=list(args=NULL, control=NULL) ) {
   #- ?? Need to eval(parse()) ALL functions available, since f calls res etc.
   #- Need to carefully ensure these exist to avoid errors??

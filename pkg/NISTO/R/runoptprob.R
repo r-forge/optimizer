@@ -1,4 +1,4 @@
-@knitr runoptprob.R
+## @knitr runoptprob.R
 
 runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL, 
                        nstart = 0, options=list(args=NULL, control=NULL) ) {

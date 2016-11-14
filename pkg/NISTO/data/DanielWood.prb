@@ -1,3 +1,5 @@
+## @knitr DanielWood.prb
+# This is file DanielWood.prb
 probname <- "DanielWood"
 probdesc <- "These data and model are described in Daniel and Wood (1980), and
 originally published in E.S.Keeping, 'Introduction to Statistical Inference,'
@@ -81,5 +83,3 @@ starts <- rbind(start1, start2)
 
 DanielWood.test<-function() {
 }   
-
-

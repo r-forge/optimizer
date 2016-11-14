@@ -1,6 +1,6 @@
 ---
 title: "A structure for building optimization and nonlinear least squares tests for **R**"
-author: "John C. Nash"
+author: "John C. Nash and Paul Gilbert"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 bibliography: nlsOptTests.bib

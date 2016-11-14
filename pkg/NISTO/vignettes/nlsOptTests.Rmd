@@ -178,6 +178,13 @@ actually source() it)
   -- need to save conditions
   
   -- make sure we have time/date stamp on all runs
+  
+Issues to address?? :
+ - sink() will save information, but there is a cost in time and space
+ - how to do ok/not or red/yellow/green nicely | Do we want on params and value?
+ - dealing with multiple solutions -- linear combination defined
+ - where to put setting of FUZZ, reporting of deviations
+  
 
 ```{r cache=FALSE, echo=FALSE}
 require(knitr)

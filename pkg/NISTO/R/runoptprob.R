@@ -29,7 +29,8 @@ runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL,
   #-  - read output control profile (initially just use sink())
   #-  -- make sure we have time/date stamp on all runs
   fname<-paste(pfilename, format(Sys.time(), "%Y%m%d%H%M"),".out",sep='')
-  sink(fname, append=TRUE, split=TRUE)
+  #- ?? not created until later, then conditionally 
+  #- ?? sink(fname, append=TRUE, split=TRUE)
   
   #-  - read the file and execute it (make sure it has **R** commands so we can
   #-   actually source() it)
@@ -70,7 +71,7 @@ runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL,
     }    
   }  
   if (minmeth == "optimr") {
-     require(optimrx)
+     require(optimrx) #- ?? optimr for CRAN
     #- here need to check if they exist??
      ufn <- eval(parse(text=paste(pfilename,".f", sep='')))
      eval(parse(text=paste(pfilename,".res", sep='')))
@@ -87,6 +88,6 @@ runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL,
      }
   }
     #- result should be a list of things run
-  sink()
+  #- ?? sink() # should make conditional and not usually do this, else delete after asking
   testsol <- list(pfilename=pfilename, nstart=nstart, minmeth=minmeth, submeth=submeth)
 }

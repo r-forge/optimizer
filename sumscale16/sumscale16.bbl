@@ -1,0 +1,36 @@
+\begin{thebibliography}{4}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Geradin(1971)]{Geradin71}
+M.~Geradin.
+\newblock The computational efficiency of a new minimization algorithm for
+  eigenvalue analysis.
+\newblock \emph{J. Sound Vib.}, 19:\penalty0 319--331, 1971.
+
+\bibitem[Nash(1979)]{cnm79}
+J.~C. Nash.
+\newblock \emph{Compact Numerical Methods for Computers: Linear Algebra and
+  Function Minimisation}.
+\newblock Adam Hilger, Bristol, 1979.
+\newblock Second Edition, 1990, Bristol: Institute of Physics Publications.
+
+\bibitem[Nash(2012)]{RQtimes12}
+J.~C. Nash.
+\newblock {Timing Rayleigh Quotient minimization in \R}, July 2012.
+\newblock This is a `tip' on
+  http://rwiki.sciviews.org/doku.php?id=tips:rqcasestudy. The files related to
+  this study are \url{http://macnash.telfer.uottawa.ca/~nashjc/RQtimes.pdf} and
+  \url{http://macnash.telfer.uottawa.ca/~nashjc/RQtimes.Rnw}.
+
+\bibitem[Nash(2013)]{optextras}
+J.~C. Nash.
+\newblock \emph{optextras: Tools to Support Optimization Possibly with Bounds
+  and Masks}, 2013.
+\newblock URL \url{https://CRAN.R-project.org/package=optextras}.
+\newblock R package version 2013-10.27.
+
+\end{thebibliography}

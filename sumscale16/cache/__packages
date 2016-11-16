@@ -1,0 +1,8 @@
+base
+knitr
+optimx
+numDeriv
+BB
+quadprog
+optimrx
+Rcgmin

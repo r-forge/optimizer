@@ -1,0 +1,17 @@
+simpleproduct	c	cat	list	opm	print	prod	require	sum	summary	value
+simprodgrad	cat	grad	pr	print	prod	require	sum
+gabornll	<=	>	||	$	any	if	log	.Machine	sum
+C13badruns1	^	c	list	nll	nll.g	opm	require	summary	value
+C13ravi1	^	[[	$	abs	cat	log	max	rep	require	spg	sum	system.time
+expgabor	exp	length	log	sum
+expgabrun1	cat	enll	enll.g	list	opm	print	require	sum	summary	value
+expgabrun2	[[	$	cat	enll	enll.g	list	print	Rcgmin	require	sum	system.time
+sphere0	library
+sphere5	^	$	c	cumprod	log	seq	spg	sum
+sphere100	$	list	obj	proj2	seq	spg
+sphere100all	list	n	obj	opm	seq	summary
+rayspg1	[<-	[[	$	as.numeric	cat	crossprod	diag<-	for	matrix	pmin	print	rep	require	spg	sqrt	system.time	t
+tran1	[<-	cat	dim	for	length	opm	require	runif	sum	summary	value
+transpg1	>	$	cat	cumsum	length	max	pmax	print	return	sort	spg	st	sum	which
+TranQP	c	diag	library	matrix	solve.QP
+tranQP	c	diag	library	matrix	solve.QP

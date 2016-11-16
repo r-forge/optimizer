@@ -1,0 +1,36 @@
+cat("try loading optimrx\n")
+require(optimx, quietly=TRUE)
+pr <- function(y) {
+- prod(y)*(1-sum(y))
+}
+cat("test the simple product for n=5\n")
+meth <- c("Nelder-Mead", "BFGS")
+n<-5
+  st<-1:(n-1)/(n*n)
+   ans<-opm(st, pr, gr="grcentral", control=list(trace=0))
+   ao<-summary(ans,order=value)
+@
+
+
+The "solution" is not very good. It is, of course, fairly easy to show that that the analytic
+solution is simply $x_j = 1/n$ for all $j$. Here we are far from that result. 
+
+We can develop the gradient, which is often helpful in optimization problems. Here is the code
+and a test of it.
+
+<<simprodgrad, echo=TRUE, cache=TRUE>>=
+pr.g <- function(x) {
+g<- -prod(x)*(1-sum(x))/x + prod(x)
+}
+
+cat("check gradient\n")
+require(numDeriv, quietly=TRUE)
+st<-1:4/9
+f0<-pr(st)
+g0<-pr.g(st)
+gn<-grad(pr, st)
+cat("f0=",f0,"  g0:")
+print(g0)
+cat("g0/gnumeric:")
+print(g0/gn)
+

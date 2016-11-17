@@ -1,14 +1,13 @@
 ## @knitr runoptprob.R
-
-runoptprob <- function(pfilename, minmeth='nls', submeth=NULL, 
-                       nstart = 0, runopts=list(args=NULL, control=NULL) ) {
+runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0, 
+                 runopts=list(), control=list(), ...) {
 
   #- ?? Need to eval(parse()) ALL functions available, since f calls res etc.
   #- Need to carefully ensure these exist to avoid errors??
   #- ?? can we simplify and NOT have to eval(parse()) them, but simply source the prb file?
   
-  print(runopts$args)
-  print(runopts$controls)
+  print(runopts)
+  print(control)
   optecho <- TRUE # temporarily at least, or put in a profile
   #- Get the path to the files (where should these be? Probably somehow related to pkg)   
   pfile <- paste(pfilename, ".prb", sep='')
@@ -92,10 +91,10 @@ runoptprob <- function(pfilename, minmeth='nls', submeth=NULL,
      eval(parse(text=paste(pfilename,".res", sep='')))
      eval(parse(text=paste(pfilename,".jac", sep='')))
      eval(parse(text=paste(pfilename,".g", sep='')))
-     if( is.null(runopts$args[["gr"]]) || ! is.character(runopts$args[["gr"]]) ) {
-       #- name.gr now a function      
+     if( is.null(runopts$gr) || ! is.character(runopts$gr) ) {
+#       #- name.gr now a function      
        ugr <- eval(parse(text=paste(pfilename,".g", sep='')))
-     } else { ugr <- (runopts$args[["gr"]]) }
+     } else { ugr <- (runopts$gr) }
      ufn <-  eval(parse(text=paste(pfilename,".f", sep='')))
      for (istrt in nst){
         sol <- optimr(starts[istrt,], ufn, ugr, method=submeth, control=list(trace=1))

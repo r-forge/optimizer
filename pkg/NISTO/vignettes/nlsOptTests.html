@@ -12,9 +12,9 @@
 
 <meta name="author" content="John C. Nash and Paul Gilbert" />
 
-<meta name="date" content="2016-11-14" />
+<meta name="date" content="2016-11-17" />
 
-<title>A structure for building optimization and nonlinear least squares tests for R</title>
+<title>A structure for building and running optimization and nonlinear least squares tests for R</title>
 
 
 
@@ -68,35 +68,55 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">A structure for building optimization and nonlinear least squares tests for <strong>R</strong></h1>
+<h1 class="title toc-ignore">A structure for building and running optimization and nonlinear least squares tests for <strong>R</strong></h1>
 <h4 class="author"><em>John C. Nash and Paul Gilbert</em></h4>
-<h4 class="date"><em>2016-11-14</em></h4>
+<h4 class="date"><em>2016-11-17</em></h4>
 
 
 
-<p>Note: This is now in a project with GIT/SVN support. 161031.</p>
-<div id="motivation" class="section level1">
-<h1>Motivation</h1>
-<p><a href="http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml" class="uri">http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml</a> presents a number of nonlinear regression (nonlinear least squares) problems that are more or less difficult to solve numerically. Doug Bates prepared an <strong>R</strong> package <code>NISTnls</code> which adapted these problems to <strong>R</strong> and tested them with the <code>nls()</code> function of which he was a major author. I built a related package to allow the same problems to be approached as unconstrained function minimization problems, which I named <code>NISTopt</code>. However, this package was, when I prepared it in 2009, incomplete, particularly in respect to the manuals (Rd files). This vignette is an attempt to better document that effort and in the process force a review of the package. Furthermore, it raises the question of how to <strong>efficiently</strong> add and run new test problems.</p>
-<p>Note that the problems here are <strong>NOT</strong> always good illustrations of tasks to which the various function minimization tools should be applied. However, they do suggest limits of performance of these tools.</p>
-<p>In <strong>R</strong> circles, function minimization is often called “optimization”, though that generally implies that there are also constraints.</p>
+<div id="abstract" class="section level2">
+<h2>Abstract</h2>
+<p>This article discusses how tests for nonlinear equations, least squares or equations may be set up, executed and analyzed for <strong>R</strong>. This activity is sensitive to the manner in which the test functions are computed, the choice of starting values, and the choice of measures of success. They may also be modified by changes in the solvers for the problems in question. Indeed, it is always a concern that seemingly minor adjustments intended to improve such solvers may cause them to fail on particular problems or starting values. Thus it is desirable to be able to</p>
+<ul>
+<li><p>be able to quickly and easily run a specific test on all available solvers;</p></li>
+<li><p>be able to quickly and easily run all available tests on an updated or new solver;</p></li>
+<li><p>be able to report successes and failures in a manner that allows for rapid detection of potential issues with solvers.</p></li>
+</ul>
+<p>The last criterion requires that there be a way to save and access the results of test runs. Because each test instance can generate quite a lot of data, and the combinatorial possibilities of tests, solvers, and solver options such as choice of gradient approximation, saving test information could demand considerable storage space and data management effort. We outline some possible approaches to the data management aspect of optimization testing.</p>
 </div>
-<div id="approach-and-review-of-a-previous-effort" class="section level1">
-<h1>Approach and review of a previous effort</h1>
-<p>We need to be able to set things up so that a separate command is not needed for each start or example. Such a structure needs a lot of careful thought to avoid awkwardness. In particular, the existing trial (from 2008/9) of package <code>NISTopt</code> shows that its structure has a lot of code, much of which is common in nature. Moreover, we want to be able to add new problems easily. Furthermore the “Name.setup” functions do not seem very helpful for the long term.</p>
-<div id="restrictions-on-the-problems" class="section level2">
-<h2>Restrictions on the problems</h2>
+<div id="section" class="section level1">
+<h1></h1>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p><a href="http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml" class="uri">http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml</a> presents a number of nonlinear regression (nonlinear least squares) problems that are more or less difficult to solve numerically. Doug Bates prepared an <strong>R</strong> package <code>NISTnls</code> which adapted these problems to <strong>R</strong> and tested them with the <code>nls()</code> function of which he was a major author. There are a number of other test function collections (some referenced below), usually with overlap in their coverage, for nonlinear equations, nonlinear least squares and function minimization. In some cases, such tests include bounds constraints or fixed parameters.</p>
+<p>In 2009, I built the incomplete package <code>NISTopt</code> to allow the same problems as in <code>NISTnls</code> to be approached as unconstrained function minimization problems. Similarly, the Google Summer of Code project OptimGUI by Yixuan Qiu in 2011 attempted to provide a point-and-click interface to aid in building and running function minimization problems in <strong>R</strong>, and developed a structure for storing such problems in a consistent manner. This vignette is an attempt to better document such ideas. It is especially concerned with how to <strong>efficiently</strong> add, modify, run and review tests of the <strong>R</strong> tools to solve such problems.</p>
+<p>Note that the test problems used are <strong>NOT</strong> always good illustrations of the tasks to which the various function minimization tools should be applied by general <strong>R</strong> users. However, they do suggest limits of performance of these tools.</p>
+<p>We note that in <strong>R</strong> circles, function minimization is often called “optimization”, though that generally implies that there are also constraints.</p>
+</div>
+<div id="approach" class="section level2">
+<h2>Approach</h2>
+<p>We want to avoid having to write specific code to run each test. The package <strong>optimrx</strong> (??citation) can call most of the function minimization tools in <strong>R</strong> and can be extended to include others, and the functions within this package standardize the call to each of the minimization solvers. Thus we can simplify the code to test such solvers, using only their method name within the calls to either <code>optimr()</code> or <code>opm()</code>. Furthermore, these functions allow a consistent syntax for specifying analytic gradients (if available), the built-in gradient approximation (if this is part of the solver), else one of several pre-defined gradient approximations callable in the <strong>optextras</strong> package. At the time of writing, an effort is in process to try to similarly unify the nonlinear least squares tools for <strong>R</strong>, namely, the <code>nls()</code> function in the <strong>stats</strong> package, and the tools in packages <strong>nlmrt</strong>, <strong>minpack.lm</strong> and <strong>nls2</strong> as well as some new efforts.</p>
+<div id="specification-of-problems" class="section level3">
+<h3>Specification of problems</h3>
+<p>Code developed in the trial package <strong>NISTopt</strong> suggested that a given problem could be specified by a particular name. Thus, the problem of <span class="citation">Daniel and Wood (1980)</span>, is called <strong>DanielWood</strong>. If we wish to solve it using one of the nonlinear least squares solvers that use a syntax like that of <code>nls()</code>, then we need to provide a model formula and some data that is consistent with this model formula. By naming the formula as <code>DanielWood.formula</code>, and putting the data in a dataframe named <code>DanielWood.df</code>, we then need only a starting vector of parameters to have a well-specified formula-based nonlinear least squares problem. Besides <code>nls()</code>, <code>nlxb()</code> from <strong>nlmrt</strong>, <code>nls2()</code> from <strong>nls2</strong> (CRAN version), and <code>nls.lm</code> from <strong>minpack.lm</strong>.</p>
+<p>Similarly, a function-based nonlinear least squares problem solvable by <code>nlfb()</code> from package <strong>nlmrt</strong> or <code>nlsLM</code> from <strong>minpack.lm</strong> can be specified by an <strong>R</strong> function that computes the residual vector from a particular set of parameters. These functions can also use a Jacobian function if it is available. At the time of writing, an approximate Jacobian will be provided by these solvers if the provided argument is NULL. Work is in process to try to provide particular derivative approximations by a mechanism similar to the one used in package <strong>optimrx</strong>. We can provide for use of such solvers by using the name <code>DanielWood.res</code> for the residual function and <code>DanielWood.jac</code> for the Jacobian.</p>
+<p>Finally, for function minimization, we can specify <code>DanielWood.f</code> for a general function to be minimized, with the (optional) <code>DanielWood.g</code> for the gradient.</p>
+<p>Many optimization problems, including some test problems, need data other than the parameters. This can be provided by <code>DanielWood.setup</code>. This function will, if required, create the dataframe for nonlinear least squares solvers.</p>
+<p>There are often several sets of starting parameters for given test problems, as well as the possibility of generated pseudo-random vectors, especially for those problems which have a variable number of parameters. These can be provided in a matrix called <code>starts</code> which has named columns, since the nonlinear least squares solvers using a model formula require parameter names. When the problem has no model formula, we can and do provide parameter names as <code>p1, p2, ..., pn</code>. (?? not done yet, but it is in opm() already) The specification of starting parameters will be part of the <code>.setup</code> function.</p>
+<p>Note that the <code>.res</code> function can be used to specify nonlinear equations problems if the solution has all the residuals at zero. At the time of writing, we have not yet included this possibility.</p>
+</div>
+<div id="restrictions-on-the-problems" class="section level3">
+<h3>Restrictions on the problems</h3>
 <p>We do not wish (at the moment) to include general optimization problems with general constraints. In fact, we will limit our attention to at most bounds constrained nonlinear optimization and nonlinear least squares problems. There are, however, a lot of these. By considering lower and upper bounds that are equal, we can extend the constraints to fixed or <strong>masked</strong> parameters.</p>
 </div>
 </div>
-<div id="design-i" class="section level1">
-<h1>Design I</h1>
-<p>We may be willing to have a single file to describe a single (but more or less complete) problem, but we ultimately want a <strong>set</strong> of problems, all of which can be accessed through a single structure. Through some experiments, detailed in <em>Appendix A: Use of a data frame</em>, we find that one could, if desired, store the problems in a data frame. Other structures are, of course, equally possible.</p>
-<p>Using a data frame may, however, be overly complex. With suitable tools, one should be able to easily create and manipulate the objects created in the flat (i.e., plain text) file of a single problem.</p>
-<p>This design is not, of course, the only possibility. However, it is likely that something based on the “single problem” <strong>R</strong> code file illustrated in the next section will prove useful.</p>
-<div id="a-single-problem" class="section level2">
-<h2>A single problem</h2>
-<p>Let us consider how we might, in <strong>R</strong>, specify a nonlinear least squares problem that also can be presented as an optimization problem. Here is a possible file for the problem of <span class="citation">Daniel and Wood (1980)</span>.</p>
+<div id="design-i" class="section level2">
+<h2>Design I</h2>
+<p>Building on the ideas of the above section, we create the example <strong>problem file</strong> <code>DanielWood.prb</code>. In this case, we provide all the elements above. Thus we have a <strong>set</strong> of problems, all of which can be accessed through a single structure. Through some experiments, detailed in <em>Appendix A: Use of a data frame</em>, we found that one could, if desired, store such problems in a data frame, but this seems overly complicated. Our flat, plain text files, one per named problem, should suffice. Other structures are, of course, equally possible. However, we will experiment with the current approach until we discover it cannot support our requirements.</p>
+<div id="the-danielwood-problem" class="section level3">
+<h3>The <strong>DanielWood</strong> problem</h3>
+<p>Let us implement, in <strong>R</strong>, a possible file for the problem of <span class="citation">Daniel and Wood (1980)</span>.</p>
+<pre><code>## Loading required package: knitr</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This is file DanielWood.prb</span>
 probname &lt;-<span class="st"> &quot;DanielWood&quot;</span>
 probdesc &lt;-<span class="st"> &quot;These data and model are described in Daniel and Wood (1980), and</span>
@@ -105,11 +125,24 @@ probdesc &lt;-<span class="st"> &quot;These data and model are described in Dani
 <span class="st">energy radieted from a carbon filament lamp per cm**2 per second, and the </span>
 <span class="st">predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. </span>
 <span class="st">&quot;</span>
+<span class="co">#- setup</span>
+DanielWood.setup&lt;-function() {
+y &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">2.138</span>, <span class="fl">3.421</span>, <span class="fl">3.597</span>, <span class="fl">4.340</span>, <span class="fl">4.882</span>, <span class="fl">5.660</span>)
+x &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">1.309</span>, <span class="fl">1.471</span>, <span class="fl">1.490</span>, <span class="fl">1.565</span>, <span class="fl">1.611</span>, <span class="fl">1.680</span>)
+DanielWood.df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
+<span class="kw">rm</span>(x)
+<span class="kw">rm</span>(y)
+start1 =<span class="st"> </span><span class="kw">c</span>(<span class="dt">b1=</span> <span class="dv">1</span>, <span class="dt">b2 =</span> <span class="dv">5</span>)
+start2 =<span class="st"> </span><span class="kw">c</span>(<span class="dt">b1 =</span> <span class="fl">0.7</span>,<span class="dt">b2 =</span> <span class="dv">4</span>)
+starts &lt;-<span class="st"> </span><span class="kw">rbind</span>(start1, start2)
 probtype &lt;-<span class="st"> &quot;nls&quot;</span> <span class="co"># nls offers more possibilities than function minimization</span>
 <span class="co">#- Other types??  &quot;fmin&quot;, &quot;ssmin&quot; (for resid ss)</span>
 mformula &lt;-<span class="st"> </span>( y ~<span class="st"> </span>b1*x**b2 )
 <span class="co">#- The above is a &quot;formula&quot;. But we could also possibl also use a character string or expression,</span>
 <span class="co">#- but need to know how to do so carefully. ??</span>
+out&lt;-<span class="kw">list</span>(<span class="dt">starts=</span>starts, <span class="dt">df=</span>DanielWood.df, <span class="dt">mformula=</span>mformula, <span class="dt">probtype=</span>probtype)
+<span class="co">#- return(out)</span>
+}
 ##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
 <span class="co">#- This is the local data frame. We need to rename this when we put it into a global structure</span>
 <span class="co">#- Now add various functions for optimization or nls-by-function</span>
@@ -163,24 +196,12 @@ gg&lt;-<span class="kw">as.vector</span>(<span class="fl">2.0</span>*<span class
 <span class="kw">return</span>(gg)
 }
 
-<span class="co">#- setup</span>
-<span class="co">#- DanielWood.setup&lt;-function() {</span>
-y &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">2.138</span>, <span class="fl">3.421</span>, <span class="fl">3.597</span>, <span class="fl">4.340</span>, <span class="fl">4.882</span>, <span class="fl">5.660</span>)
-x &lt;-<span class="st"> </span><span class="kw">c</span>( <span class="fl">1.309</span>, <span class="fl">1.471</span>, <span class="fl">1.490</span>, <span class="fl">1.565</span>, <span class="fl">1.611</span>, <span class="fl">1.680</span>)
-DanielWood.df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(x,y)
-<span class="kw">rm</span>(x)
-<span class="kw">rm</span>(y)
-start1 =<span class="st"> </span><span class="kw">c</span>(<span class="dt">b1=</span> <span class="dv">1</span>, <span class="dt">b2 =</span> <span class="dv">5</span>)
-start2 =<span class="st"> </span><span class="kw">c</span>(<span class="dt">b1 =</span> <span class="fl">0.7</span>,<span class="dt">b2 =</span> <span class="dv">4</span>)
-starts &lt;-<span class="st"> </span><span class="kw">rbind</span>(start1, start2)
-<span class="co"># out&lt;-list(starts=starts, df=DanielWood.df)</span>
-<span class="co">#- return(out)</span>
-<span class="co">#- }</span>
 
 <span class="co">#- pstart &lt;- c(b1= 1, b2 = 5) # fix later for more starts</span>
 
 DanielWood.test&lt;-function() {
 }   </code></pre></div>
+</div>
 </div>
 <div id="tools-for-preparing-and-using-problem-files" class="section level2">
 <h2>Tools for preparing and using problem files</h2>
@@ -236,18 +257,30 @@ DanielWood.test&lt;-function() {
 <p>– start with no formatting, and gradually add features</p>
 <p>– need to save conditions</p>
 <p>– make sure we have time/date stamp on all runs</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">runoptprob &lt;-<span class="st"> </span>function(<span class="dt">pfilename=</span><span class="ot">NULL</span>, <span class="dt">minmeth=</span><span class="st">'nls'</span>, <span class="dt">submeth=</span><span class="ot">NULL</span>, 
-                       <span class="dt">nstart =</span> <span class="dv">0</span>, <span class="dt">options=</span><span class="kw">list</span>(<span class="dt">args=</span><span class="ot">NULL</span>, <span class="dt">control=</span><span class="ot">NULL</span>) ) {
+<p>Issues to address?? : - sink() will save information, but there is a cost in time and space - how to do ok/not or red/yellow/green nicely | Do we want on params and value? - dealing with multiple solutions – linear combination defined - where to put setting of FUZZ, reporting of deviations</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nlmrt, <span class="dt">quietly=</span><span class="ot">TRUE</span>)
+<span class="kw">require</span>(optimrx, <span class="dt">quietly=</span><span class="ot">TRUE</span>)
+runoptprob &lt;-<span class="st"> </span>function(pfilename, <span class="dt">minmeth=</span><span class="ot">NULL</span>, <span class="dt">submeth=</span><span class="ot">NULL</span>, <span class="dt">nstart=</span><span class="dv">0</span>, 
+                 <span class="dt">runopts=</span><span class="kw">list</span>(), <span class="dt">control=</span><span class="kw">list</span>(), ...) {
+
   <span class="co">#- ?? Need to eval(parse()) ALL functions available, since f calls res etc.</span>
   <span class="co">#- Need to carefully ensure these exist to avoid errors??</span>
   <span class="co">#- ?? can we simplify and NOT have to eval(parse()) them, but simply source the prb file?</span>
   
-  <span class="kw">print</span>(options$args)
-  <span class="kw">print</span>(options$controls)
+  <span class="kw">print</span>(runopts)
+  <span class="kw">print</span>(control)
   optecho &lt;-<span class="st"> </span><span class="ot">TRUE</span> <span class="co"># temporarily at least, or put in a profile</span>
   <span class="co">#- Get the path to the files (where should these be? Probably somehow related to pkg)   </span>
   pfile &lt;-<span class="st"> </span><span class="kw">paste</span>(pfilename, <span class="st">&quot;.prb&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)
-  <span class="kw">source</span>(pfile, <span class="dt">echo=</span>optecho) <span class="co"># -- filename (at least the root)</span>
+
+  starts &lt;-<span class="st"> </span><span class="ot">NA</span>
+  mformula &lt;-<span class="st"> </span><span class="ot">NA</span> <span class="co"># Make sure these are defined (they get set up in pfile)</span>
+<span class="co">#- ?? need to figure out dynamic setting of paths</span>
+  pfilepath &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;/home/john/rsvnall/optimizer/pkg/NISTO/inst/extdata/&quot;</span>,pfile,<span class="dt">sep=</span><span class="st">''</span>)
+  <span class="kw">source</span>(pfilepath, <span class="dt">echo=</span>optecho) <span class="co"># -- filename (at least the root)</span>
+  <span class="kw">cat</span>(<span class="st">&quot;Objects in workspace:</span><span class="ch">\n</span><span class="st">&quot;</span>)
+  <span class="kw">print</span>(<span class="kw">ls</span>())
+
   <span class="co">#- now have a lot of the information</span>
   
   <span class="co">#-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)</span>
@@ -265,15 +298,20 @@ DanielWood.test&lt;-function() {
   <span class="co">#-  - read output control profile (initially just use sink())</span>
   <span class="co">#-  -- make sure we have time/date stamp on all runs</span>
   fname&lt;-<span class="kw">paste</span>(pfilename, <span class="kw">format</span>(<span class="kw">Sys.time</span>(), <span class="st">&quot;%Y%m%d%H%M&quot;</span>),<span class="st">&quot;.out&quot;</span>,<span class="dt">sep=</span><span class="st">''</span>)
-  <span class="kw">sink</span>(fname, <span class="dt">append=</span><span class="ot">TRUE</span>, <span class="dt">split=</span><span class="ot">TRUE</span>)
+  <span class="co">#- ?? not created until later, then conditionally </span>
+  <span class="co">#- ?? sink(fname, append=TRUE, split=TRUE)</span>
   
   <span class="co">#-  - read the file and execute it (make sure it has **R** commands so we can</span>
   <span class="co">#-   actually source() it)</span>
-  <span class="co">#- ?? not needed eval(parse(text=paste(pfilename,&quot;.setup&quot;, sep=''))) #- setup function</span>
+  setupfn &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.setup&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>))) <span class="co">#- setup function</span>
+  pdat &lt;-<span class="st"> </span><span class="kw">setupfn</span>()
+  <span class="kw">cat</span>(<span class="st">&quot;pdat:</span><span class="ch">\n</span><span class="st">&quot;</span>)
+  <span class="kw">print</span>(pdat)
   <span class="co">#- get the data and the starts</span>
-  dfname &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.df&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
-  <span class="kw">print</span>(dfname)
-  
+  <span class="kw">print</span>(pdat$df)
+  dfname &lt;-<span class="st"> </span>pdat$df
+  starts &lt;-<span class="st"> </span>pdat$starts
+  mformula &lt;-<span class="st"> </span>pdat$mformula ##?? later on simplify and remove extra lines 
   <span class="co">#- - analyze the call to runprob and do the appropriate call</span>
   
   <span class="co">#- - format output and extract and store summaries</span>
@@ -284,7 +322,9 @@ DanielWood.test&lt;-function() {
   
   <span class="co">#-  -- need to save conditions</span>
   if (nstart ==<span class="st"> </span><span class="dv">0</span>) { <span class="co"># need to loop</span>
-    nst &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span>:<span class="st"> </span><span class="kw">dim</span>(starts)[<span class="dv">1</span>])
+    <span class="kw">cat</span>(<span class="st">&quot;nstart == 0 </span><span class="ch">\n</span><span class="st">&quot;</span>)
+    <span class="kw">print</span>(pdat$starts)
+    nst &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span>, (<span class="kw">dim</span>(pdat$starts)[<span class="dv">1</span>]))
   } else { nst &lt;-<span class="st"> </span>nstart }
   if (minmeth ==<span class="st"> 'nls'</span>) {
     for (istrt in nst){
@@ -296,7 +336,7 @@ DanielWood.test&lt;-function() {
     }    
   }  
   if (minmeth ==<span class="st"> 'nlxb'</span>) {
-      <span class="kw">require</span>(nlmrt)
+##??      require(nlmrt)
       for (istrt in nst){
       <span class="co">#- ?? need to extract options and arguments like trace</span>
       <span class="co">#- some documentation output needed ??</span>
@@ -306,16 +346,16 @@ DanielWood.test&lt;-function() {
     }    
   }  
   if (minmeth ==<span class="st"> &quot;optimr&quot;</span>) {
-     <span class="kw">require</span>(optimrx)
+## ??     require(optimrx) #- ?? optimr for CRAN
     <span class="co">#- here need to check if they exist??</span>
      ufn &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.f&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
      <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.res&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
      <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.jac&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
      <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.g&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
-     if( <span class="kw">is.null</span>(options$args[[<span class="st">&quot;gr&quot;</span>]]) ||<span class="st"> </span>!<span class="st"> </span><span class="kw">is.character</span>(options$args[[<span class="st">&quot;gr&quot;</span>]]) ) {
-       <span class="co">#- name.gr now a function      </span>
+     if( <span class="kw">is.null</span>(runopts$gr) ||<span class="st"> </span>!<span class="st"> </span><span class="kw">is.character</span>(runopts$gr) ) {
+<span class="co">#       #- name.gr now a function      </span>
        ugr &lt;-<span class="st"> </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.g&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
-     } else { ugr &lt;-<span class="st"> </span>(options$args[[<span class="st">&quot;gr&quot;</span>]]) }
+     } else { ugr &lt;-<span class="st"> </span>(runopts$gr) }
      ufn &lt;-<span class="st">  </span><span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="kw">paste</span>(pfilename,<span class="st">&quot;.f&quot;</span>, <span class="dt">sep=</span><span class="st">''</span>)))
      for (istrt in nst){
         sol &lt;-<span class="st"> </span><span class="kw">optimr</span>(starts[istrt,], ufn, ugr, <span class="dt">method=</span>submeth, <span class="dt">control=</span><span class="kw">list</span>(<span class="dt">trace=</span><span class="dv">1</span>))
@@ -323,8 +363,9 @@ DanielWood.test&lt;-function() {
      }
   }
     <span class="co">#- result should be a list of things run</span>
-  <span class="kw">sink</span>()
+  <span class="co">#- ?? sink() # should make conditional and not usually do this, else delete after asking</span>
   testsol &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">pfilename=</span>pfilename, <span class="dt">nstart=</span>nstart, <span class="dt">minmeth=</span>minmeth, <span class="dt">submeth=</span>submeth)
+<span class="co">#- ?? definitely need more stuff returned</span>
 }</code></pre></div>
 </div>
 <div id="running-multiple-problems" class="section level2">
@@ -343,16 +384,17 @@ DanielWood.test&lt;-function() {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pfname &lt;-<span class="st"> &quot;DanielWood&quot;</span>
 <span class="co"># try it</span>
 test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span class="dt">pfilename=</span>pfname, <span class="dt">minmeth=</span><span class="st">&quot;nls&quot;</span>)</code></pre></div>
-<pre><code>## NULL
-## NULL
+<pre><code>## list()
+## list()
 ## 
 ## &gt; probname &lt;- &quot;DanielWood&quot;
 ## 
 ## &gt; probdesc &lt;- &quot;These data and model are described in Daniel and Wood (1980), and\noriginally published in E.S.Keeping, 'Introduction to Statistical In ...&quot; ... [TRUNCATED] 
 ## 
-## &gt; probtype &lt;- &quot;nls&quot;
-## 
-## &gt; mformula &lt;- (y ~ b1 * x^b2)
+## &gt; DanielWood.setup &lt;- function() {
+## +     y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
+## +     x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
+## +     Dan .... [TRUNCATED] 
 ## 
 ## &gt; DanielWood.f &lt;- function(x) {
 ## +     res &lt;- DanielWood.res(x)
@@ -386,24 +428,19 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 ## +     gg &lt;- as.vector(2 * t(JJ) %*% res)
 ## +     return(gg) .... [TRUNCATED] 
 ## 
-## &gt; y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
-## 
-## &gt; x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
-## 
-## &gt; DanielWood.df &lt;- data.frame(x, y)
-## 
-## &gt; rm(x)
-## 
-## &gt; rm(y)
-## 
-## &gt; start1 = c(b1 = 1, b2 = 5)
-## 
-## &gt; start2 = c(b1 = 0.7, b2 = 4)
-## 
-## &gt; starts &lt;- rbind(start1, start2)
-## 
 ## &gt; DanielWood.test &lt;- function() {
 ## + }
+## Objects in workspace:
+##  [1] &quot;control&quot;   &quot;mformula&quot;  &quot;minmeth&quot;   &quot;nstart&quot;    &quot;optecho&quot;  
+##  [6] &quot;pfile&quot;     &quot;pfilename&quot; &quot;pfilepath&quot; &quot;runopts&quot;   &quot;starts&quot;   
+## [11] &quot;submeth&quot;  
+## pdat:
+## $starts
+##         b1 b2
+## start1 1.0  5
+## start2 0.7  4
+## 
+## $df
 ##       x     y
 ## 1 1.309 2.138
 ## 2 1.471 3.421
@@ -411,6 +448,25 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 ## 4 1.565 4.340
 ## 5 1.611 4.882
 ## 6 1.680 5.660
+## 
+## $mformula
+## y ~ b1 * x^b2
+## &lt;environment: 0x21dea68&gt;
+## 
+## $probtype
+## [1] &quot;nls&quot;
+## 
+##       x     y
+## 1 1.309 2.138
+## 2 1.471 3.421
+## 3 1.490 3.597
+## 4 1.565 4.340
+## 5 1.611 4.882
+## 6 1.680 5.660
+## nstart == 0 
+##         b1 b2
+## start1 1.0  5
+## start2 0.7  4
 ## 149.7192 :  1 5
 ## 4.610878 :  0.7061691 4.4567375
 ## 0.03168417 :  0.7499191 3.9483634
@@ -483,16 +539,17 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">readline</span>(<span class="st">&quot;continue&quot;</span>)</code></pre></div>
 <pre><code>## continue</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test2 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span class="dt">pfilename=</span>pfname, <span class="dt">minmeth=</span><span class="st">&quot;nlxb&quot;</span>)</code></pre></div>
-<pre><code>## NULL
-## NULL
+<pre><code>## list()
+## list()
 ## 
 ## &gt; probname &lt;- &quot;DanielWood&quot;
 ## 
 ## &gt; probdesc &lt;- &quot;These data and model are described in Daniel and Wood (1980), and\noriginally published in E.S.Keeping, 'Introduction to Statistical In ...&quot; ... [TRUNCATED] 
 ## 
-## &gt; probtype &lt;- &quot;nls&quot;
-## 
-## &gt; mformula &lt;- (y ~ b1 * x^b2)
+## &gt; DanielWood.setup &lt;- function() {
+## +     y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
+## +     x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
+## +     Dan .... [TRUNCATED] 
 ## 
 ## &gt; DanielWood.f &lt;- function(x) {
 ## +     res &lt;- DanielWood.res(x)
@@ -526,33 +583,47 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 ## +     gg &lt;- as.vector(2 * t(JJ) %*% res)
 ## +     return(gg) .... [TRUNCATED] 
 ## 
-## &gt; y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
-## 
-## &gt; x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
-## 
-## &gt; DanielWood.df &lt;- data.frame(x, y)
-## 
-## &gt; rm(x)
-## 
-## &gt; rm(y)
-## 
-## &gt; start1 = c(b1 = 1, b2 = 5)
-## 
-## &gt; start2 = c(b1 = 0.7, b2 = 4)
-## 
-## &gt; starts &lt;- rbind(start1, start2)
-## 
 ## &gt; DanielWood.test &lt;- function() {
 ## + }
+## Objects in workspace:
+##  [1] &quot;control&quot;   &quot;mformula&quot;  &quot;minmeth&quot;   &quot;nstart&quot;    &quot;optecho&quot;  
+##  [6] &quot;pfile&quot;     &quot;pfilename&quot; &quot;pfilepath&quot; &quot;runopts&quot;   &quot;starts&quot;   
+## [11] &quot;submeth&quot;  
+## pdat:
+## $starts
+##         b1 b2
+## start1 1.0  5
+## start2 0.7  4
+## 
+## $df
 ##       x     y
 ## 1 1.309 2.138
 ## 2 1.471 3.421
 ## 3 1.490 3.597
 ## 4 1.565 4.340
 ## 5 1.611 4.882
-## 6 1.680 5.660</code></pre>
-<pre><code>## Loading required package: nlmrt</code></pre>
-<pre><code>## formula: y ~ b1 * x^b2
+## 6 1.680 5.660
+## 
+## $mformula
+## y ~ b1 * x^b2
+## &lt;environment: 0x33226a0&gt;
+## 
+## $probtype
+## [1] &quot;nls&quot;
+## 
+##       x     y
+## 1 1.309 2.138
+## 2 1.471 3.421
+## 3 1.490 3.597
+## 4 1.565 4.340
+## 5 1.611 4.882
+## 6 1.680 5.660
+## nstart == 0 
+##         b1 b2
+## start1 1.0  5
+## start2 0.7  4
+## formula: y ~ b1 * x^b2
+## &lt;environment: 0x33226a0&gt;
 ## lower:[1] -Inf -Inf
 ## upper:[1] Inf Inf
 ## $watch
@@ -685,6 +756,7 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 ## [1] 6
 ## 
 ## formula: y ~ b1 * x^b2
+## &lt;environment: 0x33226a0&gt;
 ## lower:[1] -Inf -Inf
 ## upper:[1] Inf Inf
 ## $watch
@@ -830,16 +902,17 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tmp &lt;-<span class="st"> </span><span class="kw">readline</span>(<span class="st">&quot;continue&quot;</span>)</code></pre></div>
 <pre><code>## continue</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test3 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span class="dt">pfilename=</span>pfname, <span class="dt">minmeth=</span><span class="st">&quot;optimr&quot;</span>, <span class="dt">submeth=</span><span class="st">&quot;L-BFGS-B&quot;</span>)</code></pre></div>
-<pre><code>## NULL
-## NULL
+<pre><code>## list()
+## list()
 ## 
 ## &gt; probname &lt;- &quot;DanielWood&quot;
 ## 
 ## &gt; probdesc &lt;- &quot;These data and model are described in Daniel and Wood (1980), and\noriginally published in E.S.Keeping, 'Introduction to Statistical In ...&quot; ... [TRUNCATED] 
 ## 
-## &gt; probtype &lt;- &quot;nls&quot;
-## 
-## &gt; mformula &lt;- (y ~ b1 * x^b2)
+## &gt; DanielWood.setup &lt;- function() {
+## +     y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
+## +     x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
+## +     Dan .... [TRUNCATED] 
 ## 
 ## &gt; DanielWood.f &lt;- function(x) {
 ## +     res &lt;- DanielWood.res(x)
@@ -873,73 +946,78 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 ## +     gg &lt;- as.vector(2 * t(JJ) %*% res)
 ## +     return(gg) .... [TRUNCATED] 
 ## 
-## &gt; y &lt;- c(2.138, 3.421, 3.597, 4.34, 4.882, 5.66)
-## 
-## &gt; x &lt;- c(1.309, 1.471, 1.49, 1.565, 1.611, 1.68)
-## 
-## &gt; DanielWood.df &lt;- data.frame(x, y)
-## 
-## &gt; rm(x)
-## 
-## &gt; rm(y)
-## 
-## &gt; start1 = c(b1 = 1, b2 = 5)
-## 
-## &gt; start2 = c(b1 = 0.7, b2 = 4)
-## 
-## &gt; starts &lt;- rbind(start1, start2)
-## 
 ## &gt; DanielWood.test &lt;- function() {
 ## + }
+## Objects in workspace:
+##  [1] &quot;control&quot;   &quot;mformula&quot;  &quot;minmeth&quot;   &quot;nstart&quot;    &quot;optecho&quot;  
+##  [6] &quot;pfile&quot;     &quot;pfilename&quot; &quot;pfilepath&quot; &quot;runopts&quot;   &quot;starts&quot;   
+## [11] &quot;submeth&quot;  
+## pdat:
+## $starts
+##         b1 b2
+## start1 1.0  5
+## start2 0.7  4
+## 
+## $df
 ##       x     y
 ## 1 1.309 2.138
 ## 2 1.471 3.421
 ## 3 1.490 3.597
 ## 4 1.565 4.340
 ## 5 1.611 4.882
-## 6 1.680 5.660</code></pre>
-<pre><code>## Loading required package: optimrx</code></pre>
-<pre><code>## Unit parameter scaling
-## iter   10 value 0.011817
-## final  value 0.004317 
-## converged
-## $par
-##      b1      b2 
-## 0.76885 3.86043 
+## 6 1.680 5.660
+## 
+## $mformula
+## y ~ b1 * x^b2
+## &lt;environment: 0x2669348&gt;
+## 
+## $probtype
+## [1] &quot;nls&quot;
+## 
+##       x     y
+## 1 1.309 2.138
+## 2 1.471 3.421
+## 3 1.490 3.597
+## 4 1.565 4.340
+## 5 1.611 4.882
+## 6 1.680 5.660
+## nstart == 0 
+##         b1 b2
+## start1 1.0  5
+## start2 0.7  4
+## Unit parameter scaling
+## optim method failure
+## $convergence
+## [1] 9999
 ## 
 ## $value
-## [1] 0.0043173
+## [1] 8.9885e+307
+## 
+## $par
+## [1] NA NA
 ## 
 ## $counts
-## function gradient 
-##       21       21 
-## 
-## $convergence
-## [1] 0
+## [1] NA NA
 ## 
 ## $message
-## [1] &quot;CONVERGENCE: REL_REDUCTION_OF_F &lt;= FACTR*EPSMCH&quot;
+## [1] &quot;optim method failure\n&quot;
 ## 
 ## Unit parameter scaling
-## iter   10 value 0.004317
-## final  value 0.004317 
-## converged
-## $par
-##      b1      b2 
-## 0.76886 3.86041 
+## optim method failure
+## $convergence
+## [1] 9999
 ## 
 ## $value
-## [1] 0.0043173
+## [1] 8.9885e+307
+## 
+## $par
+## [1] NA NA
 ## 
 ## $counts
-## function gradient 
-##       14       14 
-## 
-## $convergence
-## [1] 0
+## [1] NA NA
 ## 
 ## $message
-## [1] &quot;CONVERGENCE: REL_REDUCTION_OF_F &lt;= FACTR*EPSMCH&quot;</code></pre>
+## [1] &quot;optim method failure\n&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test3</code></pre></div>
 <pre><code>## $pfilename
 ## [1] &quot;DanielWood&quot;

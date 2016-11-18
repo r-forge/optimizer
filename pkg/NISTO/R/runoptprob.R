@@ -15,6 +15,7 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   starts <- NA
   mformula <- NA # Make sure these are defined (they get set up in pfile)
 #- ?? need to figure out dynamic setting of paths
+  ## ?? how to change to a well-defined path based on where pkg installed??
   pfilepath <- paste("/home/john/rsvnall/optimizer/pkg/NISTO/inst/extdata/",pfile,sep='')
   source(pfilepath, echo=optecho) # -- filename (at least the root)
   cat("Objects in workspace:\n")
@@ -49,17 +50,54 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   #- get the data and the starts
 #  print(pdat$df)
 #  dfname <- pdat$df
-  starts <- eval(parse(text=paste(pfilename, ".starts", sep='')))
-  uformula <-  eval(parse(text=paste(pfilename, ".formula", sep='')))
-  udata <-  eval(parse(text=paste(pfilename, ".df", sep='')))
-  ufn <- eval(parse(text=paste(pfilename,".f", sep='')))
-  ures <- eval(parse(text=paste(pfilename,".res", sep='')))
-  ujac <- eval(parse(text=paste(pfilename,".jac", sep='')))
-  ugr <- eval(parse(text=paste(pfilename,".g", sep='')))
-
-  havestarts <- exists(starts)
-  haveuformula <- exists(uformula)
-  cat("starts and formula: ", havestarts, haveuformula,"\n")
+  cstarts <- paste(pfilename, ".starts", sep='')
+  cuformula <-  paste(pfilename, ".formula", sep='')
+  cudata <-  paste(pfilename, ".df", sep='')
+  cufn <- paste(pfilename,".f", sep='')
+  cures <- paste(pfilename,".res", sep='')
+  cujac <- paste(pfilename,".jac", sep='')
+  cugr <- paste(pfilename,".g", sep='')
+  havestarts <- FALSE
+  if (exists(cstarts)) {
+     starts <- eval(parse(text=cstarts))
+     havestarts <- TRUE
+  }
+  
+  haveuformula <- FALSE
+  if (exists(cstarts)) {
+    uformula <-  eval(parse(text=cuformula))
+    haveuformula <- TRUE
+  }
+  
+  haveudata <- FALSE
+  if (exists(cstarts)) {
+    udata <-  eval(parse(text=cudata))
+    haveudata <- TRUE
+  }
+  
+  haveufn <- FALSE
+  if (exists(cstarts)) {
+    ufn <- eval(parse(text=cufn))
+    haveufn <- TRUE
+  }
+  
+  haveures <- FALSE
+  if (exists(cstarts)) {
+    ures <- eval(parse(text=cures))
+    haveures <- TRUE
+  }
+  
+  haveujac <- FALSE
+  if (exists(cstarts)) {
+    ujac <- eval(parse(text=cujac))
+    haveujac <- TRUE
+  }
+  
+  haveugr <- FALSE
+  if (exists(cstarts)) {
+    ugr <- eval(parse(text=cugr))
+    haveugr <- TRUE
+  }
 
   #- - analyze the call to runprob and do the appropriate call
   
@@ -75,7 +113,7 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
     print(starts)
     nst <- seq(1, (dim(starts)[1]))
   } else { nst <- nstart }
-  if (minmeth == 'nls') {r
+  if (minmeth == 'nls') {
     for (istrt in nst){
       #- ?? need to extract options and arguments like trace
       #- some documentation output needed ??

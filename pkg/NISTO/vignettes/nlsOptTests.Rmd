@@ -70,7 +70,7 @@ are also constraints.
 ## Approach
 
 We want to avoid having to write specific code to run each test. 
-The package **optimrx** (??citation) can call most of the function 
+The package **optimrx** (@optimrx16) can call most of the function 
 minimization tools in **R** and can be extended to include others, and the
 functions within this package standardize the call to each of the minimization
 solvers. Thus we can simplify the code to test such solvers, using only their 

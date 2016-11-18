@@ -56,6 +56,7 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   ures <- eval(parse(text=paste(pfilename,".res", sep='')))
   ujac <- eval(parse(text=paste(pfilename,".jac", sep='')))
   ugr <- eval(parse(text=paste(pfilename,".g", sep='')))
+
   havestarts <- exists(starts)
   haveuformula <- exists(uformula)
   cat("starts and formula: ", havestarts, haveuformula,"\n")

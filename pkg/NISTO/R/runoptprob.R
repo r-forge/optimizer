@@ -42,15 +42,24 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   
   #-  - read the file and execute it (make sure it has **R** commands so we can
   #-   actually source() it)
-  setupfn <- eval(parse(text=paste(pfilename,".setup", sep=''))) #- setup function
-  pdat <- setupfn()
-  cat("pdat:\n")
-  print(pdat)
+#  setupfn <- eval(parse(text=paste(pfilename,".setup", sep=''))) #- setup function
+#  pdat <- setupfn()
+#  cat("pdat:\n")
+#  print(pdat)
   #- get the data and the starts
-  print(pdat$df)
-  dfname <- pdat$df
-  starts <- pdat$starts
-  mformula <- pdat$mformula ##?? later on simplify and remove extra lines 
+#  print(pdat$df)
+#  dfname <- pdat$df
+  starts <- eval(parse(text=paste(pfilename, ".starts", sep='')))
+  uformula <-  eval(parse(text=paste(pfilename, ".formula", sep='')))
+  udata <-  eval(parse(text=paste(pfilename, ".df", sep='')))
+  ufn <- eval(parse(text=paste(pfilename,".f", sep='')))
+  ures <- eval(parse(text=paste(pfilename,".res", sep='')))
+  ujac <- eval(parse(text=paste(pfilename,".jac", sep='')))
+  ugr <- eval(parse(text=paste(pfilename,".g", sep='')))
+  havestarts <- exists(starts)
+  haveuformula <- exists(uformula)
+  cat("starts and formula: ", havestarts, haveuformula,"\n")
+
   #- - analyze the call to runprob and do the appropriate call
   
   #- - format output and extract and store summaries
@@ -62,14 +71,14 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   #-  -- need to save conditions
   if (nstart == 0) { # need to loop
     cat("nstart == 0 \n")
-    print(pdat$starts)
-    nst <- seq(1, (dim(pdat$starts)[1]))
+    print(starts)
+    nst <- seq(1, (dim(starts)[1]))
   } else { nst <- nstart }
-  if (minmeth == 'nls') {
+  if (minmeth == 'nls') {r
     for (istrt in nst){
       #- ?? need to extract options and arguments like trace
       #- some documentation output needed ??
-      sol <- nls(mformula, data=dfname, start=starts[istrt,], trace=TRUE)      
+      sol <- nls(uformula, data=udata, start=starts[istrt,], trace=TRUE)      
       print(sol)
       print(summary(sol))
     }    
@@ -79,7 +88,7 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
       for (istrt in nst){
       #- ?? need to extract options and arguments like trace
       #- some documentation output needed ??
-      sol <- nlxb(mformula, data=dfname, start=starts[istrt,], trace=TRUE)      
+      sol <- nlxb(uformula, data=udata, start=starts[istrt,], trace=TRUE)      
       print(sol)
       print(summary(sol))
     }    
@@ -87,10 +96,6 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   if (minmeth == "optimr") {
 ## ??     require(optimrx) #- ?? optimr for CRAN
     #- here need to check if they exist??
-     ufn <- eval(parse(text=paste(pfilename,".f", sep='')))
-     eval(parse(text=paste(pfilename,".res", sep='')))
-     eval(parse(text=paste(pfilename,".jac", sep='')))
-     eval(parse(text=paste(pfilename,".g", sep='')))
      if( is.null(runopts$gr) || ! is.character(runopts$gr) ) {
 #       #- name.gr now a function      
        ugr <- eval(parse(text=paste(pfilename,".g", sep='')))

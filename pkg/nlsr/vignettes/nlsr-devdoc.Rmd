@@ -582,7 +582,7 @@ gnjn <- function(start, resfn, jacfn = NULL, trace = FALSE,
    } # end main iteration
 } # seems to need this
 
-} # end gnjn
+} # end gnjne
 
 fitgnjn0 <- gnjn(st, trf, trj, data=mydata)
 ```

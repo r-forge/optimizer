@@ -288,18 +288,34 @@ The previous sub-section has listed some desiderata for handling test output. De
 will be the burden of the work remain. What are key obstacles to success?
 
 First, we will need to deal with volume of data, particularly if trajectories are important.
+There are, of course, many choices for how to store the data. A database could be used, but
+imposes the choice of software to run it, as well as potential operating system issues if the
+overall project needs to be replicated or moved. A simpler arrangement is a tree structure
+of files. As a suggestion, we could use
 
+```   optimization_tests
+         probname1
+             probname1.prb - the problem file
+             probname1.runlist - a list of test runs pointing to files in the runs directory
+             runs
+                 probname1.instance1 - output of a give run
+                 ...         
+         probname2
+             probname2.prb - the problem file
+             probname2.runlist - a list of test runs pointing to files in the runs directory
+             runs
+                 probname2.instance1 - output of a give run
+                 ...
 
+```
 
-
-
-
-
+Given that the instance files will be plain text and quite large, as well as unlikely to 
+be accessed frequently, we could compress them using one of the standard tools.
 
 
 ## Tools for preparing and using problem files
 
-### Access to files
+### Access to problem files
 
 In order to use problem files, we need a way to list them, display their content in
 both summary and detail, and attempt to use them with various nonlinear least squares

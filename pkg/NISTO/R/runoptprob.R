@@ -5,6 +5,28 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   #- ?? Need to eval(parse()) ALL functions available, since f calls res etc.
   #- Need to carefully ensure these exist to avoid errors??
   #- ?? can we simplify and NOT have to eval(parse()) them, but simply source the prb file?
+
+  solveformula <- c("stats::nls", "nlmrt::nlxb", "minpack.lm::nls.lm")
+  solvesumsquares <- c("nlmrt::nlfb", "minpack.lm::nlsLM")
+  if (minmeth == "optimr") minmeth <- "optimrx" # update to optimrx to get more submeths
+  solveuncopt <- c("optimrx::Nelder-Mead",
+                   "optimrx::BFGS", 
+                   "optimrx::L-BFGS-B",
+                   "optimrx::CG",
+                   "optimrx::Rvmmin",
+                   "optimrx::Rcgmin",
+                   "optimrx::Rtnmin",
+                   "optimrx::hjn",
+                   "optimrx::hjkb",
+                   "optimrx::nmkb",
+                   "optimrx::ucminf",
+                   "optimrx::lbfgsb3",
+                   "optimrx::lbfgs",
+                   "optimrx::spg",
+                   "optimrx::bobyqa",
+                   "optimrx::uobyqa",
+                   "optimrx::nlm",
+                   "optimrx::nlminb")
   
   print(runopts)
   print(control)
@@ -108,6 +130,7 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   #-  -- start with no formatting, and gradually add features
   
   #-  -- need to save conditions
+
   if (nstart == 0) { # need to loop
     cat("nstart == 0 \n")
     print(starts)
@@ -132,7 +155,7 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
       print(summary(sol))
     }    
   }  
-  if (minmeth == "optimr") {
+  if (minmeth == "optimrx") {
 ## ??     require(optimrx) #- ?? optimr for CRAN
     #- here need to check if they exist??
      if( is.null(runopts$gr) || ! is.character(runopts$gr) ) {

@@ -161,6 +161,142 @@ read_chunk('../inst/extdata/DanielWood.prb')
 <<DanielWood.prb>>
 ```
 
+## Reporting experience running problems
+
+### The computing environment
+
+The computing environment is an important aspect of computational tests. However, it is
+often reported in summary and incomplete form. If we are to be thorough we should report
+
+- the computing hardware and particular settings (clock rates, extra features, etc.)
+
+- the operating system version and any add-ons
+
+- the choice of floating point and related computational libraries used
+
+- the version of the computing language processor (in our case, the **R** version)
+
+- the versions of any packages used, and packages loaded at the time of the test
+
+- how storage hardware is connected. While buffering may take care of this, writing to
+external storage, or sending information over communications links (these may be equivalent)
+may alter timings or other performance measures
+
+- any parallelism that could alter performance
+
+- other running processes that could alter performance.
+
+Note that some of the above environmental factors should not alter the computed optima, nor
+the counts that report the computational effort e.g., the number of function or gradient
+evaluations. However, some choices will affect both these computed values and the timings to
+arrive at them.
+
+In the past, the computational environment has been reported largely as a commentary to 
+published articles and reports. However, we believe that -- as far as possible -- the 
+information should be gathered automatically and included in log files of test runs. 
+**R** already has a useful `sessionInfo()` command that reports quite well at the level
+of the programming language. 
+
+### Reproducible tests
+
+It is well-known that timing measures for real-world computers have variability, which 
+may be surprisingly large depending on the particular context within which test computations
+are performed. It is also possible that there may be non-timing variability if optimization
+methods use "random" search. We will presume (possibly heroically) that efforts have been
+made to eliminate factors that could result in differences in counts and other measures
+of performance excepting time.
+
+We also believe that for some tests it is useful to employ tools such as **microbenchmark**
+to try to gauge the degree of variability in performance. This tool is almost certainly a
+key choice in measuring the impact of any instrumentation code we embed in our tests, such
+as the function, gradient, residual or jacobian counts mentioned below.
+
+### Measures of computational effort
+
+Running the function `opm()` with `method = "ALL"` very quickly reveals that different solvers
+return different measures of effort. `opm()` is set up to report counts of function and 
+gradient evaluations. For some methods, these are not returned. Sometimes other measures, 
+such as "iterations" are reported. This makes it difficult to compare reported outcomes across
+methods.
+
+In response to this issue, we could insert counts into the various test function components.
+This will, of course, have an effect on reported timings, so some measure of that effort 
+should be taken from time to time. The effect should be small. It may be sensitive, however,
+to the computational environment of the previous section. At the time of writing, we have
+assigned a low priority to investigating the effect of instrumentation code on the overall
+performance, as we believe it is relatively small.
+
+### What information should be saved?
+
+Ideally, a test run should record very complete information. This includes:
+
+- the hardware computational environment
+
+- the operating environment, that is, operating system and relevane computational libraries
+
+- the R version and package versions and other packages loaded
+
+- the test function and derivative calculations used
+
+- the solver and any settings or tolerances
+
+- measures of effort from the solver
+
+- measures of effort by direct count
+
+- the trajectory of the computations, including all evaluations of the function used
+for derivatives (sometimes the parameter inputs to derivative computations violate constraints,
+giving failures for which the reported errors may be difficult to interpret)
+
+- the reported solution or termination point
+
+### What information should be reported?
+
+The above information will be far too voluminous to report. We therefore need tools to 
+render summaries at various levels. 
+
+For many situations, it will be sufficient and desirable to have a "yes/no" or "red/yellow/green"
+indicator of success or failure for a specified method and given test problem. This may, in
+fact, be the most common report.
+
+In the numerical analysis literature, it has become quite popular to present **performance 
+profiles** of various types. 
+
+### Automated collection from diverse sources
+
+Assuming there is an established set of test functions along with a similarly prescribed 
+testing code, it is desirable to allow diverse workers to carry out computations and submit
+reports to a (likely centralized) data repository. This requires:
+
+- a standardized report format, which hopefully is embedded in the tool that runs the
+test computations
+
+- a secure method to accept reports into the data repository;
+
+- a streamlined approach to allow new contributors to join the group submitting test results;
+
+- a mechanism to test the submissions for acceptable quality;
+
+- tools to extract results, and organize, analyze, summarize or visualize them; and
+
+- tools to automatically report unexpected or unwanted results. For example we would like
+to know if a new version of a package causes failures on some test functions.
+
+### Managing the test output
+
+The previous sub-section has listed some desiderata for handling test output. Details that
+will be the burden of the work remain. What are key obstacles to success?
+
+First, we will need to deal with volume of data, particularly if trajectories are important.
+
+
+
+
+
+
+
+
+
 ## Tools for preparing and using problem files
 
 ### Access to files

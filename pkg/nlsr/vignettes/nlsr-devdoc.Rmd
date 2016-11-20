@@ -585,6 +585,13 @@ gnjn <- function(start, resfn, jacfn = NULL, trace = FALSE,
 } # end gnjne
 
 fitgnjn0 <- gnjn(st, trf, trj, data=mydata)
+## Another way
+#- set lamda = 0 in nlxb, fix laminc, lamdec
+library(nlmrt)
+nlx00 <- try(nlxb(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=TRUE,
+                     control=list(lamda=0, laminc=0, lamdec=0, watch=TRUE)))
+nlx00
+
 ```
 
 The first iteration more or less matches the `nls()` result. The problem is quite

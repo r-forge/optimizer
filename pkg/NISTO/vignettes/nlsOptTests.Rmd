@@ -199,12 +199,14 @@ of the programming language.
 
 ### Reproducible tests
 
-It is well-known that timing measures for real-world computers have variability, which 
+It is well-known that timing measures for real-world computers have variability. 
+There are also concerns about how timings are conducted (@Dolan2006). The differences
+between different timings  
 may be surprisingly large depending on the particular context within which test computations
 are performed. It is also possible that there may be non-timing variability if optimization
 methods use "random" search. We will presume (possibly heroically) that efforts have been
 made to eliminate factors that could result in differences in counts and other measures
-of performance excepting time.
+of performance excepting time. 
 
 We also believe that for some tests it is useful to employ tools such as **microbenchmark**
 to try to gauge the degree of variability in performance. This tool is almost certainly a
@@ -213,7 +215,8 @@ as the function, gradient, residual or jacobian counts mentioned below.
 
 ### Measures of computational effort
 
-Running the function `opm()` with `method = "ALL"` very quickly reveals that different solvers
+Running the function `opm()` with `method = "ALL"` very quickly reveals that 
+different solvers
 return different measures of effort. `opm()` is set up to report counts of function and 
 gradient evaluations. For some methods, these are not returned. Sometimes other measures, 
 such as "iterations" are reported. This makes it difficult to compare reported outcomes across

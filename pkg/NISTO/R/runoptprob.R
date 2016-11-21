@@ -27,6 +27,17 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
                    "optimrx::uobyqa",
                    "optimrx::nlm",
                    "optimrx::nlminb")
+
+  solveboundopt <- c("optimrx::L-BFGS-B",
+                   "optimrx::Rvmmin",
+                   "optimrx::Rcgmin",
+                   "optimrx::Rtnmin",
+                   "optimrx::hjn",
+                   "optimrx::hjkb",
+                   "optimrx::nmkb",
+                   "optimrx::lbfgsb3",
+                   "optimrx::bobyqa",
+                   "optimrx::nlminb")
   
   print(runopts)
   print(control)
@@ -65,13 +76,6 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   
   #-  - read the file and execute it (make sure it has **R** commands so we can
   #-   actually source() it)
-#  setupfn <- eval(parse(text=paste(pfilename,".setup", sep=''))) #- setup function
-#  pdat <- setupfn()
-#  cat("pdat:\n")
-#  print(pdat)
-  #- get the data and the starts
-#  print(pdat$df)
-#  dfname <- pdat$df
   cstarts <- paste(pfilename, ".starts", sep='')
   cuformula <-  paste(pfilename, ".formula", sep='')
   cudata <-  paste(pfilename, ".df", sep='')

@@ -54,7 +54,23 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   cat("Objects in workspace:\n")
   print(ls())
 
-  #- now have a lot of the information
+# Have to figure out WHAT we want to do
+#   - for a single problem -- apply all possible methods
+#   - this takes multiple passes / logic. May want to simplify.
+# How to proceed?
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+
+  #- now have a lot of (the) information
   
   #-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
   

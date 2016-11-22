@@ -252,8 +252,9 @@ assigned a low priority to investigating the effect of instrumentation code on t
 performance, as we believe it is relatively small.
 
 How should this be implemented? In animating the optimization of the largest small hexagon
-problem (see @Grah75a), Greg Snow suggested using an R6class (@R6class), but there should
-be simpler mechanisms that can be used here. ?? Can we use a specified environment?
+problem (see @Grah75a), Greg Snow suggested using an R6class (@R6class), but here we
+can use the much simpler mechanism of creating and using a named **R** environment `counters`.
+A test is provided in Appendix B. 
 
 
 ### What information should be saved?
@@ -593,4 +594,16 @@ ftest <- eval(parse(text=test))
 bstart <- c(1,1,1)
 print(ftest(bstart))
 savehistory("NISTOx2.txt")
+```
+
+## Appendix B: Test of counters inside functions.
+
+```{r cache=FALSE, echo=FALSE}
+require(knitr)
+# read chunk (does not run code)
+read_chunk('../inst/Rfiles/counttest.R')
+```
+
+```{r}
+<<counttest.R>>
 ```

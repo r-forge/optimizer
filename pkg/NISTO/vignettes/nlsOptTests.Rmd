@@ -24,14 +24,20 @@ for the problems in question. Indeed, it is always a concern that seemingly mino
 adjustments intended to improve such solvers may cause them to fail on particular problems
 or starting values. Thus it is desirable to be able to 
 
+- be able to quickly and easily run a specific test on a specific solver;
+
 - be able to quickly and easily run a specific test on all available solvers;
 
 - be able to quickly and easily run all available tests on an updated or new solver;
 
+- be able to compare performance of solvers on a single or a group of problems;
+
 - be able to report successes and failures in a manner that allows for rapid detection
 of potential issues with solvers.
 
-The last criterion requires that there be a way to save and access the results of test runs.
+
+The last two criteria, and especially the last, require that there be a way to save 
+and access the results of test runs.
 Because each test instance can generate quite a lot of data, and the combinatorial possibilities
 of tests, solvers, and solver options such as choice of gradient approximation, saving test
 information could demand considerable storage space and data management effort. We outline 
@@ -87,13 +93,15 @@ new efforts.
 
 Code developed in the trial package **NISTopt** suggested that a given problem could be
 specified by a particular name. Thus, the problem of @danwood1980, is called **DanielWood**.
-If we wish to solve it using one of the nonlinear least squares solvers that use a 
+
+If we wish to solve this problem using one of the nonlinear least squares solvers that use a 
 syntax like that of `nls()`, then we need to provide a model formula and some data that
 is consistent with this model formula. By naming the formula as `DanielWood.formula`, and
 putting the data in a dataframe named `DanielWood.df`, we then need only a starting
 vector of parameters to have a well-specified formula-based nonlinear least squares 
 problem. Besides `nls()`, `nlxb()` from **nlmrt**, `nls2()` from **nls2** (CRAN version),
-and `nls.lm` from **minpack.lm**.
+and `nls.lm` from **minpack.lm**. We assign a **problem class** `formula` to this 
+specification of the DanielWood problem.
 
 Similarly, a function-based nonlinear least squares problem solvable by `nlfb()` from 
 package **nlmrt** or `nlsLM` from **minpack.lm** can be specified by an **R** function
@@ -103,58 +111,72 @@ Jacobian will be provided by these solvers if the provided argument is NULL. Wor
 in process to try to provide particular derivative approximations by a mechanism similar
 to the one used in package **optimrx**. We can provide for use of such solvers by using
 the name `DanielWood.res` for the residual function and `DanielWood.jac` for the Jacobian.
+We assign the problem class `sumsquares` to this approach to the problem.
 
-Finally, for function minimization, we can specify `DanielWood.f` for a general function
-to be minimized, with the (optional) `DanielWood.g` for the gradient. 
+Generally, for function minimization, we can specify `DanielWood.f` for a general function
+to be minimized, with the (optional) `DanielWood.g` for the gradient. This is given problem
+class `uncopt` for "unconstrained optimization".
+
+Finally, specifying lower or upper bounds in the vectors `lower` and/or `upper` results in
+a bounded function minimization problem that we assign problem class `boundopt`. Note that
+the solution of a bounded problem is usually different from its unconstrained version. We
+will use separate problem file names. For example, if there were a bounded version of the 
+DanielWood problem, we might name it `DanielWoodBounded`. (At the time of writing there
+is no such problem file.)
 
 Many optimization problems, including some test problems, need data other than the parameters.
-This can be provided by `DanielWood.setup`. This function will, if required, create the
-dataframe for nonlinear least squares solvers.
+This can be provided in a data frame `DanielWood.df`. This will be created in the problem
+file as required.
 
 There are often several sets of starting parameters for given test problems, as well as
 the possibility of generated pseudo-random vectors, especially for those problems which have
 a variable number of parameters. These can be provided in a matrix called `starts` which has
 named columns, since the nonlinear least squares solvers using a model formula require 
 parameter names. When the problem has no model formula, we can and do provide parameter names
-as `p1, p2, ..., pn`. (?? not done yet, but it is in opm() already) The specification of 
-starting parameters will be part of the `.setup` function.
+as `p1, p2, ..., pn`. (?? not done yet, but it is in opm() already). We expect the 
+problem file to provide the `starts` matrix.
 
-
-Note that the `.res` function can be used to specify nonlinear equations problems if the 
+Note that the `.res` function could be used to specify nonlinear equations problems if the 
 solution has all the residuals at zero. At the time of writing, we have not yet included
 this possibility.
 
 
-
 ### Restrictions on the problems
 
-We do not wish (at the moment) to 
-include general optimization problems with general constraints.
+We do not wish (at the moment) to include general optimization 
+problems with general constraints.
 In fact, we will limit our attention to at most bounds constrained nonlinear optimization and
 nonlinear least squares problems. There are, however, a lot of 
 these. By considering lower and
-upper bounds that are equal, we can extend the constraints to fixed or **masked** parameters.
+upper bounds that are equal, we could extend the constraints to fixed or **masked** 
+parameters, but at the time of writing have not included such tests.
 
 ## A sample design
 
 Building on the ideas of the above section, we create the example **problem file** 
-`DanielWood.prb`. In this case, we provide all the elements above. Thus we have a
+`DanielWood.prb`. In this case, we provide all the elements above. Thus a problem file
+yields a
 **set** of problems, all of which can be accessed through a single structure. Through 
 some experiments, detailed in *Appendix A: Use of a data frame*, we found that one could,
-if desired, store such problems in a data frame, but this seems overly complicated.
-Our flat, plain text files, one per named problem, should suffice. 
-Other structures are, of course, equally possible. However, we will experiment with the
-current approach until we discover it cannot support our requirements. 
+if desired, store such problems in a data frame, but this has since been discarded
+as overly complicated.
+Our flat, plain text files, one per named problem, should suffice. Some
+problems can be altered by including bounds. To simplify an already rich structure, 
+we will name the unconstrained and bounded problems separately since they may have
+different optima.
+
+Other structures for problem files are, of course, equally possible. However, we 
+will experiment with the current approach until we discover it cannot support our requirements. 
 
 ### The **DanielWood** problem
 
-Let us implement, in **R**, a possible file for the 
-problem of @danwood1980.
+Let us implement, in **R**, a possible file for the problem of @danwood1980.
 
 ```{r cache=FALSE, echo=FALSE}
 require(knitr)
 # read chunk (does not run code)
 read_chunk('../inst/extdata/DanielWood.prb')
+# We use this approach to avoid having differences between file here and in inst/extdata/
 ```
 
 ```{r}
@@ -228,6 +250,11 @@ should be taken from time to time. The effect should be small. It may be sensiti
 to the computational environment of the previous section. At the time of writing, we have
 assigned a low priority to investigating the effect of instrumentation code on the overall
 performance, as we believe it is relatively small.
+
+How should this be implemented? In animating the optimization of the largest small hexagon
+problem (see @Grah75a), Greg Snow suggested using an R6class (@R6class), but there should
+be simpler mechanisms that can be used here. ?? Can we use a specified environment?
+
 
 ### What information should be saved?
 

@@ -1,14 +1,37 @@
 ## @knitr runoptprob.R
-runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0, 
+runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, nstart=0, 
                  runopts=list(), control=list(), ...) {
 
+  # Have to figure out WHAT we want to do
+  #   - for a single problem -- apply all possible methods
+  #   - this takes multiple passes / logic. May want to simplify.
+  # How to proceed?
+  #    What do we do about bounds?
+  #      - always impose if present
+  #      - have 2 problems if can omit bounds
+  # Need probclass to decide between using squared .res vs. .f form of problem,
+  #   but these may be the same in some cases. Could/should leave out .f, .g in such cases,
+  #   and let this program sort it out.
+  # 
+  # 
+  # 
+  #- now have a lot of (the) information
+    #-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
+    #-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
+    #-    -- controls -- as per the control list in programs
+    #-    -- other arguments
+    #-    -- xdata or dotargs (how to specify might be interesting)
+    #-    -- timing control (e.g., microbenchmark or simple timing)
   #- ?? Need to eval(parse()) ALL functions available, since f calls res etc.
   #- Need to carefully ensure these exist to avoid errors??
   #- ?? can we simplify and NOT have to eval(parse()) them, but simply source the prb file?
 
-  solveformula <- c("stats::nls", "nlmrt::nlxb", "minpack.lm::nls.lm")
+  solveformula <- c("stats::nls", "nlmrt::nlxb", "minpack.lm::nls.lm", "nls2::nls2")
+
   solvesumsquares <- c("nlmrt::nlfb", "minpack.lm::nlsLM")
+
   if (minmeth == "optimr") minmeth <- "optimrx" # update to optimrx to get more submeths
+
   solveuncopt <- c("optimrx::Nelder-Mead",
                    "optimrx::BFGS", 
                    "optimrx::L-BFGS-B",
@@ -38,7 +61,7 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
                    "optimrx::lbfgsb3",
                    "optimrx::bobyqa",
                    "optimrx::nlminb")
-  
+#- Diagnostics  
   print(runopts)
   print(control)
   optecho <- TRUE # temporarily at least, or put in a profile
@@ -54,35 +77,6 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
   cat("Objects in workspace:\n")
   print(ls())
 
-# Have to figure out WHAT we want to do
-#   - for a single problem -- apply all possible methods
-#   - this takes multiple passes / logic. May want to simplify.
-# How to proceed?
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-
-  #- now have a lot of (the) information
-  
-  #-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
-  
-  #-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
-  
-  #-    -- controls -- as per the control list in programs
-  
-  #-    -- other arguments
-  
-  #-    -- xdata or dotargs (how to specify might be interesting)
-  
-  #-    -- timing control (e.g., microbenchmark or simple timing)
   
   #-  - read output control profile (initially just use sink())
   #-  -- make sure we have time/date stamp on all runs
@@ -104,51 +98,51 @@ runoptprob <- function(pfilename, minmeth=NULL, submeth=NULL, nstart=0,
      starts <- eval(parse(text=cstarts))
      havestarts <- TRUE
   }
-  
   haveuformula <- FALSE
   if (exists(cstarts)) {
     uformula <-  eval(parse(text=cuformula))
     haveuformula <- TRUE
   }
-  
   haveudata <- FALSE
   if (exists(cstarts)) {
     udata <-  eval(parse(text=cudata))
     haveudata <- TRUE
   }
-  
   haveufn <- FALSE
   if (exists(cstarts)) {
     ufn <- eval(parse(text=cufn))
     haveufn <- TRUE
   }
-  
   haveures <- FALSE
   if (exists(cstarts)) {
     ures <- eval(parse(text=cures))
     haveures <- TRUE
   }
-  
   haveujac <- FALSE
   if (exists(cstarts)) {
     ujac <- eval(parse(text=cujac))
     haveujac <- TRUE
   }
-  
   haveugr <- FALSE
   if (exists(cstarts)) {
     ugr <- eval(parse(text=cugr))
     haveugr <- TRUE
   }
 
+  #- classes of problems
+  pclass = c("uncopt", "sumsquares", "formula", "boundopt")  
+  upclass <- c()
+  if (haveufn) upclass <- c(upclass, "uncopt")
+  if (haveuformula) upclass <- c(upclass, "formula")
+  if (haveures) upclass <- c(upclass, "sumsquares")
+#   if (havebounds) upclass <- c(upclass, "boundopt") ??
+  
+  
+  
   #- - analyze the call to runprob and do the appropriate call
-  
   #- - format output and extract and store summaries
-  
   #-  -- this may be multilayerd and take a lot of work
-  
   #-  -- start with no formatting, and gradually add features
-  
   #-  -- need to save conditions
 
   if (nstart == 0) { # need to loop

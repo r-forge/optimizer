@@ -20,7 +20,7 @@ rm(y)
 start1 = c(b1= 1, b2 = 5)
 start2 = c(b1 = 0.7,b2 = 4)
 DanielWood.starts <- rbind(start1, start2)
-# probtype <- "nls" # nls offers more possibilities than function minimization
+# ?? don't need? probtype <- "nls" # nls offers more possibilities than function minimization
 #- Other types??  "fmin", "ssmin" (for resid ss)
 #- The above is a "formula". But we could also possibl also use a character string or expression,
 #- but need to know how to do so carefully. ??
@@ -31,6 +31,8 @@ DanielWood.starts <- rbind(start1, start2)
 #- This is the local data frame. We need to rename this when we put it into a global structure
 #- Now add various functions for optimization or nls-by-function
 #- ?? We could have problems with quotation marks WITHIN the code.
+#- lower = NA # if bounds present, then we use bounded methods
+#- upper = NA # 
 
 DanielWood.f <- function(x) {
 res<-DanielWood.res(x)

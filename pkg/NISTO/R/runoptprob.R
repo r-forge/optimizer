@@ -168,8 +168,9 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
     }
   } else {
       if (haveuformula) {
-          solveform <- 
-      } upclass <- c(upclass, "formula")
+          solveform <- solveformula
+      } 
+      upclass <- c(upclass, "formula")
       if (haveures){
         #- ?? build function from res, gradient from jac. 
         #- ?? need specified and/or default derivative approach?
@@ -180,16 +181,10 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
         #- use function, set gradient from code and/or approximations
       }
   } # end set up list of solvers
-  
-      
-
-      
-      
-  }  
     
-    upclass <- c(upclass, "boundopt") ??
-  if (haveufn) upclass <- c(upclass, "uncopt")
-  if (haveures) upclass <- c(upclass, "sumsquares")
+    upclass <- c(upclass, "boundopt") 
+  if (haveufn){ upclass <- c(upclass, "uncopt")}
+  if (haveures) {upclass <- c(upclass, "sumsquares")}
   
   #- - analyze the call to runprob and do the appropriate call
   #- - format output and extract and store summaries

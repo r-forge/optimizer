@@ -94,5 +94,5 @@ return(gg)
 
 #- pstart <- c(b1= 1, b2 = 5) # fix later for more starts
 
-DanielWood.test<-function() {
-}   
+#- DanielWood.test<-function() {
+#- }   

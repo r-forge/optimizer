@@ -189,6 +189,70 @@ counters <- new.env()
 <<DanielWood.prb>>
 ```
 
+## Running test problems
+
+There are a number of ways in which we want to run the test problems. We consider three
+main streams:
+
+ 1) running a specific test on a specific solver with specific conditions
+ such as the gradient choice or particular control settings;
+ 
+ 2) running a specific test problem on all available solvers;
+
+ 3) running all available tests on an updated or new solver.
+
+Some challenges in accomplishing these tasks arise from the following situations:
+
+- Problems that can be specified as sum of squares functions (possibly with Jacobian functions)
+are very easily transformed into functions for function minimization with associated gradient
+functions. However, there may be ways to express the function to be minimized in ways that are
+more direct and do not explicitly involve the residuals.
+
+- If a function minimization problem has been specified via the sum of squares of residuals,
+the gradient may be specified by means of the (possibly approximated) Jacobian, or it may be
+directly approximated using function values.
+
+- We may wish to attempt the test using all available approximations.
+
+- The specification of a problem by means of a formula is translated to the computation of
+residuals and Jacobian by nonlinear least squares methods. In the case of package **nlmrt**
+(nlsr?? in progress), the Jacobian is computed analytically if possible, and the residual
+and Jacobian functions are explicitly created. These may or may not be equivalent computationally
+to the functions that may be present in the problem file. 
+
+Overall, the challenges are combinatoric, and generate a very large number of cases, since there
+will be 
+
+- P problem files
+ 
+- potentially a formula, a residual, and a function presentation of each problem. Bounded
+  problems will be separately itemized in the problem files. 
+
+- multiple gradient options (at the time of writing these are analytic, forward, backward,
+  central and **numDeriv** as well as a "default" approximation in some methods)
+
+- MF nonlinear least squares methods using a formula, MS using a residual, and MO optimization 
+  methods. Some reduction in the possibilities occurs when we have bounds. 
+  
+- Several cases if there are choices such as the three update formulas for optim::CG, or the
+  "plinear" and "port" options for `nls()`.
+  
+- An unspecified number of extra cases if we set limits on the function evaluations etc., or 
+the controls such as various "convergence" tolerances.
+
+**Proposal**: To reduce the number of cases, it is suggested that any level of effort limitations
+be put into the problem files. That is, we propose standardizing the test and consider an effort
+to have failed if it uses more counts than specified. Further, it is suggested that methods be
+primarily tested giving priority to 
+
+- the default settings of any algorithms
+- the default choices of convergence and termination tests
+- analytic gradients if available, else the default (internal) gradient approximation, though
+it may be sensible to also test with the central finite difference approximation. This latter
+choice is a modest compromise between the simple forward approximation and the expensive but
+more accurate **numDeriv** approximation. Note that the complex step derivative (??ref) would
+be a choice if it is known to be applicable. 
+  
 ## Reporting experience running problems
 
 ### The computing environment

@@ -26,6 +26,10 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
   #- Need to carefully ensure these exist to avoid errors??
   #- ?? can we simplify and NOT have to eval(parse()) them, but simply source the prb file?
 
+  #- ?? Do we need to rm() all the things we test for, namely,
+  #-   lower, upper, ...
+  #- ?? should make bounds (probname).lower etc.
+  
   solveformula <- c("stats::nls", "nlmrt::nlxb", "minpack.lm::nls.lm", "nls2::nls2")
 
   solvesumsquares <- c("nlmrt::nlfb", "minpack.lm::nlsLM")
@@ -66,6 +70,16 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
   print(control)
   optecho <- TRUE # temporarily at least, or put in a profile
   #- Get the path to the files (where should these be? Probably somehow related to pkg)   
+  #- Set up counts
+  if (! exists("counters")) { counters <- new.env() }
+  counters$kf <- 0
+  counters$kg <- 0
+  counters$kres <- 0
+  counters$kjac <- 0
+  counters$khess <- 0
+  counters$kform <- 0 # How to use this ??
+  #- end counts setup
+  
   pfile <- paste(pfilename, ".prb", sep='')
 
   starts <- NA
@@ -77,7 +91,6 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
   cat("Objects in workspace:\n")
   print(ls())
 
-  
   #-  - read output control profile (initially just use sink())
   #-  -- make sure we have time/date stamp on all runs
   fname<-paste(pfilename, format(Sys.time(), "%Y%m%d%H%M"),".out",sep='')
@@ -93,51 +106,90 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
   cures <- paste(pfilename,".res", sep='')
   cujac <- paste(pfilename,".jac", sep='')
   cugr <- paste(pfilename,".g", sep='')
+  culower <- paste(pfilename,".lower", sep='')
+  cuupper <- paste(pfilename,".upper", sep='')
   havestarts <- FALSE
   if (exists(cstarts)) {
      starts <- eval(parse(text=cstarts))
      havestarts <- TRUE
   }
   haveuformula <- FALSE
-  if (exists(cstarts)) {
+  if (exists(cuformula)) {
     uformula <-  eval(parse(text=cuformula))
     haveuformula <- TRUE
   }
   haveudata <- FALSE
-  if (exists(cstarts)) {
+  if (exists(cudata)) {
     udata <-  eval(parse(text=cudata))
     haveudata <- TRUE
   }
   haveufn <- FALSE
-  if (exists(cstarts)) {
+  if (exists(cufn)) {
     ufn <- eval(parse(text=cufn))
     haveufn <- TRUE
   }
+  haveugr <- FALSE
+  if (exists(cugr)) {
+    ugr <- eval(parse(text=cugr))
+    haveugr <- TRUE
+  }
   haveures <- FALSE
-  if (exists(cstarts)) {
+  if (exists(cures)) {
     ures <- eval(parse(text=cures))
     haveures <- TRUE
   }
   haveujac <- FALSE
-  if (exists(cstarts)) {
+  if (exists(cujac)) {
     ujac <- eval(parse(text=cujac))
     haveujac <- TRUE
   }
-  haveugr <- FALSE
-  if (exists(cstarts)) {
-    ugr <- eval(parse(text=cugr))
-    haveugr <- TRUE
-  }
 
+  havebounds <- (exists(culower) || exists(cuupper))
+  #- Do not need to parse -- these are already either parsed or don't exist
+  
   #- classes of problems
   pclass = c("uncopt", "sumsquares", "formula", "boundopt")  
-  upclass <- c()
+  upclass <- c() #- ?? may not need this
+  #- Work out all possible tools for this PROBLEM file (disregard what call requests)
+  #- Could put this in a separate file of available tools in form method::submeth
+  if (havebounds) {
+    if (haveuformula) {
+      solveform <- c("stats::nls", "nlmrt::nlxb", "minpack.lm::nls.lm")
+      #- nls2 does not mention bounds
+    }
+    if (haveures){
+      #- ?? build function from res, gradient from jac. 
+      #- ?? need specified and/or default derivative approach?
+      solveopt <- solveboundopt
+    }  
+    if (haveufn){
+      solveopt <- solveboundopt
+      #- use function, set gradient from code and/or approximations
+    }
+  } else {
+      if (haveuformula) {
+          solveform <- 
+      } upclass <- c(upclass, "formula")
+      if (haveures){
+        #- ?? build function from res, gradient from jac. 
+        #- ?? need specified and/or default derivative approach?
+        solveopt <- solveuncopt
+      }  
+      if (haveufn){
+        solveopt <- solveuncopt
+        #- use function, set gradient from code and/or approximations
+      }
+  } # end set up list of solvers
+  
+      
+
+      
+      
+  }  
+    
+    upclass <- c(upclass, "boundopt") ??
   if (haveufn) upclass <- c(upclass, "uncopt")
-  if (haveuformula) upclass <- c(upclass, "formula")
   if (haveures) upclass <- c(upclass, "sumsquares")
-#   if (havebounds) upclass <- c(upclass, "boundopt") ??
-  
-  
   
   #- - analyze the call to runprob and do the appropriate call
   #- - format output and extract and store summaries

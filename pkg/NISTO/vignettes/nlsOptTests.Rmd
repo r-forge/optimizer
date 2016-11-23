@@ -180,6 +180,12 @@ read_chunk('../inst/extdata/DanielWood.prb')
 ```
 
 ```{r}
+#- We need to have 'counters' environment before we load problem file
+counters <- new.env()
+```
+
+
+```{r}
 <<DanielWood.prb>>
 ```
 
@@ -218,6 +224,14 @@ published articles and reports. However, we believe that -- as far as possible -
 information should be gathered automatically and included in log files of test runs. 
 **R** already has a useful `sessionInfo()` command that reports quite well at the level
 of the programming language. 
+
+In the last couple of years, the possibility of test variability due to changes in the 
+underlying computational environment has been addressed more explicitly. Some workers have 
+suggested the capture of the entire environment in a virtual machine. A somewhat
+less onerous variant of this is **Rocker** (see http://dirk.eddelbuettel.com/blog/2014/10/23/).
+At the time of writing, we are not considering such measures for testing optimization
+tools, but could do so in future.
+
 
 ### Reproducible tests
 

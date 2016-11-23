@@ -8,6 +8,10 @@ energy radieted from a carbon filament lamp per cm**2 per second, and the
 predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
 "
 
+#- Note: environment / list "counter" must already exist
+
+if (! exists("counters")) {stop("The 'counters' environment must exist before problems are run.")}
+
 DanielWood.formula <- ( y ~ b1*x**b2 )
 
 #- setup
@@ -34,8 +38,9 @@ DanielWood.starts <- rbind(start1, start2)
 #- lower = NA # if bounds present, then we use bounded methods
 #- upper = NA # 
 
-DanielWood.f <- function(x) {
+DanielWood.f <- function(x) { # Really should remove -- this is a sumsquares problem
 res<-DanielWood.res(x)
+counters$kf <- counters$kf + 1
 f<-sum(res*res)
 }
 
@@ -47,6 +52,7 @@ res <- rep(NA, length(xx))
 b1<-b[1]
 b2<-b[2]
 res<-b1*(xx**b2) - yy
+counters$kres <- counters$kres + 1
 return(res)
 }
 
@@ -63,14 +69,17 @@ J<-matrix(0,m,n) # define the size of the Jacobian
 expr1 <- xx^b2
 J[, 1] <- expr1
 J[, 2] <- b1 * (expr1 * log(xx))
+counters$kjac <- counters$kjac + 1
 return(J)
 }
 
 #- hessfn
 DanielWood.h <- function(x) {
-JJ<-DanielWood.jac(x)
-H <- t(JJ) %*% JJ
-res<-DanielWood.res(x)
+#- THIS IS NOT COMPLETE??
+  res<-DanielWood.res(x)
+  JJ<-DanielWood.jac(x)
+  counters$khess <- counters$khess + 1
+  H <- t(JJ) %*% JJ
 }
 
 #- gr
@@ -79,9 +88,9 @@ DanielWood.g<-function(x) {
 JJ<-DanielWood.jac(x)
 res<-DanielWood.res(x)
 gg<-as.vector(2.0*t(JJ) %*% res)
+counters$kg <- counters$kg + 1
 return(gg)
 }
-
 
 #- pstart <- c(b1= 1, b2 = 5) # fix later for more starts
 

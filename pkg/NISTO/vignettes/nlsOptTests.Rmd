@@ -216,7 +216,8 @@ directly approximated using function values.
 
 - The specification of a problem by means of a formula is translated to the computation of
 residuals and Jacobian by nonlinear least squares methods. In the case of package **nlmrt**
-(nlsr?? in progress), the Jacobian is computed analytically if possible, and the residual
+(this will become package **nlsr** shortly), the Jacobian is computed 
+analytically if possible, and the residual
 and Jacobian functions are explicitly created. These may or may not be equivalent computationally
 to the functions that may be present in the problem file. 
 
@@ -250,7 +251,7 @@ primarily tested giving priority to
 - analytic gradients if available, else the default (internal) gradient approximation, though
 it may be sensible to also test with the central finite difference approximation. This latter
 choice is a modest compromise between the simple forward approximation and the expensive but
-more accurate **numDeriv** approximation. Note that the complex step derivative (??ref) would
+more accurate **numDeriv** approximation. Note that the complex step derivative (@Martins2003) would
 be a choice if it is known to be applicable. 
   
 ## Reporting experience running problems
@@ -436,7 +437,7 @@ We need a tool that
 
 - sets the directory where problems are found
 
-- lists the files
+- lists the files, possibly flagging what resources are available for each problem
 
 - allows one file to be selected
 
@@ -448,34 +449,22 @@ We need a tool that
 
 #### GUI file lister and display tool
 
-Likely tied into command line tool by allowing command line to be executed when
-mouse or pointer clicks are executed. Check existing GUI tools to see what is 
+If there is a command-line tool for listing and displaying problem files, it 
+should be relatively straightforward to provide a graphical user interface (GUI)
+version. This will likely use the code of the command line tools, executing them 
+in response to mouse or pointer clicks. ?? Check existing GUI tools to see what is 
 possible.
 
 ?? code here
 
 ### Building problem files
 
-#### Data frame or matrix to source vector
-
-If problem files are to be self contained, we do not want to need to access external
-files. The simplest way to present a variable to **R** is to input data as a simple
-list and then name it. To prepare the problem file, we therefore want to be able to
-get data into the local **R** environment and prepare the text for an assignment
-statement that contains a source vector.
-
-?? code
-
-```{r, eval=FALSE}
-
-# Use paste() to build the c(...) structure
-
-```
-
+Can we set up tools that help us build the problem files? The files are structured.
+It could be easier to simply copy and edit existing files.
 
 ## Running problems
 
-`runoptprob` -- ?? how it should be used
+`runoptprob` -- ?? how it should be used -- access via the Rd file.
 
 - provide 
 

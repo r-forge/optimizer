@@ -21,9 +21,15 @@ x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
 DanielWood.df <- data.frame(x,y)
 rm(x)
 rm(y)
-start1 = c(b1= 1, b2 = 5)
-start2 = c(b1 = 0.7,b2 = 4)
-DanielWood.starts <- rbind(start1, start2)
+
+DanielWood.start <- function(indx) {
+  #- indx is character string to allow for more general forms e.g., XRosenbrock
+  ii <- as.numeric(indx)
+  start <- NA
+  if (ii == 1) start = c(b1= 1, b2 = 5)
+  if (ii == 2) start = c(b1 = 0.7,b2 = 4)
+  start
+}
 # ?? don't need? probtype <- "nls" # nls offers more possibilities than function minimization
 #- Other types??  "fmin", "ssmin" (for resid ss)
 #- The above is a "formula". But we could also possibl also use a character string or expression,

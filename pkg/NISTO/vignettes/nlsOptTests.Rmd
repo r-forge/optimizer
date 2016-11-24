@@ -189,6 +189,19 @@ counters <- new.env()
 <<DanielWood.prb>>
 ```
 
+### Challenges in the design
+
+There are several weaknesses in the design. They are unlikely fatal, but do need to be addressed.
+
+- There is provision for multiple sets of starting parameters. To account for the possibility
+of different sizes of problems, we need to be able to parameterize the starts. Moreover, there
+could be different starting sets within each size. To allow for this, we use a character string
+index to specify which member of a **family** of problems is to be used. The starts are then
+created by a function which has the character index as its argument. Thus, for example, we could
+start the Extended Rosenbrock test function (??ref) with a set of 10 parameters each having 
+value `pi` by using an index "10:pi". 
+
+
 ## Running test problems
 
 There are a number of ways in which we want to run the test problems. We consider three

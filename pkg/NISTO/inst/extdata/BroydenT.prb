@@ -1,4 +1,4 @@
-
+## @knitr BroydenTestR.prb
 probname <- "BroydenTestR"
 probdesc <- "This problem found in package BB. It appears to be similar, 
 and may compute to the same value as, either Broyden banded or Broyden

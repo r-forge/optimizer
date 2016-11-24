@@ -1,5 +1,5 @@
 ## @knitr runoptprob.R
-runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, nstart=0, 
+runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, istart="1", 
                  runopts=list(), control=list(), ...) {
 
   # Have to figure out WHAT we want to do
@@ -99,7 +99,7 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
   
   #-  - read the file and execute it (make sure it has **R** commands so we can
   #-   actually source() it)
-  cstarts <- paste(pfilename, ".starts", sep='')
+  cstarts <- paste(pfilename, ".start", sep='')
   cuformula <-  paste(pfilename, ".formula", sep='')
   cudata <-  paste(pfilename, ".df", sep='')
   cufn <- paste(pfilename,".f", sep='')
@@ -110,8 +110,9 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
   cuupper <- paste(pfilename,".upper", sep='')
   havestarts <- FALSE
   if (exists(cstarts)) {
-     starts <- eval(parse(text=cstarts))
      havestarts <- TRUE
+     fstart <- eval(parse(text=cstarts))
+     strt <- fstart(istart) #- Push names into the probfile
   }
   haveuformula <- FALSE
   if (exists(cuformula)) {
@@ -192,29 +193,18 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
   #-  -- start with no formatting, and gradually add features
   #-  -- need to save conditions
 
-  if (nstart == 0) { # need to loop
-    cat("nstart == 0 \n")
-    print(starts)
-    nst <- seq(1, (dim(starts)[1]))
-  } else { nst <- nstart }
   if (minmeth == 'nls') {
-    for (istrt in nst){
-      #- ?? need to extract options and arguments like trace
-      #- some documentation output needed ??
-      sol <- nls(uformula, data=udata, start=starts[istrt,], trace=TRUE)      
+      sol <- nls(uformula, data=udata, start=strt, trace=TRUE)      
       print(sol)
       print(summary(sol))
-    }    
   }  
   if (minmeth == 'nlxb') {
 ##??      require(nlmrt)
-      for (istrt in nst){
       #- ?? need to extract options and arguments like trace
       #- some documentation output needed ??
-      sol <- nlxb(uformula, data=udata, start=starts[istrt,], trace=TRUE)      
+      sol <- nlxb(uformula, data=udata, start=strt, trace=TRUE)      
       print(sol)
       print(summary(sol))
-    }    
   }  
   if (minmeth == "optimrx") {
 ## ??     require(optimrx) #- ?? optimr for CRAN
@@ -224,13 +214,11 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
        ugr <- eval(parse(text=paste(pfilename,".g", sep='')))
      } else { ugr <- (runopts$gr) }
      ufn <-  eval(parse(text=paste(pfilename,".f", sep='')))
-     for (istrt in nst){
-        sol <- optimr(starts[istrt,], ufn, ugr, method=submeth, control=list(trace=1))
-        print(sol)
-     }
-  }
+     sol <- optimr(strt, ufn, ugr, method=submeth, control=list(trace=1))
+     print(sol)
+   }
     #- result should be a list of things run
   #- ?? sink() # should make conditional and not usually do this, else delete after asking
-  testsol <- list(pfilename=pfilename, nstart=nstart, minmeth=minmeth, submeth=submeth)
+  testsol <- list(pfilename=pfilename, istart=istart, minmeth=minmeth, submeth=submeth)
 #- ?? definitely need more stuff returned
 }

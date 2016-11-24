@@ -9,7 +9,7 @@
   optimization or nonlinear least squares methods. 
 }
 \usage{
-runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, nstart=0, 
+runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, istart="1", 
                  runopts=list(), control=list(), ...) 
 }
 \arguments{
@@ -19,8 +19,10 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, ns
        "boundopt", "formula", or "sumsquares".}
  \item{minmeth}{One of a selected set of minimization tool classes. The list includes??.}
  \item{submeth}{A particular member of the class of methods in minmeth.}   
- \item{nstart}{The index of the pre-defined starting set of parameters in the specified problem 
-     file, or 0 for all predefined starting vectors, ?? or (?? could have user defined if negative??)}
+ \item{istart}{The character index of a pre-defined starting set of parameters for
+     the specified problem file. This is a character index to allow for special case
+     e.g., "10:pi" would be an index for the starting set of parameters of length 10 
+    each of value pi, which is a reasonable choice for an extended Rosenbrock function.}
  \item{runopts}{Any arguments for running a particular minimization method needed.}
  \item{control}{Any controls that should be supplied to the minimization method.}
  \item{\dots}{Any other (named) arguments}

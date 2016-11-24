@@ -53,8 +53,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   nmeth <- length(method)
 
   if (is.null(pstring)) {
-    pstring <- NULL
-    for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
+      for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
   } 
    cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtime")
    ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)

@@ -111,7 +111,10 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
   havestarts <- FALSE
   if (exists(cstarts)) {
      havestarts <- TRUE
+     print(cstarts)
      fstart <- eval(parse(text=cstarts))
+     print(fstart)
+     print(istart)
      strt <- fstart(istart) #- Push names into the probfile
   }
   haveuformula <- FALSE

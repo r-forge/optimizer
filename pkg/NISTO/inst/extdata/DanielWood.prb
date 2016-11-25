@@ -26,8 +26,14 @@ DanielWood.start <- function(indx) {
   #- indx is character string to allow for more general forms e.g., XRosenbrock
   ii <- as.numeric(indx)
   start <- NA
-  if (ii == 1) start = c(b1= 1, b2 = 5)
-  if (ii == 2) start = c(b1 = 0.7,b2 = 4)
+  if (ii == 1) {
+     start = c(b1= 1, b2 = 5)
+     attr(start,"fval") <- 149.7192
+  }
+  if (ii == 2) {
+     start = c(b1 = 0.7,b2 = 4)
+     attr(start,"fval") <- 0.1037647
+  }
   start
 }
 #- Problem types will be determined from available functions / formulas

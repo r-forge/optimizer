@@ -466,13 +466,13 @@ and/or function minimization software.
 
 #### Command line file lister and display tool
 
-We need a tool that 
+We need a tool or tools that 
 
 - sets the directory where problems are found
 
 - lists the files, possibly flagging what resources are available for each problem
 
-- allows one file to be selected
+- allows one or more files to be selected for running
 
 - displays information in a structured way (possibly according to some profile)
 
@@ -485,59 +485,68 @@ We need a tool that
 If there is a command-line tool for listing and displaying problem files, it 
 should be relatively straightforward to provide a graphical user interface (GUI)
 version. This will likely use the code of the command line tools, executing them 
-in response to mouse or pointer clicks. ?? Check existing GUI tools to see what is 
-possible.
+in response to mouse or pointer clicks via a tool like @traitr14.
 
-?? code here
 
 ### Building problem files
 
 Can we set up tools that help us build the problem files? The files are structured.
-It could be easier to simply copy and edit existing files.
+It could be easier to simply copy and edit existing files. However, it is attractive 
+to consider ideas that were tried in the experimental package **optimgui** by Yixuan
+Qiu and John Nash in 2011. See the **optimigui** material at
+https://r-forge.r-project.org/R/?group_id=395. 
+
+### Testing the problem files
+
+It is extremely easy to start to build problem files but save them in a state where
+functions are incomplete or incorrect. Therefore it is important that we have a tool
+to check the files. We have already mentioned the issue of listing the components of
+the file that are present, and it is feasible to provide a summary output that lists
+whether the ".f", ".res", ".start", etc. components of the problem file are present.
+
+It is also sensible to consider the provision of pre-computed function outputs for
+the starts provided. This can be placed in, for example, the attribute "fval" of the
+starting parameter vector selected. We could also provide the residual vector in 
+an attribute "resval", as well as other quantities available for test. However, it seems
+more reasonable to compute the sum of squares and compare to the "fval" attribute. 
+Similarly, while we could provide derivative outputs, it is likely more 
+sensible to verify gradients and Jacobians by use of approximations from **numDeriv**.
+
 
 ## Running problems
 
-`runoptprob` -- ?? how it should be used -- access via the Rd file.
+The principal function for running tests will be the **R** function `runoptprob`. 
+At the time of writing, this is a work in progress, and it seems likely that it will
+continue to be modified with growing experience and the time to provide desired 
+features. In order to use this function we must, at the very least, provide the problem
+name. Appending ".prb" to this name specifies our problem file.
 
-- provide 
+If we want to apply a single minimization tool to this problem, then we need to provide
+its name (argument `minmeth`). Some such methods, like **optimr** (actually **optimrx**) 
+require the tool to be particularized in argument `submeth`. 
 
-    -- filename (at least the root)
+While we have considered allowing multiple starts, we consider different starts to more or
+less provide different problems for comparison, so a name for the start must be given. The
+default of argument `istart` is "1". 
 
-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
+The argument `runopts` is a list. It will carry arguments to the minimizer. A particularly
+important choice here is that of gradient or Jacobian where that is needed. 
 
-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.)) ?? optional?
+Most methods have a series of controls, and the argument `control` is a list that more
+or less follows that described in the manual page to `optim()`.
 
-    -- controls -- as per the control list in programs
+Dot arguments are used in **R** to allow named arguments to be provided to a function
+for passing to other computations. While we provide for dot arguments (`...`) 
+in the call to `runoptprob`, at the time of 
+writing we have no examples of the use of the dot arguments. Note that the `runopts`
+allows us to provide data if the internal code to `runoptprob` does not already
+handle this. For example, nonlinear least squares methods automatically 
+get data for the DanielWood problem from the `DanielWood.df` data frame.
 
-    -- other arguments ?? how to provide? dotargs as below?
+We have yet to decide the precise mechanisms for specifying how we want to present
+and save results, and how we will control the timing of runs 
+(e.g., microbenchmark or simple timing).
 
-    -- xdata or dotargs (how to specify might be interesting)
-    
-    -- timing control (e.g., microbenchmark or simple timing)
-
-- read output control profile (initially just use sink())
-
-- read the file and execute it (make sure it has **R** commands so we can
-actually source() it)
-
-- analyze the call to runprob and do the appropriate call
-
-- format output and extract and store summaries
-
-  -- this may be multilayerd and take a lot of work
-  
-  -- start with no formatting, and gradually add features
-  
-  -- need to save conditions
-  
-  -- make sure we have time/date stamp on all runs
-  
-Issues to address?? :
- - sink() will save information, but there is a cost in time and space
- - how to do ok/not or red/yellow/green nicely | Do we want on params and value?
- - dealing with multiple solutions -- linear combination defined
- - where to put setting of FUZZ, reporting of deviations
-  
 
 ```{r cache=FALSE, echo=FALSE}
 require(knitr)
@@ -586,6 +595,15 @@ tmp <- readline("continue")
 
 test3 <- runoptprob(pfilename=pfname, minmeth="optimr", submeth="L-BFGS-B")
 test3
+
+#- But this doesn't work (yet!)
+#- test4 <- runoptprob(pfilename="XRosenbrock", minmeth="optimr")
+#- test4
+#- But this does function
+source("../inst/extdata/XRosenbrock.prb")
+st <- XRosenbrock.start("10:pi")
+txr <- opm(st, XRosenbrock.f, XRosenbrock.g, method="ALL")
+summary(txr, order=value, par.select=1:4)
 ```
 
 
@@ -707,3 +725,31 @@ read_chunk('../inst/Rfiles/counttest.R')
 ```{r}
 <<counttest.R>>
 ```
+
+## Appendix C: (Temporary) open issues for runoptprob
+
+- read output control profile (initially just use sink())
+
+- read the file and execute it (make sure it has **R** commands so we can
+actually source() it)
+
+- analyze the call to runprob and do the appropriate call
+
+- format output and extract and store summaries
+
+  -- this may be multilayerd and take a lot of work
+  
+  -- start with no formatting, and gradually add features
+  
+  -- need to save conditions
+  
+  -- make sure we have time/date stamp on all runs
+  
+Issues to address?? :
+ - sink() will save information, but there is a cost in time and space
+ - how to do ok/not or red/yellow/green nicely | Do we want on params and value?
+ - dealing with multiple solutions -- linear combination defined
+ - where to put setting of FUZZ, reporting of deviations
+  
+## References
+  

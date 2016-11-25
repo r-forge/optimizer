@@ -562,25 +562,20 @@ require(optimrx, quietly=TRUE)
 
 ## Running multiple problems
 
-- prepare "problem list", like a play list
+If we want to run a set of problems, we need to prepare a "play list", each "line"
+of which specifies the problem name, start index, and any special options. As a start,
+this could simply be an **R** script with a set of calls to `runoptprob`. It
+is not difficult to consider generating this script with another **R** script, so that
+we can prepare a set of runs of many problems with one method or of one problem with 
+as many tools as available. 
 
-- run them in sequence
+While we have already considered the output we wish to save, it is important to be able
+to monitor progress, and indeed to be able to stop and restart the runs at reasonable
+break points. Otherwise we may wonder if our machine has "crashed" or find it unavailable
+when more pressing tasks demand our attention.
 
-- try to figure out how to save the output 
-    
-    -- sink
-    
-    -- summaries
-    
-    -- test against expected output
-    
-    -- timings
-    
-    -- measures of success
-
-
-For the moment, let us just call runoptprob(). Note that it creates a sinkfile for each
-call.
+Let us try some simple examples to get some experience. Note that `runoptprob` is not 
+yet saving much information.
 
 ```{r}
 pfname <- "DanielWood"
@@ -605,6 +600,14 @@ st <- XRosenbrock.start("10:pi")
 txr <- opm(st, XRosenbrock.f, XRosenbrock.g, method="ALL")
 summary(txr, order=value, par.select=1:4)
 ```
+
+
+## Next steps
+
+This document is but a first draft of a structure for ongoing efforts in testing optimization
+methods. We welcome comments and assistance.
+
+Contact information: nashjc@uottawa.ca  Paul??
 
 
 ## Appendix A: Use of a data frame

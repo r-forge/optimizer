@@ -191,7 +191,7 @@ counters <- new.env()
 
 ### Challenges in the design
 
-There are several weaknesses in the design. They are unlikely fatal, but do need to be addressed.
+Some questions may arise about this design. 
 
 - There is provision for multiple sets of starting parameters. To account for the possibility
 of different sizes of problems, we need to be able to parameterize the starts. Moreover, there
@@ -201,6 +201,20 @@ created by a function which has the character index as its argument. Thus, for e
 start the Extended Rosenbrock test function (https://en.wikipedia.org/wiki/Rosenbrock_function, based on @Rosenbrock60) with a set of 10 parameters each having 
 value `pi` by using an index "10:pi". 
 
+- The various pieces of the problem file define different aspects of a given overall optimization
+problem. However, in the DanielWood example
+problem file, it turns out that the ".f" and ".g" functions are trivially generated from the
+".res" and ".jac" functions. We should remove these from the problem file if we cannot find
+more efficient ways to specify these functions directly, since the presence of the functions
+may cause unnecessary duplication of trials. For the moment, they serve to illustrate possible
+parts of the file design.
+
+- For problems where there is a residual function and we use a method where gradients 
+are required but analytic derivatives are unavailable, one could think of computing the 
+Jacobian via a derivative approximation
+and proceeding from there to the approximate gradient. At the time of writing we will make
+an arbitrary decision to use an analytic Jacobian with the residual to generate the gradient,
+but, lacking the analytic Jacobian, will use an approximation of the gradient itself.
 
 ## Running test problems
 
@@ -216,28 +230,27 @@ main streams:
 
 Some challenges in accomplishing these tasks arise from the following situations:
 
-- Problems that can be specified as sum of squares functions (possibly with Jacobian functions)
-are very easily transformed into functions for function minimization with associated gradient
+- As noted, problems that can be specified via sum of squares functions 
+(possibly with Jacobian functions)
+are easily transformed into function minimizations with associated gradient
 functions. However, there may be ways to express the function to be minimized in ways that are
 more direct and do not explicitly involve the residuals.
 
-- If a function minimization problem has been specified via the sum of squares of residuals,
-the gradient may be specified by means of the (possibly approximated) Jacobian, or it may be
-directly approximated using function values.
+- We may wish to attempt the test function minimization using all available gradient 
+approximations. This will generate a lot of computations, without necessarily yielding
+much new insight. 
 
-- We may wish to attempt the test using all available approximations.
-
-- The specification of a problem by means of a formula is translated to the computation of
-residuals and Jacobian by nonlinear least squares methods. In the case of package **nlmrt**
+- As mentioned, the specification of a nonlinear least squares problem by means of a 
+model formula is translated to the computation of
+residuals and Jacobian by the nonlinear least squares methods. In the case of package **nlmrt**
 (this will become package **nlsr** shortly), the Jacobian is computed 
 analytically if possible, and the residual
 and Jacobian functions are explicitly created. These may or may not be equivalent computationally
 to the functions that may be present in the problem file. 
 
-Overall, the challenges are combinatoric, and generate a very large number of cases, since there
-will be 
+Overall, the challenges are combinatoric because a very large number of cases are generated, since there will be 
 
-- P problem files
+- *P* problem files
  
 - potentially a formula, a residual, and a function presentation of each problem. Bounded
   problems will be separately itemized in the problem files. 
@@ -245,7 +258,7 @@ will be
 - multiple gradient options (at the time of writing these are analytic, forward, backward,
   central and **numDeriv** as well as a "default" approximation in some methods)
 
-- MF nonlinear least squares methods using a formula, MS using a residual, and MO optimization 
+- *MF* nonlinear least squares methods using a formula, MS using a residual, and MO optimization 
   methods. Some reduction in the possibilities occurs when we have bounds. 
   
 - Several cases if there are choices such as the three update formulas for optim::CG, or the
@@ -262,7 +275,9 @@ primarily tested giving priority to
 - the default settings of any algorithms
 - the default choices of convergence and termination tests
 - analytic gradients if available, else the default (internal) gradient approximation, though
-it may be sensible to also test with the central finite difference approximation. This latter
+it may be sensible to also test with the central finite difference approximation. The purpose
+of using a common approximation is to allow comparison of methods, rather than methods
+coloured by a choice of gradient approximation. The central difference approximation 
 choice is a modest compromise between the simple forward approximation and the expensive but
 more accurate **numDeriv** approximation. Note that the complex step derivative (@Martins2003) would
 be a choice if it is known to be applicable. 
@@ -294,21 +309,23 @@ may alter timings or other performance measures
 
 Note that some of the above environmental factors should not alter the computed optima, nor
 the counts that report the computational effort e.g., the number of function or gradient
-evaluations. However, some choices will affect both these computed values and the timings to
-arrive at them.
+evaluations. However, some choices (e.g., arithmetic and function libraries) will affect 
+both computed values and the timings to arrive at them.
 
 In the past, the computational environment has been reported largely as a commentary to 
 published articles and reports. However, we believe that -- as far as possible -- the 
 information should be gathered automatically and included in log files of test runs. 
 **R** already has a useful `sessionInfo()` command that reports quite well at the level
-of the programming language. 
+of the programming language. There are, in most operating systems, functions that will 
+provide information about the computing environment. Whether we can find a way to 
+gather sufficient information from all widely used platforms is still to be determined.
 
 In the last couple of years, the possibility of test variability due to changes in the 
 underlying computational environment has been addressed more explicitly. Some workers have 
 suggested the capture of the entire environment in a virtual machine. A somewhat
 less onerous variant of this is **Rocker** (see http://dirk.eddelbuettel.com/blog/2014/10/23/).
 At the time of writing, we are not considering such measures for testing optimization
-tools, but could do so in future.
+tools, but they are an attractive possibility to allow re-testing of suspect results.
 
 
 ### Reproducible tests
@@ -325,7 +342,10 @@ of performance excepting time.
 We also believe that for some tests it is useful to employ tools such as **microbenchmark**
 to try to gauge the degree of variability in performance. This tool is almost certainly a
 key choice in measuring the impact of any instrumentation code we embed in our tests, such
-as the function, gradient, residual or jacobian counts mentioned below.
+as the function, gradient, residual or Jacobian counts mentioned below.
+
+In the previous section we have suggested the possibility of capturing and saving the
+entire computational environment for a later rerun.
 
 ### Measures of computational effort
 

@@ -10,7 +10,7 @@ predictor variable is the absolute temperature of the filament in 1000 degrees K
 
 #- Note: environment / list "counter" must already exist
 
-if (! exists("counters")) {stop("The 'counters' environment must exist before problems are run.")}
+if (! exists("counters")) {stop("Environment 'counters' must exist before running problems.")}
 
 DanielWood.formula <- ( y ~ b1*x**b2 )
 
@@ -30,27 +30,39 @@ DanielWood.start <- function(indx) {
   if (ii == 2) start = c(b1 = 0.7,b2 = 4)
   start
 }
-# ?? don't need? probtype <- "nls" # nls offers more possibilities than function minimization
-#- Other types??  "fmin", "ssmin" (for resid ss)
-#- The above is a "formula". But we could also possibl also use a character string or expression,
-#- but need to know how to do so carefully. ??
-# out<-list(starts=starts, df=DanielWood.df, mformula=mformula, probtype=probtype)
-#- return(out)
-# }
-##- ?? mdata=DanielWood # This would work if we have a data package, but not useful independently
-#- This is the local data frame. We need to rename this when we put it into a global structure
-#- Now add various functions for optimization or nls-by-function
+#- Problem types will be determined from available functions / formulas
 #- ?? We could have problems with quotation marks WITHIN the code.
-#- lower = NA # if bounds present, then we use bounded methods
+#- lower = NA # if bounds are present, then we use bounded methods
 #- upper = NA # 
 
-DanielWood.f <- function(x) { # Really should remove -- this is a sumsquares problem
+#- function
+DanielWood.f <- function(x) { # ?? should remove -- this is a sumsquares problem
 res<-DanielWood.res(x)
 counters$kf <- counters$kf + 1
 f<-sum(res*res)
 }
 
-#- resfn
+#- gradient
+DanielWood.g<-function(x) {
+#-   stop('not defined')
+JJ<-DanielWood.jac(x)
+res<-DanielWood.res(x)
+gg<-as.vector(2.0*t(JJ) %*% res)
+counters$kg <- counters$kg + 1
+return(gg)
+}
+
+#- hessian
+DanielWood.h <- function(x) {
+#- THIS IS NOT COMPLETE??
+  res<-DanielWood.res(x)
+  JJ<-DanielWood.jac(x)
+  counters$khess <- counters$khess + 1
+  H <- t(JJ) %*% JJ
+}
+
+
+#- residual
 DanielWood.res <- function(b) {
 xx<-DanielWood.df$x # case !!
 yy<-DanielWood.df$y
@@ -62,7 +74,7 @@ counters$kres <- counters$kres + 1
 return(res)
 }
 
-#- jacfn
+#- Jacobian
 # DanielWood - Jacobian
 DanielWood.jac <- function(b) {
 xx<-DanielWood.df$x
@@ -78,27 +90,4 @@ J[, 2] <- b1 * (expr1 * log(xx))
 counters$kjac <- counters$kjac + 1
 return(J)
 }
-
-#- hessfn
-DanielWood.h <- function(x) {
-#- THIS IS NOT COMPLETE??
-  res<-DanielWood.res(x)
-  JJ<-DanielWood.jac(x)
-  counters$khess <- counters$khess + 1
-  H <- t(JJ) %*% JJ
-}
-
-#- gr
-DanielWood.g<-function(x) {
-#-   stop('not defined')
-JJ<-DanielWood.jac(x)
-res<-DanielWood.res(x)
-gg<-as.vector(2.0*t(JJ) %*% res)
-counters$kg <- counters$kg + 1
-return(gg)
-}
-
-#- pstart <- c(b1= 1, b2 = 5) # fix later for more starts
-
-#- DanielWood.test<-function() {
-#- }   
+#- End DanielWood.prb   

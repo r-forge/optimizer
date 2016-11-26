@@ -49,7 +49,8 @@ desirable.
 
 -- functions in nlsr-package.R, esp fnDeriv, need to be explained
 -- how to insert numerical derivatives when Deriv unable to get result
-
+-- sort out the issues of providing data to nlxb and nlfb. For the former,
+  see the file nlsr/inst/dev-files/nlsdata.R.
 
 ## Summary of capabilities in `nlsr`
 
@@ -73,7 +74,8 @@ so that duplicate computation can be avoided.
 
 #### model2rjfun, model2ssgrfun, modelexpr
 
-These functions create functions to evaluate residuals or sums of squares at particular parameter locations.
+These functions create functions to evaluate residuals or sums of 
+squares at particular parameter locations.
 
 #### model2rjfunx, model2ssgrfunx
 
@@ -166,7 +168,10 @@ Given a nonlinear model expressed as an expression of the form
 
     lhs ~ formula_for_rhs
 
-and a start vector where parameters used in the model formula are named, attempts to find the minimum of the residual sum of squares using the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear sub-problem is solved by a qr method.
+and a start vector where parameters used in the model formula are named, attempts
+to find the minimum of the residual sum of squares using the Nash variant 
+(Nash, 1979) of the Marquardt algorithm, where the linear sub-problem is 
+solved by a qr method.
 
 #### isFALSE
 
@@ -786,7 +791,6 @@ that nls() again fails.
 startf1  <-  c(b1=1, b2=1, b3=.1)
 anlsf1 <-  try(nls(eunsc, start=startf1, trace=TRUE, data=weeddata1))
 print(anlsf1)
-
 
 anlxf1  <-  try(nlxb(eunsc, start=startf1, trace=TRUE, data=weeddata1,
                      control=list(watch=FALSE)))

@@ -108,7 +108,7 @@ eval(D.sc)
 #-  function returned:
 deriv((y ~ sin(cos(x) * y)), c("x","y"), func = TRUE)
 #- ??#-  Surely there is an error, since documnetation says no lhs! i.e.,
-#- "expr: a ‘expression’ or ‘call’ or (except ‘D’) a formula with no lhs."
+#- "expr: a 'expression' or 'call' or (except 'D') a formula with no lhs."
 #-  function with defaulted arguments:
 (fx <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
              function(b0, b1, th, x = 1:7){} ) )

@@ -1,5 +1,6 @@
 model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE, 
-                          testresult = TRUE) {
+                          testresult = TRUE, ...) {
+# add dots 161127
 
     cat("model2rjfun: modelformula = ")
     print(modelformula)
@@ -22,7 +23,8 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
 ##	residexpr <- fnDeriv(residexpr, names(pvec))
 	
     if (is.null(data))
-	data <- environment(modelformula)
+	data <- environment(modelformula) # this will handle variables in the parent frame
+        ## ?? Don't yet handle variable in dot args. But no dot args here.
     else if (is.list(data))
 	data <- list2env(data, parent = environment(modelformula))
     else if (!is.environment(data))

@@ -76,7 +76,7 @@ print(nlsrquiet)
 #- OK
 nlsrdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt)
 print(nlsrdots)
-#- Note -- does NOT work
+#- Note -- does NOT work -- do we need to specify the present env. in nlfb for y, tt??
 nlsframe <- nls(formula=hobsc, start=ste, data=mydata)
 print(nlsframe)
 #- OK

@@ -10,6 +10,56 @@ hobsc <- y ~ 100*b1/(1 + 10*b2 * exp(-0.1 * b3 * tt))
 
 ste <- c(b1 = 2, b2 = 5, b3 = 3)
 
+# let's try finding the variables
+
+findmainenv <- function(formula, prm) {
+   vn <- all.vars(formula)
+   pnames <- names(prm)
+   ppos <- match(pnames, vn)
+   datvar <- vn[-ppos]
+   cat("Data variables:")
+   print(datvar)
+   cat("Are the variables present in the current working environment?\n")
+   for (i in seq_along(datvar)){
+       cat(datvar[[i]]," : present=",exists(datvar[[i]]),"\n")
+   }
+}
+
+findmainenv(hobsc, ste)
+# ===============================
+
+
+# let's try finding the variables in dotargs
+
+
+
+finddotargs <- function(formula, prm, ...) {
+   dots <- list(...)
+   cat("dots:")
+   print(dots)
+   cat("names in dots:")
+   dtn <- names(dots)
+   print(dtn)
+   vn <- all.vars(formula)
+   pnames <- names(prm)
+   
+   ppos <- match(pnames, vn)
+   datvar <- vn[-ppos]
+   cat("Data variables:")
+   print(datvar)
+   cat("Are the variables present in the dot args?\n")
+   for (i in seq_along(datvar)){
+       dname <- datvar[[i]]
+       cat(dname," : present=",(dname %in% dtn),"\n")
+   }
+}
+
+finddotargs(hobsc, ste, y=y, tt=tt)
+# ===============================
+
+
+
+
 nlsquiet <- nls(formula=hobsc, start=ste)
 print(nlsquiet)
 #- OK

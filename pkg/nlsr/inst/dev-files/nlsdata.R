@@ -13,40 +13,48 @@ ste <- c(b1 = 2, b2 = 5, b3 = 3)
 nlsquiet <- nls(formula=hobsc, start=ste)
 print(nlsquiet)
 #- OK
+nlsdots <- nls(formula=hobsc, start=ste, y=y, tt=tt)
+print(nlsdots)
+#- OK
+nlsframe <- nls(formula=hobsc, start=ste, data=mydata)
+print(nlsframe)
+#- OK
 
-library(nlmrt)
-nlxbquiet <- nlxb(formula=hobsc, start=ste)
-print(nlxbquiet)
+library(nlsr)
+nlsrquiet <- nlxb(formula=hobsc, start=ste)
+print(nlsrquiet)
+#- OK
+nlsrdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt)
+print(nlsrdots)
 #- Note -- does NOT work
+nlsframe <- nls(formula=hobsc, start=ste, data=mydata)
+print(nlsframe)
+#- OK
+
 
 library(minpack.lm)
 nlsLMquiet <- nlsLM(formula=hobsc, start=ste)
 print(nlsLMquiet)
 #- OK
-
 ## Dotargs
-nlsdots <- nls(formula=hobsc, start=ste, y=y, tt=tt)
-print(nlsdots)
-#- OK
-
-nlxbdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt)
-print(nlxbdots)
-#- Note -- does NOT work
-
 nlsLMdots <- nlsLM(formula=hobsc, start=ste, y=y, tt=tt)
 print(nlsLMdots)
 #-  Note -- does NOT work
-
 ## dataframe
-nlsframe <- nls(formula=hobsc, start=ste, data=mydata)
-print(nlsframe)
-#- OK
-
-nlxbframe <- nlxb(formula=hobsc, start=ste, data=mydata)
-print(nlxbframe)
-#- OK
-
 nlsLMframe <- nlsLM(formula=hobsc, start=ste, data=mydata)
 print(nlsLMframe)
+#- OK
+
+detach("package:nlsr", unload=TRUE)
+library(nlmrt)
+nlxbquiet <- nlxb(formula=hobsc, start=ste)
+print(nlxbquiet)
+#- Note -- does NOT work
+nlxbdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt)
+print(nlxbdots)
+#- Note -- does NOT work
+## dataframe
+nlxbframe <- nlxb(formula=hobsc, start=ste, data=mydata)
+print(nlxbframe)
 #- OK
 

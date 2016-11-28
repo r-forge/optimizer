@@ -1,4 +1,4 @@
-## nlsdata.R
+## @knitr nlsdata.R
 # try different ways of supplying data to R nls stuff
 y <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558,
 50.156, 62.948, 75.995, 91.972)
@@ -57,9 +57,6 @@ finddotargs <- function(formula, prm, ...) {
 finddotargs(hobsc, ste, y=y, tt=tt)
 # ===============================
 
-
-
-
 nlsquiet <- nls(formula=hobsc, start=ste)
 print(nlsquiet)
 #- OK
@@ -74,11 +71,11 @@ library(nlsr)
 nlsrquiet <- nlxb(formula=hobsc, start=ste)
 print(nlsrquiet)
 #- OK
-nlsrdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt)
-print(nlsrdots)
+test <- try(nlsrdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt))
+  if (class(test) != "try-error") { print(nlsrdots) } else {cat("Try error\n") }
 #- Note -- does NOT work -- do we need to specify the present env. in nlfb for y, tt??
-nlsframe <- nls(formula=hobsc, start=ste, data=mydata)
-print(nlsframe)
+test2 <- try(nlsframe <- nls(formula=hobsc, start=ste, data=mydata))
+if (class(test) != "try-error") {print(nlsframe) } else {cat("Try error\n") }
 #- OK
 
 
@@ -87,8 +84,8 @@ nlsLMquiet <- nlsLM(formula=hobsc, start=ste)
 print(nlsLMquiet)
 #- OK
 ## Dotargs
-nlsLMdots <- nlsLM(formula=hobsc, start=ste, y=y, tt=tt)
-print(nlsLMdots)
+##?? nlsLMdots <- nlsLM(formula=hobsc, start=ste, y=y, tt=tt)
+##?? print(nlsLMdots)
 #-  Note -- does NOT work
 ## dataframe
 nlsLMframe <- nlsLM(formula=hobsc, start=ste, data=mydata)
@@ -97,11 +94,11 @@ print(nlsLMframe)
 
 detach("package:nlsr", unload=TRUE)
 library(nlmrt)
-nlxbquiet <- nlxb(formula=hobsc, start=ste)
-print(nlxbquiet)
+##?? nlxbquiet <- nlxb(formula=hobsc, start=ste)
+##?? print(nlxbquiet)
 #- Note -- does NOT work
-nlxbdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt)
-print(nlxbdots)
+##?? nlxbdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt)
+##?? print(nlxbdots)
 #- Note -- does NOT work
 ## dataframe
 nlxbframe <- nlxb(formula=hobsc, start=ste, data=mydata)

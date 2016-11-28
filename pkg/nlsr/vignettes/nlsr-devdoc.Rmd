@@ -223,7 +223,7 @@ In retrospect, this is a bad idea because y and t are needed. To make the use of
 data explicit, it is saved in the variables `tdat` for time and `ydat` for the weed
 data.
 
-```{r}
+```{r hobbsrestest}
 # tryhobbsderiv.R
 ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
        75.995, 91.972)
@@ -250,7 +250,7 @@ print(r1)
 ```
 Now we try some of the derivative capabilities of `nlsr`.
 
-```{r, error=TRUE, warning=TRUE, messages=TRUE}
+```{r hobbnlsr, error=TRUE, warning=TRUE, messages=TRUE}
 ## NOTE: some functions may be seemingly correct for R, but we do not
 ## get the result desired, despite no obvious error. Always test.
 require(nlsr)
@@ -468,7 +468,7 @@ equations.
 
 To illustrate this for zero residual problems, let us set up a simple test.
 
-```{r}
+```{r smallresid}
 ## test small resid case with roffset
 tt <- 1:25
 ymod <- 10 * exp(-0.01*tt) + 5
@@ -488,7 +488,7 @@ to get the interpolating function, first with `nls()`, then with `nlxb()`. In th
 second case we have turned off the trace, as the approach "works" because we have 
 taken care in the code to provide for problems with small residuals. 
 
-```{r}
+```{r nlsfit0}
 nlsfit0 <-  try(nls(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=TRUE))
 nlsfit0
 library(nlsr)
@@ -499,7 +499,7 @@ We can approximate what `nls()` is doing by running a simple Gauss-Newton method
 step at a time. It is (or was at the time of writing) easier to do this in functional 
 form with explicit derivatives. Note that we test these functions! 
 
-```{r}
+```{r trf}
 trf <- function(par, data) {
     tt <- data[,"tt"]
     res <- par["aa"]*exp(-par["bb"]*tt) + par["cc"] - y0
@@ -539,7 +539,7 @@ condition number of the problem, and a more direct QR decomposition of the
 Jacobian is now the preferred approach. However, let us try both to ensure we
 are getting similar answers. First the QR approach.
 
-```{r}
+```{r gnjn, eval=FALSE}
 gnjn <- function(start, resfn, jacfn = NULL, trace = FALSE, 
 		data=NULL, control=list(), ...){
 # simplified Gauss Newton
@@ -606,7 +606,7 @@ so deviations of this magnitude from the iterations are not unexpected.
 Let us test with a traditional Gauss-Newton.
 
 
-```{r}
+```{r gnjn2, eval=FALSE}
 gnjn2 <- function(start, resfn, jacfn = NULL, trace = FALSE, 
 		data=NULL, control=list(), ...){
 # simplified Gauss Newton
@@ -715,7 +715,7 @@ However, fitting 1 series would still need this data, and example
 nlsrtryextraparms.txt shows that the extra parm (ms in this case)
 needs to be in the user's globalenv.
 
-```{r}
+```{r scaling}
 rm(list=ls())
 require(nlsr)
 # want to have data AND extra parameters (NOT to be estimated)
@@ -759,7 +759,7 @@ print(anlxb1b)
 We use the Hobbs Weeds problem (Nash, 1979 and Nash, 2014). Note that
 nls() fails from start1.
 
-```{r}
+```{r useex1}
 require(nlsr)
 traceval <- FALSE
 # Data for Hobbs problem
@@ -787,7 +787,7 @@ print(anlsb1)
 A different start causes nlxb to return a large sum of squares. Note
 that nls() again fails. 
 
-```{r}
+```{r usex2}
 startf1  <-  c(b1=1, b2=1, b3=.1)
 anlsf1 <-  try(nls(eunsc, start=startf1, trace=TRUE, data=weeddata1))
 print(anlsf1)
@@ -803,7 +803,7 @@ print(anlxf1)
 We can discover quickly the difficulty here by computing the Jacobian
 at this "solution" and checking its singular values.
 
-```{r}
+```{r usex3}
 
 cf1 <- coef(anlxf1)
 print(cf1)
@@ -823,7 +823,7 @@ expressions, but now we need to have a gradient function as well as one to
 compute residuals. **nlsr** has tools to create these functions from expressions,
 as we shall see here. First we again set up the data and load the package.
 
-```{r}
+```{r usex4}
 require(nlsr)
 traceval <- FALSE
 # Data for Hobbs problem
@@ -841,9 +841,7 @@ weeddata1  <-  data.frame(y=ydat, tt=tdat)
 ```
 
 
-
-
-```{r}
+```{r usex5}
 weedrj <- model2rjfun(modelformula=eunsc, pvec=start1, data=weeddata1)
 
 
@@ -860,7 +858,7 @@ modeldoc(weedrj) # Note how useful this is to report status
 
 ### Why is resss difficult to use in optimization?
 
-```{r}
+```{r mod2rjopt}
 y <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558,
 50.156, 62.948, 75.995, 91.972)
 tt <- seq_along(y) # for testing
@@ -882,7 +880,7 @@ a1
 
 We can also embed the function directly. 
 
-```{r}
+```{r embedfn}
 a2 <- optim(p, function(p,resfn=rjfn){resss(p,resfn)}, control=list(trace=0))
 a2
 ```
@@ -906,7 +904,7 @@ We use an example that appeared on the R-help mailing list on Jan 14, 2015.
 Responses by Ravi Varadhan and others, along with some modification I made,
 gave the following negative log likelihood function to be minimized.
 
-```{r}
+```{r weibull}
 y=c(5,11,21,31,46,75,98,122,145,165,195,224,245,293,321,330,350,420) # data set
 
 Nweibull2 <- function(x,prm){
@@ -930,7 +928,7 @@ partial derivatives. The expression is:
 
       la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) )
 
-```{r}
+```{r weibull2}
 # Put in the main expression for the Nweibull pdf.
 require(nlsr)
 
@@ -946,7 +944,7 @@ g3n
 By copying and pasting the output above into a function structure, we get
 Nwei2g() below.
 
-```{r}
+```{r nwei2g}
 Nwei2g <- function(x, prm){
   la <- prm[1]
   al <- prm[2]
@@ -972,7 +970,7 @@ gg <- matrix(data=c(g1v, g2v, g3v), ncol=3)
 We can check this gradient functionusing the grad() function from package
 **numDeriv**.
 
-```{r}
+```{r checkgrad}
 start1 <- c(lambda=.01,alpha=340,beta=.8)
 start2 <- c(lambda=.01,alpha=340,beta=.7)
 
@@ -1000,7 +998,7 @@ elements of the quantity *R*. Since the derivative of log(R) w.r.t. R is
 simply 1/R, this is relatively simple. However, I have not found how
 to automate this.
 
-```{r}
+```{r LL2J}
 ## and now we can build the gradient of LL2J
 LL2Jg <- function(prm, y) {
     R = Nweibull2(y,prm)
@@ -1016,4 +1014,20 @@ gnLL2J
 cat("max(abs(gaLL2J-gnLL2J))= ", max(abs(gaLL2J-gnLL2J)), "\n" )
 ```
 
+## Appendix A: Providing exogenous data
+
+
+```{r cache=FALSE, echo=FALSE}
+library(knitr)
+# read chunk (does not run code)
+read_chunk('/home/john/rsvnall/optimizer/pkg/nlsr/inst/dev-files/nlsdata.R')
+# We use this approach to avoid having differences between file here and in inst/extdata/
+```
+
+```{r}
+<<nlsdata.R>>
+```
+
+
 # References
+

@@ -21,9 +21,15 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
         residexpr <- deriv(residexpr, names(pvec))
 ## SHOULD TRY:??
 ##	residexpr <- fnDeriv(residexpr, names(pvec))
-	
-    if (is.null(data))
+#    data <- list(...)	
+    if (is.null(data)) {
 	data <- environment(modelformula) # this will handle variables in the parent frame
+#        cat("environment(modelformula):")
+#        print(str(data))
+#        data <- environment()
+#        cat("environment():")
+#        print(str(data))
+        }
         ## ?? Don't yet handle variable in dot args. But no dot args here.
     else if (is.list(data))
 	data <- list2env(data, parent = environment(modelformula))
@@ -47,7 +53,6 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
 	    stop("Jacobian contains ", unique(attr(resids, "gradient")[bad]))
 	rm(resids, bad)  # Don't want to capture these in the environment of rjfun
     }
-    
     rjfun
 }
 

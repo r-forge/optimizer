@@ -25,9 +25,7 @@ animation.
 ## TODOS
 
   - sort out what is going on with tkrplot -- does not always work
-  - comment and test the animation code
   - try nloptr
-  - try other optimizers
   - try shiny for running the animation ??
   - Do we want to make VMPOLY files available??
 
@@ -623,9 +621,6 @@ Calling the PolyTrack function creates a new environment to hold all the sets of
 time a new "better" polygon is found, the `nPolys` most recent 
 (the code above uses 5) polygons are redrawn using the vector of (fading) colours. 
 
-```
- %%r drawpoly1, eval=FALSE%%
-```
 
 As of Nov 10, 2016, replay of the stored points with `tkrplot` does not seem to work reliably. 
 

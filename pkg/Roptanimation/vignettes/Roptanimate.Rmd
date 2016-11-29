@@ -355,10 +355,7 @@ Our first try (which we will state in advance does not work well) is to add a mu
 of the sum of the distance violations. These are the pairwise squared distances for those
 inter-vertex distances that are not given by the radial parameters. We assume the simple
 bounds are in force for the radial and angular parameters. This results in the following
-objective function.
-
-```{r polyobjq}
-```
+objective function with its associated gradient.
 
 ```{r polyobjq}
 ```
@@ -367,16 +364,25 @@ Setting the penalty factor (`penfactor`) at 100, we use M. J. Powell's bobyqa mi
 to try to find the solution. 
 
 ```{r polyexq}
+
+start <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+lb <- myhex$lb
+ub <- myhex$ub
+cat("Starting parameters:")
+print(start)
+
+library(minqa)
+cat("Attempt with quadratic penalty\n")
+sol1 <- bobyqa(start, polyobjq, lower=lb, upper=ub, control=list(iprint=2), penfactor=100)
+print(sol1)
+cat("area = ",polyarea(sol1$par),"\n")
 ```
+
 The objective is the negative area PLUS the penalty, so (-1) times this value is a lower 
 bound on the area. But we see that it is smaller than the reference value (approximately
 0.64952) of the unit regular hexagon. We also display the computed area directly, and it
 shows that the constraint penalty is not appreciably contributing to the objective.
 We clearly have more work to do.
-
-
-```{r polyobjbig}
-```
 
 
 ## Logarithmic barrier constraint

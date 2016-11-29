@@ -404,7 +404,8 @@ attempted. To avoid this, we will simply make the objective function very large 
 any time when there is a violation. However, this does cause grief for the evaluation
 of numerical approximations to gradients, so we may want to revise this policy later
 and seek more elegant (but likely more complicated) techniques to deal with this 
-possibility. The large number for now will be ` bignum = 1e20 `.
+possibility. The large number for now will be ` bignum = 1e20 `. The code polyobjp.R
+attempts to avoid some of these difficulties, but there is still work to do.
 
 Since the logarithmic barrier does not let the parameters end actually ON then bound,
 we may wish to move the constraint an epsilon beyond 1 by redefining the slack as
@@ -412,88 +413,205 @@ we may wish to move the constraint an epsilon beyond 1 by redefining the slack a
 ``slack = (1 + epsilon - squared.distance)``
 
 But what should `epsilon` be? We may revisit this later, but for the moment set the 
-value at 0, and the resulting code is as follows.
+value at 0, and the resulting code is as follows, with its associated gradient.
+And here is the gradient code. Note that we need to be careful about the indexing. We don't show
+it here, but we did perform a quick check with package `numDeriv` that the gradient is 
+correctly computed for the starting vector `x0`.
 
 ```{r polyobj}
 ```
 
-
-```{r polyobj}
+```{r polygrad}
 ```
+
+
+To allow for unconstrained minimizers to act on this problem, we include the radial
+parameters in the logarithmic barriers, rather than use traditional active-set bounds.
+This results in the code polyobju.R.
 
 ```{r polyobju}
 ```
 
-```{r polyobjp}
+```{r polygradu}
 ```
 
 
+
+Finally, our first attempt to overcome non-computability when a step crosses the 
+constraint boundary and the log barrier is inadmissible.
+
+```{r polyobjp}
+```
+
+```{r polygradp}
+```
+
+
+### Running the log barrier constrained functions
 
 With Powell's bobyqa, we attempt to minimize this objective from the same start as
 before. We set the penalty factor quite small, in fact 0.01, as the barrier is non-zero within
 the feasible region.
 
 ```{r polyex2}
+## @knitr polyex2
+library(minqa)
+cat("Attempt with logarithmic barrier polyobj.R\n")
+x0 <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+lb <- myhex$lb
+ub <- myhex$ub
+cat("Starting parameters:")
+print(x0)
+sol2 <- bobyqa(x0, polyobj, lower=lb, upper=ub, control=list(iprint=2), penfactor=1e-3)
+print(sol2)
+cat("Area found=",polyarea(sol2$par),"\n")
+
 ```
 
-This is not too bad. Possibly another method could do better. We can adjust the objective 
+This is not too bad. We can save the result then try with a smaller penalty factor.
+
+```{r polyex2a}
+x0a <- sol2$par
+sol2a <- bobyqa(x0a, polyobj, lower=lb, upper=ub, control=list(iprint=2), penfactor=1e-6)
+print(sol2a)
+cat("Area found=",polyarea(sol2a$par),"\n")
+```
+
+And again, reducing the penfactor to 1e-9.
+
+```{r polyex2b}
+x0b <- sol2a$par
+sol2b <- bobyqa(x0b, polyobj, lower=lb, upper=ub, control=list(iprint=2), penfactor=1e-9)
+print(sol2b)
+cat("Area found=",polyarea(sol2b$par),"\n")
+```
+
+But a further attempt does very poorly.
+
+```{r polyex2c}
+x0c <- sol2b$par
+sol2c <- bobyqa(x0c, polyobj, lower=lb, upper=ub, control=list(iprint=2), penfactor=1e-12)
+print(sol2c)
+cat("Area found=",polyarea(sol2c$par),"\n")
+```
+
+Possibly another method could do better. 
+
+In polyobju.R, we adjust the objective 
 so the radial parameters are constrained using a logarithmic barrier, then use an unconstrained 
-optimization method. 
+optimization method. There are a number of unconstrained 
+optimization methods, and the `optimrx` package lets us try them out all at once. To avoid
+too much computing time, we use three methods, all of which could use bounds if we provided
+them.
 
-```{r polyobju}
+```{r polyexu}        
+library(optimrx)
+methset <- c("Rvmmin", "L-BFGS-B", "nlminb")
+suall <- opm(x0, polyobju, polygradu, method=methset, control=list(trace=0, kkt=FALSE), penfactor=1e-5)
+# NOTE: Got complex Hessian eigenvalues when trying for KKT tests
+suall <- summary(suall, order=value)
+print(suall)
+resu <- coef(suall)
+nmeth <- dim(resu)[1]
+best0 <- resu[1,]
+polyarea(best0)
 ```
 
-And here is the gradient code. Note that we need to be careful about the indexing. We don't show
-it here, but we did perform a quick check with package `numDeriv` that the gradient is 
-correctly computed for the starting vector `x0`.
+This is quite good, and reasonably fast, though we note that the solver has terminated on
+too many gradients in the two best cases. Nevertheless, we have the area to 4 decimals. 
+We can, of course, use the explicit bounds with these particular methods.
+Let us see how they perform. 
 
-```{r polygradu}
+## Check with bounds
+
+```{r polyobjwb}
+sall <-  opm(x0, polyobj, polygrad, method=methset, lower=lb, upper=ub, 
+             control=list(trace=0, kkt=FALSE), penfactor=1e-5)
+sall <- summary(sall, order=value)
+print(sall)
+best1 <- coef(sall)[1,]
+polyarea(best1)
 ```
 
-There are a number of unconstrained optimization methods, and the `optimrx` package lets
-us try them out all at once.
+Here, one of the methods -- L-BFGS-B -- has failed. Note that we did get a warning that
+the gradient was infeasible, and it is likely the method has stepped into the infeasible
+region. We also note that once again, the other two methods have hit gradient evaluation
+limits. Such limits are INSIDE the methods, though there are ways to set them. However,
+most users will not bother to learn how to do this (it is often quite obscure), and we
+believe that tests should be with stock versions of codes. 
 
-```{r polyexuall}        
+We note also that the best result is not quite so good as with the function polyobju.R.
+
+### All methods available to **optimrx**
+
+We can use the function polyobju.R with all the methods available in the package
+**optimrx** from https://r-forge.r-project.org/projects/optimizer/. The results of
+running all the methods from `x0` where 
+
+```
+> print(polyobju(x0, penfactor=1e-5))
+[1] -0.6236083
+attr(,"area")
+[1] 0.6237981
+attr(,"minslack")
+[1] 0.0396
 ```
 
-We note that the only bounds constrained minimizer in `R`'s base function `optim()` is
-that invoked by the method "L-BFGS-B", and this has done rather poorly. In fact, it does not even find
-the regular hexagon above. Possibly we should use the bounds constraints directly, but we can first 
-supply gradients.
+are as follows (run on machine J6, 2016-11-29):
 
-```{r polygrad}
+```
+p9      value fevals gevals convergence kkt1 kkt2 xtime
+ucminf      0.1757560 -0.6743258    402    402           0   NA   NA 0.186
+nlm         0.6984392 -0.6743258     NA    471           0   NA   NA 0.522
+Rvmmin      0.6984390 -0.6743258    386   1501           1   NA   NA 0.563
+Rcgmin      0.6984414 -0.6743258   3023   1501           1   NA   NA 0.819
+BFGS        0.6979991 -0.6743241    342     83           0   NA   NA 0.062
+Rtnmin      0.6987669 -0.6743190    630    630           2   NA   NA 1.128
+hjkb        0.7062961 -0.6743079  11018     NA           0   NA   NA 1.135
+nlminb      0.6299766 -0.6704514    317    151           1   NA   NA 0.077
+CG          0.6202124 -0.6695781   4706   1501           1   NA   NA 0.915
+nmkb        0.6513722 -0.6630782   1225     NA           0   NA   NA 0.205
+hjn         0.3795476 -0.6607589  16223     NA           0   NA   NA 1.852
+newuoa      0.5264272 -0.6507394  15000     NA           1   NA   NA 1.729
+Nelder-Mead 0.5199981 -0.6496394   1502     NA           1   NA   NA 0.146
+spg         0.5278788 -0.6491492   1816   1501           1   NA   NA 0.812
+bobyqa      0.5383891 -0.6449078    409     NA           0   NA   NA 0.042
+L-BFGS-B    0.5235988 -0.6236083      3      3           0   NA   NA 0.000
+lbfgsb3     0.5235988 -0.6236083      3      3           0   NA   NA 0.004
+lbfgs       0.5235988 -0.6236083     NA     NA       -1001   NA   NA 0.000
 ```
 
+We see that gradient methods occupy the top 6 positions, but also the lbfgs family 
+of methods has not been able to proceed at all. 
 
-Let us try all the bounds-constrained methods in `opm` from package `optimrx`.
+## Issues in this specification and minimization
 
-```{r polyexallb}        
-```
+The experiences above show that the minimization is sensitive to how we set up the
+problem and to the choice of the penalty factor. Some of the failures of methods with
+logarithmic barrier methods suggest that methods can easily step into infeasible
+territory. A private communication from Prof. S. G. Nash of George Mason University
+pointed out that the truncated Newton (and similarly the lbfgs family) methods need
+to employ a modified line search when the logarithmic barrier function is applied. 
+See @NashSofer93.
 
-The Limited Memory BFGS codes and the Truncated Newton -- at least in the variants used here -- have 
-failed completely with this objective function. All have suffered some catastrophe in an internal 
-computation, but we have not yet had time to see if a workaround is possible. 
-
-On the other hand, the all-R routines Rcgmin and Rvmmin have done rather well. 
-Graham reports largest area is approximately 0.674981. We are close. Can we reduce the 
-penalty factor steadily and find a good approximation to the optimal area?
-
-## Issues
-
-- polyex3g shows that it is difficult to stay in feasible zone with 
-gradients. We need to stabilize this calculation.
-- Can we use a transfinite function approach to this problem? This transforms 
-the range (a, b) into (-Inf, Inf) using an inverse hyperbolic tangent. 
-However, this can destabilize the optimization.
+We have not (yet) investigated the use of a transfinite function approach to this problem? 
+This transforms  the range (a, b) into (-Inf, Inf) using an inverse hyperbolic tangent,
+thereby converting a bounds constrainted problem  to an unconstrained one. This is, in
+fact, the method used by`nmkb()` from package dfOptim, though we have not applied that
+method here. The transformation can destabilize the optimization, and we still have to
+use a barrier or penalty function to handle the bounds that are not directly imposed on
+parameters. 
 
 ## Animating the progress to an optimum
 
-If we want to visualize the progress of our optimization, then we need to draw the polygons as the
-relevant parameter vectors are tried. However, we probably only want to draw the polygon when we have 
+If we want to visualize the progress of our optimization, then we need 
+to draw the polygons as the
+relevant parameter vectors are tried. However, we probably only want 
+to draw the polygon when we have 
 found a feasible one that increases the area. Furthermore, as we progress, it is helpful to 
 indicate the rank of the polygons in order of area. This can be accomplished by "fading out"
-polygons that are already drawn, though that means keeping a record of all the feasible, larger
-area polygons. 
+polygons that are already drawn, though that means keeping a record of at least some of 
+the feasible, larger-area polygons. 
 
 We can achieve all these desiderata by means of the following function.
 
@@ -501,7 +619,7 @@ We can achieve all these desiderata by means of the following function.
 ```
 
 Calling the PolyTrack function creates a new environment to hold all the sets of points. Each
-time a new "better" polygon is found, all the polygons are redrawn using the vector of (fading)
+time a new "better" polygon is found, the polygons are redrawn using the vector of (fading)
 colours. 
 
 ```{r drawpoly1, eval=FALSE}

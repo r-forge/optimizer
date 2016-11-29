@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 bibliography: Roptanimate.bib
 ## output: pdf_document
 output: rmarkdown::html_vignette
+## output: md_document
 vignette: >
   %\VignetteIndexEntry{Animating geometric optimization: small polygons}
   %\VignetteEngine{knitr::rmarkdown}
@@ -619,10 +620,11 @@ We can achieve all these desiderata by means of the following function.
 ```
 
 Calling the PolyTrack function creates a new environment to hold all the sets of points. Each
-time a new "better" polygon is found, the polygons are redrawn using the vector of (fading)
-colours. 
+time a new "better" polygon is found, the `nPolys` most recent 
+(the code above uses 5) polygons are redrawn using the vector of (fading) colours. 
 
-```{r drawpoly1, eval=FALSE}
+```
+ %%r drawpoly1, eval=FALSE%%
 ```
 
 As of Nov 10, 2016, replay of the stored points with `tkrplot` does not seem to work reliably. 
@@ -631,8 +633,8 @@ As of Nov 10, 2016, replay of the stored points with `tkrplot` does not seem to 
 
 Because the code actually builds a list of the points where the polygon is "better", we can
 play back the progress. There are tools in the `tkrplot` package that allow this to be
-made interactive. Thus, when the optimization terminates, we can redraw the polygons at will using the 
-following code.
+made interactive. Thus, when the optimization terminates, we can redraw the 
+polygons at will using the following code.
 
 ```{r redrawpoly1, eval=FALSE}
 ```

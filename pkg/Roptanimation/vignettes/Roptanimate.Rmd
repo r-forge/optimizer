@@ -2,6 +2,7 @@
 title: "Animating geometric optimization: small polygons"
 author: "John C. Nash, Greg Snow"
 date: "`r Sys.Date()`"
+bibliography: Roptanimate.bib
 ## output: pdf_document
 output: rmarkdown::html_vignette
 vignette: >
@@ -22,37 +23,51 @@ animation.
 
 ## TODOS
 
-  - make sure animation is running
-  - sort out what is going on with tkrplot
+  - sort out what is going on with tkrplot -- does not always work
   - comment and test the animation code
   - try nloptr
   - try other optimizers
-  - try shiny for running the animation
-  - Do we want to make VMPOLY files available?)
+  - try shiny for running the animation ??
+  - Do we want to make VMPOLY files available??
 
 ## Background
 
 The **The Largest Small Hexagon** is the title of a paper by
-Ron Graham (J. Combinatorial Theory (A), vol. 18, pp. 165-170, 1975). This did
-not introduce this problem, but served to bring it to wider attention. One of
-the authors (JCN) used this problem to illustrate constrained optimization using
-the tools in J.C. Nash and M. Walker-Smith (1987, Nonlinear parameter estimation:
-an integrated system in BASIC, New York: Marcel Dekker, now available online at 
-https://archive.org/details/ost-engineering-jnmws2004).
+@GRAHAM1975. This did
+not introduce this problem, but served to bring it to wider attention. The problem statement
+asks for the vertices of a hexagon with maximal area such that no two vertices are more
+than 1 unit distant from each other. There is even a Wikipedia entry for this problem
+(https://en.wikipedia.org/wiki/Biggest_little_polygon).
+The approximate area of the optimal hexagon 0.674981, while it is fairly easy to 
+show that a regular hexagon of diameter 1 has area 6 times the area of an equilateral
+triangle of side 0.5, i.e., 6 * 0.5 * 0.5 * sin(pi/3) / 2 = 0.6495191 (approximately).
+
+The interest in this article is that problems like this have a natural visual quality
+that can be used to interest a non-technical audience, especially if the progress of an
+optimizater can be animated. Note that there are many mathematical aspects of such
+problems that we ignore in our treatment. See @Audet2007.
 
 To provide a visual presentation of the optimization, Nash coded a display for the
-IBM PC family of MS DOS computers running GWBASIC. 
-In May 2016, the discovery that
-files for this example could still execute, albeit clumsily, under Linux using DosBox or 
+IBM PC family of MS DOS computers running GWBASIC. This code was then used to
+to illustrate constrained optimization using the tools in @jnmws87 (now available online at 
+https://archive.org/details/ost-engineering-jnmws2004). The actual files for the
+polygon problem are part of this **Roptanimation** package. ??
+In May 2016, the discovery that these 
+files could still execute, albeit clumsily, under Linux using DosBox or 
 PCBasic raised the possibility of bringing them up to date. R was a logical choice for such an 
 implementation, given that the authors and many others work with this software system. 
+
+There are other animations of optimization tools. Using Javascript, Ben Frederickson
+developed a very attractive demonstration of a selection of optimization algorithms.  See http://www.benfrederickson.com/numerical-optimization/.  Duncan Murdoch prepared a very
+nice illustration of the behaviour of a Nelder-Mead polytope minimization, the code for
+which can be found at https://github.com/florianhartig/LearningBayes/blob/master/CommentedCode/02-Samplers/Optimization/Duncan-Murdoch-Nelder-Mead-demonstration.R. 
 
 ## Parametrization of the polygon
 
 For a polygon with `nv` vertices, we have `2*nv` cartesian (i.e., x, y)
 coordinates. However, use of cartesian coordinates as parameters for this problem 
-leads to a very complicated specification, since 3 parameters can be fixed right
-away. That is, we can arbitrarily fix vertex 1 at the `(0, 0)` or origin of our [2D] space.
+leads to a very complicated specification, since 2 parameters can be set at a fixed
+value right away as defining an origin of the polygon. That is, we can arbitrarily fix vertex 1 at the `(0, 0)` or origin of our [2D] space. 
 Moreover, we can put the second vertex at `(b[1], 0)` where `b` is a vector of
 `(2*nv - 3)` parameters. Changing to a representation that uses a radius from the
 origin for vertex `L` equal to `b[L-1]`, we could use the angle of this vertex from the
@@ -67,8 +82,9 @@ parameter is in position `nv`.
 
 There may be good implementations based on having
 parameters `b[nv] ... b[2*nv-3]` equal to the angles for vertices `3...nv` from
-the x axis. However, 
-that then requires the angles to be monotonically increasing. By specifying that
+the x axis, e.g., as in @dolan2004benchmarking and  @Audet2007. However, 
+that then requires the angles to be monotonically increasing. By specifying instead 
+that
   `b[L+lshift] = alpha[L-1] - alpha[L-2]` for `L=3 ... nv`, and noting that 
   `alpha[1]=0`
 we automatically get the
@@ -89,7 +105,8 @@ welcome suggestions for other ways to prepare the optimization.
 The above parametrization is implemented in the function `polysetup(nv, defsize)`,
 where `defsize` is the default "size" of a regular polygon for which initial parameters
 are established. Generally we will begin our optimization with a polygon for which the 
-size is smaller than 1. This ensures that our initial polygon is feasible, and some 
+size is smaller than 1, and also commence with a regular polygon for convenience. 
+This ensures that our initial polygon is feasible, and some 
 optimization methods such as `nmkb` require that. Note that for drawing the polygon, it is useful to think of a
 vertex `L+1` which is at the same position as vertex 1.
 
@@ -104,7 +121,7 @@ read_chunk('/home/john/rsvnall/optimizer/pkg/Roptanimation/R/smallpoly.R')
 
 The parameters of a regular hexagon of size 1 can be created as follows.
 
-```{r}
+```{r reghexpar}
 # A regular hexagon of size 1
 reghex1 <- polysetup(6, defsize=1)
 cat("Parameters of the regular hexagon of unit size\n")
@@ -130,7 +147,7 @@ reg1area <- polyarea(reghex1$par)
 cat("Reference area of regular hexagon of unit size=",reg1area,"\n")
 ```
 
-This is in accord with R.L. Graham's paper (J. Combinatorial Theory (A), vol. 18, pp. 165-170, 1975).
+This is in accord with @GRAHAM1975 and our result above.
 
 
 ## Conversion of radial to cartesian coordinates
@@ -140,8 +157,8 @@ organized radial coordinates defined by the optimization parameters. The R funct
 `polypar2XY` carries out this computation and puts the `x, y` coordinates
 in a two-vector list `XY`. `XY\$x` gives the `x` coordinates and 
 `XY\$y` gives the `y` coordinates. To simplify the plotting of the polygon
-the first and last values of each list are both 0 so that a graph with joining lines 
-automatically gives the closed figure polygon.
+the first and last values of each list are both 0 so that a graph that uses lines
+to join the vertices automatically gives the closed figure polygon.
 
 ```{r polypar2XY}
 ```
@@ -156,9 +173,10 @@ current polygon that result from running the function `polypar2XY`
 ```{r polydistXY}
 ```
 
-## Vertex distances from radial parameters
+## Computing vertex distances from radial parameters
 
-We could compute these vertex distances from the radial parameters of the polygon.
+We can compute these vertex distances from the radial parameters of the polygon
+by computing the XY coordinates and then the distances.
 The following function calls the conversion from radial to cartesian coordinates,
 then computes the distances.
 
@@ -186,12 +204,43 @@ the simple checks often reveal silly but critical errors.
 An example of a test script follows.
 
 ```{r polyex0, fig.width=5, fig.height=5}
+## @knitr polyex0
+
+# Example code
+nv <- 6
+cat("Polygon data:\n")
+myhex <- polysetup(nv)
+print(myhex)
+x0 <- myhex$par0 # initial parameters
+cat("Area:\n")
+myhexa <- polyarea(x0)
+print(myhexa)
+cat("XY coordinates\n")
+myheXY <- polypar2XY(x0)
+print(myheXY)
+plot(myheXY$x, myheXY$y, type="l")
+cat("Constraints:\n")
+myhexc<-polydistXY(myheXY)
+print(myhexc)
+cat("Vertex distances:")
+print(sqrt(myhexc))
+cat("check distances with polypar2distXY\n")
+try1 <- polypar2distXY(x0)
+print(try1)
+cat("check distances with polypardist2 augmenting output with parameter squares\n")
+try2 <- polypardist2(x0)
+try2 <- c(x0[1:(nv-1)]^2, try2)
+print(try2)
+cat("Max abs difference = ",max(abs(try1-try2)),"\n")
 ```
 
 ## Setup of the optimization
 
 The constrained optimization to maximize the area actually minimizes the negative area.
-However, we need to account for the constraints. Clearly since the radial parameters
+This is because most optimization solvers minimize, and we recommend keeping the 
+direction of progress consistent to avoid errors.
+
+We do, however, need to account for the constraints. Clearly since the radial parameters
 start at one vertex of the polygon, they are bounded above by 1. And naturally, we 
 cannot have a polygon with negative lengths, so 0 is an obvious lower bound, though
 realistically, some modest positive value would likely be workable. This accounts for
@@ -200,13 +249,116 @@ will apply a penalty function which will be added to the negative area. We can a
 put 0 as a lower bound on the angular parameters, and a reasonable upper bound as well.
 pi serves as a conservative bound for these parameters.
 
-## Quadratic penalty function
+The solvers in the package **optimrx** represent the majority of the unconstrained
+and bounds constrained function minimizers commonly available in **R**.  Typically,
+we create a penalty or barrier function that is added to our objective (the negative
+area) to impose the constraint. Penalty functions typically increase the objective 
+more as we increasingly violate the constraints. Barrier functions start to add to
+the objective before the constraint boundary, increasing rapidly as we get very
+close to the boundary. We will use a number of these techniques. Our constrained
+objective functions are 
+
+- polyobjbig.R: the objective is assigned a very large value whenever a constraint
+   is violated. 
+   
+- polyobjq.R: a multiple (`penfactor`) of the squared constraint violation is added
+   to the negative area.
+   
+- polyobj.R: a multiple (`penfactor`) of the negative sum of the logs of the **slacks**
+   is added to the negative area. The slacks are the (positive) distances to the constraint
+   boundaries. We must remain in the feasible region or this objective is undefined. We
+   do not apply slacks to the radial coordinates in this objective function, for which
+   we attempt solutions only with solvers that can handle bounds constraints.
+   
+- polyobju.R: this is essentially the same objective function as polyobj.R, but we
+   now compute slacks for the radial parameters, so that unconstrained minimizers can
+   be applied to this function.
+
+Because the log() function increases extremely rapidly for small arguments, the 
+`penfactor` for the barrier functions is generally quite small, while that for the
+quadratic penalty is quite large. We also allow for the slacks / violations to be
+modified by shifting the constraint boundary slightly using a quantity `epsilon`.
+This latter option has not been examined closely yet.
+
+There are two specific adjustments to the codes above we can make:
+
+- Except for polyobjbig.R, we can compute gradients and the code is given below.
+
+- It is not uncommon for minimizers to make steps into an infeasible region. An
+attempt to avoid a halt in the minimization process due to an error, we have recoded
+polyobj.R to polyobjp.R which attempts to provide a large number for the objective in
+such cases. The gradient, however, may not be computable, so we try to provide a 
+warning rather than an error.
+
+Here are the codes.
+   
+### Making objective very large on constraint violation
+
+This is an old "trick" in optimization of using a non-gradient direct search method that 
+assigns the objective function its correct value when the parameters are feasible 
+and a very large value when they are violated. We supply the value of `bignum` 
+to the objective function via the call.
+
+```{r polyobjbig}
+```
+To test several optimizers at once, we use the `opm()` function of the
+R-forge package `optimrx`. 
+
+
+```{r polyexbig}
+## @knitr polyexbig
+
+library(optimrx)
+cat("Attempt with setting objective big on violation\n")
+
+x0 <- myhex$par0 # starting parameters (slightly reduced regular hexagon)
+cat("Starting parameters:")
+print(x0)
+meths <- c("Nelder-Mead", "nmkb", "hjkb", "newuoa")
+solb <- opm(x0, polyobjbig, method=meths, bignum=1e+10)
+print(summary(solb, order=value, par.select=1:2))
+```
+
+The two Nelder-Mead inspired codes are the best of a bad lot here, with Kelley's
+variant (`nmkb`) doing a little better, though neither has
+got really close to the solution for the small hexagon problem. Note how different the
+solutions appear (we only include the first 2 parameters to save space). Let us draw them. 
+
+```{r polyexbigplot, fig.height=6, fig.width=6}
+NMpar <- unlist(solb["Nelder-Mead",1:9])
+nmkbpar <- unlist(solb["nmkb",1:9])
+print(NMpar)
+cat("Nelder-Mead area=", polyarea(NMpar))
+print(nmkbpar)
+cat("nmkb area=", polyarea(nmkbpar))
+NMXY <- polypar2XY(NMpar)
+nmkbXY <- polypar2XY(nmkbpar)
+plot(NMXY$x, NMXY$y, col="red", type="l", xlim=c(-.25,0.85), ylim=c(-.05, 1.05), xlab="x", ylab="y")
+points(nmkbXY$x, nmkbXY$y, col="blue", type="l")
+title(main="Hexagons from NM (red) and nmkb (blue)")
+```
+
+Caution: If the x and y scales of the plot surface are not equal, these drawings will
+not give a clear view of the results. 
+
+Drawing these polygons so we can visually compare them involves transformations that
+must align the polygons so one edge is on the x axis. But which edge to choose as the
+first? Then we must note that a vertical reflection of the polygon about the mid-point
+of the chosen edge will result in an equivalent solution. These options remind us that
+the optimization problem has multiple solutions, all with equal optimal area, which
+is part of the difficulty of the largest small polygon problem.
+
+
+### Quadratic penalty function
 
 Our first try (which we will state in advance does not work well) is to add a multiple
 of the sum of the distance violations. These are the pairwise squared distances for those
 inter-vertex distances that are not given by the radial parameters. We assume the simple
 bounds are in force for the radial and angular parameters. This results in the following
 objective function.
+
+```{r polyobjq}
+```
 
 ```{r polyobjq}
 ```
@@ -222,36 +374,10 @@ bound on the area. But we see that it is smaller than the reference value (appro
 shows that the constraint penalty is not appreciably contributing to the objective.
 We clearly have more work to do.
 
-## Making objective very large on constraint violation
-
-An old "trick" in optimization is to use a non-gradient direct search method that 
-assigns the objective function its correct value when the parameters are feasible 
-and a very large value when they are violated. We supply the value of `bignum` 
-to the objective function via the call.
 
 ```{r polyobjbig}
 ```
 
-To test several optimizers at once, we use the `opm()} function of the
-R-forge package `optimrx`. 
-
-```{r polyexbig}
-```
-
-The two Nelder-Mead inspired codes are the best of a bad lot here, though neither has
-got really close to the solution for the small hexagon problem. Note how different the
-solutions appear. Let us draw them.
-
-```{r polyexbigplot, fig.height=6, fig.width=6}
-```
-
-
-Drawing these polygons so we can visually compare them involves transformations that
-must align the polygons so one edge is on the x axis. But which edge to choose as the
-first? Then we must note that a vertical reflection of the polygon about the mid-point
-of the chosen edge will result in an equivalent solution. These options remind us that
-the optimization problem has multiple solutions, all with equal optimal area, which
-is part of the difficulty of the largest small polygon problem.
 
 ## Logarithmic barrier constraint
 
@@ -284,6 +410,18 @@ value at 0, and the resulting code is as follows.
 
 ```{r polyobj}
 ```
+
+
+```{r polyobj}
+```
+
+```{r polyobju}
+```
+
+```{r polyobjp}
+```
+
+
 
 With Powell's bobyqa, we attempt to minimize this objective from the same start as
 before. We set the penalty factor quite small, in fact 0.01, as the barrier is non-zero within
@@ -336,8 +474,11 @@ penalty factor steadily and find a good approximation to the optimal area?
 
 ## Issues
 
-- polyex3g shows that it is difficult to stay in feasible zone with gradients. We need to stabilize this calculation.
-- Can we use a transfinite function approach to this problem? This transforms the range (a, b) into (-Inf, Inf) using an inverse hyperbolic tangent. However, this can destabilize the optimization.
+- polyex3g shows that it is difficult to stay in feasible zone with 
+gradients. We need to stabilize this calculation.
+- Can we use a transfinite function approach to this problem? This transforms 
+the range (a, b) into (-Inf, Inf) using an inverse hyperbolic tangent. 
+However, this can destabilize the optimization.
 
 ## Animating the progress to an optimum
 
@@ -376,3 +517,7 @@ following code.
 
 Email discussions with Prof. S. G. Nash of George Mason University have been helpful in 
 developing some of the ideas in this article.
+
+
+## References
+

@@ -334,7 +334,8 @@ polydistXY <- function(XY) {
 ## @knitr polyexample
 
 # Example code -- seems to work for nv=6, but not otherwise ??
-nvex <- as.numeric(readline("Number of vertices ="))
+# nvex <- as.numeric(readline("Number of vertices ="))
+nvex <- 6
 # Note the as.numeric
 nv <- nvex # to copy value above
 cat("There are ",nv," vertices\n")
@@ -365,9 +366,9 @@ library(optimrx)
 ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
 lb <- c(rep(0, (2*nv-3)))
 sol <- optimr(start, polyobju, polygradu, method="Rvmmin",
-                control=list(trace=1), penfactor=1e-5)
+                control=list(trace=1, maxit=10000), penfactor=1e-5)
 
-str(pt1)
+# str(pt1)
 tmp <- readline("cont.")
 
 # Redo the plots/animation after the optimization

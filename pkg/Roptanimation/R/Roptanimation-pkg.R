@@ -41,6 +41,119 @@ addplot <- function(penv, x, f, area) {
    val <- 0
 }
 
+## @knitr polyobj
+
+polyobj <- function(x, penfactor=1e-8, epsilon=0) {
+# log barrier objective function for small polygon
+# epsilon <- 0
+ bignum <- 1e+20
+ # (negative area) + penfactor*(sum(squared violations))
+ nv = (length(x)+3)/2 # number of vertices
+ area <- polyarea(x) # area
+ f <- - area 
+ dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
+ slacks <- 1.0 + epsilon - dist2 # slack vector
+ if (any(slacks <= 0)) { 
+#     cat("polygrad: Infeasible parameters at\n")
+#     print(x)
+     f <- bignum 
+     area <- -area # to code for infeasible and avoid plotting
+ } # in case of step into infeasible zone
+ else {  f <- f - penfactor*sum(log(slacks)) }
+ attr(f,"area") <- area
+ attr(f,"minslack") <- min(slacks)
+ f
+}
+
+
+## @knitr polygrad
+
+polygrad <- function(x, penfactor=1e-8, epsilon=0) {
+# log barrier gradient function for small polygon
+ nv <- (length(x)+3)/2
+ l8 <- nv - 3 # end of radii params
+# epsilon <- 0
+ bignum <- 1e+20
+ # (negative area) + penfactor*(sum(squared violations))
+ nn <- length(x)
+ gg <- rep(0, nn)
+ dist2 <- polypardist2(x) # from radial coords, excluding radii (bounded)
+ slacks <- 1.0 + epsilon - dist2 # slack vector
+ if (any(slacks <= 0)) { 
+    cat("polygrad: Infeasible parameters at\n")
+    print(x)
+    stop("polygrad: Infeasible") 
+ } 
+ for (ll in 3:nv) {
+    ra<-x[ll-1]
+    rb<-x[ll-2]
+    abangle <- x[l8 + ll]
+    # are is 0.5*ra*rb*sin(abangle)
+    gg[ll-2] <- gg[ll-2] - 0.5*ra*sin(abangle)
+    gg[ll-1] <- gg[ll-1] - 0.5*rb*sin(abangle)
+    gg[ll+l8] <- gg[ll+l8] - 0.5*ra*rb*cos(abangle)
+ }
+ ll <- 0
+ for (ii in 2:(nv-1)){
+    for (jj in (ii+1):nv) {
+       ll <- ll+1
+       ra <- x[ii-1]
+       rb <- x[jj-1]
+       angleab <- 0
+       for (kk in (ii+1):jj) { angleab <- angleab + x[kk+l8] }
+       gg[ii-1] <- gg[ii-1] + 2*penfactor*(ra-rb*cos(angleab))/slacks[ll]
+       gg[jj-1] <- gg[jj-1] + 2*penfactor*(rb-ra*cos(angleab))/slacks[ll]
+       for (kk in (ii+1):jj){
+          gg[kk+l8]<-gg[kk+l8]+2*penfactor*ra*rb*sin(angleab)/slacks[ll]
+       }
+    }
+ }
+ gg
+}
+
+
+
+## @knitr polyobjq
+
+polyobjq <- function(x, penfactor=0, epsilon=0) {
+ # negative area + penfactor*(sum(squared violations))
+ nv = (length(x)+3)/2 # number of vertices
+ area  <-  polyarea(x) # negative area
+ f <- -area
+ XY <- polypar2XY(x)
+ dist2 <- polydistXY(XY)
+ viol <- dist2[which(dist2 > 1)] - 1.0
+ f <- f + penfactor * sum(viol)
+ slacks <- 1.0 + epsilon - dist2 # slack vector
+ if (any(slacks <= 0)) { 
+    attr(f,"area") <- -area
+ } # in case of step into infeasible zone
+ else {  
+    attr(f,"area") <- area
+ }
+ attr(f,"minslack") <- min(slacks)
+ f
+}
+
+
+## @knitr polyobjbig
+
+polyobjbig <- function(x, bignum=1e10, epsilon=0) {
+ # Put objective to bignum when constraints violated
+ nv = (length(x)+3)/2 # number of vertices
+ area <- polyarea(x)
+ d2 <- c(x[1:(nv-1)]^2, polypardist2(x)) # distances
+ slacks <- 1.0 + epsilon - d2 # slack vector
+ if (any(d2 >=1) ) { 
+     f <- bignum 
+     attr(f,"area") <- -area
+ } else { 
+    f <-  -area 
+    attr(f,"area") <- area
+ } # negative area
+ attr(f,"minslack") <- min(slacks)
+ f
+}
 
 
 ## @knitr polyobju
@@ -240,24 +353,6 @@ polyarea<-function(b) {
    area
 }
 
-## @knitr polyarea
-
-polyarea<-function(b) {
-   # compute area of a polygon defined by radial coordinates
-   # This IGNORES constraints
-   nv <- (length(b)+3)/2
-   area <- 0 
-   l8 <- nv-3
-   for (l in 3:nv){ # nv - 2 triangles
-      q1 <- b[[l-2]] # side 1
-      q2 <- b[[l-1]] # side 2
-      q3 <- b[[l+l8]] # angle
-      atemp <- q1*q2*sin(q3)
-      area <- area + atemp
-   }
-   area <- area * 0.5
-   area
-}
 
 ## @knitr polypardist2
 
@@ -301,5 +396,14 @@ polydistXY <- function(XY) {
       }
    }        
    dist2
+}
+
+## @knitr polypar2distXY
+
+polypar2distXY <- function(pars) {
+# compute the pairwise distances using two calls
+   nv <- (length(pars) + 3)/2
+   XY <- polypar2XY(pars)
+   dist2 <- polydistXY(XY)
 }
 

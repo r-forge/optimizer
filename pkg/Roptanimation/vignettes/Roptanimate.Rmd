@@ -111,7 +111,7 @@ vertex `L+1` which is at the same position as vertex 1.
 
 ```{r cache=FALSE, echo=FALSE}
 library(knitr) # This is critical -- or you don't get read_chunk()
-read_chunk('/home/john/rsvnall/optimizer/pkg/Roptanimation/R/smallpoly.R')
+read_chunk('/home/john/rsvnall/optimizer/pkg/Roptanimation/R/Roptanimation-pkg.R')
 ```
 
 

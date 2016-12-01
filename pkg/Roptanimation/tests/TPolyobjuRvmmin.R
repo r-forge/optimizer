@@ -1,6 +1,6 @@
 ## @knitr polyexample
 
-# library(Roptanimation)
+library(Roptanimation)
 
 # source("../R/smallpoly.R")
 
@@ -41,7 +41,7 @@ pt1$psave <- matrix(c(reghex$par0, -1, regarea), nrow=1)
 pt1$besta <- 0 # best area
 pt1$regarea <- regarea
 #- ?? names!
-f0 <- polyobju(start)
+f0 <- polyobju(start, penv=pt1)
 
 
 library(optimrx)
@@ -50,6 +50,6 @@ library(optimrx)
 # sol <- optimr(start, polyobju, polygradu, method="Rvmmin", lower=lb, upper=ub,
 
 sol <- optimr(start, polyobju, polygradu, method="Rvmmin",
-                control=list(trace=1, maxit=1000), penfactor=1e-5)
+                control=list(trace=1, maxit=1000), penfactor=1e-5, penv=pt1)
 sol
 

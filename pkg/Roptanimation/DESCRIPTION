@@ -13,7 +13,7 @@ Description: Provides R code to animate the current polygon for which the larges
    intended to be transferred to other packages once working.
 License: GPL-2
 Lazyload: Yes
-Depends: R (>= 3.0), knitr, R6, TeachingDemos
-Suggests: optimrx, Rvmmin
+Depends: R (>= 3.0), knitr
+Suggests: optimrx, Rvmmin, minqa
 VignetteBuilder: knitr
 

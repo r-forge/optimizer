@@ -158,7 +158,7 @@ polyobjbig <- function(x, bignum=1e10, epsilon=0) {
 
 ## @knitr polyobju
 
-polyobju <- function(x, penfactor=1e-5, epsilon=0) {
+polyobju <- function(x, penfactor=1e-5, epsilon=0, penv) {
   # polyobj with radial parameters constrained by log barrier
   # epsilon <- 0
   bignum <- 1e+20
@@ -177,7 +177,7 @@ polyobju <- function(x, penfactor=1e-5, epsilon=0) {
   else {  
     f <- f - penfactor*sum(log(slacks)) 
     attr(f,"area") <- area
-    addplot(pt1, x, f, area)
+    addplot(penv, x, f, area)
   }
   attr(f,"minslack") <- min(slacks)
   f
@@ -185,7 +185,7 @@ polyobju <- function(x, penfactor=1e-5, epsilon=0) {
 
 ## @knitr polygradu
 
-polygradu <- function(x, penfactor=1e-8, epsilon=0) {
+polygradu <- function(x, penfactor=1e-8, epsilon=0, penv) {
   nv <- (length(x)+3)/2
   l8 <- nv - 3 # end of radii params
   # epsilon <- 0

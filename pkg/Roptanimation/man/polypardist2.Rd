@@ -7,7 +7,7 @@
   compute the (nv - 1) * nv / 2 distances between all the vertices.
 }
 \usage{
-   polypardist2 <- function(b)
+   polypardist2(b)
 }
 \arguments{
  \item{b}{For a polygon in nv vertices, a vector of 2*nv - 3 parameters giving the radial

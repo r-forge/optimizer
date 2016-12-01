@@ -9,7 +9,7 @@
   vertices.
 }
 \usage{
-   polydistXY <- function(XY)
+   polydistXY(XY)
 }
 \arguments{
  \item{XY}{A list of two vectors, \code{XY$x} and \code{XY$y} giving the vertices of

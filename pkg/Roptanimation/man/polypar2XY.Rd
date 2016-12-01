@@ -8,7 +8,7 @@
   \code{plot} command gives a closed figure.
 }
 \usage{
-   polypar2XY <- function(b)
+   polypar2XY(b)
 }
 \arguments{
  \item{b}{For a polygon in nv vertices, a vector of 2*nv - 3 parameters giving the radial

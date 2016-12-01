@@ -7,10 +7,10 @@
   compute the (nv - 1) * nv / 2 distances between all the vertices.
 }
 \usage{
-   polypar2distXY <- function(b)
+   polypar2distXY(pars)
 }
 \arguments{
- \item{b}{For a polygon in nv vertices, a vector of 2*nv - 3 parameters giving the radial
+ \item{pars}{For a polygon in nv vertices, a vector of 2*nv - 3 parameters giving the radial
   and angular parameters that describe a particular polygon.}
 }
 \details{

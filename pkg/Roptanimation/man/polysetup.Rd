@@ -8,7 +8,7 @@
   vertices there are (nv - 1) radial parameters and (nv - 2) angular ones.
 }
 \usage{
-   polysetup <- function(nv, defsize=0.98)
+   polysetup(nv, defsize=0.98)
 }
 \arguments{
  \item{nv}{The number of vertices in the polygon.}

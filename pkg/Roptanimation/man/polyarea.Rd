@@ -7,7 +7,7 @@
   compute the area of the polygon.
 }
 \usage{
-   polyarea <- function(b)
+   polyarea(b)
 }
 \arguments{
  \item{b}{For a polygon in nv vertices, a vector of 2*nv - 3 parameters giving the radial

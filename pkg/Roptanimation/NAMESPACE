@@ -2,5 +2,7 @@ export(
   "polysetup", 
   "polypar2XY", 
   "polyarea", 
-  "polydistXY"
+  "polydistXY",
+  "polyobju",
+  "polygradu"
 )

@@ -1,9 +1,12 @@
 ## @knitr polyexample
 
-library(Roptanimation)
+# library(Roptanimation)
+
+# source("../R/smallpoly.R")
 
 # Example code -- seems to work for nv=6, but not otherwise ??
-nvex <- as.numeric(readline("Number of vertices ="))
+# nvex <- as.numeric(readline("Number of vertices ="))
+nvex = 6 # For the automated R CMD check
 # Note the as.numeric
 nv <- nvex # to copy value above
 nsave <- 2*nv-1
@@ -32,9 +35,6 @@ print(sqrt(myhexc))
 
 start <- myhex$par0
 # options(scipen=5) # did not work
-
-
-
 
 pt1 <- new.env()
 pt1$psave <- matrix(c(reghex$par0, -1, regarea), nrow=1)

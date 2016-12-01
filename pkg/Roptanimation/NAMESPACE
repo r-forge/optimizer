@@ -6,3 +6,8 @@ export(
   "polyobju",
   "polygradu"
 )
+importFrom("grDevices", "hsv")
+importFrom("graphics", "axis", "box", "plot.new", "plot.window",
+             "points", "title")
+importFrom("R6")
+importFrom("TeachingDemos")

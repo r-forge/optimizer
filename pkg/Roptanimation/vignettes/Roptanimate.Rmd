@@ -3,12 +3,12 @@ title: "Animating geometric optimization: small polygons"
 author: "John C. Nash, Greg Snow"
 date: "`r Sys.Date()`"
 bibliography: Roptanimate.bib
-## output: pdf_document
-output: rmarkdown::html_vignette
+output: pdf_document
+## output: rmarkdown::html_vignette
 ## output: md_document
 vignette: >
   %\VignetteIndexEntry{Animating geometric optimization: small polygons}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 

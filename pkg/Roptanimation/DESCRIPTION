@@ -13,7 +13,7 @@ Description: R code to animate the current polygon for which the largest
    intended to be transferred to other packages once working.
 License: GPL-2
 Lazyload: Yes
-Depends: R (>= 3.0)
-Suggests: optimrx, Rvmmin, R6, TeachingDemos
+Depends: R (>= 3.0), knitr, R6, TeachingDemos
+Suggests: optimrx, Rvmmin
 VignetteBuilder: knitr
 

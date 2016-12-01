@@ -1,5 +1,7 @@
 ## @knitr polyexample
 
+library(Roptanimation)
+
 # Example code -- seems to work for nv=6, but not otherwise ??
 nvex <- as.numeric(readline("Number of vertices ="))
 # Note the as.numeric

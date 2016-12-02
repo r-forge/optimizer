@@ -26,16 +26,28 @@ concordance=TRUE
 @
 
 
-?? find new reference for RQ times
-?? put in eigen
-?? clean up warnings
-
-
-<<setupglobal, echo=FALSE, cache=FALSE>>=
-# global chunk options
-opts_chunk$set(cache=TRUE, autodep=TRUE, size="scriptsize")
-dep_auto()  # figure out dependencies automatically
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+concordance=TRUE
+)
 @
+%% opts_chunk$set(
+%%   cache=TRUE, 
+%%   autodep=TRUE, 
+%%   size="scriptsize")
+%% dep_auto()  
+%% # figure out dependencies automatically
+
+
+%% ?? find new reference for RQ times
+%% ?? put in eigen
+%%?? clean up warnings
+
+
+%% <<setupglobal, echo=FALSE, cache=FALSE>>=
+%%#   global chunk options
+%% @
 
 
 \title{Optimization problems constrained by parameter sums}
@@ -127,7 +139,7 @@ central approximation \citep{optextras}.
 
 <<simpleproduct, echo=TRUE, cache=TRUE>>=
 cat("try loading optimrx\n")
-require(optimx, quietly=TRUE)
+require(optimrx, quietly=TRUE)
 pr <- function(y) {
 - prod(y)*(1-sum(y))
 }

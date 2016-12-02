@@ -16,7 +16,6 @@
 
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 <<include=FALSE>>=
 library(knitr)

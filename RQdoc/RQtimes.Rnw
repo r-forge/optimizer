@@ -45,6 +45,14 @@ various Rayleigh Quotient minimizations with \R using different functions
 and different ways of running the computations, in particular trying Fortran
 subroutines and the \R byte compiler.
 
+TODOS:??
+ 
+ - cleanup spg runs and explain better
+ 
+ - check for similar disorganized sections
+ 
+ - nice to have prescriptive section on "how to"
+
 \section{The computational task}
 
 The maximal and minimal eigensolutions of a symmetric matrix $A$ are extrema of the Rayleigh Quotient

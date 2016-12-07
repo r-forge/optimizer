@@ -3,6 +3,10 @@ title: "Rvmmin15"
 author: "John Nash"
 date: '2015-01-11'
 output: pdf_document
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Rvmmin15}
+  %\usepackage[utf8]{inputenc}
 ---
 
 # Rvmmin 2015 version examples and tests

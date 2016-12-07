@@ -8,6 +8,9 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2015-11-30
+   o    Changed control "stopbadupdate" to TRUE from FALSE.
+
 2015-06-03
    o    Had "lower" instead of "upper" in one of the bounds checks.
         Fixed.

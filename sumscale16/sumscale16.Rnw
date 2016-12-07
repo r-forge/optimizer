@@ -28,6 +28,7 @@ concordance=TRUE
 ?? find new reference for RQ times
 ?? put in eigen
 ?? clean up warnings
+?? try simple problem with different sum constraints e.g. sum vs sum of squares
 
 
 <<setupglobal, echo=FALSE, cache=FALSE>>=
@@ -102,8 +103,10 @@ For the moment, let us consider a basic example, which is
 This is a very simplified version of the multinomial maximum likelihood problem. 
 
 Because these problems all have an objective that is dependent on a scaled set of parameters 
-where the scale is defined by a sum, sum of squares, or similar sum of the paramters, we will
-refer to them as \B{sumscale} optimization problems.
+where the scale is defined by a sum, sum of squares, or similar sum of the parameters, we will
+refer to them as \B{sumscale} optimization problems. The condition that the parameters
+must be positive is often implicit. In practice it can be important to have it imposed
+explicitly if it is part of the actual problem. 
 
 \section{Difficulties using general optimization with sumscale problems}
 
@@ -122,11 +125,12 @@ $ minimize ( - (\prod{\B{y}}) * (1 - \sum{y} ) ) $
 \vspace*{10pt}
 This is easily coded and tried. We will use a very simple start, namely, the sequence $1,2, ...,
 (n-1)$ scaled by $1/n^2$. We will also specify that the gradient is to be computed by a 
-central approximation \citep{optextras}.
+central approximation \citep{optextras}. At this point we are not requiring positive
+parameters, but our methods do return solutions with all positive parameters.
 
 <<simpleproduct, echo=TRUE, cache=TRUE>>=
 cat("try loading optimrx\n")
-require(optimx, quietly=TRUE)
+require(optimrx, quietly=TRUE)
 pr <- function(y) {
 - prod(y)*(1-sum(y))
 }
@@ -153,14 +157,14 @@ Traditionally, statisticians solve maximum likelihood problems by \B{minimizing}
 negative log-likelihood. That is, the objective function is formed as (-1) times the
 logarithm of the likelihood. This converts our product to a sum. Choosing the first
 parameter to be the one determined by the summation constraint, we can write the 
-function and gradient quite easily. As programs that try to find the minimum may change
-the parameters so that logarithms of non-positive numbers are attempted, we have put
+function and gradient quite easily. Programs that try to find the minimum may change
+the parameters so that logarithms of non-positive numbers are attempted, so we have put
 some safeguards in the function \code{nll}. At this point we have assumed the gradient
 calculation is only attempted if the function can be computed satisfactorily, so we have
-not put safeguards in the gradient.
+not put similar safeguards in the gradient.
 
 <<gabornll, echo=TRUE, cache=TRUE>>=
-nll <- function(y) {
+nll <- function(y) { # large result if near zero arguments to log()
   if ((any(y <= 10*.Machine$double.xmin)) || (sum(y)>1-.Machine$double.eps))
          .Machine$double.xmax
   else   - sum(log(y)) - log(1-sum(y))
@@ -168,10 +172,12 @@ nll <- function(y) {
 nll.g <- function(y) { - 1/y + 1/(1-sum(y))} # so far not safeguarded
 @
 
-We can easily try several optimization methods using the \pkg{optimx} package. Here are the
+We can easily try several optimization methods using the \code{opm()} function
+of \pkg{optimrx} package. Here are the
 calls, which overall did not perform as well as we would like. Note that we do not ask for
 \code{method="ALL"} as we found that some of the methods, in particular those using Powell's
-quadratic approximation methods, seem to get "stuck". 
+quadratic approximation methods, seem to get "stuck". The reasons for this have not been
+sufficiently understood to report at this time. 
 
 <<label=C13badruns1, echo=TRUE, cache=TRUE>>=
 require(optimrx, quietly=TRUE)
@@ -187,14 +193,17 @@ summary(a5gb,order=value)
 #- summary(a5x,order=value)
 @
 
-Most, but not all, of the methods find the solution for the $n=5$ case. The exception (L-BFGS-B) is 
-due to the optimization method trying to compute the gradient where sum(x) is greater than 1. We 
-have not tried to determine the source of this particular issue. However, it is almost certainly 
+Most, but not all, of the methods find the solution for the $n=5$ case. 
+The exception (L-BFGS-B) is due to the optimization method trying to 
+compute the gradient where sum(x) is greater than 1. We 
+have not tried to determine the source of this particular issue. However, 
+it is almost certainly 
 a consequence of too large a step. The particular form of $log(1-sum(x))$ 
 is undefined once the argument of
 the logarithm is negative. Indeed, this is the basis of 
 logarithmic barrier functions for constraints. There
-is a similar issue with the $n-1$ parameters near zero. Negative values will cause difficulties. 
+is a similar issue with the $n-1$ parameters near zero. Negative 
+values will cause difficulties. 
 
 Numerical gradient approximations will similarly fail, 
 particularly as step sizes are often of the order
@@ -206,11 +215,10 @@ bound large enough to avoid the logarithm of a zero or negative argument
 while still being small enough 
 to allow for parameter optimization is non-trivial.
 
-
-
 \section{Transformed problems or parameters}
 
-When problems give difficulties, it is common to re-formulate them by transformations of the function
+When problems give difficulties, it is common to re-formulate them 
+by transformations of the function
 or the parameters. 
 
 \subsection{Using a projection}
@@ -246,8 +254,8 @@ problem, but requires a number of changes to the program code.
 
 \subsection{$log()$ transformation of parameters}
 
-A common method to ensure parameters are positive is to transform 
-them. In the present case, optimizing over
+A common method to ensure parameters are positive is to use a log transform. 
+In the present case, optimizing over
 parameters that are the logarithms of the parameters above 
 ensures we have positive arguments to most of the
 elements of the negative log likelihood. Here is the code. 
@@ -270,8 +278,8 @@ But where is our constraint? Here we have noted that we could define the objecti
 function only to within the scaling  $\B{x}/\sum(\B{x})$. There is a minor 
 nuisance, in that we need to re-scale our 
 parameters after solution to have them in a standard form. 
-This is most noticeable if one uses \pkg{optimx}
-and displays the results of \code{all.methods}. In the following, we
+This is most noticeable if one uses \pkg{optimrx} function \code{opm()}
+and displays the results of \code{method = "ALL"}. In the following, we
 extract the best solution for the 5-parameter problem.
 
 <<expgabrun1, warning=FALSE, echo=TRUE, cache=TRUE>>=
@@ -296,7 +304,8 @@ hasty in stopping progress for problems
 with larger numbers of parameters. A user-specified tolerance is now allowed; for
 example \code{control=list(tol=1e-12)}. 
 
-Let us try a larger problem in 100 parameters.
+Let us try a larger problem in 100 parameters. We emply the conjugate gradient
+algorithm in package \code{Rcgmin}.
 
 <<expgabrun2, warning=FALSE, echo=TRUE, cache=TRUE>>=
 require(Rcgmin, quietly=TRUE)
@@ -315,12 +324,8 @@ at the start and end differ by a tiny amount.
 \subsection{Another transformation}
 
 A slightly different transformation or projection is inspired by spherical coordinates.
-
-<<sphere0, echo=FALSE, cache=TRUE>>=
-library(BB)
-library(optimx)
-@
-
+We solve problems in 5 and 100 parameters using the \code{spg()} function from package
+\code{BB}, and by not specifying a gradient function use an internal approximation.
 
 <<sphere5, echo=TRUE, cache=TRUE>>=
 proj2 <- function(theta) {
@@ -336,26 +341,29 @@ obj <- function(theta) - sum(log(proj2(theta)))
 
 
 <<sphere100, echo=TRUE, cache=TRUE>>=
+library(BB)
 n<-100
 ans100 <- spg(seq(n-1), obj, control=list(trace=FALSE), quiet=TRUE)
 proj2( (ans100$par) )
 @
 
-Since this transformation is embedded into the objective function, we could run all the
-optimizers in \pkg{optimx} as follows. This takes some time, as the derivative-free
+In the above, we note that the transformation is embedded into the objective function, 
+so we could run any of the optimizers in \pkg{optimrx} as follows. This takes some time, 
+as the derivative-free
 methods appear to have more difficulty with this formulation. Moreover, \code{Rcgmin}
-and \code{Rvmmin} are not recommended when an analytic gradient is not provided.
+and \code{Rvmmin} are not recommended when an analytic gradient is not provided. Here
+we have specified that a simple forward difference approximation to the gradient
+should be used. 
 
 <<sphere100all, echo=TRUE, cache=TRUE>>=
 allans<- opm(seq(n-1), obj, gr="grfwd", method="ALL", control=list(dowarn=FALSE))
 summary(allans, order = "list(round(value, 3), fevals)", par.select = FALSE)
 @
 
-
-
 \subsection{Use the gradient equations}
 
-Another approach is to "solve" the gradient equations. We can do this with 
+Another approach is to "solve" the gradient equations as a nonlinear equations
+problem. We could do this with 
 a sum of squares minimizer, though the \code{nls} function in \R\ is 
 specifically NOT useful as it cannot deal
 with small or zero residuals. However, \code{nlfb} 
@@ -366,12 +374,16 @@ approximation unless we can provide a function to prepare the
 Jacobian analytically. Moreover,
 the determination of the Jacobian is still subject to 
 the unfortunate scaling issues we have
-been confronting throughout this article.
+been confronting throughout this article. A better approach
+would likely be via package \code{nleqslv}, which is constructed
+to attempt solutions of nonlinear equations problems. At the time
+of writing all nonlinear equations approaches remain to be tried.
 
 
 \section{The Rayleigh Quotient}
 
-The maximal and minimal eigensolutions of a symmetric matrix $A$ are extrema of the Rayleigh Quotient
+The maximal and minimal eigensolutions of a symmetric matrix $A$ 
+are extrema of the Rayleigh Quotient
 
 $ R(x) =  (x' A x)  / (x' x) $
 

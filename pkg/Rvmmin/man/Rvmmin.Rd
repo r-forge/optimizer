@@ -111,9 +111,9 @@ the method terminates.
    \item{reltest}{Additive shift for equality test (default 100.0)}
    \item{stopbadupdate}{A logical flag that if set TRUE will halt the optimization
                 if the Hessian inverse cannot be updated after a steepest descent
-                search. This indicates an ill-conditioned Hessian. The default is
-                FALSE, which causes Rvmmin methods to be aggressive in trying to
-                optimize the function, but may waste effort.}
+                search. This indicates an ill-conditioned Hessian. A settign of
+                FALSE causes Rvmmin methods to be aggressive in trying to
+                optimize the function, but may waste effort. Default TRUE.}
   }
 
   As of 2011-11-21 the following controls have been REMOVED

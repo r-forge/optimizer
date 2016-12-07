@@ -44,12 +44,12 @@ pt1$regarea <- regarea
 f0 <- polyobju(start, penv=pt1)
 
 
-library(optimrx)
+library(optimr)
 # ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
 # lb <- c(rep(0, (2*nv-3)))
 # sol <- optimr(start, polyobju, polygradu, method="Rvmmin", lower=lb, upper=ub,
 
 sol <- optimr(start, polyobju, polygradu, method="Rvmmin",
-                control=list(trace=1, maxit=1000), penfactor=1e-5, penv=pt1)
+                control=list(trace=1, maxit=1000, stopbadupdate=TRUE), penfactor=1e-5, penv=pt1)
 sol
 

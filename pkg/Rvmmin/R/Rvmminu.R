@@ -44,7 +44,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   #    stepredn = 0.2 (default). Step reduction factor for backtrack
   #             line search
   #    reltest = 100.0 (default). Additive shift for equality test.
-  #    stopbadupdate = FALSE (default). Don't stop when steepest
+  #    stopbadupdate = TRUE (default). Don't stop when steepest
   #             descent search point results in failed inverse 
   #             Hessian update
   #
@@ -94,7 +94,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
   maxfeval <- 3000 + 10L * n
   ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
     trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
-    reltest=100.0, stopbadupdate = FALSE)
+    reltest=100.0, stopbadupdate = TRUE)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -318,6 +318,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
               # We have a lower point. Is it 'low enough' i.e.,
               #   acceptable
               accpoint <- (f <= fmin + gradproj * steplength * acctol)
+              if (trace > 2) cat("accpoint = ", accpoint,"\n")
             }
             else {
               steplength <- steplength * stepredn
@@ -388,7 +389,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           if (trace > 0) 
             cat("UPDATE NOT POSSIBLE: ilast, ig",ilast, ig,"\n")
           if (ig == ilast+1) {
-            if (stopbadupdate) keepgoing=FALSE # stop on update failure for s.d. search
+            if (stopbadupdate && ! accpoint) keepgoing=FALSE # stop on update failure for s.d. search
             if (trace > 2) cat("keepgoing = ",keepgoing,"\n")
             conv <- 3
           }

@@ -68,9 +68,16 @@
 
 
 
+
+
+
+
+
+
 ?? find new reference for RQ times
 ?? put in eigen
 ?? clean up warnings
+?? try simple problem with different sum constraints e.g. sum vs sum of squares
 
 
 
@@ -176,6 +183,10 @@ parameters, but our methods do return solutions with all positive parameters.
 \end{verbatim}
 \begin{alltt}
 \hlkwd{require}\hlstd{(optimrx,} \hlkwc{quietly}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE, : there is no package called 'optimrx'}}\begin{alltt}
 \hlstd{pr} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{y}\hlstd{) \{}
 \hlopt{-} \hlkwd{prod}\hlstd{(y)}\hlopt{*}\hlstd{(}\hlnum{1}\hlopt{-}\hlkwd{sum}\hlstd{(y))}
 \hlstd{\}}
@@ -189,18 +200,20 @@ parameters, but our methods do return solutions with all positive parameters.
 \hlstd{n}\hlkwb{<-}\hlnum{5}
   \hlstd{st}\hlkwb{<-}\hlnum{1}\hlopt{:}\hlstd{(n}\hlopt{-}\hlnum{1}\hlstd{)}\hlopt{/}\hlstd{(n}\hlopt{*}\hlstd{n)}
    \hlstd{ans}\hlkwb{<-}\hlkwd{opm}\hlstd{(st, pr,} \hlkwc{gr}\hlstd{=}\hlstr{"grcentral"}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{0}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
    \hlstd{ao}\hlkwb{<-}\hlkwd{summary}\hlstd{(ans,}\hlkwc{order}\hlstd{=value)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(ans, order = value): object 'ans' not found}}\begin{alltt}
 \hlkwd{print}\hlstd{(ao)}
 \end{alltt}
-\begin{verbatim}
-##                    p1        p2        p3        p4    value fevals gevals
-## BFGS        0.2000000 0.1999986 0.2000037 0.1999986 -0.00032    102     96
-## Nelder-Mead 0.2000034 0.1999983 0.2000017 0.2000021 -0.00032    331     NA
-##             convergence kkt1 kkt2 xtime
-## BFGS                  0 TRUE TRUE 0.005
-## Nelder-Mead           0 TRUE TRUE 0.002
-\end{verbatim}
-\end{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in print(ao): object 'ao' not found}}\end{kframe}
 \end{knitrout}
 
 
@@ -217,16 +230,16 @@ Traditionally, statisticians solve maximum likelihood problems by \B{minimizing}
 negative log-likelihood. That is, the objective function is formed as (-1) times the
 logarithm of the likelihood. This converts our product to a sum. Choosing the first
 parameter to be the one determined by the summation constraint, we can write the 
-function and gradient quite easily. As programs that try to find the minimum may change
-the parameters so that logarithms of non-positive numbers are attempted, we have put
+function and gradient quite easily. Programs that try to find the minimum may change
+the parameters so that logarithms of non-positive numbers are attempted, so we have put
 some safeguards in the function \code{nll}. At this point we have assumed the gradient
 calculation is only attempted if the function can be computed satisfactorily, so we have
-not put safeguards in the gradient.
+not put similar safeguards in the gradient.
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{nll} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{y}\hlstd{) \{}
+\hlstd{nll} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{y}\hlstd{) \{} \hlcom{# large result if near zero arguments to log()}
   \hlkwa{if} \hlstd{((}\hlkwd{any}\hlstd{(y} \hlopt{<=} \hlnum{10}\hlopt{*}\hlstd{.Machine}\hlopt{$}\hlstd{double.xmin))} \hlopt{||} \hlstd{(}\hlkwd{sum}\hlstd{(y)}\hlopt{>}\hlnum{1}\hlopt{-}\hlstd{.Machine}\hlopt{$}\hlstd{double.eps))}
          \hlstd{.Machine}\hlopt{$}\hlstd{double.xmax}
   \hlkwa{else}   \hlopt{-} \hlkwd{sum}\hlstd{(}\hlkwd{log}\hlstd{(y))} \hlopt{-} \hlkwd{log}\hlstd{(}\hlnum{1}\hlopt{-}\hlkwd{sum}\hlstd{(y))}
@@ -236,10 +249,12 @@ not put safeguards in the gradient.
 \end{kframe}
 \end{knitrout}
 
-We can easily try several optimization methods using the \pkg{optimx} package. Here are the
+We can easily try several optimization methods using the \code{opm()} function
+of \pkg{optimrx} package. Here are the
 calls, which overall did not perform as well as we would like. Note that we do not ask for
 \code{method="ALL"} as we found that some of the methods, in particular those using Powell's
-quadratic approximation methods, seem to get "stuck". 
+quadratic approximation methods, seem to get "stuck". The reasons for this have not been
+sufficiently understood to report at this time. 
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -248,109 +263,56 @@ quadratic approximation methods, seem to get "stuck".
 \end{alltt}
 
 
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'optimrx'}}
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following object is masked from 'package:optimx':\\\#\# \\\#\#\ \ \ \  coef<-}}\begin{alltt}
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE, : there is no package called 'optimrx'}}\begin{alltt}
 \hlstd{n}\hlkwb{<-}\hlnum{5}
 \hlstd{mset}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"L-BFGS-B"}\hlstd{,} \hlstr{"BFGS"}\hlstd{,} \hlstr{"CG"}\hlstd{,} \hlstr{"spg"}\hlstd{,} \hlstr{"ucminf"}\hlstd{,} \hlstr{"nlm"}\hlstd{,} \hlstr{"nlminb"}\hlstd{,} \hlstr{"Rvmmin"}\hlstd{,} \hlstr{"Rcgmin"}\hlstd{)}
 \hlstd{a5}\hlkwb{<-}\hlkwd{opm}\hlstd{(}\hlnum{2}\hlopt{:}\hlstd{n}\hlopt{/}\hlstd{n}\hlopt{^}\hlnum{2}\hlstd{, nll,} \hlkwc{gr}\hlstd{=}\hlstr{"grfwd"}\hlstd{,} \hlkwc{method}\hlstd{=mset,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{dowarn}\hlstd{=}\hlnum{FALSE}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
 \hlstd{a5g}\hlkwb{<-}\hlkwd{opm}\hlstd{(}\hlnum{2}\hlopt{:}\hlstd{n}\hlopt{/}\hlstd{n}\hlopt{^}\hlnum{2}\hlstd{, nll, nll.g,} \hlkwc{method}\hlstd{=mset,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{dowarn}\hlstd{=}\hlnum{FALSE}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
 \hlstd{a5gb}\hlkwb{<-}\hlkwd{opm}\hlstd{(}\hlnum{2}\hlopt{:}\hlstd{n}\hlopt{/}\hlstd{n}\hlopt{^}\hlnum{2}\hlstd{, nll, nll.g,} \hlkwc{lower}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{upper}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{method}\hlstd{=mset,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{dowarn}\hlstd{=}\hlnum{FALSE}\hlstd{))}
 \end{alltt}
 
 
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in optimr(par, fn, gr, method = meth, lower = lower, upper = upper, : optimr: optim() with bounds ONLY uses L-BFGS-B}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in optimr(par, fn, gr, method = meth, lower = lower, upper = upper, : optimr: optim() with bounds ONLY uses L-BFGS-B}}\begin{alltt}
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
 \hlcom{#- a5x <- opm(2:n/n^2, nll, nll.g, method="ALL", control=list(dowarn=FALSE))}
 \hlkwd{summary}\hlstd{(a5,}\hlkwc{order}\hlstd{=value)}
 \end{alltt}
-\begin{verbatim}
-##                 p1        p2        p3        p4         value fevals
-## Rcgmin   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     51
-## Rvmmin   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     46
-## spg      0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     17
-## ucminf   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     14
-## CG       0.2000000 0.2000000 0.2000000 0.2000001  8.047190e+00     59
-## nlm      0.2000005 0.1999995 0.2000000 0.2000000  8.047190e+00     NA
-## BFGS     0.2000007 0.1999989 0.2000011 0.1999981  8.047190e+00     33
-## nlminb   0.2000004 0.1999990 0.1999989 0.1999992  8.047190e+00     23
-## L-BFGS-B        NA        NA        NA        NA 8.988466e+307     NA
-##          gevals convergence kkt1 kkt2 xtime
-## Rcgmin       18           0 TRUE TRUE 0.003
-## Rvmmin       13           0 TRUE TRUE 0.004
-## spg          13           0 TRUE TRUE 0.043
-## ucminf       14           0 TRUE TRUE 0.002
-## CG           21           0 TRUE TRUE 0.002
-## nlm          11           0 TRUE TRUE 0.001
-## BFGS          9           0 TRUE TRUE 0.000
-## nlminb       12           0 TRUE TRUE 0.002
-## L-BFGS-B     NA        9999   NA   NA 0.002
-\end{verbatim}
-\begin{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(a5, order = value): object 'a5' not found}}\begin{alltt}
 \hlkwd{summary}\hlstd{(a5g,}\hlkwc{order}\hlstd{=value)}
 \end{alltt}
-\begin{verbatim}
-##                 p1        p2        p3        p4         value fevals
-## ucminf   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     14
-## Rvmmin   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     43
-## spg      0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     17
-## Rcgmin   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     28
-## CG       0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     59
-## nlm      0.2000006 0.1999995 0.2000000 0.2000000  8.047190e+00     NA
-## BFGS     0.2000007 0.1999989 0.2000012 0.1999981  8.047190e+00     33
-## nlminb   0.2000004 0.1999990 0.1999989 0.1999992  8.047190e+00     23
-## L-BFGS-B        NA        NA        NA        NA 8.988466e+307     NA
-##          gevals convergence kkt1 kkt2 xtime
-## ucminf       14           0 TRUE TRUE 0.000
-## Rvmmin       12           0 TRUE TRUE 0.003
-## spg          13           0 TRUE TRUE 0.042
-## Rcgmin       12           0 TRUE TRUE 0.001
-## CG           21           0 TRUE TRUE 0.001
-## nlm          11           0 TRUE TRUE 0.000
-## BFGS          9           0 TRUE TRUE 0.000
-## nlminb       12           0 TRUE TRUE 0.000
-## L-BFGS-B     NA        9999   NA   NA 0.001
-\end{verbatim}
-\begin{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(a5g, order = value): object 'a5g' not found}}\begin{alltt}
 \hlkwd{summary}\hlstd{(a5gb,}\hlkwc{order}\hlstd{=value)}
 \end{alltt}
-\begin{verbatim}
-##                 p1       p2        p3        p4         value fevals
-## Rvmmin   0.2000000 0.200000 0.2000000 0.2000000  8.047190e+00     38
-## Rcgmin   0.2000000 0.200000 0.2000000 0.2000000  8.047190e+00     18
-## spg      0.2000000 0.200000 0.2000000 0.2000000  8.047190e+00     18
-## nlminb   0.2000004 0.199999 0.1999989 0.1999992  8.047190e+00     23
-## L-BFGS-B        NA       NA        NA        NA 8.988466e+307     NA
-## BFGS            NA       NA        NA        NA 8.988466e+307     NA
-## CG              NA       NA        NA        NA 8.988466e+307     NA
-## ucminf          NA       NA        NA        NA 8.988466e+307     NA
-## nlm             NA       NA        NA        NA 8.988466e+307     NA
-##          gevals convergence kkt1 kkt2 xtime
-## Rvmmin       14           0 TRUE TRUE 0.004
-## Rcgmin       10           0 TRUE TRUE 0.002
-## spg          13           0 TRUE TRUE 0.042
-## nlminb       12           0 TRUE TRUE 0.001
-## L-BFGS-B     NA        9999   NA   NA 0.001
-## BFGS         NA        9999   NA   NA 0.000
-## CG           NA        9999   NA   NA 0.001
-## ucminf       NA        9999   NA   NA 0.000
-## nlm          NA        9999   NA   NA 0.000
-\end{verbatim}
-\begin{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(a5gb, order = value): object 'a5gb' not found}}\begin{alltt}
 \hlcom{#- summary(a5x,order=value)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
-Most, but not all, of the methods find the solution for the $n=5$ case. The exception (L-BFGS-B) is 
-due to the optimization method trying to compute the gradient where sum(x) is greater than 1. We 
-have not tried to determine the source of this particular issue. However, it is almost certainly 
+Most, but not all, of the methods find the solution for the $n=5$ case. 
+The exception (L-BFGS-B) is due to the optimization method trying to 
+compute the gradient where sum(x) is greater than 1. We 
+have not tried to determine the source of this particular issue. However, 
+it is almost certainly 
 a consequence of too large a step. The particular form of $log(1-sum(x))$ 
 is undefined once the argument of
 the logarithm is negative. Indeed, this is the basis of 
 logarithmic barrier functions for constraints. There
-is a similar issue with the $n-1$ parameters near zero. Negative values will cause difficulties. 
+is a similar issue with the $n-1$ parameters near zero. Negative 
+values will cause difficulties. 
 
 Numerical gradient approximations will similarly fail, 
 particularly as step sizes are often of the order
@@ -362,11 +324,10 @@ bound large enough to avoid the logarithm of a zero or negative argument
 while still being small enough 
 to allow for parameter optimization is non-trivial.
 
-
-
 \section{Transformed problems or parameters}
 
-When problems give difficulties, it is common to re-formulate them by transformations of the function
+When problems give difficulties, it is common to re-formulate them 
+by transformations of the function
 or the parameters. 
 
 \subsection{Using a projection}
@@ -434,8 +395,8 @@ problem, but requires a number of changes to the program code.
 
 \subsection{$log()$ transformation of parameters}
 
-A common method to ensure parameters are positive is to transform 
-them. In the present case, optimizing over
+A common method to ensure parameters are positive is to use a log transform. 
+In the present case, optimizing over
 parameters that are the logarithms of the parameters above 
 ensures we have positive arguments to most of the
 elements of the negative log likelihood. Here is the code. 
@@ -462,8 +423,8 @@ But where is our constraint? Here we have noted that we could define the objecti
 function only to within the scaling  $\B{x}/\sum(\B{x})$. There is a minor 
 nuisance, in that we need to re-scale our 
 parameters after solution to have them in a standard form. 
-This is most noticeable if one uses \pkg{optimx}
-and displays the results of \code{all.methods}. In the following, we
+This is most noticeable if one uses \pkg{optimrx} function \code{opm()}
+and displays the results of \code{method = "ALL"}. In the following, we
 extract the best solution for the 5-parameter problem.
 
 \begin{knitrout}\scriptsize
@@ -501,7 +462,8 @@ hasty in stopping progress for problems
 with larger numbers of parameters. A user-specified tolerance is now allowed; for
 example \code{control=list(tol=1e-12)}. 
 
-Let us try a larger problem in 100 parameters.
+Let us try a larger problem in 100 parameters. We emply the conjugate gradient
+algorithm in package \code{Rcgmin}.
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -544,9 +506,8 @@ at the start and end differ by a tiny amount.
 \subsection{Another transformation}
 
 A slightly different transformation or projection is inspired by spherical coordinates.
-
-
-
+We solve problems in 5 and 100 parameters using the \code{spg()} function from package
+\code{BB}, and by not specifying a gradient function use an internal approximation.
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -578,39 +539,31 @@ A slightly different transformation or projection is inspired by spherical coord
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlkwd{library}\hlstd{(BB)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in library(BB): there is no package called 'BB'}}\begin{alltt}
 \hlstd{n}\hlkwb{<-}\hlnum{100}
 \hlstd{ans100} \hlkwb{<-} \hlkwd{spg}\hlstd{(}\hlkwd{seq}\hlstd{(n}\hlopt{-}\hlnum{1}\hlstd{), obj,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{),} \hlkwc{quiet}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}spg"{}}}\begin{alltt}
 \hlkwd{proj2}\hlstd{( (ans100}\hlopt{$}\hlstd{par) )}
 \end{alltt}
-\begin{verbatim}
-##   [1] 0.009999999 0.010000001 0.010000000 0.010000000 0.009999999
-##   [6] 0.010000003 0.010000000 0.010000001 0.010000000 0.010000000
-##  [11] 0.010000001 0.010000000 0.010000000 0.010000002 0.010000002
-##  [16] 0.010000001 0.009999999 0.010000002 0.010000000 0.010000002
-##  [21] 0.010000000 0.010000000 0.010000002 0.010000001 0.010000001
-##  [26] 0.010000001 0.010000000 0.010000002 0.010000001 0.010000001
-##  [31] 0.010000000 0.010000001 0.010000002 0.010000002 0.010000001
-##  [36] 0.010000002 0.010000001 0.010000000 0.010000001 0.010000001
-##  [41] 0.009999999 0.009999996 0.010000002 0.010000002 0.010000002
-##  [46] 0.009999996 0.009999997 0.009999999 0.010000000 0.009999999
-##  [51] 0.009999998 0.010000002 0.010000000 0.009999999 0.010000000
-##  [56] 0.009999996 0.010000002 0.010000002 0.009999998 0.010000000
-##  [61] 0.010000000 0.009999999 0.010000000 0.010000000 0.010000001
-##  [66] 0.009999999 0.010000000 0.010000000 0.010000000 0.010000000
-##  [71] 0.009999999 0.010000000 0.009999999 0.010000000 0.009999999
-##  [76] 0.010000000 0.010000000 0.009999999 0.010000000 0.009999999
-##  [81] 0.009999999 0.009999999 0.010000000 0.010000001 0.009999999
-##  [86] 0.009999999 0.010000000 0.010000001 0.010000000 0.009999998
-##  [91] 0.009999998 0.009999999 0.010000000 0.010000000 0.010000000
-##  [96] 0.009999997 0.010000038 0.009999935 0.010000003 0.010000023
-\end{verbatim}
-\end{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in proj2((ans100\$par)): object 'ans100' not found}}\end{kframe}
 \end{knitrout}
 
-Since this transformation is embedded into the objective function, we could run all the
-optimizers in \pkg{optimx} as follows. This takes some time, as the derivative-free
+In the above, we note that the transformation is embedded into the objective function, 
+so we could run any of the optimizers in \pkg{optimrx} as follows. This takes some time, 
+as the derivative-free
 methods appear to have more difficulty with this formulation. Moreover, \code{Rcgmin}
-and \code{Rvmmin} are not recommended when an analytic gradient is not provided.
+and \code{Rvmmin} are not recommended when an analytic gradient is not provided. Here
+we have specified that a simple forward difference approximation to the gradient
+should be used. 
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -652,11 +605,10 @@ and \code{Rvmmin} are not recommended when an analytic gradient is not provided.
 \end{kframe}
 \end{knitrout}
 
-
-
 \subsection{Use the gradient equations}
 
-Another approach is to "solve" the gradient equations. We can do this with 
+Another approach is to "solve" the gradient equations as a nonlinear equations
+problem. We could do this with 
 a sum of squares minimizer, though the \code{nls} function in \R\ is 
 specifically NOT useful as it cannot deal
 with small or zero residuals. However, \code{nlfb} 
@@ -667,12 +619,16 @@ approximation unless we can provide a function to prepare the
 Jacobian analytically. Moreover,
 the determination of the Jacobian is still subject to 
 the unfortunate scaling issues we have
-been confronting throughout this article.
+been confronting throughout this article. A better approach
+would likely be via package \code{nleqslv}, which is constructed
+to attempt solutions of nonlinear equations problems. At the time
+of writing all nonlinear equations approaches remain to be tried.
 
 
 \section{The Rayleigh Quotient}
 
-The maximal and minimal eigensolutions of a symmetric matrix $A$ are extrema of the Rayleigh Quotient
+The maximal and minimal eigensolutions of a symmetric matrix $A$ 
+are extrema of the Rayleigh Quotient
 
 $ R(x) =  (x' A x)  / (x' x) $
 

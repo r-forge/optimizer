@@ -25,15 +25,31 @@ concordance=TRUE
 @
 
 
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(
+concordance=TRUE
+)
+@
+
+
+<<include=FALSE>>=
+library(knitr)
+##opts_chunk$set(
+##concordance=TRUE
+##)
+@
+
+
 ?? find new reference for RQ times
 ?? put in eigen
 ?? clean up warnings
 ?? try simple problem with different sum constraints e.g. sum vs sum of squares
 
 
-<<setupglobal, echo=FALSE, cache=FALSE>>=
+<<setupglobal, echo=FALSE>>=
 # global chunk options
-opts_chunk$set(cache=TRUE, autodep=TRUE, size="scriptsize")
+opts_chunk$set(autodep=TRUE, size="scriptsize")
 dep_auto()  # figure out dependencies automatically
 @
 
@@ -128,7 +144,7 @@ This is easily coded and tried. We will use a very simple start, namely, the seq
 central approximation \citep{optextras}. At this point we are not requiring positive
 parameters, but our methods do return solutions with all positive parameters.
 
-<<simpleproduct, echo=TRUE, cache=TRUE>>=
+<<simpleproduct, echo=TRUE>>=
 cat("try loading optimrx\n")
 require(optimrx, quietly=TRUE)
 pr <- function(y) {
@@ -163,7 +179,7 @@ some safeguards in the function \code{nll}. At this point we have assumed the gr
 calculation is only attempted if the function can be computed satisfactorily, so we have
 not put similar safeguards in the gradient.
 
-<<gabornll, echo=TRUE, cache=TRUE>>=
+<<gabornll, echo=TRUE>>=
 nll <- function(y) { # large result if near zero arguments to log()
   if ((any(y <= 10*.Machine$double.xmin)) || (sum(y)>1-.Machine$double.eps))
          .Machine$double.xmax
@@ -179,7 +195,7 @@ calls, which overall did not perform as well as we would like. Note that we do n
 quadratic approximation methods, seem to get "stuck". The reasons for this have not been
 sufficiently understood to report at this time. 
 
-<<label=C13badruns1, echo=TRUE, cache=TRUE>>=
+<<label=C13badruns1, echo=TRUE>>=
 require(optimrx, quietly=TRUE)
 n<-5
 mset<-c("L-BFGS-B", "BFGS", "CG", "spg", "ucminf", "nlm", "nlminb", "Rvmmin", "Rcgmin")
@@ -340,7 +356,7 @@ obj <- function(theta) - sum(log(proj2(theta)))
 @
 
 
-<<sphere100, echo=TRUE, cache=TRUE>>=
+<<sphere100, echo=TRUE>>=
 library(BB)
 n<-100
 ans100 <- spg(seq(n-1), obj, control=list(trace=FALSE), quiet=TRUE)

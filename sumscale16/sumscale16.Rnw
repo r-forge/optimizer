@@ -145,7 +145,8 @@ $ minimize ( - (\prod{\B{y}}) * (1 - \sum{y} ) ) $
 This is easily coded and tried. We will use a very simple start, namely, the sequence $1,2, ...,
 (n-1)$ scaled by $1/n^2$. We will also specify that the gradient is to be computed by a 
 central approximation \citep{optextras}. At this point we are not requiring positive
-parameters, but our methods do return solutions with all positive parameters.
+parameters, but our methods do return solutions with all positive parameters when started
+as in the example directly below.
 
 <<simpleproduct, echo=TRUE>>=
 cat("try loading optimrx\n")
@@ -169,19 +170,31 @@ parameters is constrained to be equal to 1, the parameters are of the order of $
 and the function therefore of the order of $1/(n^n)$, which underflows around $n=144$ in 
 \R. 
 
-We also do need to think about the positivity of the parameters. 
+We also do need to think about the positivity of the parameters. Let us start with 
+a different set of values, some of which are negative. If pairs are negative, the 
+product is still positive.
 
+<<badsimpleproduct, echo=TRUE>>=
+stm <- st*((-1)^(1:4))
+print(stm)
+ansm<-opm(stm, pr, gr="grcentral", control=list(trace=0))
+aom <- summary(ansm, order=value)
+print(aom)
+@
 
-\section{Other formulations}
+Clearly this is not what we intended.
+
+\subsection{A log-likelihood approach}
 
 Traditionally, statisticians solve maximum likelihood problems by \B{minimizing} the 
 negative log-likelihood. That is, the objective function is formed as (-1) times the
-logarithm of the likelihood. This converts our product to a sum. Choosing the first
+logarithm of the likelihood. Using this idea, we convert our product to a sum. Choosing the first
 parameter to be the one determined by the summation constraint, we can write the 
-function and gradient quite easily. Programs that try to find the minimum may change
-the parameters so that logarithms of non-positive numbers are attempted, so we have put
-some safeguards in the function \code{nll}. At this point we have assumed the gradient
-calculation is only attempted if the function can be computed satisfactorily, so we have
+function and gradient quite easily. Programs that try to find the minimum may try sets of 
+parameters where some are zero or negative, so that logarithms of non-positive numbers 
+are attempted, so we have put some safeguards in the function \code{nll} below. At this 
+point we have assumed the gradient calculation is only attempted if the function can be 
+computed satisfactorily, so we have
 not put similar safeguards in the gradient.
 
 <<gabornll, echo=TRUE>>=
@@ -223,7 +236,7 @@ a consequence of too large a step. The particular form of $log(1-sum(x))$
 is undefined once the argument of
 the logarithm is negative. Indeed, this is the basis of 
 logarithmic barrier functions for constraints. There
-is a similar issue if the $n-1$ parameters approach or pass zero. Negative 
+is a similar issue if any of the $n-1$ parameters approach or pass zero. Negative 
 parameter values are inadmissible in this formulation. 
 
 Numerical gradient approximations can similarly fail, 
@@ -236,42 +249,72 @@ bound large enough to avoid the logarithm of a zero or negative argument
 while still being small enough 
 to allow for parameter optimization is non-trivial.
 
-\section{Transformed problems or parameters}
+\subsection{Transformed problems or parameters}
 
 When problems give difficulties, it is common to re-formulate them 
 by transformations of the function
 or the parameters. 
 
-\subsection{Using a projection}
-
 Objective functions defined by $(-1)*\prod{\B{x}}$ or $(-1)*\sum{log(\B{x})}$ will change 
 with the scale of the parameters. Moreover, the constraint $\sum{\B{x}}=1$ 
 effectively imposes the scaling $\B{x_{scaled}} = \B{x}/\sum{\B{x}}$. The 
 optimizer \code{spg} from package \pkg{BB} allows us to project our search 
-direction to satisfy constraints. Thus, we could use the following approach. Thanks
-to Ravi Varadhan for the suggestion.
+direction to satisfy constraints. Thus, we could use the following approach.
 
-<<label=C13ravi1, echo=TRUE, cache=TRUE>>=
+<<label=C13ravi1, echo=TRUE>>=
 require(BB, quietly=TRUE)
 nllrv <- function(x) {- sum(log(x))}
 nllrv.g <- function(x) {- 1/x }
 proj <- function(x) {x/sum(x)}
 n <- 5
 tspg<-system.time(aspg <- spg(par=(1:n)/n^2, fn=nllrv, gr=nllrv.g, project=proj))[[3]]
-tspgn<-system.time(aspgn <- spg(par=(1:n)/n^2, fn=nllrv, project=proj))[[3]]
+tspgn<-system.time(aspgn <- spg(par=(1:n)/n^2, fn=nllrv, gr=NULL, project=proj))[[3]]
 cat("Times: with gradient =",tspg,"   using numerical approx.=", tspgn,"\n")
 cat("F_optimal: with gradient=",aspg$value,"  num. approx.=",aspgn$value,"\n")
 pbest<-rep(1/n, n)
 cat("fbest = ",nllrv(pbest),"  when all parameters = ", pbest[1],"\n")
-cat("deviations:  with gradient=",max(abs(aspg$par-pbest)),"   num. approx.=",max(abs(aspg$par-pbest)),"\n")
+cat("deviations:  with gradient=",max(abs(aspg$par-pbest)),"   num. approx.=",max(abs(aspgn$par-pbest)),"\n")
 @
 
 Here the projection \code{proj} is the key to success of method 
-\code{spg}. Other methods do not have the flexibility to impose the projection directly. 
+\code{spg}. The near-equality of timings with and without analytic gradient is 
+because the approximation attempt only uses one iteration and two function evaluations
+to finish. In fact, the solution with approximate gradient is actually better, and
+this seems to carry over to cases with more parameters.
+
+<<label=C13ravi2, echo=TRUE>>=
+n<-100
+tspgh<-system.time(aspgh <- spg(par=(1:n)/n^2, fn=nllrv, gr=nllrv.g, project=proj))[[3]]
+tspgnh<-system.time(aspgnh <- spg(par=(1:n)/n^2, fn=nllrv, gr=NULL, project=proj))[[3]]
+cat("Times: with gradient =",tspgh,"   using numerical approx.=", tspgnh,"\n")
+cat("F_optimal: with gradient=",aspgh$value,"  num. approx.=",aspgnh$value,"\n")
+pbesth<-rep(1/n, n)
+cat("fbest = ",nllrv(pbesth),"  when all parameters = ", pbesth[1],"\n")
+cat("deviations:  with gradient=",max(abs(aspgh$par-pbesth)),"   num. approx.=",max(abs(aspgnh$par-pbesth)),"\n")
+@
+
+Larger $n$ values eventually give difficulties as non-positive parameters are produced at
+intermediate stages of the optimization. 
+
+%% <<label=C13ravi2, echo=TRUE>>=
+%% n<-1000
+%% tspgt<-system.time(aspgt <- spg(par=(1:n)/n^2, fn=nllrv, gr=nllrv.g, project=proj))[[3]]
+%% tspgnt<-system.time(aspgnt <- spg(par=(1:n)/n^2, fn=nllrv, gr=NULL, project=proj))[[3]]
+%% cat("Times: with gradient =",tspgt,"   using numerical approx.=", tspgnt,"\n")
+%% cat("F_optimal: with gradient=",aspgt$value,"  num. approx.=",aspgnt$value,"\n")
+%% pbestt<-rep(1/n, n)
+%% cat("fbest = ",nllrv(pbestt),"  when all parameters = ", pbestt[1],"\n")
+%% cat("deviations:  with gradient=",max(abs(aspgt$par-pbestt)),"   num. approx.=",max(abs(aspgnt$par-pbestt)),"\n")
+%% @
+
+
+Minimization methods other than \texttt{spg} do not have the flexibility to impose the projection directly. 
 We would need to carefully build the projection into
 the function(s) and/or the method codes. 
 This was done by \cite{Geradin71} for the Rayleigh quotient 
 problem, but requires a number of changes to the program code.
+
+
 
 \subsection{$log()$ transformation of parameters}
 
@@ -304,11 +347,12 @@ This is most noticeable if one uses \pkg{optimrx} function \code{opm()}
 and displays the results of \code{method = "ALL"}. In the following, we
 extract the best solution for the 5-parameter problem.
 
-<<expgabrun1, warning=FALSE, echo=TRUE, cache=TRUE>>=
+<<expgabrun1, warning=FALSE, echo=TRUE>>=
 require(optimrx, quietly=TRUE) # just to be sure
 st<-1:5/10 # 5 parameters, crude scaling to start
 a5x<-opm(st, enll, enll.g, method="ALL", control=list(trace=0))
-a5xbyvalue<-summary(a5x, order=value)
+a5xbyvalue<-summary(a5x, order=value, par.select=1:2)
+print(a5xbyvalue)
 xnor<-a5xbyvalue[1, 1:5] # get the 5 parameters of "best" solution
 xnor<-xnor/sum(xnor)
 cat("normalized parameters:")

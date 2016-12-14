@@ -50,7 +50,7 @@ simultaneous load. Simplify -> Smplfy etc. Any others?
 
 - **Ryacas**: tools ?? 
 
-- ?? any others
+- ?? any other packages that give analytic derivatives?
 
 ## How the tools are used
 
@@ -391,8 +391,6 @@ class(dryacas)
 
 detach("package:Ryacas", unload=TRUE)
 ```
-
-- ?? any other packages that give analytic derivatives?
 
 
 

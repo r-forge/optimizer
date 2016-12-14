@@ -114,6 +114,7 @@ For the moment, let us consider a basic example, which is
 \vspace*{10pt}
 
 \B{Problem A}: Minimize  $( - \prod{\B{x}})$ subject to $\sum{\B{x}}=1$
+It is \textbf{assumed} for multinomial problems that the $x$ elements are positive.
 \vspace*{10pt}
 
 This is a very simplified version of the multinomial maximum likelihood problem. 
@@ -124,10 +125,12 @@ refer to them as \B{sumscale} optimization problems. The condition that the para
 must be positive is often implicit. In practice it can be important to have it imposed
 explicitly if it is part of the actual problem. 
 
-\section{Difficulties using general optimization with sumscale problems}
+\section{Using general optimization with sumscale problems}
 
-Let us use the basic example above to consider how we might formulate Problem A for a
-computational solution in \R. 
+Let us use the basic example above to consider how we might formulate Problem A to try
+to find a computational solution with \R. 
+
+\subsection{A direct approach}
 
 One possibility is to select one of the parameters and solve for it in 
 terms of the others. Let this
@@ -160,11 +163,13 @@ print(ao)
 @
 
 
-While these codes work fine for small $n$, it is fairly easy to see that there are 
+While these codes work fine for small $n$, it is fairly easy to see that there will be 
 computational difficulties as the size of the problem increases. Since the sum of the 
 parameters is constrained to be equal to 1, the parameters are of the order of $1/n$,
 and the function therefore of the order of $1/(n^n)$, which underflows around $n=144$ in 
 \R. 
+
+We also do need to think about the positivity of the parameters. 
 
 
 \section{Other formulations}
@@ -345,17 +350,17 @@ A slightly different transformation or projection is inspired by spherical coord
 We solve problems in 5 and 100 parameters using the \code{spg()} function from package
 \code{BB}, and by not specifying a gradient function use an internal approximation.
 
-<<sphere5, echo=TRUE, cache=TRUE>>=
+<<sphere5, echo=TRUE>>=
 ## ?? need to explain this better
 proj2 <- function(theta) {
     theta2 <- theta^2
     s2 <- theta2 / (1 + theta2)
     cumprod(c(1, s2)) * c(1-s2, 1)
- }
+}
 obj <- function(theta) - sum(log(proj2(theta)))
- n <- 5
- ans <- spg(seq(n-1), obj)
- proj2(ans$par)
+n <- 5
+ans <- spg(seq(n-1), obj)
+proj2(ans$par)
 @
 
 
@@ -375,7 +380,7 @@ and \code{Rvmmin} are not recommended when an analytic gradient is not provided.
 we have specified that a simple forward difference approximation to the gradient
 should be used. 
 
-<<sphere100all, echo=TRUE, cache=TRUE>>=
+<<sphere100all, echo=TRUE>>=
 allans<- opm(seq(n-1), obj, gr="grfwd", method="ALL", control=list(dowarn=FALSE))
 ## summary(allans, order = "list(round(value, 3), fevals)", par.select = FALSE)
 summary(allans, order = value, par.select = FALSE)

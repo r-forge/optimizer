@@ -183,10 +183,6 @@ parameters, but our methods do return solutions with all positive parameters.
 \end{verbatim}
 \begin{alltt}
 \hlkwd{require}\hlstd{(optimrx,} \hlkwc{quietly}\hlstd{=}\hlnum{TRUE}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE, : there is no package called 'optimrx'}}\begin{alltt}
 \hlstd{pr} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{y}\hlstd{) \{}
 \hlopt{-} \hlkwd{prod}\hlstd{(y)}\hlopt{*}\hlstd{(}\hlnum{1}\hlopt{-}\hlkwd{sum}\hlstd{(y))}
 \hlstd{\}}
@@ -200,25 +196,23 @@ parameters, but our methods do return solutions with all positive parameters.
 \hlstd{n}\hlkwb{<-}\hlnum{5}
   \hlstd{st}\hlkwb{<-}\hlnum{1}\hlopt{:}\hlstd{(n}\hlopt{-}\hlnum{1}\hlstd{)}\hlopt{/}\hlstd{(n}\hlopt{*}\hlstd{n)}
    \hlstd{ans}\hlkwb{<-}\hlkwd{opm}\hlstd{(st, pr,} \hlkwc{gr}\hlstd{=}\hlstr{"grcentral"}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{0}\hlstd{))}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
    \hlstd{ao}\hlkwb{<-}\hlkwd{summary}\hlstd{(ans,}\hlkwc{order}\hlstd{=value)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(ans, order = value): object 'ans' not found}}\begin{alltt}
 \hlkwd{print}\hlstd{(ao)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in print(ao): object 'ao' not found}}\end{kframe}
+\begin{verbatim}
+##                    p1        p2        p3        p4          value fevals
+## Nelder-Mead 0.2000034 0.1999983 0.2000017 0.2000021  -3.200000e-04    331
+## BFGS               NA        NA        NA        NA  8.988466e+307     NA
+##             gevals convergence kkt1 kkt2 xtime
+## Nelder-Mead     NA           0 TRUE TRUE 0.004
+## BFGS            NA        9999   NA   NA 0.004
+\end{verbatim}
+\end{kframe}
 \end{knitrout}
 
 
 While these codes work fine for small $n$, it is fairly easy to see that there are 
-computational problems as the size of the problem increases. Since the sum of the 
+computational difficulties as the size of the problem increases. Since the sum of the 
 parameters is constrained to be equal to 1, the parameters are of the order of $1/n$,
 and the function therefore of the order of $1/(n^n)$, which underflows around $n=144$ in 
 \R. 
@@ -260,43 +254,93 @@ sufficiently understood to report at this time.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{require}\hlstd{(optimrx,} \hlkwc{quietly}\hlstd{=}\hlnum{TRUE}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE, : there is no package called 'optimrx'}}\begin{alltt}
 \hlstd{n}\hlkwb{<-}\hlnum{5}
 \hlstd{mset}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"L-BFGS-B"}\hlstd{,} \hlstr{"BFGS"}\hlstd{,} \hlstr{"CG"}\hlstd{,} \hlstr{"spg"}\hlstd{,} \hlstr{"ucminf"}\hlstd{,} \hlstr{"nlm"}\hlstd{,} \hlstr{"nlminb"}\hlstd{,} \hlstr{"Rvmmin"}\hlstd{,} \hlstr{"Rcgmin"}\hlstd{)}
 \hlstd{a5}\hlkwb{<-}\hlkwd{opm}\hlstd{(}\hlnum{2}\hlopt{:}\hlstd{n}\hlopt{/}\hlstd{n}\hlopt{^}\hlnum{2}\hlstd{, nll,} \hlkwc{gr}\hlstd{=}\hlstr{"grfwd"}\hlstd{,} \hlkwc{method}\hlstd{=mset,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{dowarn}\hlstd{=}\hlnum{FALSE}\hlstd{))}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
 \hlstd{a5g}\hlkwb{<-}\hlkwd{opm}\hlstd{(}\hlnum{2}\hlopt{:}\hlstd{n}\hlopt{/}\hlstd{n}\hlopt{^}\hlnum{2}\hlstd{, nll, nll.g,} \hlkwc{method}\hlstd{=mset,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{dowarn}\hlstd{=}\hlnum{FALSE}\hlstd{))}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
 \hlstd{a5gb}\hlkwb{<-}\hlkwd{opm}\hlstd{(}\hlnum{2}\hlopt{:}\hlstd{n}\hlopt{/}\hlstd{n}\hlopt{^}\hlnum{2}\hlstd{, nll, nll.g,} \hlkwc{lower}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{upper}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{method}\hlstd{=mset,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{dowarn}\hlstd{=}\hlnum{FALSE}\hlstd{))}
 \end{alltt}
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}opm"{}}}\begin{alltt}
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in optimr(par, fn, gr, method = meth, lower = lower, upper = upper, : optimr: optim() with bounds ONLY uses L-BFGS-B}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in optimr(par, fn, gr, method = meth, lower = lower, upper = upper, : optimr: optim() with bounds ONLY uses L-BFGS-B}}\begin{alltt}
 \hlcom{#- a5x <- opm(2:n/n^2, nll, nll.g, method="ALL", control=list(dowarn=FALSE))}
 \hlkwd{summary}\hlstd{(a5,}\hlkwc{order}\hlstd{=value)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(a5, order = value): object 'a5' not found}}\begin{alltt}
+\begin{verbatim}
+##                 p1        p2        p3        p4         value fevals
+## nlminb   0.1910859 0.1858287 0.2032001 0.2296229  8.062194e+00     40
+## Rcgmin   0.1912221 0.1859094 0.2032530 0.2296592  8.062239e+00   2237
+## nlm      0.1925000 0.1866667 0.2037500 0.2300000  8.062829e+00     NA
+## Rvmmin   0.1945455 0.1878788 0.2045455 0.2305455  8.064408e+00     37
+## spg      0.2050000 0.1940741 0.2086111 0.2333333  8.085799e+00   1213
+## ucminf   0.2379245 0.2135849 0.2214151 0.2421132  8.371136e+00      6
+## L-BFGS-B        NA        NA        NA        NA 8.988466e+307     NA
+## BFGS            NA        NA        NA        NA 8.988466e+307     NA
+## CG              NA        NA        NA        NA 8.988466e+307     NA
+##          gevals convergence  kkt1 kkt2 xtime
+## nlminb        4           1 FALSE TRUE 0.004
+## Rcgmin      136           1 FALSE TRUE 0.120
+## nlm           3           0 FALSE TRUE 0.004
+## Rvmmin        4           3 FALSE TRUE 0.004
+## spg          11           0 FALSE TRUE 0.144
+## ucminf        6           0 FALSE TRUE 0.000
+## L-BFGS-B     NA        9999    NA   NA 0.004
+## BFGS         NA        9999    NA   NA 0.004
+## CG           NA        9999    NA   NA 0.000
+\end{verbatim}
+\begin{alltt}
 \hlkwd{summary}\hlstd{(a5g,}\hlkwc{order}\hlstd{=value)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(a5g, order = value): object 'a5g' not found}}\begin{alltt}
+\begin{verbatim}
+##                 p1        p2        p3        p4         value fevals
+## ucminf   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     14
+## Rvmmin   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     43
+## spg      0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     17
+## Rcgmin   0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     28
+## CG       0.2000000 0.2000000 0.2000000 0.2000000  8.047190e+00     59
+## nlm      0.2000006 0.1999995 0.2000000 0.2000000  8.047190e+00     NA
+## BFGS     0.2000007 0.1999989 0.2000012 0.1999981  8.047190e+00     33
+## nlminb   0.2000004 0.1999990 0.1999989 0.1999992  8.047190e+00     23
+## L-BFGS-B        NA        NA        NA        NA 8.988466e+307     NA
+##          gevals convergence kkt1 kkt2 xtime
+## ucminf       14           0 TRUE TRUE 0.000
+## Rvmmin       12           0 TRUE TRUE 0.008
+## spg          13           0 TRUE TRUE 0.068
+## Rcgmin       12           0 TRUE TRUE 0.004
+## CG           21           0 TRUE TRUE 0.000
+## nlm          11           0 TRUE TRUE 0.004
+## BFGS          9           0 TRUE TRUE 0.004
+## nlminb       12           0 TRUE TRUE 0.004
+## L-BFGS-B     NA        9999   NA   NA 0.004
+\end{verbatim}
+\begin{alltt}
 \hlkwd{summary}\hlstd{(a5gb,}\hlkwc{order}\hlstd{=value)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in summary(a5gb, order = value): object 'a5gb' not found}}\begin{alltt}
+\begin{verbatim}
+##                 p1       p2        p3        p4         value fevals
+## Rvmmin   0.2000000 0.200000 0.2000000 0.2000000  8.047190e+00     38
+## Rcgmin   0.2000000 0.200000 0.2000000 0.2000000  8.047190e+00     18
+## spg      0.2000000 0.200000 0.2000000 0.2000000  8.047190e+00     18
+## nlminb   0.2000004 0.199999 0.1999989 0.1999992  8.047190e+00     23
+## L-BFGS-B        NA       NA        NA        NA 8.988466e+307     NA
+## BFGS            NA       NA        NA        NA 8.988466e+307     NA
+## CG              NA       NA        NA        NA 8.988466e+307     NA
+## ucminf          NA       NA        NA        NA 8.988466e+307     NA
+## nlm             NA       NA        NA        NA 8.988466e+307     NA
+##          gevals convergence kkt1 kkt2 xtime
+## Rvmmin       14           0 TRUE TRUE 0.008
+## Rcgmin       10           0 TRUE TRUE 0.004
+## spg          13           0 TRUE TRUE 0.072
+## nlminb       12           0 TRUE TRUE 0.000
+## L-BFGS-B     NA        9999   NA   NA 0.004
+## BFGS         NA        9999   NA   NA 0.000
+## CG           NA        9999   NA   NA 0.000
+## ucminf       NA        9999   NA   NA 0.000
+## nlm          NA        9999   NA   NA 0.000
+\end{verbatim}
+\begin{alltt}
 \hlcom{#- summary(a5x,order=value)}
 \end{alltt}
 \end{kframe}
@@ -311,10 +355,10 @@ a consequence of too large a step. The particular form of $log(1-sum(x))$
 is undefined once the argument of
 the logarithm is negative. Indeed, this is the basis of 
 logarithmic barrier functions for constraints. There
-is a similar issue with the $n-1$ parameters near zero. Negative 
-values will cause difficulties. 
+is a similar issue if the $n-1$ parameters approach or pass zero. Negative 
+parameter values are inadmissible in this formulation. 
 
-Numerical gradient approximations will similarly fail, 
+Numerical gradient approximations can similarly fail, 
 particularly as step sizes are often of the order
 of 1E-7 in size. There is generally no special check within numerical 
 gradient routines to apply bounds. 
@@ -362,7 +406,7 @@ to Ravi Varadhan for the suggestion.
 \hlkwd{cat}\hlstd{(}\hlstr{"Times: with gradient ="}\hlstd{,tspg,}\hlstr{"   using numerical approx.="}\hlstd{, tspgn,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Times: with gradient = 0.047    using numerical approx.= 0.042
+## Times: with gradient = 0.075    using numerical approx.= 0.068
 \end{verbatim}
 \begin{alltt}
 \hlkwd{cat}\hlstd{(}\hlstr{"F_optimal: with gradient="}\hlstd{,aspg}\hlopt{$}\hlstd{value,}\hlstr{"  num. approx.="}\hlstd{,aspgn}\hlopt{$}\hlstd{value,}\hlstr{"\textbackslash{}n"}\hlstd{)}
@@ -419,7 +463,8 @@ are "lx" and not x.
 \end{kframe}
 \end{knitrout}
 
-But where is our constraint? Here we have noted that we could define the objective 
+But where is our constraint that the sum of parameters must be 1? 
+Here we have noted that we could define the objective 
 function only to within the scaling  $\B{x}/\sum(\B{x})$. There is a minor 
 nuisance, in that we need to re-scale our 
 parameters after solution to have them in a standard form. 
@@ -481,7 +526,7 @@ algorithm in package \code{Rcgmin}.
 \hlkwd{cat}\hlstd{(}\hlstr{"Time = "}\hlstd{,tym,}\hlstr{"  fval="}\hlstd{,acgbig}\hlopt{$}\hlstd{value,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Time =  0.082   fval= 460.517
+## Time =  0.224   fval= 460.517
 \end{verbatim}
 \begin{alltt}
 \hlstd{xnor}\hlkwb{<-}\hlstd{acgbig}\hlopt{$}\hlstd{par}\hlopt{/}\hlkwd{sum}\hlstd{(acgbig}\hlopt{$}\hlstd{par)}
@@ -500,7 +545,8 @@ algorithm in package \code{Rcgmin}.
 \end{kframe}
 \end{knitrout}
 
-One worrying aspect of the solution is that the objective function 
+We have a solution. However, a worrying aspect of this 
+solution is that the objective function 
 at the start and end differ by a tiny amount. 
 
 \subsection{Another transformation}
@@ -540,27 +586,40 @@ We solve problems in 5 and 100 parameters using the \code{spg()} function from p
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(BB)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in library(BB): there is no package called 'BB'}}\begin{alltt}
 \hlstd{n}\hlkwb{<-}\hlnum{100}
 \hlstd{ans100} \hlkwb{<-} \hlkwd{spg}\hlstd{(}\hlkwd{seq}\hlstd{(n}\hlopt{-}\hlnum{1}\hlstd{), obj,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{),} \hlkwc{quiet}\hlstd{=}\hlnum{TRUE}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): could not find function "{}spg"{}}}\begin{alltt}
 \hlkwd{proj2}\hlstd{( (ans100}\hlopt{$}\hlstd{par) )}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in proj2((ans100\$par)): object 'ans100' not found}}\end{kframe}
+\begin{verbatim}
+##   [1] 0.009999999 0.010000001 0.010000000 0.010000000 0.009999999
+##   [6] 0.010000003 0.010000000 0.010000001 0.010000000 0.010000000
+##  [11] 0.010000001 0.010000000 0.010000000 0.010000002 0.010000002
+##  [16] 0.010000001 0.009999999 0.010000002 0.010000000 0.010000002
+##  [21] 0.010000000 0.010000000 0.010000002 0.010000001 0.010000001
+##  [26] 0.010000001 0.010000000 0.010000002 0.010000001 0.010000001
+##  [31] 0.010000000 0.010000001 0.010000002 0.010000002 0.010000001
+##  [36] 0.010000002 0.010000001 0.010000000 0.010000001 0.010000001
+##  [41] 0.009999999 0.009999996 0.010000002 0.010000002 0.010000002
+##  [46] 0.009999996 0.009999997 0.009999999 0.010000000 0.009999999
+##  [51] 0.009999998 0.010000002 0.010000000 0.009999999 0.010000000
+##  [56] 0.009999996 0.010000002 0.010000002 0.009999998 0.010000000
+##  [61] 0.010000000 0.009999999 0.010000000 0.010000000 0.010000001
+##  [66] 0.009999999 0.010000000 0.010000000 0.010000000 0.010000000
+##  [71] 0.009999999 0.010000000 0.009999999 0.010000000 0.009999999
+##  [76] 0.010000000 0.010000000 0.009999999 0.010000000 0.009999999
+##  [81] 0.009999999 0.009999999 0.010000000 0.010000001 0.009999999
+##  [86] 0.009999999 0.010000000 0.010000001 0.010000000 0.009999998
+##  [91] 0.009999998 0.009999999 0.010000000 0.010000000 0.010000000
+##  [96] 0.009999997 0.010000038 0.009999935 0.010000003 0.010000023
+\end{verbatim}
+\end{kframe}
 \end{knitrout}
 
 In the above, we note that the transformation is embedded into the objective function, 
-so we could run any of the optimizers in \pkg{optimrx} as follows. This takes some time, 
-as the derivative-free
-methods appear to have more difficulty with this formulation. Moreover, \code{Rcgmin}
+so we could run any of the optimizers in \pkg{optimrx} as follows. This can take some time, 
+and the derivative-free
+methods do an awful lot of work with this formulation, though they do seem to get the
+best solution. Moreover, \code{Rcgmin}
 and \code{Rvmmin} are not recommended when an analytic gradient is not provided. Here
 we have specified that a simple forward difference approximation to the gradient
 should be used. 
@@ -579,28 +638,29 @@ should be used.
 {\ttfamily\noindent\color{warningcolor}{\#\# Warning in nmk(par = spar, fn = efn, control = mcontrol, ...): Nelder-Mead should not be used for high-dimensional optimization}}
 
 {\ttfamily\noindent\color{warningcolor}{\#\# Warning in optimr(par, fn, gr, method = meth, lower = lower, upper = upper, : Maximum number of fevals exceeded\ \ Restarts for stagnation =0}}\begin{alltt}
-\hlkwd{summary}\hlstd{(allans,} \hlkwc{order} \hlstd{=} \hlstr{"list(round(value, 3), fevals)"}\hlstd{,} \hlkwc{par.select} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlcom{## summary(allans, order = "list(round(value, 3), fevals)", par.select = FALSE)}
+\hlkwd{summary}\hlstd{(allans,} \hlkwc{order} \hlstd{= value,} \hlkwc{par.select} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-##                     value fevals gevals convergence  kkt1  kkt2 xtime
-## spg          4.605170e+02    230    212           0  TRUE  TRUE 0.433
-## lbfgsb3      4.605170e+02    267    267           0  TRUE  TRUE 0.688
-## L-BFGS-B     4.605170e+02    280    280           0  TRUE  TRUE 0.492
-## ucminf       4.605170e+02    310    310           0  TRUE  TRUE 0.543
-## BFGS         4.605170e+02    312    217           0  TRUE  TRUE 0.395
-## Rvmmin       4.605170e+02    398    272           2  TRUE  TRUE 0.648
-## Rcgmin       4.605170e+02   1612   1023           0  TRUE  TRUE 1.826
-## CG           4.605170e+02   4039   1723           0  TRUE  TRUE 3.093
-## hjkb         4.605170e+02  20612     NA           0  TRUE  TRUE 0.415
-## bobyqa       4.605170e+02  21493     NA           0  TRUE  TRUE 7.588
-## hjn          4.605170e+02  23292     NA           0  TRUE  TRUE 0.575
-## nlm          4.605170e+02     NA    203           0  TRUE  TRUE 0.658
-## Rtnmin       4.756232e+02    926    926           3  TRUE FALSE 2.552
-## nlminb       4.822372e+02    189    151           1 FALSE FALSE 0.300
-## nmkb         7.202616e+02   5045     NA           1  TRUE FALSE 2.500
-## lbfgs        7.326367e+02     NA     NA       -1001  TRUE FALSE 0.025
-## Nelder-Mead  7.439745e+02   5002     NA           1  TRUE FALSE 0.115
-## newuoa      8.988466e+307     NA     NA        9999    NA    NA 0.004
+##                     value fevals gevals convergence  kkt1  kkt2  xtime
+## hjn          4.605170e+02  23292     NA           0  TRUE  TRUE  1.356
+## bobyqa       4.605170e+02  21493     NA           0  TRUE  TRUE 17.492
+## hjkb         4.605170e+02  20414     NA           0  TRUE  TRUE  0.916
+## nmkb         7.202616e+02   5045     NA           1  TRUE FALSE  4.980
+## Nelder-Mead  7.439745e+02   5002     NA           1  TRUE FALSE  0.216
+## Rtnmin       7.556838e+02      8      8           3  TRUE FALSE  0.128
+## Rcgmin       7.557004e+02      7      2           0 FALSE FALSE  0.012
+## lbfgs        7.557324e+02     NA     NA       -1001 FALSE FALSE  0.084
+## lbfgsb3      7.557324e+02     30     30           0  TRUE FALSE  0.148
+## Rvmmin       7.558641e+02     64      4           3  TRUE FALSE  0.020
+## nlm          7.558641e+02     NA      2           0  TRUE FALSE  0.492
+## nlminb       7.618772e+02     44     44           1 FALSE FALSE  0.196
+## ucminf       7.713573e+02      8      8           0 FALSE FALSE  0.052
+## spg          7.747860e+02   1033     11           0  TRUE FALSE  0.256
+## BFGS        8.988466e+307     NA     NA        9999    NA    NA  0.004
+## CG          8.988466e+307     NA     NA        9999    NA    NA  0.000
+## L-BFGS-B    8.988466e+307     NA     NA        9999    NA    NA  0.004
+## newuoa      8.988466e+307     NA     NA        9999    NA    NA  0.008
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -700,7 +760,7 @@ Rayleigh quotient of the matrix multiplied by -1. This is solution \code{tmax}.
 \hlkwd{cat}\hlstd{(}\hlstr{"maximal eigensolution: Value="}\hlstd{,asprqmax}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmax,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## maximal eigensolution: Value= -205 in time  0.3
+## maximal eigensolution: Value= -205 in time  0.776
 \end{verbatim}
 \begin{alltt}
 \hlkwd{print}\hlstd{(asprqmax}\hlopt{$}\hlstd{par)}
@@ -713,7 +773,7 @@ Rayleigh quotient of the matrix multiplied by -1. This is solution \code{tmax}.
 \hlkwd{cat}\hlstd{(}\hlstr{"minimal eigensolution: Value="}\hlstd{,asprqmin}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmin,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## minimal eigensolution: Value= 205 in time  0.046
+## minimal eigensolution: Value= 205 in time  0.073
 \end{verbatim}
 \begin{alltt}
 \hlkwd{print}\hlstd{(asprqmin}\hlopt{$}\hlstd{par)}
@@ -763,6 +823,14 @@ not bother with gradients for this small problem.
 \end{verbatim}
 \begin{alltt}
 \hlkwd{require}\hlstd{(optimx)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: optimx}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'optimx'}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following object is masked from 'package:optimrx':\\\#\# \\\#\#\ \ \ \  coef<-}}\begin{alltt}
 \hlstd{st}\hlkwb{<-}\hlkwd{runif}\hlstd{(}\hlnum{3}\hlstd{)}
 \hlstd{aos}\hlkwb{<-}\hlkwd{opm}\hlstd{(st, ssums,} \hlkwc{gr}\hlstd{=}\hlstr{"grcentral"}\hlstd{,} \hlkwc{method}\hlstd{=}\hlstr{"ALL"}\hlstd{)}
 \end{alltt}
@@ -783,18 +851,18 @@ not bother with gradients for this small problem.
 \hlkwd{summary}\hlstd{(aos,}\hlkwc{order}\hlstd{=value)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,]}
 \end{alltt}
 \begin{verbatim}
-##                 p1        p2        p3     value fevals gevals convergence
-## Rvmmin   0.5454545 0.2727273 0.1818182 0.5454545     36     11           0
-## hjn      0.5454545 0.2727273 0.1818182 0.5454545    252     NA           0
-## Rtnmin   0.5454545 0.2727273 0.1818182 0.5454545     13     13           0
-## nlminb   0.5454545 0.2727273 0.1818182 0.5454545      8      8           0
-## L-BFGS-B 0.5454546 0.2727273 0.1818182 0.5454545      7      7           0
-##          kkt1  kkt2 xtime
-## Rvmmin   TRUE FALSE 0.003
-## hjn      TRUE FALSE 0.004
-## Rtnmin   TRUE FALSE 0.003
-## nlminb   TRUE FALSE 0.001
-## L-BFGS-B TRUE FALSE 0.000
+##                    p1        p2        p3     value fevals gevals
+## newuoa      0.5454545 0.2727273 0.1818182 0.5454545     67     NA
+## hjn         0.5454545 0.2727273 0.1818182 0.5454545    233     NA
+## bobyqa      0.5454545 0.2727273 0.1818182 0.5454545     44     NA
+## hjkb        0.5454545 0.2727272 0.1818183 0.5454545    314     NA
+## Nelder-Mead 0.5454941 0.2726901 0.1818157 0.5454545     76     NA
+##             convergence kkt1  kkt2 xtime
+## newuoa                0 TRUE FALSE 0.004
+## hjn                   0 TRUE FALSE 0.008
+## bobyqa                0 TRUE FALSE 0.000
+## hjkb                  0 TRUE FALSE 0.012
+## Nelder-Mead           0 TRUE FALSE 0.000
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -826,8 +894,8 @@ not bother with gradients for this small problem.
 \hlstd{as}\hlkwb{<-}\hlkwd{spg}\hlstd{(st, ssum,} \hlkwc{project}\hlstd{=proj.simplex)}
 \end{alltt}
 \begin{verbatim}
-## iter:  0  f-value:  2.37723  pgrad:  0.5182819 
-## iter:  10  f-value:  0.5454545  pgrad:  4.169998e-05
+## iter:  0  f-value:  1.987376  pgrad:  0.7305851 
+## iter:  10  f-value:  0.5454545  pgrad:  8.974414e-05
 \end{verbatim}
 \begin{alltt}
 \hlkwd{cat}\hlstd{(}\hlstr{"Using project.simplex with spg: fmin="}\hlstd{,as}\hlopt{$}\hlstd{value,}\hlstr{" at \textbackslash{}n"}\hlstd{)}
@@ -839,7 +907,7 @@ not bother with gradients for this small problem.
 \hlkwd{print}\hlstd{(as}\hlopt{$}\hlstd{par)}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.5454557 0.2727265 0.1818179
+## [1] 0.5454524 0.2727290 0.1818187
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

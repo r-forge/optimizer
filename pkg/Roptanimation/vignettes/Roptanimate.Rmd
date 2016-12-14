@@ -4,6 +4,7 @@ author: "John C. Nash, Greg Snow"
 date: "`r Sys.Date()`"
 bibliography: Roptanimate.bib
 output: pdf_document
+## output: rmarkdown::render
 ## output: rmarkdown::html_vignette
 ## output: md_document
 vignette: >

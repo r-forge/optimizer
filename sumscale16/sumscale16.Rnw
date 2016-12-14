@@ -161,7 +161,7 @@ print(ao)
 
 
 While these codes work fine for small $n$, it is fairly easy to see that there are 
-computational problems as the size of the problem increases. Since the sum of the 
+computational difficulties as the size of the problem increases. Since the sum of the 
 parameters is constrained to be equal to 1, the parameters are of the order of $1/n$,
 and the function therefore of the order of $1/(n^n)$, which underflows around $n=144$ in 
 \R. 
@@ -218,10 +218,10 @@ a consequence of too large a step. The particular form of $log(1-sum(x))$
 is undefined once the argument of
 the logarithm is negative. Indeed, this is the basis of 
 logarithmic barrier functions for constraints. There
-is a similar issue with the $n-1$ parameters near zero. Negative 
-values will cause difficulties. 
+is a similar issue if the $n-1$ parameters approach or pass zero. Negative 
+parameter values are inadmissible in this formulation. 
 
-Numerical gradient approximations will similarly fail, 
+Numerical gradient approximations can similarly fail, 
 particularly as step sizes are often of the order
 of 1E-7 in size. There is generally no special check within numerical 
 gradient routines to apply bounds. 
@@ -290,7 +290,8 @@ enll.g <- function(lx){
 }
 @
 
-But where is our constraint? Here we have noted that we could define the objective 
+But where is our constraint that the sum of parameters must be 1? 
+Here we have noted that we could define the objective 
 function only to within the scaling  $\B{x}/\sum(\B{x})$. There is a minor 
 nuisance, in that we need to re-scale our 
 parameters after solution to have them in a standard form. 
@@ -334,7 +335,8 @@ xnor<-acgbig$par/sum(acgbig$par)
 print(xnor)
 @
 
-One worrying aspect of the solution is that the objective function 
+We have a solution. However, a worrying aspect of this 
+solution is that the objective function 
 at the start and end differ by a tiny amount. 
 
 \subsection{Another transformation}
@@ -344,6 +346,7 @@ We solve problems in 5 and 100 parameters using the \code{spg()} function from p
 \code{BB}, and by not specifying a gradient function use an internal approximation.
 
 <<sphere5, echo=TRUE, cache=TRUE>>=
+## ?? need to explain this better
 proj2 <- function(theta) {
     theta2 <- theta^2
     s2 <- theta2 / (1 + theta2)
@@ -364,16 +367,18 @@ proj2( (ans100$par) )
 @
 
 In the above, we note that the transformation is embedded into the objective function, 
-so we could run any of the optimizers in \pkg{optimrx} as follows. This takes some time, 
-as the derivative-free
-methods appear to have more difficulty with this formulation. Moreover, \code{Rcgmin}
+so we could run any of the optimizers in \pkg{optimrx} as follows. This can take some time, 
+and the derivative-free
+methods do an awful lot of work with this formulation, though they do seem to get the
+best solution. Moreover, \code{Rcgmin}
 and \code{Rvmmin} are not recommended when an analytic gradient is not provided. Here
 we have specified that a simple forward difference approximation to the gradient
 should be used. 
 
 <<sphere100all, echo=TRUE, cache=TRUE>>=
 allans<- opm(seq(n-1), obj, gr="grfwd", method="ALL", control=list(dowarn=FALSE))
-summary(allans, order = "list(round(value, 3), fevals)", par.select = FALSE)
+## summary(allans, order = "list(round(value, 3), fevals)", par.select = FALSE)
+summary(allans, order = value, par.select = FALSE)
 @
 
 \subsection{Use the gradient equations}

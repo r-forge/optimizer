@@ -170,7 +170,7 @@ parameters is constrained to be equal to 1, the parameters are of the order of $
 and the function therefore of the order of $1/(n^n)$, which underflows around $n=144$ in 
 \R. 
 
-We also do need to think about the positivity of the parameters. Let us start with 
+We do need to think about the positivity of the parameters. Let us start with 
 a different set of values, some of which are negative. If pairs are negative, the 
 product is still positive.
 
@@ -209,14 +209,16 @@ nll.g <- function(y) { - 1/y + 1/(1-sum(y))} # so far not safeguarded
 We can easily try several optimization methods using the \code{opm()} function
 of \pkg{optimrx} package. Here are the
 calls, which overall did not perform as well as we would like. Note that we do not ask for
-\code{method="ALL"} as we found that some of the methods, in particular those using Powell's
+\code{method="ALL"}. For one thing, this can take a lot of computing effort. Also, 
+we found that some of the methods, in particular those using Powell's
 quadratic approximation methods, seem to get "stuck". The reasons for this have not been
 sufficiently understood to report at this time. 
 
 <<label=C13badruns1, echo=TRUE>>=
 require(optimrx, quietly=TRUE)
 n<-5
-mset<-c("L-BFGS-B", "BFGS", "CG", "spg", "ucminf", "nlm", "nlminb", "Rvmmin", "Rcgmin")
+## mset<-c("L-BFGS-B", "BFGS", "CG", "spg", "ucminf", "nlm", "nlminb", "Rvmmin", "Rcgmin")
+mset<-c("L-BFGS-B", "spg", "nlm", "nlminb", "Rvmmin", "Rcgmin")
 a5<-opm(2:n/n^2, nll, gr="grfwd", method=mset, control=list(dowarn=FALSE))
 a5g<-opm(2:n/n^2, nll, nll.g, method=mset, control=list(dowarn=FALSE))
 a5gb<-opm(2:n/n^2, nll, nll.g, lower=0, upper=1, method=mset, control=list(dowarn=FALSE))
@@ -232,7 +234,9 @@ The exception (L-BFGS-B) is due to the optimization method trying to
 compute the gradient where sum(x) is greater than 1. We 
 have not tried to determine the source of this particular issue. However, 
 it is almost certainly 
-a consequence of too large a step. The particular form of $log(1-sum(x))$ 
+a consequence of too large a step. This method uses a quite sophisticated
+line search and its ability to use quite large search steps often results in
+very good performance. Here, however, the particular form of $log(1-sum(x))$ 
 is undefined once the argument of
 the logarithm is negative. Indeed, this is the basis of 
 logarithmic barrier functions for constraints. There
@@ -249,11 +253,7 @@ bound large enough to avoid the logarithm of a zero or negative argument
 while still being small enough 
 to allow for parameter optimization is non-trivial.
 
-\subsection{Transformed problems or parameters}
-
-When problems give difficulties, it is common to re-formulate them 
-by transformations of the function
-or the parameters. 
+\subsection{Projected search directions}
 
 Objective functions defined by $(-1)*\prod{\B{x}}$ or $(-1)*\sum{log(\B{x})}$ will change 
 with the scale of the parameters. Moreover, the constraint $\sum{\B{x}}=1$ 
@@ -318,6 +318,9 @@ problem, but requires a number of changes to the program code.
 
 \subsection{$log()$ transformation of parameters}
 
+When problems give difficulties, it is common to re-formulate them 
+by transformations of the function
+or the parameters. 
 A common method to ensure parameters are positive is to use a log transform. 
 In the present case, optimizing over
 parameters that are the logarithms of the parameters above 
@@ -326,7 +329,7 @@ elements of the negative log likelihood. Here is the code.
 Note that the parameters used in optimization
 are "lx" and not x.
 
-<<expgabor, echo=TRUE, cache=TRUE>>=
+<<expgabor, echo=TRUE>>=
 enll <- function(lx) {
     x<-exp(lx)
     fval<-  - sum( log( x/sum(x) ) ) 
@@ -344,16 +347,19 @@ function only to within the scaling  $\B{x}/\sum(\B{x})$. There is a minor
 nuisance, in that we need to re-scale our 
 parameters after solution to have them in a standard form. 
 This is most noticeable if one uses \pkg{optimrx} function \code{opm()}
-and displays the results of \code{method = "ALL"}. In the following, we
+and displays the results of \code{method = mset}, a collection of six
+gradient-based minimizers. In the following, we
 extract the best solution for the 5-parameter problem.
 
 <<expgabrun1, warning=FALSE, echo=TRUE>>=
 require(optimrx, quietly=TRUE) # just to be sure
 st<-1:5/10 # 5 parameters, crude scaling to start
-a5x<-opm(st, enll, enll.g, method="ALL", control=list(trace=0))
+st<-log(st)
+mset<-c("L-BFGS-B", "spg", "nlm", "nlminb", "Rvmmin", "Rcgmin")
+a5x<-opm(st, enll, enll.g, method=mset, control=list(trace=0))
 a5xbyvalue<-summary(a5x, order=value, par.select=1:2)
 print(a5xbyvalue)
-xnor<-a5xbyvalue[1, 1:5] # get the 5 parameters of "best" solution
+xnor<-exp(a5xbyvalue[1, 1:5]) # get the 5 parameters of "best" solution, exponentiate
 xnor<-xnor/sum(xnor)
 cat("normalized parameters:")
 print(xnor)
@@ -373,7 +379,7 @@ example \code{control=list(tol=1e-12)}.
 Let us try a larger problem in 100 parameters. We emply the conjugate gradient
 algorithm in package \code{Rcgmin}.
 
-<<expgabrun2, warning=FALSE, echo=TRUE, cache=TRUE>>=
+<<expgabrun2, warning=FALSE, echo=TRUE>>=
 require(Rcgmin, quietly=TRUE)
 st<-1:100/1e3 # large
 stenll<-enll(st)
@@ -481,7 +487,7 @@ with getting the solutions correctly rather than the speed of so doing. Note
 that to get the solution with the most-positive eigenvalue, we minimize the
 Rayleigh quotient of the matrix multiplied by -1. This is solution \code{tmax}.
 
-<<rayspg1, echo=TRUE, cache=TRUE>>=
+<<rayspg1, echo=TRUE>>=
 molerbuild<-function(n){ # Create the moler matrix of order n
    # A[i,j] = i for i=j, min(i,j)-2 otherwise
    A <- matrix(0, nrow = n, ncol = n)
@@ -532,7 +538,7 @@ problem posed by Lanh Tran on R-help. We will use
 only a method that scales the parameters directly inside the objective function and 
 not bother with gradients for this small problem. 
 
-<<tran1, echo=TRUE, cache=TRUE>>=
+<<tran1, echo=TRUE>>=
 ssums<-function(x){
   n<-length(x)
   tt<-sum(x)
@@ -561,7 +567,7 @@ summary(aos,order=value)[1:5,]
 
 
 
-<<transpg1, echo=TRUE, cache=TRUE>>=
+<<transpg1, echo=TRUE>>=
 ssum<-function(x){
   n<-length(x)
   ss<-1:n
@@ -590,7 +596,7 @@ Apart from the parameter rescaling, this is an entirely "doable" problem.
 Note that we can also solve the problem as a Quadratic Program using
 the \pkg{quadprog} package.
 
-<<label=TranQP, echo=TRUE, cache=TRUE>>=
+<<label=TranQP, echo=TRUE>>=
 library(quadprog)
 Dmat<-diag(c(1,2,3))
 Amat<-matrix(c(1, 1, 1), ncol=1)

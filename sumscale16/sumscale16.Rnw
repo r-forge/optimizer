@@ -280,9 +280,9 @@ Here the projection \code{proj} is the key to success of method
 \code{spg}. The near-equality of timings with and without analytic gradient is 
 because the approximation attempt only uses one iteration and two function evaluations
 to finish. In fact, the solution with approximate gradient is actually better, and
-this seems to carry over to cases with more parameters.
+this seems to carry over to cases with more parameters, e.g., 100 of them.
 
-<<label=C13ravi2, echo=TRUE>>=
+<<label=C13ravi2>>=
 n<-100
 tspgh<-system.time(aspgh <- spg(par=(1:n)/n^2, fn=nllrv, gr=nllrv.g, project=proj))[[3]]
 tspgnh<-system.time(aspgnh <- spg(par=(1:n)/n^2, fn=nllrv, gr=NULL, project=proj))[[3]]
@@ -355,13 +355,14 @@ extract the best solution for the 5-parameter problem.
 require(optimrx, quietly=TRUE) # just to be sure
 st<-1:5/10 # 5 parameters, crude scaling to start
 st<-log(st)
+n <- 5
 mset<-c("L-BFGS-B", "spg", "nlm", "nlminb", "Rvmmin", "Rcgmin")
 a5x<-opm(st, enll, enll.g, method=mset, control=list(trace=0))
-a5xbyvalue<-summary(a5x, order=value, par.select=1:2)
-print(a5xbyvalue)
+a5xbyvalue<-summary(a5x, order=value)
+print(a5xbyvalue)[(n+1):(n+7)]
 xnor<-exp(a5xbyvalue[1, 1:5]) # get the 5 parameters of "best" solution, exponentiate
 xnor<-xnor/sum(xnor)
-cat("normalized parameters:")
+cat("best normalized parameters:")
 print(xnor)
 @
 
@@ -374,27 +375,29 @@ of the gradient used, in particular, to
 decide to terminate iterations in \pkg{Rcgmin} were too 
 hasty in stopping progress for problems
 with larger numbers of parameters. A user-specified tolerance is now allowed; for
-example \code{control=list(tol=1e-12)}. 
+example \code{control=list(tol=1e-32)}, the rather extreme setting we have used
+below. 
 
 Let us try a larger problem in 100 parameters. We emply the conjugate gradient
 algorithm in package \code{Rcgmin}.
 
-<<expgabrun2, warning=FALSE, echo=TRUE>>=
+<<expgabrun2, warning=FALSE, echo=FALSE>>=
 require(Rcgmin, quietly=TRUE)
 st<-1:100/1e3 # large
 stenll<-enll(st)
 cat("Initial function value =",stenll,"\n")
 tym<-system.time(acgbig<-Rcgmin(st, enll, enll.g, control=list(trace=0, tol=1e-32)))[[3]]
 cat("Time = ",tym,"  fval=",acgbig$value,"\n")
-xnor<-acgbig$par/sum(acgbig$par)
-print(xnor)
+xnor<-acgbig$par
+xnor<-exp(xnor)/sum(exp(xnor)) # back transform
+cat("Average parameter is ", mean(xnor)," with max deviation", max(abs(xnor-mean(xnor))),"\n")
 @
 
 We have a solution. However, a worrying aspect of this 
 solution is that the objective function 
 at the start and end differ by a tiny amount. 
 
-\subsection{Another transformation}
+\subsection{A transformation inspired by the n-sphere}
 
 A slightly different transformation or projection is inspired by spherical coordinates.
 We solve problems in 5 and 100 parameters using the \code{spg()} function from package
@@ -431,9 +434,9 @@ we have specified that a simple forward difference approximation to the gradient
 should be used. 
 
 <<sphere100all, echo=TRUE>>=
-allans<- opm(seq(n-1), obj, gr="grfwd", method="ALL", control=list(dowarn=FALSE))
+sans<- opm(seq(n-1), obj, gr="grfwd", method=mset, control=list(dowarn=FALSE))
 ## summary(allans, order = "list(round(value, 3), fevals)", par.select = FALSE)
-summary(allans, order = value, par.select = FALSE)
+summary(sans, order = value, par.select = FALSE)
 @
 
 \subsection{Use the gradient equations}
@@ -458,6 +461,7 @@ of writing all nonlinear equations approaches remain to be tried.
 
 \section{The Rayleigh Quotient}
 
+This is another typical sumscale problem. 
 The maximal and minimal eigensolutions of a symmetric matrix $A$ 
 are extrema of the Rayleigh Quotient
 

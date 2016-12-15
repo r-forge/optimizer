@@ -201,9 +201,8 @@ parameters where some are zero or negative, so that logarithms of non-positive n
 are attempted, so we have put some safeguards in the function \code{nll} below. At this 
 point we have assumed the gradient calculation is only attempted if the function can be 
 computed satisfactorily, so we have
-not put similar safeguards in the gradient.
-
-?? Do we need to use (n-1)
+not put similar safeguards in the gradient. Note that we work with $n-1$ parameters
+in the optimization, and expand to the full set for reporting.
 
 <<gabornll, echo=TRUE>>=
 nll <- function(y) { # large result if near zero arguments to log()
@@ -412,7 +411,10 @@ The idea here is to transform a set of $n$ parameters by specifying $n-1$ values
 letting a special projection transform this set of $n-1$ numbers into a set of $n$ parameters
 that always sum to 1. 
 
-The first such transformation uses the trigonometric identity that $sin^2(theta) + cos^2(theta) =1$.
+The first such transformation uses the trigonometric identity that 
+
+$sin^2(theta) + cos^2(theta) =1$.
+
 This identity is extended to $n$ dimensions. We can do this via the projection
 
 <<proj1, echo=TRUE>>=
@@ -446,7 +448,6 @@ proj2(ans$par) # The parameters
 
 
 <<sphere100, echo=TRUE>>=
-library(BB)
 n<-100
 ans100 <- spg(seq(n-1), obj, control=list(trace=FALSE), quiet=TRUE)
 proj2(ans100$par)[1:5] # Display only 1st 5 parameters
@@ -471,7 +472,8 @@ summary(sans, order = value, par.select = FALSE)
 \subsection{Fixing parameters}
 
 Some function minimizers can specify that some parameters are fixed. \code{Rvmmin} and
-\code{Rcgmin} are two such methods. Let us work with the \code{nll} objective function.
+\code{Rcgmin} are two such methods. Let us work with the \code{enll} objective function
+that works with the logarithms of the parameters.
 We need to rescale the parameters after solution and recompute the objective if we need it.
 
 <<mask1, echo=TRUE>>=
@@ -489,6 +491,12 @@ print(parmsk)
 @
 
 This also works well for $n=100$ with both methods that allow fixed parameters.
+
+Note that for the product problem, no parameter can be zero or the product is zero.
+In the case of the Rayleigh Quotient below, we may have to be concerned that the
+parameter we have chosen to fix may have zero as its optimal value, in which case
+the approach of fixing one parameter is not useful unless we are prepared to 
+indulge some trial and error. 
 
 \subsection{Use the gradient equations}
 
@@ -524,7 +532,7 @@ cat("nleqslv: rescaled parameter mean=", mean(pare)," with SD=",sd(pare),"\n")
 ne<-nlfb(strt, enll.g, trace=0)
 rawe <- coef(ne)
 pare2 <- rawe/sum(rawe)
-cat("nlsr: rescaled parameter mean=", mean(pare2)," with SD=",sd(pare2),"\n")
+cat("nlmrt: rescaled parameter mean=", mean(pare2)," with SD=",sd(pare2),"\n")
 
 cat("\nNow 100 parameters using enll.g\n")
 xh<-1:100
@@ -534,9 +542,10 @@ cat("nleqslv: rescaled parameter mean=", mean(parh)," with SD=",sd(parh),"\n")
 nh<-nlfb(xh, enll.g, trace=0)
 rawh <- coef(nh)
 parh2 <- rawh/sum(rawh)
-cat("nleqslv: rescaled parameter mean=", mean(parh2)," with SD=",sd(parh2),"\n")
+cat("nlmrt: rescaled parameter mean=", mean(parh2)," with SD=",sd(parh2),"\n")
 @
 
+The results with the larger problem are not acceptable. 
 
 \section{The Rayleigh Quotient}
 
@@ -554,7 +563,6 @@ where B is symmetric and positive definite by using the Rayleigh Quotient
 
 $ R_g(x) =  (x' A x)  / (x' B x) $
 
-
 Once again, the objective is scaled by the parameters, this time by their 
 sum of squares. Alternatively, 
 we may think of requiring the \B{normalized} eigensolution, which is given as 
@@ -564,7 +572,7 @@ $ x_{normalized} = x/sqrt(x' x) $
 We will first try the projected gradient method \code{spg} from \pkg{BB}. 
 Below is the code, where our test uses
 a matrix called the Moler matrix \cite[Appendix 1]{cnm79}. We caution that there
-are faster ways to compute this matrix in \R\ \citep{RQtimes12} where different
+are faster ways to compute this matrix in \R\, \citep{RQtimes12}, where different
 approaches to speed up \R\ computations are discussed. Here we are concerned 
 with getting the solutions correctly rather than the speed of so doing. Note
 that to get the solution with the most-positive eigenvalue, we minimize the
@@ -605,7 +613,8 @@ For the record, these results compare well with eigenvalues from eigen().
 
 If we ignore the constraint, and simply perform the optimization, we can
 get satisfactory solutions, though comparisons require that we normalize 
-the parameters post-optimization. We can check if the scale of the eigenvectors 
+the parameters (the eigenvector components) post-optimization. 
+We can check if the scale of the eigenvectors 
 is becoming large by computing the norm of the final parameter vector. In 
 tests on the Moler matrix up to dimension 100, none grew to a worrying size. 
 
@@ -631,9 +640,8 @@ ssums<-function(x){
 }
 
 cat("Try penalized sum\n")
-require(optimx)
 st<-runif(3)
-aos<-opm(st, ssums, gr="grcentral", method="ALL")
+aos<-opm(st, ssums, gr="grcentral", method=mset)
 # rescale the parameters
 nsol<-dim(aos)[1]
 for (i in 1:nsol){ 
@@ -689,6 +697,59 @@ dvec<-c(0, 0, 0)
 ans<-solve.QP(Dmat, dvec, Amat, bvec, meq=0, factorized=FALSE)
 ans
 @
+
+\section{Recommendations}
+
+Given the relatively limited experience above, it is nevertheless incumbent on us to 
+recommend to \R users how to approach these problems. 
+
+\subsection{Application of the ideas}
+
+Let us try to solve the following problem:
+
+Maximize the product of $n$ parameters such that the scaled sum of squares is fixed to value $A$.
+That is, 
+
+$\sum_{i=1}^n{i*{x_i}^2} = A $
+
+We will set $A = 1$, but other values will simply scale the objective function.
+Defining 
+
+$ scale({\B{x})} = \sqrt{(\sum_{i=1}^n{i*{x_i}^2})}  $
+
+we want to maximize 
+
+$ \prod{\B{x}} / scale({\B{x})} $
+
+As before, we can \B{minimize}
+
+$  - \sum_{i=1}^n{log(x_i)} + log(scale({\B{x})}) $
+
+Moreover we can work with logarithms of parameters to avoid non-positive inputs to the objective function.
+
+
+<<special, echo=TRUE>>=
+scale <- function(x) {sum( (1:n) * x^2)}
+enew <- function(lx){
+  n <- length(lx)
+  x <- exp(lx)
+  obj <- log(scale) - sum(log(x))
+}
+@
+
+<<mask2, echo=TRUE>>=mmth <- c("Rvmmin", "Rcgmin")
+library(optimrx)
+strt <- (1:n)/(2*n)
+lo <- c(rep(-100, (n-1)),strt[n])
+up <- c(rep(100, (n-1)),strt[n])
+amsk2 <- opm(strt, enll, enll.g, lower=lo, upper=up, method=mmth)
+amsk2 <- summary(amsk2, order=value)
+print(amsk2)
+parm2 <- amsk2[1, 1:n]
+parm2 <- parm2/sqrt(scale(parm2))
+print(parm2)
+@
+
 
 
 

@@ -157,10 +157,16 @@ pr <- function(y) {
 cat("test the simple product for n=5\n")
 meth <- c("Nelder-Mead", "BFGS")
 n<-5
-  st<-1:(n-1)/(n*n)
+m<-n-1
+  st<-1:m/(m*m)
    ans<-opm(st, pr, gr="grcentral", control=list(trace=0))
    ao<-summary(ans,order=value)
 print(ao)
+par <- as.double(ao[1,1:m])
+par <- c(par, 1-sum(par))
+par <- par/sum(par)
+cat("Best parameters:")
+print(par)
 @
 
 
@@ -196,6 +202,8 @@ are attempted, so we have put some safeguards in the function \code{nll} below. 
 point we have assumed the gradient calculation is only attempted if the function can be 
 computed satisfactorily, so we have
 not put similar safeguards in the gradient.
+
+?? Do we need to use (n-1)
 
 <<gabornll, echo=TRUE>>=
 nll <- function(y) { # large result if near zero arguments to log()
@@ -314,8 +322,6 @@ the function(s) and/or the method codes.
 This was done by \cite{Geradin71} for the Rayleigh quotient 
 problem, but requires a number of changes to the program code.
 
-
-
 \subsection{$log()$ transformation of parameters}
 
 When problems give difficulties, it is common to re-formulate them 
@@ -382,11 +388,11 @@ Let us try a larger problem in 100 parameters. We emply the conjugate gradient
 algorithm in package \code{Rcgmin}.
 
 <<expgabrun2, warning=FALSE, echo=FALSE>>=
-require(Rcgmin, quietly=TRUE)
+##require(Rcgmin, quietly=TRUE)
 st<-1:100/1e3 # large
 stenll<-enll(st)
 cat("Initial function value =",stenll,"\n")
-tym<-system.time(acgbig<-Rcgmin(st, enll, enll.g, control=list(trace=0, tol=1e-32)))[[3]]
+tym<-system.time(acgbig<-optimr(st, enll, enll.g, method="Rcgmin", control=list(trace=0, tol=1e-32)))[[3]]
 cat("Time = ",tym,"  fval=",acgbig$value,"\n")
 xnor<-acgbig$par
 xnor<-exp(xnor)/sum(exp(xnor)) # back transform
@@ -400,6 +406,28 @@ at the start and end differ by a tiny amount.
 \subsection{A transformation inspired by the n-sphere}
 
 A slightly different transformation or projection is inspired by spherical coordinates.
+See \url{https://en.wikipedia.org/wiki/N-sphere}.
+
+The idea here is to transform a set of $n$ parameters by specifying $n-1$ values and
+letting a special projection transform this set of $n-1$ numbers into a set of $n$ parameters
+that always sum to 1. 
+
+The first such transformation uses the trigonometric identity that $sin^2(theta) + cos^2(theta) =1$.
+This identity is extended to $n$ dimensions. We can do this via the projection
+
+<<proj1, echo=TRUE>>=
+proj1 <- function(theta) {
+   s2 <- sin(theta)^2
+    cumprod(c(1, s2)) * c(1-s2, 1)
+}
+@
+
+You can easily verify that this produces a set of parameters that sum to 1 by setting
+$theta = (a,b)$ for a problem in 3 parameters. However, we do not need to use the 
+$sin()$ function, as any transformation onto the unit line segment [0,1] will work.
+\code{proj2} below works fine, and can be verified for 3 parameters as with \code{proj1},
+though the parameters are different. (Caution!)
+
 We solve problems in 5 and 100 parameters using the \code{spg()} function from package
 \code{BB}, and by not specifying a gradient function use an internal approximation.
 
@@ -410,10 +438,10 @@ proj2 <- function(theta) {
     s2 <- theta2 / (1 + theta2)
     cumprod(c(1, s2)) * c(1-s2, 1)
 }
-obj <- function(theta) - sum(log(proj2(theta)))
+obj <- function(theta) { - sum(log(proj2(theta))) }
 n <- 5
 ans <- spg(seq(n-1), obj)
-proj2(ans$par)
+proj2(ans$par) # The parameters
 @
 
 
@@ -421,14 +449,15 @@ proj2(ans$par)
 library(BB)
 n<-100
 ans100 <- spg(seq(n-1), obj, control=list(trace=FALSE), quiet=TRUE)
-proj2( (ans100$par) )
+proj2(ans100$par)[1:5] # Display only 1st 5 parameters
 @
 
 In the above, we note that the transformation is embedded into the objective function, 
 so we could run any of the optimizers in \pkg{optimrx} as follows. This can take some time, 
 and the derivative-free
 methods do an awful lot of work with this formulation, though they do seem to get the
-best solution. Moreover, \code{Rcgmin}
+best solution. We have omitted the results for these, as they make the rendering of
+this document unacceptably slow with \code{knitr}. Moreover, \code{Rcgmin}
 and \code{Rvmmin} are not recommended when an analytic gradient is not provided. Here
 we have specified that a simple forward difference approximation to the gradient
 should be used. 
@@ -438,6 +467,28 @@ sans<- opm(seq(n-1), obj, gr="grfwd", method=mset, control=list(dowarn=FALSE))
 ## summary(allans, order = "list(round(value, 3), fevals)", par.select = FALSE)
 summary(sans, order = value, par.select = FALSE)
 @
+
+\subsection{Fixing parameters}
+
+Some function minimizers can specify that some parameters are fixed. \code{Rvmmin} and
+\code{Rcgmin} are two such methods. Let us work with the \code{nll} objective function.
+We need to rescale the parameters after solution and recompute the objective if we need it.
+
+<<mask1, echo=TRUE>>=
+n<-5
+mmth <- c("Rvmmin", "Rcgmin")
+strt <- (1:n)/n
+lo <- c(rep(-100, (n-1)),strt[n])
+up <- c(rep(100, (n-1)),strt[n])
+amsk1 <- opm(strt, enll, enll.g, lower=lo, upper=up, method=mmth)
+print(amsk1)
+amsk1 <- summary(amsk1, order=value)
+parmsk <- amsk1[1, 1:n]
+parmsk <- parmsk/sum(parmsk)
+print(parmsk)
+@
+
+This also works well for $n=100$ with both methods that allow fixed parameters.
 
 \subsection{Use the gradient equations}
 
@@ -455,8 +506,36 @@ the determination of the Jacobian is still subject to
 the unfortunate scaling issues we have
 been confronting throughout this article. A better approach
 would likely be via package \code{nleqslv}, which is constructed
-to attempt solutions of nonlinear equations problems. At the time
-of writing all nonlinear equations approaches remain to be tried.
+to attempt solutions of nonlinear equations problems. 
+
+<<nleq1, echo=FALSE>>=
+library(nleqslv)
+library(nlmrt)
+cat("Problem of order 5 using nll.g\n")
+x<-1:5
+tn <- nleqslv(x, nll.g)
+parn <- tn$x/sum(tn$x)
+cat("nleqslv: rescaled parameter mean=", mean(parn)," with SD=",sd(parn),"\n")
+
+cat("Problem of order 5 using enll.g\n")
+te <- nleqslv(x, enll.g)
+pare <- te$x/sum(te$x)
+cat("nleqslv: rescaled parameter mean=", mean(pare)," with SD=",sd(pare),"\n")
+ne<-nlfb(strt, enll.g, trace=0)
+rawe <- coef(ne)
+pare2 <- rawe/sum(rawe)
+cat("nlsr: rescaled parameter mean=", mean(pare2)," with SD=",sd(pare2),"\n")
+
+cat("\nNow 100 parameters using enll.g\n")
+xh<-1:100
+teh <- nleqslv(xh, enll.g)
+parh <- teh$x/sum(teh$x)
+cat("nleqslv: rescaled parameter mean=", mean(parh)," with SD=",sd(parh),"\n")
+nh<-nlfb(xh, enll.g, trace=0)
+rawh <- coef(nh)
+parh2 <- rawh/sum(rawh)
+cat("nleqslv: rescaled parameter mean=", mean(parh2)," with SD=",sd(parh2),"\n")
+@
 
 
 \section{The Rayleigh Quotient}

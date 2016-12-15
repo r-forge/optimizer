@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.12.11)  14 DEC 2016 22:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.12.11)  15 DEC 2016 15:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -172,114 +172,126 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
+Package color Info: Redefining color shadecolor on input line 84.
+
+Overfull \hbox (3.08711pt too wide) in paragraph at lines 87--88
+[]\OT1/cmtt/m/n/10.95 ## Warning in parse[]objects(paths[1L]): file cache/[][]o
+bjects not
+ []
+
+
+Overfull \hbox (3.08711pt too wide) in paragraph at lines 89--89
+[]\OT1/cmtt/m/n/10.95 ## Warning in parse[]objects(paths[2L]): file cache/[][]g
+lobals not
+ []
+
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 91.
+(Font)              <12> on input line 98.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 91.
+(Font)              <8> on input line 98.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 91.
+(Font)              <6> on input line 98.
 
-Overfull \hbox (20.44202pt too wide) in paragraph at lines 91--91
+Overfull \hbox (20.44202pt too wide) in paragraph at lines 98--98
  [][] 
  []
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 96.
+(Font)              <10.95> on input line 103.
 
-Overfull \hbox (7.91602pt too wide) in paragraph at lines 124--124
+Overfull \hbox (7.91602pt too wide) in paragraph at lines 131--131
 []\OT1/cmtt/m/n/10.95 Jul 19, 2012 at 10:24 AM, Linh Tran <Tranlm@berkeley.edu>
  wrote:[] 
  []
 
 
-Overfull \hbox (2.16733pt too wide) in paragraph at lines 124--124
+Overfull \hbox (2.16733pt too wide) in paragraph at lines 131--131
 []\OT1/cmtt/m/n/10.95 > I am desperately hoping there is an easy way to do this
  in R.[] 
  []
 
 [2]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 133.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 140.
 
  (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 133.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 140.
  [3]
-Package color Info: Redefining color shadecolor on input line 181.
+Package color Info: Redefining color shadecolor on input line 188.
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <8> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 183.
-LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 183
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 190.
+LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 190
 .
 
 (/usr/share/R/share/texmf/tex/latex/omscmtt.fd
 File: omscmtt.fd 
 )
 LaTeX Font Info:    Font shape `OMS/cmtt/m/n' in size <8> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 183.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 190.
  [4]
-Package color Info: Redefining color shadecolor on input line 229.
-Package color Info: Redefining color shadecolor on input line 269.
+Package color Info: Redefining color shadecolor on input line 252.
+Package color Info: Redefining color shadecolor on input line 294.
  [5]
-Package color Info: Redefining color shadecolor on input line 290.
+Package color Info: Redefining color shadecolor on input line 315.
 
-Overfull \hbox (19.38586pt too wide) in paragraph at lines 294--294
+Overfull \hbox (19.38586pt too wide) in paragraph at lines 319--319
 [][]\OT1/cmtt/m/it/8 ## mset<-c("L-BFGS-B", "BFGS", "CG", "spg", "ucminf", "nlm
 ", "nlminb", "Rvmmin", "Rcgmin")[][] 
  []
 
 
-Overfull \hbox (18.25543pt too wide) in paragraph at lines 298--298
+Overfull \hbox (18.25543pt too wide) in paragraph at lines 323--323
 [][]\OT1/cmtt/m/n/8 a5gb[][]<-[][]opm[][]([][]2[][]:[][]n[][]/[][]n[][]^[][]2[]
 [], nll, nll.g,[] []lower[][]=[][]0[][],[] []upper[][]=[][]1[][],[] []method[][
 ]=mset,[] []control[][]=[][]list[][]([][]dowarn[][]=[][]FALSE[][]))[][] 
  []
 
 [6]
-Package color Info: Redefining color shadecolor on input line 395.
-
-Overfull \hbox (5.50525pt too wide) in paragraph at lines 402--402
+Package color Info: Redefining color shadecolor on input line 420.
+ [7]
+Overfull \hbox (5.50525pt too wide) in paragraph at lines 427--427
 [][]\OT1/cmtt/m/n/8 tspg[][]<-[][]system.time[][](aspg[] []<-[] []spg[][]([][]p
 ar[][]=([][]1[][]:[][]n)[][]/[][]n[][]^[][]2[][],[] []fn[][]=nllrv,[] []gr[][]=
 nllrv.g,[] []project[][]=proj))[[[][]3[][]]][][] 
  []
 
 
-Overfull \hbox (1.25519pt too wide) in paragraph at lines 408--408
+Overfull \hbox (1.25519pt too wide) in paragraph at lines 433--433
 [][]\OT1/cmtt/m/n/8 tspgn[][]<-[][]system.time[][](aspgn[] []<-[] []spg[][]([][
 ]par[][]=([][]1[][]:[][]n)[][]/[][]n[][]^[][]2[][],[] []fn[][]=nllrv,[] []gr[][
 ]=[][]NULL[][],[] []project[][]=proj))[[[][]3[][]]][][] 
  []
 
 
-Overfull \hbox (103.25665pt too wide) in paragraph at lines 433--433
+Overfull \hbox (103.25665pt too wide) in paragraph at lines 458--458
 [][]\OT1/cmtt/m/n/8 cat[][]([][]"deviations:  with gradient="[][],[][]max[][]([
 ][]abs[][](aspg[][]$[][]par[][]-[][]pbest)),[][]"   num. approx.="[][],[][]max[
 ][]([][]abs[][](aspgn[][]$[][]par[][]-[][]pbest)),[][]"\OMS/cmsy/m/n/8 n\OT1/cm
 tt/m/n/8 n"[][])[][] 
  []
 
-[7]
-Package color Info: Redefining color shadecolor on input line 448.
+Package color Info: Redefining color shadecolor on input line 473.
 
-Overfull \hbox (14.00537pt too wide) in paragraph at lines 451--451
+Overfull \hbox (14.00537pt too wide) in paragraph at lines 476--476
 [][]\OT1/cmtt/m/n/8 tspgh[][]<-[][]system.time[][](aspgh[] []<-[] []spg[][]([][
 ]par[][]=([][]1[][]:[][]n)[][]/[][]n[][]^[][]2[][],[] []fn[][]=nllrv,[] []gr[][
 ]=nllrv.g,[] []project[][]=proj))[[[][]3[][]]][][] 
  []
 
 
-Overfull \hbox (9.75531pt too wide) in paragraph at lines 457--457
+Overfull \hbox (9.75531pt too wide) in paragraph at lines 482--482
 [][]\OT1/cmtt/m/n/8 tspgnh[][]<-[][]system.time[][](aspgnh[] []<-[] []spg[][]([
 ][]par[][]=([][]1[][]:[][]n)[][]/[][]n[][]^[][]2[][],[] []fn[][]=nllrv,[] []gr[
 ][]=[][]NULL[][],[] []project[][]=proj))[[[][]3[][]]][][] 
  []
 
 
-Overfull \hbox (120.2569pt too wide) in paragraph at lines 482--482
+Overfull \hbox (120.2569pt too wide) in paragraph at lines 507--507
 [][]\OT1/cmtt/m/n/8 cat[][]([][]"deviations:  with gradient="[][],[][]max[][]([
 ][]abs[][](aspgh[][]$[][]par[][]-[][]pbesth)),[][]"   num. approx.="[][],[][]ma
 x[][]([][]abs[][](aspgnh[][]$[][]par[][]-[][]pbesth)),[][]"\OMS/cmsy/m/n/8 n\OT
@@ -287,100 +299,109 @@ x[][]([][]abs[][](aspgnh[][]$[][]par[][]-[][]pbesth)),[][]"\OMS/cmsy/m/n/8 n\OT
  []
 
 [8]
-Package color Info: Redefining color shadecolor on input line 527.
-Package color Info: Redefining color shadecolor on input line 552.
+Package color Info: Redefining color shadecolor on input line 550.
  [9]
-Package color Info: Redefining color shadecolor on input line 611.
+Package color Info: Redefining color shadecolor on input line 576.
+ [10]
+Package color Info: Redefining color shadecolor on input line 644.
 
-Overfull \hbox (18.25543pt too wide) in paragraph at lines 622--622
-[][]\OT1/cmtt/m/n/8 tym[][]<-[][]system.time[][](acgbig[][]<-[][]Rcgmin[][](st,
- enll, enll.g,[] []control[][]=[][]list[][]([][]trace[][]=[][]0[][],[] []tol[][
-]=[][]1e-32[][])))[[[][]3[][]]][][] 
+Overfull \hbox (27.33434pt too wide) in paragraph at lines 666--668
+[]\OT1/cmr/m/n/10.95 The first such trans-for-ma-tion uses the trigono-met-ric 
+iden-tity that $\OML/cmm/m/it/10.95 sin[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.9
+5 theta\OT1/cmr/m/n/10.95 ) +
  []
 
-[10]
-Package color Info: Redefining color shadecolor on input line 656.
-Package color Info: Redefining color shadecolor on input line 684.
- [11]
-Package color Info: Redefining color shadecolor on input line 726.
+Package color Info: Redefining color shadecolor on input line 670.
+Package color Info: Redefining color shadecolor on input line 690.
+[11]
+Package color Info: Redefining color shadecolor on input line 718.
+Package color Info: Redefining color shadecolor on input line 742.
 
-Overfull \hbox (26.75555pt too wide) in paragraph at lines 732--733
-[]\OT1/cmtt/m/n/8 ## Warning in commonArgs(par + 0, fn, control, environment())
-: maxfun < 10 * length(par)^2
+Overfull \hbox (3.86452pt too wide) in paragraph at lines 762--765
+\OT1/cmr/m/n/10.95 Some func-tion min-i-miz-ers can spec-ify that some pa-ram-e
+-ters are fixed. \OT1/cmtt/m/n/10.95 Rvmmin
  []
 
+Package color Info: Redefining color shadecolor on input line 767.
 
-Overfull \hbox (9.75531pt too wide) in paragraph at lines 734--735
-[]\OT1/cmtt/m/n/8 ## Warning in commonArgs(par, fn, control, environment()): ma
-xfun < 10 * length(par)^2
- []
-
-
-Overfull \hbox (1.25519pt too wide) in paragraph at lines 736--737
-[]\OT1/cmtt/m/n/8 ## Warning in nmk(par = spar, fn = efn, control = mcontrol, .
-..): Nelder-Mead should
+Overfull \hbox (1.25519pt too wide) in paragraph at lines 778--779
+[]\OT1/cmtt/m/n/8 ## Warning in bmchk(par, lower = lower, upper = upper): Masks
+ (fixed parameters) set
  []
 
 
-Overfull \hbox (18.25543pt too wide) in paragraph at lines 738--738
-[]\OT1/cmtt/m/n/8 ## Warning in optimr(par, fn, gr, method = meth, lower = lowe
-r, upper = upper, : Maximum
+Overfull \hbox (1.25519pt too wide) in paragraph at lines 780--781
+[]\OT1/cmtt/m/n/8 ## Warning in bmchk(par, lower = lower, upper = upper): Masks
+ (fixed parameters) set
  []
 
-[12]
-Package color Info: Redefining color shadecolor on input line 818.
 
-Overfull \hbox (22.5055pt too wide) in paragraph at lines 849--849
+Overfull \hbox (1.25519pt too wide) in paragraph at lines 782--782
+[]\OT1/cmtt/m/n/8 ## Warning in bmchk(par, lower = lower, upper = upper): Masks
+ (fixed parameters) set
+ []
+
+[12] [13]
+Package color Info: Redefining color shadecolor on input line 861.
+
+Overfull \hbox (22.5055pt too wide) in paragraph at lines 892--892
 []\OT1/cmtt/m/n/8 ## Warning in spg(x, fn = raynum, project = proj, A = A): con
 vergence tolerance satisified
  []
 
-[13] [14]
-Package color Info: Redefining color shadecolor on input line 907.
+[14]
+Package color Info: Redefining color shadecolor on input line 950.
+ [15]
+Overfull \hbox (9.75531pt too wide) in paragraph at lines 972--972
+[]\OT1/cmtt/m/n/8 ## Warning in library(package, lib.loc = lib.loc, character.o
+nly = TRUE, logical.return
+ []
 
-Overfull \hbox (31.00562pt too wide) in paragraph at lines 929--929
+
+Overfull \hbox (31.00562pt too wide) in paragraph at lines 978--978
 []\OT1/cmtt/m/n/8 ## Warning in optimr(par, fn, gr, method = meth, lower = lowe
 r, upper = upper, : Successful
  []
 
-[15]
-Package color Info: Redefining color shadecolor on input line 963.
+Package color Info: Redefining color shadecolor on input line 1012.
 LaTeX Font Info:    Font shape `OMS/cmtt/m/it' in size <8> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 973.
-Package color Info: Redefining color shadecolor on input line 1010.
- [16] (./sumscale16.bbl
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 1022.
+
+[16]
+Package color Info: Redefining color shadecolor on input line 1059.
+ [17] (./sumscale16.bbl
 Underfull \hbox (badness 1024) in paragraph at lines 22--28
 \OT1/cmtt/m/n/10.95 ca / []nashjc / RQtimes . pdf$ \OT1/cmr/m/n/10.95 and $\OT1
 /cmtt/m/n/10.95 http : / / macnash . telfer . uottawa . ca /
  []
 
-[17]) [18] (./sumscale16.aux) ) 
+) [18] (./sumscale16.aux) ) 
 Here is how much of TeX's memory you used:
- 2174 strings out of 494953
- 30051 string characters out of 6180976
- 98087 words of memory out of 5000000
- 5425 multiletter control sequences out of 15000+600000
+ 2173 strings out of 494953
+ 30036 string characters out of 6180976
+ 100712 words of memory out of 5000000
+ 5424 multiletter control sequences out of 15000+600000
  10587 words of font info for 38 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  38i,6n,23p,362b,302s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmbx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex1
-0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr
-/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf
--dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/ty
-pe1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti
-10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on sumscale16.pdf (18 pages, 248094 bytes).
+</usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+bx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/tex
+live/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
+msy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
+Output written on sumscale16.pdf (18 pages, 253110 bytes).
 PDF statistics:
  134 PDF objects out of 1000 (max. 8388607)
  95 compressed objects within 1 object stream

@@ -23,8 +23,10 @@ J.~C. Nash.
 \newblock {Timing Rayleigh Quotient minimization in \R}, July 2012.
 \newblock This is a `tip' on
   http://rwiki.sciviews.org/doku.php?id=tips:rqcasestudy. The files related to
-  this study are \url{http://macnash.telfer.uottawa.ca/~nashjc/RQtimes.pdf} and
-  \url{http://macnash.telfer.uottawa.ca/~nashjc/RQtimes.Rnw}.
+  this study are
+  \url{https://r-forge.r-project.org/scm/viewvc.php/*checkout*/RQdoc/RQtimes.pdf?revision=1322&root=optimizer}
+  and
+  \url{https://r-forge.r-project.org/scm/viewvc.php/*checkout*/RQdoc/RQtimes.Rnw?revision=1322&root=optimizer}.
 
 \bibitem[Nash(2013)]{optextras}
 J.~C. Nash.

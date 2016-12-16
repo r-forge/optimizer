@@ -267,8 +267,8 @@ product is still positive.
 ## BFGS        -2.954862e+57 2.003069e+57 -2.955447e+57 1.953545e+57
 ## Nelder-Mead -5.411717e+47 3.177738e+47 -2.292733e+46 2.395192e+47
 ##                      value fevals gevals convergence kkt1  kkt2 xtime
-## BFGS        -6.676311e+286    300     30           0 TRUE FALSE 0.000
-## Nelder-Mead -6.427455e+234   1001     NA           1 TRUE FALSE 0.004
+## BFGS        -6.676311e+286    300     30           0 TRUE FALSE 0.004
+## Nelder-Mead -6.427455e+234   1001     NA           1 TRUE FALSE 0.008
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -335,8 +335,8 @@ sufficiently understood to report at this time.
 ## Rcgmin       18           0 TRUE TRUE 0.004
 ## Rvmmin       13           0 TRUE TRUE 0.004
 ## spg          13           0 TRUE TRUE 0.044
-## nlm          11           0 TRUE TRUE 0.004
-## nlminb       12           0 TRUE TRUE 0.000
+## nlm          11           0 TRUE TRUE 0.000
+## nlminb       12           0 TRUE TRUE 0.004
 ## L-BFGS-B     NA        9999   NA   NA 0.000
 \end{verbatim}
 \begin{alltt}
@@ -351,12 +351,12 @@ sufficiently understood to report at this time.
 ## nlminb   0.2000004 0.1999990 0.1999989 0.1999992  8.047190e+00     23
 ## L-BFGS-B        NA        NA        NA        NA 8.988466e+307     NA
 ##          gevals convergence kkt1 kkt2 xtime
-## Rvmmin       12           0 TRUE TRUE 0.004
+## Rvmmin       12           0 TRUE TRUE 0.000
 ## spg          13           0 TRUE TRUE 0.044
-## Rcgmin       12           0 TRUE TRUE 0.000
+## Rcgmin       12           0 TRUE TRUE 0.004
 ## nlm          11           0 TRUE TRUE 0.000
 ## nlminb       12           0 TRUE TRUE 0.000
-## L-BFGS-B     NA        9999   NA   NA 0.004
+## L-BFGS-B     NA        9999   NA   NA 0.000
 \end{verbatim}
 \begin{alltt}
 \hlkwd{summary}\hlstd{(a5gb,}\hlkwc{order}\hlstd{=value)}
@@ -371,7 +371,7 @@ sufficiently understood to report at this time.
 ## nlm             NA       NA        NA        NA 8.988466e+307     NA
 ##          gevals convergence kkt1 kkt2 xtime
 ## Rvmmin       14           0 TRUE TRUE 0.004
-## Rcgmin       10           0 TRUE TRUE 0.004
+## Rcgmin       10           0 TRUE TRUE 0.000
 ## spg          13           0 TRUE TRUE 0.044
 ## nlminb       12           0 TRUE TRUE 0.000
 ## L-BFGS-B     NA        9999   NA   NA 0.000
@@ -438,7 +438,7 @@ direction to satisfy constraints. Thus, we could use the following approach.
 \hlkwd{cat}\hlstd{(}\hlstr{"Times: with gradient ="}\hlstd{,tspg,}\hlstr{"   using numerical approx.="}\hlstd{, tspgn,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Times: with gradient = 0.043    using numerical approx.= 0.045
+## Times: with gradient = 0.042    using numerical approx.= 0.042
 \end{verbatim}
 \begin{alltt}
 \hlkwd{cat}\hlstd{(}\hlstr{"F_optimal: with gradient="}\hlstd{,aspg}\hlopt{$}\hlstd{value,}\hlstr{"  num. approx.="}\hlstd{,aspgn}\hlopt{$}\hlstd{value,}\hlstr{"\textbackslash{}n"}\hlstd{)}
@@ -487,7 +487,7 @@ this seems to carry over to cases with more parameters, e.g., 100 of them.
 \hlkwd{cat}\hlstd{(}\hlstr{"Times: with gradient ="}\hlstd{,tspgh,}\hlstr{"   using numerical approx.="}\hlstd{, tspgnh,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Times: with gradient = 0.056    using numerical approx.= 0.042
+## Times: with gradient = 0.054    using numerical approx.= 0.042
 \end{verbatim}
 \begin{alltt}
 \hlkwd{cat}\hlstd{(}\hlstr{"F_optimal: with gradient="}\hlstd{,aspgh}\hlopt{$}\hlstd{value,}\hlstr{"  num. approx.="}\hlstd{,aspgnh}\hlopt{$}\hlstd{value,}\hlstr{"\textbackslash{}n"}\hlstd{)}
@@ -592,15 +592,15 @@ extract the best solution for the 5-parameter problem.
 ## nlm      -1.345084 -1.345085 -1.345086 -1.345088 -1.345091 8.04719     NA
 ## L-BFGS-B -1.345080 -1.345087 -1.345085 -1.345088 -1.345093 8.04719      7
 ##          gevals convergence kkt1  kkt2 xtime
-## spg           5           0 TRUE FALSE 0.040
-## Rvmmin        8           0 TRUE FALSE 0.004
+## spg           5           0 TRUE FALSE 0.044
+## Rvmmin        8           0 TRUE FALSE 0.000
 ## Rcgmin        8           0 TRUE FALSE 0.000
 ## nlminb        8           0 TRUE FALSE 0.000
 ## nlm           6           0 TRUE FALSE 0.000
 ## L-BFGS-B      7           0 TRUE FALSE 0.000
 ##            value fevals gevals convergence kkt1  kkt2 xtime
-## spg      8.04719      6      5           0 TRUE FALSE 0.040
-## Rvmmin   8.04719     26      8           0 TRUE FALSE 0.004
+## spg      8.04719      6      5           0 TRUE FALSE 0.044
+## Rvmmin   8.04719     26      8           0 TRUE FALSE 0.000
 ## Rcgmin   8.04719     11      8           0 TRUE FALSE 0.000
 ## nlminb   8.04719      8      8           0 TRUE FALSE 0.000
 ## nlm      8.04719     NA      6           0 TRUE FALSE 0.000
@@ -748,10 +748,10 @@ should be used.
 \end{alltt}
 \begin{verbatim}
 ##             value fevals gevals convergence  kkt1  kkt2 xtime
-## Rvmmin   460.5170    398    272           2  TRUE  TRUE 0.672
-## spg      460.5170    230    212           0  TRUE  TRUE 0.440
+## Rvmmin   460.5170    398    272           2  TRUE  TRUE 0.668
+## spg      460.5170    230    212           0  TRUE  TRUE 0.448
 ## Rcgmin   460.5170   1612   1023           0  TRUE  TRUE 1.852
-## nlm      460.5170     NA    203           0  TRUE  TRUE 0.648
+## nlm      460.5170     NA    203           0  TRUE  TRUE 0.644
 ## L-BFGS-B 460.5170    280    280           0  TRUE  TRUE 0.492
 ## nlminb   482.2372    189    151           1 FALSE FALSE 0.332
 \end{verbatim}
@@ -924,7 +924,7 @@ Rayleigh quotient of the matrix multiplied by -1. This is solution \code{tmax}.
 \hlkwd{cat}\hlstd{(}\hlstr{"maximal eigensolution: Value="}\hlstd{,asprqmax}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmax,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## maximal eigensolution: Value= -205 in time  0.287
+## maximal eigensolution: Value= -205 in time  0.288
 \end{verbatim}
 \begin{alltt}
 \hlkwd{print}\hlstd{(asprqmax}\hlopt{$}\hlstd{par)}
@@ -937,7 +937,7 @@ Rayleigh quotient of the matrix multiplied by -1. This is solution \code{tmax}.
 \hlkwd{cat}\hlstd{(}\hlstr{"minimal eigensolution: Value="}\hlstd{,asprqmin}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmin,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## minimal eigensolution: Value= 205 in time  0.041
+## minimal eigensolution: Value= 205 in time  0.044
 \end{verbatim}
 \begin{alltt}
 \hlkwd{print}\hlstd{(asprqmin}\hlopt{$}\hlstd{par)}
@@ -1004,17 +1004,17 @@ not bother with gradients for this small problem.
 \end{alltt}
 \begin{verbatim}
 ##                 p1        p2        p3     value fevals gevals convergence
-## Rvmmin   0.5454545 0.2727273 0.1818182 0.5454545    155     19           0
-## nlm      0.5454545 0.2727273 0.1818182 0.5454545     NA      6           0
-## Rcgmin   0.5454545 0.2727273 0.1818182 0.5454545     19      9           0
-## nlminb   0.5454546 0.2727272 0.1818182 0.5454545     11     10           0
-## L-BFGS-B 0.5454545 0.2727273 0.1818181 0.5454545      7      7           0
+## Rvmmin   0.5454546 0.2727273 0.1818182 0.5454545     36     16           0
+## nlminb   0.5454546 0.2727273 0.1818181 0.5454545      8      8           0
+## L-BFGS-B 0.5454546 0.2727272 0.1818182 0.5454545      8      8           0
+## spg      0.5454543 0.2727273 0.1818184 0.5454545     10      9           0
+## Rcgmin   0.5454542 0.2727275 0.1818183 0.5454545     15      9           0
 ##          kkt1  kkt2 xtime
-## Rvmmin   TRUE FALSE 0.008
-## nlm      TRUE FALSE 0.000
-## Rcgmin   TRUE FALSE 0.000
+## Rvmmin   TRUE FALSE 0.004
 ## nlminb   TRUE FALSE 0.000
 ## L-BFGS-B TRUE FALSE 0.000
+## spg      TRUE FALSE 0.044
+## Rcgmin   TRUE FALSE 0.004
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1046,21 +1046,20 @@ not bother with gradients for this small problem.
 \hlstd{as}\hlkwb{<-}\hlkwd{spg}\hlstd{(st, ssum,} \hlkwc{project}\hlstd{=proj.simplex)}
 \end{alltt}
 \begin{verbatim}
-## iter:  0  f-value:  0.2726239  pgrad:  0.6230611
+## iter:  0  f-value:  1.874622  pgrad:  0.7467444 
+## iter:  10  f-value:  0.5454545  pgrad:  2.330691e-05
 \end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in spg(st, ssum, project = proj.simplex): Unsuccessful convergence.}}\begin{alltt}
+\begin{alltt}
 \hlkwd{cat}\hlstd{(}\hlstr{"Using project.simplex with spg: fmin="}\hlstd{,as}\hlopt{$}\hlstd{value,}\hlstr{" at \textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Using project.simplex with spg: fmin= 0.2726239  at
+## Using project.simplex with spg: fmin= 0.5454545  at
 \end{verbatim}
 \begin{alltt}
 \hlkwd{print}\hlstd{(as}\hlopt{$}\hlstd{par)}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.3243719 0.4064126 0.2692155
+## [1] 0.5454540 0.2727278 0.1818182
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1182,7 +1181,7 @@ Moreover we could work with logarithms of parameters to avoid non-positive input
 ## Rcgmin 1.118034 0.7905694 0.6454971 0.559017 0.5 6.417341     39     18
 ## Rvmmin 0.100000 0.2000000 0.3000000 0.400000 0.5 8.752759      2      1
 ##        convergence  kkt1  kkt2 xtime
-## Rcgmin           0  TRUE FALSE 0.008
+## Rcgmin           0  TRUE FALSE 0.004
 ## Rvmmin          21 FALSE FALSE 0.000
 \end{verbatim}
 \begin{alltt}
@@ -1233,8 +1232,8 @@ Moreover we could work with logarithms of parameters to avoid non-positive input
 ## ucminf      1.1141731 0.7878393 0.6432681 0.5570865 0.4982733 6.417341
 ## Nelder-Mead 0.6300243 0.4449968 0.3629333 0.3145654 0.2812454 6.417344
 ##             fevals gevals convergence kkt1  kkt2 xtime
-## Rcgmin          32     15           0 TRUE FALSE 0.008
-## ucminf          15     15           0 TRUE FALSE 0.020
+## Rcgmin          32     15           0 TRUE FALSE 0.012
+## ucminf          15     15           0 TRUE FALSE 0.008
 ## Nelder-Mead    216     NA           0 TRUE FALSE 0.000
 \end{verbatim}
 \begin{alltt}

@@ -56,9 +56,9 @@
 
 \raggedbottom
 \newcommand{\B}[1]{{\bf #1 \rm}}
-\newcommand{\Splus}{{\sf S-PLUS}}
-\newcommand{\Slang}{{\sf S}}
-\newcommand{\R}{{\sf R}} 
+\newcommand{\Splus}{{\sf S-PLUS }}
+\newcommand{\Slang}{{\sf S }}
+\newcommand{\R}{{\sf R }} 
 \newcommand{\I}[1]{{\it#1\rm}}
 \newcommand{\code}[1]{{\tt#1}}
 \newcommand{\pkg}[1]{\bf{\tt#1}\rm }
@@ -68,26 +68,6 @@
 
 
 
-
-
-
-
-
-
-?? find new reference for RQ times
-?? put in eigen
-?? clean up warnings
-?? try simple problem with different sum constraints e.g. sum vs sum of squares
-
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in parse\_objects(paths[1L]): file cache/\_\_objects not found}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in parse\_objects(paths[2L]): file cache/\_\_globals not found}}\end{kframe}
-\end{knitrout}
 
 
 \title{Optimization problems constrained by parameter sums}
@@ -217,7 +197,7 @@ as in the example directly below.
 ## BFGS        0.2000550 0.1999015 0.2000793 0.1999630 -0.0003199999     20
 ##             gevals convergence kkt1 kkt2 xtime
 ## Nelder-Mead     NA           0 TRUE TRUE 0.004
-## BFGS            17           0 TRUE TRUE 0.000
+## BFGS            17           0 TRUE TRUE 0.004
 \end{verbatim}
 \begin{alltt}
 \hlstd{par} \hlkwb{<-} \hlkwd{as.double}\hlstd{(ao[}\hlnum{1}\hlstd{,}\hlnum{1}\hlopt{:}\hlstd{m])}
@@ -268,7 +248,7 @@ product is still positive.
 ## Nelder-Mead -5.411717e+47 3.177738e+47 -2.292733e+46 2.395192e+47
 ##                      value fevals gevals convergence kkt1  kkt2 xtime
 ## BFGS        -6.676311e+286    300     30           0 TRUE FALSE 0.004
-## Nelder-Mead -6.427455e+234   1001     NA           1 TRUE FALSE 0.008
+## Nelder-Mead -6.427455e+234   1001     NA           1 TRUE FALSE 0.004
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -336,7 +316,7 @@ sufficiently understood to report at this time.
 ## Rvmmin       13           0 TRUE TRUE 0.004
 ## spg          13           0 TRUE TRUE 0.044
 ## nlm          11           0 TRUE TRUE 0.000
-## nlminb       12           0 TRUE TRUE 0.004
+## nlminb       12           0 TRUE TRUE 0.000
 ## L-BFGS-B     NA        9999   NA   NA 0.000
 \end{verbatim}
 \begin{alltt}
@@ -438,7 +418,7 @@ direction to satisfy constraints. Thus, we could use the following approach.
 \hlkwd{cat}\hlstd{(}\hlstr{"Times: with gradient ="}\hlstd{,tspg,}\hlstr{"   using numerical approx.="}\hlstd{, tspgn,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Times: with gradient = 0.042    using numerical approx.= 0.042
+## Times: with gradient = 0.045    using numerical approx.= 0.041
 \end{verbatim}
 \begin{alltt}
 \hlkwd{cat}\hlstd{(}\hlstr{"F_optimal: with gradient="}\hlstd{,aspg}\hlopt{$}\hlstd{value,}\hlstr{"  num. approx.="}\hlstd{,aspgn}\hlopt{$}\hlstd{value,}\hlstr{"\textbackslash{}n"}\hlstd{)}
@@ -487,7 +467,7 @@ this seems to carry over to cases with more parameters, e.g., 100 of them.
 \hlkwd{cat}\hlstd{(}\hlstr{"Times: with gradient ="}\hlstd{,tspgh,}\hlstr{"   using numerical approx.="}\hlstd{, tspgnh,}\hlstr{"\textbackslash{}n"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-## Times: with gradient = 0.054    using numerical approx.= 0.042
+## Times: with gradient = 0.054    using numerical approx.= 0.044
 \end{verbatim}
 \begin{alltt}
 \hlkwd{cat}\hlstd{(}\hlstr{"F_optimal: with gradient="}\hlstd{,aspgh}\hlopt{$}\hlstd{value,}\hlstr{"  num. approx.="}\hlstd{,aspgnh}\hlopt{$}\hlstd{value,}\hlstr{"\textbackslash{}n"}\hlstd{)}
@@ -643,7 +623,7 @@ algorithm in package \code{Rcgmin}.
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{verbatim}
 ## Initial function value = 460.5587
-## Time =  0   fval= 460.517
+## Time =  0.001   fval= 460.517
 ## Average parameter is  0.01  with max deviation 6.290762e-08
 \end{verbatim}
 \end{kframe}
@@ -748,10 +728,10 @@ should be used.
 \end{alltt}
 \begin{verbatim}
 ##             value fevals gevals convergence  kkt1  kkt2 xtime
-## Rvmmin   460.5170    398    272           2  TRUE  TRUE 0.668
-## spg      460.5170    230    212           0  TRUE  TRUE 0.448
-## Rcgmin   460.5170   1612   1023           0  TRUE  TRUE 1.852
-## nlm      460.5170     NA    203           0  TRUE  TRUE 0.644
+## Rvmmin   460.5170    398    272           2  TRUE  TRUE 0.664
+## spg      460.5170    230    212           0  TRUE  TRUE 0.440
+## Rcgmin   460.5170   1612   1023           0  TRUE  TRUE 1.868
+## nlm      460.5170     NA    203           0  TRUE  TRUE 0.640
 ## L-BFGS-B 460.5170    280    280           0  TRUE  TRUE 0.492
 ## nlminb   482.2372    189    151           1 FALSE FALSE 0.332
 \end{verbatim}
@@ -789,7 +769,7 @@ We need to rescale the parameters after solution and recompute the objective if 
 ## Rvmmin 1.0000000 1.0000000 1.0000000 1.0000000  1 8.04719     32     10
 ## Rcgmin 0.9999998 0.9999998 0.9999998 0.9999997  1 8.04719     29     13
 ##        convergence kkt1  kkt2 xtime
-## Rvmmin           0 TRUE FALSE 0.004
+## Rvmmin           0 TRUE FALSE 0.000
 ## Rcgmin           0 TRUE FALSE 0.004
 \end{verbatim}
 \begin{alltt}
@@ -882,81 +862,71 @@ Rayleigh quotient of the matrix multiplied by -1. This is solution \code{tmax}.
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{molerbuild}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{} \hlcom{# Create the moler matrix of order n}
-   \hlcom{# A[i,j] = i for i=j, min(i,j)-2 otherwise}
-   \hlstd{A} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlkwc{nrow} \hlstd{= n,} \hlkwc{ncol} \hlstd{= n)}
-   \hlstd{j} \hlkwb{<-} \hlnum{1}\hlopt{:}\hlstd{n}
-   \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
-      \hlstd{A[i,} \hlnum{1}\hlopt{:}\hlstd{i]} \hlkwb{<-} \hlkwd{pmin}\hlstd{(i,} \hlnum{1}\hlopt{:}\hlstd{i)} \hlopt{-} \hlnum{2}
-   \hlstd{\}}
-   \hlstd{A} \hlkwb{<-} \hlstd{A} \hlopt{+} \hlkwd{t}\hlstd{(A)}
-   \hlkwd{diag}\hlstd{(A)} \hlkwb{<-} \hlnum{1}\hlopt{:}\hlstd{n}
-   \hlstd{A}
-\hlstd{\}}
-
-\hlstd{raynum}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{A}\hlstd{)\{}
-   \hlstd{rayquo}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{((}\hlkwd{t}\hlstd{(x)}\hlopt{%*%}\hlstd{A)}\hlopt{%*%}\hlstd{x)}
-\hlstd{\}}
-
-\hlstd{proj}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) \{ x}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{crossprod}\hlstd{(x)) \}}
-
-\hlkwd{require}\hlstd{(BB,} \hlkwc{quietly}\hlstd{=}\hlnum{TRUE}\hlstd{)}
-\hlstd{n}\hlkwb{<-}\hlnum{10}
-\hlstd{x}\hlkwb{<-}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlstd{,n)}
-\hlstd{A}\hlkwb{<-}\hlkwd{molerbuild}\hlstd{(n)}
-\hlstd{tmin}\hlkwb{<-}\hlkwd{system.time}\hlstd{(asprqmin}\hlkwb{<-}\hlkwd{spg}\hlstd{(x,} \hlkwc{fn}\hlstd{=raynum,} \hlkwc{project}\hlstd{=proj,} \hlkwc{A}\hlstd{=A))[[}\hlnum{3}\hlstd{]]}
-\end{alltt}
 \begin{verbatim}
-## iter:  0  f-value:  205  pgrad:  3.089431e-09
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in spg(x, fn = raynum, project = proj, A = A): convergence tolerance satisified at intial parameter values.}}\begin{alltt}
-\hlstd{tmax}\hlkwb{<-}\hlkwd{system.time}\hlstd{(asprqmax}\hlkwb{<-}\hlkwd{spg}\hlstd{(x,} \hlkwc{fn}\hlstd{=raynum,} \hlkwc{project}\hlstd{=proj,} \hlkwc{A}\hlstd{=}\hlopt{-}\hlstd{A))[[}\hlnum{3}\hlstd{]]}
-\end{alltt}
-\begin{verbatim}
-## iter:  0  f-value:  -205  pgrad:  0.6324555
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in spg(x, fn = raynum, project = proj, A = -A): Unsuccessful convergence.}}\begin{alltt}
-\hlkwd{cat}\hlstd{(}\hlstr{"maximal eigensolution: Value="}\hlstd{,asprqmax}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmax,}\hlstr{"\textbackslash{}n"}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## maximal eigensolution: Value= -205 in time  0.288
-\end{verbatim}
-\begin{alltt}
-\hlkwd{print}\hlstd{(asprqmax}\hlopt{$}\hlstd{par)}
-\end{alltt}
-\begin{verbatim}
-##  [1] 0.3162278 0.3162278 0.3162278 0.3162278 0.3162278 0.3162278 0.3162278
-##  [8] 0.3162278 0.3162278 0.3162278
-\end{verbatim}
-\begin{alltt}
-\hlkwd{cat}\hlstd{(}\hlstr{"minimal eigensolution: Value="}\hlstd{,asprqmin}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmin,}\hlstr{"\textbackslash{}n"}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## minimal eigensolution: Value= 205 in time  0.044
-\end{verbatim}
-\begin{alltt}
-\hlkwd{print}\hlstd{(asprqmin}\hlopt{$}\hlstd{par)}
-\end{alltt}
-\begin{verbatim}
-##  [1] 0.3162278 0.3162278 0.3162278 0.3162278 0.3162278 0.3162278 0.3162278
-##  [8] 0.3162278 0.3162278 0.3162278
+## Test spg on Moler matrix of order= 5 
+## minimal eigensolution: Value= 0.008646272 in time  0.041 
+## [1] 0.86189793 0.43282060 0.22109168 0.12038989 0.08014382
+## Eigenvalue solution test: 9.95032e-07    Normtest: 0 
+## [1] "OK"
+## maximal eigensolution: Value= -7.4875 in time  0.038 
+## [1] -0.25565401  0.04658842  0.34034057  0.57207137  0.69955213
+## Eigenvalue solution test: 2.882608e-06    Normtest: 0 
+## [1] "OK"
+## Test spg on Moler matrix of order= 100 
+## minimal eigensolution: Value= 9.6134e-08 in time  3.132 
+##   [1]  8.660199e-01  4.330273e-01  2.165021e-01  1.082429e-01  5.413318e-02
+##   [6]  2.707444e-02  1.351570e-02  6.765715e-03  3.397268e-03  1.676827e-03
+##  [11]  8.529906e-04  4.286361e-04  1.874283e-04  1.419646e-04  1.543479e-05
+##  [16]  5.551854e-05 -2.948453e-06  1.187565e-05  2.541557e-06  5.982898e-07
+##  [21]  6.157890e-07  1.435287e-06  2.010798e-06 -1.858601e-06 -9.563769e-06
+##  [26]  2.296545e-05 -2.413628e-05  6.941454e-06  1.756824e-05 -3.022414e-05
+##  [31]  2.168006e-05 -6.356585e-06 -5.216143e-06  1.525886e-05 -2.837107e-05
+##  [36]  3.163633e-05 -1.295166e-05 -1.509423e-05  2.113325e-05 -4.667952e-06
+##  [41] -1.073051e-05  1.472164e-05 -1.740072e-05  1.851975e-05 -1.226904e-05
+##  [46] -8.233470e-07  7.453441e-06  1.517933e-06 -2.236582e-05  3.467387e-05
+##  [51] -2.314354e-05 -2.837550e-06  1.240029e-05  2.042405e-06 -1.586118e-05
+##  [56]  1.261238e-05 -1.108035e-05  2.494323e-05 -3.368587e-05  1.395187e-05
+##  [61]  1.725784e-05 -3.034134e-05  2.366341e-05 -9.802624e-06 -7.208625e-06
+##  [66]  1.959506e-05 -2.139587e-05  2.109486e-05 -2.506720e-05  3.032335e-05
+##  [71] -3.744645e-05  4.624850e-05 -4.885395e-05  4.365542e-05 -3.302046e-05
+##  [76]  1.482298e-05  5.412972e-06 -9.574262e-06  1.756240e-06 -3.610572e-06
+##  [81]  1.163764e-05 -3.404909e-06 -1.463169e-05  2.683693e-05 -3.231970e-05
+##  [86]  2.923217e-05 -1.458679e-05  8.775778e-06 -2.258634e-05  4.090556e-05
+##  [91] -4.723804e-05  3.996571e-05 -2.098811e-05  8.017338e-06 -1.124266e-05
+##  [96]  1.293982e-05  1.528742e-06 -8.489635e-06 -1.335459e-06  4.599613e-06
+## Eigenvalue solution test: 0.0001728295    Normtest: 4.440892e-16 
+## [1] "OK"
+## maximal eigensolution: Value= -3934.277 in time  0.097 
+##   [1] -2.271738e-03  5.278741e-07  2.272797e-03  4.544487e-03  6.815021e-03
+##   [6]  9.083821e-03  1.135031e-02  1.361392e-02  1.587406e-02  1.813016e-02
+##  [11]  2.038166e-02  2.262797e-02  2.486853e-02  2.710276e-02  2.933010e-02
+##  [16]  3.154998e-02  3.376184e-02  3.596511e-02  3.815924e-02  4.034366e-02
+##  [21]  4.251783e-02  4.468118e-02  4.683316e-02  4.897324e-02  5.110086e-02
+##  [26]  5.321549e-02  5.531659e-02  5.740362e-02  5.947605e-02  6.153335e-02
+##  [31]  6.357501e-02  6.560050e-02  6.760930e-02  6.960092e-02  7.157483e-02
+##  [36]  7.353054e-02  7.546755e-02  7.738537e-02  7.928351e-02  8.116149e-02
+##  [41]  8.301883e-02  8.485505e-02  8.666970e-02  8.846231e-02  9.023242e-02
+##  [46]  9.197958e-02  9.370335e-02  9.540329e-02  9.707898e-02  9.872997e-02
+##  [51]  1.003559e-01  1.019562e-01  1.035307e-01  1.050788e-01  1.066002e-01
+##  [56]  1.080944e-01  1.095612e-01  1.110001e-01  1.124108e-01  1.137930e-01
+##  [61]  1.151461e-01  1.164700e-01  1.177643e-01  1.190286e-01  1.202627e-01
+##  [66]  1.214661e-01  1.226387e-01  1.237801e-01  1.248900e-01  1.259682e-01
+##  [71]  1.270143e-01  1.280281e-01  1.290094e-01  1.299578e-01  1.308733e-01
+##  [76]  1.317554e-01  1.326040e-01  1.334189e-01  1.341999e-01  1.349467e-01
+##  [81]  1.356592e-01  1.363372e-01  1.369806e-01  1.375891e-01  1.381626e-01
+##  [86]  1.387010e-01  1.392041e-01  1.396719e-01  1.401041e-01  1.405006e-01
+##  [91]  1.408615e-01  1.411865e-01  1.414756e-01  1.417287e-01  1.419458e-01
+##  [96]  1.421268e-01  1.422717e-01  1.423803e-01  1.424528e-01  1.424890e-01
+## Eigenvalue solution test: 0.0001959908    Normtest: 0 
+## [1] "OK"
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
 
-For the record, these results compare well with eigenvalues from eigen().
-
-If we ignore the constraint, and simply perform the optimization, we can
-get satisfactory solutions, though comparisons require that we normalize 
-the parameters (the eigenvector components) post-optimization. 
-We can check if the scale of the eigenvectors 
-is becoming large by computing the norm of the final parameter vector. In 
-tests on the Moler matrix up to dimension 100, none grew to a worrying size. 
+For the record, these results compare well with eigenvalues from eigen(), but the timings are
+\B{slower} than the \code{eigen} function that computes all the solutions for the order 100 matrix.
+The main saving of the optimization approach is space if we compute the Rayleigh Quotient without
+actually forming the matrix.
 
 For comparison, we also ran a specialized Geradin routine as implemented in \R\ by one of 
 us (JN). This gave equivalent answers, albeit more efficiently. For those interested, the
@@ -980,13 +950,7 @@ not bother with gradients for this small problem.
   \hlstd{xx}\hlkwb{<-}\hlstd{(x}\hlopt{/}\hlstd{tt)}\hlopt{*}\hlstd{(x}\hlopt{/}\hlstd{tt)}
   \hlkwd{sum}\hlstd{(ss}\hlopt{*}\hlstd{xx)}
 \hlstd{\}}
-
-\hlkwd{cat}\hlstd{(}\hlstr{"Try penalized sum\textbackslash{}n"}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## Try penalized sum
-\end{verbatim}
-\begin{alltt}
+\hlcom{## Try penalized sum}
 \hlstd{st}\hlkwb{<-}\hlkwd{runif}\hlstd{(}\hlnum{3}\hlstd{)}
 \hlstd{aos}\hlkwb{<-}\hlkwd{opm}\hlstd{(st, ssums,} \hlkwc{gr}\hlstd{=}\hlstr{"grcentral"}\hlstd{,} \hlkwc{method}\hlstd{=mset)}
 \hlcom{# rescale the parameters}
@@ -995,31 +959,30 @@ not bother with gradients for this small problem.
   \hlstd{tpar}\hlkwb{<-}\hlstd{aos[i,}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]}
   \hlstd{ntpar}\hlkwb{<-}\hlkwd{sum}\hlstd{(tpar)}
   \hlstd{tpar}\hlkwb{<-}\hlstd{tpar}\hlopt{/}\hlstd{ntpar}
-\hlcom{#  cat("Method ",aos[i, "meth"]," gives fval =", ssums(tpar))}
   \hlstd{aos[i,} \hlnum{1}\hlopt{:}\hlnum{3}\hlstd{]}\hlkwb{<-}\hlstd{tpar}
-
 \hlstd{\}}
-
-\hlkwd{summary}\hlstd{(aos,}\hlkwc{order}\hlstd{=value)[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{,]}
+\hlkwd{summary}\hlstd{(aos,}\hlkwc{order}\hlstd{=value)}
 \end{alltt}
 \begin{verbatim}
 ##                 p1        p2        p3     value fevals gevals convergence
-## Rvmmin   0.5454546 0.2727273 0.1818182 0.5454545     36     16           0
+## Rvmmin   0.5454546 0.2727273 0.1818182 0.5454545     14     14           2
+## L-BFGS-B 0.5454546 0.2727273 0.1818182 0.5454545      8      8           0
+## nlm      0.5454545 0.2727273 0.1818182 0.5454545     NA     12           0
 ## nlminb   0.5454546 0.2727273 0.1818181 0.5454545      8      8           0
-## L-BFGS-B 0.5454546 0.2727272 0.1818182 0.5454545      8      8           0
-## spg      0.5454543 0.2727273 0.1818184 0.5454545     10      9           0
-## Rcgmin   0.5454542 0.2727275 0.1818183 0.5454545     15      9           0
+## spg      0.5454546 0.2727272 0.1818182 0.5454545      9      8           0
+## Rcgmin   0.5454547 0.2727272 0.1818181 0.5454545     13      9           0
 ##          kkt1  kkt2 xtime
 ## Rvmmin   TRUE FALSE 0.004
-## nlminb   TRUE FALSE 0.000
 ## L-BFGS-B TRUE FALSE 0.000
-## spg      TRUE FALSE 0.044
+## nlm      TRUE FALSE 0.000
+## nlminb   TRUE FALSE 0.004
+## spg      TRUE FALSE 0.040
 ## Rcgmin   TRUE FALSE 0.004
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
 
-
+We can also use a projection method.
 
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1046,20 +1009,16 @@ not bother with gradients for this small problem.
 \hlstd{as}\hlkwb{<-}\hlkwd{spg}\hlstd{(st, ssum,} \hlkwc{project}\hlstd{=proj.simplex)}
 \end{alltt}
 \begin{verbatim}
-## iter:  0  f-value:  1.874622  pgrad:  0.7467444 
-## iter:  10  f-value:  0.5454545  pgrad:  2.330691e-05
+## iter:  0  f-value:  0.8755125  pgrad:  0.9248068 
+## iter:  10  f-value:  0.5454545  pgrad:  8.16606e-06
 \end{verbatim}
-\begin{alltt}
-\hlkwd{cat}\hlstd{(}\hlstr{"Using project.simplex with spg: fmin="}\hlstd{,as}\hlopt{$}\hlstd{value,}\hlstr{" at \textbackslash{}n"}\hlstd{)}
-\end{alltt}
+\end{kframe}
+\end{knitrout}
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{verbatim}
 ## Using project.simplex with spg: fmin= 0.5454545  at
-\end{verbatim}
-\begin{alltt}
-\hlkwd{print}\hlstd{(as}\hlopt{$}\hlstd{par)}
-\end{alltt}
-\begin{verbatim}
-## [1] 0.5454540 0.2727278 0.1818182
+## [1] 0.5454517 0.2727294 0.1818189
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1105,31 +1064,54 @@ the \pkg{quadprog} package.
 \section{Recommendations}
 
 Despite the relatively limited experience above, it is nevertheless incumbent on us to 
-recommend to \R users how to approach these problems. 
+recommend to \R  users how to approach these problems. 
+
+Overall, the approaches that gave the least trouble computationally were those in 
+which the indeterminacy caused by the sumscale constraint was explicitly removed.
+That can be done either with a solution for one parameter, or else by fixing one
+parameter. 
+
+When it can be used in a straightforward manner, the gradient projection method
+\code{spg} is quite effective. The main concern is to get the specification of
+the projection correct. The ideas can be extended to programs customized to 
+particular types of problems, as in the Geradin approach to Rayleigh Quotient
+minimization, but the effort is clearly only justified when many such problems
+must be solved, and solved quickly.
+
+If parameters are required to be positive, then working with their logarithms
+is a sensible transformation.
 
 \subsection{Application of the ideas to a new example}
 
 Let us try to solve the following problem:
 
-Maximize the product of $n$ parameters such that the scaled sum of squares is fixed to value $A$.
-That is, 
+Maximize the product of $n$ parameters such that their weighted sum of squares is fixed to value $A$.
+The particular scaling is
 
+\vspace{2mm}
 $\sum_{i=1}^n{i*{x_i}^2} = A $
+\vspace{2mm}
 
 We will set $A = 1$, but other values will simply scale the objective function.
 Defining 
 
+\vspace{2mm}
 $ scale({\B{x})} = \sqrt{(\sum_{i=1}^n{i*{x_i}^2})}  $
+\vspace{2mm}
 
 we want to maximize 
 
+\vspace{2mm}
 $ \prod{\B{x}} / scale({\B{x})} $
+\vspace{2mm}
 
-As before, we can \B{minimize}
+As before, we should \B{minimize}
 
+\vspace{2mm}
 $  - \sum_{i=1}^n{log(x_i)} + log(scale({\B{x})}) $
+\vspace{2mm}
 
-Moreover we could work with logarithms of parameters to avoid non-positive inputs to the objective function.
+so that we can avoid the product becoming too large or too small. Thus we create the functions
 
 
 \begin{knitrout}\scriptsize
@@ -1147,17 +1129,25 @@ Moreover we could work with logarithms of parameters to avoid non-positive input
 \end{kframe}
 \end{knitrout}
 
+These functions involve all the parameters, so we apply them with solvers that can fix
+one parameter. Note that we set lower and upper bounds to the other parameters, and must
+scale the results before reporting them. The specification of fixed parameters trips a 
+warning that we have put lower and upper bounds equal. At the time of writing, this warning
+cannot be suppressed. Indeed, it may be inadvisable to do so, though users could easily 
+modify function \code{bmchk} in package \B{optextras}. 
+
 \begin{knitrout}\scriptsize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlstd{mmth} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Rvmmin"}\hlstd{,} \hlstr{"Rcgmin"}\hlstd{)}
 \hlkwd{library}\hlstd{(optimrx)}
 \hlstd{n} \hlkwb{<-} \hlnum{5}
 \hlstd{mmth}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"Rvmmin"}\hlstd{,} \hlstr{"Rcgmin"}\hlstd{)}
 \hlstd{mset}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"Rcgmin"}\hlstd{,} \hlstr{"ucminf"}\hlstd{,} \hlstr{"Nelder-Mead"}\hlstd{)}
 \hlstd{strt} \hlkwb{<-} \hlstd{(}\hlnum{1}\hlopt{:}\hlstd{n)}\hlopt{/}\hlstd{(}\hlnum{2}\hlopt{*}\hlstd{n)}
- \hlstd{lo} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlopt{-}\hlnum{100}\hlstd{, (n}\hlopt{-}\hlnum{1}\hlstd{)),strt[n])}
- \hlstd{up} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{100}\hlstd{, (n}\hlopt{-}\hlnum{1}\hlstd{)),strt[n])}
- \hlstd{amsk2} \hlkwb{<-} \hlkwd{opm}\hlstd{(strt, enew,} \hlkwc{gr}\hlstd{=}\hlstr{"grcentral"}\hlstd{,} \hlkwc{lower}\hlstd{=lo,} \hlkwc{upper}\hlstd{=up,} \hlkwc{method}\hlstd{=mmth)}
+\hlstd{lo} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{1e-15}\hlstd{, (n}\hlopt{-}\hlnum{1}\hlstd{)),strt[n])}
+\hlstd{up} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{100}\hlstd{, (n}\hlopt{-}\hlnum{1}\hlstd{)),strt[n])}
+\hlstd{amsk2} \hlkwb{<-} \hlkwd{opm}\hlstd{(strt, enew,} \hlkwc{gr}\hlstd{=}\hlstr{"grcentral"}\hlstd{,} \hlkwc{lower}\hlstd{=lo,} \hlkwc{upper}\hlstd{=up,} \hlkwc{method}\hlstd{=mmth)}
 \end{alltt}
 
 
@@ -1165,24 +1155,18 @@ Moreover we could work with logarithms of parameters to avoid non-positive input
 
 {\ttfamily\noindent\color{warningcolor}{\#\# Warning in bmchk(par, lower = lower, upper = upper): Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!}}
 
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in log(x/sc): NaNs produced}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in bmchk(par, lower = lower, upper = upper): Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in log(x/sc): NaNs produced}}
-
-{\ttfamily\noindent\color{warningcolor}{\#\# Warning in Rcgminb(par = spar, fn = efn, gr = egr, lower = slower, upper = supper, : Rcgmin - undefined function}}\begin{alltt}
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in bmchk(par, lower = lower, upper = upper): Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!}}\begin{alltt}
 \hlcom{## amsk2 <- opm(strt, enew, gr="grcentral", method=mmth)}
 \hlstd{amsk2} \hlkwb{<-} \hlkwd{summary}\hlstd{(amsk2,} \hlkwc{order}\hlstd{=value)}
 \hlkwd{print}\hlstd{(amsk2)}
 \end{alltt}
 \begin{verbatim}
 ##              p1        p2        p3       p4  p5    value fevals gevals
-## Rcgmin 1.118034 0.7905694 0.6454971 0.559017 0.5 6.417341     39     18
-## Rvmmin 0.100000 0.2000000 0.3000000 0.400000 0.5 8.752759      2      1
-##        convergence  kkt1  kkt2 xtime
-## Rcgmin           0  TRUE FALSE 0.004
-## Rvmmin          21 FALSE FALSE 0.000
+## Rvmmin 1.118034 0.7905694 0.6454972 0.559017 0.5 6.417341     20     17
+## Rcgmin 1.118034 0.7905695 0.6454973 0.559017 0.5 6.417341     45     23
+##        convergence kkt1  kkt2 xtime
+## Rvmmin           2 TRUE FALSE 0.008
+## Rcgmin           0 TRUE FALSE 0.008
 \end{verbatim}
 \begin{alltt}
 \hlstd{parm2} \hlkwb{<-} \hlstd{amsk2[}\hlnum{1}\hlstd{,} \hlnum{1}\hlopt{:}\hlstd{n]}
@@ -1190,7 +1174,7 @@ Moreover we could work with logarithms of parameters to avoid non-positive input
 \end{alltt}
 \begin{verbatim}
 ##              p1        p2        p3       p4  p5
-## Rcgmin 1.118034 0.7905694 0.6454971 0.559017 0.5
+## Rvmmin 1.118034 0.7905694 0.6454972 0.559017 0.5
 \end{verbatim}
 \begin{alltt}
 \hlstd{parm2} \hlkwb{<-} \hlkwd{as.numeric}\hlstd{(parm2}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{scale}\hlstd{(parm2)))}
@@ -1239,32 +1223,158 @@ Moreover we could work with logarithms of parameters to avoid non-positive input
 \begin{alltt}
 \hlkwa{for} \hlstd{(ii} \hlkwa{in} \hlnum{1}\hlopt{:}\hlkwd{dim}\hlstd{(areg)[}\hlnum{1}\hlstd{])\{}
     \hlstd{prm} \hlkwb{<-} \hlstd{areg[ii,}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{]}
-    \hlkwd{print}\hlstd{(prm)}
+\hlcom{#    print(prm)}
     \hlstd{prm}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(prm}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{scale}\hlstd{(prm)))}
-    \hlkwd{cat}\hlstd{(}\hlstr{"scaled parameters:"}\hlstd{)}
+    \hlkwd{cat}\hlstd{(}\hlkwd{names}\hlstd{(areg)[ii],}\hlstr{" scaled params:"}\hlstd{)}
     \hlkwd{print}\hlstd{(prm)}
     \hlkwd{cat}\hlstd{(}\hlstr{"new scale="}\hlstd{,} \hlkwd{scale}\hlstd{(prm),}\hlstr{"\textbackslash{}n"}\hlstd{)}
-
 \hlstd{\}}
 \end{alltt}
 \begin{verbatim}
-##               p1        p2        p3        p4        p5
-## Rcgmin 0.5707154 0.4035568 0.3295027 0.2853577 0.2552317
-## scaled parameters:[1] 0.4472136 0.3162278 0.2581989 0.2236068 0.2000000
+## p1  scaled params:[1] 0.4472136 0.3162278 0.2581989 0.2236068 0.2000000
 ## new scale= 1 
-##              p1        p2        p3        p4        p5
-## ucminf 1.114173 0.7878393 0.6432681 0.5570865 0.4982733
-## scaled parameters:[1] 0.4472136 0.3162278 0.2581989 0.2236068 0.2000000
+## p2  scaled params:[1] 0.4472136 0.3162278 0.2581989 0.2236068 0.2000000
 ## new scale= 1 
-##                    p1        p2        p3        p4        p5
-## Nelder-Mead 0.6300243 0.4449968 0.3629333 0.3145654 0.2812454
-## scaled parameters:[1] 0.4478024 0.3162904 0.2579621 0.2235837 0.1999008
+## p3  scaled params:[1] 0.4478024 0.3162904 0.2579621 0.2235837 0.1999008
 ## new scale= 1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
 
+Moreover we could work with logarithms of parameters to avoid non-positive inputs to the objective function.
 
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{scalel} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{lx}\hlstd{)\{}
+  \hlstd{x}\hlkwb{<-}\hlkwd{exp}\hlstd{(lx)}
+  \hlkwd{scale}\hlstd{(x)}
+\hlstd{\}}
+\hlstd{enewl} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{lx}\hlstd{)\{}
+  \hlstd{x}\hlkwb{<-}\hlkwd{exp}\hlstd{(lx)}
+  \hlkwd{enew}\hlstd{(x)}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in bmchk(par, lower = lower, upper = upper): Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in bmchk(par, lower = lower, upper = upper): Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in bmchk(par, lower = lower, upper = upper): Masks (fixed parameters) set by bmchk due to tight bounds. CAUTION!!}}\begin{verbatim}
+##              p1        p2        p3       p4  p5    value fevals gevals
+## Rvmmin 1.118034 0.7905694 0.6454972 0.559017 0.5 6.417341     20     17
+## Rcgmin 1.118034 0.7905695 0.6454973 0.559017 0.5 6.417341     45     23
+##        convergence kkt1  kkt2 xtime
+## Rvmmin           2 TRUE FALSE 0.008
+## Rcgmin           0 TRUE FALSE 0.008
+## [1] 0.4094367 0.2951010 0.2552505 0.2341040 0.2206876
+## enew(parm2)= 6.417341
+## [1] 1
+##                     p1        p2        p3        p4        p5    value
+## Rcgmin      -0.8663376 -1.212911 -1.415644 -1.559485 -1.671057 6.417341
+## ucminf      -0.8663376 -1.212911 -1.415644 -1.559485 -1.671057 6.417341
+## Nelder-Mead -0.9447184 -1.291208 -1.493720 -1.637800 -1.749406 6.417341
+##             fevals gevals convergence kkt1  kkt2 xtime
+## Rcgmin          13      8           0 TRUE FALSE 0.008
+## ucminf          12     12           0 TRUE FALSE 0.008
+## Nelder-Mead    282     NA           0 TRUE FALSE 0.004
+## Rcgmin  scaled params:[1] 0.4472136 0.3162278 0.2581989 0.2236068 0.2000000
+## new scale= 1 
+## ucminf  scaled params:[1] 0.4472136 0.3162277 0.2581989 0.2236068 0.2000000
+## new scale= 1 
+## Nelder-Mead  scaled params:[1] 0.4471702 0.3162237 0.2582526 0.2235996 0.1999868
+## new scale= 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+The "solve for one parameter" approach requires slightly more work. We find $x_1$ as
+
+$ x_1 = sqrt(A - \sum_{i=2}^n{{x_i}^2) } $
+
+It is fairly easy to set up the objective using this expression, but we note that the
+starting parameters need to obey the scaling, or we may not be able to proceed. We also
+must note that the names of the parameters reported by the optimization are all shifted
+one place, so \code{p1} is really the original \code{p2}. To properly report the 
+results, we should solve for $x_1$ and put the value as the first element of an 
+augmented solution vector.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{es1} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)\{} \hlcom{## safeguarded objective}
+  \hlstd{n} \hlkwb{<-} \hlkwd{length}\hlstd{(x)}\hlopt{+}\hlnum{1}
+  \hlstd{sx} \hlkwb{<-} \hlkwd{sum}\hlstd{((}\hlnum{2}\hlopt{:}\hlstd{n)}\hlopt{*}\hlstd{x}\hlopt{^}\hlnum{2}\hlstd{)}
+  \hlkwa{if} \hlstd{(sx} \hlopt{>=} \hlnum{1}\hlstd{) \{obj} \hlkwb{<-} \hlnum{1e70}\hlstd{\}}
+  \hlkwa{else} \hlstd{\{obj} \hlkwb{<-} \hlopt{-} \hlkwd{sum}\hlstd{(}\hlkwd{log}\hlstd{(x))} \hlopt{-} \hlkwd{log}\hlstd{(}\hlkwd{sqrt}\hlstd{(}\hlnum{1}\hlopt{-}\hlstd{sx)) \}}
+\hlstd{\}}
+\hlstd{n} \hlkwb{<-} \hlnum{5}
+\hlstd{mset}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"Rcgmin"}\hlstd{,} \hlstr{"ucminf"}\hlstd{,} \hlstr{"Nelder-Mead"}\hlstd{)}
+\hlstd{strt} \hlkwb{<-} \hlstd{(}\hlnum{1}\hlopt{:}\hlstd{n)}\hlopt{/}\hlstd{(}\hlnum{2}\hlopt{*}\hlstd{n)}
+\hlstd{strt}\hlkwb{<-}\hlstd{strt}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{scale}\hlstd{(strt))}
+\hlstd{as1} \hlkwb{<-} \hlkwd{opm}\hlstd{(strt[}\hlnum{2}\hlopt{:}\hlstd{n], es1,} \hlkwc{gr}\hlstd{=}\hlstr{"grcentral"}\hlstd{,} \hlkwc{method}\hlstd{=mset)}
+\hlcom{## amsk2 <- opm(strt, enew, gr="grcentral", method=mmth)}
+\hlstd{as1} \hlkwb{<-} \hlkwd{summary}\hlstd{(as1,} \hlkwc{order}\hlstd{=value)}
+\hlstd{as1}
+\end{alltt}
+\begin{verbatim}
+##                    p1        p2        p3        p4    value fevals gevals
+## Rcgmin      0.3162278 0.2581989 0.2236068 0.2000000 6.417341     50     26
+## ucminf      0.3162278 0.2581989 0.2236068 0.2000000 6.417341     24     24
+## Nelder-Mead 0.3162849 0.2582493 0.2235563 0.1999534 6.417341    295     NA
+##             convergence kkt1 kkt2 xtime
+## Rcgmin                0 TRUE TRUE 0.004
+## ucminf                0 TRUE TRUE 0.004
+## Nelder-Mead           0 TRUE TRUE 0.004
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+The projection approach was less successful with this problem. 
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{proj5} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) \{ x}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{scale}\hlstd{(x))\}}
+\hlstd{proj5l} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{lx}\hlstd{) \{} \hlkwd{exp}\hlstd{(lx)}\hlopt{/}\hlkwd{scale}\hlstd{(}\hlkwd{exp}\hlstd{(lx))\}}
+\hlstd{n} \hlkwb{<-} \hlnum{5}
+\hlstd{strt} \hlkwb{<-} \hlstd{(}\hlnum{1}\hlopt{:}\hlstd{n)}\hlopt{/}\hlstd{(}\hlnum{2}\hlopt{*}\hlstd{n)}
+\hlstd{strt} \hlkwb{<-} \hlstd{strt}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{scale}\hlstd{(strt))}
+\hlstd{aspg2} \hlkwb{<-} \hlkwd{try}\hlstd{(}\hlkwd{spg}\hlstd{(strt, enew,} \hlkwc{project}\hlstd{=proj5))}
+\end{alltt}
+\begin{verbatim}
+## iter:  0  f-value:  8.752759  pgrad:  0.6334095
+\end{verbatim}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in log(x/sc): NaNs produced}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in spg(strt, enew, project = proj5): Unsuccessful convergence.}}\begin{alltt}
+\hlkwa{if} \hlstd{((}\hlkwd{class}\hlstd{(aspg2)} \hlopt{!=} \hlstr{"try-error"}\hlstd{)} \hlopt{&&} \hlstd{(aspg2}\hlopt{$}\hlstd{convergence} \hlopt{==} \hlnum{0}\hlstd{)) \{}
+   \hlkwd{print}\hlstd{(aspg2)}
+\hlstd{\}} \hlkwa{else} \hlstd{\{} \hlkwd{cat}\hlstd{(}\hlstr{"spg failed\textbackslash{}n"}\hlstd{) \}}
+\end{alltt}
+\begin{verbatim}
+## spg failed
+\end{verbatim}
+\begin{alltt}
+\hlstd{strtl} \hlkwb{<-} \hlkwd{log}\hlstd{(strt)}
+\hlstd{aspg2l} \hlkwb{<-} \hlkwd{try}\hlstd{(}\hlkwd{spg}\hlstd{(strtl, enewl,} \hlkwc{project}\hlstd{=proj5l))}
+\hlkwa{if} \hlstd{((}\hlkwd{class}\hlstd{(aspg2l)} \hlopt{!=} \hlstr{"try-error"}\hlstd{)} \hlopt{&&} \hlstd{(aspg2l}\hlopt{$}\hlstd{convergence} \hlopt{==} \hlnum{0}\hlstd{)) \{}
+   \hlkwd{print}\hlstd{(aspg2l)}
+\hlstd{\}} \hlkwa{else} \hlstd{\{} \hlkwd{cat}\hlstd{(}\hlstr{"spg failed\textbackslash{}n"}\hlstd{) \}}
+\end{alltt}
+\begin{verbatim}
+## spg failed
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 
 \section{Conclusion}
@@ -1275,8 +1385,12 @@ attention.
 
 While specialized approaches are "best" for speed and correctness, a general user is more
 likely to benefit from a simpler approach of embedding the scaling in the objective function
-and rescaling the parameters before reporting them. Another choice is to use the projected
-gradient via \code{spg} from package \pkg{BB}.
+by a "solve for one parameter" approach or by fixing one parameter. It is often important
+to transform parameters to ensure positivity, and it may be necessary to rescale 
+parameters before reporting them. 
+
+When a projection is well-understood, the projected
+gradient via \code{spg} from package \pkg{BB} may be helpful.
 
 
 

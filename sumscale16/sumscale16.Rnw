@@ -6,9 +6,9 @@
 
 \raggedbottom
 \newcommand{\B}[1]{{\bf #1 \rm}}
-\newcommand{\Splus}{{\sf S-PLUS}}
-\newcommand{\Slang}{{\sf S}}
-\newcommand{\R}{{\sf R}} 
+\newcommand{\Splus}{{\sf S-PLUS }}
+\newcommand{\Slang}{{\sf S }}
+\newcommand{\R}{{\sf R }} 
 \newcommand{\I}[1]{{\it#1\rm}}
 \newcommand{\code}[1]{{\tt#1}}
 \newcommand{\pkg}[1]{\bf{\tt#1}\rm }
@@ -17,39 +17,12 @@
 
 \begin{document}
 
-<<include=FALSE>>=
-library(knitr)
-opts_chunk$set(
-concordance=TRUE
-)
-@
-
-
-<<include=FALSE>>=
-library(knitr)
-opts_chunk$set(
-concordance=TRUE
-)
-@
-
-
-<<include=FALSE>>=
-library(knitr)
-##opts_chunk$set(
-##concordance=TRUE
-##)
-@
-
-
-?? find new reference for RQ times
-?? put in eigen
-?? clean up warnings
-?? try simple problem with different sum constraints e.g. sum vs sum of squares
 
 
 <<setupglobal, echo=FALSE>>=
+library(knitr)
 # global chunk options
-opts_chunk$set(autodep=TRUE, size="scriptsize")
+opts_chunk$set(autodep=TRUE, size="scriptsize", cache=TRUE)
 dep_auto()  # figure out dependencies automatically
 @
 
@@ -578,7 +551,7 @@ with getting the solutions correctly rather than the speed of so doing. Note
 that to get the solution with the most-positive eigenvalue, we minimize the
 Rayleigh quotient of the matrix multiplied by -1. This is solution \code{tmax}.
 
-<<rayspg1, echo=TRUE>>=
+<<rayspg1, echo=FALSE>>=
 molerbuild<-function(n){ # Create the moler matrix of order n
    # A[i,j] = i for i=j, min(i,j)-2 otherwise
    A <- matrix(0, nrow = n, ncol = n)
@@ -593,30 +566,44 @@ molerbuild<-function(n){ # Create the moler matrix of order n
 
 raynum<-function(x, A){
    rayquo<-as.numeric((t(x)%*%A)%*%x)
+   rayquo <- rayquo/as.numeric(crossprod(x)) # 161216 scale!
 }
 
 proj<-function(x) { x/sqrt(crossprod(x)) }
 
+tstesol <- function(A,eval, evec){
+     cmpval <- length(evec)*1e-5
+     tvec <- A %*% evec - eval*evec
+     etest <- max(abs(tvec))
+     ntest <- abs(1-as.numeric(crossprod(evec)))
+     cat("Eigenvalue solution test:", etest ,"   Normtest:", ntest ,"\n")
+     if ((ntest > cmpval) || (etest > cmpval)) "FAIL" else "OK"
+}
+
+
 require(BB, quietly=TRUE)
-n<-10
-x<-rep(1,n)
+nn<-c(5,100)
+for (n in nn){
+## x<-rep(1,n)
+set.seed(1234)
+x<-runif(n)
 A<-molerbuild(n)
-tmin<-system.time(asprqmin<-spg(x, fn=raynum, project=proj, A=A))[[3]]
-tmax<-system.time(asprqmax<-spg(x, fn=raynum, project=proj, A=-A))[[3]]
-cat("maximal eigensolution: Value=",asprqmax$value,"in time ",tmax,"\n")
-print(asprqmax$par)
+cat("Test spg on Moler matrix of order=",n,"\n")
+tmin<-system.time(asprqmin<-spg(x, fn=raynum, project=proj, A=A, control=list(trace=FALSE)))[[3]]
 cat("minimal eigensolution: Value=",asprqmin$value,"in time ",tmin,"\n")
 print(asprqmin$par)
+print(tstesol(A, asprqmin$value, asprqmin$par))
+tmax<-system.time(asprqmax<-spg(x, fn=raynum, project=proj, A=-A, control=list(trace=FALSE)))[[3]]
+cat("maximal eigensolution: Value=",asprqmax$value,"in time ",tmax,"\n")
+print(asprqmax$par)
+print(tstesol(A, -asprqmax$value, asprqmax$par)) # Note negative sign
+}
 @
 
-For the record, these results compare well with eigenvalues from eigen().
-
-If we ignore the constraint, and simply perform the optimization, we can
-get satisfactory solutions, though comparisons require that we normalize 
-the parameters (the eigenvector components) post-optimization. 
-We can check if the scale of the eigenvectors 
-is becoming large by computing the norm of the final parameter vector. In 
-tests on the Moler matrix up to dimension 100, none grew to a worrying size. 
+For the record, these results compare well with eigenvalues from eigen(), but the timings are
+\B{slower} than the \code{eigen} function that computes all the solutions for the order 100 matrix.
+The main saving of the optimization approach is space if we compute the Rayleigh Quotient without
+actually forming the matrix.
 
 For comparison, we also ran a specialized Geradin routine as implemented in \R\ by one of 
 us (JN). This gave equivalent answers, albeit more efficiently. For those interested, the
@@ -638,8 +625,7 @@ ssums<-function(x){
   xx<-(x/tt)*(x/tt)
   sum(ss*xx)
 }
-
-cat("Try penalized sum\n")
+## Try penalized sum
 st<-runif(3)
 aos<-opm(st, ssums, gr="grcentral", method=mset)
 # rescale the parameters
@@ -648,15 +634,12 @@ for (i in 1:nsol){
   tpar<-aos[i,1:3] 
   ntpar<-sum(tpar)
   tpar<-tpar/ntpar
-#  cat("Method ",aos[i, "meth"]," gives fval =", ssums(tpar))
   aos[i, 1:3]<-tpar 
-  
 }
-
-summary(aos,order=value)[1:5,]
+summary(aos,order=value)
 @
 
-
+We can also use a projection method.
 
 <<transpg1, echo=TRUE>>=
 ssum<-function(x){
@@ -679,6 +662,8 @@ theta <- (csy[rho] - 1) / rho
 return(pmax(0, y - theta))
 }
 as<-spg(st, ssum, project=proj.simplex)
+@
+<<transpg1r, echo=FALSE>>=
 cat("Using project.simplex with spg: fmin=",as$value," at \n")
 print(as$par)
 @
@@ -701,31 +686,54 @@ ans
 \section{Recommendations}
 
 Despite the relatively limited experience above, it is nevertheless incumbent on us to 
-recommend to \R users how to approach these problems. 
+recommend to \R  users how to approach these problems. 
+
+Overall, the approaches that gave the least trouble computationally were those in 
+which the indeterminacy caused by the sumscale constraint was explicitly removed.
+That can be done either with a solution for one parameter, or else by fixing one
+parameter. 
+
+When it can be used in a straightforward manner, the gradient projection method
+\code{spg} is quite effective. The main concern is to get the specification of
+the projection correct. The ideas can be extended to programs customized to 
+particular types of problems, as in the Geradin approach to Rayleigh Quotient
+minimization, but the effort is clearly only justified when many such problems
+must be solved, and solved quickly.
+
+If parameters are required to be positive, then working with their logarithms
+is a sensible transformation.
 
 \subsection{Application of the ideas to a new example}
 
 Let us try to solve the following problem:
 
-Maximize the product of $n$ parameters such that the scaled sum of squares is fixed to value $A$.
-That is, 
+Maximize the product of $n$ parameters such that their weighted sum of squares is fixed to value $A$.
+The particular scaling is
 
+\vspace{2mm}
 $\sum_{i=1}^n{i*{x_i}^2} = A $
+\vspace{2mm}
 
 We will set $A = 1$, but other values will simply scale the objective function.
 Defining 
 
+\vspace{2mm}
 $ scale({\B{x})} = \sqrt{(\sum_{i=1}^n{i*{x_i}^2})}  $
+\vspace{2mm}
 
 we want to maximize 
 
+\vspace{2mm}
 $ \prod{\B{x}} / scale({\B{x})} $
+\vspace{2mm}
 
-As before, we can \B{minimize}
+As before, we should \B{minimize}
 
+\vspace{2mm}
 $  - \sum_{i=1}^n{log(x_i)} + log(scale({\B{x})}) $
+\vspace{2mm}
 
-Moreover we could work with logarithms of parameters to avoid non-positive inputs to the objective function.
+so that we can avoid the product becoming too large or too small. Thus we create the functions
 
 
 <<special, echo=TRUE>>=
@@ -739,15 +747,23 @@ enew <- function(x){
 }
 @
 
-<<mask2, echo=TRUE>>=mmth <- c("Rvmmin", "Rcgmin")
+These functions involve all the parameters, so we apply them with solvers that can fix
+one parameter. Note that we set lower and upper bounds to the other parameters, and must
+scale the results before reporting them. The specification of fixed parameters trips a 
+warning that we have put lower and upper bounds equal. At the time of writing, this warning
+cannot be suppressed. Indeed, it may be inadvisable to do so, though users could easily 
+modify function \code{bmchk} in package \B{optextras}. 
+
+<<mask2, echo=TRUE>>=
+mmth <- c("Rvmmin", "Rcgmin")
 library(optimrx)
 n <- 5
 mmth<-c("Rvmmin", "Rcgmin")
 mset<-c("Rcgmin", "ucminf", "Nelder-Mead")
 strt <- (1:n)/(2*n)
- lo <- c(rep(-100, (n-1)),strt[n])
- up <- c(rep(100, (n-1)),strt[n])
- amsk2 <- opm(strt, enew, gr="grcentral", lower=lo, upper=up, method=mmth)
+lo <- c(rep(1e-15, (n-1)),strt[n])
+up <- c(rep(100, (n-1)),strt[n])
+amsk2 <- opm(strt, enew, gr="grcentral", lower=lo, upper=up, method=mmth)
 ## amsk2 <- opm(strt, enew, gr="grcentral", method=mmth)
 amsk2 <- summary(amsk2, order=value)
 print(amsk2)
@@ -760,19 +776,104 @@ cat("enew(parm2)=", enew(parm2),"\n")
 print(scale(parm2))
 areg<- opm(strt, enew, gr="grnd", method=mset)
 areg
-
 for (ii in 1:dim(areg)[1]){
     prm <- areg[ii,1:5]
-    print(prm)
+#    print(prm)
     prm<-as.numeric(prm/sqrt(scale(prm)))
-    cat("scaled parameters:")
+    cat(names(areg)[ii]," scaled params:")
     print(prm)
     cat("new scale=", scale(prm),"\n")
-
 }
 @
 
+Moreover we could work with logarithms of parameters to avoid non-positive inputs to the objective function.
 
+<<mask2l, echo=TRUE>>=
+scalel <- function(lx){
+  x<-exp(lx)
+  scale(x)
+}
+enewl <- function(lx){
+  x<-exp(lx)
+  enew(x)
+}
+@
+
+<<mask2lx, echo=FALSE>>=
+mmth <- c("Rvmmin", "Rcgmin")
+library(optimrx)
+n <- 5 # just in case
+mmth<-c("Rvmmin", "Rcgmin")
+strtl <- log(strt)
+lol <- log(c(rep(1e-15, (n-1)),strt[n]))
+upl <- log(c(rep(100, (n-1)),strt[n]))
+amsk2l <- opm(strtl, enewl, gr="grcentral", lower=lol, upper=upl, method=mmth)
+amsk2l <- summary(amsk2, order=value)
+print(amsk2l)
+parm2l <- exp(amsk2l[1, 1:n])
+parm2l <- as.numeric(parm2l/sqrt(scale(parm2l)))
+## parm2e<-as.numeric(exp(parm2))
+print(parm2l)
+cat("enew(parm2)=", enew(parm2),"\n")
+print(scale(parm2l))
+aregl<- opm(strtl, enewl, gr="grnd", method=mset)
+aregl
+for (ii in 1:dim(aregl)[1]){
+    prml <- aregl[ii,1:5]
+#    print(prm)
+    prml<-as.numeric(exp(prml)/sqrt(scale(exp(prml))))
+    cat(rownames(areg)[ii]," scaled params:")
+    print(prml)
+    cat("new scale=", scale(prml),"\n")
+}
+@
+
+The "solve for one parameter" approach requires slightly more work. We find $x_1$ as
+
+$ x_1 = sqrt(A - \sum_{i=2}^n{{x_i}^2) } $
+
+It is fairly easy to set up the objective using this expression, but we note that the
+starting parameters need to obey the scaling, or we may not be able to proceed. We also
+must note that the names of the parameters reported by the optimization are all shifted
+one place, so \code{p1} is really the original \code{p2}. To properly report the 
+results, we should solve for $x_1$ and put the value as the first element of an 
+augmented solution vector.
+
+<<solv1, echo=TRUE>>=
+es1 <- function(x){ ## safeguarded objective
+  n <- length(x)+1
+  sx <- sum((2:n)*x^2)
+  if (sx >= 1) {obj <- 1e70}
+  else {obj <- - sum(log(x)) - log(sqrt(1-sx)) }
+}
+n <- 5
+mset<-c("Rcgmin", "ucminf", "Nelder-Mead")
+strt <- (1:n)/(2*n)
+strt<-strt/sqrt(scale(strt))
+as1 <- opm(strt[2:n], es1, gr="grcentral", method=mset)
+## amsk2 <- opm(strt, enew, gr="grcentral", method=mmth)
+as1 <- summary(as1, order=value)
+as1
+@
+
+The projection approach was less successful with this problem. 
+
+<<spg2, echo=TRUE>>=
+proj5 <- function(x) { x/sqrt(scale(x))}
+proj5l <- function(lx) { exp(lx)/scale(exp(lx))}
+n <- 5
+strt <- (1:n)/(2*n)
+strt <- strt/sqrt(scale(strt))
+aspg2 <- try(spg(strt, enew, project=proj5))
+if ((class(aspg2) != "try-error") && (aspg2$convergence == 0)) {
+   print(aspg2)
+} else { cat("spg failed\n") }
+strtl <- log(strt)
+aspg2l <- try(spg(strtl, enewl, project=proj5l))
+if ((class(aspg2l) != "try-error") && (aspg2l$convergence == 0)) {
+   print(aspg2l)
+} else { cat("spg failed\n") }
+@
 
 
 \section{Conclusion}
@@ -783,8 +884,12 @@ attention.
 
 While specialized approaches are "best" for speed and correctness, a general user is more
 likely to benefit from a simpler approach of embedding the scaling in the objective function
-and rescaling the parameters before reporting them. Another choice is to use the projected
-gradient via \code{spg} from package \pkg{BB}.
+by a "solve for one parameter" approach or by fixing one parameter. It is often important
+to transform parameters to ensure positivity, and it may be necessary to rescale 
+parameters before reporting them. 
+
+When a projection is well-understood, the projected
+gradient via \code{spg} from package \pkg{BB} may be helpful.
 
 
 

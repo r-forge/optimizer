@@ -26,16 +26,16 @@
 
 \begin{document}
 
-<<setup, echo=FALSE>>=
+<<setupglobal, echo=FALSE>>=
 library(knitr)
-# size takes valid value of LaTeX font sizes like small, big, huge, ...
-# opts_chunk$set(size = 'scriptsize', fig.pos='htbp')
-opts_chunk$set(size = 'scriptsize')
+# global chunk options
+opts_chunk$set(autodep=TRUE, size="scriptsize", cache=TRUE)
+dep_auto()  # figure out dependencies automatically
 @
 
 \title{Timing Rayleigh Quotient minimization in \R}
 \author{John C. Nash, Telfer School of Management, University of Ottawa}
-\date{July 2012, with minor update December 2016}
+\date{July 2012, with update December 2016}
 \maketitle
 
 \section*{Abstract}
@@ -44,14 +44,6 @@ This vignette is simply to record the methods and results for timing
 various Rayleigh Quotient minimizations with \R using different functions
 and different ways of running the computations, in particular trying Fortran
 subroutines and the \R byte compiler.
-
-TODOS:??
- 
- - cleanup spg runs and explain better
- 
- - check for similar disorganized sections
- 
- - nice to have prescriptive section on "how to"
 
 \section{The computational task}
 
@@ -224,7 +216,7 @@ plot(n, ti)
 title(main="Execution time vs matrix size")
 title(sub="Regular Moler matrix routine, interpreted and byte compiled")
 points(n, tc, pch=3, col='red')
-legend(150,(0.67*max(ti)),c("interpreted","byte compiled"), pch = c(1,3))
+legend(125,(0.67*max(ti)),c("interpreted","byte compiled"), pch = c(1,3))
 @
 
 We can also model these timings. If we try to fit a quadratic model in the
@@ -582,16 +574,39 @@ To actually solve the eigensolution problem we will first use the
 projected gradient method \code{spg} from \pkg{BB}. We repeat the 
 RQ function so that it is clear which routine we are using.
 
+<<molermat2, echo=FALSE>>=
+molermat<-function(n){
+   A<-matrix(NA, nrow=n, ncol=n)
+   for (i in 1:n){
+      for (j in 1:n) {
+          if (i == j) A[i,i]<-i
+          else A[i,j]<-min(i,j) - 2
+      }
+   }
+   A
+}
+@
+
+
 <<rayspg1, echo=TRUE>>=
+testsol <- function(A,eval, evec){ # test a trial eigensolution
+     cmpval <- length(evec)*1e-5
+     tvec <- A %*% evec - eval*evec
+     etest <- max(abs(tvec))
+     ntest <- abs(1-as.numeric(crossprod(evec)))
+     cat("Eigenvalue solution test:", etest ,"   Normtest:", ntest ,"\n")
+     if ((ntest > cmpval) || (etest > cmpval)) "FAIL" else "OK"
+}
 rqt<-function(x, AA){
-    rq<-as.numeric(crossprod(x, crossprod(AA,x)))
+    rq<-as.numeric(crossprod(x, crossprod(AA,x)))/as.numeric(crossprod(x))
 }
 proj<-function(x) { x/sqrt(crossprod(x)) }
 require(BB)
 n<-100
 x<-rep(1,n)
 AA<-molermat(n)
-evs<-eigen(AA)
+tevs <- system.time(evs<-eigen(AA))[[1]]
+cat("Time to compute full eigensystem = ", tevs, "\n")
 tmin<-system.time(amin<-spg(x, fn=rqt, project=proj, control=list(trace=FALSE), AA=AA))[[1]]
 #amin
 tmax<-system.time(amax<-spg(x, fn=rqt, project=proj, control=list(trace=FALSE), AA=-AA))[[1]]
@@ -599,7 +614,7 @@ tmax<-system.time(amax<-spg(x, fn=rqt, project=proj, control=list(trace=FALSE), 
 evalmax<-evs$values[1]
 evecmax<-evs$vectors[,1]
 evecmax<-sign(evecmax[1])*evecmax/sqrt(as.numeric(crossprod(evecmax)))
-emax<-list(evalmax=evalmax, evecmac=evecmax)
+emax<-list(evalmax=evalmax, evecmax=evecmax)
 save(emax, file="temax.Rdata")
 evalmin<-evs$values[n]
 evecmin<-evs$vectors[,n]
@@ -611,11 +626,11 @@ avecmin<-sign(avecmin[1])*avecmin/sqrt(as.numeric(crossprod(avecmin)))
 cat("minimal eigensolution: Value=",amin$value,"in time ",tmin,"\n")
 cat("Eigenvalue - result from eigen=",amin$value-evalmin,"  vector max(abs(diff))=",
       max(abs(avecmin-evecmin)),"\n\n")
-#print(amin$par)
+print(testsol(AA, amin$value, avecmin))
 cat("maximal eigensolution: Value=",-amax$value,"in time ",tmax,"\n")
 cat("Eigenvalue - result from eigen=",-amax$value-evalmax,"  vector max(abs(diff))=",
       max(abs(avecmax-evecmax)),"\n\n")
-#print(amax$par)
+print(testsol(AA, -amax$value, avecmax))
 @
 
 <<runspg2, echo=FALSE>>=
@@ -627,9 +642,10 @@ spgc<-cmpfun(spg)
 rqtc<-cmpfun(rqt)
 projc<-cmpfun(proj)
 
-# loop over sizes
+# loop over sizes for timings
 for (ni in 1:nmax){
   n<-50*ni
+  set.seed(1234)
   x<-runif(n) # generate a vector 
   AA<-molerc(n) # make sure defined
   stable[[ni, 1]]<-n
@@ -650,7 +666,7 @@ print(spgtym)
 \section{Solution by other optimizers}
 
 We can try other optimizers, but we must note that unlike \code{spg} they 
-do not take account of the scaling. However, we can build in a transformation, 
+do not take account explicitly of the scaling. However, we can build in a transformation, 
 since our function is always the same for all sets of parameters scaled by the
 square root of the parameter inner product. The function \code{nobj} forms the
 quadratic form that is the numerator of the Rayleigh Quotient using the more 
@@ -670,7 +686,7 @@ Since we are running a number of gradient-based optimizers in the wrapper
 
 <<runopx1, echo=TRUE>>=
 nobj<-function(x, AA=-AA){
-   y<-x/sqrt(as.numeric(crossprod(x)))
+   y<-x/sqrt(as.numeric(crossprod(x))) # prescale
    rq<- as.numeric(crossprod(y, crossprod(AA,y)))
 }
 
@@ -686,12 +702,13 @@ ngrobj<-function(x, AA=-AA){
 } 
 require(optimrx)
 # mset<-c("L-BFGS-B", "BFGS", "CG", "spg", "ucminf", "nlm", "nlminb", "Rvmmin", "Rcgmin")
-mset<-c("L-BFGS-B", "BFGS", "CG", "spg", "ucminf", "nlm", "nlminb", "Rvmmin", "Rcgmin")
+mset<-"Rcgmin"
 nmax<-5
 for (ni in 1:nmax){
   n<-20*ni
   x<-runif(n) # generate a vector 
-  AA<-molerc(n) # make sure defined
+#  AA<-molerc(n) # make sure defined
+  AA<-molermat(n)
   aall<-opm(x, fn=nobj, gr=ngrobj, method=mset, AA=-AA, 
      control=list(starttests=FALSE,  dowarn=FALSE))
   print(summary(aall, order=value, par.select=1:3))
@@ -712,10 +729,11 @@ nmax<-10
 for (ni in 1:nmax){
   n<-50*ni
   x<-runif(n) # generate a vector 
-  AA<-molerc(n) # make sure defined
+#  AA<-molerc(n) # make sure defined
+  AA<-molermat(n)
   tcgu<-system.time(arcgu<-optimr(x, fn=nobj, gr=ngrobj, method="Rcgmin", AA=-AA))[[1]]
-  ctable[[ni,1]]<-n
-  ctable[[ni,2]]<-tcgu
+  ctable[[ni,1]] <- n
+  ctable[[ni,2]] <- tcgu
 }
 cgtime<-data.frame(n=ctable[,1], tRcgminu=ctable[,2])
 print(cgtime)
@@ -935,6 +953,7 @@ cf<-data.frame(
     rcg=cgtime$tRcgminu,
     ger=gtym$axftnc
 )
+cf$ger[which(cf$ger==0)] <- 0.001
 eigen<-cf$eig/cf$ger
 spg<-cf$spg/cf$ger
 rcgmin<-cf$rcg/cf$ger
@@ -948,7 +967,7 @@ points(nsize, rcgmin, pch=3)
 points(nsize, eigen, pch=4)
 title("Ratio of eigensolution times to Geradin routine by matrix size")
 points(nsize, rep(1,10), type="l")
-legend(150,0.67*max(c(eigen, spg, rcgmin)),c("spg", "rcgmin","eigen"), pch = c(1,3,4))
+legend(150,0.85*max(c(eigen, spg, rcgmin)),c("spg", "rcgmin","eigen"), pch = c(1,3,4))
 @
 
 
@@ -974,7 +993,7 @@ t2000c<-system.time(ac<-optimr(x, fn=nobj, gr=ngrobj, method="Rcgmin", AA=-AA))[
 t2000g<-system.time(ag<-geradin(x, naxftnc, ident, AA=1, BB=1, control=list(trace=FALSE)))[[1]]
 cat("Times in seconds\n")
 cat("Build =",t2000b," eigen():",t2000e,"  Rcgminu:", t2000c," Geradin:",t2000g,"\n")
-cat("Ratios: build=", t2000b/t2000g, "eigen=",t2000e/t2000g,"  Rcgminu=",t2000c/t2000g,"\n")
+cat("Ratios: build=", t2000b/t2000g," eigen=",t2000e/t2000g,"  Rcgminu=",t2000c/t2000g,"\n")
 @
 
 
@@ -1001,17 +1020,23 @@ them in vectorized form.}
 that compute a function such as the implicit matrix-vector product, 
 and it allows efficient computations for such operations.}
 \item{The \code{eigen()} routine is a highly effective tool for
-computing all eigensolutions, even of a large matrix. It is only
+computing all eigensolutions, even of a large matrix. It does,
+however, require the explicit full matrix.}
+\item{It is only
 worth computing a single solution when the matrix is very large,
 in which case a specialized method such as that of Geradin makes
 sense and offers significant savings, especially when combined with
-the Fortran implicit matrix-product routine.}
+the Fortran implicit matrix-product routine. If such a specialized
+code is unavailable, a general conjugate gradients code can be quite
+competitive for minimizing the Rayleigh Quotient when the other
+speed improvements are applied. Both approaches save memory when
+an implicit matrix-vector product is used.}
 \end{itemize}
 
 \section*{Acknowledgements}
 
 This vignette originated due to a problem suggested by Gabor Grothendieck. Ravi Varadhan
-has provided inciteful comments and some vectorized functions which
+has provided insightful comments and some vectorized functions which
 greatly altered some of the observations.
 
 \bibliographystyle{chicago} %The style you want to use for references.

@@ -700,10 +700,10 @@ ans
 
 \section{Recommendations}
 
-Given the relatively limited experience above, it is nevertheless incumbent on us to 
+Despite the relatively limited experience above, it is nevertheless incumbent on us to 
 recommend to \R users how to approach these problems. 
 
-\subsection{Application of the ideas}
+\subsection{Application of the ideas to a new example}
 
 Let us try to solve the following problem:
 
@@ -725,29 +725,51 @@ As before, we can \B{minimize}
 
 $  - \sum_{i=1}^n{log(x_i)} + log(scale({\B{x})}) $
 
-Moreover we can work with logarithms of parameters to avoid non-positive inputs to the objective function.
+Moreover we could work with logarithms of parameters to avoid non-positive inputs to the objective function.
 
 
 <<special, echo=TRUE>>=
 scale <- function(x) {sum( (1:n) * x^2)}
-enew <- function(lx){
-  n <- length(lx)
-  x <- exp(lx)
-  obj <- log(scale) - sum(log(x))
+enew <- function(x){
+  n <- length(x)
+##  x <- exp(lx)
+  sc <- sqrt(scale(x))
+  obj <- - sum(log(x/sc))
+#  obj <- n*log(sc)-sum(log(x))
 }
 @
 
 <<mask2, echo=TRUE>>=mmth <- c("Rvmmin", "Rcgmin")
 library(optimrx)
+n <- 5
+mmth<-c("Rvmmin", "Rcgmin")
+mset<-c("Rcgmin", "ucminf", "Nelder-Mead")
 strt <- (1:n)/(2*n)
-lo <- c(rep(-100, (n-1)),strt[n])
-up <- c(rep(100, (n-1)),strt[n])
-amsk2 <- opm(strt, enll, enll.g, lower=lo, upper=up, method=mmth)
+ lo <- c(rep(-100, (n-1)),strt[n])
+ up <- c(rep(100, (n-1)),strt[n])
+ amsk2 <- opm(strt, enew, gr="grcentral", lower=lo, upper=up, method=mmth)
+## amsk2 <- opm(strt, enew, gr="grcentral", method=mmth)
 amsk2 <- summary(amsk2, order=value)
 print(amsk2)
 parm2 <- amsk2[1, 1:n]
-parm2 <- parm2/sqrt(scale(parm2))
 print(parm2)
+parm2 <- as.numeric(parm2/sqrt(scale(parm2)))
+## parm2e<-as.numeric(exp(parm2))
+print(parm2)
+cat("enew(parm2)=", enew(parm2),"\n")
+print(scale(parm2))
+areg<- opm(strt, enew, gr="grnd", method=mset)
+areg
+
+for (ii in 1:dim(areg)[1]){
+    prm <- areg[ii,1:5]
+    print(prm)
+    prm<-as.numeric(prm/sqrt(scale(prm)))
+    cat("scaled parameters:")
+    print(prm)
+    cat("new scale=", scale(prm),"\n")
+
+}
 @
 
 

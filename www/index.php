@@ -45,12 +45,13 @@ echo $contents; } ?>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
-<p><p> Packages for optimization and solution of nonlinear systems of equations include
+<p><p> Packages for optimization and solution of nonlinear systems of equations could include
 <ul>
-<li>- large scale optimization with box constraints</li>
+<li>- large scale function minimization (sometimes in <strong>R</strong>
+called optimization) with box constraints</li>
 <li>- exterior point method for general constraint optimization</li>
 <li>- sequential quadratic programming with box constraints</li>
-<li>- conjugate gradient optimization with box constraints</li>
+<li>- conjugate gradient minimization with box constraints</li>
 <li>- fixed point methods</li>
 <li>- a Levenberg-Marquardt approach to nonlinear least squares</li>
 <li>- large scale equation solving via Barzilai-Borwein Spectral Methods for solving nonlinear system of 
@@ -69,10 +70,11 @@ echo $contents; } ?>
 
 <h3>Extra documentation</h3>
 
-<p>There is an attempt to build an evolving "handbook" or "cheatsheet" 
-for nonlinear least squares computations for <strong>R</strong>. The 
-source file is of type .Rnw and can be processed with the <strong>knitR</strong>
-tools. This is <a href="http://optimizer.r-forge.r-project.org/nlshb.Rnw">nlshb.Rnw</a>, with the latest
+<p>There was an attempt to build an evolving "handbook" or "cheatsheet"
+for nonlinear least squares computations for <strong>R</strong>, but this
+seems not to have gained traction. The source file is of type .Rnw and can
+be processed with the <strong>knitR</strong> tools. This is
+<a href="http://optimizer.r-forge.r-project.org/nlshb.Rnw">nlshb.Rnw</a>, with the latest
 output file uploaded as <a href="http://optimizer.r-forge.r-project.org/nlshb.pdf">nlshb.pdf</a>
 
 

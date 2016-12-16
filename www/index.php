@@ -1,4 +1,3 @@
-
 <!-- This is the project specific website template -->
 <!-- It can be changed as liked or replaced by other content -->
 
@@ -69,6 +68,18 @@ called optimization) with box constraints</li>
  
 
 <h3>Extra documentation</h3>
+
+<p>Timing experiments with <strong>R</strong> based on the problem of minimizing
+the Rayleigh Quotient are discussed in 
+<a href="http://optimizer.r-forge.r-project.org/RQtimes.Rnw">RQtimes.Rnw</a>, with the 
+output file uploaded as <a href="http://optimizer.r-forge.r-project.org/RQtimes.pdf">RQtimes.pdf</a>
+
+
+<p>Various approaches to optimization problems where parameters are constrained to 
+obey some form of summation to a constant are described in 
+<a href="http://optimizer.r-forge.r-project.org/sumscale16.Rnw">sumscale16.Rnw</a>, with the 
+output file uploaded as <a href="http://optimizer.r-forge.r-project.org/sumscale16.pdf">sumscale16.pdf</a>
+
 
 <p>There was an attempt to build an evolving "handbook" or "cheatsheet"
 for nonlinear least squares computations for <strong>R</strong>, but this

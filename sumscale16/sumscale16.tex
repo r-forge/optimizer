@@ -561,40 +561,21 @@ extract the best solution for the 5-parameter problem.
 \hlstd{mset}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"L-BFGS-B"}\hlstd{,} \hlstr{"spg"}\hlstd{,} \hlstr{"nlm"}\hlstd{,} \hlstr{"nlminb"}\hlstd{,} \hlstr{"Rvmmin"}\hlstd{,} \hlstr{"Rcgmin"}\hlstd{)}
 \hlstd{a5x}\hlkwb{<-}\hlkwd{opm}\hlstd{(st, enll, enll.g,} \hlkwc{method}\hlstd{=mset,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{0}\hlstd{))}
 \hlstd{a5xbyvalue}\hlkwb{<-}\hlkwd{summary}\hlstd{(a5x,} \hlkwc{order}\hlstd{=value)}
-\hlkwd{print}\hlstd{(a5xbyvalue)[(n}\hlopt{+}\hlnum{1}\hlstd{)}\hlopt{:}\hlstd{(n}\hlopt{+}\hlnum{7}\hlstd{)]}
+\hlkwd{print}\hlstd{(a5xbyvalue[(n}\hlopt{+}\hlnum{1}\hlstd{)}\hlopt{:}\hlstd{(n}\hlopt{+}\hlnum{7}\hlstd{)])}
 \end{alltt}
 \begin{verbatim}
-##                 p1        p2        p3        p4        p5   value fevals
-## spg      -1.345087 -1.345087 -1.345087 -1.345087 -1.345087 8.04719      6
-## Rvmmin   -1.345087 -1.345087 -1.345087 -1.345087 -1.345087 8.04719     26
-## Rcgmin   -1.345087 -1.345087 -1.345087 -1.345087 -1.345087 8.04719     11
-## nlminb   -1.345087 -1.345087 -1.345087 -1.345087 -1.345087 8.04719      8
-## nlm      -1.345084 -1.345085 -1.345086 -1.345088 -1.345091 8.04719     NA
-## L-BFGS-B -1.345080 -1.345087 -1.345085 -1.345088 -1.345093 8.04719      7
-##          gevals convergence kkt1  kkt2 xtime
-## spg           5           0 TRUE FALSE 0.044
-## Rvmmin        8           0 TRUE FALSE 0.000
-## Rcgmin        8           0 TRUE FALSE 0.000
-## nlminb        8           0 TRUE FALSE 0.000
-## nlm           6           0 TRUE FALSE 0.000
-## L-BFGS-B      7           0 TRUE FALSE 0.000
 ##            value fevals gevals convergence kkt1  kkt2 xtime
-## spg      8.04719      6      5           0 TRUE FALSE 0.044
-## Rvmmin   8.04719     26      8           0 TRUE FALSE 0.000
+## spg      8.04719      6      5           0 TRUE FALSE 0.048
+## Rvmmin   8.04719     26      8           0 TRUE FALSE 0.004
 ## Rcgmin   8.04719     11      8           0 TRUE FALSE 0.000
 ## nlminb   8.04719      8      8           0 TRUE FALSE 0.000
-## nlm      8.04719     NA      6           0 TRUE FALSE 0.000
-## L-BFGS-B 8.04719      7      7           0 TRUE FALSE 0.000
+## nlm      8.04719     NA      6           0 TRUE FALSE 0.004
+## L-BFGS-B 8.04719      7      7           0 TRUE FALSE 0.004
 \end{verbatim}
 \begin{alltt}
 \hlstd{xnor}\hlkwb{<-}\hlkwd{exp}\hlstd{(a5xbyvalue[}\hlnum{1}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{5}\hlstd{])} \hlcom{# get the 5 parameters of "best" solution, exponentiate}
 \hlstd{xnor}\hlkwb{<-}\hlstd{xnor}\hlopt{/}\hlkwd{sum}\hlstd{(xnor)}
-\hlkwd{cat}\hlstd{(}\hlstr{"best normalized parameters:"}\hlstd{)}
-\end{alltt}
-\begin{verbatim}
-## best normalized parameters:
-\end{verbatim}
-\begin{alltt}
+\hlcom{## best normalized parameters:}
 \hlkwd{print}\hlstd{(xnor)}
 \end{alltt}
 \begin{verbatim}
@@ -728,12 +709,12 @@ should be used.
 \end{alltt}
 \begin{verbatim}
 ##             value fevals gevals convergence  kkt1  kkt2 xtime
-## Rvmmin   460.5170    398    272           2  TRUE  TRUE 0.664
-## spg      460.5170    230    212           0  TRUE  TRUE 0.440
-## Rcgmin   460.5170   1612   1023           0  TRUE  TRUE 1.868
-## nlm      460.5170     NA    203           0  TRUE  TRUE 0.640
-## L-BFGS-B 460.5170    280    280           0  TRUE  TRUE 0.492
-## nlminb   482.2372    189    151           1 FALSE FALSE 0.332
+## Rvmmin   460.5170    398    272           2  TRUE  TRUE 0.748
+## spg      460.5170    230    212           0  TRUE  TRUE 0.472
+## Rcgmin   460.5170   1612   1023           0  TRUE  TRUE 1.996
+## nlm      460.5170     NA    203           0  TRUE  TRUE 0.728
+## L-BFGS-B 460.5170    280    280           0  TRUE  TRUE 0.520
+## nlminb   482.2372    189    151           1 FALSE FALSE 0.312
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -975,9 +956,9 @@ not bother with gradients for this small problem.
 ## Rvmmin   TRUE FALSE 0.004
 ## L-BFGS-B TRUE FALSE 0.000
 ## nlm      TRUE FALSE 0.000
-## nlminb   TRUE FALSE 0.004
-## spg      TRUE FALSE 0.040
-## Rcgmin   TRUE FALSE 0.004
+## nlminb   TRUE FALSE 0.000
+## spg      TRUE FALSE 0.048
+## Rcgmin   TRUE FALSE 0.000
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1076,7 +1057,9 @@ When it can be used in a straightforward manner, the gradient projection method
 the projection correct. The ideas can be extended to programs customized to 
 particular types of problems, as in the Geradin approach to Rayleigh Quotient
 minimization, but the effort is clearly only justified when many such problems
-must be solved, and solved quickly.
+must be solved, and solved quickly. The transformation inspired by the n-sphere
+is intriguing, but its application to new problems requires mathematical skills
+and facility in translating the mathematics to program code.
 
 If parameters are required to be positive, then working with their logarithms
 is a sensible transformation.
@@ -1217,7 +1200,7 @@ modify function \code{bmchk} in package \B{optextras}.
 ## Nelder-Mead 0.6300243 0.4449968 0.3629333 0.3145654 0.2812454 6.417344
 ##             fevals gevals convergence kkt1  kkt2 xtime
 ## Rcgmin          32     15           0 TRUE FALSE 0.012
-## ucminf          15     15           0 TRUE FALSE 0.008
+## ucminf          15     15           0 TRUE FALSE 0.012
 ## Nelder-Mead    216     NA           0 TRUE FALSE 0.000
 \end{verbatim}
 \begin{alltt}
@@ -1283,7 +1266,7 @@ Moreover we could work with logarithms of parameters to avoid non-positive input
 ##             fevals gevals convergence kkt1  kkt2 xtime
 ## Rcgmin          13      8           0 TRUE FALSE 0.008
 ## ucminf          12     12           0 TRUE FALSE 0.008
-## Nelder-Mead    282     NA           0 TRUE FALSE 0.004
+## Nelder-Mead    282     NA           0 TRUE FALSE 0.000
 ## Rcgmin  scaled params:[1] 0.4472136 0.3162278 0.2581989 0.2236068 0.2000000
 ## new scale= 1 
 ## ucminf  scaled params:[1] 0.4472136 0.3162277 0.2581989 0.2236068 0.2000000

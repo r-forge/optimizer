@@ -337,10 +337,10 @@ n <- 5
 mset<-c("L-BFGS-B", "spg", "nlm", "nlminb", "Rvmmin", "Rcgmin")
 a5x<-opm(st, enll, enll.g, method=mset, control=list(trace=0))
 a5xbyvalue<-summary(a5x, order=value)
-print(a5xbyvalue)[(n+1):(n+7)]
+print(a5xbyvalue[(n+1):(n+7)])
 xnor<-exp(a5xbyvalue[1, 1:5]) # get the 5 parameters of "best" solution, exponentiate
 xnor<-xnor/sum(xnor)
-cat("best normalized parameters:")
+## best normalized parameters:
 print(xnor)
 @
 
@@ -698,7 +698,9 @@ When it can be used in a straightforward manner, the gradient projection method
 the projection correct. The ideas can be extended to programs customized to 
 particular types of problems, as in the Geradin approach to Rayleigh Quotient
 minimization, but the effort is clearly only justified when many such problems
-must be solved, and solved quickly.
+must be solved, and solved quickly. The transformation inspired by the n-sphere
+is intriguing, but its application to new problems requires mathematical skills
+and facility in translating the mathematics to program code.
 
 If parameters are required to be positive, then working with their logarithms
 is a sensible transformation.

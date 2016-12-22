@@ -15,7 +15,7 @@ findSubexprs(expr, simplify = FALSE, tag = ".expr", verbose = FALSE, ...)
 An expression vector or language object.
 }
   \item{simplify}{
-Whether to call \code{\link{Simplify}} on each subexpression before 
+Whether to call \code{\link{nlsSimplify}} on each subexpression before 
 looking for common subexpressions.
 }
   \item{tag}{
@@ -26,7 +26,7 @@ If \code{TRUE}, diagnostics are printed as simplifications are
 recognized.
 }
   \item{...}{
-Additional parameters to pass to \code{\link{Simplify}}.
+Additional parameters to pass to \code{\link{nlsSimplify}}.
 Used only if \code{simplify} is \code{TRUE}.
 }
 }
@@ -37,7 +37,7 @@ to share common subexpressions between expression evaluations and gradient
 evaluations, for example.
 
 If \code{simplify} is \code{TRUE}, the assumptions behind the simplifications done
-by \code{\link{Simplify}} must be valid for the result to match the input.  With
+by \code{\link{nlsSimplify}} must be valid for the result to match the input.  With
 the default simplifications, this means that all variables should take finite
 real values.
 }
@@ -52,7 +52,7 @@ duplicated code but more storage of intermediate results.
 Duncan Murdoch
 }
 \seealso{
-\code{\link{Deriv}}, \code{\link{Simplify}}
+\code{\link{Deriv}}, \code{\link{nlsSimplify}}
 }
 \examples{
 findSubexprs(expression(x^2, x-y, y^2-x^2))

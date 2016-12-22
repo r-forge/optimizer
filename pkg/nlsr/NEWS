@@ -1,7 +1,9 @@
 To do
          o    Should we use model.frame() anywhere??
 
-
+161222   o    newDeriv() now issues a warning if a derivative
+              definition is changed.
+              
 161019   o    Changed names nlsrxb and nlsrfb to nlxb and nlfb and removed
               superfluous nlfb.
 

@@ -11,7 +11,7 @@ vignette: >
 ---
 
 This vignette is an attempt to catalog and illustrate the various 
-capabilities in the **R** statstical computing system to 
+capabilities in the **R** statistical computing system to 
 perform differentiation. There are many traps and pitfalls for
 the unwary in doing this, and it is hoped that this rather
 long treatment will serve to record these and show how to avoid
@@ -25,7 +25,7 @@ various packages, but not necessarily exported for use in scripts
 or packages.
 
 As a way of recording where attention is needed either to this document
-or to the functions and methods describle, I have put double question marks
+or to the functions and methods described, I have put double question marks
 in various places.
 
 Note: To distinguish output results (which are prefaced '`## `' by **knitr**, 
@@ -33,10 +33,15 @@ comments in the **R** code are prefaced by '`#- `'.)
 
 ## TODOS 
 
-?? in nlsr and Deriv, does a new derivative rule replace existing one? Warning?
+?? in nlsr and Deriv, does a new derivative rule replace existing one? Warning?  DM:  in newDeriv, a warning is now issued
+if the rule is changed.  In Deriv, no warning is issued.
 
 ?? Change name of Deriv and fnDeriv in nlsr to Drv, fnDrv to avoid conflict and allow
 simultaneous load. Simplify -> Smplfy etc. Any others?
+DM:  I'd prefer not to leave out the vowels:  Drv doesn't
+look like "derivative" to me, it looks like "drive".
+But the idea of avoiding conflict is good.  I have changed
+the names to nlsDeriv and nlsSimplify.  We can change again if we don't like those...
 
 ## Available analytic differentiation tools
 
@@ -44,7 +49,7 @@ simultaneous load. Simplify -> Smplfy etc. Any others?
 
 - **stats**: tools `D()` and `deriv()`
 
-- **nlsr**: tools `Deriv()`, `fnDeriv()`, and possibly ?? `model2rjfun`
+- **nlsr**: tools `nlsDeriv()`, `fnDeriv()`, and possibly ?? `model2rjfun`
 
 - **Deriv**: tools `Deriv()`
 
@@ -93,8 +98,11 @@ eval(D2x2x) #- But we don't get a vector -- could be an issue in gradients/Jacob
 sx2 <- "x^2"
 sDx2x <- D(parse(text=sx2), "x")
 sDx2x
-#- But watch out! The following "seems" to work, but the answer is not as intended
-Dx2xx <- D((x^2), "x")
+#- But watch out! The following "seems" to work, but the answer is not as intended.  The problem is that the first
+# argument is evaluated before being used.  Since 
+# x exists, it fails
+x
+Dx2xx <- D(x^2, "x")
 Dx2xx
 eval(Dx2xx)
 #-  Something 'tougher':
@@ -107,7 +115,7 @@ eval(dxy)
 eval(D.sc)
 #-  function returned:
 deriv((y ~ sin(cos(x) * y)), c("x","y"), func = TRUE)
-#- ??#-  Surely there is an error, since documnetation says no lhs! i.e.,
+#- ??#-  Surely there is an error, since documentation says no lhs! i.e.,
 #- "expr: a 'expression' or 'call' or (except 'D') a formula with no lhs."
 #-  function with defaulted arguments:
 (fx <- deriv(y ~ b0 + b1 * 2^(-x/th), c("b0", "b1", "th"),
@@ -144,33 +152,30 @@ DD(expression(sin(x^2)), "x", 3)
 
 ```{r}
 require(nlsr)
-#- ?? dx2xn <- try(Deriv(~ x^2, "x")) #- Does not work for nlsr
-dx2xn <- try(Deriv(x^2, "x")) #- But this does -- the tilde is not used in nlsr::Deriv
+dx2xn <- nlsDeriv(~ x^2, "x")
 dx2xn
 mode(dx2xn)
 str(dx2xn)
 x <- -1:2
 eval(dx2xn) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,
 #-  NOT in "gradient" attribute
-# Note that we cannot (easily) differentiate this again.
 firstdn <- dx2xn
 str(firstdn)
-d2x2xn <- Deriv(firstdn, "x") #- this APPEARS to work, but WRONG answer ??
-#- ?? We don't seem to be able to iterate the derivatives
-str(d2x2xn)
-mode(d2x2xn)
+d2x2xn <- nlsDeriv(firstdn, "x")
 d2x2xn
-eval(d2x2xn)
+#- ?? We can iterate the derivatives
+nlsDeriv(d2x2xn, "x")
+
 #?? firstde <- quote(firstd)
 #?? firstde
 #?? firstde <- bquote(firstd)
 #?? firstde
-#?? Deriv(firstde, "x")
-d2 <- Deriv(2 * x, "x")
+#?? nlsDeriv(firstde, "x")
+d2 <- nlsDeriv(2 * x, "x")
 str(d2)
 d2
 #?? firstc <- as.call(firstd)
-#?? Deriv(firstc, "x")
+#?? nlsDeriv(firstc, "x")
 #- Build a function from the expression
 #?? fdx2xn<-function(x){eval(dx2xn)}
 #?? fdx2xn(1)
@@ -178,25 +183,30 @@ d2
 #?? fdx2xn(1:5)
 ```
 
-The tool `fnDeriv` seems more problematic. ??
+The tool `fnDeriv` returns an expression which can
+be used in several ways.
 
 ```{r}
-#- fj <- function(x) {
-#-      eval(fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) )
-#- }
-#- fj(2) #- get errors even if b0, b1, and th defined.
-#- fj.1 <- try(fj(x=1, b0=2, b1=3, th=4)) #-  Get errors because fj() not OK??
+#- Include parameters as arguments
+fj.1 <- function(x, b0, b1, th) {}
+body(fj.1) <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
+fj.1(x=1, b0=2, b1=3, th=4)
+
+#- Get parameters from the environment
+fj.2 <- function(x) {}
+body(fj.2) <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
 b0 <- 2
 b1 <- 3
 th <- 4
-#- fj.2 <- try(fj(1))
-#- fje <- try(fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")))
-#- str(fje)
+fj.2(1)
+
+#- Just use an expression
+fje <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
 x <- 1
-#- eval(fje)
-#- Need to sort out the above ???
-dx2xnf <- try(fnDeriv(~ x^2, "x")) #- Does not work for nlsr
-dx2xnf <- try(fnDeriv(expression(x^2), "x")) #- But this does -- the tilde is not used in nlsr::Deriv
+eval(fje)
+
+dx2xnf <- fnDeriv(~ x^2, "x") #- Use tilde
+dx2xnf <- fnDeriv(expression(x^2), "x") #- or use expression()
 dx2xnf
 mode(dx2xnf)
 str(dx2xnf)
@@ -206,7 +216,7 @@ x <- -1:2
 # Note that we cannot (easily) differentiate this again.
 # firstd <- dx2xnf
 # str(firstd)
-# d2x2xnf <- try(Deriv(firstd, "x")) #- this APPEARS to work, but WRONG answer 
+# d2x2xnf <- try(nlsDeriv(firstd, "x")) #- this APPEARS to work, but WRONG answer 
 # str(d2x2xnf)
 # d2x2xnf
 # eval(d2x2xnf)
@@ -376,7 +386,7 @@ provided by Gabor Grothendieck.
 
 ```{r}
 require(nlsr)
-dnlsr <- nlsr::Deriv(sin(x+y), "x")
+dnlsr <- nlsr::nlsDeriv(~ sin(x+y), "x")
 print(dnlsr)
 class(dnlsr)
 detach("package:nlsr", unload=TRUE)
@@ -412,7 +422,7 @@ table.
 ```{r}
 require(nlsr)
 ## Try different ways to supply the log function
-aDeriv <- Deriv(log(x), "x")
+aDeriv <- nlsDeriv(~ log(x), "x")
 class(aDeriv)
 aDeriv
 aderiv <- try(deriv( ~ log(x), "x"))
@@ -434,134 +444,134 @@ try(deriv(interme, "x"))
 try(deriv(interm, "x"))
 
 
-Deriv(log(x, base=3), "x" ) # OK
+nlsDeriv(~ log(x, base=3), "x" ) # OK
 try(D(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
 try(deriv(~ log(x, base=3), "x" )) # fails - only single-argument calls supported
 try(deriv(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
 try(deriv3(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
 fnDeriv(quote(log(x, base=3)), "x" )
 
-Deriv(exp(x), "x")
+nlsDeriv(~ exp(x), "x")
 D(expression(exp(x)), "x") # OK
 deriv(~exp(x), "x") # OK, but much more complicated
 fnDeriv(quote(exp(x)), "x")
 
-Deriv(sin(x), "x")
+nlsDeriv(~ sin(x), "x")
 D(expression(sin(x)), "x")
 deriv(~sin(x), "x")
 fnDeriv(quote(sin(x)), "x")
 
-Deriv(cos(x), "x")
+nlsDeriv(~ cos(x), "x")
 D(expression(cos(x)), "x")
 deriv(~ cos(x), "x")
 fnDeriv(quote(cos(x)), "x")
 
-Deriv(tan(x), "x")
+nlsDeriv(~ tan(x), "x")
 D(expression(tan(x)), "x")
 deriv(~ tan(x), "x")
 fnDeriv(quote(tan(x)), "x")
 
-Deriv(sinh(x), "x")
+nlsDeriv(~ sinh(x), "x")
 D(expression(sinh(x)), "x")
 deriv(~sinh(x), "x")
 fnDeriv(quote(sinh(x)), "x")
 
-Deriv(cosh(x), "x")
+nlsDeriv(~ cosh(x), "x")
 D(expression(cosh(x)), "x")
 deriv(~cosh(x), "x")
 fnDeriv(quote(cosh(x)), "x")
 
-Deriv(sqrt(x), "x")
+nlsDeriv(~ sqrt(x), "x")
 D(expression(sqrt(x)), "x")
 deriv(~sqrt(x), "x")
 fnDeriv(quote(sqrt(x)), "x")
 
-Deriv(pnorm(q), "q")
+nlsDeriv(~ pnorm(q), "q")
 D(expression(pnorm(q)), "q")
 deriv(~pnorm(q), "q")
 fnDeriv(quote(pnorm(q)), "q")
 
-Deriv(dnorm(x, mean), "mean")
+nlsDeriv(~ dnorm(x, mean), "mean")
 D(expression(dnorm(x, mean)), "mean")
 deriv(~dnorm(x, mean), "mean")
 fnDeriv(quote(dnorm(x, mean)), "mean")
 
-Deriv(asin(x), "x")
+nlsDeriv(~ asin(x), "x")
 D(expression(asin(x)), "x")
 deriv(~asin(x), "x")
 fnDeriv(quote(asin(x)), "x")
 
-Deriv(acos(x), "x")
+nlsDeriv(~ acos(x), "x")
 D(expression(acos(x)), "x")
 deriv(~acos(x), "x")
 fnDeriv(quote(acos(x)), "x")
 
-Deriv(atan(x), "x")
+nlsDeriv(~ atan(x), "x")
 D(expression(atan(x)), "x")
 deriv(~atan(x), "x")
 fnDeriv(quote(atan(x)), "x")
 
-Deriv(gamma(x), "x")
+nlsDeriv(~ gamma(x), "x")
 D(expression(gamma(x)), "x")
 deriv(~gamma(x), "x")
 fnDeriv(quote(gamma(x)), "x")
 
-Deriv(lgamma(x), "x")
+nlsDeriv(~ lgamma(x), "x")
 D(expression(lgamma(x)), "x")
 deriv(~lgamma(x), "x")
 fnDeriv(quote(lgamma(x)), "x")
 
-Deriv(digamma(x), "x")
+nlsDeriv(~ digamma(x), "x")
 D(expression(digamma(x)), "x")
 deriv(~digamma(x), "x")
 fnDeriv(quote(digamma(x)), "x")
 
-Deriv(trigamma(x), "x")
+nlsDeriv(~ trigamma(x), "x")
 D(expression(trigamma(x)), "x")
 deriv(~trigamma(x), "x")
 fnDeriv(quote(trigamma(x)), "x")
 
-Deriv(psigamma(x, deriv = 5), "x")
+nlsDeriv(~ psigamma(x, deriv = 5), "x")
 D(expression(psigamma(x, deriv = 5)), "x")
 deriv(~psigamma(x, deriv = 5), "x")
 fnDeriv(quote(psigamma(x, deriv = 5)), "x")
 
-Deriv(x*y, "x")
+nlsDeriv(~ x*y, "x")
 D(expression(x*y), "x")
 deriv(~x*y, "x")
 fnDeriv(quote(x*y), "x")
 
-Deriv(x/y, "x")
+nlsDeriv(~ x/y, "x")
 D(expression(x/y), "x")
 deriv(~x/y, "x")
 fnDeriv(quote(x/y), "x")
 
-Deriv(x^y, "x")
+nlsDeriv(~ x^y, "x")
 D(expression(x^y), "x")
 deriv(~x^y, "x")
 fnDeriv(quote(x^y), "x")
 
-Deriv((x), "x")
+nlsDeriv(~ (x), "x")
 D(expression((x)), "x")
 deriv(~(x), "x")
 fnDeriv(quote((x)), "x")
 
-Deriv(+x, "x")
+nlsDeriv(~ +x, "x")
 D(expression(+x), "x")
 deriv(~ +x, "x")
 fnDeriv(quote(+x), "x")
 
-Deriv(-x, "x")
+nlsDeriv(~ -x, "x")
 D(expression(- x), "x")
 deriv(~ -x, "x")
 fnDeriv(quote(-x), "x")
 
-Deriv(abs(x), "x")
+nlsDeriv(~ abs(x), "x")
 try(D(expression(abs(x)), "x")) # 'abs' not in derivatives table
 try(deriv(~ abs(x), "x"))
 fnDeriv(quote(abs(x)), "x")
 
-Deriv(sign(x), "x")
+nlsDeriv(~ sign(x), "x")
 try(D(expression(sign(x)), "x")) # 'sign' not in derivatives table
 try(deriv(~ sign(x), "x"))
 fnDeriv(quote(sign(x)), "x")
@@ -570,14 +580,14 @@ fnDeriv(quote(sign(x)), "x")
 ### Notes:
 
 - the base tool deriv (and likely deriv3 ?? need to explore and explain) and 
-nlsr::fnDeriv are intended to output a function to compute a derivative. 
+nlsr::fnDeriv are intended to output an expression to compute a derivative. 
 deriv generates an expression object, while fnDeriv will generate a language object. 
 Do we need to explain this more??  Note that input to deriv is of the form of a 
 tilde expression with no left hand side, while fnDeriv uses a quoted expression. ?? We
 should explore more ways to input things to these tools. 
 
-- the base tool D and nlsr::Deriv generate expressions, but D requires an
-expression, while Deriv can handle the expression without a wrapper. ?? Do we need 
+- the base tool D and nlsr::nlsDeriv generate expressions, but D requires an
+expression, while nlsDeriv can handle the expression without a wrapper. ?? Do we need 
 to discuss more??
 
 - nlsr includes abs(x) and sign(x) in the derivatives table despite conventional
@@ -596,8 +606,8 @@ Such simplification does not appear to be available / exposed in the package `De
 #- Here we detach all the non-base packages and then reload nlsr
 ##? require(nlsr)
 ##? sessionInfo()
-##? ##? Simplify(quote(+(a+b)))
-##? Simplify(quote(-5))
+##? ##? nlsSimplify(quote(+(a+b)))
+##? nlsSimplify(quote(-5))
 ```
 
 
@@ -615,68 +625,68 @@ require(nlsr)
 #- Various simplifications
 #- ?? Do we need quote() to stop attempt to evaluate before applying simplification
 
-Simplify(quote(+(a+b)))
-Simplify(quote(-5))
-Simplify(quote(--(a+b)))
+nlsSimplify(quote(+(a+b)))
+nlsSimplify(quote(-5))
+nlsSimplify(quote(--(a+b)))
 
-Simplify(quote(exp(log(a+b))))
-Simplify(quote(exp(1)))
+nlsSimplify(quote(exp(log(a+b))))
+nlsSimplify(quote(exp(1)))
 
-Simplify(quote(log(exp(a+b))))
-Simplify(quote(log(1)))
+nlsSimplify(quote(log(exp(a+b))))
+nlsSimplify(quote(log(1)))
 
-Simplify(quote(!TRUE))
-Simplify(quote(!FALSE))
+nlsSimplify(quote(!TRUE))
+nlsSimplify(quote(!FALSE))
 
-Simplify(quote((a+b)))
+nlsSimplify(quote((a+b)))
 
-Simplify(quote(a + b + 0))
-Simplify(quote(0 + a + b))
-Simplify(quote((a+b) + (a+b)))
-Simplify(quote(1 + 4))
+nlsSimplify(quote(a + b + 0))
+nlsSimplify(quote(0 + a + b))
+nlsSimplify(quote((a+b) + (a+b)))
+nlsSimplify(quote(1 + 4))
 
-Simplify(quote(a + b - 0))
-Simplify(quote(0 - a - b))
-Simplify(quote((a+b) - (a+b)))
-Simplify(quote(5 - 3))
+nlsSimplify(quote(a + b - 0))
+nlsSimplify(quote(0 - a - b))
+nlsSimplify(quote((a+b) - (a+b)))
+nlsSimplify(quote(5 - 3))
 
-Simplify(quote(0*(a+b)))
-Simplify(quote((a+b)*0))
-Simplify(quote(1L * (a+b)))
-Simplify(quote((a+b) * 1))
-Simplify(quote((-1)*(a+b)))
-Simplify(quote((a+b)*(-1)))
-Simplify(quote(2*5))
+nlsSimplify(quote(0*(a+b)))
+nlsSimplify(quote((a+b)*0))
+nlsSimplify(quote(1L * (a+b)))
+nlsSimplify(quote((a+b) * 1))
+nlsSimplify(quote((-1)*(a+b)))
+nlsSimplify(quote((a+b)*(-1)))
+nlsSimplify(quote(2*5))
 
-Simplify(quote((a+b) / 1))
-Simplify(quote((a+b) / (-1)))
-Simplify(quote(0/(a+b)))
-Simplify(quote(1/3))
+nlsSimplify(quote((a+b) / 1))
+nlsSimplify(quote((a+b) / (-1)))
+nlsSimplify(quote(0/(a+b)))
+nlsSimplify(quote(1/3))
 
-Simplify(quote((a+b) ^ 1))
-Simplify(quote(2^10))
+nlsSimplify(quote((a+b) ^ 1))
+nlsSimplify(quote(2^10))
 
-Simplify(quote(log(exp(a), 3)))
+nlsSimplify(quote(log(exp(a), 3)))
 
-Simplify(quote(FALSE && b))
-Simplify(quote(a && TRUE))
-Simplify(quote(TRUE && b))
+nlsSimplify(quote(FALSE && b))
+nlsSimplify(quote(a && TRUE))
+nlsSimplify(quote(TRUE && b))
 
-Simplify(quote(a || TRUE))
-Simplify(quote(FALSE || b))
-Simplify(quote(a || FALSE))
+nlsSimplify(quote(a || TRUE))
+nlsSimplify(quote(FALSE || b))
+nlsSimplify(quote(a || FALSE))
 
-Simplify(quote(if (TRUE) a+b))
-Simplify(quote(if (FALSE) a+b))
+nlsSimplify(quote(if (TRUE) a+b))
+nlsSimplify(quote(if (FALSE) a+b))
 
-Simplify(quote(if (TRUE) a+b else a*b))
-Simplify(quote(if (FALSE) a+b else a*b))
-Simplify(quote(if (cond) a+b else a+b))
+nlsSimplify(quote(if (TRUE) a+b else a*b))
+nlsSimplify(quote(if (FALSE) a+b else a*b))
+nlsSimplify(quote(if (cond) a+b else a+b))
 
 #- This one is wrong... the double minus is an error, yet it works ??.
-Simplify(quote(--(a+b)))
+nlsSimplify(quote(--(a+b)))
 #- By comparison
-Simplify(quote(-(-(a+b))))
+nlsSimplify(quote(-(-(a+b))))
 ```
 
 
@@ -799,7 +809,7 @@ different inputs. For example, for the derivative of log(x), we have
 
 ```{r}
 require(nlsr)
-dlogx <- nlsr::Deriv(log(x), "x")
+dlogx <- nlsr::nlsDeriv(log(x), "x")
 str(dlogx)
 print(dlogx)
 ```
@@ -812,12 +822,12 @@ show how to do this implicitly and with an explicit object.
 
 ```{r}
 require(nlsr)
-dlogxs <- nlsr::Deriv(expression(log(x)), "x", do_substitute=FALSE)
+dlogxs <- nlsr::nlsDeriv(expression(log(x)), "x", do_substitute=FALSE)
 str(dlogxs)
 print(dlogxs)
 cat(as.character(dlogxs), "\n")
 fne <- expression(log(x))
-dlogxe <- nlsr::Deriv(fne, "x", do_substitute=FALSE)
+dlogxe <- nlsr::nlsDeriv(fne, "x", do_substitute=FALSE)
 str(dlogxe)
 print(dlogxe)
 
@@ -953,10 +963,10 @@ show the example and its resolution, then give an explanation.
 zzz <- expression(y[3]*r1 + r2)
 try(deriv(zzz,c("r1","r2")))
 require(nlsr)
-try(nlsr::Deriv(zzz, c("r1","r2")))
+try(nlsr::nlsDeriv(zzz, c("r1","r2")))
 try(fnDeriv(zzz, c("r1","r2")))
 newDeriv(`[`(x,y), stop("no derivative when indexing"))
-try(nlsr::Deriv(zzz, c("r1","r2")))
+try(nlsr::nlsDeriv(zzz, c("r1","r2")))
 try(nlsr::fnDeriv(zzz, c("r1","r2")))
 ```
 
@@ -981,9 +991,9 @@ following examples illustrate this.
 
 
 ```{r}
-try(nlsr::Deriv(zzz, "y[3]"))
-try(nlsr::Deriv(y3*r1+r2,"y3"))
-try(nlsr::Deriv(y[3]*r1+r2,"y[3]"))
+try(nlsr::nlsDeriv(zzz, "y[3]"))
+try(nlsr::nlsDeriv(y3*r1+r2,"y3"))
+try(nlsr::nlsDeriv(y[3]*r1+r2,"y[3]"))
 ```
 
 

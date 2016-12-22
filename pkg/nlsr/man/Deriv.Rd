@@ -1,5 +1,5 @@
-\name{Deriv}
-\alias{Deriv}
+\name{nlsDeriv}
+\alias{nlsDeriv}
 \alias{fnDeriv}
 \alias{newDeriv}
 \alias{sysDerivs}
@@ -10,7 +10,7 @@ Functions to take symbolic derivatives.
 Compute derivatives of simple expressions symbolically, allowing user-specified derivatives.
 }
 \usage{
-Deriv(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, 
+nlsDeriv(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, 
       verbose = FALSE, ...)
 fnDeriv(expr, namevec, hessian = FALSE, derivEnv = sysDerivs, 
       verbose = FALSE, ...) 
@@ -36,7 +36,7 @@ If \code{TRUE}, then diagnostic output will be printed as derivatives
 and simplifications are recognized.
 }
   \item{...}{
-Additional parameters which will be passed to \code{\link{Simplify}}.
+Additional parameters which will be passed to \code{\link{nlsSimplify}}.
 }
   \item{namevec}{
 Character vector giving the variable names with respect to which the derivatives
@@ -50,11 +50,11 @@ An expression giving the derivative of the function call in \code{expr}.
 }
 }
 \details{
-Functions \code{Deriv} and \code{fnDeriv} are designed as replacements 
+Functions \code{nlsDeriv} and \code{fnDeriv} are designed as replacements 
 for the \pkg{stats} package functions \code{\link{D}} and \code{\link{deriv}}
 respectively, though the argument lists do not match exactly.
 
-The \code{Deriv} function computes a symbolic derivative of an expression
+The \code{nlsDeriv} function computes a symbolic derivative of an expression
 or language object.  Known derivatives are stored in
 \code{derivEnv}; the default \code{sysDerivs} contains expressions for
 all of the derivatives recognized by \code{\link{deriv}}, but in
@@ -72,12 +72,12 @@ call to it (e.g. as in the help pages), and the \code{deriv} argument
 should be an expression giving the derivative, including calls to
 \code{D(arg)}, which will not be evaluated, but will be substituted
 with partial derivatives of that argument with respect to \code{name}.
-See the examples below.
+See the examples below.  
 
 If \code{expr} or \code{deriv} is missing in a call to
 \code{newDeriv()}, it will return the currently saved derivative
 record from \code{derivEnv}.  If \code{name} is missing in a call to
-\code{Deriv} with a function call, it will print a message describing
+\code{nlsDeriv} with a function call, it will print a message describing
 the derivative formula and return \code{NULL}.
 
 To handle functions which act differently if a parameter is
@@ -87,10 +87,10 @@ applied to that parameter.  See the derivative of \code{"-"}
 for an example.
 }
 \value{
-If \code{expr} is an expression vector, \code{Deriv} and \code{Simplify}
+If \code{expr} is an expression vector, \code{nlsDeriv} and \code{nlsSimplify}
 return expression vectors containing the response.
 
-\code{Deriv} returns the symbolic derivative of the expression.
+\code{nlsDeriv} returns the symbolic derivative of the expression.
 
 \code{newDeriv} with \code{expr} and \code{deriv} specified is
 called for the side effect of recording the derivative in \code{derivEnv}.
@@ -98,22 +98,27 @@ If \code{expr} is missing, it will return the list of names of functions
 for which derivatives are recorded.  If \code{deriv} is missing, it
 will return its record for the specified function.
 }
+\note{
+\code{newDeriv(expr, deriv, ...)} will issue a warning
+if a different definition for the derivative exists
+in the derivative table.
+}
 \author{
 Duncan Murdoch
 }
 \seealso{
-\code{\link{deriv}}, \code{\link{Simplify}}
+\code{\link{deriv}}, \code{\link{nlsSimplify}}
 }
 \examples{
 newDeriv()
 newDeriv(sin(x))
-Deriv(sin(x+y), "x")
+nlsDeriv(~ sin(x+y), "x")
 
 f <- function(x) x^2
 newDeriv(f(x), 2*x*D(x))
-Deriv(f(abs(x)), "x")
+nlsDeriv(~ f(abs(x)), "x")
 
-Deriv(pnorm(x, sd=2, log = TRUE), "x")
+nlsDeriv(~ pnorm(x, sd=2, log = TRUE), "x")
 }
 \keyword{math}
 \keyword{nonlinear}

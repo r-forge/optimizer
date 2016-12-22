@@ -19,10 +19,13 @@ newDeriv <- function(expr, deriv, derivEnv = sysDerivs) {
     	argnames <- rep("", length(args))
     required <- which(argnames == "")
     for (i in required)
-    	argnames[i] <- as.character(args[[i]])    	
-    assign(fn, list(expr = expr, argnames = argnames, 
-                    required = required, deriv = deriv), envir = derivEnv)
-    invisible(derivEnv[[fn]])
+    	argnames[i] <- as.character(args[[i]])
+    value <- list(expr = expr, argnames = argnames, 
+                  required = required, deriv = deriv)
+    if (!is.null(oldval <- derivEnv[[fn]]) && !identical(value, oldval))
+      warning(gettextf("changed derivative for %s", dQuote(fn)))
+    assign(fn, value, envir = derivEnv)
+    invisible(value)
 }
 
 newSimplification <- function(expr, test, simplification, do_eval = FALSE, simpEnv = sysSimplifications) {
@@ -64,11 +67,11 @@ newSimplification <- function(expr, test, simplification, do_eval = FALSE, simpE
 }
     	
 # This is a more general version of D()
-Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, verbose = FALSE, ...) {
+nlsDeriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, verbose = FALSE, ...) {
     Recurse <- function(expr) {
     	if (is.call(expr)) {
     	    if (as.character(expr[[1]]) == "D")
-    	    	expr <- Deriv(expr[[2]], name, derivEnv, do_substitute = FALSE, verbose = verbose, ...)
+    	    	expr <- nlsDeriv(expr[[2]], name, derivEnv, do_substitute = FALSE, verbose = verbose, ...)
     	    else
     	    	for (i in seq_along(expr)[-1])
     	    	    expr[[i]] <- Recurse(expr[[i]])
@@ -79,13 +82,13 @@ Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, verbos
     if (do_substitute)
     	expr <- substitute(expr)
     if (is.expression(expr))
-    	return(as.expression(lapply(expr, Deriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)))
+    	return(as.expression(lapply(expr, nlsDeriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)))
     else if (is.numeric(expr) || is.logical(expr))
     	return(0)
     else if (is.call(expr)) {
     	fn <- as.character(expr[[1]])
 	if (fn == "expression")
-	    return(as.expression(lapply(as.list(expr)[-1], Deriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)))
+	    return(as.expression(lapply(as.list(expr)[-1], nlsDeriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)))
     	model <- derivEnv[[fn]]
     	if (is.null(model))
     	    stop("no derivative known for '", fn, "'")
@@ -121,7 +124,7 @@ Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, verbos
         names(subst) <- modelnames
         result <- do.call(substitute, list(model$deriv, subst))
         result <- Recurse(result)
-        Simplify(result, verbose = verbose, ...)
+        nlsSimplify(result, verbose = verbose, ...)
     } else if (is.name(expr))
     	if (as.character(expr) == name)
     	    return(1)
@@ -134,6 +137,14 @@ Deriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = TRUE, verbos
 
 fnDeriv <- function(expr, namevec, 
        hessian = FALSE, derivEnv = sysDerivs, verbose = FALSE, ...) {
+    if (inherits(expr, "formula")) {
+      if (length(expr) == 2)
+        expr <- expr[[2]]
+      else if (length(expr) == 3)
+        expr <- expr[[3]]
+      else
+        stop("Formula not in standard form")
+    }
     if (!is.expression(expr)) expr <- as.expression(expr)
     if (length(expr) > 1)
 	stop("Only single expressions allowed")
@@ -141,7 +152,7 @@ fnDeriv <- function(expr, namevec,
     n <- length(namevec)
     length(exprs) <- n + 1L
     for (i in seq_len(n))
-	exprs[[i + 1]] <- Deriv(expr[[1]], namevec[i], derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)
+	exprs[[i + 1]] <- nlsDeriv(expr[[1]], namevec[i], derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)
     names(exprs) <- c(".value", namevec)
     if (hessian) {
         m <- length(exprs)
@@ -149,7 +160,7 @@ fnDeriv <- function(expr, namevec,
 	for (i in seq_len(n))
 	    for (j in seq_len(n-i+1) + i-1) {
 		m <- m + 1
-		exprs[[m]] <- Deriv(exprs[[i + 1]], namevec[j], derivEnv = derivEnv, 
+		exprs[[m]] <- nlsDeriv(exprs[[i + 1]], namevec[j], derivEnv = derivEnv, 
 		                    do_substitute = FALSE, verbose = verbose, ...)
 	    }
     }
@@ -158,8 +169,8 @@ fnDeriv <- function(expr, namevec,
     m <- length(subexprs)
     final <- subexprs[[m]]
     subexprs[[m]] <- substitute(.value <- expr, list(expr = final[[".value"]]))
-    subexprs[[m+1]] <- substitute(.grad <- array(0, c(length(.value), 2L), list(NULL, namevec)),
-				  list(namevec = namevec))
+    subexprs[[m+1]] <- substitute(.grad <- array(0, c(length(.value), namelen), list(NULL, namevec)),
+				  list(namevec = namevec, namelen = length(namevec)))
     if (hessian)
 	subexprs[[m+2]] <- substitute(.hessian <- array(0, c(length(.value), 2L, 2L), 
 					list(NULL, namevec, namevec)), 
@@ -195,14 +206,14 @@ isONE  <- function(x) is.numeric(x) && length(x) == 1 && x == 1
 isMINUSONE <- function(x) is.numeric(x) && length(x) == 1 && x == -1
 isCALL <- function(x, name) is.call(x) && as.character(x[[1]]) == name
 
-Simplify <- function(expr, simpEnv = sysSimplifications, verbose = FALSE) {
+nlsSimplify <- function(expr, simpEnv = sysSimplifications, verbose = FALSE) {
     
     if (is.expression(expr))
-    	return(as.expression(lapply(expr, Simplify, simpEnv, verbose = verbose)))    
+    	return(as.expression(lapply(expr, nlsSimplify, simpEnv, verbose = verbose)))    
 
     if (is.call(expr)) {    	
 	for (i in seq_along(expr)[-1])
-	    expr[[i]] <- Simplify(expr[[i]], simpEnv, verbose = verbose)
+	    expr[[i]] <- nlsSimplify(expr[[i]], simpEnv, verbose = verbose)
 	fn <- as.character(expr[[1]])
 	nargs <- length(expr) - 1
 	while (!identical(simpEnv, emptyenv())) {
@@ -240,7 +251,7 @@ findSubexprs <- function(expr, simplify = FALSE, tag = ".expr", verbose = FALSE,
     
     record <- function(index) {
         if (simplify)
-	    expr[[index]] <<- subexpr <- Simplify(expr[[index]], verbose = verbose, ...)
+	    expr[[index]] <<- subexpr <- nlsSimplify(expr[[index]], verbose = verbose, ...)
 	else
 	    subexpr <- expr[[index]]
 	if (is.call(subexpr)) {
@@ -335,6 +346,8 @@ newDeriv(`-`(x, y = .MissingVal), if (missing(y)) -D(x) else D(x) - D(y))
 newDeriv(abs(x), sign(x)*D(x))
 newDeriv(sign(x), 0)
 
+newDeriv(`~`(x, y = .MissingVal), if (missing(y)) D(x) else D(y))
+
 # Now, the simplifications
 
 newSimplification(+a, TRUE, a)
@@ -354,14 +367,14 @@ newSimplification((a), TRUE, a)
 
 newSimplification(a + b, isZERO(b), a)
 newSimplification(a + b, isZERO(a), b)
-newSimplification(a + b, identical(a, b), Simplify(quote(2*a)), do_eval = TRUE)
+newSimplification(a + b, identical(a, b), nlsSimplify(quote(2*a)), do_eval = TRUE)
 newSimplification(a + b, is.numeric(a) && is.numeric(b), a+b, do_eval = TRUE)
 # Add these to support our error scheme, don't test for stop() everywhere.
 newSimplification(a + b, isCALL(a, "stop"), a)
 newSimplification(a + b, isCALL(b, "stop"), b)
 
 newSimplification(a - b, isZERO(b), a)
-newSimplification(a - b, isZERO(a), Simplify(quote(-b)), do_eval = TRUE)
+newSimplification(a - b, isZERO(a), nlsSimplify(quote(-b)), do_eval = TRUE)
 newSimplification(a - b, identical(a, b), 0)
 newSimplification(a - b, is.numeric(a) && is.numeric(b), a - b, do_eval = TRUE)
 
@@ -369,19 +382,19 @@ newSimplification(a * b, isZERO(a), 0)
 newSimplification(a * b, isZERO(b), 0)
 newSimplification(a * b, isONE(a), b)
 newSimplification(a * b, isONE(b), a)
-newSimplification(a * b, isMINUSONE(a), Simplify(quote(-b)), do_eval = TRUE)
-newSimplification(a * b, isMINUSONE(b), Simplify(quote(-a)), do_eval = TRUE)
+newSimplification(a * b, isMINUSONE(a), nlsSimplify(quote(-b)), do_eval = TRUE)
+newSimplification(a * b, isMINUSONE(b), nlsSimplify(quote(-a)), do_eval = TRUE)
 newSimplification(a * b, is.numeric(a) && is.numeric(b), a * b, do_eval = TRUE)
 
 newSimplification(a / b, isONE(b), a)
-newSimplification(a / b, isMINUSONE(b), Simplify(quote(-a)), do_eval = TRUE)
+newSimplification(a / b, isMINUSONE(b), nlsSimplify(quote(-a)), do_eval = TRUE)
 newSimplification(a / b, isZERO(a), 0)
 newSimplification(a / b, is.numeric(a) && is.numeric(b), a / b, do_eval = TRUE)
 
 newSimplification(a ^ b, isONE(b), a)
 newSimplification(a ^ b, is.numeric(a) && is.numeric(b), a ^ b, do_eval = TRUE)
 
-newSimplification(log(a, base), isCALL(a, "exp"), Simplify(call("/", quote(a)[[2]], quote(log(base)))), do_eval = TRUE)
+newSimplification(log(a, base), isCALL(a, "exp"), nlsSimplify(call("/", quote(a)[[2]], quote(log(base)))), do_eval = TRUE)
 
 newSimplification(a && b, isFALSE(a) || isFALSE(b), FALSE)
 newSimplification(a && b, isTRUE(a), b)

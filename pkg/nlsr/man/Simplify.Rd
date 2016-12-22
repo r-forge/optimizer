@@ -1,6 +1,6 @@
-\name{Simplify}
+\name{nlsSimplify}
 \alias{newSimplification}
-\alias{Simplify}
+\alias{nlsSimplify}
 \alias{sysSimplifications}
 \alias{isFALSE}
 \alias{isZERO}
@@ -11,11 +11,11 @@
 Functions to simplify expressions.
 }
 \description{
-\code{Simplify} simplifies expressions according to rules specified
+\code{nlsSimplify} simplifies expressions according to rules specified
 by \code{newSimplification}.
 }
 \usage{
-Simplify(expr, simpEnv = sysSimplifications, verbose = FALSE)
+nlsSimplify(expr, simpEnv = sysSimplifications, verbose = FALSE)
 newSimplification(expr, test, simplification, do_eval = FALSE, 
     simpEnv = sysSimplifications)
 sysSimplifications
@@ -55,11 +55,13 @@ The name of a function as a character string.
 }
 }
 \details{
-The \code{Simplify} function uses simple rules to simplify
+The \code{nlsSimplify} function uses simple rules to simplify
 expressions.  The simplification is aimed at the needs of this
 package, so the built-in simplificatinos assume that variables and expressions 
 have finite real values. For example, \code{0*expr} will simplify to \code{0}
-regardless of the value of \code{expr}.
+regardless of the value of \code{expr}.  (The name is
+\code{nlsSimplify} to avoid a clash with the \code{\link[Deriv]{Simplify}}
+function in the \code{Deriv} package.)
 
 \code{newSimplification} adds a new simplification pattern to the
 registered collection.  The tests are applied to function calls with
@@ -76,13 +78,13 @@ The \code{isCALL} function tests whether an expression is a call to a particular
 function.
 
 To handle functions which act differently depending on which arguments
-are present, \code{Simplify} will simplify the expression \code{missing(.MissingVal)}
+are present, \code{nlsSimplify} will simplify the expression \code{missing(.MissingVal)}
 to \code{TRUE}.  This is used in the definition of the derivative
 for \code{x - y}, where the unary minus is seen as a missing \code{y}
 value.
 }
 \value{
-\code{Simplify} returns a simplification of the expression, assuming
+\code{nlsSimplify} returns a simplification of the expression, assuming
 that variables and functions take real values.
 
 The \code{newSimplification} function is called for the side
@@ -95,15 +97,15 @@ report on the currently saved simplifications in \code{simpEnv}.
 Duncan Murdoch
 }
 \seealso{
-\code{\link{Deriv}}, which makes use of \code{Simplify}.
+\code{\link{Deriv}}, which makes use of \code{nlsSimplify}.
 }
 \examples{
-Simplify(quote(a + 0))
-Simplify(quote(exp(1)), verbose = TRUE)
+nlsSimplify(quote(a + 0))
+nlsSimplify(quote(exp(1)), verbose = TRUE)
 
-Simplify(quote(sqrt(a + b)))  # standard rule
+nlsSimplify(quote(sqrt(a + b)))  # standard rule
 myrules <- new.env(parent = sysSimplifications)
 newSimplification(sqrt(a), TRUE, a^0.5, simpEnv = myrules)
-Simplify(quote(sqrt(a + b)), simpEnv = myrules)
+nlsSimplify(quote(sqrt(a + b)), simpEnv = myrules)
 }
 \keyword{ math }

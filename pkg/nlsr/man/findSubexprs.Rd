@@ -52,7 +52,7 @@ duplicated code but more storage of intermediate results.
 Duncan Murdoch
 }
 \seealso{
-\code{\link{Deriv}}, \code{\link{nlsSimplify}}
+\code{\link{deriv}}, \code{\link{nlsSimplify}}
 }
 \examples{
 findSubexprs(expression(x^2, x-y, y^2-x^2))

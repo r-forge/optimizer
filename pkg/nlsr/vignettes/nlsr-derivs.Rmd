@@ -33,10 +33,11 @@ comments in the **R** code are prefaced by '`#- `'.)
 
 ## TODOS 
 
-?? in nlsr and Deriv, does a new derivative rule replace existing one? Warning?  DM:  in newDeriv, a warning is now issued
+Done: in nlsr and Deriv, does a new derivative rule replace existing one? Warning?  
+DM:  in newDeriv, a warning is now issued
 if the rule is changed.  In Deriv, no warning is issued.
 
-?? Change name of Deriv and fnDeriv in nlsr to Drv, fnDrv to avoid conflict and allow
+Done: Change name of Deriv and fnDeriv in nlsr to Drv, fnDrv to avoid conflict and allow
 simultaneous load. Simplify -> Smplfy etc. Any others?
 DM:  I'd prefer not to leave out the vowels:  Drv doesn't
 look like "derivative" to me, it looks like "drive".
@@ -62,6 +63,15 @@ the names to nlsDeriv and nlsSimplify.  We can change again if we don't like tho
 This is an overview section to give an idea of the capabilities. It is
 not intended to be exhaustive, but to give pointers to how the tools can
 be used quickly.
+
+An important issue that may cause a lot of difficulty is the iterating of the tools.
+That is, we compute a derivative, then want to apply a tool to the derivative to get
+a second derivative. In doing so, we need to be careful that the type (class??) of
+the quantity output by the tool is passed back into the tool in a form that will
+generate a derivative expression. Some examples are presented. 
+
+We also note that the **Deriv** package will give a result in cases when the input
+is undefined. This is clearly a bug.
 
 ### stats
 
@@ -163,8 +173,20 @@ firstdn <- dx2xn
 str(firstdn)
 d2x2xn <- nlsDeriv(firstdn, "x")
 d2x2xn
+d2x2xnF <- nlsDeriv(firstdn, "x", do_substitute=FALSE)
+d2x2xnF # in this case we get the same result
+d2x2xnT <- nlsDeriv(firstdn, "x", do_substitute=TRUE)
+d2x2xnT # 0 ## WATCH OUT
+
 #- ?? We can iterate the derivatives
 nlsDeriv(d2x2xn, "x")
+
+nlsDeriv(x^2, "x")# 0
+nlsDeriv(x^2, "x", do_substitute=FALSE)# 0
+nlsDeriv(x^2, "x", do_substitute=TRUE) # 2 * x
+nlsDeriv(~ x^2, "x") # 2 * x
+nlsDeriv(~ x^2, "x", do_substitute=FALSE) # 2 * x
+nlsDeriv(~ x^2, "x", do_substitute=TRUE) # 2 * x
 
 #?? firstde <- quote(firstd)
 #?? firstde
@@ -377,11 +399,13 @@ example shows one such problem.
 
 ```{r}
 library(Deriv)
-Deriv(x, "x")  # returns [1] 1
+rm(x) # ensures x is undefined
+Deriv(x, "x")  # returns [1] 1 -- clearly a bug!
 Deriv(x^2, "x")   # returns 2 * x
 x <- quote(x^2)
 Deriv(x, "x") # returns 2 * x
 ```
+
 By comparison, **nlsr**
 
 ```{r}

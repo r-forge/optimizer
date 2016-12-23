@@ -60,7 +60,7 @@ expressions.  The simplification is aimed at the needs of this
 package, so the built-in simplificatinos assume that variables and expressions 
 have finite real values. For example, \code{0*expr} will simplify to \code{0}
 regardless of the value of \code{expr}.  (The name is
-\code{nlsSimplify} to avoid a clash with the \code{\link[Deriv]{Simplify}}
+\code{nlsSimplify} to avoid a clash with the \code{Simplify}
 function in the \code{Deriv} package.)
 
 \code{newSimplification} adds a new simplification pattern to the
@@ -97,7 +97,7 @@ report on the currently saved simplifications in \code{simpEnv}.
 Duncan Murdoch
 }
 \seealso{
-\code{\link{Deriv}}, which makes use of \code{nlsSimplify}.
+\code{\link{nlsDeriv}}, which makes use of \code{nlsSimplify}.
 }
 \examples{
 nlsSimplify(quote(a + 0))

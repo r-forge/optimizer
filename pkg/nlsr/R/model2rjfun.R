@@ -57,9 +57,9 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
 }
 
 model2ssgrfun <- function(modelformula, pvec, data = NULL, gradient = TRUE, 
-                          testresult = TRUE) {
+                          testresult = TRUE, ...) {
     rjfun <- model2rjfun(modelformula, pvec, data = data, jacobian = gradient, 
-                         testresult = testresult)
+                         testresult = testresult, ...)
 			
     function(prm) {
 	resids <- rjfun(prm)

@@ -11,9 +11,9 @@ These functions create functions to evaluate residuals or sums of squares at
 particular parameter locations.
 }
 \usage{
-model2rjfun(modelformula, pvec, data = NULL, jacobian = TRUE, testresult = TRUE)
+model2rjfun(modelformula, pvec, data = NULL, jacobian = TRUE, testresult = TRUE, ...)
 model2ssgrfun(modelformula, pvec, data = NULL, gradient = TRUE, 
-	      testresult = TRUE)
+	      testresult = TRUE, ...)
 modelexpr(fun)
 }
 \arguments{
@@ -38,6 +38,8 @@ Whether to test the function by evaluating it at \code{pvec}.
   \item{fun}{
 A function produced by one of \code{model2rjfun} or \code{model2ssgrfun}.
 }
+  \item{...}{Dot arguments, that is, arguments that may be supplied by \code{name = value}
+     to supply information needed to compute specific quantities in the model.}
 }
 \details{
 If \code{pvec} does not have names, the parameters will have names

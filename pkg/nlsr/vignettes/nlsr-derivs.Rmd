@@ -372,6 +372,30 @@ fld <- function(x){ eval(lderiv)} #- put this in a function
 fld(2) #- and evaluate at a value
 ```
 
+**Deriv** has some design choices that can get the user into trouble. The following
+example shows one such problem.
+
+```{r}
+library(Deriv)
+Deriv(x, "x")  # returns [1] 1
+Deriv(x^2, "x")   # returns 2 * x
+x <- quote(x^2)
+Deriv(x, "x") # returns 2 * x
+```
+By comparison, **nlsr**
+
+```{r}
+rm(x) # in case it is defined
+library(nlsr)
+try(nlsDeriv(x, "x")  ) # fails, not a formula
+try(nlsDeriv(as.expression("x"), "x")  ) # expression(NULL)
+try(nlsDeriv(~x, "x")  ) # 1
+try(nlsDeriv(x^2, "x"))   # fails
+try(nlsDeriv(~x^2, "x")) # 2 * x
+x <- quote(x^2)
+try(nlsDeriv(x, "x")) # returns 2 * x
+```
+
 
 ### Ryacas
 

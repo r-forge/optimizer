@@ -1,16 +1,15 @@
 \name{modeldoc}
 \alias{modeldoc}
 \alias{print.modeldoc}
-\title{
+\title{Create functions to evaluate residuals or sums of squares at 
+particular parameter locations.
+}
+\description{
 Output a description of the model and the data that was used at the time
 of its creation to the console and optionally to a file. The purpose of 
 this function is to provide a record of the details underlying the function
 \code{fun} as well as to aid users wishing to create objective functions for
 optimization tools.
-}
-\description{
-These functions create functions to evaluate residuals or sums of squares at 
-particular parameter locations.
 }
 \usage{
 modeldoc(fun, savefile=NULL)

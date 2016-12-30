@@ -792,6 +792,7 @@ startf1  <-  c(b1=1, b2=1, b3=.1)
 anlsf1 <-  try(nls(eunsc, start=startf1, trace=TRUE, data=weeddata1))
 print(anlsf1)
 
+library(nlsr)
 anlxf1  <-  try(nlxb(eunsc, start=startf1, trace=TRUE, data=weeddata1,
                      control=list(watch=FALSE)))
 print(anlxf1)
@@ -905,6 +906,8 @@ Responses by Ravi Varadhan and others, along with some modification I made,
 gave the following negative log likelihood function to be minimized.
 
 ```{r weibull}
+require(nlsr)
+
 y=c(5,11,21,31,46,75,98,122,145,165,195,224,245,293,321,330,350,420) # data set
 
 Nweibull2 <- function(x,prm){
@@ -930,14 +933,12 @@ partial derivatives. The expression is:
 
 ```{r weibull2}
 # Put in the main expression for the Nweibull pdf.
-require(nlsr)
-
 ## we generate the three gradient components
-g1n <- Deriv(la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "la")
+g1n <- nlsDeriv(~ la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "la")
 g1n
-g2n <- Deriv(la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "al")
+g2n <- nlsDeriv(~ la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "al")
 g2n
-g3n <- Deriv(la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "be")
+g3n <- nlsDeriv(~ la*be*(x/al)^(be-1)* exp( (x/al)^be+la*al*(1-exp((x/al)^be) ) ), "be")
 g3n
 ```
 

@@ -1,7 +1,7 @@
 \name{wrapnlsr}
 \alias{wrapnlsr}
-\title{Nash variant of Marquardt nonlinear least squares solution via
-     qr linear solver.
+\title{Provides class nls solution to a nonlinear least squares solution 
+     using the Nash Marquardt tools.
 }
 \description{
    Given a nonlinear model expressed as an expression of the form
@@ -9,7 +9,8 @@
    and a start vector where parameters used in the model formula are named,
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
+   sub-problem is solved by a qr method. The resulting solution is fed
+   into the nls() function in an attempt to get the nls class solution.
 }
 \usage{
    wrapnlsr(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, 

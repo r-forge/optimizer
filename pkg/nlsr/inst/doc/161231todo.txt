@@ -8,3 +8,5 @@ Look into ways of getting variables. ..., env, data, etc.
 Nice filter function to handle user input.  John will suggest names.
 
 Fail for two-sided formula.
+
+Get R CMD check working.

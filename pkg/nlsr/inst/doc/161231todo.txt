@@ -1,0 +1,10 @@
+To do:
+
+Look at fnDeriv:  producing a function.
+ name current fnDeriv as something like evalDeriv.
+ 
+Look into ways of getting variables. ..., env, data, etc.
+
+Nice filter function to handle user input.  John will suggest names.
+
+Fail for two-sided formula.

@@ -1,5 +1,6 @@
 \name{runoptprob}
 \alias{runoptprob}
+\alias{NISTO::runoptprob}
 \title{General optimization test runner}
 \concept{minimization}
 \concept{maximization}
@@ -9,8 +10,8 @@
   optimization or nonlinear least squares methods. 
 }
 \usage{
-runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, istart="1", 
-                 runopts=list(), control=list(), ...) 
+runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, 
+                 istart="1", runopts=list(), control=list(), ...) 
 }
 \arguments{
  \item{pfilename}{a character string giving the filename of a particular problem located in the 

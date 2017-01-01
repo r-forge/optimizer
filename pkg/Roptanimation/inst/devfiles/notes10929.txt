@@ -1,9 +1,0 @@
-Use of tkrplot seems fragile with the labels added. 
-
-Is it better to build our own list of parameters and function and area?
-
-Then replot as we wish.
-
-Bobyqa seems to get a good objective, then when pf changed, goes bad.
-Looks like something not properly defined. 
-hjkb works quite well. nmkb cannot.

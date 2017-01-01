@@ -12,4 +12,8 @@ special functions .Warning() and .Error() to be used as return
 values from derivative definitions which trigger warnings or errors
 if a user attempts specific forms.  Not worth it?
 
+JN: I agree that it isn't worth doing at this level of effort. Maybe we
+just note that using our function on a 2-sided formula has possibly undefined
+consequences.??
+
 Get R CMD check working. DONE

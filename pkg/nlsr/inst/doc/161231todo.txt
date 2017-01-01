@@ -6,8 +6,11 @@ Look at fnDeriv:  producing a function.
 Look into ways of getting variables. ..., env, data, etc.
 
 Nice filter function to handle user input.  John will suggest names.
+  ?? WHat about dex() for Derivative EXpression. It doesn't seem to be used. 
 
-Fail for two-sided formula.  NOT DONE -- this is actually pretty tricky.  Just documented what it does.  To do it, we could add
+
+Fail for two-sided formula.  NOT DONE -- this is actually pretty tricky.  
+Just documented what it does.  To do it, we could add
 special functions .Warning() and .Error() to be used as return
 values from derivative definitions which trigger warnings or errors
 if a user attempts specific forms.  Not worth it?
@@ -17,3 +20,13 @@ just note that using our function on a 2-sided formula has possibly undefined
 consequences.??
 
 Get R CMD check working. DONE
+JN: Still getting same error on Linux Mint 18. ?? 
+    I'll keep looking into this and see if I can find source of issue.
+
+"* checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
+* checking PDF version of manual without hyperrefs or index ... OK
+* DONE
+Status: 1 WARNING"
+

@@ -1,8 +1,7 @@
 Package: nlsr
 Type: Package
-Title: Functions for nonlinear least squares solutions to replace nls()
-Version: 2016.10.18
-Date: 2016-10-18
+Title: Functions for Nonlinear Least Squares Solutions
+Version: 0.0.1342
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca"), 
 	person(given = "Duncan", family =
@@ -18,5 +17,5 @@ License: GPL-2
 Depends: R (>= 3.0)
 Imports: digest
 Suggests: minpack.lm, optimr, Rvmmin, Rcgmin, numDeriv,
-    knitr, rmarkdown, Ryacas, Deriv
+    knitr, rmarkdown, Ryacas, Deriv, nlmrt
 VignetteBuilder: knitr

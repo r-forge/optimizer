@@ -432,7 +432,7 @@ the derivatives available in `Ryacas` beyond the following example
 provided by Gabor Grothendieck.
 
 
-```{r}
+```{r eval = require(Ryacas)}
 require(nlsr)
 dnlsr <- nlsr::nlsDeriv(~ sin(x+y), "x")
 print(dnlsr)
@@ -440,7 +440,6 @@ class(dnlsr)
 detach("package:nlsr", unload=TRUE)
 detach("package:Deriv", unload=TRUE)
 
-require(Ryacas)
 x <- Sym("x")
 y <- Sym("y")
 dryacas <- deriv(sin(x+y), x)
@@ -665,8 +664,8 @@ Such simplification does not appear to be available / exposed in the package `De
 sessionInfo()
 if ("Deriv" %in% loadedNamespaces()){detach("package:Deriv", unload=TRUE)} 
   #- ?? Do we need to unload too.
-if ("Deriv" %in% loadedNamespaces() ){detach("package:nlsr", unload=TRUE)}
-if ("Deriv" %in% loadedNamespaces() ){detach("package:Ryacas", unload=TRUE)}
+if ("nlsr" %in% loadedNamespaces() ){detach("package:nlsr", unload=TRUE)}
+if ("Ryacas" %in% loadedNamespaces() ){detach("package:Ryacas", unload=TRUE)}
 require(nlsr)
 #- require(Deriv)
 #- require(stats)
@@ -857,7 +856,7 @@ different inputs. For example, for the derivative of log(x), we have
 
 ```{r}
 require(nlsr)
-dlogx <- nlsr::nlsDeriv(log(x), "x")
+dlogx <- nlsr::nlsDeriv(~ log(x), "x")
 str(dlogx)
 print(dlogx)
 ```

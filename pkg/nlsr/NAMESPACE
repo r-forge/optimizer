@@ -37,3 +37,6 @@ importFrom(digest, digest)
 importFrom("stats", "deriv", "nls", "pt")
 
 S3method(print, modeldoc)
+S3method(coef, nlsr)
+S3method(print, nlsr)
+S3method(summary, nlsr)

@@ -37,13 +37,6 @@ Done: in nlsr and Deriv, does a new derivative rule replace existing one? Warnin
 DM:  in newDeriv, a warning is now issued
 if the rule is changed.  In Deriv, no warning is issued.
 
-Done: Change name of Deriv and fnDeriv in nlsr to Drv, fnDrv to avoid conflict and allow
-simultaneous load. Simplify -> Smplfy etc. Any others?
-DM:  I'd prefer not to leave out the vowels:  Drv doesn't
-look like "derivative" to me, it looks like "drive".
-But the idea of avoiding conflict is good.  I have changed
-the names to nlsDeriv and nlsSimplify.  We can change again if we don't like those...
-
 ## Available analytic differentiation tools
 
 **R** has a number of tools for finding analytic derivatives.
@@ -205,26 +198,28 @@ d2
 #?? fdx2xn(1:5)
 ```
 
-The tool `fnDeriv` returns an expression which can
-be used in several ways.
+The tool `codeDeriv` returns a function which can
+be used in several ways.  `fnDeriv` wraps it in a function.
+By default the arguments to the function are constructed from
+the `namevec` argument.  ?? Should we default to all variables in the
+expression instead?  In the example below this would include `x`.
 
 ```{r}
+codeDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
 #- Include parameters as arguments
-fj.1 <- function(x, b0, b1, th) {}
-body(fj.1) <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
-fj.1(x=1, b0=2, b1=3, th=4)
-
-#- Get parameters from the environment
-fj.2 <- function(x) {}
-body(fj.2) <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
+fj.1 <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
+x <- 1
+fj.1(2,3,4)
+#- Get all parameters from the calling environment
+fj.2 <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"),
+        args = character())
 b0 <- 2
 b1 <- 3
-th <- 4
-fj.2(1)
+th <- 4 
+fj.2()
 
 #- Just use an expression
-fje <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
-x <- 1
+fje <- codeDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"))
 eval(fje)
 
 dx2xnf <- fnDeriv(~ x^2, "x") #- Use tilde
@@ -627,10 +622,11 @@ fnDeriv(quote(sign(x)), "x")
 ### Notes:
 
 - the base tool deriv (and likely deriv3 ?? need to explore and explain) and 
-nlsr::fnDeriv are intended to output an expression to compute a derivative. 
-deriv generates an expression object, while fnDeriv will generate a language object. 
+nlsr::codeDeriv are intended to output an expression to compute a derivative. 
+deriv generates an expression object, while codeDeriv will generate a language object. 
 Do we need to explain this more??  Note that input to deriv is of the form of a 
-tilde expression with no left hand side, while fnDeriv uses a quoted expression. ?? We
+tilde expression with no left hand side, while codeDeriv is
+more flexible:  quoted expressions, or length-1 expression vectors may also be used. ?? We
 should explore more ways to input things to these tools. 
 
 - the base tool D and nlsr::nlsDeriv generate expressions, but D requires an
@@ -910,7 +906,7 @@ require(nlsr)
 
 # Various derivatives 
 
-new <- fnDeriv(quote(1 + x + y), c("x", "y"))
+new <- codeDeriv(quote(1 + x + y), c("x", "y"))
 old <- deriv(quote(1 + x + y), c("x", "y"))
 print(new)
 # Following generates a very long line on output of knitr (for markdown)

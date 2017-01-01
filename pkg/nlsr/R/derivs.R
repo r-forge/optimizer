@@ -135,7 +135,7 @@ nlsDeriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, ve
 # This is a more general version of deriv(), since it allows user specified 
 # derivatives and simplifications
 
-fnDeriv <- function(expr, namevec, 
+codeDeriv <- function(expr, namevec, 
        hessian = FALSE, derivEnv = sysDerivs, verbose = FALSE, ...) {
     if (inherits(expr, "formula")) {
       if (length(expr) == 2)
@@ -198,7 +198,24 @@ fnDeriv <- function(expr, namevec,
     subexprs[[m+1]] <- quote(attr(.value, "gradient") <- .grad)
     subexprs[[m+2]] <- quote(.value)
     subexprs
-}    
+}
+
+fnDeriv <- function(expr, namevec, args = namevec, env = environment(expr),
+                    ...) {
+  fn <- function() NULL
+  body(fn) <- codeDeriv(expr, namevec, ...)
+  if (is.character(args)) {
+    formals <- rep(list(bquote()), length = length(args))
+    names(formals) <- args
+    args <- formals
+  }
+  formals(fn) <- args
+  if (is.null(env))
+    environment(fn) <- parent.frame()
+  else
+    environment(fn) <- as.environment(env)
+  fn
+}
 
 isFALSE <- function(x) identical(FALSE, x)
 isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0

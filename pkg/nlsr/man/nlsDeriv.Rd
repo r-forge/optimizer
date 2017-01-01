@@ -21,7 +21,7 @@ sysDerivs
 }
 \arguments{
   \item{expr}{
-An expression vector or language object.
+A formula, expression vector or language object.  See Details.
 }
   \item{name}{
 The name of the variable with respect to which the derivative will be computed.
@@ -83,6 +83,12 @@ vector (the default), the arguments will have those names,
 with no default values.  Alternatively, a custom argument list with default values can
 be created using \code{\link{alist}}; see the example below.
 
+The \code{expr} argument should be a formula with no left
+hand side, e.g. \code{ ~ x^2 }, or an expression vector
+e.g. \code{ expression(x, x^2, x^3) }, or a language
+object e.g. \code{quote(x^2)}.  In \code{codeDeriv} and
+\code{fnDeriv} the expression vector must be of length 1.
+
 The \code{newDeriv} function is used to define a new derivative.
 The \code{expr} argument should match the header of the function as a
 call to it (e.g. as in the help pages), and the \code{deriv} argument
@@ -105,7 +111,12 @@ for an example.
 }
 \value{
 If \code{expr} is an expression vector, \code{nlsDeriv} and \code{nlsSimplify}
-return expression vectors containing the response.
+return expression vectors containing the response.  
+For formulas or language objects, a language object is returned.
+
+\code{codeDeriv} always returns a language object.
+
+\code{fnDeriv} returns a closure (i.e. a function).
 
 \code{nlsDeriv} returns the symbolic derivative of the expression.
 

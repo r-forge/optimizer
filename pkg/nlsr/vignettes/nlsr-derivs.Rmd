@@ -208,11 +208,11 @@ expression instead?  In the example below this would include `x`.
 codeDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
 #- Include parameters as arguments
 fj.1 <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
-x <- 1
-fj.1(2,3,4)
+fj.1(1,2,3,4)
 #- Get all parameters from the calling environment
 fj.2 <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"),
         args = character())
+x <- 1
 b0 <- 2
 b1 <- 3
 th <- 4 

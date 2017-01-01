@@ -15,7 +15,7 @@ nlsDeriv(expr, name, derivEnv = sysDerivs, do_substitute = FALSE,
       verbose = FALSE, ...)
 codeDeriv(expr, namevec, hessian = FALSE, derivEnv = sysDerivs, 
       verbose = FALSE, ...) 
-fnDeriv(expr, namevec, args = namevec, env = environment(expr), ...)
+fnDeriv(expr, namevec, args = all.vars(expr), env = environment(expr), ...)
 newDeriv(expr, deriv, derivEnv = sysDerivs) 
 sysDerivs
 }
@@ -53,7 +53,7 @@ Logical indicator of whether the 2nd derivatives should also be computed.
 An expression giving the derivative of the function call in \code{expr}.
 }
   \item{args}{
-Desired arguments for the derivative.  See Details below.
+Desired arguments for the function.  See Details below.
 }
   \item{env}{
 The environment to be attached to the created function.  If
@@ -147,6 +147,7 @@ newDeriv(f(x), 2*x*D(x))
 nlsDeriv(~ f(abs(x)), "x")
 
 nlsDeriv(~ pnorm(x, sd=2, log = TRUE), "x")
+fnDeriv(~ pnorm(x, sd = sd, log = TRUE), "x")
 f <- fnDeriv(~ pnorm(x, sd = sd, log = TRUE), "x", args = alist(x =, sd = 2))
 f
 f(1)

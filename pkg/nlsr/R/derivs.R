@@ -200,7 +200,7 @@ codeDeriv <- function(expr, namevec,
     subexprs
 }
 
-fnDeriv <- function(expr, namevec, args = namevec, env = environment(expr),
+fnDeriv <- function(expr, namevec, args = all.vars(expr), env = environment(expr),
                     ...) {
   fn <- function() NULL
   body(fn) <- codeDeriv(expr, namevec, ...)

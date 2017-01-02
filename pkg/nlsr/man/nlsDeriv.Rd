@@ -14,14 +14,15 @@ Compute derivatives of simple expressions symbolically, allowing user-specified 
 nlsDeriv(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, 
       verbose = FALSE, ...)
 codeDeriv(expr, namevec, hessian = FALSE, derivEnv = sysDerivs, 
-      verbose = FALSE, ...) 
-fnDeriv(expr, namevec, args = all.vars(expr), env = environment(expr), ...)
+      do_substitute = FALSE, verbose = FALSE, ...) 
+fnDeriv(expr, namevec, args = all.vars(expr), env = environment(expr), 
+        do_substitute = FALSE, verbose = FALSE, ...)
 newDeriv(expr, deriv, derivEnv = sysDerivs) 
 sysDerivs
 }
 \arguments{
   \item{expr}{
-A formula, expression vector or language object.  See Details.
+An expression represented in a variety of ways. See Details.
 }
   \item{name}{
 The name of the variable with respect to which the derivative will be computed.
@@ -83,7 +84,10 @@ vector (the default), the arguments will have those names,
 with no default values.  Alternatively, a custom argument list with default values can
 be created using \code{\link{alist}}; see the example below.
 
-The \code{expr} argument should be a formula with no left
+The \code{expr} argument will be converted to a
+language object using \code{\link{dex}} (but note
+the different default for \code{do_substitute}).  
+Normally it should be a formula with no left
 hand side, e.g. \code{ ~ x^2 }, or an expression vector
 e.g. \code{ expression(x, x^2, x^3) }, or a language
 object e.g. \code{quote(x^2)}.  In \code{codeDeriv} and

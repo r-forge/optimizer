@@ -1,5 +1,45 @@
 # R-based replacement for deriv() function
 
+dex <- function(x, do_substitute = NA, verbose = FALSE) {
+  expr <- substitute(x)
+  value <- try(x, silent = TRUE)
+  if (is.na(do_substitute)) {
+    if (verbose)
+      message("Determining whether to use expression or value...")
+    if (inherits(value, "try-error"))
+      do_substitute <- TRUE
+    else if (is.character(value))
+      do_substitute <- FALSE
+    else if (is.name(expr))
+      do_substitute <- FALSE
+    else
+      do_substitute <- TRUE
+  }
+  if (verbose) {
+    if (do_substitute) 
+      message("Using expression.")
+    else message("Using value.")
+  }  
+  if (!do_substitute) {
+    if (is.character(value)) {
+      if (verbose) 
+        message("Parsing value.")
+      expr <- parse(text=value)
+    } else
+      expr <- value
+  }
+  if (is.expression(expr) && length(expr) == 1)
+    expr <- expr[[1]]
+  else if (is.call(expr) && as.character(expr[[1]]) == "~") {
+    if (length(expr) == 3) {
+      warning("Left hand side of formula will be ignored.")
+      expr <- expr[[3]]
+    } else
+      expr <- expr[[2]]
+  }
+  expr
+}
+
 sysDerivs <- new.env(parent = emptyenv())
 sysSimplifications <- new.env(parent = emptyenv())
 
@@ -78,9 +118,7 @@ nlsDeriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, ve
     	}
     	expr
     }
-
-    if (do_substitute)
-    	expr <- substitute(expr)
+    expr <- dex(expr, do_substitute = do_substitute, verbose = verbose)
     if (is.expression(expr))
     	return(as.expression(lapply(expr, nlsDeriv, name = name, derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)))
     else if (is.numeric(expr) || is.logical(expr))
@@ -136,74 +174,69 @@ nlsDeriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, ve
 # derivatives and simplifications
 
 codeDeriv <- function(expr, namevec, 
-       hessian = FALSE, derivEnv = sysDerivs, verbose = FALSE, ...) {
-    if (inherits(expr, "formula")) {
-      if (length(expr) == 2)
-        expr <- expr[[2]]
-      else if (length(expr) == 3)
-        expr <- expr[[3]]
-      else
-        stop("Formula not in standard form")
-    }
-    if (!is.expression(expr)) expr <- as.expression(expr)
-    if (length(expr) > 1)
-	stop("Only single expressions allowed")
-    exprs <- as.list(expr)
-    n <- length(namevec)
-    length(exprs) <- n + 1L
-    for (i in seq_len(n))
-	exprs[[i + 1]] <- nlsDeriv(expr[[1]], namevec[i], derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)
-    names(exprs) <- c(".value", namevec)
-    if (hessian) {
-        m <- length(exprs)
-	length(exprs) <- m + n*(n+1)/2
-	for (i in seq_len(n))
+       hessian = FALSE, derivEnv = sysDerivs, 
+       do_substitute = FALSE, verbose = FALSE, ...) {
+  expr <- dex(expr, do_substitute = do_substitute, verbose = verbose)
+  expr <- as.expression(expr)
+  if (length(expr) > 1)
+    stop("Only single expressions allowed")
+  exprs <- as.list(expr)
+  n <- length(namevec)
+  length(exprs) <- n + 1L
+  for (i in seq_len(n))
+    exprs[[i + 1]] <- nlsDeriv(expr[[1]], namevec[i], derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)
+  names(exprs) <- c(".value", namevec)
+  if (hessian) {
+    m <- length(exprs)
+	  length(exprs) <- m + n*(n+1)/2
+	  for (i in seq_len(n))
 	    for (j in seq_len(n-i+1) + i-1) {
-		m <- m + 1
-		exprs[[m]] <- nlsDeriv(exprs[[i + 1]], namevec[j], derivEnv = derivEnv, 
+		    m <- m + 1
+		    exprs[[m]] <- nlsDeriv(exprs[[i + 1]], namevec[j], derivEnv = derivEnv, 
 		                    do_substitute = FALSE, verbose = verbose, ...)
 	    }
-    }
-    exprs <- as.expression(exprs)
-    subexprs <- findSubexprs(exprs)
-    m <- length(subexprs)
-    final <- subexprs[[m]]
-    subexprs[[m]] <- substitute(.value <- expr, list(expr = final[[".value"]]))
-    subexprs[[m+1]] <- substitute(.grad <- array(0, c(length(.value), namelen), list(NULL, namevec)),
+  }
+  exprs <- as.expression(exprs)
+  subexprs <- findSubexprs(exprs)
+  m <- length(subexprs)
+  final <- subexprs[[m]]
+  subexprs[[m]] <- substitute(.value <- expr, list(expr = final[[".value"]]))
+  subexprs[[m+1]] <- substitute(.grad <- array(0, c(length(.value), namelen), list(NULL, namevec)),
 				  list(namevec = namevec, namelen = length(namevec)))
-    if (hessian)
-	subexprs[[m+2]] <- substitute(.hessian <- array(0, c(length(.value), 2L, 2L), 
+  if (hessian)
+    subexprs[[m+2]] <- substitute(.hessian <- array(0, c(length(.value), 2L, 2L), 
 					list(NULL, namevec, namevec)), 
 					list(namevec = namevec))
-    for (i in seq_len(n))
-	subexprs[[m+1+i]] <- substitute(.grad[, name] <- expr,
+  for (i in seq_len(n))
+    subexprs[[m+1+i]] <- substitute(.grad[, name] <- expr,
 			          list(name = namevec[i], expr = final[[namevec[i]]]))
-    m <- length(subexprs)
-    h <- 0
-    if (hessian) {
-	for (i in seq_len(n))
-	    for (j in seq_len(n-i+1) + i-1) {
-		h <- h + 1
-		if (i == j)
-		    subexprs[[m + h]] <- substitute(.hessian[, i, i] <- expr,
-				  list(i = namevec[i], expr = final[[1 + n + h]]))
-		else
-		    subexprs[[m + h]] <- substitute(.hessian[, i, j] <- .hessian[, j, i] <- expr,
-				  list(i = namevec[i], j = namevec[j], expr = final[[1 + n + h]]))
+  m <- length(subexprs)
+  h <- 0
+  if (hessian) {
+    for (i in seq_len(n))
+      for (j in seq_len(n-i+1) + i-1) {
+		    h <- h + 1
+		    if (i == j)
+		      subexprs[[m + h]] <- substitute(.hessian[, i, i] <- expr,
+				    list(i = namevec[i], expr = final[[1 + n + h]]))
+		    else
+		      subexprs[[m + h]] <- substitute(.hessian[, i, j] <- .hessian[, j, i] <- expr,
+				    list(i = namevec[i], j = namevec[j], expr = final[[1 + n + h]]))
 	    }	
-	h <- h + 1
-	subexprs[[m + h]] <- quote(attr(.value, "hessian") <- .hessian)
-    }
-    m <- length(subexprs)
-    subexprs[[m+1]] <- quote(attr(.value, "gradient") <- .grad)
-    subexprs[[m+2]] <- quote(.value)
-    subexprs
+	  h <- h + 1
+	  subexprs[[m + h]] <- quote(attr(.value, "hessian") <- .hessian)
+  }
+  m <- length(subexprs)
+  subexprs[[m+1]] <- quote(attr(.value, "gradient") <- .grad)
+  subexprs[[m+2]] <- quote(.value)
+  subexprs
 }
 
 fnDeriv <- function(expr, namevec, args = all.vars(expr), env = environment(expr),
-                    ...) {
+                    do_substitute = FALSE, verbose = FALSE, ...) {
   fn <- function() NULL
-  body(fn) <- codeDeriv(expr, namevec, ...)
+  expr <- dex(expr, do_substitute = do_substitute, verbose = verbose)
+  body(fn) <- codeDeriv(expr, namevec, do_substitute = FALSE, verbose = verbose, ...)
   if (is.character(args)) {
     formals <- rep(list(bquote()), length = length(args))
     names(formals) <- args

@@ -20,6 +20,7 @@ Type 'q()' to quit R.
 > # Various derivatives 
 > 
 > fnDeriv(quote(1 + x + y), c("x", "y"))
+function (x, y) 
 {
     .value <- 1 + x + y
     .grad <- array(0, c(length(.value), 2L), list(NULL, c("x", 

@@ -805,7 +805,6 @@ We can discover quickly the difficulty here by computing the Jacobian
 at this "solution" and checking its singular values.
 
 ```{r usex3}
-
 cf1 <- coef(anlxf1)
 print(cf1)
 jf1 <- anlxf1$jacobian

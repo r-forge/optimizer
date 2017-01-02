@@ -4,16 +4,11 @@ Look at fnDeriv:  producing a function.
  name current fnDeriv as something like evalDeriv. DONE (used codeDeriv as name)
  
 Look into ways of getting variables. ..., env, data, etc.
+NO CHANGES
 
-Nice filter function to handle user input.  John will suggest names.
-  ?? WHat about dex() for Derivative EXpression. It doesn't seem to be used. 
+Nice filter function to handle user input.  John will suggest names. DONE using dex().
 
-
-Fail for two-sided formula.  NOT DONE -- this is actually pretty tricky.  
-Just documented what it does.  To do it, we could add
-special functions .Warning() and .Error() to be used as return
-values from derivative definitions which trigger warnings or errors
-if a user attempts specific forms.  Not worth it?
+Fail for two-sided formula.  DONE, but just a warning.
 
 JN: I agree that it isn't worth doing at this level of effort. Maybe we
 just note that using our function on a 2-sided formula has possibly undefined

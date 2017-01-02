@@ -2,11 +2,12 @@
 
 dex <- function(x, do_substitute = NA, verbose = FALSE) {
   expr <- substitute(x)
-  value <- try(x, silent = TRUE)
+  if (is.na(do_substitute) || !do_substitute)
+    value <- tryCatch(x, error = function(e) e)
   if (is.na(do_substitute)) {
     if (verbose)
       message("Determining whether to use expression or value...")
-    if (inherits(value, "try-error"))
+    if (inherits(value, "error"))
       do_substitute <- TRUE
     else if (is.character(value))
       do_substitute <- FALSE
@@ -14,7 +15,8 @@ dex <- function(x, do_substitute = NA, verbose = FALSE) {
       do_substitute <- FALSE
     else
       do_substitute <- TRUE
-  }
+  } else if (!do_substitute && inherits(value, "error"))
+    stop(conditionMessage(value), call. = FALSE)
   if (verbose) {
     if (do_substitute) 
       message("Using expression.")

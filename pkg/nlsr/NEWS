@@ -1,6 +1,15 @@
 To do
          o    Should we use model.frame() anywhere??
 
+
+170107   o    expanded dex() examples to show object class of result.
+              Note that "language" class encompasses "expression".
+
+170102   o    Cleanup of package
+              New function dex() to prepare input for nlsDeriv()
+              Renamed Deriv to nlsDeriv.
+              New names codeDeriv and fnDeriv. 
+
 161222   o    newDeriv() now issues a warning if a derivative
               definition is changed.
               

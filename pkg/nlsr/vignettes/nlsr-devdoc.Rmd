@@ -60,12 +60,49 @@ desirable.
 extracts and displays the coefficients for a model 
     estimated by nlxb() or nlfb() in the nlsr structured object. 
 
-#### Deriv, fnDeriv, newDeriv
+#### nlsDeriv, codeDeriv, fnDeriv, newDeriv
 
 Functions **Deriv** and **fnDeriv** are designed as replacements 
 for the stats package functions **D** and **deriv**
 respectively, though the argument lists do not match exactly.
-What does **newDeriv** do??
+**newDeriv** allows additional analytic derivative expressions to 
+be added. The following is an expanded and commented version of the 
+examples from the manual for these functions.
+
+
+```{r}
+require(nlsr)
+newDeriv() # a call with no arguments returns a list of available functions
+           # for which derivatives are currently defined
+newDeriv(sin(x)) # a call with a function that is in the list of available derivatives
+                 # returns the derivative expression for that function
+nlsDeriv(~ sin(x+y), "x") # partial derivative of this function w.r.t. "x"
+
+## CAUTION !! ##
+newDeriv(joe(x)) # but an undefined function returns NULL
+newDeriv(joe(x), deriv=log(x^2)) # We can define derivatives, even if joe(x) is meanin
+nlsDeriv(~ joe(x+z), "x")
+
+# Some examples of usage
+f <- function(x) x^2
+newDeriv(f(x), 2*x*D(x))
+nlsDeriv(~ f(abs(x)), "x")
+nlsDeriv(~ x^2, "x")
+nlsDeriv(~ (abs(x)^2), "x")
+
+# derivatives of distribution functions
+nlsDeriv(~ pnorm(x, sd=2, log = TRUE), "x")
+# get evaluation code from a formula
+codeDeriv(~ pnorm(x, sd = sd, log = TRUE), "x")
+# wrap it in a function call
+fnDeriv(~ pnorm(x, sd = sd, log = TRUE), "x")
+f <- fnDeriv(~ pnorm(x, sd = sd, log = TRUE), "x", args = alist(x =, sd = 2))
+f
+f(1)
+100*(f(1.01) - f(1))  # Should be close to the gradient
+                      # The attached gradient attribute (from f(1.01)) is
+                      # meaningless after the subtraction.
+```
 
 #### findSubexprs
 

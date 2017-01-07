@@ -1,0 +1,8 @@
+Notes on review of nlsr package Jan 2017 by JN 
+
+- added detailed output to dex() examples that show different classes of the returned objects.
+
+- made clear where the .MissingVal usage is to be found in Rd file for nlsDeriv.
+
+- in nlsr-devdoc.Rmd added silly joe(x) example to show possible trouble spot
+

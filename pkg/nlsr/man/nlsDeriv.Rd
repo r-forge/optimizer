@@ -110,8 +110,8 @@ the derivative formula and return \code{NULL}.
 To handle functions which act differently if a parameter is
 missing, code the default value of that parameter to \code{.MissingVal},
 and give a derivative that is conditional on \code{missing()}
-applied to that parameter.  See the derivative of \code{"-"}
-for an example.
+applied to that parameter.  See the derivatives of \code{"-"} and \code{"+"} 
+in the file \code{derivs.R} for an example.
 }
 \value{
 If \code{expr} is an expression vector, \code{nlsDeriv} and \code{nlsSimplify}

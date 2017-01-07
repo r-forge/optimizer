@@ -54,8 +54,14 @@ Duncan Murdoch
 }
 
 \examples{
-dex(~ x^2)
-dex(expression(x^2))
-dex("x^2")
+aa <- dex(~ x^2)
+aa
+str(aa)
+bb <- dex(expression(x^2))
+bb
+str(bb)
+cc <- dex("x^2")
+cc
+str(cc)
 }
 

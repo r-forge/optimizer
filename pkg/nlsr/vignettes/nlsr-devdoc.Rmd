@@ -49,8 +49,8 @@ desirable.
 
 -- functions in nlsr-package.R, esp fnDeriv, need to be explained
 -- how to insert numerical derivatives when Deriv unable to get result
--- sort out the issues of providing data to nlxb and nlfb. For the former,
-  see the file nlsr/inst/dev-files/nlsdata.R.
+-- remove dot args from functions, as Appendix A shows they do not
+   currently work. 
 
 ## Summary of capabilities in `nlsr`
 
@@ -1052,6 +1052,9 @@ cat("max(abs(gaLL2J-gnLL2J))= ", max(abs(gaLL2J-gnLL2J)), "\n" )
 ```
 
 ## Appendix A: Providing exogenous data
+
+These examples show dotargs do NOT work for any of nlsr, nls, or minpack.lm.
+Use of a dataframe or local (calling) environment objects does work in all.
 
 
 ```{r cache=FALSE, echo=FALSE}

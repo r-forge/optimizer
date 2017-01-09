@@ -4,9 +4,8 @@
      qr linear solver.
 }
 \description{
-   Given a nonlinear model expressed as an expression of the form
-         lhs ~ formula_for_rhs
-   and a start vector where parameters used in the model formula are named,
+   Given a nonlinear model expressed as a vector valued residual function
+   \code{resfn} and a start vector of parameter values for that function, 
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method.
@@ -19,7 +18,10 @@
 \arguments{
   \item{resfn}{
      A function that evaluates the residual vector for computing the elements of
-     the sum of squares function at the set of parameters \code{start}. 
+     the sum of squares function at the set of parameters \code{start}. Where this
+     function is created by actions on a formula or expression in \code{nlxb}, this
+     residual vector will be created by evaluation of the 'model - data', rather than
+     the conventional 'data - model' approach. The sum of squares is the same.
 }
   \item{jacfn}{
      A function that evaluates the Jacobian of the sum of squares function, that

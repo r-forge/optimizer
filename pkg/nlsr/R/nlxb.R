@@ -1,5 +1,5 @@
 nlxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
-                 upper = Inf, masked = NULL, control=list(), ...) {
+                 upper = Inf, masked = NULL, weights=NULL, control=list()) {
     # A simplified and hopefully robust alternative to finding
     # the nonlinear least squares minimizer that causes
     # 'formula' to give a minimal residual sum of squares.
@@ -22,18 +22,9 @@ nlxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     # character vector of names of parameters that are fixed.
     # control is a list of control parameters. These are: ...
     # 
-    # ... will need to contain data for other variables that
-    # appear in the formula and are defined in a parent frame
-    # (Not sure how needed??) ?? need to fix.
-    # 
     # This variant uses a qr solution without forming the sum
     # of squares and cross products t(J)%*%J
     # 
-# ?? need to sort out and maybe build a dataframe.
-# ?? get names of any data in args or ...
-# ?? No data, then create frame
-# ?? else if data in args, add to data frame
-# ?? or should we make user do this?
 # ?? and put in the weights
 #    ######### get data from data frame if exists
 #    ######### print(str(data))
@@ -131,7 +122,8 @@ nlxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
 ## which gets data into the functions
     resfb <- nlfb(start=pnum, resfn=trjfn, jacfn=trjfn, trace=trace, 
             data=data, lower=lower, upper=upper, maskidx=maskidx, 
-	    control=ctrl, ...)
+            weights=weights, control=ctrl)
+##	    control=ctrl, ...)
 # ?? should there be any ... arguments
     pnum <- as.vector(resfb$coefficients)
     names(pnum) <- pnames # Make sure names re-attached. ??Is this needed??

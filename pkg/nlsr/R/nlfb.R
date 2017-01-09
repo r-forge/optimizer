@@ -1,16 +1,16 @@
 nlfb <-function(start, resfn, jacfn = NULL, trace = FALSE, 
-		lower = -Inf, upper = Inf, maskidx = NULL, 
+		lower = -Inf, upper = Inf, maskidx = NULL, weights=NULL,
 		data=NULL, control=list(), ...){
 #
 #  A simplified and hopefully robust alternative to finding the 
 #  nonlinear least squares minimizer that causes 'formula' to 
 #  give a minimal residual sum of squares. 
 #
-#  nlsrfb is particularly intended to allow for the resolution of 
+#  nlfb is particularly intended to allow for the resolution of 
 #  very ill-conditioned or else near zero-residual problems for 
 #  which the regular nls() function is ill-suited. 
 #  
-#  J C Nash  2012-3-4   nashjc _at_  uottawa.ca
+#  J C Nash  2012-3-4 and later   nashjc _at_  uottawa.ca
 #
 #  start MUST be a vector where all the elements are named:
 #     e.g., start=c(b1=200, b2=50, b3=0.3)
@@ -37,8 +37,13 @@ showprms<-function(SS, pnum){
     }
     cat(" ",feval,"/",jeval)
     cat("\n")
-}
-#########
+} # end showprms
+
+if (is.null(weights)) {cat("no weights\n")}
+else {cat("weights:")
+      print(weights)
+      }
+
 # ensure params in vector
 pnames<-names(start)
 start<-as.numeric(start)
@@ -47,17 +52,16 @@ names(start)<-pnames # ?? needed
 npar<-length(start) # number of parameters
 if (length(lower)==1) lower<-rep(lower,npar)
 if (length(upper)==1) upper<-rep(upper,npar) 
-# ?? more tests on bounds
 if (length(lower)!=npar) stop("Wrong length: lower")
 if (length(upper)!=npar) stop("Wrong length: upper")
 if (any(start<lower) || any(start>upper)) stop("Infeasible start")
+if ((! is.null(weights) ) && any(is.na(weights)) ){ stop("Undefined weights") }
 if (trace) {
    cat("lower:")
    print(lower)
    cat("upper:")
    print(upper)
 }
-# Should make this more informative??
 # controls
    ctrl<-list(
     watch=FALSE, # monitor progress
@@ -91,7 +95,7 @@ if (trace) {
    femax<-ctrl$femax
    jemax<-ctrl$jemax
 # Then see which ones are parameters (get their positions in the set xx
-    pnum<-start # may simplify later??
+    pnum<-start # may simplify later
     pnames<-names(pnum)
     bdmsk<-rep(1,npar) # set all params free for now
     if (length(maskidx)>0 && trace) {
@@ -108,8 +112,7 @@ if (trace) {
 #       eval(parse(text=cmd))
 #    }
 
-## ?? remove numerical jacobian and put in model2jacfn 140716??
-# 20120607 -- put in if needed ?? Change so we can get different numerical
+# Change so we can get different numerical
 #   approximations -- and make it possible to get this into jacfn!!??
     if (is.null(jacfn)){
        if (trace) cat("Using default jacobian approximation\n")
@@ -134,10 +137,11 @@ if (trace) {
     } else { 
        numjac<-FALSE
     }
-cat("Starting pnum=")
-print(pnum)
+# cat("Starting pnum=")
+# print(pnum)  ?? add with trace??
 
-    resbest<-resfn(pnum, ...) ## ?? wrong call?
+    if (is.null(weights) ) {resbest<-resfn(pnum, ...) }
+    else {resbest <- resfn(pnum, ...) * weights }
 #    cat("resbest:")
 #    print(resbest)
     ssbest<-crossprod(resbest)
@@ -172,12 +176,18 @@ print(pnum)
             print(bdmsk)
           }
           if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
-          else Jac<-attr(jacfn(pbest, ...),"gradient") ## ?? JN 140730
+          else Jac<-attr(jacfn(pbest, ...),"gradient") ## JN 140730 ?? still need to 
+          ## supply other approximations??
+          if (! is.null(weights)) {Jac <- Jac * weights}
           ## NOTE: by insisting on using the "gradient" attribute, we can use same
           ## fn for gradient and residual
           jeval<-jeval+1 # count Jacobians
           if (any(is.na(Jac))) stop("NaN in Jacobian")
           JTJ<-crossprod(Jac)
+##          cat("Jac:\n")
+##          print(Jac)
+##          cat("resbest:\n")
+##          print(resbest)
           gjty<-t(Jac)%*%resbest # raw gradient
           for (i in 1:npar){
              bmi<-bdmsk[i]
@@ -264,7 +274,8 @@ print(pnum)
 #                eval(parse(text=joe))
 #              }
               feval<-feval+1 # count evaluations
-              resid<-resfn(pnum, ...)
+              resid <- resfn(pnum, ...)
+              if (! is.null(weights)) {resid <- resid * weights}
               ssquares<-as.numeric(crossprod(resid))
               if (is.na(ssquares)) ssquares<-.Machine$double.xmax
               if (ssquares>=ssbest) {
@@ -296,7 +307,7 @@ print(pnum)
     names(pnum) <- pnames
     result <- list(resid = resbest, jacobian = Jac, feval = feval, 
         jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
-    class(result) <- "nlmrt"
+    class(result) <- "nlmrt" ## ?? do we want nlsr if we change name
     result
 }
 

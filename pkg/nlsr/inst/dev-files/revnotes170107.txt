@@ -6,3 +6,12 @@ Notes on review of nlsr package Jan 2017 by JN
 
 - in nlsr-devdoc.Rmd added silly joe(x) example to show possible trouble spot
 
+170108
+- removed dot args from nlxb declaration and its internal call to nlfb(),
+  and fixed nlxb.Rd. Note nls() help says of dot args "None are used at present."
+  
+- moved model2rjfunx and .Rd file to inst/dev-files
+
+- should we add weights to nlxb? nlfb? Note that nlfb() can use functionally
+  created weights, but nls uses FIXED weights. We could add fixed weights to 
+  nlxb() and pass to nlfb() via its dot args.

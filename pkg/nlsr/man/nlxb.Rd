@@ -13,7 +13,7 @@
 }
 \usage{
    nlxb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf,
-        masked=NULL, control, ...)
+        masked=NULL, control)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,6 +23,9 @@
      for example,
            y ~ b1/(1+b2*exp(-b3*tt))
      You may also give this as a string.
+     Note that the residuals are computed within this code using
+           residual = rhsexpression - lhsvar
+     which is the negative of the usual choice, but the sum of squares is the same.
 }
   \item{start}{
      A named parameter vector. For our example, we could use
@@ -69,19 +72,13 @@
              Default is 5000.}
       \item{\code{rofftest}}{Default is TRUE. Use a termination test of the relative offset 
             orthogonality type. Useful for nonlinear regression problems.}
-      \item{\code{smallsstest}}{Default is TRUE. Exit the function if the sum of squares falls
-            below (100 * .Machine$double.eps)^4 times the initial sumsquares. This is a test
-            for a ``small'' sum of squares, but there are problems which are very extreme 
-            for which this control needs to be set FALSE.}
+      \item{\code{smallsstest}}{Default is TRUE. Exit the function if the sum of squares
+            falls below (100 * .Machine$double.eps)^4 times the initial sumsquares. This 
+            is a test for a ``small'' sum of squares, but there are problems which are 
+            very extreme for which this control needs to be set FALSE.}
      }
 }
 
-
-  \item{\dots}{
-     Any data needed for computation of the residual vector from the 
-       expression rhsexpression - lhsvar. Note that this is the negative 
-       of the usual residual, but the sum of squares is the same.
-}
 }
 \details{
     \code{nlxb} attempts to solve the nonlinear sum of squares problem by using

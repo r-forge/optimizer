@@ -129,6 +129,7 @@ nlxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     names(pnum) <- pnames # Make sure names re-attached. ??Is this needed??
     resfb$coefficients <- pnum
     result <- resfb
-    class(result) <- "nlsr"
+    attr(result, "pkgname") <- "nlsr"
+##    class(result) <- "nlsr" ## CAUSES ERRORS
     result
 }

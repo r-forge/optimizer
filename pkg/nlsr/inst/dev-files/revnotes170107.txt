@@ -6,12 +6,9 @@ TODO:
 - summary for nlxb and nlfb need to both work ??
 - get weights to work right
 
+170110
 
-- added detailed output to dex() examples that show different classes of the returned objects.
-
-- made clear where the .MissingVal usage is to be found in Rd file for nlsDeriv.
-
-- in nlsr-devdoc.Rmd added silly joe(x) example to show possible trouble spot
+- weights (fixed) added and documented in nlsr-devdoc.Rmd
 
 170108
 - removed dot args from nlxb declaration and its internal call to nlfb(),
@@ -22,3 +19,12 @@ TODO:
 - should we add weights to nlxb? nlfb? Note that nlfb() can use functionally
   created weights, but nls uses FIXED weights. We could add fixed weights to 
   nlxb() and pass to nlfb() via its dot args.
+  
+170107
+  
+- added detailed output to dex() examples that show different classes of the returned objects.
+
+- made clear where the .MissingVal usage is to be found in Rd file for nlsDeriv.
+
+- in nlsr-devdoc.Rmd added silly joe(x) example to show possible trouble spot
+

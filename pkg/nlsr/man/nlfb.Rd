@@ -12,7 +12,7 @@
 }
 \usage{
    nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
-         maskidx=NULL, data=NULL, control, ...)
+         maskidx=NULL, weights=NULL, data=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -55,10 +55,18 @@
      which uses the names of the parameters.
 
 } 
+
+  \item{weights}{
+     A vector of fixed weights. The objective function that will be minimized is the
+     sum of squares where each residual is multiplied by the square root of the 
+     corresponding weight.  Default (NULL) implies unit weights.
+} 
+
   \item{data}{
      Data frame of variables used by resfn and jacfn to compute the
      required residuals and Jacobian.
 }
+
   \item{control}{ 
      A list of controls for the algorithm. These are:
      \describe{

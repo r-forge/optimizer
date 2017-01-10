@@ -47,7 +47,7 @@ desirable.
 
 ## TODOS ??
 
-- functions in nlsr-package.R, esp fnDeriv, need to be explained
+- functions in nlsr-package.R need to be explained
 - how to insert numerical derivatives when Deriv unable to get result
 - approximations for jacfn beyond fwd approximation. How to specify??
 - weights should possibly be available in nlxb. For nlfb, they can
@@ -121,20 +121,13 @@ f(1)
                       # meaningless after the subtraction.
 ```
 
-#### findSubexprs
-
-This function finds common subexpressions in an expression vector
-so that duplicate computation can be avoided.
 
 #### model2rjfun, model2ssgrfun, modelexpr
 
 These functions create functions to evaluate residuals or sums of 
 squares at particular parameter locations.
 
-#### model2rjfunx, model2ssgrfunx
-
-These functions create functions to evaluate residuals or sums of squares at particular parameter locations. The attempt is to have
-dot-args available. This is experimental.
+?? example
 
 #### modeldoc, print.modeldoc
 
@@ -144,7 +137,7 @@ this function is to provide a record of the details underlying the function
 
    modeldoc,
 
-
+?? examples
 
 #### nlfb 
 
@@ -173,6 +166,8 @@ this function is to provide a record of the details underlying the function
    uses the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method.
 
+?? examples
+
 #### nlxb
 
    Given a nonlinear model expressed as an expression of the form
@@ -189,6 +184,8 @@ Print summary output (but involving some serious computations!) of
     an object of class nlsr from \code{nlxb} or \code{nlfb} from package
     \code{nlsr}.
 
+??example
+
 #### resgr
 
    For a nonlinear model originally expressed as an expression of the form
@@ -196,6 +193,8 @@ Print summary output (but involving some serious computations!) of
    assume we have a resfn and jacfn that compute the residuals and the 
    Jacobian at a set of parameters. This routine computes the gradient, 
    that is, t(Jacobian) . residuals. 
+
+?? example
 
 #### resss
 
@@ -205,16 +204,29 @@ Print summary output (but involving some serious computations!) of
    Jacobian at a set of parameters. This routine computes the gradient, 
    that is, t(Jacobian) %*% residuals. 
 
-#### newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE
+?? example
+
+#### newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE, isCALL, findSubexprs, sysDerivs
 
 Functions to simplify expressions.
 \code{Simplify} simplifies expressions according to rules specified
 by \code{newSimplification}.
 
+?? examples and checks
+
+**findSubexprs** finds common subexpressions in an expression vector
+so that duplicate computation can be avoided.
+
+?? example
+
+
 #### summary.nlsr
 
 Provide a summary output (but involving some serious computations!) of an object of
 class nlsr from nlxb or nlfb from package nlsr.
+
+?? examples, invisible?
+
 
 #### wrapnlsr
 
@@ -227,22 +239,124 @@ to find the minimum of the residual sum of squares using the Nash variant
 (Nash, 1979) of the Marquardt algorithm, where the linear sub-problem is 
 solved by a qr method.
 
-#### isFALSE
+Example ??
 
-#### isZERO
+### Particular features
 
-#### isONE
+#### Weighted regression
 
-#### isMINUSONE
+## weighted nonlinear regression
 
-#### isCALL
+Weighted regression alters the sum of squares of the parameters `prm` from
 
-#### Simplify
+     sum_{i} (residual_i(prm)^2)
 
-#### findSubexprs
+to
 
-####    sysDerivs
+     sum_{i} (wts_i * residual_i(prm)^2)
 
+where `wts` is the vector of weights. This is equivalent to multiplying each residual or
+row of the Jacobian by the square root of the respective weight.
+
+While `nls()` has provision for (fixed) weights, the example given in the documentation
+of `nls()` for weighted regression actually uses a functional form. Moreover, the
+weights are the square roots of the **predicted** or model values, so are not fixed.
+Here we replace these weights with the fixed values of the quantity we are trying to
+predict, namely the `rate` variable in a kinetic model. In our example below we first
+use the documentation example with predicted values; note that the name of the result
+has been changed from that in the `nls()` documentation. This result gives different estimates of the parameters from the fixed weights used afterwards.
+
+Note that neither `nlsr::nlxb` nor `nlsr::nlfb` can use the weighted.MM function
+directly. This is one of the more awkward aspects of nonlinear least squares and
+nonlinear optimization.
+
+```{r}
+Treated <- Puromycin[Puromycin$state == "treated", ]
+weighted.MM <- function(resp, conc, Vm, K)
+{
+  ## Purpose: exactly as white book p. 451 -- RHS for nls()
+  ##  Weighted version of Michaelis-Menten model
+  ## ----------------------------------------------------------
+  ## Arguments: 'y', 'x' and the two parameters (see book)
+  ## ----------------------------------------------------------
+  ## Author: Martin Maechler, Date: 23 Mar 2001
+  
+  pred <- (Vm * conc)/(K + conc)
+  (resp - pred) / sqrt(pred)
+}
+## Here is the estimation using predicted value weights
+Pur.wtpred <- nls( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
+               start = list(Vm = 200, K = 0.1))
+summary(Pur.wtpred)
+
+## nlxb cannog use this form
+Pur.wtxpred <- try(nlxb( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
+               start = list(Vm = 200, K = 0.1)))
+## and the structure is wrong for nlfb. See wres.MM below.
+Pur.wtfpred <- try(nlfb(resfn=weighted.MM(rate, conc, Vm, K), data = Treated,
+               start = list(Vm = 200, K = 0.1)))
+
+
+
+## Now use fixed weights and the weights argument in nls()
+Pur.wtw <- nls( rate ~ (Vm * conc)/(K + conc), data = Treated,
+                  start = list(Vm = 200, K = 0.1), weights=1/rate)
+summary(Pur.wtw)
+
+## nlsr::nlxb should give essentially the same result
+library(nlsr)
+Pur.wtx <- nlxb( rate ~ (Vm * conc)/(K + conc), data = Treated,
+                start = list(Vm = 200, K = 0.1), weights=1/Treated$rate)
+summary(Pur.wtx)
+## check difference
+coef(Pur.wtw) - coef(Pur.wtx)
+
+## Try using a function, that is nlsr::nlfb
+stw <- c(Vm = 200, K = 0.1)
+wres.MM <- function(prm, rate, conc) {
+      Vm <- prm[1]
+      K <- prm[2]
+      pred <- (Vm * conc)/(K + conc)
+    (rate - pred) / sqrt(rate) # NOTE: NOT pred here
+}
+
+# test function first to see it works
+print(wres.MM(stw, rate=Treated$rate, conc=Treated$conc))
+
+Pur.wtf <- nlfb(start=stw,  resfn=wres.MM, rate = Treated$rate, conc=Treated$conc, 
+                  trace=FALSE) # Note: weights are inside function already here
+summary(Pur.wtf)
+print(Pur.wtf)
+## check estimates with nls() result
+coef(Pur.wtw) - coef(Pur.wtf)
+## and with nlxb result
+coef(Pur.wtx) - coef(Pur.wtf)
+
+wres0.MM <- function(prm, rate, conc) {
+      Vm <- prm[1]
+      K <- prm[2]
+      pred <- (Vm * conc)/(K + conc)
+    (rate - pred) # NOTE: NO weights
+}
+Pur.wtf0 <- nlfb(start=stw,  resfn=wres0.MM, rate = Treated$rate, conc=Treated$conc, 
+                  weights=1/Treated$rate, trace=FALSE) # Note: explicit weights
+summary(Pur.wtf0)
+print(Pur.wtf0)
+## check estimates with nls() result
+coef(Pur.wtw) - coef(Pur.wtf0)
+## and with nlxb result
+coef(Pur.wtx) - coef(Pur.wtf0)
+
+wss.MM <- function(prm, rate, conc) {
+  ss <- as.numeric(crossprod(wres.MM(prm, rate, conc)))
+}
+library(optimr)
+osol <- optimr(stw, fn=wss.MM, gr="grnd", method="Nelder-Mead", control=list(trace=0), 
+            rate=Treated$rate, conc=Treated$conc)
+print(osol)
+## difference from nlxb
+osol$par - coef(Pur.wtx)
+```
 
 ### Missing capabilities
 
@@ -257,12 +371,17 @@ Note that the functional approach to nonlinear least squares -- accessible via
 function `nlfb` -- does let us prepare residuals and Jacobians of complexity
 limited only by the capabilities of **R**.
 
+#### Automatic differentiation
+
+This is the natural extension of Multi-line expressions. The authors would welcome
+collaboration with someone who has expertise in this area.
+
 #### Vector parameters
 
 We would like to be able to find the Jacobian or gradient of functions
 that have as their parameters a vector, e.g., *prm*. At time of writing
 (January 2015) we cannot specify such a vector within **nlsr**. 
-
+?? is this true?
 
 #### Examples of capabilities and weaknesses
 

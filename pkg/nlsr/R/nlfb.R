@@ -40,7 +40,8 @@ showprms<-function(SS, pnum){
 } # end showprms
 
 if (is.null(weights)) {cat("no weights\n")}
-else {cat("weights:")
+else if (trace) {
+      cat("weights:")
       print(weights)
       }
 
@@ -307,7 +308,9 @@ if (trace) {
     names(pnum) <- pnames
     result <- list(resid = resbest, jacobian = Jac, feval = feval, 
         jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
-    class(result) <- "nlmrt" ## ?? do we want nlsr if we change name
+##    class(result) <- "nlsr" ## ?? do we want nlsr if we change name
+    attr(result, "pkgname") <- "nlsr"
+##    class(result) <- "nlsr" ## CAUSES ERRORS
     result
 }
 

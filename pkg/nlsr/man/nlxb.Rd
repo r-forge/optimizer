@@ -13,7 +13,7 @@
 }
 \usage{
    nlxb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf,
-        masked=NULL, control)
+        masked=NULL, weights=NULL, control)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -51,6 +51,11 @@
      by the algorithm. Masks may also be defined by setting lower and upper bounds
      equal for the parameters to be fixed. Note that the starting parameter value
      must also be the same as the lower and upper bound value.
+} 
+  \item{weights}{
+     A vector of fixed weights. The objective function that will be minimized is the
+     sum of squares where each residual is multiplied by the square root of the 
+     corresponding weight. Default (NULL) implies unit weights.
 } 
 
    \item{control}{ 

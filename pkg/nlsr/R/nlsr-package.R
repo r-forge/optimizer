@@ -1,8 +1,4 @@
 # nlsr-package.R -- print and summary methods
-#   result <- list(resid = resbest, jacobian = Jac, feval = feval, 
-#        jeval = jeval, coefficients = pnum, ssquares = ssbest)
-#    class(result) <- "nlmrt"
-
 
 summary.nlsr <- function(object, ...) {
     sumnlsr<-list() # set up the stub
@@ -81,6 +77,7 @@ summary.nlsr <- function(object, ...) {
     object<-list(resname=resname, ssquares=ss, nobs=nobs, coeff=coeff, ct=ct, mt=mt, 
            SEs=SEs, tstat=tstat, pval=pval, Sd=Sd, gr=gr, jeval=object$jeval,
            feval=object$feval)
+    attr(object,"pkgname") <- "nlsr"
 ##? LEAVE OUT: JJ  res 
 ##? Sd
 ##? gr
@@ -93,13 +90,14 @@ coef.nlsr <- function(object, ...) {
        out <- object$coefficients
        # print(object$coefficients)
        attr(out,"pkgname")<-"nlsr"
-       invisible(out)
+##       invisible(out)
+       out # JN 170109
 }
 
 print.nlsr <- function(x, ...) {
     xx<-summary(x)
     with(xx, { 
-	cat("nlsr class object:",resname,"\n")
+	cat("nlsr object:",resname,"\n")
 	pname<-names(coeff)
 	npar <- length(coeff)
         cat("residual sumsquares = ",ssquares," on ",nobs,"observations\n")
@@ -118,6 +116,5 @@ print.nlsr <- function(x, ...) {
             cat("\n")
         }
     }) # remember to close with()
-    invisible(x)
+  invisible(x)
 }
-

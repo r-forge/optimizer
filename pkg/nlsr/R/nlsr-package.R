@@ -84,7 +84,8 @@ summary.nlsr <- function(object, ...) {
 ##? LEAVE OUT: JJ  res 
 ##? Sd
 ##? gr
-    invisible(object)
+## ??    invisible(object)
+    object
 }
 
 # ?? coef() function

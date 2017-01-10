@@ -1,5 +1,12 @@
 Notes on review of nlsr package Jan 2017 by JN 
 
+TODO: 
+- do we need a resid() function??
+- why is summary invisible?
+- summary for nlxb and nlfb need to both work ??
+- get weights to work right
+
+
 - added detailed output to dex() examples that show different classes of the returned objects.
 
 - made clear where the .MissingVal usage is to be found in Rd file for nlsDeriv.

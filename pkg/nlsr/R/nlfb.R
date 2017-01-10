@@ -141,7 +141,7 @@ if (trace) {
 # print(pnum)  ?? add with trace??
 
     if (is.null(weights) ) {resbest<-resfn(pnum, ...) }
-    else {resbest <- resfn(pnum, ...) * weights }
+    else {resbest <- resfn(pnum, ...) * sqrt(weights) }
 #    cat("resbest:")
 #    print(resbest)
     ssbest<-crossprod(resbest)
@@ -178,7 +178,7 @@ if (trace) {
           if (numjac) Jac<-myjac(pbest, rfn=resfn, bdmsk=bdmsk, resbest=resbest, ...)
           else Jac<-attr(jacfn(pbest, ...),"gradient") ## JN 140730 ?? still need to 
           ## supply other approximations??
-          if (! is.null(weights)) {Jac <- Jac * weights}
+          if (! is.null(weights)) {Jac <- Jac * sqrt(weights)}
           ## NOTE: by insisting on using the "gradient" attribute, we can use same
           ## fn for gradient and residual
           jeval<-jeval+1 # count Jacobians
@@ -275,7 +275,7 @@ if (trace) {
 #              }
               feval<-feval+1 # count evaluations
               resid <- resfn(pnum, ...)
-              if (! is.null(weights)) {resid <- resid * weights}
+              if (! is.null(weights)) {resid <- resid * sqrt(weights)}
               ssquares<-as.numeric(crossprod(resid))
               if (is.na(ssquares)) ssquares<-.Machine$double.xmax
               if (ssquares>=ssbest) {

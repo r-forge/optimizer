@@ -9,6 +9,7 @@ TODO:
 170110
 
 - weights (fixed) added and documented in nlsr-devdoc.Rmd
+- nlfb: sumsquares via crossprod needs to be as.numeric(). Done.
 
 170108
 - removed dot args from nlxb declaration and its internal call to nlfb(),

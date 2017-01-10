@@ -145,7 +145,7 @@ if (trace) {
     else {resbest <- resfn(pnum, ...) * sqrt(weights) }
 #    cat("resbest:")
 #    print(resbest)
-    ssbest<-crossprod(resbest)
+    ssbest<-as.numeric(crossprod(resbest))
     ss0 <- ssbest # reference value for rofftest
     ssminval <- ssbest*epstol^4
     if (watch) cat("ssminval =",ssminval,"\n")
@@ -307,10 +307,10 @@ if (trace) {
     pnum<-as.vector(pnum)
     names(pnum) <- pnames
     result <- list(resid = resbest, jacobian = Jac, feval = feval, 
-        jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, maskidx=maskidx)
-##    class(result) <- "nlsr" ## ?? do we want nlsr if we change name
-    attr(result, "pkgname") <- "nlsr"
-##    class(result) <- "nlsr" ## CAUSES ERRORS
+        jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, 
+        maskidx=maskidx, weights=weights)
+##    attr(result, "pkgname") <- "nlsr"
+    class(result) <- "nlsr" ## CAUSES ERRORS
     result
 }
 

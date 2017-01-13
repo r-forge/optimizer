@@ -118,7 +118,9 @@ print.nlsr <- function(x, ...) {
         tstat <- param[,3]
         pval <- param[,4]
         for (i in seq_along(param[,1])){
-            cat(format(pname[i], width=10)," ")
+            tmpname<-pname[i]
+            if (is.null(tmpname)) {tmpname <- paste("p_",i,sep='')}
+            cat(format(tmpname, width=10)," ")
             cat(format(param[[i]], digits=6, width=12))
             cat(ct[[i]],mt[[i]]," ")
             cat(format(SEs[[i]], digits=4, width=9)," ")

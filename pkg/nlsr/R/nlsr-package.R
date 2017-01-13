@@ -1,15 +1,18 @@
 # nlsr-package.R -- print and summary methods
 
 summary.nlsr <- function(object, ...) {
-    sumnlsr<-list() # set up the stub
     smalltol <- .Machine$double.eps * 1000
     options(digits = 5) # 7 is default
     resname <- deparse(substitute(object))
     JJ <- object$jacobian
     res <- object$resid
     coeff <- object$coefficients
-    pname<-names(coeff)
+    pnames<-names(coeff)
+##    param <- coef(object)
     npar <- length(coeff)
+    w <- object$weights
+    nobs <- if (!is.null(w)) sum(w > 0) else length(res)
+    rdf <- nobs - npar
     lo <- object$lower
     if (is.null(lo)) lo <- rep( -Inf, npar)
     up <- object$upper
@@ -41,13 +44,12 @@ summary.nlsr <- function(object, ...) {
        }
     }
     ss <- object$ssquares
-    nobs <- length(res)
-    ndof <- nobs - npar
-    if (ndof <= 0) {
-          if (ndof < 0) { stop(paste("Inadmissible degrees of freedom =",ndof,sep='')) }
-          else { sighat2 <- Inf }
+    rdf <- nobs - npar
+    if (rdf <= 0) {
+          if (rdf < 0) { stop(paste("Inadmissible degrees of freedom =",rdf,sep='')) }
+          else { resvar <- Inf }
     } else {
-       sighat2 <- ss/(ndof)
+       resvar <- ss/(rdf)
     }
     dec <- svd(JJ)
     U <- dec$u
@@ -55,6 +57,7 @@ summary.nlsr <- function(object, ...) {
     Sd <- dec$d
     if (min(Sd) <= smalltol * max(Sd)) { # singular
        SEs <- rep(NA, npar) # ?? Inf or NA
+       XtXinv <- matrix(NA, nrow=npar, ncol=npar)
     } else {
        Sinv <- 1/Sd
 ##       Sinv[which(bdmsk != 1)] <- 0 # ?? 140714 maybe don't want this
@@ -63,26 +66,33 @@ summary.nlsr <- function(object, ...) {
        } else {
            VS <- V/Sinv
        }
-       Jinv <- crossprod(t(VS))
-       var <- Jinv * sighat2
-       SEs <- sqrt(diag(var))
+       XtXinv <- crossprod(t(VS))
+       SEs <- sqrt(diag(XtXinv) * resvar)
     }
+    cat("CHECK XtXinv:")
+    print(XtXinv)
+    dimnames(XtXinv) <- list(pnames, pnames)
     gr <- crossprod(JJ, res)
     if (any(is.na(SEs))) {
         tstat<-rep(NA, npar)
     } else {
         tstat <- coeff/SEs
     }
-    pval<-2*(1-pt(abs(tstat), df=ndof)) # This will carry through NAs
-    object<-list(resname=resname, ssquares=ss, nobs=nobs, coeff=coeff, ct=ct, mt=mt, 
-           SEs=SEs, tstat=tstat, pval=pval, Sd=Sd, gr=gr, jeval=object$jeval,
-           feval=object$feval)
-    attr(object,"pkgname") <- "nlsr"
-##? LEAVE OUT: JJ  res 
-##? Sd
-##? gr
-## ??    invisible(object)
-    object
+    tval <- coeff/SEs
+    param <- cbind(coeff, SEs, tval, 2 * pt(abs(tval), rdf, lower.tail = FALSE))
+    dimnames(param) <-
+        list(pnames, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
+
+# Note: We don't return formula because we may be doing nlfb summary 
+#   i.e., resfn and jacfn approach
+    ans <- list(residuals = res, sigma = sqrt(resvar),  
+                df = c(npar, rdf), cov.unscaled = XtXinv,
+                param = param, resname=resname, ssquares=ss, nobs=nobs, 
+                ct=ct, mt=mt, Sd=Sd, gr=gr, jeval=object$jeval,feval=object$feval)
+                ## parameters = param)# never documented, for back-compatibility
+    attr(ans,"pkgname") <- "nlsr"
+    class(ans) <- "summary.nlsr"
+    ans
 }
 
 # ?? coef() function
@@ -98,15 +108,18 @@ print.nlsr <- function(x, ...) {
     xx<-summary(x)
     with(xx, { 
 	cat("nlsr object:",resname,"\n")
-	pname<-names(coeff)
-	npar <- length(coeff)
+	pname<-dimnames(param)[[1]] # param is augmented coefficients with SEs and tstats
+	npar <- dim(param)[1] # ?? previously length(coeff) 
         cat("residual sumsquares = ",ssquares," on ",nobs,"observations\n")
         cat("    after ",jeval,"   Jacobian and ",feval,"function evaluations\n")
         cat("  name     ","      coeff    ","     SE   ","   tstat  ",
              "   pval  ","   gradient  "," JSingval  ","\n")
-        for (i in seq_along(coeff)){
+        SEs <- param[,2]
+        tstat <- param[,3]
+        pval <- param[,4]
+        for (i in seq_along(param[,1])){
             cat(format(pname[i], width=10)," ")
-            cat(format(coeff[[i]], digits=6, width=12))
+            cat(format(param[[i]], digits=6, width=12))
             cat(ct[[i]],mt[[i]]," ")
             cat(format(SEs[[i]], digits=4, width=9)," ")
             cat(format(tstat[[i]], digits=4, width=9)," ")

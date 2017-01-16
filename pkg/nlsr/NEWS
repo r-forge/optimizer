@@ -1,9 +1,48 @@
-To do
          o    Should we use model.frame() anywhere??
 
 
+Notes on review of nlsr package Jan 2017 by JN
+
+TODO:
+- do we need a resid() function??
+
+170116
+- summary no longer invisible?
+
+- summary for nlxb and nlfb both now should work.
+  If there is no name for a parameter, the name p_(position)
+  is created.
+
+- weights should be working OK. Residuals will be weighted ones.
+
+- added resid.nlsr() function. However, predict.nlsr() is NOT
+  present, since we can create problems with residuals (e.g.,
+  nonlinear equations) that do not have a model structure
+
+170113
+- output of summary.nlsr is class = "summary.nlsr" like summary.nls is "summary.nls"?
+
+170110   o    weights (fixed) added and documented in nlsr-devdoc.Rmd
+         o    nlfb: sumsquares via crossprod needs to be as.numeric(). Done.
+
+170108   o    removed dot args from nlxb declaration and its internal
+              call to nlfb(), and fixed nlxb.Rd. Note nls() help says
+              of dot args "None are used at present."
+
+         o    moved model2rjfunx and .Rd file to inst/dev-files
+
+         o    Note that nlfb() can use functionally created weights,
+              but nls uses FIXED weights. We have added fixed weights to
+              nlxb() and pass them to nlfb() via its dot args.
+
 170107   o    expanded dex() examples to show object class of result.
               Note that "language" class encompasses "expression".
+
+         o    made clear where the .MissingVal usage is to be found in
+              Rd file for nlsDeriv.
+
+         o    in nlsr-devdoc.Rmd added silly joe(x) example to show
+              possible trouble spot
 
 170102   o    Cleanup of package
               New function dex() to prepare input for nlsDeriv()

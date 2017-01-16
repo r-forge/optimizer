@@ -133,3 +133,12 @@ print.nlsr <- function(x, ...) {
     }) # remember to close with()
   invisible(x)
 }
+
+resid.nlsr <- function(object, ...) {
+   resids <- object$resid
+}
+
+## predict.nlsr <- function(object, ...) {
+  # How to do this??
+  ## Since we may have residuals WITHOUT a model, prediction may not make sense.
+## }

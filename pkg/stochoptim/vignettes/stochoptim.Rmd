@@ -390,7 +390,7 @@ print(asmco1[c("par", "value")])
 
 ####Package `soma`####
 
-\index{soma@`soma}}
+\index{soma@`soma`}
 
 `soma`, which seems to perform reasonably well on the Rastrigin function, is
 a quite compact method written entirely in **R**. Unfortunately, the particular 
@@ -418,7 +418,7 @@ print(Rastrigin(asoma1$population[,asoma1$leader]))
 
 ####Package `Rmalschains`####
 
-\index{Rmalschains@`Rmalschains}}
+\index{Rmalschains@`Rmalschains`}
 
 Quoting from the package DESCRIPTION "Memetic algorithms are hybridizations of
 genetic algorithms with local search methods." Thus this package is yet another
@@ -523,10 +523,13 @@ Note that, as with most stochastic methods, there are long stretches of work
 where we do not see any progress.
 
 
-#Multiple starting values#
+##Multiple starting values##
 
 \index{starting point!multiple}
 \index{multiple starts}
+
+?? JN: Do we want to even consider such an approach?
+
 
 In many cases, it is possible to simply use a selection of starting vectors
 with a \B{local} minimizer to achieve desired results. In the case of the 

@@ -1,0 +1,722 @@
+---
+title: "stochoptim -- a wrapper for stochastic optimization methods in R"
+author: "John C. Nash & Hans Werner Borchers"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: nlpd.bib
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+##stochoptim -- a wrapper for stochastic optimization methods in R##
+
+\index{global optimization}
+\index{stochastic optimization}
+
+##Introduction and purpose##
+
+This vignette is a working document to record efforts to unify the calls to 
+a number of stochastic and global optimization methods available in packages for
+**R**. JN: I will use ?? to indicate issues where I need to resolve choices or
+want to clarify (perhaps in my own mind!)
+
+??  other names  stoptim, optims, stoptimR ??
+
+
+There are very many methods offered for these problems, both generally and in
+**R**, and, sadly, many of the offerings are weak and/or simply renamings or
+very minor adjustments of other programs. This creates a challenge for the 
+novice user. By "novice" we simply mean someone not well-versed in stochastic
+or global optimization, not a novice in **R** or their field of work. Moreover,
+it is common even among optimization workers that there are classes of methods
+which are unfamiliar.
+
+This document will attempt 
+
+   - to list available stochastic and global optimization methods in **R**
+   
+   - to select those suitable for inclusion in a generic wrapper call, those
+     that are unsuitable, and those worthy of further investigation
+     
+   - to document the choices made, and the successes and failures. Where 
+     reasonable, the heavy detail will be moved to appendices, but an 
+     effort will be made to record all major attempts and failures.
+     
+
+##Proposed call structure##
+
+This section proposes a call and its arguments.
+
+The `base` package in **R** has the method `SANN` (for Simulated
+ANNealing) in the function `optim()`, so we will start with the call to 
+that function, namely, 
+
+     ans <- optim(start, function, gradient, method="Name", lower=lb, 
+             upper=ub, control=list())
+
+Key issues:
+
+    - initiation methods or specification of the starting point or region
+
+    - termination criteria
+
+    - method controls and appropriate defaults
+
+    - agreed names for controls and arguments, since packages use many choices
+    
+    
+    
+##Candidate packages and methods##
+
+This is a fairly long and messy section, but is necessary to allow for choices.
+
+There are many names associated with stochastic optimization methods:
+Simulated Annealing, Genetic Algorithms, Tabu Search, differential evolution,
+particle swarm optimization, Self-Organizing Migrating Algorithm. 
+
+?? JN: I'm happy to have more methods added, as well as to have comments on those
+to include, exclude, or maybe. I suggest marking them ?include?, ?exclude? and ?maybe?
+so we can search and find easily.
+
+
+###simulated annealing###
+
+\index{SANN@`SANN()`}
+
+####SANN####
+
+method `SANN` in function `optim()` is a simulated annealing method that 
+uses ONLY the iteration count as a termination criterion. ?include?
+
+
+####GenSA####
+\index{GenSA@\`GenSA`}
+
+`GenSA` Generalized simulated annealing. Unlike the `optim()` method
+`SANN', the function `GenSA()` includes
+several controls for terminating the optimization process @GenSA13.
+?include?
+
+\index{likelihood@`likelihood`}
+
+
+####likelihood####
+
+`likelihood` uses simulated annealing as its optimization tool. Unfortunately,
+at the time of writing, this is particularized to the objective functions of the
+package, but the author (Lora Murphy) has shown interest in generalizing the
+optimizer, which is written in **R** @LMurphy12.
+
+
+####GrassmannOptim####
+
+\index{GrassmannOptim@`GrassmannOptim`}
+
+`GrassmannOptim`: This package for Grassmann manifold optimization (used in 
+image recognition) uses simulated annealing for attempting global optimization. 
+The documentation (JN: I have not tried this package and mention it to show the 
+range of possibilities) suggests the package can be used for general 
+optimization @Grassmann12.
+?maybe?
+
+
+###Differential evolution###
+
+\index{differential evolution}
+\index{DEoptim@\`DEoptim`}
+
+####DEoptim####
+
+`DEoptim`: Global optimization by Differential Evolution. This package has
+many references, but here we will choose to point to @DEoptimJSS11. 
+?include?
+
+\index{RcppDE@`RcppDE`}
+
+####RcppDE####
+
+`RcppDE`: Global optimization by differential evolution in C++, aimed
+at a more efficient interface to the `DEoptim` functionality @RcppDE12.
+?include?
+
+
+###Genetic methods###
+
+\index{genetic optimization methods}
+
+
+####rgenoud####
+
+\index{rgenoud@`rgenoud`}
+
+`rgenoud`: R version of GENetic Optimization Using Derivatives @rgenoud11.
+?include?
+
+
+####GA####
+
+\index{GA@`GA`}
+
+`GA`: Genetic Algorithms -- a set of tools for maximizing a fitness function 
+     @p-GA. 
+     A number of examples are included, including minimization of a 2-dimenstional
+     Rastrigin function (we use a 5-dimensional example below).
+?include?
+
+####gaoptim####
+
+\index{gaoptim@\`gaoptim`}
+
+`gaoptim`: Another suite of genetic algorithms. This one has functions to set up
+the process and create a function that is used to evolve the solution. However, I did
+not find that this package worked at all well for me, though I suspect I may have 
+misunderstood the documentation. 
+?maybe?
+
+####rgp####
+
+\index{rgp@`rgp}}
+
+`rgp` (an **R**\ genetic programming framework) likely has many tools that could be
+used for stochastic optimization, but the structure of the package makes it difficult
+to modify existing scripts to the task. The documentation of package `nsga2R` 
+?maybe?
+
+####nsga2R####
+
+\index{nsga2R@`nsga2R`}
+
+`nsga2R` -- Elitist Non-dominated Sorting Genetic Algorithm based on **R** -- was, to my 
+view,  such that I could not figure out how to use it to minimize a function. 
+?maybe?
+
+
+####mcga####
+
+\index{mcga@`mcga`}
+
+Package `mcga` (Machine coded genetic algorithms for real-valued optimization problems)
+appears to recode the parameters to 8-bit values and finds the minimum of the encoded
+function. However, it took me some time to decide that the ``optimization'' was a 
+minimization. Many genetic and related codes seek maxima.
+?maybe?
+
+
+
+###Other approaches###
+
+####Rmalschains####
+
+\index{Rmalschains@`Rmalschains`}
+
+`Rmalschains`: Continuous Optimization using Memetic Algorithms with Local Search Chains (MA-LS-Chains) in R @Rmalschains12. I confess to knowing rather little about this approach.
+?include?
+
+####smco####
+
+\index{smco@`smco`}
+
+`smco`: A simple Monte Carlo optimizer using adaptive coordinate sampling @smco12.
+?include?
+
+####soma####
+
+\index{soma@`soma`}
+
+`soma}: General-purpose optimisation with the Self-Organising Migrating Algorithm 
+@soma11. Again, this approach is one with which I am not familiar.
+?maybe?
+
+
+##An example problem##
+
+??JN: Do we want one or two more? Is this the right choice?
+
+To illustrate our attempted wrapper we will use a well-known multimodal test function 
+called the Rastrigin function @TZ89, @MSB91. This is defined in the examples for
+package `GenSA` as follows.
+
+```{r, rastrigindef}
+Rastrigin <- function(x) {
+       sum(x^2 - 10 * cos(2 * pi  * x)) + 10 * length(x)
+}
+dimension <- 5
+lower <- rep(-5.12, dimension)
+upper <- rep(5.12, dimension)
+start1 <- rep(1, dimension)
+```
+
+\index{vectorization}
+
+This function has as many dimensions as there are parameters
+in the vector `x` supplied to it. The traditional function is in 2 dimensions, but
+Gubain et al. in `GenSA` suggest that a problem in 30 dimensions is a particularly
+difficult one. Here we will use 5 dimensions as a compromise that allows for easier
+display of results while still providing some level of difficulty. Even the 2 dimensional
+case provides plenty of local minima, as can be seen from the Wikipedia article on the
+function at `http://en.wikipedia.org/wiki/Rastrigin_function`. Note that we define
+lower and upper bounds constraints on our parameters, and set a start vector.
+
+??JN: I suggest we always show code to run the problem in the native method, then
+in our wrapper as a way to ensure we have got things more or less right.
+
+###Method `SANN` from `optim()`###
+
+\index{SANN@`SANN()}}
+\index{optim@`optim()}}
+
+          For ``SANN'' `maxit' gives the total number of function
+          evaluations: there is no other stopping criterion. Defaults
+          to `10000'.
+
+Nonetheless, let us try this method on our 5-dimensional problem, using all 1s as
+a start. We will also fix a random number generator seed and reset this for each
+method to attempt to get some consistency in output. 
+?? JN: our wrapper is almost certain to need random number setting
+
+
+```{r, rastriginsann}
+myseed <- 1234
+set.seed(myseed)
+asann1 <- optim(par=start1, fn = Rastrigin, method='SANN', control=list(trace=1))
+print(asann1)
+```
+
+Sadly, not only do we make no progress, but the convergence code of 0 implies we have
+a "success", even though we have used the maximum number of function evaluations 
+permitted. My opinion is that SANN should be dropped from the function `optim()`.
+
+####Package `GenSA`####
+
+\index{GenSA@`GenSA`}
+
+Given that `GenSA` uses a 30-dimensional Rastrigin function as its example, we
+can anticipate a more successful outcome with this tool, and indeed this package
+does well on this example. Note that we supply only bounds constraints for this
+method, and no starting value.
+
+```{r, rastrigingensa}
+suppressPackageStartupMessages(require(GenSA))
+global.min <- 0
+tol <- 1e-13
+set.seed(myseed)
+ctrl<-list(threshold.stop=global.min+tol, verbose=TRUE)
+aGenSA1 <- GenSA(lower = lower, upper = upper, fn = Rastrigin, 
+           control=ctrl)
+print(aGenSA1[c("value","par","counts")])
+```
+
+
+\subsection{Packages `DEoptim} and `RcppDE}}
+
+\index{DEoptim@`DEoptim`}
+\index{RcppDE@`RcppDE}}
+
+The differential evolution approach has been considered by many workers to be one
+of the more successful tools for global optimization. As with `GenSA`, we
+supply only the bounds constraints. Our first try stops well-before a satisfactory
+solution has been found and a second try with a larger number of iterations is
+performed. It should, of course, be possible to use the work already
+done and re-commence the method. However, I have not discovered an obvious and easy
+way to do this. The same comment applies to several of the other packages discussed
+in this chapter.
+
+```{r, rastrigindeoptim}
+suppressPackageStartupMessages(require(DEoptim))
+set.seed(myseed)
+ctrl <- list(trace=FALSE)
+aDEopt1a <- DEoptim(lower = lower, upper = upper, fn = Rastrigin, control=ctrl)
+print(aDEopt1a$optim)
+tmp<-readline("Try DEoptim with more iterations")
+
+set.seed(myseed)
+ctrl <- list(itermax=10000, trace=FALSE)
+aDEopt1b <- DEoptim(lower = lower, upper = upper, fn = Rastrigin, control=ctrl)
+print(aDEopt1b$optim)
+```
+
+`RcppDE` is possibly more efficient, though on the small example problem, I could
+not really detect much difference.
+
+```{r, rastriginrcppde}
+suppressPackageStartupMessages(require(RcppDE))
+set.seed(myseed)
+ctrl <- list(trace=FALSE)
+aRcppDEopt1a <- DEoptim(lower = lower, upper = upper, fn = Rastrigin, control=ctrl)
+print(aRcppDEopt1a$optim)
+tmp<-readline("Try RcppDE with more iterations")
+
+set.seed(myseed)
+ctrl <- list(itermax=10000, trace=FALSE)
+aRcppDEopt1b <- DEoptim(lower = lower, upper = upper, fn = Rastrigin, control=ctrl)
+print(aRcppDEopt1b$optim)
+```
+
+Unfortunately, as simple change in the random number seed gives an unsatisfactory
+result, even with a lot of computational effort.
+
+```{r, rastriginrcppde2}
+set.seed(123456)
+ctrl <- list(itermax=10000, trace=FALSE)
+aRcppDEopt1b <- DEoptim(lower = lower, upper = upper, fn = Rastrigin, control=ctrl)
+print(aRcppDEopt1b$optim)
+```
+
+
+####Package `smco`####
+
+\index{smco@`smco`}
+
+This quite small package (all in **R**) uses an adaptive coordinate sampling,
+i.e., one parameter at a time approach to finding the minimum of a function.
+It appears to work quite well on the Rastrigin function. 
+The choices of `LB` and `UB` instead
+of `lower` and `upper`, and `trc` instead of `trace} are 
+yet another instance of minor but annoying differences in syntax, though 
+the general structure and output of this package are reasonable.
+
+
+```{r, rastriginsmco}
+suppressPackageStartupMessages(require(smco))
+set.seed(myseed)
+asmco1 <- smco(par=rep(1,dimension), LB = lower, UB = upper, fn = Rastrigin, 
+                 maxiter=10000, trc=FALSE)
+print(asmco1[c("par", "value")])
+```
+
+####Package `soma`####
+
+\index{soma@`soma}}
+
+`soma`, which seems to perform reasonably well on the Rastrigin function, is
+a quite compact method written entirely in **R**. Unfortunately, the particular 
+syntax of its input and output make this package somewhat awkward to control.
+In particular, the documentation does not indicate how to control the output
+from the method, which turns out to be in package `reportr` by the same
+developer. This took some digging to discover. Moreover, the names and structures
+of output quantities are quite different from those in, for example, `optim()`.
+`soma` is, however, just a particular example of the problematic diversity
+of structures and names used in stochastic optimization packages for **R**.
+
+```{r, rastriginsoma}
+suppressPackageStartupMessages(require(soma))
+suppressPackageStartupMessages(require(reportr)) 
+# NOTE: Above was not documented in soma!
+setOutputLevel(OL$Warning)
+set.seed(myseed)
+mybounds=list(min=lower, max=upper)
+myopts=list(nMigrations=100)
+asoma1<-soma(Rastrigin, bounds=mybounds, options=myopts)
+# print(asoma1) # Gives too much output -- not obvious to interpret.
+print(asoma1$population[,asoma1$leader])
+print(Rastrigin(asoma1$population[,asoma1$leader]))
+```
+
+####Package `Rmalschains`####
+
+\index{Rmalschains@`Rmalschains}}
+
+Quoting from the package DESCRIPTION "Memetic algorithms are hybridizations of
+genetic algorithms with local search methods." Thus this package is yet another
+member of a large family of stochastic optimization methods.  In contrast to some
+of the other packages considered here, the output of this package is truly 
+minimal. Unless the `trace} is turned on, it is not easy to determine the
+computational effort that has gone into obtaining a solution. Furthermore, 
+interpreting the output from the trace is not obvious. 
+
+From the package documentation, the package implements a number of search strategies,
+and is coded in C++. It performs well on the Rastrigin test. 
+
+```{r, rastriginmalschains}
+suppressPackageStartupMessages(require(Rmalschains))
+set.seed(myseed)
+amals<-malschains(Rastrigin, lower=lower, upper=upper, 
+         maxEvals=10000, seed=myseed)
+print(amals)
+```
+
+###Package `rgenoud`###
+
+\index{rgenoud@\`rgenoud`}
+
+The `rgenoud` package is one of the more mature genetic algorithm tools for **R**.
+Like others, it has its own peculiarities, in particular, requiring neither a
+starting vector nor bounds. Instead, it is assumed that the function first argument
+is a vector, and the `genoud} function simply wants to know the dimension of
+this via a parameter `nvars}. This package is generally set up for maximization,
+so one must specify `max=FALSE} to perform a minimization. `print.level} 
+is used to control output. 
+
+```{r, rastrigingenoud}
+suppressPackageStartupMessages(require(rgenoud))
+set.seed(myseed)
+agen1<-genoud(Rastrigin, nvars=dimension, max=FALSE, print.level=0)
+print(agen1)
+```
+
+###Package `GA`###
+
+\index{GA@`GA`}
+
+This package has many options. Here we will use only a simple setup, which may
+be less than ideal. The package is able to use parallel processing, for example.
+Because this package uses vocabulary and syntax very different from that in the
+`optimx` (or `optimr`) family, I have not been drawn to use it except in simple examples
+to see that it did work, more or less.
+
+```{r, rastriginGA}
+suppressPackageStartupMessages(require(GA))
+set.seed(myseed)
+aGA1<-ga(type = "real-valued", fitness = function(x) -Rastrigin(x),
+           min = lower, max = upper, popSize = 50, maxiter = 1000,
+           monitor=NULL)
+print(summary(aGA1))
+```
+
+###Package `gaoptim`###
+\index{gaoptim@\`gaoptim`}
+
+Until I communicated with the maintainer of `gaoptim` @p-gaoptim, I had some
+difficulty in using it, and from the exchange of messages, I suspect the 
+documentation will be clarified. It appears that it is necessary with this 
+package to specify a `selection` method that guides the choice of
+which trial results are used to drive the algorithm. The simplest choice is
+`"uniform"` in the emulation of the mating process used to evolve the
+population of chosen parameter sets. 
+
+```{r, rastrigingaopt}
+suppressPackageStartupMessages(require(gaoptim))
+set.seed(myseed)
+minRast<-function(x) { -Rastrigin(x) } # define for minimizing
+## Initial calling syntax -- no selection argument
+## agaor1<-GAReal(minRast, lb=lower, ub=upper)
+agaor1<-GAReal(minRast, lb=lower, ub=upper, selection='uniform')
+agaor1$evolve(200) # iterate for 200 generations
+## The same result was returned from 400 generations
+agaor1
+```
+
+We can also select parameter sets based on the `fitness' function, that is,
+our function being maximized. Unfortunately, interpreting this as a probability
+is not a good idea for a function we have defined as negative -- we are, after
+all, maximizing this negative function to get near zero for the original function.
+Rather than have to learn how to write a custom selector function, I have 
+chosen to simply use the option `selector='fitness'}, which uses the
+objective function values as a proxy for the fitness, along with a redefined
+objective which is positive. We want larger values as `better'. We take the
+sqrt() to better scale the graph that displays progress.
+
+```{r, rastrigingaopt2}
+maxRast<-function(x){ sqrt(1/ abs(Rastrigin(x))) }
+agaor2<-GAReal(maxRast, lb=lower, ub=upper, selection='fitness')
+agaor2$evolve(200) 
+agaor2
+plot(agaor2) # note this special method for displaying results
+Rastrigin(agaor2$bestIndividual())
+```
+
+Note that, as with most stochastic methods, there are long stretches of work
+where we do not see any progress.
+
+
+#Multiple starting values#
+
+\index{starting point!multiple}
+\index{multiple starts}
+
+In many cases, it is possible to simply use a selection of starting vectors
+with a \B{local} minimizer to achieve desired results. In the case of the 
+Rastrigin function, this does not appear to be the case. Let us use `Rvmmin}
+with the bounds specified above and generate 500 random starts uniformly distributed
+across each coordinate. Note we do not do very well.
+
+```{r, rastriginRvmmin1}
+suppressPackageStartupMessages(require(Rvmmin))
+nrep<-500
+bestval<-.Machine$double.xmax # start with a big number
+bestpar<-rep(NA, dimension)
+startmat<-matrix(NA, nrow=nrep, ncol=dimension)
+set.seed(myseed)
+for (i in 1:nrep) {
+    for (j in 1:dimension){
+        startmat[i,j]<-lower[j]+(upper[j]-lower[j])*runif(1)
+    }
+}
+for (i in 1:nrep){
+   tstart<-as.vector(startmat[i,]) 
+    ans<-Rvmmin(tstart, Rastrigin, lower=lower, upper=upper)
+   if (ans$value <= bestval) {
+      bestval<-ans$value
+      cat("Start ",i," new best =",bestval,"\n")
+      bestpar<-ans$par
+      bestans<-ans
+   }
+}
+print(bestans)
+```
+
+On the other hand, we don't have to try very hard to find what turns out to be
+a global minimum of Branin's
+function @Molga2005}, though it is a bit more difficult to find that there
+are several such minima at different points in the space. Here is the function
+and its gradient.
+
+
+```{r,branin1}
+## branmin.R
+myseed<-123456L # The user can use any seed. BUT ... some don't work so well.
+branin<-function(x){ ## Branin's test function
+     if (length(x) != 2) stop("Wrong dimensionality of parameter vector")
+     x1<-x[1] # limited to [-5, 10]
+     x2<-x[2] # limited to [0, 15]
+     a <- 1
+     b <- 5.1 / (4 * pi * pi)
+     c <- 5 / pi
+     d <- 6
+     e <- 10 
+     f <- 1/(8*pi)
+     ## Global optima of 0.397887
+     ## at (-pi, 12.275), (pi, 2.275), (9.42478, 2.475)
+     val <- a*(x2 - b*(x1^2) + c*x1 - d)^2 + e*(1 - f)*cos(x1) + e
+}
+branin.g<-function(x){ ## Branin's test function
+     if (length(x) != 2) stop("Wrong dimensionality of parameter vector")
+     x1<-x[1]
+     x2<-x[2]
+     a <- 1
+     b <- 5.1 / (4 * pi * pi)
+     c <- 5 / pi
+     d <- 6
+     e <- 10 
+     f <- 1/(8*pi)
+     ## Global optima of 0.397887
+     ## at (-pi, 12.275), (pi, 2.275), (9.42478, 2.475)
+#     val <- a*(x2 - b*(x1^2) + c*x1 - d)^2 + e*(1 - f)*cos(x1) + e
+     g1 <- 2*a*(x2 - b*(x1^2) + c*x1 - d)*(-2*b*x1+c)-e*(1-f)*sin(x1)
+     g2 <- 2*a*(x2 - b*(x1^2) + c*x1 - d)
+     gg<-c(g1, g2)
+}
+```
+
+In the following, we
+actually use external knowledge of the three global minima and look at 
+the termination points from different starting points for `Rvmmin()}. 
+We create a grid of starting points between -5 and 10 for the first parameter
+and 0 and 15 for the second parameter. We will use 40 points on each axis,
+for a total of 1600 sets of starting parameters. We can put these on a 
+40 by 40 character array, and assign 0 to any result which is not one of
+the three known minima, and the labels 1, 2 or 3 are assigned to the 
+appropriate array position of the starting parameters for whichever of the 
+minima are found successfully.
+
+There are very few starts that actually fail to find one of the global 
+minima of this function, and most of those are on a bound. As indicated,
+the program code labels the three optima as 1, 2 or 3, and puts a 0 
+on any other solution.
+
+To find out which solution has been generated, if any, let us compute the
+Euclidean distance between our solution and one of the three known
+minima, which are labelled `y1}, `y2} and  `y3}. If the
+distance is less than 1e-6 from the relevant minima, we assign the
+appropriate code, otherwise it is left at 0.
+
+```{r,branin2}
+dist2<-function(va, vb){
+    n1<-length(va)
+    n2<-length(vb)
+    if (n1 != n2) stop("Mismatched vectors")
+    dd<-0
+    for (i in 1:n1){ dd<-dd+(va[i]-vb[i])^2 }
+    dd
+}
+y1 <- c(-pi, 12.275)
+y2 <- c(pi, 2.275)
+y3 <- c(9.42478, 2.475)
+lo<-c(-5, 0)
+up<-c(10, 15)
+npt<-40
+grid1<-((1:npt)-1)*(up[1]-lo[1])/(npt-1)+lo[1]
+grid2<-((1:npt)-1)*(up[2]-lo[2])/(npt-1)+lo[2]
+pnts<-expand.grid(grid1,grid2)
+names(pnts)=c("x1", "x2")
+nrun<-dim(pnts)[1]
+```
+
+We will not display the code to do all the tedious work.
+
+```{r, branin3}
+suppressPackageStartupMessages(require(Rvmmin))
+reslt<-matrix(NA, nrow=nrun, ncol=7)
+names(reslt)<-c("vmin","bx1","bx2", "sx1", "sx2", "sval")
+ctrl<-list(maxit=20000)
+
+cmat<-matrix(" ",nrow=npt, ncol=npt)
+kk<-0 # for possible use as a progress counter
+for (ii1 in 1:npt) { # row index is ii1 for x2 from grid2, plotted at ii=npt+1-ii1
+    for (jj in 1:npt) { # col index is for x1 on graph
+       ii<-npt+1-ii1
+       strt<-c(grid1[jj], grid2[ii1]) 
+       sval<-branin(strt)
+       ans<-suppressWarnings(
+            Rvmmin(strt, branin, branin.g, lower=lo, upper=up, control=ctrl)
+       )
+       kk<-kk+1
+       reslt[kk,4]<-strt[1]
+       reslt[kk,5]<-strt[2]
+       reslt[kk,6]<-sval
+       reslt[kk,1]<-ans$value
+       reslt[kk,2]<-ans$par[1]
+       reslt[kk,3]<-ans$par[2]
+       reslt[kk,7]<-0
+       if (ans$convergence !=0) { 
+##     cat("Nonconvergence from start c(",strt[1],", ", strt[2],")\n")
+           reslt[kk,1]<- .Machine$double.xmax 
+       } else {
+          if (dist2(ans$par, y1) < 1e-6) reslt[kk,7]=1
+          if (dist2(ans$par, y2) < 1e-6) reslt[kk,7]=2
+          if (dist2(ans$par, y3) < 1e-6) reslt[kk,7]=3
+       }
+       cmat[ii, jj]<-as.character(reslt[kk,7])
+   } # end jj
+} # end ii1
+mpts<-kk
+cat("Non convergence from the following starts:\n")
+linetrip<-0
+for (kk in 1:mpts){
+   if (reslt[kk,7]==0) {
+   cat("(",reslt[kk,4],", ",reslt[kk,5],")  ")
+   linetrip<-linetrip+1
+   if (4*floor(linetrip/4)==linetrip) cat("\n")
+   }
+}
+```
+
+\index{contour plot}
+We can draw a contour plot of the function and see what is going on.
+
+```{r, branin5}
+zz<-branin(pnts)
+zz<-as.numeric(as.matrix(zz))
+zy<-matrix(zz, nrow=40, ncol=40)
+contour(grid1, grid2, zy, nlevels=25)
+points(y1[1], y1[2], pch=19, cex=2)
+points(y2[1], y2[2], pch=19, cex=2)
+points(y3[1], y3[2], pch=19, cex=2)
+title(main="Branin function contour plot")
+title(sub="The solid circles are the three global minima")
+```
+  
+
+Now display the results.
+
+```{r, branin4}
+for (ii in 1:npt){
+    vrow<-paste(cmat[ii,],sep=" ", collapse=" ")
+    cat(vrow,"\n")
+}
+```
+
+#References#
+

@@ -12,6 +12,8 @@ vignette: >
 
 ##stochoptim -- a wrapper for stochastic optimization methods in R##
 
+??JN: I don't think indexing works in Rmarkdown, but suggest we keep some
+sort of suggestion of the terms we want indexed. 
 \index{global optimization}
 \index{stochastic optimization}
 
@@ -177,9 +179,9 @@ misunderstood the documentation.
 
 ####rgp####
 
-\index{rgp@`rgp}}
+\index{rgp@`rgp`}
 
-`rgp` (an **R**\ genetic programming framework) likely has many tools that could be
+`rgp` (an **R** genetic programming framework) likely has many tools that could be
 used for stochastic optimization, but the structure of the package makes it difficult
 to modify existing scripts to the task. The documentation of package `nsga2R` 
 ?maybe?
@@ -225,7 +227,7 @@ minimization. Many genetic and related codes seek maxima.
 
 \index{soma@`soma`}
 
-`soma}: General-purpose optimisation with the Self-Organising Migrating Algorithm 
+`soma`: General-purpose optimisation with the Self-Organising Migrating Algorithm 
 @soma11. Again, this approach is one with which I am not familiar.
 ?maybe?
 
@@ -264,8 +266,8 @@ in our wrapper as a way to ensure we have got things more or less right.
 
 ###Method `SANN` from `optim()`###
 
-\index{SANN@`SANN()}}
-\index{optim@`optim()}}
+\index{SANN@`SANN()`}
+\index{optim@`optim()`}
 
           For ``SANN'' `maxit' gives the total number of function
           evaluations: there is no other stopping criterion. Defaults
@@ -309,7 +311,7 @@ print(aGenSA1[c("value","par","counts")])
 ```
 
 
-\subsection{Packages `DEoptim} and `RcppDE}}
+###Packages `DEoptim` and `RcppDE`###
 
 \index{DEoptim@`DEoptim`}
 \index{RcppDE@`RcppDE}}

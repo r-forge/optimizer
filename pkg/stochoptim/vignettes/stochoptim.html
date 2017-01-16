@@ -76,7 +76,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <div id="stochoptim-a-wrapper-for-stochastic-optimization-methods-in-r" class="section level2">
 <h2>stochoptim – a wrapper for stochastic optimization methods in R</h2>
-<p> </p>
+<p>??JN: I don’t think indexing works in Rmarkdown, but suggest we keep some sort of suggestion of the terms we want indexed.  </p>
 </div>
 <div id="introduction-and-purpose" class="section level2">
 <h2>Introduction and purpose</h2>
@@ -166,8 +166,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="rgp" class="section level4">
 <h4>rgp</h4>
-<p>}</p>
-<p><code>rgp</code> (an <strong>R</strong> genetic programming framework) likely has many tools that could be used for stochastic optimization, but the structure of the package makes it difficult to modify existing scripts to the task. The documentation of package <code>nsga2R</code> ?maybe?</p>
+<p></p>
+<p><code>rgp</code> (an <strong>R</strong> genetic programming framework) likely has many tools that could be used for stochastic optimization, but the structure of the package makes it difficult to modify existing scripts to the task. The documentation of package <code>nsga2R</code> ?maybe?</p>
 </div>
 <div id="nsga2r" class="section level4">
 <h4>nsga2R</h4>
@@ -195,7 +195,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="soma" class="section level4">
 <h4>soma</h4>
 <p></p>
-<p>`soma}: General-purpose optimisation with the Self-Organising Migrating Algorithm <span class="citation">Ivan Zelinka (2011)</span>. Again, this approach is one with which I am not familiar. ?maybe?</p>
+<p><code>soma</code>: General-purpose optimisation with the Self-Organising Migrating Algorithm <span class="citation">Ivan Zelinka (2011)</span>. Again, this approach is one with which I am not familiar. ?maybe?</p>
 </div>
 </div>
 </div>
@@ -215,7 +215,7 @@ start1 &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv
 <p>??JN: I suggest we always show code to run the problem in the native method, then in our wrapper as a way to ensure we have got things more or less right.</p>
 <div id="method-sann-from-optim" class="section level3">
 <h3>Method <code>SANN</code> from <code>optim()</code></h3>
-<p>} }</p>
+<p> </p>
 <pre><code>      For ``SANN'' `maxit' gives the total number of function
       evaluations: there is no other stopping criterion. Defaults
       to `10000'.</code></pre>
@@ -254,7 +254,8 @@ asann1 &lt;-<span class="st"> </span><span class="kw">optim</span>(<span class="
 ## $message
 ## NULL</code></pre>
 <p>Sadly, not only do we make no progress, but the convergence code of 0 implies we have a “success”, even though we have used the maximum number of function evaluations permitted. My opinion is that SANN should be dropped from the function <code>optim()</code>.</p>
-\subsection{Package `GenSA`}
+<div id="package-gensa" class="section level4">
+<h4>Package <code>GenSA</code></h4>
 <p></p>
 <p>Given that <code>GenSA</code> uses a 30-dimensional Rastrigin function as its example, we can anticipate a more successful outcome with this tool, and indeed this package does well on this example. Note that we supply only bounds constraints for this method, and no starting value.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressPackageStartupMessages</span>(<span class="kw">require</span>(GenSA))
@@ -374,6 +375,7 @@ aRcppDEopt1b &lt;-<span class="st"> </span><span class="kw">DEoptim</span>(<span
 ## 
 ## $iter
 ## [1] 10000</code></pre>
+</div>
 <div id="package-smco" class="section level4">
 <h4>Package <code>smco</code></h4>
 <p></p>
@@ -464,11 +466,11 @@ amals&lt;-<span class="kw">malschains</span>(Rastrigin, <span class="dt">lower=<
 ## RatioEffort Alg/LS: [55/45]
 ## RatioImprovement Alg/LS: [79/21]
 ## Restarts: 0
-## Time[ALG]: 79.37
-## Time[LS]: 58.25
-## Time[MA]: 138.25
-## RatioTime[ALG/MA]: 57.41
-## RatioTime[LS/MA]: 42.14
+## Time[ALG]: 84.02
+## Time[LS]: 54.20
+## Time[MA]: 138.88
+## RatioTime[ALG/MA]: 60.50
+## RatioTime[LS/MA]: 39.03
 ## NumImprovement[EA]:45%
 ## NumImprovement[LS]:81%
 ## CMAES::Popsize/Lambda: 8
@@ -480,11 +482,11 @@ amals&lt;-<span class="kw">malschains</span>(Rastrigin, <span class="dt">lower=<
 ## RatioImprovement EA/LS: [79/21]
 ## PercentageNumImprovement[EA]: 45%
 ## PercentageNumImprovement[LS]: 82%
-## Time[EA]: 79.37
-## Time[LS]: 58.25
-## Time[MA]: 138.25
-## RatioTime[EA/MA]: 57.41
-## RatioTime[LS/MA]: 42.14
+## Time[EA]: 84.02
+## Time[LS]: 54.20
+## Time[MA]: 138.88
+## RatioTime[EA/MA]: 60.50
+## RatioTime[LS/MA]: 39.03
 ## Fitness:
 ## [1] 3.595346e-12
 ## Solution:

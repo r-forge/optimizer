@@ -45,7 +45,7 @@ Differentiation, version 2.0, http://CRAN.R-project.org/package=Deriv),
 and making the current work "play nicely" with that package is 
 desirable.
 
-## TODOS ??
+## TODOS
 
 - functions in nlsr-package.R need to be explained
 - how to insert numerical derivatives when Deriv unable to get result
@@ -72,10 +72,10 @@ tdat<-1:12
 t <- tdat
 y <- ydat
 sol1 <- nlxb(y~100*b1/(1+10*b2*exp(-0.1*b3*t)), start=c(b1=2, b2=5, b3=3))
+coef(sol1)
 print(coef(sol1))
 ```
 
-?? should coef() print or return invisible??
 
 #### nlsDeriv, codeDeriv, fnDeriv, newDeriv
 
@@ -85,7 +85,6 @@ respectively, though the argument lists do not match exactly.
 **newDeriv** allows additional analytic derivative expressions to 
 be added. The following is an expanded and commented version of the 
 examples from the manual for these functions.
-
 
 ```{r}
 require(nlsr)
@@ -127,7 +126,21 @@ f(1)
 These functions create functions to evaluate residuals or sums of 
 squares at particular parameter locations.
 
-?? example
+```{r}
+weed <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
+          38.558, 50.156, 62.948, 75.995, 91.972)
+ii <- 1:12
+wdf <- data.frame(weed, ii)
+wmod <- weed ~ b1/(1+b2*exp(-b3*ii))
+start1  <-  c(b1=1, b2=1, b3=1)
+wrj <- model2rjfun(wmod, start1, data=wdf)
+print(wrj)
+weedux <- nlxb(wmod, start=c(b1=200, b2=50, b3=0.3)) 
+print(weedux)
+
+
+
+```
 
 #### modeldoc, print.modeldoc
 

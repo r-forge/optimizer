@@ -69,8 +69,8 @@ summary.nlsr <- function(object, ...) {
        XtXinv <- crossprod(t(VS))
        SEs <- sqrt(diag(XtXinv) * resvar)
     }
-    cat("CHECK XtXinv:")
-    print(XtXinv)
+##    cat("CHECK XtXinv:")
+##    print(XtXinv)
     dimnames(XtXinv) <- list(pnames, pnames)
     gr <- crossprod(JJ, res)
     if (any(is.na(SEs))) {

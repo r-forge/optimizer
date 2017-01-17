@@ -134,8 +134,10 @@ print.nlsr <- function(x, ...) {
   invisible(x)
 }
 
-resid.nlsr <- function(object, ...) {
-   resids <- object$resid
+#resid.nlsr <- function(object, ...) { ## ?? for some reason did not work
+res <- function(object){
+  resids <- object$resid
+  resids # so the function prints
 }
 
 ## predict.nlsr <- function(object, ...) {

@@ -9,13 +9,15 @@ export(
    wrapnlsr,
    resss,
    resgr,
+   res,
    modelexpr,
    model2rjfun,
    model2ssgrfun,
    print.nlsr,
-   rjfundoc,
+#   resid.nlsr,
    summary.nlsr,
    coef.nlsr,
+   rjfundoc,
    nlsDeriv, 
    codeDeriv,
    fnDeriv,
@@ -40,3 +42,4 @@ S3method(print, rjfundoc)
 S3method(coef, nlsr)
 S3method(print, nlsr)
 S3method(summary, nlsr)
+# S3method(resid, nlsr)

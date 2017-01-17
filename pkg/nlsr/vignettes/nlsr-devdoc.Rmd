@@ -165,8 +165,7 @@ print(wrjdoc)
    though traditionally we write the negative of this vector. (Writing it this
    way allows the derivatives of the residuals w.r.t. the parameters `par` to be
    the same as those for `model(par,mydata).) `nlfb` tries to minimize the sum
-   of squares of the residuals with respect to the parameters. At the time of 
-   writing, users must provide weights explicitly. (??? to be added???)
+   of squares of the residuals with respect to the parameters. 
   
    The method takes a parameter `jacfn` which returns the Jacobian matrix of
    derivatives of the residuals w.r.t. the parameters in an attribute `gradient`.
@@ -174,14 +173,49 @@ print(wrjdoc)
    (??which -- and can we use the character method to define these?? What 
    about for nlxb??) Putting the Jacobian in the attribute `gradient` allows
    us to combine the computation of the residual and Jacobian in the same code
-   block if we wish, since there are generally common computations.
+   block if we wish, since there are generally common computations, though it
+   does make the setup slightly more complicated. See the example below.
 
-   The start vector should use named parameters (especially if there is an 
+   The start vector preferably uses named parameters (especially if there is an 
    underlying formula). The attempted minimization of the sum of squares
    uses the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method.
 
-?? examples
+```{r}
+shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
+  # This variant uses looping
+  if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
+  y  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+           38.558, 50.156, 62.948, 75.995, 91.972)
+  tt  <-  1:12
+  res  <-  100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*tt)) - y
+}
+
+shobbs.jac  <-  function(x) { # scaled Hobbs weeds problem -- Jacobian
+  jj  <-  matrix(0.0, 12, 3)
+  tt  <-  1:12
+  yy  <-  exp(-0.1*x[3]*tt)
+  zz  <-  100.0/(1+10.*x[2]*yy)
+  jj[tt,1]   <-   zz
+  jj[tt,2]   <-   -0.1*x[1]*zz*zz*yy
+  jj[tt,3]   <-   0.01*x[1]*zz*zz*yy*x[2]*tt
+  attr(jj, "gradient") <- jj
+  jj
+}
+
+cat("try nlfb\n")
+st  <-  c(b1=1, b2=1, b3=1)
+low  <-  -Inf
+up <- Inf
+ans1 <- nlfb(st, shobbs.res, shobbs.jac, trace=TRUE)
+summary(ans1)
+
+## No jacobian function -- use internal approximation
+ans1n <- nlfb(st, shobbs.res, trace=TRUE, control=list(watch=FALSE)) # NO jacfn
+summary(ans1n)
+## difference
+coef(ans1)-coef(ans1n)
+```
 
 #### nlxb
 
@@ -193,25 +227,31 @@ print(wrjdoc)
    sub-problem is solved by a qr method. The process is to develop the 
    residual and Jacobian functions using `model2rjfun`, then call `nlfb`.
 
+```{r}
+# Data for Hobbs problem
+ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+            38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+tdat  <-  seq_along(ydat) # for testing
+start1  <-  c(b1=1, b2=1, b3=1)
+eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
+weeddata1  <-  data.frame(y=ydat, tt=tdat)
+anlxb1  <-  try(nlxb(eunsc, start=start1, trace=TRUE, data=weeddata1))
+summary(anlxb1)
+```
+
 #### print.nlsr
 
 Print summary output (but involving some serious computations!) of
     an object of class nlsr from \code{nlxb} or \code{nlfb} from package
     \code{nlsr}.
 
-??example
+```{r}
+### From examples above
+print(weedux)
+print(ans1)
+```
 
-#### resgr
-
-   For a nonlinear model originally expressed as an expression of the form
-         lhs ~ formula_for_rhs
-   assume we have a resfn and jacfn that compute the residuals and the 
-   Jacobian at a set of parameters. This routine computes the gradient, 
-   that is, t(Jacobian) . residuals. 
-
-?? example
-
-#### resss
+#### resgr, resss####
 
    For a nonlinear model originally expressed as an expression of the form
          lhs ~ formula_for_rhs
@@ -219,9 +259,15 @@ Print summary output (but involving some serious computations!) of
    Jacobian at a set of parameters. This routine computes the gradient, 
    that is, t(Jacobian) %*% residuals. 
 
-?? example
+```{r}
+## Use shobbs example
+RG <- resgr(st, shobbs.res, shobbs.jac)
+RG
+SS <- resss(st, shobbs.res)
+SS
+```
 
-#### newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE, isCALL, findSubexprs, sysDerivs
+#### newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE, isCALL, findSubexprs, sysDerivs####
 
 Functions to simplify expressions.
 \code{Simplify} simplifies expressions according to rules specified
@@ -258,9 +304,7 @@ Example ??
 
 ### Particular features
 
-#### Weighted regression
-
-## weighted nonlinear regression
+#### weighted nonlinear regression
 
 Weighted regression alters the sum of squares of the parameters `prm` from
 
@@ -300,31 +344,37 @@ weighted.MM <- function(resp, conc, Vm, K)
   (resp - pred) / sqrt(pred)
 }
 ## Here is the estimation using predicted value weights
-Pur.wtpred <- nls( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
+Pur.wtnlspred <- nls( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
                start = list(Vm = 200, K = 0.1))
-summary(Pur.wtpred)
+summary(Pur.wtnlspred)
 
 ## nlxb cannog use this form
-Pur.wtxpred <- try(nlxb( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
+Pur.wtnlxbpred <- try(nlxb( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
                start = list(Vm = 200, K = 0.1)))
 ## and the structure is wrong for nlfb. See wres.MM below.
-Pur.wtfpred <- try(nlfb(resfn=weighted.MM(rate, conc, Vm, K), data = Treated,
+Pur.wtnlfbpred <- try(nlfb(resfn=weighted.MM(rate, conc, Vm, K), data = Treated,
                start = list(Vm = 200, K = 0.1)))
 
 
 
 ## Now use fixed weights and the weights argument in nls()
-Pur.wtw <- nls( rate ~ (Vm * conc)/(K + conc), data = Treated,
+Pur.wnls <- nls( rate ~ (Vm * conc)/(K + conc), data = Treated,
                   start = list(Vm = 200, K = 0.1), weights=1/rate)
-summary(Pur.wtw)
+summary(Pur.wnls)
 
 ## nlsr::nlxb should give essentially the same result
 library(nlsr)
-Pur.wtx <- nlxb( rate ~ (Vm * conc)/(K + conc), data = Treated,
+## Note that we put in the dataframe name to explicitly specify weights
+Pur.wnlxb <- nlxb( rate ~ (Vm * conc)/(K + conc), data = Treated,
                 start = list(Vm = 200, K = 0.1), weights=1/Treated$rate)
-summary(Pur.wtx)
+summary(Pur.wnlxb)
 ## check difference
-coef(Pur.wtw) - coef(Pur.wtx)
+coef(Pur.wnls) - coef(Pur.wnlxb)
+## Residuals Pur.wnls -- These are weighted
+## resid(Pur.wnlxb) # ?? does not work -- why?
+print(res(Pur.wnlxb))
+## Those from nls() are NOT weighted
+resid(Pur.wnls)
 
 ## Try using a function, that is nlsr::nlfb
 stw <- c(Vm = 200, K = 0.1)
@@ -338,14 +388,14 @@ wres.MM <- function(prm, rate, conc) {
 # test function first to see it works
 print(wres.MM(stw, rate=Treated$rate, conc=Treated$conc))
 
-Pur.wtf <- nlfb(start=stw,  resfn=wres.MM, rate = Treated$rate, conc=Treated$conc, 
+Pur.wnlfb <- nlfb(start=stw,  resfn=wres.MM, rate = Treated$rate, conc=Treated$conc, 
                   trace=FALSE) # Note: weights are inside function already here
-summary(Pur.wtf)
-print(Pur.wtf)
+summary(Pur.wnlfb)
+print(Pur.wnlfb)
 ## check estimates with nls() result
-coef(Pur.wtw) - coef(Pur.wtf)
+coef(Pur.wnls) - coef(Pur.wnlfb)
 ## and with nlxb result
-coef(Pur.wtx) - coef(Pur.wtf)
+coef(Pur.wnlxb) - coef(Pur.wnlfb)
 
 wres0.MM <- function(prm, rate, conc) {
       Vm <- prm[1]
@@ -353,14 +403,14 @@ wres0.MM <- function(prm, rate, conc) {
       pred <- (Vm * conc)/(K + conc)
     (rate - pred) # NOTE: NO weights
 }
-Pur.wtf0 <- nlfb(start=stw,  resfn=wres0.MM, rate = Treated$rate, conc=Treated$conc, 
+Pur.wnlfb0 <- nlfb(start=stw,  resfn=wres0.MM, rate = Treated$rate, conc=Treated$conc, 
                   weights=1/Treated$rate, trace=FALSE) # Note: explicit weights
-summary(Pur.wtf0)
-print(Pur.wtf0)
+summary(Pur.wnlfb0)
+print(Pur.wnlfb0)
 ## check estimates with nls() result
-coef(Pur.wtw) - coef(Pur.wtf0)
+coef(Pur.wnls) - coef(Pur.wnlfb0)
 ## and with nlxb result
-coef(Pur.wtx) - coef(Pur.wtf0)
+coef(Pur.wnlxb) - coef(Pur.wnlfb0)
 
 wss.MM <- function(prm, rate, conc) {
   ss <- as.numeric(crossprod(wres.MM(prm, rate, conc)))
@@ -370,7 +420,7 @@ osol <- optimr(stw, fn=wss.MM, gr="grnd", method="Nelder-Mead", control=list(tra
             rate=Treated$rate, conc=Treated$conc)
 print(osol)
 ## difference from nlxb
-osol$par - coef(Pur.wtx)
+osol$par - coef(Pur.wnlxb)
 ```
 
 ### Missing capabilities

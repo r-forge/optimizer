@@ -1,6 +1,9 @@
 
 TODO:
          o    Should we use model.frame() anywhere??
+         
+170117   o    rename modeldoc to rjfundoc. It is not simple to add 
+              documentation to ssgrfun objects.
 
 170116   o    summary no longer invisible?
 

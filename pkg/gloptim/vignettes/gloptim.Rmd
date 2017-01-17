@@ -1,5 +1,5 @@
 ---
-title: "stochoptim -- a wrapper for stochastic optimization methods in R"
+title: "gloptim -- a wrapper for global optimization methods in R"
 author: "John C. Nash & Hans Werner Borchers"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -10,7 +10,7 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-##stochoptim -- a wrapper for stochastic optimization methods in R##
+##gloptim -- a wrapper for global optimization methods in R##
 
 ??JN: I don't think indexing works in Rmarkdown, but suggest we keep some
 sort of suggestion of the terms we want indexed. 
@@ -20,12 +20,9 @@ sort of suggestion of the terms we want indexed.
 ##Introduction and purpose##
 
 This vignette is a working document to record efforts to unify the calls to 
-a number of stochastic and global optimization methods available in packages for
+a number of global optimization methods available in packages for
 **R**. JN: I will use ?? to indicate issues where I need to resolve choices or
 want to clarify (perhaps in my own mind!)
-
-??  other names  stoptim, optims, stoptimR ??
-
 
 There are very many methods offered for these problems, both generally and in
 **R**, and, sadly, many of the offerings are weak and/or simply renamings or
@@ -74,7 +71,7 @@ Key issues:
 
 This is a fairly long and messy section, but is necessary to allow for choices.
 
-There are many names associated with stochastic optimization methods:
+There are many names associated with global optimization methods:
 Simulated Annealing, Genetic Algorithms, Tabu Search, differential evolution,
 particle swarm optimization, Self-Organizing Migrating Algorithm. 
 
@@ -82,6 +79,10 @@ particle swarm optimization, Self-Organizing Migrating Algorithm.
 to include, exclude, or maybe. I suggest marking them ?include?, ?exclude? and ?maybe?
 so we can search and find easily.
 
+?? 170117 -- replace Rastrigin with ?? as the "example" function. We need something
+that is quick to evaluate to avoid slow processing of this vignette which will have
+lots of examples. The purpose is to show the call and check the code works, not to
+test performance.
 
 ###simulated annealing###
 
@@ -90,7 +91,9 @@ so we can search and find easily.
 ####SANN####
 
 method `SANN` in function `optim()` is a simulated annealing method that 
-uses ONLY the iteration count as a termination criterion. ?include?
+uses ONLY the iteration count as a termination criterion. We STRONGLY 
+recommend against its use, but its presence in the **base** package 
+leads to its use by novices. ?exclude?
 
 
 ####GenSA####
@@ -231,10 +234,14 @@ minimization. Many genetic and related codes seek maxima.
 @soma11. Again, this approach is one with which I am not familiar.
 ?maybe?
 
+####pso [particle swarm optimization]####
+
+####rCMA [CMA-ES]####
+
 
 ##An example problem##
 
-??JN: Do we want one or two more? Is this the right choice?
+??JN: Do we want one or two more? Rastrigin is over-used. Replace??
 
 To illustrate our attempted wrapper we will use a well-known multimodal test function 
 called the Rastrigin function @TZ89, @MSB91. This is defined in the examples for
@@ -400,7 +407,7 @@ from the method, which turns out to be in package `reportr` by the same
 developer. This took some digging to discover. Moreover, the names and structures
 of output quantities are quite different from those in, for example, `optim()`.
 `soma` is, however, just a particular example of the problematic diversity
-of structures and names used in stochastic optimization packages for **R**.
+of structures and names used in global optimization packages for **R**.
 
 ```{r, rastriginsoma}
 suppressPackageStartupMessages(require(soma))
@@ -422,7 +429,7 @@ print(Rastrigin(asoma1$population[,asoma1$leader]))
 
 Quoting from the package DESCRIPTION "Memetic algorithms are hybridizations of
 genetic algorithms with local search methods." Thus this package is yet another
-member of a large family of stochastic optimization methods.  In contrast to some
+member of a large family of global optimization methods.  In contrast to some
 of the other packages considered here, the output of this package is truly 
 minimal. Unless the `trace} is turned on, it is not easy to determine the
 computational effort that has gone into obtaining a solution. Furthermore, 
@@ -519,7 +526,7 @@ plot(agaor2) # note this special method for displaying results
 Rastrigin(agaor2$bestIndividual())
 ```
 
-Note that, as with most stochastic methods, there are long stretches of work
+Note that, as with most global methods, there are long stretches of work
 where we do not see any progress.
 
 

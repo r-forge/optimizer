@@ -1,7 +1,7 @@
-\name{modeldoc}
-\alias{modeldoc}
-\alias{print.modeldoc}
-\title{Create functions to evaluate residuals or sums of squares at 
+\name{rjfundoc}
+\alias{rjfundoc}
+\alias{print.rjfundoc}
+\title{Document functions that evaluate residuals at 
 particular parameter locations.
 }
 \description{
@@ -12,28 +12,28 @@ this function is to provide a record of the details underlying the function
 optimization tools.
 }
 \usage{
-modeldoc(fun, savefile=NULL)
-\method{print}{modeldoc}(x, ...)
+rjfundoc(fun, savefile=NULL)
+\method{print}{rjfundoc}(x, ...)
 }
 \arguments{
   \item{fun}{
-A function produced by one of \code{model2rjfun} or \code{model2ssgrfun}.
+A function produced by \code{model2rjfun}.
 }
 
   \item{savefile}{A character string or connection giving a location in which
-to record the \code{modeldoc} output. 
+to record the \code{rjfundoc} output. 
 }
   \item{x, ...}{Object to print, and other arguments that will be ignored.
 }
 
 }
 \details{
-\code{modeldoc} displays the contents of the environment associated with
+\code{rjfundoc} displays the contents of the environment associated with
 \code{fun}. 
 }
 
 \value{
-\code{modeldoc} returns a list of class \code{"modeldoc"} containing values
+\code{rjfundoc} returns a list of class \code{"rjfundoc"} containing values
 extracted from the environment of \code{fun}.
 }
 
@@ -59,20 +59,18 @@ escal <-  y ~ ms*b1/(1+b2*exp(-b3*tt))
 ms <- 1
 weeddata3<-weeddata2
 weeddata3$y<-0
-## grs3<-model2rjfunx(escal, start1, data=weeddata3, ms=ms)
 grs3<-model2rjfun(escal, start1, data=weeddata3, ms=ms)
 res3<-grs3(start1)
 res3
-modeldoc(grs3)
+rjfundoc(grs3)
 
 # Now a different value of ms
 ms<-2
-## ?? grs3b<-model2rjfunx(escal, start1, data=weeddata3, ms=ms)
 grs3b<-model2rjfun(escal, start1, data=weeddata3, ms=ms)
 res3b<-grs3b(start1)
 res3b
-modeldoc(grs3b)
-# modeldoc(grs3b, savefile="grs3save.txt") ## to save the output
+rjfundoc(grs3b)
+# rjfundoc(grs3b, savefile="grs3save.txt") ## to save the output
 
 }
 \keyword{ nonlinear }

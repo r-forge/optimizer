@@ -67,6 +67,7 @@ model2ssgrfun <- function(modelformula, pvec, data = NULL, gradient = TRUE,
 	        grval <- 2*as.numeric(crossprod(jacval, resids))
 	        attr(ss, "gradient") <- grval
 	    }
+	    attr(ss, "resids") <- resids
 	    ss
     }
 }

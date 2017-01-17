@@ -121,7 +121,7 @@ f(1)
 ```
 
 
-#### model2rjfun, model2ssgrfun, modelexpr, modeldoc
+#### model2rjfun, model2ssgrfun, modelexpr, rjfundoc
 
 These functions create functions to evaluate residuals or sums of 
 squares at particular parameter locations.
@@ -148,14 +148,10 @@ print(wexpr.rj)
 wexpr.ss <- modelexpr(wss) 
 print(wexpr.ss)
 
-wrjdoc <- modeldoc(wrj)
+wrjdoc <- rjfundoc(wrj)
 print(wrjdoc)
-
-wssdoc <- modeldoc(wss) # ?? doesn't work. Why?
-print(wssdoc)
+# We do not have similar function for ss functions
 ```
-
-
 
 
 #### nlfb 
@@ -1039,7 +1035,7 @@ weedrj <- model2rjfun(modelformula=eunsc, pvec=start1, data=weeddata1)
 
 
 weedrj
-modeldoc(weedrj) # Note how useful this is to report status
+rjfundoc(weedrj) # Note how useful this is to report status
 
 ```
 

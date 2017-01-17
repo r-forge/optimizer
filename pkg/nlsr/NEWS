@@ -1,26 +1,21 @@
-         o    Should we use model.frame() anywhere??
-
-
-Notes on review of nlsr package Jan 2017 by JN
 
 TODO:
-- do we need a resid() function??
+         o    Should we use model.frame() anywhere??
 
-170116
-- summary no longer invisible?
+170116   o    summary no longer invisible?
 
-- summary for nlxb and nlfb both now should work.
-  If there is no name for a parameter, the name p_(position)
-  is created.
+         o    summary for nlxb and nlfb both now should work.
+              If there is no name for a parameter, the name p_(position)
+              is created.
 
-- weights should be working OK. Residuals will be weighted ones.
+         o    weights should be working OK. Residuals will be weighted ones.
 
-- added resid.nlsr() function. However, predict.nlsr() is NOT
-  present, since we can create problems with residuals (e.g.,
-  nonlinear equations) that do not have a model structure
+         o    added resid.nlsr() function. However, predict.nlsr() is NOT
+              present, since we can create problems with residuals (e.g.,
+              nonlinear equations) that do not have a model structure
 
-170113
-- output of summary.nlsr is class = "summary.nlsr" like summary.nls is "summary.nls"?
+170113   o    output of summary.nlsr is class = "summary.nlsr" like 
+              summary.nls is "summary.nls"?
 
 170110   o    weights (fixed) added and documented in nlsr-devdoc.Rmd
          o    nlfb: sumsquares via crossprod needs to be as.numeric(). Done.

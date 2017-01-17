@@ -10,10 +10,10 @@ export(
    resss,
    resgr,
    modelexpr,
-   modeldoc,
    model2rjfun,
    model2ssgrfun,
    print.nlsr,
+   rjfundoc,
    summary.nlsr,
    coef.nlsr,
    nlsDeriv, 
@@ -36,7 +36,7 @@ export(
 importFrom(digest, digest)
 importFrom("stats", "deriv", "nls", "pt")
 
-S3method(print, modeldoc)
+S3method(print, rjfundoc)
 S3method(coef, nlsr)
 S3method(print, nlsr)
 S3method(summary, nlsr)

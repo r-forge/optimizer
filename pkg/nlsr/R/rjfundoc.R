@@ -1,4 +1,4 @@
-modeldoc <- function(fun, savefile=NULL) {
+rjfundoc <- function(fun, savefile=NULL) {
   efun <- environment(fun) # get the environment with data, expression, etc
   avn <- all.vars(efun$modelformula) # vars and parameters
   pnames <- names(efun$pvec) # assumes that vector is named (normal)
@@ -22,7 +22,7 @@ modeldoc <- function(fun, savefile=NULL) {
                            modelexpr=modelexpr(fun), n=n,
                            pvec=efun$pvec, data=as.data.frame(modeldata[islengthn]), 
                            extradata=modeldata[!islengthn], unknown = notdata),
-                      class = "modeldoc")
+                      class = "rjfundoc")
   if (!is.null(savefile)) {
     sink(savefile)
     print(result)
@@ -31,7 +31,7 @@ modeldoc <- function(fun, savefile=NULL) {
   result
 }
   
-print.modeldoc <- function(x, ...) {
+print.rjfundoc <- function(x, ...) {
   cat("FUNCTION", x$funname, "\n")
   cat("Formula:\t")
   print(x$modelformula)

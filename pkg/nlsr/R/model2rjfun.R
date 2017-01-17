@@ -15,7 +15,7 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
     } else stop("Unrecognized formula")
     
     if (is.null(names(pvec)))
-	names(pvec) <- paste0("p", seq_along(pvec))
+	  names(pvec) <- paste0("p_", seq_along(pvec))
     
     if (jacobian)
         residexpr <- deriv(residexpr, names(pvec))
@@ -60,14 +60,14 @@ model2ssgrfun <- function(modelformula, pvec, data = NULL, gradient = TRUE,
                          testresult = testresult, ...)
 			
     function(prm) {
-	resids <- rjfun(prm)
-	ss <- as.numeric(crossprod(resids))
-	if (gradient) {
-	    jacval <- attr(resids, "gradient")
-	    grval <- 2*as.numeric(crossprod(jacval, resids))
-	    attr(ss, "gradient") <- grval
-	}
-	ss
+    	resids <- rjfun(prm)
+	    ss <- as.numeric(crossprod(resids))
+	    if (gradient) {
+	        jacval <- attr(resids, "gradient")
+	        grval <- 2*as.numeric(crossprod(jacval, resids))
+	        attr(ss, "gradient") <- grval
+	    }
+	    ss
     }
 }
 

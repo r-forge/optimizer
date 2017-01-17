@@ -121,7 +121,7 @@ f(1)
 ```
 
 
-#### model2rjfun, model2ssgrfun, modelexpr
+#### model2rjfun, model2ssgrfun, modelexpr, modeldoc
 
 These functions create functions to evaluate residuals or sums of 
 squares at particular parameter locations.
@@ -138,19 +138,25 @@ print(wrj)
 weedux <- nlxb(wmod, start=c(b1=200, b2=50, b3=0.3)) 
 print(weedux)
 
+wss <- model2ssgrfun(wmod, start1, data=wdf)
+print(wss)
 
+# We can get expressions used to calculate these as follows:
+wexpr.rj <- modelexpr(wrj) 
+print(wexpr.rj)
 
+wexpr.ss <- modelexpr(wss) 
+print(wexpr.ss)
+
+wrjdoc <- modeldoc(wrj)
+print(wrjdoc)
+
+wssdoc <- modeldoc(wss) # ?? doesn't work. Why?
+print(wssdoc)
 ```
 
-#### modeldoc, print.modeldoc
 
-Output a description of the model and the data that was used at the time
-of its creation to the console and optionally to a file. The purpose of 
-this function is to provide a record of the details underlying the function
 
-   modeldoc,
-
-?? examples
 
 #### nlfb 
 

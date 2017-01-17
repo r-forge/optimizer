@@ -43,7 +43,7 @@ A function produced by one of \code{model2rjfun} or \code{model2ssgrfun}.
 }
 \details{
 If \code{pvec} does not have names, the parameters will have names
-generated in the form \samp{p<n>}, e.g. \code{p1, p2}.  Names that appear in
+generated in the form \samp{p_<n>}, e.g. \code{p_1, p_2}.  Names that appear in
 \code{pvec} will be taken to be parameters of the model.  
 
 The \code{data} argument may be a dataframe, list or environment, or \code{NULL}.

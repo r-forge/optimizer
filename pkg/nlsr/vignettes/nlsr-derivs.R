@@ -78,18 +78,18 @@ require(nlsr)
 
 newDeriv()
 newDeriv(sin(x))
-Deriv(sin(x+y), "x")
+nlsDeriv(sin(x+y), "x")
 
 f <- function(x) x^2 # a "new" function
 newDeriv(f(x), 2*x*D(x)) # and its derivative definition
-Deriv(f(abs(x)), "x") # and the derivative of the function of abs(x)
+nlsDeriv(f(abs(x)), "x") # and the derivative of the function of abs(x)
 
 # try fnDeriv
 myfd <- fnDeriv(f(abs(x)), "x") # and the derivative of the function of abs(x)
 myfd
 
 # a different example
-Deriv(pnorm(x, sd=2, log = TRUE), "x")
+nlsDeriv(pnorm(x, sd=2, log = TRUE), "x")
 
 
 require(Deriv)
@@ -187,134 +187,134 @@ try(deriv(interme, "x"))
 try(deriv(interm, "x"))
 
 
-Deriv(log(x, base=3), "x" ) # OK
+nlsDeriv(log(x, base=3), "x" ) # OK
 try(D(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
 try(deriv(~ log(x, base=3), "x" )) # fails - only single-argument calls supported
 try(deriv(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
 try(deriv3(expression(log(x, base=3)), "x" )) # fails - only single-argument calls supported
 fnDeriv(quote(log(x, base=3)), "x" )
 
-Deriv(exp(x), "x")
+nlsDeriv(exp(x), "x")
 D(expression(exp(x)), "x") # OK
 deriv(~exp(x), "x") # OK, but much more complicated
 fnDeriv(quote(exp(x)), "x")
 
-Deriv(sin(x), "x")
+nlsDeriv(sin(x), "x")
 D(expression(sin(x)), "x")
 deriv(~sin(x), "x")
 fnDeriv(quote(sin(x)), "x")
 
-Deriv(cos(x), "x")
+nlsDeriv(cos(x), "x")
 D(expression(cos(x)), "x")
 deriv(~ cos(x), "x")
 fnDeriv(quote(cos(x)), "x")
 
-Deriv(tan(x), "x")
+nlsDeriv(tan(x), "x")
 D(expression(tan(x)), "x")
 deriv(~ tan(x), "x")
 fnDeriv(quote(tan(x)), "x")
 
-Deriv(sinh(x), "x")
+nlsDeriv(sinh(x), "x")
 D(expression(sinh(x)), "x")
 deriv(~sinh(x), "x")
 fnDeriv(quote(sinh(x)), "x")
 
-Deriv(cosh(x), "x")
+nlsDeriv(cosh(x), "x")
 D(expression(cosh(x)), "x")
 deriv(~cosh(x), "x")
 fnDeriv(quote(cosh(x)), "x")
 
-Deriv(sqrt(x), "x")
+nlsDeriv(sqrt(x), "x")
 D(expression(sqrt(x)), "x")
 deriv(~sqrt(x), "x")
 fnDeriv(quote(sqrt(x)), "x")
 
-Deriv(pnorm(q), "q")
+nlsDeriv(pnorm(q), "q")
 D(expression(pnorm(q)), "q")
 deriv(~pnorm(q), "q")
 fnDeriv(quote(pnorm(q)), "q")
 
-Deriv(dnorm(x, mean), "mean")
+nlsDeriv(dnorm(x, mean), "mean")
 D(expression(dnorm(x, mean)), "mean")
 deriv(~dnorm(x, mean), "mean")
 fnDeriv(quote(dnorm(x, mean)), "mean")
 
-Deriv(asin(x), "x")
+nlsDeriv(asin(x), "x")
 D(expression(asin(x)), "x")
 deriv(~asin(x), "x")
 fnDeriv(quote(asin(x)), "x")
 
-Deriv(acos(x), "x")
+nlsDeriv(acos(x), "x")
 D(expression(acos(x)), "x")
 deriv(~acos(x), "x")
 fnDeriv(quote(acos(x)), "x")
 
-Deriv(atan(x), "x")
+nlsDeriv(atan(x), "x")
 D(expression(atan(x)), "x")
 deriv(~atan(x), "x")
 fnDeriv(quote(atan(x)), "x")
 
-Deriv(gamma(x), "x")
+nlsDeriv(gamma(x), "x")
 D(expression(gamma(x)), "x")
 deriv(~gamma(x), "x")
 fnDeriv(quote(gamma(x)), "x")
 
-Deriv(lgamma(x), "x")
+nlsDeriv(lgamma(x), "x")
 D(expression(lgamma(x)), "x")
 deriv(~lgamma(x), "x")
 fnDeriv(quote(lgamma(x)), "x")
 
-Deriv(digamma(x), "x")
+nlsDeriv(digamma(x), "x")
 D(expression(digamma(x)), "x")
 deriv(~digamma(x), "x")
 fnDeriv(quote(digamma(x)), "x")
 
-Deriv(trigamma(x), "x")
+nlsDeriv(trigamma(x), "x")
 D(expression(trigamma(x)), "x")
 deriv(~trigamma(x), "x")
 fnDeriv(quote(trigamma(x)), "x")
 
-Deriv(psigamma(x, deriv = 5), "x")
+nlsDeriv(psigamma(x, deriv = 5), "x")
 D(expression(psigamma(x, deriv = 5)), "x")
 deriv(~psigamma(x, deriv = 5), "x")
 fnDeriv(quote(psigamma(x, deriv = 5)), "x")
 
-Deriv(x*y, "x")
+nlsDeriv(x*y, "x")
 D(expression(x*y), "x")
 deriv(~x*y, "x")
 fnDeriv(quote(x*y), "x")
 
-Deriv(x/y, "x")
+nlsDeriv(x/y, "x")
 D(expression(x/y), "x")
 deriv(~x/y, "x")
 fnDeriv(quote(x/y), "x")
 
-Deriv(x^y, "x")
+nlsDeriv(x^y, "x")
 D(expression(x^y), "x")
 deriv(~x^y, "x")
 fnDeriv(quote(x^y), "x")
 
-Deriv((x), "x")
+nlsDeriv((x), "x")
 D(expression((x)), "x")
 deriv(~(x), "x")
 fnDeriv(quote((x)), "x")
 
-Deriv(+x, "x")
+nlsDeriv(+x, "x")
 D(expression(+x), "x")
 deriv(~ +x, "x")
 fnDeriv(quote(+x), "x")
 
-Deriv(-x, "x")
+nlsDeriv(-x, "x")
 D(expression(- x), "x")
 deriv(~ -x, "x")
 fnDeriv(quote(-x), "x")
 
-Deriv(abs(x), "x")
+nlsDeriv(abs(x), "x")
 try(D(expression(abs(x)), "x")) # 'abs' not in derivatives table
 try(deriv(~ abs(x), "x"))
 fnDeriv(quote(abs(x)), "x")
 
-Deriv(sign(x), "x")
+nlsDeriv(sign(x), "x")
 try(D(expression(sign(x)), "x")) # 'sign' not in derivatives table
 try(deriv(~ sign(x), "x"))
 fnDeriv(quote(sign(x)), "x")
@@ -386,7 +386,7 @@ Simplify(quote(--(a+b)))
 
 ## ------------------------------------------------------------------------
 require(nlsr)
-dnlsr <- Deriv(sin(x+y), "x")
+dnlsr <- nlsDeriv(sin(x+y), "x")
 print(dnlsr)
 class(dnlsr)
 
@@ -400,17 +400,17 @@ class(dryacas)
 
 ## ------------------------------------------------------------------------
 require(nlsr)
-dlogx <- nlsr::Deriv(log(x), "x")
+dlogx <- nlsr::nlsDeriv(log(x), "x")
 str(dlogx)
 print(dlogx)
 
 ## ------------------------------------------------------------------------
-dlogxs <- nlsr::Deriv(expression(log(x)), "x", do_substitute=FALSE)
+dlogxs <- nlsr::nlsDeriv(expression(log(x)), "x", do_substitute=FALSE)
 str(dlogxs)
 print(dlogxs)
 cat(as.character(dlogxs), "\n")
 fne <- expression(log(x))
-dlogxe <- Deriv(fne, "x", do_substitute=FALSE)
+dlogxe <- nlsDeriv(fne, "x", do_substitute=FALSE)
 str(dlogxe)
 print(dlogxe)
 
@@ -432,14 +432,14 @@ str(ddlogxf)
 zzz <- expression(y[3]*r1 + r2)
 try(deriv(zzz,c("r1","r2")))
 require(nlsr)
-try(nlsr::Deriv(zzz, c("r1","r2")))
+try(nlsr::nlsDeriv(zzz, c("r1","r2")))
 try(fnDeriv(zzz, c("r1","r2")))
 newDeriv(`[`(x,y), stop("no derivative when indexing"))
-try(nlsr::Deriv(zzz, c("r1","r2")))
+try(nlsr::nlsDeriv(zzz, c("r1","r2")))
 try(nlsr::fnDeriv(zzz, c("r1","r2")))
 
 ## ------------------------------------------------------------------------
-try(nlsr::Deriv(zzz, "y[3]"))
-try(nlsr::Deriv(y3*r1+r2,"y3"))
-try(nlsr::Deriv(y[3]*r1+r2,"y[3]"))
+try(nlsr::nlsDeriv(zzz, "y[3]"))
+try(nlsr::nlsDeriv(y3*r1+r2,"y3"))
+try(nlsr::nlsDeriv(y[3]*r1+r2,"y[3]"))
 

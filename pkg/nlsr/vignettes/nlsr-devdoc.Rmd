@@ -267,16 +267,89 @@ SS <- resss(st, shobbs.res)
 SS
 ```
 
+
+####nlsSimplify####
+
+Simplifications to render derivative expresssions more usable. 
+
+```{r}
+## nlsSimplify
+nlsSimplify(quote(a + 0))
+nlsSimplify(quote(exp(1)), verbose = TRUE)
+
+nlsSimplify(quote(sqrt(a + b)))  # standard rule
+myrules <- new.env(parent = sysSimplifications)
+newSimplification(sqrt(a), TRUE, a^0.5, simpEnv = myrules)
+nlsSimplify(quote(sqrt(a + b)), simpEnv = myrules)
+
+```
+
+
 #### newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE, isCALL, findSubexprs, sysDerivs####
 
 Functions to simplify expressions.
 \code{Simplify} simplifies expressions according to rules specified
 by \code{newSimplification}.
 
-?? examples and checks
-
 **findSubexprs** finds common subexpressions in an expression vector
 so that duplicate computation can be avoided.
+
+?? justifications for these?
+
+```{r}
+## newSimplification
+
+
+## Simplify
+
+
+## sysSimplifications
+# creates a new environment whose parent is emptyenv()  Why??
+str(sysSimplifications)
+
+## isFALSE
+
+
+## isZERO
+print(isZERO(0))
+x <- -0
+print(isZERO(x))
+x <- 0
+print(isZERO(x))
+print(isZERO(~(-1)))
+print(isZERO("-1"))
+print(isZERO(expression(-1)))
+
+
+## isONE
+print(isONE(1))
+x <- 1
+print(isONE(x))
+print(isONE(~(1)))
+print(isONE("1"))
+print(isONE(expression(1)))
+
+
+## isMINUSONE
+print(isMINUSONE(-1))
+x <- -1
+print(isMINUSONE(x))
+print(isMINUSONE(~(-1)))
+print(isMINUSONE("-1"))
+print(isMINUSONE(expression(-1)))
+
+## isCALL
+
+
+## findSubexprs
+
+
+## sysDerivs
+# creates a new environment whose parent is emptyenv()  Why??
+str(sysDerivs)
+
+
+```
 
 ?? example
 

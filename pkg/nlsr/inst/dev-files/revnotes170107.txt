@@ -2,6 +2,8 @@ Notes on review of nlsr package Jan 2017 by JN
 
 TODO: 
 
+170120 cannot figure out how to use isCALL and why.
+
 170119 justifications for the is??? functions
 
 170117

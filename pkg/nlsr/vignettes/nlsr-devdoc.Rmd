@@ -47,13 +47,8 @@ desirable.
 
 ## TODOS
 
-- functions in nlsr-package.R need to be explained
 - how to insert numerical derivatives when Deriv unable to get result
 - approximations for jacfn beyond fwd approximation. How to specify??
-- weights should possibly be available in nlxb. For nlfb, they can
-  be added via the functions for residual and jacobian.??
-- solution object is of class nlmrt. If we change to nlsr, should
-  this be changed??
 
 ## Summary of capabilities in `nlsr`
 
@@ -268,9 +263,17 @@ SS
 ```
 
 
-####nlsSimplify####
+####nlsSimplify and related functions####
 
-Simplifications to render derivative expresssions more usable. 
+Simplifications to render derivative expresssions more usable.
+
+The related tools are: **newSimplification, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE, isCALL, findSubexprs, sysDerivs**.
+
+**nlsSimplify** simplifies expressions according to rules specified
+by **newSimplification**.
+
+**findSubexprs** finds common subexpressions in an expression vector
+so that duplicate computation can be avoided.
 
 ```{r}
 ## nlsSimplify
@@ -278,37 +281,17 @@ nlsSimplify(quote(a + 0))
 nlsSimplify(quote(exp(1)), verbose = TRUE)
 
 nlsSimplify(quote(sqrt(a + b)))  # standard rule
-myrules <- new.env(parent = sysSimplifications)
-newSimplification(sqrt(a), TRUE, a^0.5, simpEnv = myrules)
-nlsSimplify(quote(sqrt(a + b)), simpEnv = myrules)
-
-```
-
-
-#### newSimplification, Simplify, sysSimplifications, isFALSE, isZERO, isONE, isMINUSONE, isCALL, findSubexprs, sysDerivs####
-
-Functions to simplify expressions.
-\code{Simplify} simplifies expressions according to rules specified
-by \code{newSimplification}.
-
-**findSubexprs** finds common subexpressions in an expression vector
-so that duplicate computation can be avoided.
-
-?? justifications for these?
-
-```{r}
-## newSimplification
-
-
-## Simplify
-
-
 ## sysSimplifications
 # creates a new environment whose parent is emptyenv()  Why??
 str(sysSimplifications)
+myrules <- new.env(parent = sysSimplifications)
+## newSimplification
+newSimplification(sqrt(a), TRUE, a^0.5, simpEnv = myrules)
+nlsSimplify(quote(sqrt(a + b)), simpEnv = myrules)
 
 ## isFALSE
-
+print(isFALSE(1==2))
+print(isFALSE(2==2))
 
 ## isZERO
 print(isZERO(0))
@@ -338,29 +321,24 @@ print(isMINUSONE(~(-1)))
 print(isMINUSONE("-1"))
 print(isMINUSONE(expression(-1)))
 
-## isCALL
-
-
+## isCALL  ?? don't have good understanding of this
+x <- -1
+print(isCALL(x,"isMINUSONE"))
+print(isCALL(x, quote(isMINUSONE)))
+      
 ## findSubexprs
-
+findSubexprs(expression(x^2, x-y, y^2-x^2))
 
 ## sysDerivs
 # creates a new environment whose parent is emptyenv()  Why??
 str(sysDerivs)
-
-
 ```
-
-?? example
-
 
 #### summary.nlsr
 
 Provide a summary output (but involving some serious computations!) of an object of
-class nlsr from nlxb or nlfb from package nlsr.
-
-?? examples, invisible?
-
+class nlsr from nlxb or nlfb from package nlsr. Examples have been given above under
+**nlxb** and **nlfb**.
 
 #### wrapnlsr
 
@@ -373,7 +351,24 @@ to find the minimum of the residual sum of squares using the Nash variant
 (Nash, 1979) of the Marquardt algorithm, where the linear sub-problem is 
 solved by a qr method.
 
-Example ??
+```{r}
+# Data for Hobbs problem
+ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+            38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+tdat  <-  seq_along(ydat) # for testing
+start1  <-  c(b1=1, b2=1, b3=1)
+eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
+weeddata1  <-  data.frame(y=ydat, tt=tdat)
+## The following attempt with nls() fails!
+anls1  <-  try(nls(eunsc, start=start1, trace=TRUE, data=weeddata1))
+## But we succeed by calling nlxb first.
+anlxb1  <-  try(nlxb(eunsc, start=start1, trace=TRUE, data=weeddata1))
+st2 <- coef(anlxb1)
+anls2  <-  try(nls(eunsc, start=st2, trace=TRUE, data=weeddata1))
+## Or we can simply call wrapnlsr
+anls2a  <-  try(wrapnlsr(eunsc, start=start1, trace=TRUE, data=weeddata1))
+```
+
 
 ### Particular features
 

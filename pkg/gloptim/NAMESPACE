@@ -1,0 +1,8 @@
+##
+##  NAMESPACE
+##
+
+# Public routines
+export(gloptim)
+
+# S4 Methods

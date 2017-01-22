@@ -1,0 +1,15 @@
+Package: gloptim
+Type: Package
+Title: Global Optimization Wrapper to Call a Variety of Solvers
+Description: Allows various global optimization methods to be applied to
+        problems through a unified calling syntax.
+Depends: R (>= 2.10.1)
+Imports: DEoptim, GA
+Version: 2017.1-21
+Date: 2017-01-21
+Author: John C. Nash, University of Ottawa, and Hans W. Borchers,
+        ABB Corporate Research.
+Maintainer: John C. Nash <nashjc@uottawa.ca>
+License: GPL (>= 2)
+LazyLoad: yes
+Repository: CRAN

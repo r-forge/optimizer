@@ -1,5 +1,7 @@
 NEWS for gloptim package
 
+170123  o  Added smco and soma
+
 170122  o  Set up package using code from HWB gloptim.html document. 
            Usage in .Rd file had <- function() which HWB removed.
            

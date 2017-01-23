@@ -70,3 +70,18 @@ with(Hald, {
 ## xerr:  0.0001246979 
 ## ferr:  4.490704e-06 
 ## Elapsed time:  3.361  [s].  
+
+with(Hald, {
+  stime = system.time(
+    sol <- gloptim(fn = fn, lb = lb, ub = ub, method = "soma",
+                   minimize = TRUE,
+                   control = list(itermax = 1000, info = FALSE))
+  )
+  cat("xmin: ", sol$xmin, '\n')
+  cat("fmin: ", sol$fmin, '\n')
+  cat("xerr: ", sqrt(sum((sol$xmin-Hald$xmin)^2)), '\n')
+  cat("ferr: ", abs( sol$fmin-Hald$fmin), '\n')
+  cat("Elapsed time: ", stime["elapsed"], " [s].")
+})
+## Global solver/method: soma 
+

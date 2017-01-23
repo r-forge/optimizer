@@ -8,5 +8,6 @@ export(gloptim
 
 importFrom(DEoptim, DEoptim)
 importFrom(GA, ga)
+importFrom(smco, smco)
 
 # S4 Methods

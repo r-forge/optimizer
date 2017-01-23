@@ -1,5 +1,5 @@
 gloptim <- function(fn, lb, ub, x0 = NULL,
-        method = c("deoptim", "ga"), type = NULL,
+        method = c("deoptim", "ga", "smco"), type = NULL,
         minimize = TRUE, control = list(), ...) {
     
     fun = match.fun(fn)
@@ -41,7 +41,16 @@ gloptim <- function(fn, lb, ub, x0 = NULL,
                                 DEoptim::DEoptim.control(
                                 trace = cntrl$info, itermax = cntrl$itermax))
         return(list(xmin = sol$optim$bestmem, fmin = sol$optim$bestval))
-    } else {
+  } else if (method == "smco") {
+      if (is.null(cntrl$itermax)) maxiter <- 1000 else maxiter <- cntrl$itermax
+      sol <- smco(par = x0, fn, gr = NULL, ..., N = length(par), 
+           LB=lb, UB=ub, maxiter = maxiter)
+      
+      sol <- DEoptim::DEoptim(fn, lower = lb, upper = ub,
+                              DEoptim::DEoptim.control(
+                                trace = cntrl$info, itermax = cntrl$itermax))
+      return(list(xmin = sol$optim$bestmem, fmin = sol$optim$bestval))    
+   } else {
         stop("Argument 'method' has not yet been implemented.")
-    }
+   }
 }

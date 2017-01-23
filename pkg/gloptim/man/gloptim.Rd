@@ -9,7 +9,7 @@
 }
 \usage{
 gloptim(fn, lb, ub, x0 = NULL,
-        method = c("deoptim", "ga"), type = NULL,
+        method = c("deoptim", "ga", "smco"), type = NULL,
         minimize = TRUE, control = list(), ...)
 }
 
@@ -30,7 +30,7 @@ gloptim(fn, lb, ub, x0 = NULL,
   \item{x0}{Starting vector of parameter values. For some methods, this is
      optional.}
   \item{method}{A character string specifying the solver to be applied.
-      Current options are "deoptim" and "ga".
+      Current options are "deoptim", "ga", and "smco".
   }
   \item{type}{A characterization of the function that may be needed by
         some methods. ?? is this used?}

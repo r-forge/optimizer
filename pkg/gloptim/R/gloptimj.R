@@ -1,11 +1,7 @@
-gloptim <- function(fn, lb, ub, x0 = NULL,
-        method = c("deoptim", "ga"), type = NULL,
+gloptimj <- function(fn, lb, ub, x0 = NULL,
+        method = c("deoptim"), type = NULL,
         minimize = TRUE, control = list(), ...) {
     
-    fun = match.fun(fn)
-    f <- function(x) fun(x, ...)
-    
-    method = match.arg(method)
     cat("Global solver/method:", method, "\n")
 
     cntrl <- list(info = FALSE,    # shall info/trace be shown

@@ -1,0 +1,85 @@
+> summary(sol0unc, order=value)
+                   p1        p2           p3          p4         p5
+hjn         0.9867286 0.3036515 -0.702967450  0.15200000  0.0280000
+nmkb        0.9863162 0.8600664 -0.104439819 -0.47827523  0.2658936
+hjkb        0.9192520 0.3499786 -0.700000000 -0.10000000  0.2812195
+newuoa      1.0377198 0.7737858 -0.394924196 -0.09954459  0.1944909
+bobyqa      1.1063116 0.4415716 -0.720231488  0.71890341 -0.4008157
+Nelder-Mead 0.7829484 0.9512282  0.149616520 -0.90204687  0.3297387
+Rvmmin      1.5916371 1.6916365  0.096595100  0.19659522  0.2965950
+lbfgs       0.1000000 0.2000000  0.300000000  0.40000000  0.5000000
+lbfgsb3     1.6025510 1.7025504  0.095106844  0.19510696  0.2951067
+nlm         1.6154743 1.7154737  0.093344573  0.19334470  0.2933445
+Rtnmin      1.6909099 1.7909092  0.083057913  0.18305804  0.2830578
+ucminf      1.7036702 1.8036695  0.081317870  0.18131800  0.2813178
+Rcgmin      1.7182104 1.8182097  0.079335122  0.17933525  0.2793350
+spg         1.1000000 1.1999996  0.163636473  0.26363655  0.3636364
+nlminb      2.3727284 2.4727274 -0.009917267  0.09008292  0.1900826
+BFGS               NA        NA           NA          NA         NA
+CG                 NA        NA           NA          NA         NA
+L-BFGS-B           NA        NA           NA          NA         NA
+                    value fevals gevals convergence  kkt1  kkt2 xtime
+hjn          1.327140e-02   1456     NA           0 FALSE FALSE 0.156
+nmkb         1.745343e-02    329     NA           0 FALSE  TRUE 0.076
+hjkb         8.075218e-02    680     NA           0 FALSE FALSE 0.048
+newuoa       1.304986e-01    112     NA           0 FALSE FALSE 0.020
+bobyqa       1.338120e-01    273     NA           0 FALSE FALSE 0.024
+Nelder-Mead  2.856183e-01   1002     NA           1 FALSE FALSE 0.052
+Rvmmin       6.531579e-01     38      8           3 FALSE  TRUE 0.016
+lbfgs        6.554895e-01     NA     NA       -1001 FALSE FALSE 0.012
+lbfgsb3      6.665554e-01     39     39           0 FALSE FALSE 0.036
+nlm          6.824321e-01     NA      5           0 FALSE FALSE 0.012
+Rtnmin       7.753766e-01      5      5           3 FALSE FALSE 0.020
+ucminf       7.914658e-01      8      8           0 FALSE FALSE 0.008
+Rcgmin       8.112014e-01   2454    131           1 FALSE FALSE 0.348
+spg          1.434018e+00   1099     11           0 FALSE FALSE 0.184
+nlminb       1.817153e+00     21      3           1 FALSE FALSE 0.004
+BFGS        8.988466e+307     NA     NA        9999    NA    NA 0.000
+CG          8.988466e+307     NA     NA        9999    NA    NA 0.000
+L-BFGS-B    8.988466e+307     NA     NA        9999    NA    NA 0.000
+>
+
+> summary(sol0uncnogr, order=value)
+                   p1        p2           p3          p4          p5
+L-BFGS-B    0.9967985 0.6150816 -0.356439344 -0.17179084  0.12195260
+BFGS        0.9997443 0.6267419 -0.344394380 -0.17813075  0.12255078
+hjn         0.9867286 0.3036515 -0.702967450  0.15200000  0.02800000
+nmkb        0.9863162 0.8600664 -0.104439819 -0.47827523  0.26589363
+hjkb        1.0546127 0.2427971 -0.731250000  0.45548096 -0.25634003
+CG          1.0911820 0.8233373 -0.074568105 -0.15384330 -0.07568068
+newuoa      1.0377198 0.7737858 -0.394924196 -0.09954459  0.19449095
+bobyqa      1.1063116 0.4415716 -0.720231488  0.71890341 -0.40081575
+Nelder-Mead 0.7829484 0.9512282  0.149616520 -0.90204687  0.32973872
+Rvmmin      1.5916371 1.6916365  0.096595100  0.19659522  0.29659500
+lbfgs       0.1000000 0.2000000  0.300000000  0.40000000  0.50000000
+lbfgsb3     1.6025510 1.7025504  0.095106844  0.19510696  0.29510674
+nlm         1.6154743 1.7154737  0.093344573  0.19334470  0.29334447
+Rtnmin      1.6909099 1.7909092  0.083057913  0.18305804  0.28305781
+ucminf      1.7036702 1.8036695  0.081317870  0.18131800  0.28131776
+Rcgmin      1.7182104 1.8182097  0.079335122  0.17933525  0.27933501
+spg         1.1000000 1.1999996  0.163636473  0.26363655  0.36363641
+nlminb      2.3727284 2.4727274 -0.009917267  0.09008292  0.19008258
+                  value fevals gevals convergence  kkt1  kkt2 xtime
+L-BFGS-B    0.008862676    145    145           0 FALSE FALSE 0.088
+BFGS        0.010519753    200     36           0 FALSE FALSE 0.028
+hjn         0.013271398   1456     NA           0 FALSE FALSE 0.152
+nmkb        0.017453433    329     NA           0 FALSE  TRUE 0.068
+hjkb        0.054615310    610     NA           0 FALSE FALSE 0.048
+CG          0.099187190    234     45           0 FALSE FALSE 0.036
+newuoa      0.130498586    112     NA           0 FALSE FALSE 0.012
+bobyqa      0.133812006    273     NA           0 FALSE FALSE 0.024
+Nelder-Mead 0.285618298   1002     NA           1 FALSE FALSE 0.056
+Rvmmin      0.653157926     38      8           3 FALSE  TRUE 0.012
+lbfgs       0.655489479     NA     NA       -1001 FALSE FALSE 0.012
+lbfgsb3     0.666555437     39     39           0 FALSE FALSE 0.048
+nlm         0.682432100     NA      5           0 FALSE FALSE 0.012
+Rtnmin      0.775376637      5      5           3 FALSE FALSE 0.016
+ucminf      0.791465839      8      8           0 FALSE FALSE 0.008
+Rcgmin      0.811201409   2454    131           1 FALSE FALSE 0.328
+spg         1.434018359   1099     11           0 FALSE FALSE 0.188
+nlminb      1.817152608     21      3           1 FALSE FALSE 0.000
+Warning messages:
+1: In optimr(par, fn, gr, method = meth, lower = lower, upper = upper,  :
+  Successful convergence  Restarts for stagnation =0
+2: In optimr(par, fn, gr, method = meth, lower = lower, upper = upper,  :
+  Successful convergence  Restarts for stagnation =0

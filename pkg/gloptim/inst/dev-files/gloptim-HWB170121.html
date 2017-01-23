@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>gloptim with GA and DEoptim Test</title>
+
+<script src="gloptim_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="gloptim_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="gloptim_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="gloptim_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="gloptim_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="gloptim_files/navigation-1.1/tabsets.js"></script>
+<link href="gloptim_files/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="gloptim_files/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore"><strong>gloptim</strong> with <em>GA</em> and <em>DEoptim</em> Test</h1>
+
+</div>
+
+
+<p>This is about an example <strong>gloptim</strong> function, tested with the non-smooth Hald test function. Test functions are represented as lists with components</p>
+<ul>
+<li><code>fn</code> the defining code of the test function</li>
+<li><code>dim</code> the number of variables</li>
+<li><code>lb</code>, <code>ub</code>, lower and upper bounds for the variables</li>
+<li><code>xmin</code> the known minimum solution</li>
+<li><code>fmin</code> the function value at this minimum</li>
+<li><code>prec</code> the precision of this minimum value</li>
+</ul>
+<p>Here is the 5-parameter Hald function, defined as a minimax funtion of 21 functions. Note that the function is everywhere defined and continuous, with possible singularities.</p>
+<pre class="r"><code>##  Test function HALD, 5 parameters, non-smooth, one local minimum
+Hald &lt;- list(
+  fn = function(x) {
+    stopifnot(is.numeric(x), length(x) == 5)
+    if (all(x == 1)) return(exp(1))
+    t &lt;- -1 + (c(1:21) - 1)/10
+    v &lt;- (x[1]+x[2]*t) / (1 + x[3]*t + x[4]*t^2 + x[5]*t^3) - exp(t)
+    max(abs(v))
+  },
+  dim = 5, lb = rep(-1, 5), ub = rep(1, 5),
+  xmin = c(0.99987763, 0.25358844, -0.74660757, 0.24520150, -0.03749029), 
+  fmin = 0.00012237326, prec = 1.0e-10
+)</code></pre>
+<p>The following is an example of a wrapping function for the stochastic solvers <code>ga</code> (from the <em>GA</em> package) and <code>DEoptim</code> (from the <em>DEoptim</em> package).</p>
+<pre class="r"><code>gloptim &lt;- function(fn, lb, ub, x0 = NULL, ...,
+        method = c(&quot;deoptim&quot;, &quot;ga&quot;), type = NULL,
+        minimize = TRUE, control = list()) {
+    
+    fun = match.fun(fn)
+    f &lt;- function(x) fun(x, ...)
+    
+    method = match.arg(method)
+    cat(&quot;Global solver/method:&quot;, method, &quot;\n&quot;)
+
+    cntrl &lt;- list(info = FALSE,    # shall info/trace be shown
+                  popsize = NULL,  # population size
+                  itermax = NULL   # max. no. of iterations
+                  )
+    for (nm in names(control)) {
+        if (nm %in% names(cntrl)) {
+            cntrl[nm] &lt;- control[nm]
+        } else {
+            stop(&quot;Unknown name in control list: &#39;&quot;, nm, &quot;&#39;.&quot;, call. = FALSE)
+        }
+    }
+
+    if (method == &quot;ga&quot;) {
+        if (minimize) s &lt;- -1 else s &lt;- 1
+        fn &lt;- function(x) s * f(x)
+        if (is.null(cntrl$popsize)) popSize &lt;- 100 else popSize &lt;- cntrl$popsize
+        if (is.null(cntrl$itermax)) maxiter &lt;- 100 else maxiter &lt;- cntrl$itermax
+
+        sol &lt;- GA::ga(type = &quot;real-valued&quot;, fitness = fn,
+                      min = lb, max = ub,
+                      popSize = popSize,
+                      maxiter = maxiter,
+                      monitor = cntrl$info)
+        return(list(xmin = sol@solution,
+                    fmin = s * sol@fitnessValue))
+
+    } else if (method == &quot;deoptim&quot;) {
+        if (is.null(cntrl$itermax)) maxiter &lt;- 1000 else maxiter &lt;- cntrl$itermax
+        
+        sol &lt;- DEoptim::DEoptim(fn, lower = lb, upper = ub,
+                                DEoptim::DEoptim.control(
+                                trace = cntrl$info, itermax = cntrl$itermax))
+        return(list(xmin = sol$optim$bestmem, fmin = sol$optim$bestval))
+    } else {
+        stop(&quot;Argument &#39;method&#39; has not yet been implemented.&quot;)
+    }
+}</code></pre>
+<p>Only very few control options are available at the moment:</p>
+<ul>
+<li><code>info</code>: whether a trace or other info from the solver should be show.</li>
+<li><code>popsize</code>: population size for gemetic algorithms, mostly.</li>
+<li><code>itermax</code>: maximum number of iterations.</li>
+</ul>
+<p>Some stochastic solvers stop automatically when the solution does not change anymore (below a certain relative tolerance). The genetic algorithm in <em>GA</em> only stops when the maximum number of iterations has been reached.</p>
+<p>The population size is obviously important for the accuracy to be reached. But big population sizes will make the whole process very slow. By the way, the default values for the <code>ga</code> solver are quite low and should be increased by a wrapper.</p>
+<p>The application of the solvers to the Hald test function can best be done using the <code>with</code>-construct.</p>
+<pre class="r"><code>with(Hald, {
+  stime = system.time(
+    sol &lt;- gloptim(fn = fn, lb = lb, ub = ub, method = &quot;ga&quot;,
+                   minimize = TRUE,
+                   control = list(popsize = 200, itermax = 1000))
+    )
+  cat(&quot;xmin: &quot;, sol$xmin, &#39;\n&#39;)
+  cat(&quot;fmin: &quot;, sol$fmin, &#39;\n&#39;)
+  cat(&quot;xerr: &quot;, sqrt(sum((sol$xmin-Hald$xmin)^2)), &#39;\n&#39;)
+  cat(&quot;ferr: &quot;, abs( sol$fmin-Hald$fmin), &#39;\n&#39;)
+  cat(&quot;Elapsed time: &quot;, stime[&quot;elapsed&quot;], &quot; [s].&quot;)
+})</code></pre>
+<pre><code>## Global solver/method: ga 
+## xmin:  0.9747484 0.4539033 -0.5457178 0.02722956 0.04386974 
+## fmin:  0.02726052 
+## xerr:  0.3677573 
+## ferr:  0.02713814 
+## Elapsed time:  10.632  [s].</code></pre>
+<pre class="r"><code>with(Hald, {
+  stime = system.time(
+    sol &lt;- gloptim(fn = fn, lb = lb, ub = ub, method = &quot;deoptim&quot;,
+                   minimize = TRUE,
+                   control = list(itermax = 1000, info = FALSE))
+    )
+  cat(&quot;xmin: &quot;, sol$xmin, &#39;\n&#39;)
+  cat(&quot;fmin: &quot;, sol$fmin, &#39;\n&#39;)
+  cat(&quot;xerr: &quot;, sqrt(sum((sol$xmin-Hald$xmin)^2)), &#39;\n&#39;)
+  cat(&quot;ferr: &quot;, abs( sol$fmin-Hald$fmin), &#39;\n&#39;)
+  cat(&quot;Elapsed time: &quot;, stime[&quot;elapsed&quot;], &quot; [s].&quot;)
+})</code></pre>
+<pre><code>## Global solver/method: deoptim 
+## xmin:  0.9998748 0.2534681 -0.746735 0.2453215 -0.03752767 
+## fmin:  0.0001251754 
+## xerr:  0.0002157009 
+## ferr:  2.802174e-06 
+## Elapsed time:  1.035  [s].</code></pre>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

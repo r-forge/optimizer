@@ -1,0 +1,5 @@
+NEWS for gloptim package
+
+170122  o  Set up package using code from HWB gloptim.html document. Some issues
+           with usage section of Rd file, but many attemps seem to give no
+           fix. 

@@ -3,6 +3,11 @@
 ##
 
 # Public routines
-export(gloptim)
+export(gloptim, 
+       gloptimj
+)
+
+importFrom(DEoptim, DEoptim)
+importFrom(GA, ga)
 
 # S4 Methods

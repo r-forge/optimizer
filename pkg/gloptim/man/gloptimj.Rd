@@ -1,7 +1,5 @@
-\name{gloptim}
-\alias{gloptim}
-\alias{deoptim}
-\alias{ga}
+\name{gloptimj}
+\alias{gloptimj}
 \title{
   Wrapper to unify global optimization solvers
 }
@@ -10,7 +8,7 @@
   single syntax. The structure is intended to be extensible.
 }
 \usage{
-gloptim <- function(fn, lb, ub, x0 = NULL,
+gloptimj <- function(fn, lb, ub, x0 = NULL,
         method = c("deoptim"), type = NULL,
         minimize = TRUE, control = list(), ...)
 }

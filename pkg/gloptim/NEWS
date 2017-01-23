@@ -1,5 +1,5 @@
 NEWS for gloptim package
 
-170122  o  Set up package using code from HWB gloptim.html document. Some issues
-           with usage section of Rd file, but many attemps seem to give no
-           fix. Tried changing structure a bit in gloptimj. No joy.
+170122  o  Set up package using code from HWB gloptim.html document. 
+           Usage in .Rd file had <- function() which HWB removed.
+           

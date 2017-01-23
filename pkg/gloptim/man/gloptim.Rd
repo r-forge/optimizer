@@ -1,7 +1,5 @@
 \name{gloptim}
 \alias{gloptim}
-\alias{deoptim}
-\alias{ga}
 \title{
   Wrapper to unify global optimization solvers
 }
@@ -10,8 +8,8 @@
   single syntax. The structure is intended to be extensible.
 }
 \usage{
-gloptim <- function(fn, lb, ub, x0 = NULL,
-        method = c("deoptim"), type = NULL,
+gloptim(fn, lb, ub, x0 = NULL,
+        method = c("deoptim", "ga"), type = NULL,
         minimize = TRUE, control = list(), ...)
 }
 
@@ -55,7 +53,8 @@ gloptim <- function(fn, lb, ub, x0 = NULL,
   \item{fmin}{value of the objective function at termination.}
 }
 \author{
-  Hans W Borchers  <hwborchers@googlemail.com> and John C. Nash <nashjc@uottawa.ca>.
+  Hans W Borchers  <hwborchers@googlemail.com> and
+  John C. Nash <nashjc@uottawa.ca>.
 }
 \seealso{
   \code{\link{optim}}

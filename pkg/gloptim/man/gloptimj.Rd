@@ -8,9 +8,9 @@
   single syntax. The structure is intended to be extensible.
 }
 \usage{
-gloptimj <- function(fn, lb, ub, x0 = NULL,
-        method = c("deoptim"), type = NULL,
-        minimize = TRUE, control = list(), ...)
+gloptimj(fn, lb, ub, x0 = NULL,
+         method = c("deoptim"), type = NULL,
+         minimize = TRUE, control = list(), ...)
 }
 
 \arguments{

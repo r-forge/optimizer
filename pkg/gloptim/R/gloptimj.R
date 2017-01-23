@@ -1,13 +1,17 @@
 gloptimj <- function(fn, lb, ub, x0 = NULL,
         method = c("deoptim"), type = NULL,
         minimize = TRUE, control = list(), ...) {
-    
-    cat("Global solver/method:", method, "\n")
 
     cntrl <- list(info = FALSE,    # shall info/trace be shown
                   popsize = NULL,  # population size
                   itermax = NULL   # max. no. of iterations
                   )
+
+    fun = match.fun(fn)
+    f <- function(x) fun(x, ...)
+
+    cat("Global solver/method:", method, "\n")
+
     for (nm in names(control)) {
         if (nm %in% names(cntrl)) {
             cntrl[nm] <- control[nm]

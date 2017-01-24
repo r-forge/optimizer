@@ -3,7 +3,8 @@
 ##
 
 # Public routines
-export(gloptim
+export(gloptim,
+       gloptimj
 )
 
 importFrom(DEoptim, DEoptim)

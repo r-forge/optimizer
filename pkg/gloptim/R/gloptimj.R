@@ -1,4 +1,4 @@
-gloptim <- function(fn, lb, ub, x0 = NULL,
+gloptimj <- function(fn, lb, ub, x0 = NULL,
         method = c("deoptim", "ga", "smco", "soma"), type = NULL,
         minimize = TRUE, control = list(), ...) {
     

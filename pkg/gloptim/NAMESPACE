@@ -8,6 +8,8 @@ export(gloptim,
 )
 
 importFrom(DEoptim, DEoptim)
+importFrom(DEoptimR, JDEoptim)
+importFrom(adagio, simpleDE)
 importFrom(GA, ga)
 importFrom(smco, smco)
 importFrom(soma, soma)

@@ -1,7 +1,10 @@
 NEWS for gloptim package
 
-170123  o  Added smco and soma
+2017.01-24  o  Added DEoptimR::JDEoptim adagio::simpleDE.
+               Changed the Hald test to a test for all solvers.
 
-170122  o  Set up package using code from HWB gloptim.html document. 
-           Usage in .Rd file had <- function() which HWB removed.
+2017.01-23  o  Added smco and soma.
+
+2017.01-21  o  Set up package using code from HWB gloptim.html document. 
+               Usage in .Rd file had <- function() which HWB removed.
            

@@ -15,40 +15,26 @@ Hald <- list(
 )
 
 
-with(Hald, {
-  stime = system.time(
-    sol <- gloptim(fn = fn, lb = lb, ub = ub, method = "ga",
-                   minimize = TRUE,
-                   control = list(popsize = 200, itermax = 1000))
+mthd <- c(); fminimum <- c(); thetime = c()
+
+for (m in c("deoptim", "deoptimr", "simplede",
+            "ga",
+            "smco", "soma")) {
+    tm <- system.time(
+        sol <- gloptim(Hald$fn, rep(-1, 5), rep(1, 5), method=m)
     )
-  cat("xmin: ", sol$xmin, '\n')
-  cat("fmin: ", sol$fmin, '\n')
-  cat("xerr: ", sqrt(sum((sol$xmin-Hald$xmin)^2)), '\n')
-  cat("ferr: ", abs( sol$fmin-Hald$fmin), '\n')
-  cat("Elapsed time: ", stime["elapsed"], " [s].")
-})
-## Global solver/method: ga 
-## xmin:  0.9747484 0.4539033 -0.5457178 0.02722956 0.04386974 
-## fmin:  0.02726052 
-## xerr:  0.3677573 
-## ferr:  0.02713814 
-## Elapsed time:  10.632  [s].
-with(Hald, {
-  stime = system.time(
-    sol <- gloptim(fn = fn, lb = lb, ub = ub, method = "deoptim",
-                   minimize = TRUE,
-                   control = list(itermax = 1000, info = FALSE))
-    )
-  cat("xmin: ", sol$xmin, '\n')
-  cat("fmin: ", sol$fmin, '\n')
-  cat("xerr: ", sqrt(sum((sol$xmin-Hald$xmin)^2)), '\n')
-  cat("ferr: ", abs( sol$fmin-Hald$fmin), '\n')
-  cat("Elapsed time: ", stime["elapsed"], " [s].")
-})
-## Global solver/method: deoptim 
-## xmin:  0.9998748 0.2534681 -0.746735 0.2453215 -0.03752767 
-## fmin:  0.0001251754 
-## xerr:  0.0002157009 
-## ferr:  2.802174e-06 
-## Elapsed time:  1.035  [s].
+    mthd <- c(mthd, m); fminimum <- c(fminimum, sol$fmin)
+    thetime <- c(thetime, unname(tm["elapsed"]))
+}
+
+G <- data.frame(method=mthd, fmin=fminimum, time=thetime)
+
+G
+##      method         fmin  time
+##  1  deoptim 0.0001265921 1.034
+##  2 deoptimr 0.0001223713 2.778
+##  3 simplede 0.0001223713 2.909
+##  4       ga 0.0117655364 5.275
+##  5     smco 0.3015429636 0.053
+##  6     soma 0.3772099183 0.116
 

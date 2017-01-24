@@ -423,6 +423,16 @@ print(asoma1$population[,asoma1$leader])
 print(Rastrigin(asoma1$population[,asoma1$leader]))
 ```
 
+2017-1-23: Experiments with early gloptim() (gloptimj() at the time) showed
+that **soma** is NOT very good at finding the solution of the Hald function.
+Moreover, there appears to be no option or control that initializes the
+random numbers used to generate the "population" of trial points. However,
+running 
+
+      set.seed(54321)
+
+before each run gives reproducible results.      
+
 ####Package `Rmalschains`####
 
 \index{Rmalschains@`Rmalschains`}

@@ -3,15 +3,42 @@
 ##
 
 # Public routines
-export(gloptim,
-       gloptimj
+export(gloptim, gloptimj)
+export(glopt)
+
+export(fnTrefethen,
+	   fnWagon,
+	   fnColville,
+	   fnHald,
+	   fnAckley,
+	   fnLangerman,
+	   fnHartmann6,
+	   fnMichalewicz,
+	   fnRastrigin,
+	   fnWhitley,
+	   fnARWhead,
+	   fnRana
 )
 
-importFrom(DEoptim, DEoptim)
-importFrom(DEoptimR, JDEoptim)
-importFrom(adagio, simpleDE)
-importFrom(GA, ga)
-importFrom(smco, smco)
-importFrom(soma, soma)
+importFrom(stats, runif)
+
+# importFrom(DEoptim, DEoptim,DEoptim.control)
+# importFrom(RcppDE, DEoptim,DEoptim.control)
+# importFrom(DEoptimR, JDEoptim)
+# importFrom(NMOF, DEopt,PSopt)
+# importFrom(adagio, simpleDE,simpleEA,pureCMAES)
+# importFrom(GenSA, GenSA)
+# importFrom(GA, ga)
+# importFrom(rgenoud, genoud)
+# importFrom(pso, psoptim)
+# importFrom(hydroPSO, hydroPSO)
+# importFrom(RCEIM, ceimOpt)
+# importFrom(nloptr, direct,crs2lm,isres,stogo)
+# importFrom(rCMA, cmaNew,cmaInit,cmaOptimDP)
+# importFrom(parma, cmaes,cmaes.control)
+# importFrom(cmaesr, cmaes)
+# importFrom(Rmalschains, malschains)
+# importFrom(smco, smco)
+# importFrom(soma, soma)
 
 # S4 Methods

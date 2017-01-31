@@ -45,13 +45,13 @@ gloptimj <- function(fn, lb, ub, x0 = NULL,
     if (is.null(cntrl$itermax)) maxiter <- 1000 else maxiter <- cntrl$itermax
     if (is.numeric(x0)) N <- length(x0) else N <- max(length(lb), length(ub))
     ## ?? improve this
-    sol <- smco(par = x0, fn, gr = NULL, ..., N = N, 
+    sol <- smco::smco(par = x0, fn, gr = NULL, ..., N = N, 
                 LB=lb, UB=ub, maxiter = maxiter)
     
     return(list(xmin = sol$par, fmin = sol$value))    
   } else if (method == "soma") {
 ##    if (is.null(cntrl$itermax) ) maxiter <- 1000 else maxiter <- cntrl$itermax
-    sol <- soma(costFunction = fn, bounds=list(min=lb, max=ub) )
+    sol <- soma::soma(costFunction = fn, bounds=list(min=lb, max=ub) )
     best <- sol$leader
     xmin <- (sol$population)[ ,best]
     return(list(xmin = xmin, fmin = (sol$cost)[best]) )

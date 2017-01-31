@@ -1,10 +1,16 @@
 NEWS for gloptim package
 
+2017.01-30  o  glopt() calls all available global solvers in sequence.
+            o  Method names can now be included and excluded.
+
+2017.01-28  o  Added 15 more stochastic/global solvers.
+            o  Added 12 test functions and suggests globalOptTests.
+
 2017.01-24  o  Added DEoptimR::JDEoptim adagio::simpleDE.
-               Changed the Hald test to a test for all solvers.
+            o  Changed the Hald test to a test for all solvers.
 
 2017.01-23  o  Added smco and soma.
 
 2017.01-21  o  Set up package using code from HWB gloptim.html document. 
-               Usage in .Rd file had <- function() which HWB removed.
+            o  Usage in .Rd file had <- function() which HWB removed.
            

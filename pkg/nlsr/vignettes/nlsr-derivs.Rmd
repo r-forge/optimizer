@@ -31,11 +31,6 @@ in various places.
 Note: To distinguish output results (which are prefaced '`## `' by **knitr**, 
 comments in the **R** code are prefaced by '`#- `'.)
 
-## TODOS 
-
-Done: in nlsr and Deriv, does a new derivative rule replace existing one? Warning?  
-DM:  in newDeriv, a warning is now issued
-if the rule is changed.  In Deriv, no warning is issued.
 
 ## Available analytic differentiation tools
 
@@ -198,23 +193,25 @@ d2
 #?? fdx2xn(1:5)
 ```
 
-The tool `codeDeriv` returns a function which can
-be used in several ways.  `fnDeriv` wraps it in a function.
+The tool `codeDeriv` returns an R expression to evaluate the
+derivative efficiently.  `fnDeriv` wraps it in a function.
 By default the arguments to the function are constructed from
-the `namevec` argument.  ?? Should we default to all variables in the
-expression instead?  In the example below this would include `x`.
+all variables in the
+expression.  In the example below this includes `x`.
 
 ```{r}
 codeDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
 #- Include parameters as arguments
 fj.1 <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
+head(fj.1)
 fj.1(1,2,3,4)
 #- Get all parameters from the calling environment
 fj.2 <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th"),
         args = character())
-x <- 1
-b0 <- 2
-b1 <- 3
+head(fj.2)
+b0 <- 1
+b1 <- 2
+x <- 3
 th <- 4 
 fj.2()
 
@@ -450,11 +447,21 @@ detach("package:Ryacas", unload=TRUE)
 
 See specific notes either in comments or at the end of the section.
 
-?? What are the functions for which we can take derivatives
+The help page for `D` lists the functions for which derivatives are
+known:  "The internal code knows about the arithmetic operators `+`,
+`-`, `*`, `/` and `^`, and the single-variable functions `exp`, `log`, `sin`, `cos`,
+`tan`, `sinh`, `cosh`, `sqrt`, `pnorm`, `dnorm`, `asin`, `acos`, `atan`, `gamma`,
+`lgamma`, `digamma` and `trigamma`, as well as `psigamma` for one or two
+arguments (but derivative only with respect to the first)."
 
 ## Derivatives and simplifications -- package `nlsr`
 
-See specific notes either in comments or at the end of the section.
+This package supports the derivatives that `D` supports, as well
+as a few others, and users can add their own definitions.  The current
+list is
+```{r}
+ls(nlsr::sysDerivs)
+```
 
 ### Derivatives table
 
@@ -621,27 +628,29 @@ fnDeriv(quote(sign(x)), "x")
 
 ### Notes:
 
-- the base tool deriv (and likely deriv3 ?? need to explore and explain) and 
-nlsr::codeDeriv are intended to output an expression to compute a derivative. 
-deriv generates an expression object, while codeDeriv will generate a language object. 
-Do we need to explain this more??  Note that input to deriv is of the form of a 
-tilde expression with no left hand side, while codeDeriv is
-more flexible:  quoted expressions, or length-1 expression vectors may also be used. ?? We
-should explore more ways to input things to these tools. 
+- the base tool `deriv` (and `deriv3`)  and 
+`nlsr::codeDeriv` are intended to output an expression to compute a derivative. 
+`deriv` generates an expression object, while `codeDeriv` will generate a language object. 
+Note that input to `deriv` is of the form of a 
+tilde expression with no left hand side, while `codeDeriv` is
+more flexible:  quoted expressions, or length-1 expression vectors may also be used. 
 
-- the base tool D and nlsr::nlsDeriv generate expressions, but D requires an
-expression, while nlsDeriv can handle the expression without a wrapper. ?? Do we need 
+- the base tool `D` and `nlsr::nlsDeriv` generate expressions, but `D` requires an
+expression, while `nlsDeriv` can handle the expression without a wrapper. ?? Do we need 
 to discuss more??
 
-- nlsr includes abs(x) and sign(x) in the derivatives table despite conventional
-wisdom that these are not differentiable. However, abs(x) clearly has a defined
+- **nlsr** includes `abs(x)` and `sign(x)` in the derivatives table despite conventional
+wisdom that these are not differentiable. However, `abs(x)` clearly has a defined
 derivative everywhere except at x = 0, where assigning a value of 0 to the 
-derivative is almost certainly acceptable in computations. Similarly for sign(x).
+derivative is almost certainly acceptable in computations. Similarly for `sign(x)`.
 
 ### Simplifying algebraic expressions
  
-**nlsr** also includes some tools for simplification of algebraic expressions.
-Such simplification does not appear to be available / exposed in the package `Deriv`.
+**nlsr** also includes some tools for simplification of algebraic expressions, extensible by the user.  Currently these
+involve the following functions:
+```{r}
+ls(nlsr::sysSimplifications)
+```
 
 ```{r}
 #- Remove ##? to see reproducible error
@@ -726,9 +735,7 @@ nlsSimplify(quote(if (TRUE) a+b else a*b))
 nlsSimplify(quote(if (FALSE) a+b else a*b))
 nlsSimplify(quote(if (cond) a+b else a+b))
 
-#- This one is wrong... the double minus is an error, yet it works ??.
 nlsSimplify(quote(--(a+b)))
-#- By comparison
 nlsSimplify(quote(-(-(a+b))))
 ```
 
@@ -1039,5 +1046,3 @@ try(nlsr::nlsDeriv(y3*r1+r2,"y3"))
 try(nlsr::nlsDeriv(y[3]*r1+r2,"y[3]"))
 ```
 
-
-# References

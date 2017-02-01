@@ -4,10 +4,10 @@
 }
 \description{
    For a nonlinear model originally expressed as an expression of the form
-         lhs ~ formula_for_rhs
-   assume we have a resfn and jacfn that compute the residuals and the 
+         \code{lhs ~ formula_for_rhs}
+   assume we have a \code{resfn} and \code{jacfn} that compute the residuals and the 
    Jacobian at a set of parameters. This routine computes the gradient, 
-   that is, t(Jacobian) %*% residuals. 
+   that is, \verb{t(Jacobian) \%*\% residuals}. 
 }
 \usage{
    resss(prm, resfn, ...)
@@ -29,7 +29,7 @@
 }
 }
 \details{
-    \code{resss} calls resfn to compute residuals and then uses \code{crossprod}
+    \code{resss} calls \code{resfn} to compute residuals and then uses \code{crossprod}
     to compute the sum of squares. 
 
     At 2012-4-26 there is no checking for errors. 
@@ -51,9 +51,6 @@
 }
 \author{
 John C Nash <nashjc@uottawa.ca>
-}
-\note{
-   Special notes, if any, will appear here.
 }
 
 \seealso{

@@ -29,9 +29,6 @@
 \author{
 John C Nash <nashjc@uottawa.ca>
 }
-\note{
-   Special notes, if any, will appear here.
-}
 \seealso{
     Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
 }

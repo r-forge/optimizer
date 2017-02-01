@@ -31,31 +31,30 @@ named in the start vector.
 
 The main functions in \code{nlsr} are:
 
-\preformatted{
-   nlfb - Nash variant of the Marquardt procedure for nonlinear least squares,
+\describe{
+\item{nlfb}{Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using a residual and optionally Jacobian
 	described as \code{R} functions. 
-    20120803: Todo: Make masks more consistent between nlfb and nlxb.??
+    20120803: Todo: Make masks more consistent between nlfb and nlxb.??}
 
-   nlxb - Nash variant of the Marquardt procedure for nonlinear least squares,
+\item{nlxb}{Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using an expression to describe the residual via
         an \code{R} modeling expression. The Jacobian is computed via symbolic
-	differentiation.
+	differentiation.}
             
-   wrapnlsr - Uses nlxb to solve nonlinear least squares then calls nls() to
-            create an object of type nls.
+\item{wrapnlsr}{Uses \code{nlxb} to solve nonlinear least squares then calls \code{nls()} to create an object of type nls.}
 
-   model2rjfun - returns a function with header function{prm}, which
+\item{model2rjfun}{returns a function with header \code{function(prm)}, which
         evaluates the residuals (and if jacobian is TRUE the
-        Jacobian matrix) of the model at prm.  The residuals are defined 
-        to be the right hand side of modelformula minus the left hand side.
+        Jacobian matrix) of the model at \code{prm}.  The residuals are defined 
+        to be the right hand side of \code{modelformula} minus the left hand side.}
 
-   model2ssgrfun - returns a function with header function{prm}, which
-        evaluates the sum of squared residuals (and if gradient is TRUE the
-        gradient vector) of the model at prm. 
+\item{model2ssgrfun}{returns a function with header \code{function(prm)}, which
+        evaluates the sum of squared residuals (and if gradient is \code{TRUE} the
+        gradient vector) of the model at \code{prm}.} 
 
-   modelexpr - returns the expression used to calculate the vector of 
-        residuals (and possibly the Jacobian) used in the previous functions.
+\item{modelexpr}{returns the expression used to calculate the vector of 
+        residuals (and possibly the Jacobian) used in the previous functions.}
 }
 
 

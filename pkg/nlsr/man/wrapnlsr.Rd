@@ -5,12 +5,12 @@
 }
 \description{
    Given a nonlinear model expressed as an expression of the form
-         lhs ~ formula_for_rhs
+         \code{lhs ~ formula_for_rhs}
    and a start vector where parameters used in the model formula are named,
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method. The resulting solution is fed
-   into the nls() function in an attempt to get the nls class solution.
+   into the \code{nls()} function in an attempt to get the nls class solution.
 }
 \usage{
    wrapnlsr(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf, 
@@ -29,7 +29,7 @@
         start=c(b1=1, b2=2.345, b3=0.123)
 }
   \item{trace}{
-     Logical TRUE if we want intermediate progress to be reported. Default is FALSE.
+     Logical \code{TRUE} if we want intermediate progress to be reported. Default is \code{FALSE}.
 } 
   \item{data}{
      A data frame containing the data of the variables in the formula. This data may,
@@ -37,11 +37,11 @@
 } 
   \item{lower}{
      Lower bounds on the parameters. If a single number, this will be applied to all
-     parameters. Default -Inf.
+     parameters. Default \code{-Inf}.
 } 
   \item{upper}{
      Upper bounds on the parameters. If a single number, this will be applied to all
-     parameters. Default Inf.
+     parameters. Default \code{Inf}.
 } 
   \item{control}{ 
      A list of controls for the algorithm. These are as for \code{nlxb()}.
@@ -61,9 +61,6 @@
   An object of type nls.}
 \author{
 John C Nash <nashjc@uottawa.ca>
-}
-\note{
-   Special notes, if any, will appear here.
 }
 \seealso{
     Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.

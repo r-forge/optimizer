@@ -5,7 +5,7 @@
 }
 \description{
    Given a nonlinear model expressed as an expression of the form
-         lhs ~ formula_for_rhs
+         \code{lhs ~ formula_for_rhs}
    and a start vector where parameters used in the model formula are named,
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
@@ -19,20 +19,20 @@
 \arguments{
   \item{formula}{
      This is a modeling formula of the form (as in \code{nls})
-           lhsvar ~ rhsexpression
+           \code{lhsvar ~ rhsexpression}
      for example,
-           y ~ b1/(1+b2*exp(-b3*tt))
+           \code{y ~ b1/(1+b2*exp(-b3*tt))}
      You may also give this as a string.
      Note that the residuals are computed within this code using
-           residual = rhsexpression - lhsvar
+           \code{residual <- rhsexpression - lhsvar}
      which is the negative of the usual choice, but the sum of squares is the same.
 }
   \item{start}{
      A named parameter vector. For our example, we could use
-        start=c(b1=1, b2=2.345, b3=0.123)
+        \code{start=c(b1=1, b2=2.345, b3=0.123)}
 }
   \item{trace}{
-     Logical TRUE if we want intermediate progress to be reported. Default is FALSE.
+     Logical \code{TRUE} if we want intermediate progress to be reported. Default is \code{FALSE}.
 } 
   \item{data}{
      A data frame containing the data of the variables in the formula. This data may,
@@ -40,11 +40,11 @@
 } 
   \item{lower}{
      Lower bounds on the parameters. If a single number, this will be applied to all
-     parameters. Default -Inf.
+     parameters. Default \code{-Inf}.
 } 
   \item{upper}{
      Upper bounds on the parameters. If a single number, this will be applied to all
-     parameters. Default Inf.
+     parameters. Default \code{Inf}.
 } 
   \item{masked}{
      Character vector of quoted parameter names. These parameters will NOT be altered
@@ -55,32 +55,32 @@
   \item{weights}{
      A vector of fixed weights. The objective function that will be minimized is the
      sum of squares where each residual is multiplied by the square root of the 
-     corresponding weight. Default (NULL) implies unit weights.
+     corresponding weight. Default \code{NULL} implies unit weights.
 } 
 
    \item{control}{ 
      A list of controls for the algorithm. These are:
      \describe{
-      \item{\code{watch}}{Monitor progress if TRUE. Default is FALSE.}
-      \item{\code{phi}}{Default is phi=1, which adds phi*Identity to 
+      \item{\code{watch}}{Monitor progress if \code{TRUE}. Default is \code{FALSE}.}
+      \item{\code{phi}}{Default is \code{phi=1}, which adds \code{phi*Identity} to 
              Jacobian inner product.}
-      \item{\code{lamda}}{Initial Marquardt adjustment (Default 0.0001). 
+      \item{\code{lamda}}{Initial Marquardt adjustment (Default \code{0.0001}). 
              Odd spelling is deliberate.}
       \item{\code{offset}}{Shift to test for floating-point equality. 
-             Default is 100.}
-      \item{\code{laminc}}{Factor to use to increase lamda. Default is 10.}
-      \item{\code{lamdec}}{Factor to use to decrease lamda is lamdec/laminc. 
-             Default lamdec=4.}
+             Default is \code{100}.}
+      \item{\code{laminc}}{Factor to use to increase \code{lamda}. Default is \code{10}.}
+      \item{\code{lamdec}}{Factor to use to decrease \code{lamda} is \code{lamdec/laminc}. 
+             Default \code{lamdec=4}.}
       \item{\code{femax}}{Maximum function (sum of squares) evaluations. 
-             Default is 10000, which is extremely aggressive.}
+             Default is \code{10000}, which is extremely aggressive.}
       \item{\code{jemax}}{Maximum number of Jacobian evaluations. 
-             Default is 5000.}
-      \item{\code{rofftest}}{Default is TRUE. Use a termination test of the relative offset 
+             Default is \code{5000}.}
+      \item{\code{rofftest}}{Default is \code{TRUE}. Use a termination test of the relative offset 
             orthogonality type. Useful for nonlinear regression problems.}
-      \item{\code{smallsstest}}{Default is TRUE. Exit the function if the sum of squares
-            falls below (100 * .Machine$double.eps)^4 times the initial sumsquares. This 
+      \item{\code{smallsstest}}{Default is \code{TRUE}. Exit the function if the sum of squares
+            falls below \code{(100 * .Machine$double.eps)^4} times the initial sumsquares. This 
             is a test for a ``small'' sum of squares, but there are problems which are 
-            very extreme for which this control needs to be set FALSE.}
+            very extreme for which this control needs to be set \code{FALSE}.}
      }
 }
 
@@ -93,8 +93,8 @@
     folk don't have access to book easily, but finding time.)
 
     In this code, we solve the (adjusted) Marquardt equations by use of the 
-    \code{qr.solve()}. Rather than forming the J'J + lambda*D matrix, we augment
-    the J matrix with extra rows and the y vector with null elements. 
+    \code{qr.solve()}. Rather than forming the \verb{J'J + lambda*D} matrix, we augment
+    the \code{J} matrix with extra rows and the \code{y} vector with null elements. 
 }
 \value{
   A list of the following items
@@ -117,9 +117,6 @@
 }
 \author{
 John C Nash <nashjc@uottawa.ca>
-}
-\note{
-   Special notes, if any, will appear here.
 }
 
 \seealso{

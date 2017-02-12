@@ -6,8 +6,8 @@
    For a nonlinear model originally expressed as an expression of the form
          \code{lhs ~ formula_for_rhs}
    assume we have a \code{resfn} and \code{jacfn} that compute the residuals and the 
-   Jacobian at a set of parameters. This routine computes the gradient, 
-   that is, \verb{t(Jacobian) \%*\% residuals}. 
+   Jacobian at a set of parameters. This routine computes the sum of squares of
+   the residuals.
 }
 \usage{
    resss(prm, resfn, ...)
@@ -32,13 +32,12 @@
     \code{resss} calls \code{resfn} to compute residuals and then uses \code{crossprod}
     to compute the sum of squares. 
 
-    At 2012-4-26 there is no checking for errors. 
-
-    Note that it appears awkward to use this function in calls to optimization
-    routines. The author would like to learn why. 
+    At 2012-4-26 there is no checking for errors. The evaluations of residuals and
+    the cross product could be wrapped in \code{try()} if the evaluation could be
+    inadmissible.
 }
 \value{
-    The numeric value of the sum of squares at the paramters.
+    The scalar numeric value of the sum of squares at the paramters.
 }
 \references{
 %% ~put references to the literature/web site here ~
@@ -58,7 +57,28 @@ John C Nash <nashjc@uottawa.ca>
 }
 
 \examples{
-   cat("So far no examples included for resss\n")
+shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
+# This variant uses looping
+    if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
+    y  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
+             38.558, 50.156, 62.948, 75.995, 91.972)
+    tt  <-  1:12
+    res  <-  100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*tt)) - y
+}
+ 
+st  <-  c(b1=1, b2=1, b3=1)
+
+firstss<-resss(st, shobbs.res)
+# The sum of squares of the scaled Hobbs function at parameters
+st
+firstss
+# now illustrate how to get solution via optimization
+
+tf <- function(prm){
+  val <- resss(prm, shobbs.res)
+}
+testop <- optim(st, tf, control=list(trace=1))
+testop
 }
 \keyword{ nonlinear least squares }
 

@@ -4,7 +4,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # Check if bounded
   bdmsk <- bmchk(par, lower=lower, upper=upper)
   control$have.bounds <- bdmsk$bounds # and set a control value
-#  cat("control$have.bounds =",control$have.bounds,"\n")
+  cat("control$have.bounds =",control$have.bounds,"\n")
 
 
   orig.method <- method
@@ -451,8 +451,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 	ans<-list() # ans not yet defined, so set as list
         errmsg <- NA
         class(ans)[1] <- "undefined" # initial setting
-        if (is.null(egr)) {
-            if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
+        if (is.null(egr)) { ## fixed msg below (referred to lbfgs) 170214
+            if (control$trace > 0) cat("Rtnmin MUST have gradient provided\n")
             errmsg <- "Rtnmin MUST have gradient provided"
             class(ans)[1] <- "try-error"            
         }
@@ -774,16 +774,17 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         ans <- list() # to define the answer object
         errmsg <- NA
         class(ans)[1] <- "undefined" # initial setting
-        if (control$have.bounds) { 
+        cat("in lbfgs section, control$have.bounds=",control$have.bounds,"\n")
+        if (control$have.bounds) {
+              cat("control$have.bounds seems TRUE\n")
               if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
               errmsg <- "lbfgs::lbfgs cannot handle bounds\n"
             ##  stop("lbfgs::lbfgs tried with bounds")
             class(ans)[1] <- "try-error"            
         }
         if (is.null(egr)) {
-            if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
+            if (control$trace > 0) cat("lbfgs::lbfgs MUST have gradient provided\n")
             errmsg <- "lbfgs::lbfgs MUST have gradient provided\n"
-            ##  stop("lbfgs::lbfgs tried with bounds")
             class(ans)[1] <- "try-error"            
         }
         if (class(ans)[1] == "undefined"){

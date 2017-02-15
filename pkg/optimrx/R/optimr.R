@@ -121,33 +121,32 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   mcontrol <- list() # define the control list
 
 # Methods from optim()
-      if (method == "Nelder-Mead" || 
-          method == "BFGS" || 
-          method == "L-BFGS-B" || 
-          method == "CG" || 
-          method == "SANN") {
-        # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
-        mcontrol$maxit <- defctrl$maxit # 160922 
-        mcontrol$trace <- control$trace
+  if (method == "Nelder-Mead" || 
+      method == "BFGS" || 
+      method == "L-BFGS-B" || 
+      method == "CG" || 
+      method == "SANN") {
+      # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
+      mcontrol$maxit <- defctrl$maxit # 160922 
+      mcontrol$trace <- control$trace
 ##	mcontrol$parscale <- control$parscale # Use internal scaling
-        mcontrol$parscale <- NULL # using user fn 
+      mcontrol$parscale <- NULL # using user fn 
 
 # Note: hessian always FALSE
 
 #        cat("Before optim() call - control$have.bounds =",control$have.bounds,"\n")
-
-        if (control$have.bounds) {
-          if (method != "L-BFGS-B") {
-              errmsg <- "optim() can only handle bounds with L-BFGS-B\n"
-              if (control$trace > 0) cat(errmsg,"\n")
-              ans <- list()
-              class(ans)[1] <- "try-error"
-              warning("optimr: optim() with bounds ONLY uses L-BFGS-B")
-          } else {
-#              ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
+      if (control$have.bounds) {
+        if (method != "L-BFGS-B") {
+            errmsg <- "optim() can only handle bounds with L-BFGS-B\n"
+            if (control$trace > 0) cat(errmsg,"\n")
+            ans <- list()
+            class(ans)[1] <- "try-error"
+            warning("optimr: optim() with bounds ONLY uses L-BFGS-B")
+        } else {
+#            ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
 #                      lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
 #                       control=mcontrol, ...))
-              ans <- try(optim(par=par, fn=efn, gr=egr, 
+            ans <- try(optim(par=par, fn=efn, gr=egr, 
                       lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
                        control=mcontrol, ...))
           }
@@ -820,6 +819,55 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
          }
          ## return(ans)
       }  ## end if using lbfgs
+  ## --------------------------------------------
+  else if (method == "subplex") {# Use unconstrained method from subplex package
+    if (control$trace > 1) cat("subplex\n")
+    if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
+    if (control$trace > 1) cat("subplex:control$have.bounds =",control$have.bounds,"\n")
+    ans <- list() # to define the answer object
+    errmsg <- NA
+    if (control$trace > 0) warning("subplex has no trace mechanism")
+    class(ans)[1] <- "undefined" # initial setting
+    if (control$have.bounds) {
+      cat("control$have.bounds seems TRUE\n")
+      if (control$trace > 0) cat("subplex::subplex cannot handle bounds\n")
+      errmsg <- "subplex::subplex cannot handle bounds\n"
+      ##  stop("subplex::lbfgs tried with bounds")
+      class(ans)[1] <- "try-error"            
+    }
+    if (class(ans)[1] == "undefined"){
+          # Do we want parscale or use spar??
+          cat("maxit =",defctrl$maxfeval,"\n")
+          ans <- try(subplex::subplex(par=spar, fn=efn, control=list(maxit=defctrl$maxfeval)))
+    }
+    #        cat("interim answer:")
+    #        print(ans)
+    if (class(ans)[1] != "try-error") {
+      ## Need to check these carefully??
+      ans$par <- ans$par*pscale
+      ans$value <- ans$value*fnscale
+      ans$counts[1] <- ans$count
+      ans$counts[2] <- NA
+      ans$count <- NULL
+      ccode <- ans$convergence
+      if (ccode == -2) {ans$convergence <- 20}
+          else {if (ccode == 0) {ans$convergence <- 0 } # not needed
+               else {if (ccode == -1) {ans$convergence <- 1} else {ans$convergence <- 9999}}# unknown 
+           }
+    } else {
+      if (control$trace>0) cat("subplex failed for current problem \n")
+      ans<-list() # ans not yet defined, so set as list
+      ans$value <- defctrl$badval
+      ans$par <- rep(NA,npar)
+      ans$convergence <- 9999 # failed in run
+      if (is.null(egr)) ans$convergence <- 9998 # no gradient
+      ans$counts[1] <- NA
+      ans$counts[1] <- NA
+      ans$hessian <- NULL
+      if (! is.na(errmsg)) ans$message <- errmsg
+    }
+    ## return(ans)
+  }  ## end if using subplex
 ## --------------------------------------------
 ## END OF optimrx extra methods
 # ---  UNDEFINED METHOD ---

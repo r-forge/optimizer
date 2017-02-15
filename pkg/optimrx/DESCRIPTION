@@ -1,6 +1,6 @@
 Package: optimrx
-Version: 2016-10.3
-Date: 2016-10-03
+Version: 2017-2.15
+Date: 2017-2-15
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -18,7 +18,7 @@ Description: Provides a test of replacement and extension of the optim()
 License: GPL-2
 LazyLoad: Yes
 Imports: optextras, numDeriv, BB, ucminf, minqa, setRNG, dfoptim, 
-         Rtnmin, Rvmmin, Rcgmin, lbfgsb3, lbfgs
+         Rtnmin, Rvmmin, Rcgmin, lbfgsb3, lbfgs, subplex
 NeedsCompilation: no
 Suggests: knitr,
     rmarkdown

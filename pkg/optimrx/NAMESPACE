@@ -9,7 +9,8 @@ import(
   Rvmmin,
   Rcgmin,
   lbfgsb3,
-  lbfgs
+  lbfgs,
+  subplex
 )
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("utils", "str")

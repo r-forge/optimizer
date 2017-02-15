@@ -32,12 +32,13 @@ TODO
 	care of that.
       o Check all failures reported below are fixed!
 
+VERSION 2017-02-15
+      o added subplex method
 
 VERSION 2016-09-16
       o Harry Joe reported troubles with numerical gradient approximations. Found
-	some glitches and conflicts to fix. Also documentation is less than ideal.
+        	some glitches and conflicts to fix. Also documentation is less than ideal.
         Scaling spar to par was INSIDE control$trace
-
 
 VERSION 2016-08-16
       o checked and released on CRAN

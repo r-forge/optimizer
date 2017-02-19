@@ -13,8 +13,6 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
   #   but these may be the same in some cases. Could/should leave out .f, .g in such cases,
   #   and let this program sort it out.
   # 
-  # 
-  # 
   #- now have a lot of (the) information
     #-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
     #-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
@@ -38,22 +36,14 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
 
   solveuncopt <- c("optimrx::Nelder-Mead",
                    "optimrx::BFGS", 
-                   "optimrx::L-BFGS-B",
                    "optimrx::CG",
-                   "optimrx::Rvmmin",
-                   "optimrx::Rcgmin",
-                   "optimrx::Rtnmin",
                    "optimrx::hjn",
-                   "optimrx::hjkb",
-                   "optimrx::nmkb",
                    "optimrx::ucminf",
-                   "optimrx::lbfgsb3",
                    "optimrx::lbfgs",
                    "optimrx::spg",
-                   "optimrx::bobyqa",
                    "optimrx::uobyqa",
                    "optimrx::nlm",
-                   "optimrx::nlminb")
+                   "optimrx::subplex")
 
   solveboundopt <- c("optimrx::L-BFGS-B",
                    "optimrx::Rvmmin",
@@ -61,6 +51,7 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
                    "optimrx::Rtnmin",
                    "optimrx::hjn",
                    "optimrx::hjkb",
+                   "optimrx::nlminb",
                    "optimrx::nmkb",
                    "optimrx::lbfgsb3",
                    "optimrx::bobyqa",

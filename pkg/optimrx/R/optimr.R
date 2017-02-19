@@ -4,8 +4,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
 # Check if bounded
   bdmsk <- bmchk(par, lower=lower, upper=upper)
   control$have.bounds <- bdmsk$bounds # and set a control value
-  cat("control$have.bounds =",control$have.bounds,"\n")
-
 
   orig.method <- method
   orig.gr <- gr
@@ -773,7 +771,7 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
         ans <- list() # to define the answer object
         errmsg <- NA
         class(ans)[1] <- "undefined" # initial setting
-        cat("in lbfgs section, control$have.bounds=",control$have.bounds,"\n")
+##      cat("in lbfgs section, control$have.bounds=",control$have.bounds,"\n")
         if (control$have.bounds) {
               cat("control$have.bounds seems TRUE\n")
               if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")

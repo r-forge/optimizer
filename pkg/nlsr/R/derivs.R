@@ -206,11 +206,12 @@ codeDeriv <- function(expr, namevec,
   subexprs[[m+1]] <- substitute(.grad <- array(0, c(length(.value), namelen), list(NULL, namevec)),
 				  list(namevec = namevec, namelen = length(namevec)))
   if (hessian)
-    subexprs[[m+2]] <- substitute(.hessian <- array(0, c(length(.value), 2L, 2L), 
+    subexprs[[m+2]] <- substitute(.hessian <- array(0, c(length(.value), namelen, namelen), 
 					list(NULL, namevec, namevec)), 
-					list(namevec = namevec))
+					list(namelen = length(namevec), namevec = namevec))
+  m <- length(subexprs)
   for (i in seq_len(n))
-    subexprs[[m+1+i]] <- substitute(.grad[, name] <- expr,
+    subexprs[[m+i]] <- substitute(.grad[, name] <- expr,
 			          list(name = namevec[i], expr = final[[namevec[i]]]))
   m <- length(subexprs)
   h <- 0

@@ -41,7 +41,7 @@ would not exist.
 The package and this vignette are a work in progress, and assistance
 and examples are welcome. Note that there is similar work in the 
 package Deriv (Andrew Clausen and Serguei Sokol (2015) Symbolic 
-Differentiation, version 2.0, http://CRAN.R-project.org/package=Deriv),
+Differentiation, version 2.0, https://cran.r-project.org/package=Deriv),
 and making the current work "play nicely" with that package is 
 desirable.
 
@@ -718,7 +718,7 @@ the iteration is essentially
       
 we get a version of the steepest descents algorithm. Using the 
 diagonal of J' J, we have a scaled version of this 
-(see http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm)
+(see https://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm)
 
 @jn77ima found that on low precision machines, it
 was common for diagonal elements of J' J to underflow. A very

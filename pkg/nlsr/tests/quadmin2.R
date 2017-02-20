@@ -7,8 +7,7 @@ myder <- fnDeriv(fexp, c("x","y"), hessian=TRUE)
 myder
 strt <- c(x=0, y=-0)
 astrt <- myder(strt)
-strt <- c(x=0, y=0)
-myd <- function(prm){
+myd <- function(prm=strt){
   x <- prm[1]
   y <- prm[2]
   val <- myder(x, y)

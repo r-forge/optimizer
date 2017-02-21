@@ -1,5 +1,5 @@
 ---
-title: "A structure for building and running optimization and nonlinear least squares tests for **R**"
+title: "A structure for building and running nonlinear equations, least squares, and optimization tests for **R**"
 author: "John C. Nash and Paul Gilbert"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -19,7 +19,8 @@ knitr::opts_chunk$set(echo = TRUE)
 This article discusses how tests for nonlinear equations, least squares or equations 
 may be set up, executed and analyzed for **R**. This activity is sensitive to the 
 manner in which the test functions are computed, the choice of starting values, and
-the choice of measures of success. They may also be modified by changes in the solvers
+the choice of measures of success. Performance may also be greatly modified by small 
+changes in the solvers
 for the problems in question. Indeed, it is always a concern that seemingly minor 
 adjustments intended to improve such solvers may cause them to fail on particular problems
 or starting values. Thus it is desirable to be able to 
@@ -38,15 +39,12 @@ or on a new computing platform;
 - be able to report successes and failures in a manner that allows for rapid detection
 of potential issues with solvers, platforms, or other conditions.
 
-
 The last two criteria, and especially the last, require that there be a way to save 
 and access the results of test runs.
 Because each test instance can generate quite a lot of data, and the combinatorial possibilities
 of tests, solvers, and solver options such as choice of gradient approximation, saving test
 information could demand considerable storage space and data management effort. We outline 
 some possible approaches to the data management aspect of optimization testing.
-
-#
 
 ## Motivation
 
@@ -187,7 +185,7 @@ Let us implement, in **R**, a possible file for the problem of @danwood1980.
 ```{r cache=FALSE, echo=FALSE}
 require(knitr)
 # read chunk (does not run code)
-read_chunk('../inst/extdata/DanielWood.prb')
+read_chunk('../inst/probfiles/DanielWood.prb')
 # We use this approach to avoid having differences between file here and in inst/extdata/
 ```
 
@@ -607,7 +605,7 @@ test3
 #- test4 <- runoptprob(pfilename="XRosenbrock", minmeth="optimr")
 #- test4
 #- But this does function
-source("../inst/extdata/XRosenbrock.prb")
+source("../inst/probfiles/XRosenbrock.prb")
 st <- XRosenbrock.start("10:pi")
 txr <- opm(st, XRosenbrock.f, XRosenbrock.g, method="ALL")
 summary(txr, order=value, par.select=1:4)
@@ -766,6 +764,29 @@ Issues to address?? :
  - how to do ok/not or red/yellow/green nicely | Do we want on params and value?
  - dealing with multiple solutions -- linear combination defined
  - where to put setting of FUZZ, reporting of deviations
+ 
+ ## Appendix D: Another approach
+ 
+ Based on `optimgui`, using `gWidgets2`, could do things very differently.
+ 
+ 1) input or set (default?) the problem file directory
+ 
+ 2) provide a selector for all problems of type `.prb`
+ 
+ 3) read selected files and save their "pieces"
+ 
+    - problem name (should match the file name -- keep this as a cross check)
+
+    - data file options -- one type of variant of the problem
+    
+    - bounds or mask constraints choices -- another variant setting
+    
+    - start options -- yet another variant. This will also set the `n` or 
+    number of parameters.
+  
+    - function definitions or formula. These are .f, .g, .formula, .jac, .res, 
+    and possibly other types of structures. We will AVOID .f if there is .res,
+    UNLESS there is a separate evaluation mechanism.
   
 ## References
   

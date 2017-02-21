@@ -80,7 +80,8 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
   mformula <- NA # Make sure these are defined (they get set up in pfile)
 #- ?? need to figure out dynamic setting of paths
   ## ?? how to change to a well-defined path based on where pkg installed??
-  pfilepath <- paste("/home/john/rsvnall/optimizer/pkg/NISTO/inst/extdata/",pfile,sep='')
+  pfilepath <- paste("/home/john/rsvnall/optimizer/pkg/nltestprob/inst/probfiles/",pfile,sep='')
+  cat("pfilepath:",pfilepath,"\n")
   source(pfilepath, echo=optecho) # -- filename (at least the root)
   cat("Objects in workspace:\n")
   print(ls())

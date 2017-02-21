@@ -27,6 +27,9 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
   #- ?? Do we need to rm() all the things we test for, namely,
   #-   lower, upper, ...
   #- ?? should make bounds (probname).lower etc.
+
+  ## ?? Maybe provide "solver" as "package::method::options" and don't have list in this
+  # program. Instead simply fail out if cannot load the package and method and options.
   
   solveformula <- c("stats::nls", "nlmrt::nlxb", "minpack.lm::nls.lm", "nls2::nls2")
 

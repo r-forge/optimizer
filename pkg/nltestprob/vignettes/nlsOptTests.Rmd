@@ -787,6 +787,25 @@ Issues to address?? :
     - function definitions or formula. These are .f, .g, .formula, .jac, .res, 
     and possibly other types of structures. We will AVOID .f if there is .res,
     UNLESS there is a separate evaluation mechanism.
-  
+    
+    - How can we distinguish nonlinear equations from nonlinear least squares as
+    defined by .res functions. Or is there a real difference?
+    
+    - Build a consistent "problem instance description/name" made up of problem name,
+    data choice, constraint choice, start choice.
+    
+    - Choose one or more solvers, checking if they are appropriate. What checks
+    are needed.
+    
+    - If appropriate, select variant(s) of the solver(s), or set controls.
+    
+    - Create consistent name or description of "solver instance".
+
+    - Extract platform description.
+    
+    - Set up "playlist" for runs. May want to actually create a detailed list
+    then step through them, rather than use control loop. The list could be
+    broken up and run during idle or low-activity times.
+    
 ## References
   

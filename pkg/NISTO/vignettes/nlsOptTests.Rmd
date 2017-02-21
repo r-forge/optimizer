@@ -143,6 +143,15 @@ Note that the `.res` function could be used to specify nonlinear equations probl
 solution has all the residuals at zero. At the time of writing, we have not yet included
 this possibility.
 
+Considerations 170221??
+
+-- only specify bits that are available and let problem setup program (GUI) do the rest.
+
+-- steal ideas from optimgui
+
+-- allow scripting so it can be automated (and save such a script)
+
+-- 
 
 ### Restrictions on the problems
 

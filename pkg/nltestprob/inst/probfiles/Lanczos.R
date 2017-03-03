@@ -15,15 +15,14 @@ lanczos.res <- function(b, pdata) {
    b1<-b[1] # get parameters from the parameter vector
    b2<-b[2]
    b3<-b[3]
-   b4<-b[4]pd
+   b4<-b[4]
    b5<-b[5]
    b6<-b[6]
-   res<-b1*exp(-b2*xx) + b3*exp(-b4*xx) + b5*exp(-b6*xx) - yy
-   return(res)
+   res<-as.vector(b1*exp(-b2*xx) + b3*exp(-b4*xx) + b5*exp(-b6*xx) - yy)
 }
 
-# lanczos1 - Jacobian
-lanczos1.jac <- function(b, pdata) {
+# lanczos - Jacobian
+lanczos.jac <- function(b, pdata) {
    # 170303
    xx<-pdata$x
    yy<-pdata$y
@@ -42,7 +41,8 @@ lanczos1.jac <- function(b, pdata) {
    J[,2] <- -b1*xx*exp(-b2*xx)
    J[,4] <- -b3*xx*exp(-b4*xx)
    J[,6] <- -b5*xx*exp(-b6*xx)
-   return(J)
+   attr(J,"gradient") <- J
+   J
 }
 
 lanczos1.h <- function(x) {

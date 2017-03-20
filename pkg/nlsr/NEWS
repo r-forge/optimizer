@@ -2,6 +2,8 @@
 TODO:
          o    Should we use model.frame() anywhere??
          
+170320   o    Added Vignette Title fields to the three vignettes
+         
 170117   o    rename modeldoc to rjfundoc. It is not simple to add 
               documentation to ssgrfun objects.
 

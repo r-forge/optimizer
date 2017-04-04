@@ -2,6 +2,10 @@ NEWS about R package optimx
 
 TODO
 
+VERSION 2017-04-04
+      o Thanks to Marie Boehnstedt for catching error in creation of
+        the composite function and gradient for calling nlm() method.
+
 VERSION 2016-08-26
       o Thanks to Henrik Singmann for spotting a bug in optimx.run.R
         for the case where nlminb fails. I had missed resetting some

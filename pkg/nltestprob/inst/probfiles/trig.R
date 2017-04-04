@@ -1,13 +1,14 @@
 ## Trig function 
-# ref??
+# ref  More' Garbow and Hillstrom, 1981, problem 26, from
+#  Spedicato (their ref. 25)
 
-trig.f <- function(x){
-  res <- trig.res(x)
-  f <- sum(res*res)
+# trig.f <- function(x){
+#  res <- trig.res(x)
+#  f <- sum(res*res)
 #  cat("FV=",f," at ")
 #  print(x)
-  f
-}
+#  f
+# }
 
 trig.res <- function(x){
    n <- length(x)
@@ -26,42 +27,15 @@ trig.jac <- function(x) { # not vectorized. Can it be?
       }
       J[i,i] <- (1+i) * sin(x[i])  - cos(x[i])
    }
-   return(J)
+   attr(J, "gradient") <- J
+   J
 }
 
 
-trig.g <- function(x) { # unvectorized
-  n<-length(x)
-  res<-trig.res(x)
-  J<-trig.jac(x)
-  g<- as.vector(2.0 * ( t(J) %*% res ))
-  return(g)
-}
-
-
-require(Rvmmin)
-x<-rep(4,2)
-cat("optim(BFGS) vs Rvmmin\n")
-opt2<-optim(x, trig.f, trig.g, method="BFGS")
-opt2
-opt2r<-Rvmmin(x, trig.f, trig.g)
-opt2r
-cat("====================")
-x<-rep(4,4)
-cat("optim(BFGS) vs Rvmmin\n")
-opt4<-optim(x, trig.f, trig.g, method="BFGS")
-opt4
-opt4r<-Rvmmin(x, trig.f, trig.g)
-opt4r
-cat("====================")
-x<-rep(4,8)
-cat("optim(BFGS) vs Rvmmin\n")
-opt8<-optim(x, trig.f, trig.g, method="BFGS")
-opt8
-opt8r<-Rvmmin(x, trig.f, trig.g)
-opt8r
-
-# this does NOT compute hessian in optimx -- why? 131022
-
-
-# tansxu<-optimx(st, trig.f, trig.g, method="all", hessian=TRUE, control=list(kkt=TRUE, trace=1))
+# trig.g <- function(x) { # unvectorized
+#  n<-length(x)
+#  res<-trig.res(x)
+#  J<-trig.jac(x)
+#  g<- as.vector(2.0 * ( t(J) %*% res ))
+#  return(g)
+#}

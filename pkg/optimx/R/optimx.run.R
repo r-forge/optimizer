@@ -142,13 +142,25 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (meth == "nlm") { # Use stats package nlm routine
-        tufn <- ufn # don't want to change user function object, so create copy
+##??        tufn <- ufn # don't want to change user function object, so create copy
         if (!is.null(ugr)) {
-	   attr(tufn, "gradient") <- ugr(par, ...) 
-           if (!is.null(uhess)) {
-		attr(tufn, "hessian") <-  uhess(par, ...)
-           } else attr(tufn, "hessian") <- NULL
-        } 
+##??	   attr(tufn, "gradient") <- ugr(par, ...) # seems to be evaluating it!
+##??	   attr(tufn, "gradient") <- ugr
+##??           if (!is.null(uhess)) {
+##??		attr(tufn, "hessian") <-  uhess(par, ...)
+##??           } else attr(tufn, "hessian") <- NULL
+            tufn <- function(x, ...) {
+               res <- ufn(x, ...)
+               attr(res,"gradient") <- ugr(x, ...)
+               return(res)
+            }
+        } else {
+            tufn <- ufn # use function without explicit gradient
+        }
+        cat("ugr in nlm:\n")
+        print(ugr)
+        cat("tufn in nlm:\n")
+        print(tufn)
 	## 091215 added control for iteration limit
 	if (! is.null(mcontrol$maxit)) { 
 	    iterlim<-mcontrol$maxit 
@@ -165,6 +177,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         time <- system.time(ans <- try(nlm(f=tufn, p=par, ...,
            iterlim=iterlim, print.level=print.level), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
+                cat("nlm output ans:\n")
+                print(ans)
 		ans$convcode <- ans$code
 		if (ans$convcode == 1 || ans$convcode == 2 || ans$convcode == 3) ans$convcode <- 0
 		if (ans$convcode == 4) ans$convcode <- 1

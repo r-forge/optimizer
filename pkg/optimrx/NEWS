@@ -32,6 +32,9 @@ TODO
 	care of that.
       o Check all failures reported below are fixed!
 
+VERSION 2017-04-05
+      o allowed hessian in opm() and optimr() (for nlm)
+
 VERSION 2017-02-15
       o added subplex method
 

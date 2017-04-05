@@ -1,4 +1,4 @@
-optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
+optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
 # Check if bounded
@@ -9,7 +9,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   orig.gr <- gr
   orig.fn <- fn
   savehess <- hessian
-  hessian <- FALSE
 
   npar <- length(par)
   defctrl <- ctrldefault(npar) # could leave this out in most cases
@@ -66,7 +65,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
            print(pscale)
            cat("gr:")
            print(gr)
-# 160917           par <- spar*pscale
            cat("par:")
            print(par)
         }
@@ -77,11 +75,20 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
     if (is.null(gr)) {egr <- NULL}
     else {
        egr <- function(spar, ...) {
-       par <- spar*pscale
-       result <- gr(par, ...) * pscale * fnscale
-      }
+         par <- spar*pscale
+         result <- gr(par, ...) * pscale * fnscale
+       }
     }
   } # end egr definition
+
+  if (is.null(hess)) { ehess <- NULL}
+  else { ehess <- function(spar, ...) {
+                      par <- spar*pscale
+                      result <- hess(par, ...) * pscale * pscale * fnscale
+                      result
+## ?? NEED TO CHECK THIS
+                  }
+  }
 
   if (appgr && (control$trace>0)) cat("Using numerical approximation '",gr,"' to gradient in optimru()\n")
 
@@ -89,7 +96,8 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
      f <- efn(spar, ...)
      if (is.null(egr)) {g <- NULL} else {g <- egr(spar, ...)}
      attr(f,"gradient") <- g
-     attr(f,"hessian") <- NULL # ?? maybe change later
+     if (is.null(ehess)) { h <- NULL } else {h <- ehess(spar, ...)}
+     attr(f,"hessian") <- h
      f
   }
 # ?? do we want ehess ?    Not at 150714
@@ -487,7 +495,6 @@ optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf,
                 ans$hessian <- NULL
 	        ans$message <- NA
         }
-        tufn <- NULL # 140902 -- clear function
         ## return(ans)
       }  ## end if using Rtnmin
 ## --------------------------------------------

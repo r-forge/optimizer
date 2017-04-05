@@ -41,8 +41,7 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    "grcentral" and "grnd", with the last name referring to the default method of 
    package \code{numDeriv}.}
  \item{hess}{A function to return (as a symmetric matrix) the Hessian of the objective 
-   function for those methods that can use this information. At the time of writing,
-   we know of none in the methods which can be called by \code{opm()}.}
+   function for those methods that can use this information.}
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can
    handle box (or bounds) constraints. These are vectors.}
  \item{method}{A vector of the methods to be used, each as a character string.

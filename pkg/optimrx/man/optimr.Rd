@@ -12,7 +12,7 @@
   calling sequence of the R function \code{optim()}.
 }
 \usage{
-optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
+optimr(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=NULL, hessian=FALSE,
             control=list(),
              ...)
@@ -39,6 +39,8 @@ optimr(par, fn, gr=NULL, lower=-Inf, upper=Inf,
    (See the code in package \code{optextras} for details.) Method "grnd" 
    uses the \code{grad()} function from package \code{numDeriv}.
  }   
+ \item{hess}{A function to return (as a matrix) the hessian for those methods that
+   can use this information.}
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can
    handle box (or bounds) constraints. A small set of methods can handle masks, that is,
    fixed parameters, and these can be specified by making the lower and upper bounds

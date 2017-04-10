@@ -67,7 +67,7 @@ if (control$lsmeth == "default") {
     attr(rlout, "Fval")<- lout$objective
     rlout # Note: returns stepsize, not x
   } # end default line search
-} else if (lsmeth == "backtrack") {
+} else if (control$lsmeth == "backtrack") {
   lnsrch<-function(fn, fbest, xc, d, grv, ...) { # backtrack line search
     st <- 1.0
     gproj <- as.numeric(crossprod(grv, xc) )
@@ -87,33 +87,63 @@ if (control$lsmeth == "default") {
     rlout <- st
     attr(rlout, "Fval")<- fval
     rlout
-   } # end default line search
-
+   } # end backtrack line search
+} else if (control$lsmeth == "none") { 
+   lnsrch <- function(fn, fbest, xc, d, grv, ...) {
+      rlout <- 1 # Does nothing! 
+      attr(rlout, "Fval") <- fbest
+      rlout
+    
+   }
 }
-
-  nmaxit<-2000 ## ?? replace
-  eps0<-.Machine$double.eps
-  eps <- 10*eps0
-  lambda<-(eps0)^(1/4) ## ?? do better
-  for (itn in 1:nmaxit) { ## ?? replace with a while loop
-    if (control$trace) {cat("Iteration ",itn,":")}
-    grd<-gr(x0,...)
+  lambda<-control$lamstart ## ?? do better
+  itn <- 1
+  xb <- x0 # best so far
+  fbest <- fn(xb, ...)
+  newH <- TRUE
+  while (itn < control$maxit) { # main loop
+    if (newH) {
+        if (control$trace) {cat("Iteration ",itn,":")}
+        grd<-gr(xb,...)
+        H<-hess(xb,...)
+    }
     if ( max(abs(grd)) < eps ) break    
-    H<-hess(x0,...)
-#    Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
-    stp<-solve(H, -grd)
+    if (control$solver == "default") {
+      stp<-try(solve(H, -grd))
+      if (class(stp) == "class-error") {
+          stop("Failure of default solve of Newton equations")
+      }
+    } else if (control$solver == "marquardt") {
+       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
+       stp <- solve(Haug, -grd)
+    }
+
     ## Do line search
     gvl<-lnsrch(fn,x0,stp,...)
     fval <- attr(gvl,"Fval")
     if (control$trace) {cat(" step =", gvl,"  fval=",fval ,"\n")}
     xn<-c(x0+gvl*stp)
-    if (itn >= nmaxit) {
+    if (itn >= control$maxit) {
       print("NewtonR: Failed to converge!")
       return(0)
     }
-    x0 <- xn
-    f0 <- fval
-  }
+    if (control$solver == "marquardt"){
+       if (fval <= fbest) {
+          xb <- xn
+          fbest <- fval
+          lambda <- lambda * control$lamdec
+          newH <- TRUE # ensure we start over
+       } else {
+          newH <- FALSE # don't want new H, grd
+          lambda <- lambda * control*laminc
+       }
+      
+      
+    }
+    
+    xb <- xn
+    fbest <- fval
+  } # end while
   out<-NULL
   out$xs<-xn
   out$fv<-fval

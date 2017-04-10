@@ -98,9 +98,8 @@ fgh <- function(x){ #function and gradient
 
 x0 <- c(-1.2, 1)
 
-sol2 <- SNewton2(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
-print(sol2)
-
+sdefault <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
+print(sdefault)
 
 }
 

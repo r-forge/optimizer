@@ -1,4 +1,4 @@
-SNewton<-function(x0, fn, gr, hess, lower = NULL, upper = NULL, 
+snewton<-function(x0, fn, gr, hess, lower = NULL, upper = NULL, 
       control=list(lsmeth="default", solver="default", trace=FALSE, maxit=500),...) {
 ## Safeguarded Newton minimizer 
 ##
@@ -16,6 +16,7 @@ SNewton<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 ##       - add fevals??, other reports
 
 npar <- length(x0)
+nf <- ng <- nh <- 0 # counters
 
 ctrldefault <- list(
   lsmeth = "default",
@@ -31,34 +32,63 @@ ctrldefault <- list(
   svmin = 0.0,
   stepdec = 0.2, 
   stepmax = 1.2,
-  stepmin = 0.1
+  stepmin = 0.1,
+  offset = 100.0,
+  bigval = .Machine$double.xmax*0.01
 )  
-  
 
-if (lsmeth == "default") {  
-    lnsrch<-function(fn,xc,d,...) { ## ?? replace this 
+ncontrol <- names(control)
+nctrld <- names(ctrldefault)
+for (onename in nctrld) {
+  if (! (onename %in% ncontrol)) {
+    control[onename]<-ctrldefault[onename]
+  }
+}
+
+flsch<-function(gm,fn,xc,d,...) {
+  # computes the function value at stepsize gm on line (xc + gm*d)
+  # gm: step size
+  # fn: objective function
+  # xc: base set of parameters
+  # d : search direction
+  fval<-fn(xc+gm*d,...)
+  nf <- nf +1
+  fval
+}
+
+if (control$lsmeth == "default") {
+    lnsrch<-function(fn, fbest, xc,d,grv, ...) { # Line search using internal optimize()
       ## Uses Brent's method to find the best stepsize gamma \in [0.1,1]
-      flsch<-function(gm,fn,xc,d,...) {
-      fval<-fn(xc+gm*d,...)
-      fval
-    }
+      # fbest is best function value so far. NOT used.
+      # grv is numeric gradient vector -- NOT used
+      # ?? more documentation
     lout<-optimize(flsch,interval=c(stepmin, stepmax),fn=fn,xc=xc,d=d,...)
     rlout <- lout$min
     attr(rlout, "Fval")<- lout$objective
-    rlout
+    rlout # Note: returns stepsize, not x
   } # end default line search
 } else if (lsmeth == "backtrack") {
-  lnsrch<-function(fn,xc,d,...) { ## ?? replace this 
-    ## Uses Brent's method to find the best stepsize gamma \in [0.1,1]
-    flsch<-function(gm,fn,xc,d,...) {
-      fval<-fn(xc+gm*d,...)
-      fval
+  lnsrch<-function(fn, fbest, xc, d, grv, ...) { # backtrack line search
+    st <- 1.0
+    gproj <- as.numeric(crossprod(grv, xc) )
+    repeat {
+      xnew <- xc + st*d # new point
+      if ((offset+xnew) == (offset+xc)) { # no better parameters
+          st <- 0
+          rlout <- st
+          attr(rlout,"Fval")<-fbest # Assume we pass this in
+          return(rlout)
+      }
+      fval <- flsch(xnew, ...)
+      if (control$trace > 1) cat("Step = ",st," fval = ",fval,"\n")
+      if (fval <= fbest + acctol*st*gproj) break
+      st <- stepdec*st # new step
     }
-    lout<-optimize(flsch,interval=c(0.1,1),fn=fn,xc=xc,d=d,...)
-    rlout <- lout$min
-    attr(rlout, "Fval")<- lout$objective
+    rlout <- st
+    attr(rlout, "Fval")<- fval
     rlout
-  } # end default line search
+   } # end default line search
+
 }
 
   nmaxit<-2000 ## ?? replace

@@ -48,33 +48,18 @@ the R function solve() and uses the optimize() function as a line search.
    \item{reltest}{Additive shift for equality test (default 100.0)}
   }
 }
-
+}
 \value{
   A list with components:
-  \item{par}{The best set of parameters found.}
-  \item{value}{The value of the objective at the best set of parameters found.}
-  \item{counts}{A vector of two integers giving the number of function and gradient evaluations.}
-  \item{convergence}{An integer indicating the situation on termination of the function. \code{0}
-   indicates that the method believes it has succeeded. Other values:
-   \describe{
-      \item{\code{1}}{indicates that the iteration limit \code{maxit}
-      had been reached.}
-      \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
-	that the function cannot be computed or returns an infinite, NULL, or NA value.}
-      \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
-   }
+  \describe{
+  \item{xs}{The best set of parameters found.}
+  \item{fv}{The value of the objective at the best set of parameters found.}
+  \item{grd}{The value of the gradient at the best set of parameters found. A vector.}
+  \item{H}{The value of the Hessian at the best set of parameters found. A matrix.}
+  \item{niter}{The number of Newton iterations used in finding the solution.}
   }
-  \item{message}{A description of the situation on termination of the function.}
-  \item{bdmsk}{Returned index describing the status of bounds and masks at the
-        proposed solution. Parameters for which bdmsk are 1 are unconstrained
-        or "free", those with bdmsk 0 are masked i.e., fixed. For historical
-        reasons, we indicate a parameter is at a lower bound using -3 
-         or upper bound using -1.}
 }
 \references{ 
-
-  Fletcher, R (1970) A New Approach to Variable Metric Algorithms,
-     Computer Journal, 13(3), pp. 317-322.
 
   Nash, J C (1979, 1990) Compact Numerical Methods for Computers: Linear
      Algebra and Function Minimisation, Bristol: Adam Hilger. Second

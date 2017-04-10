@@ -1,0 +1,3 @@
+broydt_test      Test Rvmmin on a variant of the Broyden tridiagonal function
+cyq_test      Test Rvmmin on a the Fletcher Chebyquad problem of differen sizes
+genrose_test      Test Rvmmin on a variant of the generalized Rosenbrock function

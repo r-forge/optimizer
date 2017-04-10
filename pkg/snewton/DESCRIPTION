@@ -1,0 +1,15 @@
+Package: snewton
+Type: Package
+Title: Safeguarded Newton Methods for Function Minimization
+Version: 2017-4.10
+Date: 2017-04-10
+Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
+        c("aut", "cre"), email = "nashjc@uottawa.ca") )
+Maintainer: John C. Nash <nashjc@uottawa.ca>
+Description: Several safeguarded Newton methods for function minimization
+LazyLoad: Yes
+License: GPL (>= 2)
+Author: John C. Nash [aut, cre]
+NeedsCompilation: no
+Suggests: knitr
+VignetteBuilder: knitr

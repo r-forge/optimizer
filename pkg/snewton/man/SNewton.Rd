@@ -1,12 +1,12 @@
-\name{snewton2}
-\alias{snewton2}
+\name{snewton}
+\alias{snewton}
 \encoding{UTF-8}
 \title{Safeguarded Newton method for function minimization using R functions.}
 \description{This version of the safeguarded Newton solves the equations with
 the R function solve() and uses the optimize() function as a line search.
 }
 \usage{
-   snewton2(par, fn, gr, hess, control = list(), \dots)
+   snewton(par, fn, gr, hess, control = list(), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}

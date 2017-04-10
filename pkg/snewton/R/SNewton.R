@@ -1,4 +1,5 @@
-SNewton<-function(x0,fn,gr,hess,control=list(lsmeth="default", solver="default", trace=FALSE, maxit=1000),...) {
+SNewton<-function(x0, fn, gr, hess, lower = NULL, upper = NULL, 
+      control=list(lsmeth="default", solver="default", trace=FALSE, maxit=500),...) {
 ## Safeguarded Newton minimizer 
 ##
 ##Input
@@ -14,19 +15,50 @@ SNewton<-function(x0,fn,gr,hess,control=list(lsmeth="default", solver="default",
 ##       - niter is the number of interations needed (gradient and Hessian evals).
 ##       - add fevals??, other reports
 
+npar <- length(x0)
+
+ctrldefault <- list(
+  lsmeth = "default",
+  solver = "default",
+  trace = FALSE,
+  maxit = 500,
+  maxfevals = npar*500,
+  laminc = 10,
+  lamdec = 0.4,
+  lamstart = 0.01,
+  acctol = 0.0001,
+  epstol = .Machine$double.eps,
+  svmin = 0.0,
+  stepdec = 0.2, 
+  stepmax = 1.2,
+  stepmin = 0.1
+)  
   
-  
-  
-lnsrch<-function(fn,xc,d,...) { ## ?? replace this 
-## Uses Brent's method to find the best stepsize gamma \in [0.1,1]
-  flsch<-function(gm,fn,xc,d,...) {
-    fval<-fn(xc+gm*d,...)
-    fval
-  }
-  lout<-optimize(flsch,interval=c(0.1,1),fn=fn,xc=xc,d=d,...)
-  rlout <- lout$min
-  attr(rlout, "Fval")<- lout$objective
-  rlout
+
+if (lsmeth == "default") {  
+    lnsrch<-function(fn,xc,d,...) { ## ?? replace this 
+      ## Uses Brent's method to find the best stepsize gamma \in [0.1,1]
+      flsch<-function(gm,fn,xc,d,...) {
+      fval<-fn(xc+gm*d,...)
+      fval
+    }
+    lout<-optimize(flsch,interval=c(stepmin, stepmax),fn=fn,xc=xc,d=d,...)
+    rlout <- lout$min
+    attr(rlout, "Fval")<- lout$objective
+    rlout
+  } # end default line search
+} else if (lsmeth == "backtrack") {
+  lnsrch<-function(fn,xc,d,...) { ## ?? replace this 
+    ## Uses Brent's method to find the best stepsize gamma \in [0.1,1]
+    flsch<-function(gm,fn,xc,d,...) {
+      fval<-fn(xc+gm*d,...)
+      fval
+    }
+    lout<-optimize(flsch,interval=c(0.1,1),fn=fn,xc=xc,d=d,...)
+    rlout <- lout$min
+    attr(rlout, "Fval")<- lout$objective
+    rlout
+  } # end default line search
 }
 
   nmaxit<-2000 ## ?? replace

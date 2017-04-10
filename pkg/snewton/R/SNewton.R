@@ -1,4 +1,4 @@
-SNewton2<-function(x0,fn,gr,hess,control=c(trace=FALSE, maxit=1000),...) {
+SNewton<-function(x0,fn,gr,hess,control=list(lsmeth="default", solver="default", trace=FALSE, maxit=1000),...) {
 ## Safeguarded Newton minimizer 
 ##
 ##Input
@@ -14,6 +14,9 @@ SNewton2<-function(x0,fn,gr,hess,control=c(trace=FALSE, maxit=1000),...) {
 ##       - niter is the number of interations needed (gradient and Hessian evals).
 ##       - add fevals??, other reports
 
+  
+  
+  
 lnsrch<-function(fn,xc,d,...) { ## ?? replace this 
 ## Uses Brent's method to find the best stepsize gamma \in [0.1,1]
   flsch<-function(gm,fn,xc,d,...) {

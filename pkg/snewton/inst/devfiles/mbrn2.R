@@ -1,4 +1,4 @@
-source(file="SNewton2.R")
+# source(file="SNewton0.R")
 #Rosenbrock banana valley function
 f <- function(x){
 return(100*(x[2] - x[1]*x[1])^2 + (1-x[1])^2)
@@ -28,7 +28,7 @@ fgh <- function(x){ #function and gradient
 x0 <- c(-1.2, 1)
 
 sink("mbrn1-170408.txt", split=TRUE)
-sol1 <- SNewton2(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
+sol1 <- SNewton(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
 print(sol1)
 sink()
 

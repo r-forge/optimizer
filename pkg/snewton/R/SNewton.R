@@ -1,5 +1,5 @@
 snewton<-function(x0, fn, gr, hess, lower = NULL, upper = NULL, 
-      control=list(lsmeth="default", solver="default", trace=FALSE, maxit=500),...) {
+      control=list(lsmeth="default", solver="default", trace=2, maxit=500),...) {
 ## Safeguarded Newton minimizer 
 ##
 ##Input
@@ -21,7 +21,7 @@ nf <- ng <- nh <- 0 # counters
 ctrldefault <- list(
   lsmeth = "default",
   solver = "default",
-  trace = FALSE,
+  trace = 0,
   maxit = 500,
   maxfevals = npar*500,
   laminc = 10,
@@ -31,8 +31,8 @@ ctrldefault <- list(
   epstol = .Machine$double.eps,
   svmin = 0.0,
   stepdec = 0.2, 
-  stepmax = 1.2,
-  stepmin = 0.1,
+  stepmax = 1.5,
+  stepmin = -0.5,
   offset = 100.0,
   bigval = .Machine$double.xmax*0.01
 )  
@@ -45,24 +45,33 @@ for (onename in nctrld) {
   }
 }
 
-flsch<-function(gm,fn,xc,d,...) {
-  # computes the function value at stepsize gm on line (xc + gm*d)
-  # gm: step size
-  # fn: objective function
-  # xc: base set of parameters
-  # d : search direction
-  fval<-fn(xc+gm*d,...)
-  nf <- nf +1
-  fval
-}
-
 if (control$lsmeth == "default") {
-    lnsrch<-function(fn, fbest, xc,d,grv, ...) { # Line search using internal optimize()
-      ## Uses Brent's method to find the best stepsize gamma \in [0.1,1]
-      # fbest is best function value so far. NOT used.
-      # grv is numeric gradient vector -- NOT used
-      # ?? more documentation
-    lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),fn=fn,xc=xc,d=d,...)
+  lnsrch<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal optimize()
+    cat("fn:\n")
+    print(fn)
+    ## Uses Brent's method to find the best stepsize in interval
+    # fbest is best function value so far. NOT used.
+    # grv is numeric gradient vector -- NOT used
+    # ?? more documentation
+    flsch<-function(st) {
+      # computes the function value at stepsize st on line (xc + gm*d)
+      # Essentially flsch(st)
+      # gm: step size
+      # fn: objective function
+      # xc: base set of parameters
+      # d : search direction
+      nf <- nf +1
+      fval<-fn(xc+st*d,...)
+      fval
+    }
+    cat("function at ends of interval\n")
+    sta <- control$stepmin
+    cat("f(",sta,")=", flsch(sta),"\n")
+    stb <- control$stepmax
+    cat("f(",stb,")=", flsch(stb),"\n")
+    
+    lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),...)
+    # ?? Need to count functions
     rlout <- lout$min
     attr(rlout, "Fval")<- lout$objective
     rlout # Note: returns stepsize, not x
@@ -93,7 +102,6 @@ if (control$lsmeth == "default") {
       rlout <- 1 # Does nothing! 
       attr(rlout, "Fval") <- fbest
       rlout
-    
    }
 }
   lambda<-control$lamstart ## ?? do better
@@ -103,7 +111,7 @@ if (control$lsmeth == "default") {
   newH <- TRUE
   while (itn < control$maxit) { # main loop
     if (newH) {
-        if (control$trace) {cat("Iteration ",itn,":")}
+        if (control$trace > 0) {cat("Iteration ",itn,":")}
         grd<-gr(xb,...)
         H<-hess(xb,...)
     }
@@ -117,13 +125,19 @@ if (control$lsmeth == "default") {
        Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
        stp <- solve(Haug, -grd)
     }
-
+    if (control$trace > 0) {
+         cat("Search vector:")
+         print(stp)
+    }
+    gprj <- as.numeric(crossprod(stp, grd))
+    cat("Gradient projection = ",gprj)
+    tmp <- readline("   continue?")
     ## Do line search
     gvl<-lnsrch(fn,fbest, x0, stp, grv=NULL, ...)
 # lnsrch<-function(fn, fbest, xc,d,grv, ...)
     fval <- attr(gvl,"Fval")
-    if (control$trace) {cat(" step =", gvl,"  fval=",fval ,"\n")}
-    xn<-c(x0+gvl*stp)
+    if (control$trace > 0) {cat(" step =", gvl,"  fval=",fval ,"\n")}
+    xn<-x0+gvl*stp
     if (itn >= control$maxit) {
       print("NewtonR: Failed to converge!")
       return(0)
@@ -138,14 +152,12 @@ if (control$lsmeth == "default") {
           newH <- FALSE # don't want new H, grd
           lambda <- lambda * control*laminc
        }
-      
-      
     }
-    
     xb <- xn
     fbest <- fval
     itn <- itn + 1
-    cat("end iteration\n")
+#    cat("end iteration\n")
+    tmp <- readline("end iteration")   
   } # end while
   out<-NULL
   out$xs<-xn

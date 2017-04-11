@@ -1,5 +1,5 @@
 SNewton <- function(x0, fn, gr, hess, variant=list(ls<-1, solve=1, marq=1), 
-                    control = list(trace = 0, maxit = 1000), ...) {
+                    control = list(trace = 2, maxit = 1000), ...) {
     ## Safeguarded Newton minimizer
     ##
     ##Input

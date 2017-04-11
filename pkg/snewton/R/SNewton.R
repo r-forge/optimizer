@@ -62,7 +62,7 @@ if (control$lsmeth == "default") {
       # fbest is best function value so far. NOT used.
       # grv is numeric gradient vector -- NOT used
       # ?? more documentation
-    lout<-optimize(flsch,interval=c(stepmin, stepmax),fn=fn,xc=xc,d=d,...)
+    lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),fn=fn,xc=xc,d=d,...)
     rlout <- lout$min
     attr(rlout, "Fval")<- lout$objective
     rlout # Note: returns stepsize, not x
@@ -107,7 +107,7 @@ if (control$lsmeth == "default") {
         grd<-gr(xb,...)
         H<-hess(xb,...)
     }
-    if ( max(abs(grd)) < eps ) break    
+    if ( max(abs(grd)) < control$epstol ) break    
     if (control$solver == "default") {
       stp<-try(solve(H, -grd))
       if (class(stp) == "class-error") {
@@ -119,7 +119,8 @@ if (control$lsmeth == "default") {
     }
 
     ## Do line search
-    gvl<-lnsrch(fn,x0,stp,...)
+    gvl<-lnsrch(fn,fbest, x0, stp, grv=NULL, ...)
+# lnsrch<-function(fn, fbest, xc,d,grv, ...)
     fval <- attr(gvl,"Fval")
     if (control$trace) {cat(" step =", gvl,"  fval=",fval ,"\n")}
     xn<-c(x0+gvl*stp)
@@ -143,6 +144,8 @@ if (control$lsmeth == "default") {
     
     xb <- xn
     fbest <- fval
+    itn <- itn + 1
+    cat("end iteration\n")
   } # end while
   out<-NULL
   out$xs<-xn

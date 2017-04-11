@@ -1,5 +1,5 @@
 rm(list = ls())
-library(Rvmmin)
+library(snewton)
 
 broydt.f <- function(x) {
     n <- length(x)
@@ -38,6 +38,7 @@ broydt.g <- function(x) {
     return(gg)
 }
 
+##?? Need hessian
 
 ni <- c(1, 2, 3)
 
@@ -47,42 +48,42 @@ times <- matrix(NA, nrow = 3, ncol = 4)
 for (ii in ni) {
     n <- 4^ii  # Change from 10^ii 20100525 to reduce testing time
     cat("n=", n, "\n")
-    afname <- paste("ansbroydt", n, "UG", sep = "")
+#    afname <- paste("ansbroydt", n, "UG", sep = "")
     x0 <- rep(pi, n)
-    ut <- system.time(ans <- Rvmmin(x0, broydt.f, broydt.g, control = list(trace = 1)))[1]
+    ut <- system.time(ans <- snewton(x0, broydt.f, broydt.g, control = list(trace = 1)))[1]
     times[ii, 1] <- ut
     cat("unconstrained with gradient\n")
-    sink(afname, split=TRUE)
+#    sink(afname, split=TRUE)
     print(ans)
-    sink()
-    afname <- paste("ansbroydt", n, "UN", sep = "")
-    ut <- system.time(ans <- Rvmmin(x0, broydt.f, control = list(trace = 1)))[1]
+#    sink()
+#    afname <- paste("ansbroydt", n, "UN", sep = "")
+    ut <- system.time(ans <- snewton(x0, broydt.f, control = list(trace = 1)))[1]
     times[ii, 2] <- ut
     cat("unconstrained, no analytic gradient\n")
-    sink(afname, split=TRUE)
+#    sink(afname, split=TRUE)
     print(ans)
-    sink()
+#    sink()
     
     lower <- rep(1, n)
     upper <- rep(Inf, n)
     
-    afname <- paste("ansbroydt", n, "BG", sep = "")
+#    afname <- paste("ansbroydt", n, "BG", sep = "")
     x0 <- rep(pi, n)
-    ut <- system.time(ans <- Rvmmin(x0, broydt.f, broydt.g, lower = lower, 
+    ut <- system.time(ans <- snewton(x0, broydt.f, broydt.g, lower = lower, 
         upper = upper, control = list(trace = 1)))[1]
     times[ii, 3] <- ut
     cat("constrained, no analytic gradient\n")
-    sink(afname, split=TRUE)
+#    sink(afname, split=TRUE)
     print(ans)
-    sink()
-    afname <- paste("ansbroydt", n, "BN", sep = "")
-    ut <- system.time(ans <- Rvmmin(x0, broydt.f, lower = lower, 
+#    sink()
+#    afname <- paste("ansbroydt", n, "BN", sep = "")
+    ut <- system.time(ans <- snewton(x0, broydt.f, lower = lower, 
         upper = upper, control = list(trace = 1)))[1]
     times[ii, 4] <- ut
     cat("constrained, no analytic gradient\n")
-    sink(afname, split=TRUE)
+#    sink(afname, split=TRUE)
     print(ans)
-    sink()
+#    sink()
 }
 
 cat("Cols are UG, UN, BG, BN times\n")

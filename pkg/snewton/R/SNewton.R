@@ -16,7 +16,7 @@ snewton<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 ##       - add fevals??, other reports
 
 npar <- length(x0)
-nf <- ng <- nh <- 0 # counters
+nf <- ng <- nh <- niter <- 0 # counters
 
 ctrldefault <- list(
   lsmeth = "default",
@@ -44,6 +44,34 @@ for (onename in nctrld) {
     control[onename]<-ctrldefault[onename]
   }
 }
+
+halt <- function(curgval) {# test for termination
+    halt <- FALSE # default is keep going
+    # tests on too many counts
+    if (niter > control$maxit) {
+       if (control$trace > 0) cat("Too many (",niter," iterations\n")
+       halt <- TRUE
+       attr(halt,"convcode")<- 1
+       return(halt)
+    }
+    
+    if (nf > control$maxfevals){
+       if (control$trace > 0) cat("Too many (",nf," function evaluations\n")
+       halt <- TRUE
+       attr(halt,"convcode")<- 91 # ?? value
+       return(halt)
+    }
+#    if (ng > control$maxgevals){} # not implemented
+#    if (nh > control$maxhevals){} # not implemented
+    gmax <- max(abs(curgval))
+    if (gmax <= control$epstol) {
+      if (control$trace > 0) cat("Small gradient norm",gg,"\n")
+      halt <- TRUE
+      attr(halt,"convcode")<- 0 # OK
+      return(halt)
+    }
+}
+
 
 if (control$lsmeth == "default") {
   lnsrch<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal optimize()
@@ -78,6 +106,7 @@ if (control$lsmeth == "default") {
   } # end default line search
 } else if (control$lsmeth == "backtrack") {
   lnsrch<-function(fn, fbest, xc, d, grv, ...) { # backtrack line search
+    # ?? count fevals?
     st <- 1.0
     gproj <- as.numeric(crossprod(grv, xc) )
     repeat {
@@ -105,17 +134,21 @@ if (control$lsmeth == "default") {
    }
 }
   lambda<-control$lamstart ## ?? do better
-  itn <- 1
+  niter <- 1
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
   newH <- TRUE
-  while (itn < control$maxit) { # main loop
+#  while (niter < control$maxit) { # main loop
+  repeat {
     if (newH) {
-        if (control$trace > 0) {cat("Iteration ",itn,":")}
+        if (control$trace > 0) {cat("Iteration ",niter,":")}
         grd<-gr(xb,...)
+        ng <- ng + 1
         H<-hess(xb,...)
+        nh <- nh + 1
     }
-    if ( max(abs(grd)) < control$epstol ) break    
+#    if ( max(abs(grd)) < control$epstol ) break    
+    if ( halt(grd) ) break
     if (control$solver == "default") {
       stp<-try(solve(H, -grd))
       if (class(stp) == "class-error") {
@@ -138,7 +171,7 @@ if (control$lsmeth == "default") {
     fval <- attr(gvl,"Fval")
     if (control$trace > 0) {cat(" step =", gvl,"  fval=",fval ,"\n")}
     xn<-x0+gvl*stp
-    if (itn >= control$maxit) {
+    if (niter >= control$maxit) {
       print("NewtonR: Failed to converge!")
       return(0)
     }
@@ -155,16 +188,15 @@ if (control$lsmeth == "default") {
     }
     xb <- xn
     fbest <- fval
-    itn <- itn + 1
-#    cat("end iteration\n")
+    niter <- niter + 1
     tmp <- readline("end iteration")   
-  } # end while
+  } # end repeat
   out<-NULL
   out$xs<-xn
   out$fv<-fval
   out$grd<-grd
   out$Hess<-H
-  out$niter<-itn
+  out$niter<-niter
   out 
 }
 

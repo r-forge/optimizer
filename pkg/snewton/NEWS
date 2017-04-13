@@ -1,4 +1,11 @@
 Changes in snewton
 
+TODOS
+  o "none" linesearch applies NO test
+  o put "halt" test into routines
+  o counters for fn, gr, hess, and iterations properly done
+  o add convcode (align names with optimr)
+
+
 2017-04-10
   o Initial setup of project with trial codes. No manuals

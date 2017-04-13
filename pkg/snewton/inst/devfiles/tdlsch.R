@@ -1,5 +1,6 @@
 # Test default line search  tdlsch.R
 rm(list=ls())
+
 wood.f <- function(x){
   res <- 100*(x[1]^2-x[2])^2+(1-x[1])^2+90*(x[3]^2-x[4])^2+(1-x[3])^2+
     10.1*((1-x[2])^2+(1-x[4])^2)+19.8*(1-x[2])*(1-x[4])
@@ -67,9 +68,11 @@ lnsrch<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal opti
   stb <- control$stepmax
   cat("f(",stb,")=", flsch(stb),"\n")
   
-  lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),
-                  lower=control$stepmin, upper=control$stepmax,...)
-  # ?? Need to count functions
+#  lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),
+  #                  lower=control$stepmin, upper=control$stepmax,...)
+  lout<-pracma::fminbnd(flsch,control$stepmin, control$stepmax, ...)
+  cat("lnsrch lout:")
+  print(lout)
   rlout <- lout$min
   attr(rlout, "Fval")<- lout$objective
   rlout # Note: returns stepsize, not x

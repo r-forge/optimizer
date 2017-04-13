@@ -75,6 +75,7 @@ lnsrch<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal opti
   print(lout)
   rlout <- lout$min
   attr(rlout, "Fval")<- lout$objective
+  attr(rlout,"fcount")<- lout$niter
   rlout # Note: returns stepsize, not x
 } # end default line search
 

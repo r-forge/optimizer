@@ -33,7 +33,10 @@ ctrldefault <- list(
   stepdec = 0.2, 
   stepmax = 5,
   stepmin = 0,
+  smult = 1.5,
+  fmult = -0.25,
   offset = 100.0,
+  defstep=1,
   bigval = .Machine$double.xmax*0.01
 )  
 

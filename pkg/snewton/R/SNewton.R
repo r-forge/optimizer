@@ -31,8 +31,8 @@ ctrldefault <- list(
   epstol = .Machine$double.eps,
   svmin = 0.0,
   stepdec = 0.2, 
-  stepmax = 1.5,
-  stepmin = -0.5,
+  stepmax = 5,
+  stepmin = 0,
   offset = 100.0,
   bigval = .Machine$double.xmax*0.01
 )  
@@ -43,33 +43,6 @@ for (onename in nctrld) {
   if (! (onename %in% ncontrol)) {
     control[onename]<-ctrldefault[onename]
   }
-}
-
-halt <- function(curgval) {# test for termination
-    halt <- FALSE # default is keep going
-    # tests on too many counts
-    if (niter > control$maxit) {
-       if (control$trace > 0) cat("Too many (",niter," iterations\n")
-       halt <- TRUE
-       attr(halt,"convcode")<- 1
-       return(halt)
-    }
-    
-    if (nf > control$maxfevals){
-       if (control$trace > 0) cat("Too many (",nf," function evaluations\n")
-       halt <- TRUE
-       attr(halt,"convcode")<- 91 # ?? value
-       return(halt)
-    }
-#    if (ng > control$maxgevals){} # not implemented
-#    if (nh > control$maxhevals){} # not implemented
-    gmax <- max(abs(curgval))
-    if (gmax <= control$epstol) {
-      if (control$trace > 0) cat("Small gradient norm",gg,"\n")
-      halt <- TRUE
-      attr(halt,"convcode")<- 0 # OK
-      return(halt)
-    }
 }
 
 
@@ -88,7 +61,7 @@ if (control$lsmeth == "default") {
       # fn: objective function
       # xc: base set of parameters
       # d : search direction
-      nf <- nf +1
+#      nf <- nf +1
       fval<-fn(xc+st*d,...)
       fval
     }
@@ -98,10 +71,17 @@ if (control$lsmeth == "default") {
     stb <- control$stepmax
     cat("f(",stb,")=", flsch(stb),"\n")
     
-    lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),...)
-    # ?? Need to count functions
-    rlout <- lout$min
-    attr(rlout, "Fval")<- lout$objective
+    #  lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),
+    #                  lower=control$stepmin, upper=control$stepmax,...)
+    # note fmin rather than objective in return  
+    lout<-pracma::fminbnd(flsch,control$stepmin, control$stepmax, ...)
+    cat("lnsrch lout:")
+    print(lout)
+    rlout <- lout$xmin
+    #  cat("structure of rlout")
+    #  print(str(rlout))
+    attr(rlout, "Fval") <- lout$fmin
+    attr(rlout, "fcount") <- (lout$niter + 1) # fevals is iterations + 1
     rlout # Note: returns stepsize, not x
   } # end default line search
 } else if (control$lsmeth == "backtrack") {
@@ -137,6 +117,7 @@ if (control$lsmeth == "default") {
   niter <- 1
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
+  nf <- nf + 1
   newH <- TRUE
 #  while (niter < control$maxit) { # main loop
   repeat {
@@ -147,8 +128,31 @@ if (control$lsmeth == "default") {
         H<-hess(xb,...)
         nh <- nh + 1
     }
-#    if ( max(abs(grd)) < control$epstol ) break    
-    if ( halt(grd) ) break
+    cat("Termination test:")    
+    halt <- FALSE # default is keep going
+    # tests on too many counts??
+    if (niter > control$maxit) {
+        if (control$trace > 0) cat("Too many (",niter," iterations\n")
+        halt <- TRUE
+        convcode <- 1
+        break
+    }
+    cat("tt nf=",nf,"\n")
+    if (nf > control$maxfevals){
+    if (control$trace > 0) cat("Too many (",nf," function evaluations\n")
+        halt <- TRUE
+        convcode <- 91 # ?? value
+        break
+    }
+    #    if (ng > control$maxgevals){} # not implemented
+    #    if (nh > control$maxhevals){} # not implemented
+    gmax <- max(abs(grd))
+    if (gmax <= control$epstol) {
+      if (control$trace > 0) cat("Small gradient norm",gmax,"\n")
+      halt <- TRUE
+      convcode <- 0 # OK
+      break
+    }
     if (control$solver == "default") {
       stp<-try(solve(H, -grd))
       if (class(stp) == "class-error") {
@@ -166,11 +170,13 @@ if (control$lsmeth == "default") {
     cat("Gradient projection = ",gprj)
     tmp <- readline("   continue?")
     ## Do line search
-    gvl<-lnsrch(fn,fbest, x0, stp, grv=NULL, ...)
+    gvl<-lnsrch(fn,fbest, xb, stp, grv=NULL, ...)
 # lnsrch<-function(fn, fbest, xc,d,grv, ...)
+    print(str(gvl))
     fval <- attr(gvl,"Fval")
-    if (control$trace > 0) {cat(" step =", gvl,"  fval=",fval ,"\n")}
-    xn<-x0+gvl*stp
+    nf <- nf + attr(gvl, "fcount")
+    if (control$trace > 0) {cat(" step =", gvl,"  fval=",fval ," nf=",nf,"\n")}
+    xn<-xb+gvl*stp
     if (niter >= control$maxit) {
       print("NewtonR: Failed to converge!")
       return(0)
@@ -199,7 +205,4 @@ if (control$lsmeth == "default") {
   out$niter<-niter
   out 
 }
-
-
-
 

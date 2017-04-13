@@ -69,13 +69,16 @@ lnsrch<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal opti
   cat("f(",stb,")=", flsch(stb),"\n")
   
 #  lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),
-  #                  lower=control$stepmin, upper=control$stepmax,...)
+#                  lower=control$stepmin, upper=control$stepmax,...)
+# note fmin rather than objective in return  
   lout<-pracma::fminbnd(flsch,control$stepmin, control$stepmax, ...)
   cat("lnsrch lout:")
   print(lout)
-  rlout <- lout$min
-  attr(rlout, "Fval")<- lout$objective
-  attr(rlout,"fcount")<- lout$niter
+  rlout <- lout$xmin
+#  cat("structure of rlout")
+#  print(str(rlout))
+  attr(rlout, "Fval") <- lout$fmin
+  attr(rlout, "fcount") <- (lout$niter + 1) # fevals is iterations + 1
   rlout # Note: returns stepsize, not x
 } # end default line search
 
@@ -106,6 +109,7 @@ plot(xbits, ff)
 cat("minimum position from search on plot points:")
 print(xbits[which(ff == min(ff))])
 
+tmp <- readline("Continue?")
 
 cat("Wood Function:\n")
 xw <- c(-3,-1,-3,-1) # Wood standard start

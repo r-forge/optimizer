@@ -1,3 +1,0 @@
-Safeguarded Newton method for function minimization
-J C Nash 2010Safeguarded Newton method for function minimization
-J C Nash 2010

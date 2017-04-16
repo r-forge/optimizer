@@ -117,8 +117,43 @@ set of new parameters
 
 $ x_{new} = x + step * t $
 
-Thus we can had a "naive" method where we set $step = 1$, or we can apply a variety of
-ways to find a suitable choice for $step$. 
+Thus we can had a "naive" method where we set $step = 1$, the choice of the 
+traditional Newton method, but in practice,
+this can sometimes mean that the function value is not reduced. Generally, 
+we try to apply some computations that reduce the function value by
+a suitable choice for $step$. 
+
+One possibility is to use a method that seeks the minimum of a function of 
+one variable. Thus we find the minimum of $f( x + step * t )$ with respect to
+$step$. There are several possibilities for doing this which can be explored,
+but in most cases we do not require a very precise step length.
+
+A generally more efficient method uses a simple backtrack choice. We start 
+with $step = 1$. If the function is suitably reduced, we replace $step$ with 
+$ r * step $ where $r$ is less than 1. I often use 0.1 or 0.2. We repeat until $x_t$
+is "suitable". 
+
+Suitablity is generally decided using the "sufficient decrease" condition, 
+
+$f(x_t + step*s) < f(x_t) + c * step * g(x_t)^T*s$
+
+where c is some number less than 1. Typically $ c = 1e-4 = 0.0001 $. We refer to this
+as the Armijo condition. Note that the product
+of gradient times search vector is negative for any reasonable situation, since we are 
+trying to go "downhill". The condition can be made slightly more stringent
+by taking the absolute value of the gradient projection, giving the 
+Wolfe conditions. See https://en.wikipedia.org/wiki/Wolfe_conditions. 
+
+
+
+
+However, for the
+Marquardt approach above, it is common to use a unit step, but in the event we fail
+to reduce the function, we increase $\lambda$. This is repeated until either the
+function is reduced or the parameters are unchanged. (If $\lambda$ gets very large,
+the search vector becomes tiny, so there is no change in $x_t$.) Otherwise, it
+ is usual to have some sort of line search. There are many possibilities. 
+
 
  So-called **Newton** methods are among the most commonly mentioned in the solution of nonlinear
 equations or function minimization. However, as discussed in 
@@ -177,20 +212,6 @@ above. In tandem with the two main issues expressed above, we will consider
    - the modification of the solution of the main equation $ H(x_t) * s = - g(x_t)$ so
    that a reasonable search vector $s$ is always generated
    
-   - the selection of a new set of parameters $x_new = x_t + step * s$ so that the
-   function value $f(x_new)$ is less than $f(x_t)$.
-   
-The second choice above could be made slightly more stringent so that the Armijo (??ref)
-condition  of sufficient-decrease is met. Adding a curvature requirement gives the 
-Wolfe condisions. See https://en.wikipedia.org/wiki/Wolfe_conditions. The Armijo requirement
-is generally written
-
-$f(x_t + step*s) < f(x_t) + c * step * g(x_t)^T*s$
-
-where c is some number less than 1. Typically $ c = 1e-4 = 0.0001 $. Note that the product
-of gradient times search vector is negative for any reasonable situation, since we are 
-trying to go "downhill".
-
 # Some choices to compute the search vector
 
 The primary concern in solving for $s$ is that the Hessian may not be positive definite. 
@@ -214,19 +235,7 @@ Note that within the above general choices for solution, we could try to specify
 the solution is obtained, since there are various ways to solve linear equations and
 to find the singular value decomposition. (??refs, discussion??)
 
-# Choosing the step size
 
-The traditional Newton approach is that the stepsize is taken to be 1. In practice,
-this can sometimes mean that the function value is not reduced. However, for the
-Marquardt approach above, it is common to use a unit step, but in the event we fail
-to reduce the function, we increase $\lambda$. This is repeated until either the
-function is reduced or the parameters are unchanged. (If $\lambda$ gets very large,
-the search vector becomes tiny, so there is no change in $x_t$.) Otherwise, it
- is usual to have some sort of line search. There are many possibilities. 
- 
-    - A simple backtrack choice. We start with $step = 1$ If the Armijo condition
-    is not met, we replace $step$ with $ r * step $ where $r$ is less than 1. I 
-    often use 0.1 or 0.2. Repeat until $x_t$
   
 ?? nf, ng, nh etc.
 

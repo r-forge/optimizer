@@ -1,5 +1,5 @@
 gradminu<-function(x0, fn, gr, hess, lower = NULL, upper = NULL, 
-      control=list(lsmeth="default", solver="default", trace=2, maxit=500),...) {
+      control=list(),...) {
 ## General (unconstrained) gradient minimizer 
 ##
 ##Input
@@ -22,7 +22,8 @@ gradminu<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 npar <- length(x0)
 nf <- ng <- nh <- niter <- 0 # counters
 
-ctrldefault <- list(
+# set up workspace
+ws <- list(
   lsmeth = "default",
   solver = "default",
   trace = 0,
@@ -45,15 +46,21 @@ ctrldefault <- list(
 )  
 
 ncontrol <- names(control)
-nctrld <- names(ctrldefault)
-for (onename in nctrld) {
-  if (! (onename %in% ncontrol)) {
-    control[onename]<-ctrldefault[onename]
+nws <- names(ws)
+for (onename in ncontrol) {
+  if (! (onename %in% nws)) {
+    ws[onename]<-control[onename]
   }
 }
 
+cat("Workspace ws:")
+print(ws)
 
-if (control$lsmeth == "default") {
+lnsrch <- pracma::fminbnd
+print(lnsrch)
+tmp <- readline("done")
+
+if (ws$lsmeth == "default") {
   lnsrch<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal optimize()
     cat("fn:\n")
     print(fn)
@@ -73,15 +80,15 @@ if (control$lsmeth == "default") {
       fval
     }
     cat("function at ends of interval\n")
-    sta <- control$stepmin
+    sta <- ws$stepmin
     cat("f(",sta,")=", flsch(sta),"\n")
-    stb <- control$stepmax
+    stb <- ws$stepmax
     cat("f(",stb,")=", flsch(stb),"\n")
     
-    #  lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),
-    #                  lower=control$stepmin, upper=control$stepmax,...)
+    #  lout<-optimize(flsch,interval=c(ws$stepmin, ws$stepmax),
+    #                  lower=ws$stepmin, upper=ws$stepmax,...)
     # note fmin rather than objective in return  
-    lout<-pracma::fminbnd(flsch,control$stepmin, control$stepmax, ...)
+    lout<-pracma::fminbnd(flsch,ws$stepmin, ws$stepmax, ...)
     cat("lnsrch lout:")
     print(lout)
     rlout <- lout$xmin
@@ -91,7 +98,7 @@ if (control$lsmeth == "default") {
     attr(rlout, "fcount") <- (lout$niter + 1) # fevals is iterations + 1
     rlout # Note: returns stepsize, not x
   } # end default line search
-} else if (control$lsmeth == "backtrack") {
+} else if (ws$lsmeth == "backtrack") {
   lnsrch<-function(fn, fbest, xc, d, grv, ...) { # backtrack line search
     # ?? count fevals?
     st <- 1.0
@@ -105,7 +112,7 @@ if (control$lsmeth == "default") {
           return(rlout)
       }
       fval <- flsch(xnew, ...)
-      if (control$trace > 1) cat("Step = ",st," fval = ",fval,"\n")
+      if (ws$trace > 1) cat("Step = ",st," fval = ",fval,"\n")
       if (fval <= fbest + acctol*st*gproj) break
       st <- stepdec*st # new step
     }
@@ -113,23 +120,23 @@ if (control$lsmeth == "default") {
     attr(rlout, "Fval")<- fval
     rlout
    } # end backtrack line search
-} else if (control$lsmeth == "none") { 
+} else if (ws$lsmeth == "none") { 
    lnsrch <- function(fn, fbest, xc, d, grv, ...) {
       rlout <- 1 # Does nothing! 
       attr(rlout, "Fval") <- fbest
       rlout
    }
 }
-  lambda<-control$lamstart ## ?? do better
+  lambda<-ws$lamstart ## ?? do better
   niter <- 1
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
   nf <- nf + 1
   newH <- TRUE
-#  while (niter < control$maxit) { # main loop
+#  while (niter < ws$maxit) { # main loop
   repeat {
     if (newH) {
-        if (control$trace > 0) {cat("Iteration ",niter,":")}
+        if (ws$trace > 0) {cat("Iteration ",niter,":")}
         grd<-gr(xb,...)
         ng <- ng + 1
         H<-hess(xb,...)
@@ -138,38 +145,38 @@ if (control$lsmeth == "default") {
     cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
-    if (niter > control$maxit) {
-        if (control$trace > 0) cat("Too many (",niter," iterations\n")
+    if (niter > ws$maxit) {
+        if (ws$trace > 0) cat("Too many (",niter," iterations\n")
         halt <- TRUE
         convcode <- 1
         break
     }
     cat("tt nf=",nf,"\n")
-    if (nf > control$maxfevals){
-    if (control$trace > 0) cat("Too many (",nf," function evaluations\n")
+    if (nf > ws$maxfevals){
+    if (ws$trace > 0) cat("Too many (",nf," function evaluations\n")
         halt <- TRUE
         convcode <- 91 # ?? value
         break
     }
-    #    if (ng > control$maxgevals){} # not implemented
-    #    if (nh > control$maxhevals){} # not implemented
+    #    if (ng > ws$maxgevals){} # not implemented
+    #    if (nh > ws$maxhevals){} # not implemented
     gmax <- max(abs(grd))
-    if (gmax <= control$epstol) {
-      if (control$trace > 0) cat("Small gradient norm",gmax,"\n")
+    if (gmax <= ws$epstol) {
+      if (ws$trace > 0) cat("Small gradient norm",gmax,"\n")
       halt <- TRUE
       convcode <- 0 # OK
       break
     }
-    if (control$solver == "default") {
+    if (ws$solver == "default") {
       stp<-try(solve(H, -grd))
       if (class(stp) == "class-error") {
           stop("Failure of default solve of Newton equations")
       }
-    } else if (control$solver == "marquardt") {
+    } else if (ws$solver == "marquardt") {
        Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
        stp <- solve(Haug, -grd)
     }
-    if (control$trace > 0) {
+    if (ws$trace > 0) {
          cat("Search vector:")
          print(stp)
     }
@@ -182,21 +189,21 @@ if (control$lsmeth == "default") {
     print(str(gvl))
     fval <- attr(gvl,"Fval")
     nf <- nf + attr(gvl, "fcount")
-    if (control$trace > 0) {cat(" step =", gvl,"  fval=",fval ," nf=",nf,"\n")}
+    if (ws$trace > 0) {cat(" step =", gvl,"  fval=",fval ," nf=",nf,"\n")}
     xn<-xb+gvl*stp
-    if (niter >= control$maxit) {
+    if (niter >= ws$maxit) {
       print("NewtonR: Failed to converge!")
       return(0)
     }
-    if (control$solver == "marquardt"){
+    if (ws$solver == "marquardt"){
        if (fval <= fbest) {
           xb <- xn
           fbest <- fval
-          lambda <- lambda * control$lamdec
+          lambda <- lambda * ws$lamdec
           newH <- TRUE # ensure we start over
        } else {
           newH <- FALSE # don't want new H, grd
-          lambda <- lambda * control*laminc
+          lambda <- lambda * ws*laminc
        }
     }
     xb <- xn
@@ -213,3 +220,27 @@ if (control$lsmeth == "default") {
   out 
 }
 
+# Try testing calls to see what is transferred (eventually test also ...)
+# setup
+x0<-c(1,2,3,4)
+fnt <- function(x, fscale=10){
+  yy <- length(x):1
+  val <- sum((yy*x)^2)*fscale
+}
+grt <- function(x, fscale=10){
+  nn <- length(x)
+  yy <- nn:1
+  #    gg <- rep(NA,nn)
+  gg <- 2*(yy^2)*x*fscale
+  gg
+}
+
+hesst <- function(x, fscale=10){
+  nn <- length(x)
+  yy <- nn:1
+  hh <- diag(2*yy^2*fscale)
+  hh
+}
+
+t1 <- gradminu(x0, fnt, grt, hesst, control=list(trace=2), fscale=3.0)
+t1

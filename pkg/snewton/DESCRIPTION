@@ -1,12 +1,13 @@
 Package: snewton
 Type: Package
-Title: Safeguarded Newton Methods for Function Minimization
+Title: Safeguarded Newton and General Gradient Approach for Function Minimization
 Version: 2017-4.10
 Date: 2017-04-10
 Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca") )
 Maintainer: John C. Nash <nashjc@uottawa.ca>
-Description: Implements several safeguarded Newton methods for function minimization.
+Description: Implements several safeguarded Newton methods for function minimization 
+    and provides a generalized structure for studying gradient minimization methods.
 LazyLoad: Yes
 License: GPL (>= 2)
 Author: John C. Nash [aut, cre]

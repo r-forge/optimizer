@@ -39,6 +39,7 @@ for (onename in nctrld) {
   }
 }
 trace <- control$trace # convenience
+cat("trace =",trace,"\n")
 
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
@@ -60,7 +61,7 @@ trace <- control$trace # convenience
       convcode <- 1
       break
     }
-    cat("tt nf=",nf,"\n")
+    cat("nf=",nf,"\n")
     if (nf > control$maxfevals){
       if (trace > 0) cat("Too many (",nf," function evaluations\n")
       halt <- TRUE

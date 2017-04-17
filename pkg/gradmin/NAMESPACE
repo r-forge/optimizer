@@ -1,5 +1,0 @@
-export(
-  "gradminu",
-  lsback,
-  lsnone
-)

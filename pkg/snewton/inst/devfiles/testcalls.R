@@ -120,7 +120,7 @@ for (onename in nctrld) {
   }
 }
 
-wspace <- list() #
+wspace <<- list2env(control) # NOTE: Global!
 
 cat("generate gcurr in testcalls\n")
 x <- x0
@@ -137,8 +137,8 @@ wspace$gcurr <- NULL
 sd2 <- Newtdir(x, fn, gr, hess,  wspace, control, ...)
 cat("sd2:")
 print(sd2)
-cat("Present gcurr:")
-print(gcurr)
+cat("After sd2, wspace$gcurr:")
+print(wspace$gcurr)
 
 out <- sd2
 out

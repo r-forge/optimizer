@@ -21,5 +21,6 @@ hesst <- function(x, fscale=10){
   hh
 }
 
+library(snewton)
 t1 <- gradminu(x0, fnt, grt, hesst, control=list(trace=2), fscale=3.0)
 t1

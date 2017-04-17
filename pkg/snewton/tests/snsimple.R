@@ -1,4 +1,3 @@
-
 # Try testing calls to see what is transferred (eventually test also ...)
 # setup
 x0<-c(1,2,3,4)
@@ -21,6 +20,6 @@ hesst <- function(x, fscale=10){
   hh
 }
 
-# library(snewton)
+library(snewton)
 t1 <- snewton(x0, fnt, grt, hesst, control=list(trace=2), fscale=3.0)
 print(t1)

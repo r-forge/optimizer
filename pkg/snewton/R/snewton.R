@@ -1,10 +1,10 @@
-snewton<-function(x0, fn, gr, hess, control=list(trace=1, maxit=500),...) {
+snewton<-function(par, fn, gr, hess, control=list(trace=1, maxit=500),...) {
 ## Safeguarded Newton minimizer 
 ##
 ##Input
 ##       - fn is the function we wish to minimize
 ##?? fixup documentation here??
-##       - x0 is the initial value
+##       - par is the initial value
 ##       - ... is data used in the function fn
 ##Output (list) -- need to match optim() output!! ???
 ##       - xs is the value at the minimum
@@ -14,7 +14,7 @@ snewton<-function(x0, fn, gr, hess, control=list(trace=1, maxit=500),...) {
 ##       - niter is the number of interations needed (gradient and Hessian evals).
 ##       - add fevals??, other reports
 
-npar <- length(x0)
+npar <- length(par)
 nf <- ng <- nh <- niter <- 0 # counters
 
 ctrldefault <- list(
@@ -41,7 +41,7 @@ for (onename in nctrld) {
 trace <- control$trace # convenience
 cat("trace =",trace,"\n")
 
-  xb <- x0 # best so far
+  xb <- par # best so far
   fbest <- fn(xb, ...)
   nf <- nf + 1 
   if (trace > 0) cat("Initial function value = ",fbest,"\n")

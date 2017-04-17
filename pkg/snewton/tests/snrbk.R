@@ -1,3 +1,4 @@
+require(snewton)
 #Rosenbrock banana valley function
 f <- function(x){
 return(100*(x[2] - x[1]*x[1])^2 + (1-x[1])^2)

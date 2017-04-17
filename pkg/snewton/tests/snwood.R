@@ -23,12 +23,26 @@ wood.h <- function(x){
                 h13,h23,h33,h34,h14,h24,h34,h44),ncol=4)
   return(H)
 }
+
+wood.fgh <- function(x){
+      fval <- wood.f(x)
+      gval <- wood.g(x)
+      hval <- wood.h(x)
+      attr(fval,"gradient") <- gval
+      attr(fval,"hessian")<- hval
+      fval
+}
+ 
 #################################################
 x0 <- c(-3,-1,-3,-1) # Wood standard start
 
 library(snewton)
-
+cat("This FAILS to find minimum\n")
 wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
 print(wd)
+
+cat("\n\n nlm() gives same result\n")
+tnlm <- nlm(wood.fgh, x0, print.level=2)
+print(tnlm)
 
 

@@ -6,7 +6,7 @@
 the R function solve() and uses the optimize() function as a line search.
 }
 \usage{
-   snewton(par, fn, gr, hess, control = list(), \dots)
+   snewton(par, fn, gr, hess, control = list(trace=1, maxit=500), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -44,7 +44,8 @@ the R function solve() and uses the optimize() function as a line search.
    \item{acctol}{To adjust the acceptable point tolerance (default 0.0001) in the test
        ( f <= fmin + gradproj * steplength * acctol ). This test is used to ensure progress
        is made at each iteration. }
-   \item{stepredn}{Step reduction factor for backtrack line search (default 0.2)}
+   \item{stepdec}{Step reduction factor for backtrack line search (default 0.2)}
+   \item{defstep}{Initial stepsize default (default 1)}
    \item{reltest}{Additive shift for equality test (default 100.0)}
   }
 }

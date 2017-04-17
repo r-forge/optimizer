@@ -1,0 +1,19 @@
+Package: gradmin
+Type: Package
+Title: General Gradient Approach for Function Minimization
+Version: 2017-4.17
+Date: 2017-04-17
+Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
+        c("aut", "cre"), email = "nashjc@uottawa.ca") )
+Maintainer: John C. Nash <nashjc@uottawa.ca>
+Description: Gradient minimization methods have a wide variety of
+    motivations and methods. This package attempts to provide a way
+    to explore these ideas fairly easily. There is no specific effort
+    to provide a high performance, but rather to allow the different
+    approaches to be compared.
+LazyLoad: Yes
+License: GPL (>= 2)
+Author: John C. Nash [aut, cre]
+NeedsCompilation: no
+Suggests: knitr
+VignetteBuilder: knitr

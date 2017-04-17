@@ -1,5 +1,4 @@
-snewton<-function(x0, fn, gr, hess, lower = NULL, upper = NULL, 
-      control=list(lsmeth="default", solver="default", trace=2, maxit=500),...) {
+snewton<-function(x0, fn, gr, hess, control=list(trace=1, maxit=500),...) {
 ## Safeguarded Newton minimizer 
 ##
 ##Input
@@ -19,22 +18,14 @@ npar <- length(x0)
 nf <- ng <- nh <- niter <- 0 # counters
 
 ctrldefault <- list(
-  lsmeth = "default",
-  solver = "default",
   trace = 0,
   maxit = 500,
   maxfevals = npar*500,
-  laminc = 10,
-  lamdec = 0.4,
-  lamstart = 0.01,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
-  svmin = 0.0,
   stepdec = 0.2, 
   stepmax = 5,
   stepmin = 0,
-  smult = 1.5,
-  fmult = -0.25,
   offset = 100.0,
   defstep=1,
   bigval = .Machine$double.xmax*0.01
@@ -47,165 +38,90 @@ for (onename in nctrld) {
     control[onename]<-ctrldefault[onename]
   }
 }
+trace <- control$trace # convenience
 
-
-if (control$lsmeth == "default") {
-  lnsrch<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal optimize()
-    cat("fn:\n")
-    print(fn)
-    ## Uses Brent's method to find the best stepsize in interval
-    # fbest is best function value so far. NOT used.
-    # grv is numeric gradient vector -- NOT used
-    # ?? more documentation
-    flsch<-function(st) {
-      # computes the function value at stepsize st on line (xc + gm*d)
-      # Essentially flsch(st)
-      # gm: step size
-      # fn: objective function
-      # xc: base set of parameters
-      # d : search direction
-#      nf <- nf +1
-      fval<-fn(xc+st*d,...)
-      fval
-    }
-    cat("function at ends of interval\n")
-    sta <- control$stepmin
-    cat("f(",sta,")=", flsch(sta),"\n")
-    stb <- control$stepmax
-    cat("f(",stb,")=", flsch(stb),"\n")
-    
-    #  lout<-optimize(flsch,interval=c(control$stepmin, control$stepmax),
-    #                  lower=control$stepmin, upper=control$stepmax,...)
-    # note fmin rather than objective in return  
-    lout<-pracma::fminbnd(flsch,control$stepmin, control$stepmax, ...)
-    cat("lnsrch lout:")
-    print(lout)
-    rlout <- lout$xmin
-    #  cat("structure of rlout")
-    #  print(str(rlout))
-    attr(rlout, "Fval") <- lout$fmin
-    attr(rlout, "fcount") <- (lout$niter + 1) # fevals is iterations + 1
-    rlout # Note: returns stepsize, not x
-  } # end default line search
-} else if (control$lsmeth == "backtrack") {
-  lnsrch<-function(fn, fbest, xc, d, grv, ...) { # backtrack line search
-    # ?? count fevals?
-    st <- 1.0
-    gproj <- as.numeric(crossprod(grv, xc) )
-    repeat {
-      xnew <- xc + st*d # new point
-      if ((offset+xnew) == (offset+xc)) { # no better parameters
-          st <- 0
-          rlout <- st
-          attr(rlout,"Fval")<-fbest # Assume we pass this in
-          return(rlout)
-      }
-      fval <- flsch(xnew, ...)
-      if (control$trace > 1) cat("Step = ",st," fval = ",fval,"\n")
-      if (fval <= fbest + acctol*st*gproj) break
-      st <- stepdec*st # new step
-    }
-    rlout <- st
-    attr(rlout, "Fval")<- fval
-    rlout
-   } # end backtrack line search
-} else if (control$lsmeth == "none") { 
-   lnsrch <- function(fn, fbest, xc, d, grv, ...) {
-      rlout <- 1 # Does nothing! 
-      attr(rlout, "Fval") <- fbest
-      rlout
-   }
-}
-  lambda<-control$lamstart ## ?? do better
-  niter <- 1
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
-  nf <- nf + 1
-  newH <- TRUE
-#  while (niter < control$maxit) { # main loop
-  repeat {
-    if (newH) {
-        if (control$trace > 0) {cat("Iteration ",niter,":")}
-        grd<-gr(xb,...)
-        ng <- ng + 1
-        H<-hess(xb,...)
-        nh <- nh + 1
-    }
-    cat("Termination test:")    
+  nf <- nf + 1 
+  grd<-gr(xb,...) # compute gradient
+  ng <- ng + 1
+  fval <- control$bigval # to ensure comparison unfavourable
+  #  while (niter < control$maxit) { # main loop
+  repeat { # MAIN LOOP
+    niter <- niter + 1
+    if (trace > 1) cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
     if (niter > control$maxit) {
-        if (control$trace > 0) cat("Too many (",niter," iterations\n")
-        halt <- TRUE
-        convcode <- 1
-        break
+      if (trace > 0) cat("Too many (",niter," iterations\n")
+      halt <- TRUE
+      convcode <- 1
+      break
     }
     cat("tt nf=",nf,"\n")
     if (nf > control$maxfevals){
-    if (control$trace > 0) cat("Too many (",nf," function evaluations\n")
-        halt <- TRUE
-        convcode <- 91 # ?? value
-        break
+      if (trace > 0) cat("Too many (",nf," function evaluations\n")
+      halt <- TRUE
+      convcode <- 91 # ?? value
+      break
     }
     #    if (ng > control$maxgevals){} # not implemented
     #    if (nh > control$maxhevals){} # not implemented
     gmax <- max(abs(grd))
+    if (trace > 1) cat("current gradient norm =",gmax,"\n")
     if (gmax <= control$epstol) {
-      if (control$trace > 0) cat("Small gradient norm",gmax,"\n")
+      if (trace > 1) cat("Small gradient norm\n")
       halt <- TRUE
       convcode <- 0 # OK
       break
     }
-    if (control$solver == "default") {
-      stp<-try(solve(H, -grd))
-      if (class(stp) == "class-error") {
+    # Note if we get here, 
+    if (trace > 0) {cat("Iteration ",niter,":")}
+    H<-hess(xb,...)
+    nh <- nh + 1
+    d<-try(solve(H, -grd))
+    if (class(stp) == "class-error") {
           stop("Failure of default solve of Newton equations")
-      }
-    } else if (control$solver == "marquardt") {
-       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
-       stp <- solve(Haug, -grd)
     }
-    if (control$trace > 0) {
+    if (trace > 1) {
          cat("Search vector:")
-         print(stp)
+         print(d)
     }
-    gprj <- as.numeric(crossprod(stp, grd))
-    cat("Gradient projection = ",gprj)
-    tmp <- readline("   continue?")
-    ## Do line search
-    gvl<-lnsrch(fn,fbest, xb, stp, grv=NULL, ...)
-# lnsrch<-function(fn, fbest, xc,d,grv, ...)
-    print(str(gvl))
-    fval <- attr(gvl,"Fval")
-    nf <- nf + attr(gvl, "fcount")
-    if (control$trace > 0) {cat(" step =", gvl,"  fval=",fval ," nf=",nf,"\n")}
-    xn<-xb+gvl*stp
-    if (niter >= control$maxit) {
-      print("NewtonR: Failed to converge!")
-      return(0)
+    gprj <- as.numeric(crossprod(d, grd))
+    if (trace > 1) cat("Gradient projection = ",gprj)
+    st <- control$defstep
+    xnew <- xb + st*d # new point
+    if ((control$offset+xnew) == (control$offset+xb)) {
+        convcode <- 92 # no progress
+        if (trace > 0) cat("No progress before linesearch!\n")
     }
-    if (control$solver == "marquardt"){
-       if (fval <= fbest) {
-          xb <- xn
-          fbest <- fval
-          lambda <- lambda * control$lamdec
-          newH <- TRUE # ensure we start over
-       } else {
-          newH <- FALSE # don't want new H, grd
-          lambda <- lambda * control*laminc
-       }
+    fval <- fn(xnew, ...)    
+    nf <- nf + 1
+    if (trace > 1) cat("f(xnew)=",fval,"\n")
+    while ((fval > fbest + control$acctol*st*gprj) 
+           && ((control$offset+xnew) != (control$offset+xb))) { # continue until satisfied
+        st <- st * control$stepdec
+        fval <- fn(xnew, ...)    
+        nf <- nf + 1
+        if (trace > 1) cat("* f(xnew)=",fval,"\n")
     }
-    xb <- xn
+    if ((control$offset+xnew) == (control$offset+xb)) {
+        convcode <- 93 # no progress in linesearch
+        if (trace > 0) cat("No progress IN linesearch!\n")
+        break
+    }
+    if (trace > 1) cat("end major loop\n")  
+    xb <- xnew
     fbest <- fval
-    niter <- niter + 1
     tmp <- readline("end iteration")   
   } # end repeat
   out<-NULL
-  out$xs<-xn
-  out$fv<-fval
-  out$grd<-grd
+  out$par<-xn
+  out$value<-fval
+  out$grad<-grd
   out$Hess<-H
   out$niter<-niter
+  out$convcode <- convcode
   out 
 }
 

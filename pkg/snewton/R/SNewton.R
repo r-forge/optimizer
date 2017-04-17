@@ -43,12 +43,14 @@ trace <- control$trace # convenience
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
   nf <- nf + 1 
-  grd<-gr(xb,...) # compute gradient
-  ng <- ng + 1
-  fval <- control$bigval # to ensure comparison unfavourable
+  if (trace > 0) cat("Initial function value = ",fbest,"\n")
+  if (trace > 1) print(xb)
+#  fval <- control$bigval # to ensure comparison unfavourable
   #  while (niter < control$maxit) { # main loop
   repeat { # MAIN LOOP
     niter <- niter + 1
+    grd<-gr(xb,...) # compute gradient
+    ng <- ng + 1
     if (trace > 1) cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
@@ -80,7 +82,7 @@ trace <- control$trace # convenience
     H<-hess(xb,...)
     nh <- nh + 1
     d<-try(solve(H, -grd))
-    if (class(stp) == "class-error") {
+    if (class(d) == "class-error") {
           stop("Failure of default solve of Newton equations")
     }
     if (trace > 1) {
@@ -88,7 +90,7 @@ trace <- control$trace # convenience
          print(d)
     }
     gprj <- as.numeric(crossprod(d, grd))
-    if (trace > 1) cat("Gradient projection = ",gprj)
+    if (trace > 1) cat("Gradient projection = ",gprj,"\n")
     st <- control$defstep
     xnew <- xb + st*d # new point
     if ((control$offset+xnew) == (control$offset+xb)) {
@@ -101,6 +103,8 @@ trace <- control$trace # convenience
     while ((fval > fbest + control$acctol*st*gprj) 
            && ((control$offset+xnew) != (control$offset+xb))) { # continue until satisfied
         st <- st * control$stepdec
+        if (trace > 1) cat("Stepsize now =",st,"\n")
+        xnew <- xb + st*d # new point
         fval <- fn(xnew, ...)    
         nf <- nf + 1
         if (trace > 1) cat("* f(xnew)=",fval,"\n")
@@ -116,12 +120,12 @@ trace <- control$trace # convenience
     tmp <- readline("end iteration")   
   } # end repeat
   out<-NULL
-  out$par<-xn
-  out$value<-fval
+  out$par<-xb
+  out$value<-fbest
   out$grad<-grd
   out$Hess<-H
   out$niter<-niter
   out$convcode <- convcode
-  out 
+  out
 }
 

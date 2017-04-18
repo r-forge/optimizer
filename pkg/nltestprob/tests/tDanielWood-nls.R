@@ -1,5 +1,5 @@
 # tDanielWood-nls.R
-require(NISTO)
+require(nltestprob)
 pfname <- "DanielWood"
 # try it
 counters <- new.env()

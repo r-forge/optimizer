@@ -100,19 +100,23 @@ syntax like that of `nls()`, then we need to provide a model formula and some da
 is consistent with this model formula. By naming the formula as `DanielWood.formula`, and
 putting the data in a dataframe named `DanielWood.df`, we then need only a starting
 vector of parameters to have a well-specified formula-based nonlinear least squares 
-problem. Besides `nls()`, `nlxb()` from **nlmrt**, `nls2()` from **nls2** (CRAN version),
+problem. Besides `nls()`, there is `nlxb()` from **nlsr** (formerly **nlmrt**), 
+`nls2()` from **nls2** (CRAN version),
 and `nls.lm` from **minpack.lm**. We assign a **problem class** `formula` to this 
 specification of the DanielWood problem.
 
 Similarly, a function-based nonlinear least squares problem solvable by `nlfb()` from 
-package **nlmrt** or `nlsLM` from **minpack.lm** can be specified by an **R** function
+package **nlsr** (formerly **nlmrt**) or `nlsLM` from **minpack.lm** can be specified by an **R** function
 that computes the residual vector from a particular set of parameters. These functions
-can also use a Jacobian function if it is available. At the time of writing, an approximate
-Jacobian will be provided by these solvers if the provided argument is NULL. Work is 
+can also use a Jacobian function supplied by the `jacfn` argument. At the time of writing, an approximate
+Jacobian will be provided by these solvers if the provided argument `jacfn` is NULL. Work is 
 in process to try to provide particular derivative approximations by a mechanism similar
-to the one used in package **optimrx**. We can provide for use of such solvers by using
+to the one used in package **optimrx**, where putting the name of the jacobian function in 
+quotation marks indicates that a particular approximation tool is to be used. 
+We can provide for use of function-based nonlinear least squares solvers by using
 the name `DanielWood.res` for the residual function and `DanielWood.jac` for the Jacobian.
-We assign the problem class `sumsquares` to this approach to the problem.
+We assign the problem class `sumsquares` to this approach to the problem. ?? Do we wish to keep
+these names??
 
 Generally, for function minimization, we can specify `DanielWood.f` for a general function
 to be minimized, with the (optional) `DanielWood.g` for the gradient. This is given problem
@@ -123,7 +127,8 @@ a bounded function minimization problem that we assign problem class `boundopt`.
 the solution of a bounded problem is usually different from its unconstrained version. We
 will use separate problem file names. For example, if there were a bounded version of the 
 DanielWood problem, we might name it `DanielWoodBounded`. (At the time of writing there
-is no such problem file.)
+is no such problem file.) ?? May want to NOT use class, but provide a list of problem types
+that are available in the file.??
 
 Many optimization problems, including some test problems, need data other than the parameters.
 This can be provided in a data frame `DanielWood.df`. This will be created in the problem
@@ -141,13 +146,13 @@ Note that the `.res` function could be used to specify nonlinear equations probl
 solution has all the residuals at zero. At the time of writing, we have not yet included
 this possibility.
 
-Considerations 170221??
+Considerations 170221?? 170418
 
 -- only specify bits that are available and let problem setup program (GUI) do the rest.
 
 -- steal ideas from optimgui
 
--- allow scripting so it can be automated (and save such a script)
+-- allow scripting so work can be automated (and save such a script)
 
 -- 
 
@@ -176,7 +181,8 @@ we will name the unconstrained and bounded problems separately since they may ha
 different optima.
 
 Other structures for problem files are, of course, equally possible. However, we 
-will experiment with the current approach until we discover it cannot support our requirements. 
+will experiment with the current approach until we discover it cannot support 
+our requirements. 
 
 ### The **DanielWood** problem
 
@@ -208,7 +214,8 @@ of different sizes of problems, we need to be able to parameterize the starts. M
 could be different starting sets within each size. To allow for this, we use a character string
 index to specify which member of a **family** of problems is to be used. The starts are then
 created by a function which has the character index as its argument. Thus, for example, we could
-start the Extended Rosenbrock test function (https://en.wikipedia.org/wiki/Rosenbrock_function, based on @Rosenbrock60) with a set of 10 parameters each having 
+start the Extended Rosenbrock test function (https://en.wikipedia.org/wiki/Rosenbrock_function, 
+based on @Rosenbrock60) with a set of 10 parameters each having 
 value `pi` by using an index "10:pi". 
 
 - The various pieces of the problem file define different aspects of a given overall optimization
@@ -252,15 +259,15 @@ much new insight.
 
 - As mentioned, the specification of a nonlinear least squares problem by means of a 
 model formula is translated to the computation of
-residuals and Jacobian by the nonlinear least squares methods. In the case of package **nlmrt**
-(this will become package **nlsr** shortly), the Jacobian is computed 
+residuals and Jacobian by the nonlinear least squares methods. In the case of package **nlsr**
+(of which an earlier approach was package **nlmrt**), the Jacobian is computed 
 analytically if possible, and the residual
 and Jacobian functions are explicitly created. These may or may not be equivalent computationally
 to the functions that may be present in the problem file. 
 
 Overall, the challenges are combinatoric because a very large number of cases are generated, since there will be 
 
-- *P* problem files
+- **P** problem files
  
 - potentially a formula, a residual, and a function presentation of each problem. Bounded
   problems will be separately itemized in the problem files. 
@@ -268,14 +275,15 @@ Overall, the challenges are combinatoric because a very large number of cases ar
 - multiple gradient options (at the time of writing these are analytic, forward, backward,
   central and **numDeriv** as well as a "default" approximation in some methods)
 
-- *MF* nonlinear least squares methods using a formula, MS using a residual, and MO optimization 
+- **MF** nonlinear least squares methods using a formula, **MS** using a residual, and **MO** optimization 
   methods. Some reduction in the possibilities occurs when we have bounds. 
   
-- Several cases if there are choices such as the three update formulas for optim::CG, or the
-  "plinear" and "port" options for `nls()`.
+- Potentially multiple sub-cases if there are choices within a method, such as the three update 
+  formulas for optim::CG, or the "plinear" and "port" options for `nls()`.
   
 - An unspecified number of extra cases if we set limits on the function evaluations etc., or 
-the controls such as various "convergence" tolerances.
+  the controls such as various "convergence" tolerances, Marquardt stabilization parameters and
+  adjustments, and many other choices.
 
 **Proposal**: To reduce the number of cases, it is suggested that, for any level of effort, limitations
 be put into the problem files. That is, we propose standardizing the test and consider an effort
@@ -284,13 +292,18 @@ primarily tested giving priority to
 
 - the default settings of any algorithms
 - the default choices of convergence and termination tests
-- analytic gradients if available, else the default (internal) gradient approximation, though
-it may be sensible to also test with the central finite difference approximation. The purpose
-of using a common approximation is to allow comparison of methods, rather than methods
+- analytic gradients if available, else the default (internal) gradient approximation.
+
+This last choice may be open to discussion. The (internal) gradient approximations used by
+different methods are not necessarily equivalent, so it may be sensible to test with a 
+reasonable but "standard" approximation such as the central finite difference approximation. 
+The purpose of using a common approximation is to allow comparison of methods, rather than methods
 coloured by a choice of gradient approximation. The central difference approximation 
 choice is a modest compromise between the simple forward approximation and the expensive but
 more accurate **numDeriv** approximation. Note that the complex step derivative (@Martins2003) would
-be a choice if it is known to be applicable. 
+be a choice if it is known to be applicable. While the computations of the complex step derivative
+are relatively simple, determination that the underlying function is **analytic** is more difficult,
+and many functions are not.
   
 ## Reporting experience running problems
 

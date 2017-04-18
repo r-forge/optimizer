@@ -1,6 +1,5 @@
 \name{runoptprob}
 \alias{runoptprob}
-\alias{NISTO::runoptprob}
 \title{General optimization test runner}
 \concept{minimization}
 \concept{maximization}

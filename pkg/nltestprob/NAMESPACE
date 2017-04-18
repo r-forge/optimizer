@@ -1,7 +1,7 @@
 importFrom("utils", "data")
 importFrom("stats", "nls")
-importFrom("optimrx", "optimr")
-importFrom("nlmrt", "nlxb")
+importFrom("optimr", "optimr")
+importFrom("nlsr", "nlxb")
 
 export(
   runoptprob

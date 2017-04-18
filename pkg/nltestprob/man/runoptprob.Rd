@@ -9,7 +9,7 @@
   optimization or nonlinear least squares methods. 
 }
 \usage{
-runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, 
+runoptprob(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, 
                  istart="1", runopts=list(), control=list(), ...) 
 }
 \arguments{

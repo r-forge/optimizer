@@ -94,7 +94,7 @@ cat("trace =",trace,"\n")
     if (trace > 1) cat("Gradient projection = ",gprj,"\n")
     st <- control$defstep
     xnew <- xb + st*d # new point
-    if ((control$offset+xnew) == (control$offset+xb)) {
+    if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 92 # no progress
         if (trace > 0) cat("No progress before linesearch!\n")
     }
@@ -102,7 +102,7 @@ cat("trace =",trace,"\n")
     nf <- nf + 1
     if (trace > 1) cat("f(xnew)=",fval,"\n")
     while ((fval > fbest + control$acctol*st*gprj) 
-           && ((control$offset+xnew) != (control$offset+xb))) { # continue until satisfied
+           && (all((control$offset+xnew) != (control$offset+xb)))) { # continue until satisfied
         st <- st * control$stepdec
         if (trace > 1) cat("Stepsize now =",st,"\n")
         xnew <- xb + st*d # new point
@@ -110,7 +110,7 @@ cat("trace =",trace,"\n")
         nf <- nf + 1
         if (trace > 1) cat("* f(xnew)=",fval,"\n")
     }
-    if ((control$offset+xnew) == (control$offset+xb)) {
+    if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 93 # no progress in linesearch
         if (trace > 0) cat("No progress IN linesearch!\n")
         break

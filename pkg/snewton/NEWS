@@ -1,14 +1,12 @@
 Changes in snewton
 
 TODOS
-  o "none" linesearch applies NO test
-  o put "halt" test into routines
-  o counters for fn, gr, hess, and iterations properly done
+  o can we add bounds and masks easily to Newton?
   o add convcode (align names with optimr)
-  o see if optimize can be replaced with R function that allows 
-  capture of intermediate calculations
-  o implement Brent and Nash in R for line search (or simply pracma::fminbnd)
-
+  
+2017-04-20
+  o unconstrained method is working. Several tests, but Hobbs
+    gives a problem from 1, 1, 1
 
 2017-04-10
   o Initial setup of project with trial codes. No manuals

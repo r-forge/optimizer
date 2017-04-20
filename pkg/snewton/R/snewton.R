@@ -28,7 +28,8 @@ ctrldefault <- list(
   stepmin = 0,
   offset = 100.0,
   defstep=1,
-  bigval = .Machine$double.xmax*0.01
+  bigval = .Machine$double.xmax*0.01,
+  watch = FALSE
 )  
 
 ncontrol <- names(control)
@@ -118,7 +119,7 @@ cat("trace =",trace,"\n")
     if (trace > 1) cat("end major loop\n")  
     xb <- xnew
     fbest <- fval
-    tmp <- readline("end iteration")   
+    if (control$watch) { tmp <- readline("end iteration") }
   } # end repeat
   out<-NULL
   out$par<-xb

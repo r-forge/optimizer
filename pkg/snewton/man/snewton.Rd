@@ -28,15 +28,18 @@ the R function solve() and uses the optimize() function as a line search.
 \details{
   Functions \code{fn} must return a numeric value. \code{gr} must return a vector.
   \code{hess} must return a matrix. 
-   The \code{control} argument is a list.
+   The \code{control} argument is a list. See the code for \code{snewton.R} for completeness.
+   Some of the values that may be important for users are:
    \describe{
+   \item{trace}{Set 0 (default) for no output, > 0 for diagnostic output
+      (larger values imply more output).}
+   \item{watch}{Set TRUE if the routine is to stop for user input (e.g., Enter)
+       after each iteration. Default is FALSE.}
    \item{maxit}{A limit on the number of iterations (default 500 + 2*n where n is
       the number of parameters). This is the maximum number of gradient evaluations 
       allowed.}
    \item{maxfevals}{A limit on the number of function evaluations allowed 
      (default 3000 + 10*n).}
-   \item{trace}{Set 0 (default) for no output, > 0 for diagnostic output
-      (larger values imply more output).}
    \item{eps}{ a tolerance used for judging small gradient norm (default = 1e-07).
    	a gradient norm smaller than (1 + abs(fmin))*eps*eps is considered small 
    	enough that a local optimum has been found, where fmin is the current 

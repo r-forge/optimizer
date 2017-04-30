@@ -60,7 +60,7 @@ lnsrch <- lsnone # default to unit step
 if (ws$lsmeth == "lsback") {lnsrch <- lsback}
 else {stop("Undefined lsmeth = ",lsmeth)}
 
-lnsrch <- pracma::fminbnd
+lnsrch <- pracma:fminbnd
 print(lnsrch)
 tmp <- readline("done")
 
@@ -92,7 +92,7 @@ if (ws$lsmeth == "default") {
     #  lout<-optimize(flsch,interval=c(ws$stepmin, ws$stepmax),
     #                  lower=ws$stepmin, upper=ws$stepmax,...)
     # note fmin rather than objective in return  
-    lout<-pracma::fminbnd(flsch,ws$stepmin, ws$stepmax, ...)
+    lout<-pracma:fminbnd(flsch,ws$stepmin, ws$stepmax, ...)
     cat("lnsrch lout:")
     print(lout)
     rlout <- lout$xmin

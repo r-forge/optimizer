@@ -13,7 +13,7 @@ lsback<-function(fn, fbest, xc, d, grv, ws, ...) {
     fval <- fn(xnew, ...)
     ws$nf <- ws$nf + 1
     if (ws$trace > 1) cat("Step = ",st," fval = ",fval,"\n")
-    if (fval <= fbest + ws$acctol*st*gproj) break
+    if (fval <= fbest + ws$acctol*st*gproj) break # Armijo condition
     st <- ws$stepdec*st # new step
   }
   rlout <- st

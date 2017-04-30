@@ -1,5 +1,5 @@
-\name{gradmin}
-\alias{gradmin}
+\name{gradminu}
+\alias{gradminu}
 \encoding{UTF-8}
 \title{Safeguarded Newton method for function minimization using R functions.}
 \description{This version of the safeguarded Newton solves the equations with

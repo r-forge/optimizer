@@ -24,7 +24,7 @@ print(control)
 npar <- length(x0)
 
 # set up workspace
-ws <- list(
+ctrl <- list(
   lsmeth = "default",
   solver = "default",
   trace = 0,
@@ -51,18 +51,22 @@ ws <- list(
 )  
 
 ncontrol <- names(control)
-nws <- names(ws)
+nctrl <- names(ctrl)
 for (onename in ncontrol) {
-  if (onename %in% nws) {
-    ws[onename]<-control[onename]
+  if (onename %in% nctrl) {
+    ctrl[onename]<-control[onename]
   }
 }
 
-cat("ws$trace=",ws$trace,"\n")
+ws <- list2env(ctrl) # Workspace
+if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) { 
+        lnsrch <- lsback
+} else if ((ws$lsmeth == "none") || (ws$lsmeth == "lsnone")) {
+        lnsrch <- lsnone
+} else if (ws$lsmeth == "lsbrent") {
+        lnsrch <- lsbrent        
+} else stop("undefined lsmeth")
 
-#cat("Workspace ws:")
-#print(ws)
-lnsrch <- lsback
 ## lnsrch <- lsnone # default to unit step
 ## if (ws$lsmeth == "lsback") {lnsrch <- lsback}
 ## else {stop("Undefined lsmeth = ",ws$lsmeth)}

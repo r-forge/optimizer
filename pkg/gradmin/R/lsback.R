@@ -4,7 +4,7 @@ lsback<-function(fn, fbest, xc, d, grv, ws, ...) {
   gproj <- as.numeric(crossprod(grv, xc) )
   repeat {
     xnew <- xc + st*d # new point
-    if ((ws$offset+xnew) == (ws$offset+xc)) { # no better parameters
+    if (all((ws$offset+xnew) == (ws$offset+xc))) { # no better parameters
       st <- 0
       rlout <- st
       attr(rlout,"Fval")<-fbest # Assume we pass this in

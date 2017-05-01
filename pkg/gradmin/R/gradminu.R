@@ -18,9 +18,10 @@ gradminu<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 # Need a way to pass any object defined at this level into routines called
 # But not necessarily to define them WITHIN this routine
   
+cat("control:")
+print(control)
   
 npar <- length(x0)
-nf <- ng <- nh <- niter <- 0 # counters
 
 # set up workspace
 ws <- list(
@@ -42,71 +43,79 @@ ws <- list(
   fmult = -0.25,
   offset = 100.0,
   defstep=1,
-  bigval = .Machine$double.xmax*0.01
+  bigval = .Machine$double.xmax*0.01,
+  nf = 0,
+  ng = 0,
+  nh = 0,
+  niter = 0
 )  
 
 ncontrol <- names(control)
 nws <- names(ws)
 for (onename in ncontrol) {
-  if (! (onename %in% nws)) {
+  if (onename %in% nws) {
     ws[onename]<-control[onename]
   }
 }
 
-cat("Workspace ws:")
-print(ws)
+cat("ws$trace=",ws$trace,"\n")
 
-lnsrch <- lsnone # default to unit step
-if (ws$lsmeth == "lsback") {lnsrch <- lsback}
-else {stop("Undefined lsmeth = ",lsmeth)}
+#cat("Workspace ws:")
+#print(ws)
+lnsrch <- lsback
+## lnsrch <- lsnone # default to unit step
+## if (ws$lsmeth == "lsback") {lnsrch <- lsback}
+## else {stop("Undefined lsmeth = ",ws$lsmeth)}
 
-lnsrch <- pracma:fminbnd
-print(lnsrch)
-tmp <- readline("done")
+## lnsrch <- pracma:fminbnd
+## print(lnsrch)
+## tmp <- readline("done")
 
-if (ws$lsmeth == "default") {
-   st <- lsback(fn, fbest, xc, d, grv, ...)
-} else if (ws$lsmeth == "backtrack") {
-} else if (ws$lsmeth == "none") { 
-   lnsrch <- function(fn, fbest, xc, d, grv, ...) {
-      rlout <- 1 # Does nothing! 
-      attr(rlout, "Fval") <- fbest
-      rlout
-   }
-}
+## if (ws$lsmeth == "default") {
+##   st <- lsback(fn, fbest, xc, d, grv, ...)
+   ## } else if (ws$lsmeth == "backtrack") {
+   ## } else if (ws$lsmeth == "none") { 
+   ##    lnsrch <- function(fn, fbest, xc, d, grv, ...) {
+   ##       rlout <- 1 # Does nothing! 
+   ##       attr(rlout, "Fval") <- fbest
+   ##       rlout
+   ## }
+   ## }
   lambda<-ws$lamstart ## ?? do better
   niter <- 1
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
-  nf <- nf + 1
+  ws$nf <- ws$nf + 1
+  cat("ws$nf now ",ws$nf,"\n")
   newH <- TRUE
 #  while (niter < ws$maxit) { # main loop
   repeat {
     if (newH) {
         if (ws$trace > 0) {cat("Iteration ",niter,":")}
         grd<-gr(xb,...)
-        ng <- ng + 1
+        ws$ng <- ws$ng + 1
         H<-hess(xb,...)
-        nh <- nh + 1
+        ws$nh <- ws$nh + 1
     }
     cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
-    if (niter > ws$maxit) {
+    if (niter >= ws$maxit) {
         if (ws$trace > 0) cat("Too many (",niter," iterations\n")
         halt <- TRUE
         convcode <- 1
         break
     }
-    cat("tt nf=",nf,"\n")
-    if (nf > ws$maxfevals){
-    if (ws$trace > 0) cat("Too many (",nf," function evaluations\n")
-        halt <- TRUE
-        convcode <- 91 # ?? value
-        break
+    cat(" ws$nf=",ws$nf,"  ws$maxfevals=",ws$maxfevals,"\n")
+    if (ws$nf >= ws$maxfevals) {
+      cat("Stopping\n")
+      if (ws$trace > 0) cat("Too many ",ws$nf," function evaluations\n")
+      halt <- TRUE
+      convcode <- 91 # ?? value
+      break
     }
-    #    if (ng > ws$maxgevals){} # not implemented
-    #    if (nh > ws$maxhevals){} # not implemented
+    #    if (ws$ng > ws$maxgevals){} # not implemented
+    #    if (ws$nh > ws$maxhevals){} # not implemented
     gmax <- max(abs(grd))
     if (gmax <= ws$epstol) {
       if (ws$trace > 0) cat("Small gradient norm",gmax,"\n")
@@ -131,12 +140,12 @@ if (ws$lsmeth == "default") {
     cat("Gradient projection = ",gprj)
     tmp <- readline("   continue?")
     ## Do line search
-    gvl<-lnsrch(fn,fbest, xb, stp, grv=NULL, ...)
+    gvl<-lnsrch(fn,fbest, xb, stp, grv=grd, ws, ...)
 # lnsrch<-function(fn, fbest, xc,d,grv, ...)
     print(str(gvl))
     fval <- attr(gvl,"Fval")
-    nf <- nf + attr(gvl, "fcount")
-    if (ws$trace > 0) {cat(" step =", gvl,"  fval=",fval ," nf=",nf,"\n")}
+    cat("after lnsrch ws$nf now ",ws$nf,"\n")
+    if (ws$trace > 0) {cat(" step =", gvl,"  fval=",fval ," ws$nf=",ws$nf,"\n")}
     xn<-xb+gvl*stp
     if (niter >= ws$maxit) {
       print("NewtonR: Failed to converge!")

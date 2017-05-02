@@ -90,7 +90,9 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
   ws$nf <- ws$nf + 1
-  cat("ws$nf now ",ws$nf,"\n")
+  if (ws$trace > 0) cat("Initial Fval =",fbest,"\n")
+  f0 <- fbest # for scaling
+#  cat("ws$nf now ",ws$nf,"\n")
   newH <- TRUE
 #  while (niter < ws$maxit) { # main loop
   repeat {
@@ -121,7 +123,7 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
     #    if (ws$ng > ws$maxgevals){} # not implemented
     #    if (ws$nh > ws$maxhevals){} # not implemented
     gmax <- max(abs(grd))
-    if (gmax <= ws$epstol) {
+    if (gmax <= ws$epstol*f0) {
       if (ws$trace > 0) cat("Small gradient norm",gmax,"\n")
       halt <- TRUE
       convcode <- 0 # OK
@@ -145,6 +147,10 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
     tmp <- readline("   continue?")
     ## Do line search
     gvl<-lnsrch(fn,fbest, xb, stp, grv=grd, ws, ...)
+    if (attr(gvl, "FAIL")) {
+        if (ws$trace > 0) cat("Line search fails\n")
+        break
+    }
 # lnsrch<-function(fn, fbest, xc,d,grv, ...)
     print(str(gvl))
     fval <- attr(gvl,"Fval")

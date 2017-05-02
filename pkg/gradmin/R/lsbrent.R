@@ -1,4 +1,4 @@
-lnbrent<-function(fn, fbest, xc, d, grv, ...) { # Line search using internal optimize()
+lnbrent<-function(fn, fbest, xc, d, grv, ws, ...) { # Line search using internal optimize()
   cat("fn:\n")
   print(fn)
   ## Uses Brent's method to find the best stepsize in interval

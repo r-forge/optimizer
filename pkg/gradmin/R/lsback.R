@@ -8,6 +8,7 @@ lsback<-function(fn, fbest, xc, d, grv, ws, ...) {
       st <- 0
       rlout <- st
       attr(rlout,"Fval")<-fbest # Assume we pass this in
+      attr(rlout,"FAIL")<- TRUE
       return(rlout)
     }
     fval <- fn(xnew, ...)
@@ -18,5 +19,6 @@ lsback<-function(fn, fbest, xc, d, grv, ws, ...) {
   }
   rlout <- st
   attr(rlout, "Fval")<- fval
+  attr(rlout,"FAIL")<- FALSE
   rlout
 } # end backtrack line search

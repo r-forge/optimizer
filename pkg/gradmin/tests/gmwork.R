@@ -56,5 +56,7 @@ wood.h <- function(x){
   return(H)
 }
 #################################################
-wdefault <- gradmin(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
+x0w <- c(-3, -1, -3, -1)
+wdefault <- gradminu(x0w, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=TRUE))
 print(wdefault)
+

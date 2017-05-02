@@ -4,16 +4,18 @@ author: "John C. Nash"
 date: '2017-04-10'
 output: pdf_document
 vignette: >
-  %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{Rvmmin15}
   %\usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::knitr}
 ---
 
 # Gradient function minimization algorithms
 
-There is a huge number of methods for function minimization based on the use of gradients of 
+There is a huge number of methods for function minimization based on the 
+use of gradients of 
 the function to be minimized. This vignette presents **gradmin**, an **R** function that 
-allows many, possibly most, such algorithms to be tried. 
+allows many, possibly most, such algorithms to be tried, at least those that are not of
+the **reverse communication** type. ??ref
 
 Function minimization is the problem of finding the set of parameters $x_*$ for which there
 is no lower value of the function $f(x_*)$. Note that we can **maximize** the function by
@@ -27,7 +29,7 @@ We will begin with **gradminu** for unconstrained minimization, that is, with no
 However, we will eventually wish to add various constraints on the parameters $x$, in particular,
 bounds or box constraints,
 
- $  l_i <= x_i <= u_i $  where $i$ is an index over all the parameters.
+$$  l_i <= x_i <= u_i $$  where $i$ is an index over all the parameters.
  
  It is also useful to consider **masks**, or fixed paramters. That is, we may wish to fix the
  value of some of the parameters and only minimize the function over the rest. This can be 
@@ -52,7 +54,7 @@ may critically affect the performance of a minimization method.
 
 Minimization methods generally have the following structure:
 
-  - a setup phase, in which the function and possibly the gradient
+  - a **setup** phase, in which the function and possibly the gradient
   and hessian are provided, along with a set of controls that particularize
   the minimization method;
   
@@ -65,11 +67,18 @@ There follows an iteration of the following three components:
   add a multiple called the **steplength** to the current parameter vector to 
   generate new trial points at which we hope to find lower function values;
   
-  - the **line search**, which chooses a particular step length according to
-  some rule. 
+  - the **line search**, which chooses a particular step length along the
+  search direction according to some rule. Generally the step length must
+  be positive, and many methods test or rely on the assumption of the 
+  search direction being "downhill".
   
-Finally, we may have a report phase. In this we may test as well as report 
-results. 
+Finally, we may have a **report** phase. In this we may **test** as well as report 
+results, for example, by computing the eigenvalues of the (possibly approximate)
+Hessian. In the context of the **gradmin** and most of my own packages, reporting
+is considered external to the minimization and our "report" is generally limited
+to returning the proposed best parameters and the function value at those 
+parameters and possibly the gradient evaluated there, along with some counts
+of the number of functions, gradients and hessians computed.
 
 ## Termination tests
 
@@ -89,7 +98,7 @@ Generating a search direction is the stage of a method that is generally used
 to categorize it. Let us call the search direction $t$. Then a so-called
 Newton method will generate $t$ as the solution of 
 
-$  H(x) * t = - g(x) $
+$$  H(x) * t = - g(x) $$
 
 A quasi-Newton or variable metric method -- and I ask to be excused for failing
 here to provide differentiating details -- uses some rule to compute an initial
@@ -100,7 +109,7 @@ that "approximation" is a very loose concept in this context.
 
 A very simple search generation is given by the **steepest descent** direction, namely,
 
-$ t = - g(x) $
+$$ t = - g(x) $$
 
 Despite the name, this is not generally a good method, as it tends to do poorly in 
 practice, with successive search directions being too similar. **Conjugate gradient**
@@ -115,7 +124,7 @@ While it is perfectly possible to use a unit step along the search direction, we
 want to try to reduce the function value by searching along $t$, and try to find a good
 set of new parameters
 
-$ x_{new} = x + step * t $
+$$ x_{new} = x + step * t $$
 
 Thus we can had a "naive" method where we set $step = 1$, the choice of the 
 traditional Newton method, but in practice,
@@ -135,7 +144,7 @@ is "suitable".
 
 Suitablity is generally decided using the "sufficient decrease" condition, 
 
-$f(x_t + step*s) < f(x_t) + c * step * g(x_t)^T*s$
+$$f(x_t + step*s) < f(x_t) + c * step * g(x_t)^T*s$$
 
 where c is some number less than 1. Typically $ c = 1e-4 = 0.0001 $. We refer to this
 as the Armijo condition. Note that the product
@@ -174,7 +183,7 @@ $g(x) = 0$
 
 To ensure a minimum, we want 
 
-$ H(x) > 0 $
+$H(x) > 0 $
 
 The first order condition leads to a root-finding problem.
 
@@ -185,7 +194,7 @@ The conditions of optimality then require a zero gradient and positive-definite 
 The Newton approach to such 
 equations is to provide a guess to the root $x_try$ and to then solve the equation
 
-$ H(x_t) * s = - g(x_t)$
+$H(x_t) * s = - g(x_t)$
 
 for the search vector $s$. We update $x_t$ to $x_t + s$ and repeat until we have 
 a very small gradient $g(x_t)$. If $H(x)$ is positive definite, we have a reasonable
@@ -218,7 +227,7 @@ The primary concern in solving for $s$ is that the Hessian may not be positive d
 This means that we cannot apply fast and stable methods like the Cholesky decomposition
 to the matrix. At the time of writing, we consider the following approaches:
 
-  - Attempt to solve $ H(x_t) * s = - g(x_t)$ with **R** directly, and rely on internal
+  - Attempt to solve $H(x_t) * s = - g(x_t)$ with **R** directly, and rely on internal
   checks to catch any cases where the solution fails. We can use `try()` to stop the
   program in this case.
   

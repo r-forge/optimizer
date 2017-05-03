@@ -26,9 +26,10 @@ fgh <- function(x){ #function and gradient
 
 x0 <- c(-1.2, 1)
 
-sdefault <- gradminu(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
+sdefault <- gradminu(x0, fn=f, gr=gr, hess=h, control=list(trace=2))
 print(sdefault)
 
+tmp <- readline("Now for the Wood problem")
 
 #Example 2: Wood function
 #
@@ -57,6 +58,6 @@ wood.h <- function(x){
 }
 #################################################
 x0w <- c(-3, -1, -3, -1)
-wdefault <- gradminu(x0w, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=TRUE))
+wdefault <- gradminu(x0w, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2, watch=TRUE))
 print(wdefault)
 

@@ -5,6 +5,7 @@ lsback<-function(fn, fbest, xc, d, grv, w, ...) {
   repeat {
     xnew <- xc + st*d # new point
     if (all((w$offset+xnew) == (w$offset+xc))) { # no better parameters
+      if (w$trace > 1) cat("No progress in lsback\n")
       st <- 0
       rlout <- st
       attr(rlout,"Fval")<-fbest # Assume we pass this in
@@ -14,6 +15,7 @@ lsback<-function(fn, fbest, xc, d, grv, w, ...) {
     fval <- fn(xnew, ...)
     w$nf <- w$nf + 1
     if (w$trace > 1) cat("Step = ",st," fval = ",fval,"\n")
+    if (w$watch) tmp <- readline("continue?")
     if (fval <= fbest + w$acctol*st*gproj) break # Armijo condition
     st <- w$stepdec*st # new step
   }

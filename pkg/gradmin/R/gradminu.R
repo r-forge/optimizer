@@ -17,15 +17,20 @@ gradminu<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 
 # Need a way to pass any object defined at this level into routines called
 # But not necessarily to define them WITHIN this routine
-  
-cat("control:")
-print(control)
+
+## ?? How to put in name of solver, lnsrch for display
+## ?? Need a string/list to specify method with parameters, and output with result
+    
+if (control$trace > 2) {
+    cat("control:")
+    print(control)
+}
   
 npar <- length(x0)
 
 # set up workspace
 ctrl <- list(
-  lsmeth = lsback,
+  lnsrch = lsback,
   solver = solve,
   trace = 0,
   maxit = 500,
@@ -46,7 +51,9 @@ ctrl <- list(
   nf = 0,
   ng = 0,
   nh = 0,
-  niter = 0
+  niter = 0,
+  npar = npar,
+  watch = FALSE
 )  
 
 ncontrol <- names(control)
@@ -58,13 +65,6 @@ for (onename in ncontrol) {
 }
 
 w <- list2env(ctrl) # Workspace
-## if ((w$lsmeth == "lsback") || (w$lsmeth == "default")) { 
-##         lnsrch <- lsback
-## } else if ((w$lsmeth == "none") || (w$lsmeth == "lsnone")) {
-##         lnsrch <- lsnone
-## } else if (w$lsmeth == "lsbrent") {
-##         lnsrch <- lsbrent        
-## } else stop("undefined lsmeth")
 
   lambda<-w$lamstart ## ?? do better
   niter <- 1
@@ -74,16 +74,16 @@ w <- list2env(ctrl) # Workspace
   if (w$trace > 0) cat("Initial Fval =",fbest,"\n")
   f0 <- fbest # for scaling
 #  cat("w$nf now ",w$nf,"\n")
-  getH <- TRUE
+##  getH <- TRUE
   repeat {
-    if (getH) {
-        if (w$trace > 0) {cat("Iteration ",niter,":")}
+##    if (getH) {
+        if (w$trace > 0) {cat("Iteration ",niter,"  Fval=",fbest,"\n")}
         grd<-gr(xb,...)
         w$ng <- w$ng + 1
         H<-hess(xb,...)
         w$nh <- w$nh + 1
-    }
-    cat("Termination test:")    
+##    }
+##    cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
     if (niter >= w$maxit) {
@@ -109,32 +109,32 @@ w <- list2env(ctrl) # Workspace
       convcode <- 0 # OK
       break
     }
-    if (w$solver == "default") {
-      stp<-try(solve(H, -grd))
-      if (class(stp) == "class-error") {
+    stp<-try(w$solver(H, -grd))
+    if (class(stp) == "class-error") {
           stop("Failure of default solve of Newton equations")
-      }
+    }
 ##    } else if (w$solver == "marquardt") {
 ##       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
 ##       stp <- solve(Haug, -grd)
-    }
+    
     if (w$trace > 0) {
          cat("Search vector:")
          print(stp)
     }
+
     gprj <- as.numeric(crossprod(stp, grd))
-    cat("Gradient projection = ",gprj)
-    tmp <- readline("   continue?")
+    if (w$trace > 1) cat("Gradient projection = ",gprj)
+##    tmp <- readline("   continue?")
     ## Do line search
-    gvl<-lnsrch(fn,fbest, xb, stp, grv=grd, w, ...)
+    gvl<-w$lnsrch(fn,fbest, xb, stp, grv=grd, w, ...)
+    print(str(gvl))
     if (attr(gvl, "FAIL")) {
         if (w$trace > 0) cat("Line search fails\n")
         break
     }
-    print(str(gvl))
     fval <- attr(gvl,"Fval")
-    cat("after lnsrch w$nf now ",w$nf,"\n")
-    if (w$trace > 0) {cat(" step =", gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
+##    cat("after lnsrch w$nf now ",w$nf,"\n")
+    if (w$trace > 1) {cat(" step =", gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
     xn<-xb+gvl*stp
     if (niter >= w$maxit) {
       print("NewtonR: Failed to converge!")

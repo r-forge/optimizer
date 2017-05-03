@@ -110,15 +110,15 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
       convcode <- 0 # OK
       break
     }
-##    if (ws$solver == "default") {
-##      stp<-try(solve(H, -grd))
-##      if (class(stp) == "class-error") {
-##          stop("Failure of default solve of Newton equations")
-##      }
+    if (ws$solver == "default") {
+      stp<-try(solve(H, -grd))
+      if (class(stp) == "class-error") {
+          stop("Failure of default solve of Newton equations")
+      }
 ##    } else if (ws$solver == "marquardt") {
 ##       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
 ##       stp <- solve(Haug, -grd)
-##    }
+    }
     if (ws$trace > 0) {
          cat("Search vector:")
          print(stp)

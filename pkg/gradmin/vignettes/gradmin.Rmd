@@ -233,9 +233,8 @@ method we solve the main equation $H(x_t) * s = - g(x_t)$. If $H(x_t)$ is not po
 definite, or if it is singular, we still need to generate a "reasonable" search 
 vector $s$.
    
-
-
-The primary concern in solving for $s$ is that the Hessian may not be positive definite. 
+As indicated, the primary concern in solving for $s$ is that the 
+Hessian may not be positive definite. 
 This means that we cannot apply fast and stable methods like the Cholesky decomposition
 to the matrix. At the time of writing, we consider the following approaches:
 
@@ -252,21 +251,17 @@ to the matrix. At the time of writing, we consider the following approaches:
   values fall below some threshhold. Note that deciding the threshhold is possibly a
   non-trivial matter.
   
-Note that within the above general choices for solution, we could try to specify how
+Note that even within these choices for solution, there are further details in how
 the solution is obtained, since there are various ways to solve linear equations and
 to find the singular value decomposition. (??refs, discussion??)
 
+# Programming details for efficient implementation
 
-  
-?? nf, ng, nh etc.
+
+
+
 
 ?? Marquardt stabilization ??
-However, for the
-Marquardt approach above, it is common to use a unit step, but in the event we fail
-to reduce the function, we increase $\lambda$. This is repeated until either the
-function is reduced or the parameters are unchanged. (If $\lambda$ gets very large,
-the search vector becomes tiny, so there is no change in $x_t$.) Otherwise, it
- is usual to have some sort of line search. There are many possibilities. 
 
 However, for the
 Marquardt approach above, it is common to use a unit step, but in the event we fail
@@ -276,7 +271,8 @@ the search vector becomes tiny, so there is no change in $x_t$.) Otherwise, it
  is usual to have some sort of line search. There are many possibilities. 
 
 
-The vignette (??snewton package) discusses the development of some safeguarded variants of Newton methods for 
-function minimization in **R**. Note that there are some resources in **R** for solving 
+The vignette SNewton.pdf in the **snewton** package discusses the development of some 
+safeguarded variants of Newton methods for 
+function minimization in **R**. Note that there are other resources in **R** for solving 
 nonlinear equations by Newton-like methods in the packages **nleqslv** and **pracma**. 
 

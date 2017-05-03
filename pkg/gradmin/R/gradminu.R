@@ -25,8 +25,8 @@ npar <- length(x0)
 
 # set up workspace
 ctrl <- list(
-  lsmeth = "default",
-  solver = "default",
+  lsmeth = lsback,
+  solver = solve,
   trace = 0,
   maxit = 500,
   maxfevals = npar*500,
@@ -35,7 +35,6 @@ ctrl <- list(
   lamstart = 0.01,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
-  svmin = 0.0,
   stepdec = 0.2, 
   stepmax = 5,
   stepmin = 0,
@@ -59,13 +58,13 @@ for (onename in ncontrol) {
 }
 
 w <- list2env(ctrl) # Workspace
-if ((w$lsmeth == "lsback") || (w$lsmeth == "default")) { 
-        lnsrch <- lsback
-} else if ((w$lsmeth == "none") || (w$lsmeth == "lsnone")) {
-        lnsrch <- lsnone
-} else if (w$lsmeth == "lsbrent") {
-        lnsrch <- lsbrent        
-} else stop("undefined lsmeth")
+## if ((w$lsmeth == "lsback") || (w$lsmeth == "default")) { 
+##         lnsrch <- lsback
+## } else if ((w$lsmeth == "none") || (w$lsmeth == "lsnone")) {
+##         lnsrch <- lsnone
+## } else if (w$lsmeth == "lsbrent") {
+##         lnsrch <- lsbrent        
+## } else stop("undefined lsmeth")
 
   lambda<-w$lamstart ## ?? do better
   niter <- 1

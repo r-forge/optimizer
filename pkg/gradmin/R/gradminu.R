@@ -67,24 +67,6 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
         lnsrch <- lsbrent        
 } else stop("undefined lsmeth")
 
-## lnsrch <- lsnone # default to unit step
-## if (ws$lsmeth == "lsback") {lnsrch <- lsback}
-## else {stop("Undefined lsmeth = ",ws$lsmeth)}
-
-## lnsrch <- pracma:fminbnd
-## print(lnsrch)
-## tmp <- readline("done")
-
-## if (ws$lsmeth == "default") {
-##   st <- lsback(fn, fbest, xc, d, grv, ...)
-   ## } else if (ws$lsmeth == "backtrack") {
-   ## } else if (ws$lsmeth == "none") { 
-   ##    lnsrch <- function(fn, fbest, xc, d, grv, ...) {
-   ##       rlout <- 1 # Does nothing! 
-   ##       attr(rlout, "Fval") <- fbest
-   ##       rlout
-   ## }
-   ## }
   lambda<-ws$lamstart ## ?? do better
   niter <- 1
   xb <- x0 # best so far
@@ -93,10 +75,9 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
   if (ws$trace > 0) cat("Initial Fval =",fbest,"\n")
   f0 <- fbest # for scaling
 #  cat("ws$nf now ",ws$nf,"\n")
-  newH <- TRUE
-#  while (niter < ws$maxit) { # main loop
+  getH <- TRUE
   repeat {
-    if (newH) {
+    if (getH) {
         if (ws$trace > 0) {cat("Iteration ",niter,":")}
         grd<-gr(xb,...)
         ws$ng <- ws$ng + 1
@@ -129,15 +110,15 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
       convcode <- 0 # OK
       break
     }
-    if (ws$solver == "default") {
-      stp<-try(solve(H, -grd))
-      if (class(stp) == "class-error") {
-          stop("Failure of default solve of Newton equations")
-      }
-    } else if (ws$solver == "marquardt") {
-       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
-       stp <- solve(Haug, -grd)
-    }
+##    if (ws$solver == "default") {
+##      stp<-try(solve(H, -grd))
+##      if (class(stp) == "class-error") {
+##          stop("Failure of default solve of Newton equations")
+##      }
+##    } else if (ws$solver == "marquardt") {
+##       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
+##       stp <- solve(Haug, -grd)
+##    }
     if (ws$trace > 0) {
          cat("Search vector:")
          print(stp)
@@ -151,7 +132,6 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
         if (ws$trace > 0) cat("Line search fails\n")
         break
     }
-# lnsrch<-function(fn, fbest, xc,d,grv, ...)
     print(str(gvl))
     fval <- attr(gvl,"Fval")
     cat("after lnsrch ws$nf now ",ws$nf,"\n")
@@ -161,17 +141,17 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
       print("NewtonR: Failed to converge!")
       return(0)
     }
-    if (ws$solver == "marquardt"){
-       if (fval <= fbest) {
-          xb <- xn
-          fbest <- fval
-          lambda <- lambda * ws$lamdec
-          newH <- TRUE # ensure we start over
-       } else {
-          newH <- FALSE # don't want new H, grd
-          lambda <- lambda * ws*laminc
-       }
-    }
+##    if (ws$solver == "marquardt"){
+##       if (fval <= fbest) {
+##          xb <- xn
+##          fbest <- fval
+##          lambda <- lambda * ws$lamdec
+##          getH <- TRUE # ensure we start over
+##       } else {
+##          getH <- FALSE # don't want new H, grd
+##          lambda <- lambda * ws*laminc
+##       }
+##    }
     xb <- xn
     fbest <- fval
     niter <- niter + 1

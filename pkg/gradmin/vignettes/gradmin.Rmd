@@ -7,6 +7,7 @@ vignette: >
   %\VignetteIndexEntry{Rvmmin15}
   %\usepackage[utf8]{inputenc}
   %\VignetteEngine{knitr::knitr}
+bibliography: gradmin.bib
 ---
 
 # Gradient function minimization algorithms
@@ -257,8 +258,50 @@ to find the singular value decomposition. (??refs, discussion??)
 
 # Programming details for efficient implementation
 
+The **gradmin** package is intended to show the variety of algorithms and methods for
+function minimization using gradient ideas. Howver there is a question of how to 
+program the structure within **R** so that the writing of the code is not too awkward.
+In particular, it is useful to avoid too many arguments in the calling of functions, 
+but also to avoid too many references to a workspace. Some choices follow.
+
+## Use explicit arguments and return lists
+
+This is the "default" and safe approach. However, it result in long argument lists for
+all the functions, particularly as many functions will NOT use most of there arguments.
+As an example, `lsnone` returns only the step size of 1, though there may be some
+attributes that need to be set for compatibility with the rest of the program.
+
+## Use a separate code builder
+
+We could store the components of the code in separate files and use a simple file
+consolidation program to put these together. This approach was used successfully for
+BASIC programs in @jnmws87. It requires the resulting code to be loaded or compiled
+(in **R** via the `source()` command). This approach requires some discipline and 
+up-front work, but is flexible and reliable. Note that we do NOT call sub-functions
+in this approach, but work in a single object level.
+
+## Use a workspace environment
+
+The test program `inst/devfiles/tryws.R` shows how a list can be converted to an environment
+within our main function minimization function. This workspace, given as an argument to called
+functions, is modified within those functions. Therefore we can use that work environment
+to store common information, such as counters, working data, historical gradients or function
+values, etc. A disadvantage is that we need to specify these objects. That is, the counter
+`nf` is referred to as `ws$nf` where `ws` is our work environment.
+
+## Attempt to use **R** scoping rules
+
+If our SRCHDIRN and GETSTEP functions are specified WITHIN the main **gradmin** function, 
+the objects created in the main routine should be available within those sub-fuctions. However,
+modification to the objects made in the sub-function may not be returned. See `inst/devfiles/tryscope.R`. I find that it is too easy to make errors of NOT transferring 
+back any changes to objects, so this is not an approach I will generally use.
 
 
+# ?? extra ??
+
+NOTE 2 jn: Could consider the structure to create a sort of method using Simplex.
+  -- get search direction from highest to extension point, then run line search
+  -- not quite using fbest, so minor adjustment
 
 
 ?? Marquardt stabilization ??
@@ -275,4 +318,8 @@ The vignette SNewton.pdf in the **snewton** package discusses the development of
 safeguarded variants of Newton methods for 
 function minimization in **R**. Note that there are other resources in **R** for solving 
 nonlinear equations by Newton-like methods in the packages **nleqslv** and **pracma**. 
+
+
+# References
+
 

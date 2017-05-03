@@ -58,68 +58,68 @@ for (onename in ncontrol) {
   }
 }
 
-ws <- list2env(ctrl) # Workspace
-if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) { 
+w <- list2env(ctrl) # Workspace
+if ((w$lsmeth == "lsback") || (w$lsmeth == "default")) { 
         lnsrch <- lsback
-} else if ((ws$lsmeth == "none") || (ws$lsmeth == "lsnone")) {
+} else if ((w$lsmeth == "none") || (w$lsmeth == "lsnone")) {
         lnsrch <- lsnone
-} else if (ws$lsmeth == "lsbrent") {
+} else if (w$lsmeth == "lsbrent") {
         lnsrch <- lsbrent        
 } else stop("undefined lsmeth")
 
-  lambda<-ws$lamstart ## ?? do better
+  lambda<-w$lamstart ## ?? do better
   niter <- 1
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
-  ws$nf <- ws$nf + 1
-  if (ws$trace > 0) cat("Initial Fval =",fbest,"\n")
+  w$nf <- w$nf + 1
+  if (w$trace > 0) cat("Initial Fval =",fbest,"\n")
   f0 <- fbest # for scaling
-#  cat("ws$nf now ",ws$nf,"\n")
+#  cat("w$nf now ",w$nf,"\n")
   getH <- TRUE
   repeat {
     if (getH) {
-        if (ws$trace > 0) {cat("Iteration ",niter,":")}
+        if (w$trace > 0) {cat("Iteration ",niter,":")}
         grd<-gr(xb,...)
-        ws$ng <- ws$ng + 1
+        w$ng <- w$ng + 1
         H<-hess(xb,...)
-        ws$nh <- ws$nh + 1
+        w$nh <- w$nh + 1
     }
     cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
-    if (niter >= ws$maxit) {
-        if (ws$trace > 0) cat("Too many (",niter," iterations\n")
+    if (niter >= w$maxit) {
+        if (w$trace > 0) cat("Too many (",niter," iterations\n")
         halt <- TRUE
         convcode <- 1
         break
     }
-    cat(" ws$nf=",ws$nf,"  ws$maxfevals=",ws$maxfevals,"\n")
-    if (ws$nf >= ws$maxfevals) {
+    cat(" w$nf=",w$nf,"  w$maxfevals=",w$maxfevals,"\n")
+    if (w$nf >= w$maxfevals) {
       cat("Stopping\n")
-      if (ws$trace > 0) cat("Too many ",ws$nf," function evaluations\n")
+      if (w$trace > 0) cat("Too many ",w$nf," function evaluations\n")
       halt <- TRUE
       convcode <- 91 # ?? value
       break
     }
-    #    if (ws$ng > ws$maxgevals){} # not implemented
-    #    if (ws$nh > ws$maxhevals){} # not implemented
+    #    if (w$ng > w$maxgevals){} # not implemented
+    #    if (w$nh > w$maxhevals){} # not implemented
     gmax <- max(abs(grd))
-    if (gmax <= ws$epstol*f0) {
-      if (ws$trace > 0) cat("Small gradient norm",gmax,"\n")
+    if (gmax <= w$epstol*f0) {
+      if (w$trace > 0) cat("Small gradient norm",gmax,"\n")
       halt <- TRUE
       convcode <- 0 # OK
       break
     }
-    if (ws$solver == "default") {
+    if (w$solver == "default") {
       stp<-try(solve(H, -grd))
       if (class(stp) == "class-error") {
           stop("Failure of default solve of Newton equations")
       }
-##    } else if (ws$solver == "marquardt") {
+##    } else if (w$solver == "marquardt") {
 ##       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
 ##       stp <- solve(Haug, -grd)
     }
-    if (ws$trace > 0) {
+    if (w$trace > 0) {
          cat("Search vector:")
          print(stp)
     }
@@ -127,29 +127,29 @@ if ((ws$lsmeth == "lsback") || (ws$lsmeth == "default")) {
     cat("Gradient projection = ",gprj)
     tmp <- readline("   continue?")
     ## Do line search
-    gvl<-lnsrch(fn,fbest, xb, stp, grv=grd, ws, ...)
+    gvl<-lnsrch(fn,fbest, xb, stp, grv=grd, w, ...)
     if (attr(gvl, "FAIL")) {
-        if (ws$trace > 0) cat("Line search fails\n")
+        if (w$trace > 0) cat("Line search fails\n")
         break
     }
     print(str(gvl))
     fval <- attr(gvl,"Fval")
-    cat("after lnsrch ws$nf now ",ws$nf,"\n")
-    if (ws$trace > 0) {cat(" step =", gvl,"  fval=",fval ," ws$nf=",ws$nf,"\n")}
+    cat("after lnsrch w$nf now ",w$nf,"\n")
+    if (w$trace > 0) {cat(" step =", gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
     xn<-xb+gvl*stp
-    if (niter >= ws$maxit) {
+    if (niter >= w$maxit) {
       print("NewtonR: Failed to converge!")
       return(0)
     }
-##    if (ws$solver == "marquardt"){
+##    if (w$solver == "marquardt"){
 ##       if (fval <= fbest) {
 ##          xb <- xn
 ##          fbest <- fval
-##          lambda <- lambda * ws$lamdec
+##          lambda <- lambda * w$lamdec
 ##          getH <- TRUE # ensure we start over
 ##       } else {
 ##          getH <- FALSE # don't want new H, grd
-##          lambda <- lambda * ws*laminc
+##          lambda <- lambda * w*laminc
 ##       }
 ##    }
     xb <- xn

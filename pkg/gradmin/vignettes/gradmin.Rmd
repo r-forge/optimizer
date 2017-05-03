@@ -320,6 +320,67 @@ function minimization in **R**. Note that there are other resources in **R** for
 nonlinear equations by Newton-like methods in the packages **nleqslv** and **pracma**. 
 
 
+# Comparison of structures
+
+Newton
+
+0: Init from x0
+   x <- x0
+   f(x)
+
+Repeat {
+1: g(x), H(x)
+
+2: Terminate ?
+
+3: sd <- solve(H, -g)
+
+4: step <- lnsrch(sd, gval, f() )
+   new fbest
+}
+
+
+Variable Metric
+
+0: Init from x0
+   x <- x0
+   f(x)
+   lastg <- 1 (forces reset of B)
+
+Repeat {
+1:  g(x)
+1a: Update B, to I if ng == lastg
+    else using BFGS formula
+
+2: Terminate ?
+
+3: sd <- - B * g
+
+3: step <- lnsrch(sd, gval, f() )
+}
+
+Conjugate gradient
+
+0: Init from x0
+   x <- x0
+   f(x)
+   cycle <- 1 (forces reset of B)
+
+Repeat {
+1:  g(x)
+
+2: Terminate ?
+
+3: compute sd by YD method
+
+3: step <- lnsrch(sd, gval, f() )
+}
+
+
+
+
+
+
 # References
 
 

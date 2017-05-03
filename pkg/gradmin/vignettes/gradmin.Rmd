@@ -376,6 +376,11 @@ Repeat {
 3: step <- lnsrch(sd, gval, f() )
 }
 
+# Programming notes
+
+1. We will pass fn(), gr() and hess() explicitly. But computed quantities resulting
+from these functions will be stored in workspace "w".
+
 
 
 

@@ -71,7 +71,7 @@ w <- list2env(ctrl) # Workspace
   xb <- x0 # best so far
   fbest <- fn(xb, ...)
   w$nf <- w$nf + 1
-  if (w$trace > 0) cat("Initial Fval =",fbest,"\n")
+  if (w$trace > 1) cat("Initial Fval =",fbest,"\n")
   f0 <- fbest # for scaling
 #  cat("w$nf now ",w$nf,"\n")
 ##  getH <- TRUE
@@ -92,7 +92,7 @@ w <- list2env(ctrl) # Workspace
         convcode <- 1
         break
     }
-    cat(" w$nf=",w$nf,"  w$maxfevals=",w$maxfevals,"\n")
+
     if (w$nf >= w$maxfevals) {
       cat("Stopping\n")
       if (w$trace > 0) cat("Too many ",w$nf," function evaluations\n")
@@ -117,7 +117,7 @@ w <- list2env(ctrl) # Workspace
 ##       Haug<-H + (diag(H)+1.0)*lambda # To avoid singularity
 ##       stp <- solve(Haug, -grd)
     
-    if (w$trace > 0) {
+    if (w$trace > 1) {
          cat("Search vector:")
          print(stp)
     }
@@ -127,14 +127,13 @@ w <- list2env(ctrl) # Workspace
 ##    tmp <- readline("   continue?")
     ## Do line search
     gvl<-w$lnsrch(fn,fbest, xb, stp, grv=grd, w, ...)
-    print(str(gvl))
     if (attr(gvl, "FAIL")) {
-        if (w$trace > 0) cat("Line search fails\n")
+        if ((w$trace > 0) && (w$trace > 0)) cat("Line search fails\n")
         break
     }
     fval <- attr(gvl,"Fval")
 ##    cat("after lnsrch w$nf now ",w$nf,"\n")
-    if (w$trace > 1) {cat(" step =", gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
+    if (w$trace > 2) {cat(" step =", gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
     xn<-xb+gvl*stp
     if (niter >= w$maxit) {
       print("NewtonR: Failed to converge!")
@@ -154,7 +153,7 @@ w <- list2env(ctrl) # Workspace
     xb <- xn
     fbest <- fval
     niter <- niter + 1
-    tmp <- readline("end iteration")   
+    if (w$watch) tmp <- readline("end iteration")   
   } # end repeat
   out<-NULL
   out$xs<-xn

@@ -14,8 +14,8 @@ lsback<-function(fn, fbest, xc, d, grv, w, ...) {
     }
     fval <- fn(xnew, ...)
     w$nf <- w$nf + 1
-    if (w$trace > 1) cat("Step = ",st," fval = ",fval,"\n")
-    if (w$watch) tmp <- readline("continue?")
+    if (w$trace > 2) cat("Step = ",st," fval = ",fval,"\n")
+    if ((w$trace > 1) && (w$watch)) tmp <- readline("lnsrch continue?")
     if (fval <= fbest + w$acctol*st*gproj) break # Armijo condition
     st <- w$stepdec*st # new step
   }

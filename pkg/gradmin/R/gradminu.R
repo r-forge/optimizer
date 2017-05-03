@@ -20,7 +20,39 @@ gradminu<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 
 ## ?? How to put in name of solver, lnsrch for display
 ## ?? Need a string/list to specify method with parameters, and output with result
+
+terminate <- function(w, ...){
+  if (w$trace > 2) cat("Termination test:")    
+  halt <- FALSE # default is keep going
+  # tests on too many counts??
+  if (niter >= w$maxit) {
+    if (w$trace > 0) cat("Too many (",niter," iterations\n")
+    halt <- TRUE
+    w$convcode <- 1
     
+  }
+  if (w$nf >= w$maxfevals) {
+    cat("Stopping\n")
+    if (w$trace > 0) cat("Too many ",w$nf," function evaluations\n")
+    halt <- TRUE
+    convcode <- 91 # ?? value
+    break
+  }
+  #    if (w$ng > w$maxgevals){} # not implemented
+  #    if (w$nh > w$maxhevals){} # not implemented
+  gmax <- max(abs(grd))
+  if (gmax <= w$epstol*f0) {
+    if (w$trace > 0) cat("Small gradient norm",gmax,"\n")
+    halt <- TRUE
+    w$convcode <- 0 # OK
+  }
+  
+  
+  
+}  
+  
+  
+      
 if (control$trace > 2) {
     cat("control:")
     print(control)
@@ -30,6 +62,7 @@ npar <- length(x0)
 
 # set up workspace
 ctrl <- list(
+  minmeth = snewt,
   lnsrch = lsback,
   solver = solve,
   trace = 0,
@@ -53,7 +86,11 @@ ctrl <- list(
   nh = 0,
   niter = 0,
   npar = npar,
-  watch = FALSE
+  watch = FALSE,
+  f0 = NA,
+  stopiter = FALSE,
+  convcode = NA,
+  lastng = 0
 )  
 
 ncontrol <- names(control)
@@ -66,49 +103,32 @@ for (onename in ncontrol) {
 
 w <- list2env(ctrl) # Workspace
 
-  lambda<-w$lamstart ## ?? do better
-  niter <- 1
-  xb <- x0 # best so far
-  fbest <- fn(xb, ...)
+#  w$lambda<-w$lamstart ## ?? do better
+  w$niter <- 1
+  w$xb <- x0 # best so far
+  w$fbest <- fn(w$xb, ...)
   w$nf <- w$nf + 1
+  if ((class(w$fbest) == "try-error") | is.na(w$fbest) | 
+                 is.null(w$fbest) | is.infinite(w$fbest)) {
+    msg <- "Initial point gives inadmissible function value"
+    conv <- 20 # ?? choice of settings
+    if (trace > 0)  cat(msg, "\n") 
+    out <- list(xb, w$bigval, c(w$nf, 0), conv, msg)  #
+    names(out) <- c("par", "value", "counts", "convergence", 
+                    "message")
+# ?? add Hess etc??
+    return(out)
+  }
+  
   if (w$trace > 1) cat("Initial Fval =",fbest,"\n")
-  f0 <- fbest # for scaling
+  w$f0 <- fbest # for scaling
 #  cat("w$nf now ",w$nf,"\n")
-##  getH <- TRUE
+  # Initialize
+  start <- w$minmeth(w, msetup=TRUE)
+  if (! start) stop(paste("Could not commence method ","name of minmeth","\n"))
   repeat {
-##    if (getH) {
         if (w$trace > 0) {cat("Iteration ",niter,"  Fval=",fbest,"\n")}
-        grd<-gr(xb,...)
-        w$ng <- w$ng + 1
-        H<-hess(xb,...)
-        w$nh <- w$nh + 1
 ##    }
-##    cat("Termination test:")    
-    halt <- FALSE # default is keep going
-    # tests on too many counts??
-    if (niter >= w$maxit) {
-        if (w$trace > 0) cat("Too many (",niter," iterations\n")
-        halt <- TRUE
-        convcode <- 1
-        break
-    }
-
-    if (w$nf >= w$maxfevals) {
-      cat("Stopping\n")
-      if (w$trace > 0) cat("Too many ",w$nf," function evaluations\n")
-      halt <- TRUE
-      convcode <- 91 # ?? value
-      break
-    }
-    #    if (w$ng > w$maxgevals){} # not implemented
-    #    if (w$nh > w$maxhevals){} # not implemented
-    gmax <- max(abs(grd))
-    if (gmax <= w$epstol*f0) {
-      if (w$trace > 0) cat("Small gradient norm",gmax,"\n")
-      halt <- TRUE
-      convcode <- 0 # OK
-      break
-    }
     stp<-try(w$solver(H, -grd))
     if (class(stp) == "class-error") {
           stop("Failure of default solve of Newton equations")
@@ -155,11 +175,11 @@ w <- list2env(ctrl) # Workspace
     niter <- niter + 1
     if (w$watch) tmp <- readline("end iteration")   
   } # end repeat
-  out<-NULL
+  out<-NULL # ensure cleared first, and then use structure above
   out$xs<-xn
   out$fv<-fval
   out$grd<-grd
-  out$Hess<-H
+  out$Hess<-H # ?? w$H
   out$niter<-niter
   out 
 }

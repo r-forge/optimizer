@@ -8,7 +8,7 @@ energy radieted from a carbon filament lamp per cm**2 per second, and the
 predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
 "
 
-#- Note: environment / list "counter" must already exist
+#- Note: environment / list "counters" must already exist
 
 if (! exists("counters")) {stop("Environment 'counters' must exist before running problems.")}
 

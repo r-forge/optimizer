@@ -607,6 +607,7 @@ test1 <- runoptprob(pfilename=pfname, minmeth="nls")
 test1
 tmp <- readline("continue")
 
+require(nlsr)
 test2 <- runoptprob(pfilename=pfname, minmeth="nlxb")
 test2
 tmp <- readline("continue")

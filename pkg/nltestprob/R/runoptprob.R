@@ -48,7 +48,7 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
                    "optimrx::nlm",
                    "optimrx::subplex")
 
-  solveboundopt <- c("optimrx::L-BFGS-B",
+  msolveboundopt <- c("optimrx::L-BFGS-B",
                    "optimrx::Rvmmin",
                    "optimrx::Rcgmin",
                    "optimrx::Rtnmin",
@@ -65,7 +65,9 @@ runoptprob <- function(pfilename, probclass=NULL, minmeth=NULL, submeth=NULL, is
   optecho <- TRUE # temporarily at least, or put in a profile
   #- Get the path to the files (where should these be? Probably somehow related to pkg)   
   #- Set up counts
-  if (! exists("counters")) { counters <- new.env() }
+ ## if (! exists("counters")) { 
+  counters <- list() 
+##  }
   counters$kf <- 0
   counters$kg <- 0
   counters$kres <- 0

@@ -5,28 +5,31 @@ vmrf <- function(w,msetup=FALSE,...) {
      w$stp <- -1 # set step negative
 #     w$H<-w$hess(w$xb,...)
 #     w$nh <- w$nh + 1
-     w$lastng <- 0 # last time we reset B -- force to identity
-     w$tdir <- w$c # on setup
+     w$tdir <- w$c # on setup (??may not be needed)
      w$resetB <- TRUE
      w$grd<-w$gr(w$xb,...)
-#  if(w$trace > 1) {
+     #  if(w$trace > 1) {
      cat("vmrf setup - w$grd:")
      print(w$grd)
-#  }     
+     # }
      w$ng <- w$ng + 1
+     w$status <- "start"
      return(0)
    } else { # non setup ??still need to set gradient
      # BFGS update or reset
      if (w$resetB) {
        w$Bmat <- diag(w$npar) # set approx to inverse Hessian
-       if (w$trace > 1) cat("Bmat reset to identity\n")  
-       w$lastng <- w$ng
+       if (w$trace > 1) cat("Bmat reset to identity, no new gradient\n")  
+       w$lastsd <- w$ng
      } else { # BFGS update of inverse Hessian approx Bmat
-       w$grd<-w$gr(w$xb,...)
+       w$c <- w$grd # "old" gradient
+       w$grd<-w$gr(w$xb,...) # compute gradient
        cat("vmrf - w$grd:")
        print(w$grd)
        w$ng <- w$ng + 1
-       w$tdir <- as.vector(w$stp * w$tdir) # ??add as.vector
+       cat("Check step and dirn exist: stp, tdir=",w$stp,"\n")
+       print(w$tdir)
+       w$tdir <- w$stp * w$tdir # ??add as.vector
        w$c <- w$grd - w$c # y
        D1 <- as.numeric(crossprod(w$tdir, w$c))
        if (w$trace > 1) cat("D1 =",D1," ")
@@ -34,7 +37,7 @@ vmrf <- function(w,msetup=FALSE,...) {
          if (w$trace > 1) cat("Update failed\n")
          w$Bmat <- diag(w$npar) # set approx to inverse Hessian
          if (w$trace > 1) cat("Bmat reset to identity\n")  
-         w$lastng <- w$ng
+         w$lastsd <- w$ng
        } else {
          w$xx <- crossprod(w$Bmat, w$c)
          D2 <- as.numeric(crossprod(w$xx, w$c))
@@ -53,8 +56,8 @@ vmrf <- function(w,msetup=FALSE,...) {
      } # end non-setup
      cat("At end update, Bmat:\n")
      print(w$Bmat)
-     w$tdir <- - crossprod(w$Bmat, w$grd)   
-     cat("tdir:")
+     w$tdir <- - as.vector(crossprod(w$Bmat, w$grd))
+     cat("tdir  vector? ",is.vector(w$tdir),":")
      print(w$tdir)
      tmp <- readline("?-")
      w$resetB <- FALSE # either way set so it doesn't do it again

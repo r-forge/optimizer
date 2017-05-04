@@ -24,9 +24,10 @@ fgh <- function(x){ #function and gradient
   val
 }
 
+source("/home/john/rsvnall/optimizer/pkg/gradmin/R/terminate.R")
 source("/home/john/rsvnall/optimizer/pkg/gradmin/R/gradminu.R")
 source("/home/john/rsvnall/optimizer/pkg/gradmin/R/lsback.R")
-source("/home/john/rsvnall/optimizer/pkg/gradmin/R/snewt.R")
+source("/home/john/rsvnall/optimizer/pkg/gradmin/R/vmrf.R")
 
 
 x0 <- c(-1.2, 1)

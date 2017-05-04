@@ -23,46 +23,7 @@ gradminu<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 ## ?? How to put in name of solver, lnsrch for display
 ## ?? Need a string/list to specify method with parameters, and output with result
 
-terminate <- function(w, ...){
-  if (w$trace > 2) cat("Termination test\n")    
-  halt <- FALSE # default is keep going
-  # tests on too many counts??
-  if (w$niter >= w$maxit) {
-    if (w$trace > 0) cat("Too many (",niter," iterations\n")
-    halt <- TRUE
-    w$convcode <- 1
-    cat("returning X niter\n")
-    return(halt)
-  }
-  if (w$nf >= w$maxfevals) {
-    w$msg <- paste("Too many (",w$nf,") function evaluations")
-    if (w$trace > 0) cat(w$msg,"\n")
-    halt <- TRUE
-    w$convcode <- 1 # ?? value
-    cat("returning X nf\n")
-    return(halt)
-  }
-  #    if (w$ng > w$maxgevals){} # not implemented
-  #    if (w$nh > w$maxhevals){} # not implemented
-  gmax <- max(abs(w$grd))
-  if (gmax <= w$epstol*w$f0) {
-    w$msg <- paste("Small gradient norm",gmax)
-    if (w$trace > 0) cat(w$msg,"\n")
-    halt <- TRUE
-    w$convcode <- 0 # OK
-    cat("returning X gmax\n")
-    return(halt)
-  }
-  if (w$lsfail && (w$ng > w$lastng)) { 
-     cat("ls fail but need to try steepest descents")
-     w$resetB <- TRUE # go round again on steepest descent
-  } else { 
-    halt <-TRUE 
-    cat("returning lsfail and ng ",w$ng, w$lastng,"\n")
-  }
-  cat("end terminate, halt=",halt,"\n")
-  halt
-}  
+
   
 if (control$trace > 2) {
     cat("control:")
@@ -84,6 +45,7 @@ ctrl <- list(
   lamstart = 0.01,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
+  status = "start",
   stepdec = 0.2, 
   stepmax = 5,
   stepmin = 0,
@@ -103,7 +65,7 @@ ctrl <- list(
   convcode = NA,
   msg = "??",
   lsfail = FALSE, 
-  lastng = 0
+  lastsd = 0
 )  
 
 ncontrol <- names(control)
@@ -121,7 +83,7 @@ w$hess <- hess
 
 
   w$lambda<-w$lamstart ## ?? do better
-  w$lastng <- 1 # for VM methods "last gradient"
+#  w$lastsd <- 1 # for VM methods "last gradient"
   w$niter <- 1
   w$xb <- x0 # best so far
   w$fbest <- fn(w$xb, ...)
@@ -151,7 +113,7 @@ w$hess <- hess
   repeat {
         if (w$trace > 0) {cat("Iteration ",w$niter,"  Fval=",w$fbest,"\n")}
      if (terminate(w, ...)) break
-     stp <- w$minmeth(w,...) # no msetup
+     stp <- w$minmeth(w,...) # no msetup 
      cat("minmeth returned w$grd:")
      print(w$grd)
      if (w$trace > 1) {
@@ -159,11 +121,14 @@ w$hess <- hess
          print(stp)
      }
      if (w$trace > 2) {
-        gprj <- as.numeric(crossprod(stp, w$grd))
+        gprj <- as.numeric(crossprod(w$tdir, w$grd))
         cat("Gradient projection = ",gprj,"\n")
      }
      ## Do line search
      w$lsfail <- FALSE
+     cat("Before lnsrch, tdir:\n")
+     print(w$tdir)
+     tmp <- readline("ls?")
      w$gvl<-w$lnsrch(w, ...)
      if (attr(w$gvl, "FAIL")) {
         if ((w$trace > 0) && (w$trace > 0)) cat("Line search fails\n")
@@ -172,13 +137,13 @@ w$hess <- hess
        fval <- attr(w$gvl,"Fval")
 ##    cat("after lnsrch w$nf now ",w$nf,"\n")
       if (w$trace > 1) {cat(" step =", w$gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
-      xn<-xb+w$gvl*stp
+      w$xn<-w$xb+w$gvl*w$tdir
       if (w$niter >= w$maxit) {
         print("Too many iterations. Failed to converge!")
         return(0)
       }
-      xb <- xn
-      fbest <- fval
+      w$xb <- w$xn
+      w$fbest <- fval
       w$niter <- w$niter + 1
       if (w$watch) tmp <- readline("end iteration")   
      } # end else on lsfail

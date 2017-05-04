@@ -103,10 +103,8 @@ w$hess <- hess
   if (w$trace > 1) cat("Initial Fval =",w$fbest,"\n")
   w$f0 <- w$fbest # for scaling
   # Initialize
-  cat("method: ", deparse(substitute(w$srchdirn)),"\n")
-  tmp <- readline(" ")
   if (w$srchdirn(w, msetup=TRUE,...) != 0) 
-       stop(paste("Could not commence method ",deparse(substitute(w$srchdirn)),"\n"))
+       stop(paste("Could not commence method ??","\n"))
   
   repeat {
         if (w$trace > 0) {cat("Iteration ",w$niter,"(",w$ng,",",w$nf,")  Fval=",w$fbest,"\n")}

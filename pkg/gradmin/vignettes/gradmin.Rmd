@@ -81,7 +81,7 @@ to returning the proposed best parameters and the function value at those
 parameters and possibly the gradient evaluated there, along with some counts
 of the number of functions, gradients and hessians computed.
 
-## Termination tests -- TERMTEST
+## Termination tests -- TERMINATE
 
 **Termination** is often confused with **convergence**. The former applies to svn+ssh://nashjc@svn.r-forge.r-project.org/svnroot/optimizer/pkg/gradmin
 methods or programs, and is the way in which we stop our method. Terminationsvn+ssh://nashjc@svn.r-forge.r-project.org/svnroot/optimizer/pkg/gradmin
@@ -165,7 +165,7 @@ We combine the above components as follows:
 ```
    SETUP
    
-   while (TERMTEST not TRUE){
+   while (TERMINATE not TRUE){
       SRCHDIRN
       LNSRCH
    }
@@ -224,10 +224,33 @@ method when different possible safeguards are applied.
 
 There are many choices we can make in building a practical code to implement the ideas
 above, that is, in choosing the components SRCHDIRN and LNSRCH. There will be some choices
-in SETUP and TERMTEST and REPORT, but those components will generally be dependent on the
+in SETUP and TERMINATE and REPORT, but those components will generally be dependent on the
 choices made for the search direction and line search. 
 
-# Choices in computing the search direction
+# Some search direction generation methods
+
+## snewt -- a safeguarded Newton method
+
+## vmrf -- Fletcher's variable metric method
+
+## ?? -- CG
+
+## marqnewt -- stabilized Newton
+
+
+
+# Some line search methods
+
+## lsnone -- a fixed stepsize
+
+## lsback -- a backtracking search
+
+## lsbrent -- use of the Brent [1D] minimizer
+
+## others??
+
+
+# Choices within the computation of the search direction
 
 SRCHDIRN will often involve the solution of linear equations. For example, in a "Newton"
 method we solve the main equation $H(x_t) * s = - g(x_t)$. If $H(x_t)$ is not positive
@@ -287,7 +310,8 @@ within our main function minimization function. This workspace, given as an argu
 functions, is modified within those functions. Therefore we can use that work environment
 to store common information, such as counters, working data, historical gradients or function
 values, etc. A disadvantage is that we need to specify these objects. That is, the counter
-`nf` is referred to as `ws$nf` where `ws` is our work environment.
+`nf` is referred to as `w$nf` where `s` is our work environment. This was the choice that
+allowed a workable implementation.
 
 ## Attempt to use **R** scoping rules
 

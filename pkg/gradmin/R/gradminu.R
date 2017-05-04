@@ -61,7 +61,7 @@ npar <- length(x0)
 
 # set up workspace
 ctrl <- list(
-  minmeth = snewt,
+  minmeth = vmrf,
   lnsrch = lsback,
   solver = solve,
   trace = 0,
@@ -134,7 +134,7 @@ w$hess <- hess
   print(w$grd)
   repeat {
         if (w$trace > 0) {cat("Iteration ",w$niter,"  Fval=",w$fbest,"\n")}
-     stp <- w$minmeth(w) # no msetup
+     stp <- w$minmeth(w,...) # no msetup
      if (w$trace > 1) {
          cat("Search vector:")
          print(stp)
@@ -145,11 +145,11 @@ w$hess <- hess
      }
      ## Do line search
      w$gvl<-w$lnsrch(w, ...)
-     if (attr(gvl, "FAIL")) {
+     if (attr(w$gvl, "FAIL")) {
         if ((w$trace > 0) && (w$trace > 0)) cat("Line search fails\n")
         break
      }
-     fval <- attr(gvl,"Fval")
+     fval <- attr(w$gvl,"Fval")
 ##    cat("after lnsrch w$nf now ",w$nf,"\n")
     if (w$trace > 2) {cat(" step =", w$gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
     xn<-xb+w$gvl*stp
@@ -163,6 +163,7 @@ w$hess <- hess
     if (w$watch) tmp <- readline("end iteration")   
   } # end repeat
   out<-NULL # ensure cleared first, and then use structure above
+  w$msg <- "Apparently Successful"
   out <- list(w$xb, w$fbest, c(w$nf, w$ng, w$nh), w$convcode, w$msg, w$H)  #
   names(out) <- c("par", "value", "counts", "convergence", 
                   "message", "hessian")

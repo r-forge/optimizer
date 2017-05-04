@@ -24,6 +24,11 @@ fgh <- function(x){ #function and gradient
   val
 }
 
+source("/home/john/rsvnall/optimizer/pkg/gradmin/R/gradminu.R")
+source("/home/john/rsvnall/optimizer/pkg/gradmin/R/lsback.R")
+source("/home/john/rsvnall/optimizer/pkg/gradmin/R/snewt.R")
+
+
 x0 <- c(-1.2, 1)
 
 sdefault <- gradminu(x0, fn=f, gr=gr, hess=h, control=list(trace=2))

@@ -24,21 +24,23 @@ gradminu<-function(x0, fn, gr, hess, lower = NULL, upper = NULL,
 ## ?? Need a string/list to specify method with parameters, and output with result
 
 terminate <- function(w, ...){
-  if (w$trace > 2) cat("Termination test:")    
+  if (w$trace > 2) cat("Termination test\n")    
   halt <- FALSE # default is keep going
   # tests on too many counts??
-  if (niter >= w$maxit) {
+  if (w$niter >= w$maxit) {
     if (w$trace > 0) cat("Too many (",niter," iterations\n")
     halt <- TRUE
     w$convcode <- 1
-    break    
+    cat("returning X niter\n")
+    return(halt)
   }
   if (w$nf >= w$maxfevals) {
     w$msg <- paste("Too many (",w$nf,") function evaluations")
     if (w$trace > 0) cat(w$msg,"\n")
     halt <- TRUE
     w$convcode <- 1 # ?? value
-    break
+    cat("returning X nf\n")
+    return(halt)
   }
   #    if (w$ng > w$maxgevals){} # not implemented
   #    if (w$nh > w$maxhevals){} # not implemented
@@ -48,7 +50,17 @@ terminate <- function(w, ...){
     if (w$trace > 0) cat(w$msg,"\n")
     halt <- TRUE
     w$convcode <- 0 # OK
+    cat("returning X gmax\n")
+    return(halt)
   }
+  if (w$lsfail && (w$ng > w$lastng)) { 
+     cat("ls fail but need to try steepest descents")
+     w$resetB <- TRUE # go round again on steepest descent
+  } else { 
+    halt <-TRUE 
+    cat("returning lsfail and ng ",w$ng, w$lastng,"\n")
+  }
+  cat("end terminate, halt=",halt,"\n")
   halt
 }  
   
@@ -90,6 +102,7 @@ ctrl <- list(
   stopiter = FALSE,
   convcode = NA,
   msg = "??",
+  lsfail = FALSE, 
   lastng = 0
 )  
 
@@ -128,39 +141,47 @@ w$hess <- hess
   if (w$trace > 1) cat("Initial Fval =",w$fbest,"\n")
   w$f0 <- w$fbest # for scaling
   # Initialize
-  if (w$minmeth(w, msetup=TRUE) != 0) 
+  if (w$minmeth(w, msetup=TRUE,...) != 0) 
        stop(paste("Could not commence method ",deparse(substitute(w$minmeth)),"\n"))
-  cat("returned w$grd:")
-  print(w$grd)
+  
+  cat("after setup\n -- w$tdir:")
+  print((w$tdir))
+  tmp <- readline("??")
+  
   repeat {
         if (w$trace > 0) {cat("Iteration ",w$niter,"  Fval=",w$fbest,"\n")}
+     if (terminate(w, ...)) break
      stp <- w$minmeth(w,...) # no msetup
+     cat("minmeth returned w$grd:")
+     print(w$grd)
      if (w$trace > 1) {
          cat("Search vector:")
          print(stp)
      }
-     if (w$trace > 1) {
+     if (w$trace > 2) {
         gprj <- as.numeric(crossprod(stp, w$grd))
-        cat("Gradient projection = ",gprj)
+        cat("Gradient projection = ",gprj,"\n")
      }
      ## Do line search
+     w$lsfail <- FALSE
      w$gvl<-w$lnsrch(w, ...)
      if (attr(w$gvl, "FAIL")) {
         if ((w$trace > 0) && (w$trace > 0)) cat("Line search fails\n")
-        break
-     }
-     fval <- attr(w$gvl,"Fval")
+        w$lsfail <- TRUE
+     } else { # ls has succeeded in some way
+       fval <- attr(w$gvl,"Fval")
 ##    cat("after lnsrch w$nf now ",w$nf,"\n")
-    if (w$trace > 2) {cat(" step =", w$gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
-    xn<-xb+w$gvl*stp
-    if (niter >= w$maxit) {
-      print("NewtonR: Failed to converge!")
-      return(0)
-    }
-    xb <- xn
-    fbest <- fval
-    niter <- niter + 1
-    if (w$watch) tmp <- readline("end iteration")   
+      if (w$trace > 1) {cat(" step =", w$gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
+      xn<-xb+w$gvl*stp
+      if (w$niter >= w$maxit) {
+        print("Too many iterations. Failed to converge!")
+        return(0)
+      }
+      xb <- xn
+      fbest <- fval
+      w$niter <- w$niter + 1
+      if (w$watch) tmp <- readline("end iteration")   
+     } # end else on lsfail
   } # end repeat
   out<-NULL # ensure cleared first, and then use structure above
   w$msg <- "Apparently Successful"

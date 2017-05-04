@@ -2,6 +2,7 @@ lsback<-function(w, ...) {
   # lsback -- backtrack line search
   st <- 1.0
   w$gproj <- as.numeric(crossprod(w$grd, w$tdir) ) # can we save this from elsewhere?
+#  if(w$trace > 1) cat("Gradient projection = ",w$gproj,"\n")
   repeat {
     xnew <- w$xb + st*w$tdir # new point
     if (all((w$offset+xnew) == (w$offset+w$xc))) { # no better parameters

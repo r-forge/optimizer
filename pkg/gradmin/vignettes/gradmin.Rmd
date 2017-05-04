@@ -381,7 +381,8 @@ Repeat {
 1. We will pass fn(), gr() and hess() explicitly. But computed quantities resulting
 from these functions will be stored in workspace "w".
 
-
+2. Need to store names of functions BEFORE we pass them, otherwise the names are
+lost. i.e., method for srchdirn and lnsrch and fn and gr and hess
 
 
 

@@ -103,6 +103,8 @@ w$hess <- hess
   if (w$trace > 1) cat("Initial Fval =",w$fbest,"\n")
   w$f0 <- w$fbest # for scaling
   # Initialize
+  cat("method: ", deparse(substitute(w$srchdirn)),"\n")
+  tmp <- readline(" ")
   if (w$srchdirn(w, msetup=TRUE,...) != 0) 
        stop(paste("Could not commence method ",deparse(substitute(w$srchdirn)),"\n"))
   
@@ -143,7 +145,7 @@ w$hess <- hess
      } # end else on lsfail
   } # end repeat
   out<-NULL # ensure cleared first, and then use structure above
-  w$msg <- paste(deparse(substitute(w$srchdirn))," Apparently Successful", sep='')
+# w$msg <- paste(deparse(substitute(w$srchdirn))," Apparently Successful", sep='')
   out <- list(w$xb, w$fbest, c(w$nf, w$ng, w$nh), w$convcode, w$msg, w$H)  #
   names(out) <- c("par", "value", "counts", "convergence", 
                   "message", "hessian")

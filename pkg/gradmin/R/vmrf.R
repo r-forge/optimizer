@@ -24,11 +24,7 @@ vmrf <- function(w,msetup=FALSE,...) {
      } else { # BFGS update of inverse Hessian approx Bmat
        w$c <- w$grd # "old" gradient
        w$grd<-w$gr(w$xb,...) # compute gradient
-       cat("vmrf - w$grd:")
-       print(w$grd)
        w$ng <- w$ng + 1
-       cat("Check step and dirn exist: stp, tdir=",w$stp,"\n")
-       print(w$tdir)
        w$tdir <- w$stp * w$tdir # ??add as.vector
        w$c <- w$grd - w$c # y
        D1 <- as.numeric(crossprod(w$tdir, w$c))
@@ -42,24 +38,13 @@ vmrf <- function(w,msetup=FALSE,...) {
          w$xx <- crossprod(w$Bmat, w$c)
          D2 <- as.numeric(crossprod(w$xx, w$c))
          D2 <- 1 + D2/D1 
-#         cat("At update, D2=",D2," w$tdir:")
-#         print((w$tdir))
-#         cat("tdir * xx':\n")
-#         print(w$tdir %*% t(w$xx))
-#         cat("xx * tdir':\n")
-#         print(w$xx %*% t(w$tdir))
-#         cat("tdir * tdir':\n")
-#         print(w$tdir %*% t(w$tdir))
          w$Bmat <- w$Bmat -
              (w$tdir %*% t(w$xx) + w$xx %*% t(w$tdir)- D2 * (w$tdir %*% t(w$tdir)))/D1
        } # end of matrix update
      } # end non-setup
-     cat("At end update, Bmat:\n")
-     print(w$Bmat)
+#     cat("At end update, Bmat:\n")
+#     print(w$Bmat)
      w$tdir <- - as.vector(crossprod(w$Bmat, w$grd))
-     cat("tdir  vector? ",is.vector(w$tdir),":")
-     print(w$tdir)
-     tmp <- readline("?-")
      w$resetB <- FALSE # either way set so it doesn't do it again
    } # end of update
   ans <- w$tdir

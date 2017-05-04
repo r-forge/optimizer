@@ -2,10 +2,7 @@ lsback<-function(w, ...) {
   # lsback -- backtrack line search
   st <- 1.0
   w$gproj <- as.numeric(crossprod(w$grd, w$tdir) ) # can we save this from elsewhere?
-  if(w$trace > 1) cat("lsback: Gradient projection = ",w$gproj,"\n")
-  cat("offset:",w$offset," tdir, xb\n")
-  print(w$tdir)
-  print(w$xb)
+  if(w$trace > 3) cat("lsback: Gradient projection = ",w$gproj,"\n")
   repeat {
     w$xnew <- w$xb + st*w$tdir # new point
     if (all((w$offset+w$xnew) == (w$offset+w$xb))) { # no better parameters
@@ -18,8 +15,8 @@ lsback<-function(w, ...) {
     }
     fval <- w$fn(w$xnew, ...)
     w$nf <- w$nf + 1
-    if (w$trace > 2) cat("Step = ",st," fval = ",fval,"\n")
-    if ((w$trace > 1) && (w$watch)) tmp <- readline("lnsrch continue?")
+    if (w$trace > 1) cat("Step = ",st," fval = ",fval)
+    if ((w$trace > 1) && (w$watch)) tmp <- readline("   lsback continue?")
     if (fval <= w$fbest + w$acctol*st*w$gproj) break # Armijo condition
     st <- w$stepdec*st # new step
   }

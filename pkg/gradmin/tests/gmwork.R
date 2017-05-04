@@ -32,7 +32,7 @@ source("/home/john/rsvnall/optimizer/pkg/gradmin/R/vmrf.R")
 
 x0 <- c(-1.2, 1)
 
-sdefault <- gradminu(x0, fn=f, gr=gr, hess=h, control=list(trace=4, watch=TRUE))
+sdefault <- gradminu(x0, fn=f, gr=gr, hess=h, control=list(trace=1, watch=TRUE))
 print(sdefault)
 
 tmp <- readline("Now for the Wood problem")
@@ -64,6 +64,6 @@ wood.h <- function(x){
 }
 #################################################
 x0w <- c(-3, -1, -3, -1)
-wdefault <- gradminu(x0w, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=4, watch=TRUE))
+wdefault <- gradminu(x0w, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1, watch=TRUE))
 print(wdefault)
 

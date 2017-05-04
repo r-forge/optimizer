@@ -119,7 +119,7 @@ the search by some simple rules in an attempt to generate directions which are n
 similar to previous ones. However, the "rules" and formulas generally require some care
 to avoid numerical difficulty, and the cycle may need to be restarted at some point. 
  
-## A line search -- GETSTEP
+## A line search -- LNSRCH
 
 While it is perfectly possible to use a unit step along the search direction, we generally
 want to try to reduce the function value by searching along $t$, and try to find a good
@@ -167,7 +167,7 @@ We combine the above components as follows:
    
    while (TERMTEST not TRUE){
       SRCHDIRN
-      GETSTEP
+      LNSRCH
    }
 
    REPORT
@@ -223,7 +223,7 @@ method when different possible safeguards are applied.
 # Algorithm possibilities for **gradmin**
 
 There are many choices we can make in building a practical code to implement the ideas
-above, that is, in choosing the components SRCHDIRN and GETSTEP. There will be some choices
+above, that is, in choosing the components SRCHDIRN and LNSRCH. There will be some choices
 in SETUP and TERMTEST and REPORT, but those components will generally be dependent on the
 choices made for the search direction and line search. 
 
@@ -291,7 +291,7 @@ values, etc. A disadvantage is that we need to specify these objects. That is, t
 
 ## Attempt to use **R** scoping rules
 
-If our SRCHDIRN and GETSTEP functions are specified WITHIN the main **gradmin** function, 
+If our SRCHDIRN and LNSRCH functions are specified WITHIN the main **gradmin** function, 
 the objects created in the main routine should be available within those sub-fuctions. However,
 modification to the objects made in the sub-function may not be returned. See `inst/devfiles/tryscope.R`. I find that it is too easy to make errors of NOT transferring 
 back any changes to objects, so this is not an approach I will generally use.

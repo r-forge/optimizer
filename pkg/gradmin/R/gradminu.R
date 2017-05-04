@@ -34,7 +34,7 @@ npar <- length(x0)
 
 # set up workspace
 ctrl <- list(
-  minmeth = vmrf,
+  srchdirn = vmrf,
   lnsrch = lsback,
   solver = solve,
   trace = 0,
@@ -103,22 +103,20 @@ w$hess <- hess
   if (w$trace > 1) cat("Initial Fval =",w$fbest,"\n")
   w$f0 <- w$fbest # for scaling
   # Initialize
-  if (w$minmeth(w, msetup=TRUE,...) != 0) 
-       stop(paste("Could not commence method ",deparse(substitute(w$minmeth)),"\n"))
-  
-  cat("after setup\n -- w$tdir:")
-  print((w$tdir))
-  tmp <- readline("??")
+  if (w$srchdirn(w, msetup=TRUE,...) != 0) 
+       stop(paste("Could not commence method ",deparse(substitute(w$srchdirn)),"\n"))
   
   repeat {
-        if (w$trace > 0) {cat("Iteration ",w$niter,"  Fval=",w$fbest,"\n")}
+        if (w$trace > 0) {cat("Iteration ",w$niter,"(",w$ng,",",w$nf,")  Fval=",w$fbest,"\n")}
      if (terminate(w, ...)) break
-     stp <- w$minmeth(w,...) # no msetup 
-     cat("minmeth returned w$grd:")
-     print(w$grd)
+     stp <- w$srchdirn(w,...) # no msetup 
+     if (w$trace > 2) { 
+         cat("srchdirn returned w$grd:")
+         print(w$grd)
+     }
      if (w$trace > 1) {
          cat("Search vector:")
-         print(stp)
+         print(w$tdir)
      }
      if (w$trace > 2) {
         gprj <- as.numeric(crossprod(w$tdir, w$grd))
@@ -126,18 +124,14 @@ w$hess <- hess
      }
      ## Do line search
      w$lsfail <- FALSE
-     cat("Before lnsrch, tdir:\n")
-     print(w$tdir)
-     tmp <- readline("ls?")
-     w$gvl<-w$lnsrch(w, ...)
-     if (attr(w$gvl, "FAIL")) {
+     w$stsize<-w$lnsrch(w, ...)
+     if (attr(w$stsize, "FAIL")) {
         if ((w$trace > 0) && (w$trace > 0)) cat("Line search fails\n")
         w$lsfail <- TRUE
      } else { # ls has succeeded in some way
-       fval <- attr(w$gvl,"Fval")
-##    cat("after lnsrch w$nf now ",w$nf,"\n")
-      if (w$trace > 1) {cat(" step =", w$gvl,"  fval=",fval ," w$nf=",w$nf,"\n")}
-      w$xn<-w$xb+w$gvl*w$tdir
+       fval <- attr(w$stsize,"Fval")
+      if (w$trace > 1) {cat(" step =", w$stsize,"  fval=",fval ," w$nf=",w$nf,"\n")}
+      w$xn<-w$xb+w$stsize*w$tdir
       if (w$niter >= w$maxit) {
         print("Too many iterations. Failed to converge!")
         return(0)
@@ -149,7 +143,7 @@ w$hess <- hess
      } # end else on lsfail
   } # end repeat
   out<-NULL # ensure cleared first, and then use structure above
-  w$msg <- "Apparently Successful"
+  w$msg <- paste(deparse(substitute(w$srchdirn))," Apparently Successful", sep='')
   out <- list(w$xb, w$fbest, c(w$nf, w$ng, w$nh), w$convcode, w$msg, w$H)  #
   names(out) <- c("par", "value", "counts", "convergence", 
                   "message", "hessian")

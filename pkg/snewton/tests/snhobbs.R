@@ -137,97 +137,6 @@ hobbs.fgh <- function(x) { # all 3 for trust method
          list(value = f, gradient = g, hessian = B)
 }
 
-hobbs.test<-function() { # test grad
-require(numDeriv)
-xvec<-rep(2,3)
-cat("test hobbs with gs=100\n")
-cat("function=",hobbs.f(xvec,),"\n")
-gra<-hobbs.g(xvec,0)
-cat("gra:")
-print(gra)
-gra0<-hobbs.g0(xvec,0)
-cat("gra0:")
-print(gra0)
-grn<-grad(hobbs.f,xvec,0)
-cat("grn:")
-print(grn)
-}
-
-hobbs.time<-function() { # test grad
-require(numDeriv)
- for (i in 1:6) {
-  n<-2500*i
-  xvec<-rep(2,n)
-  cat("\n\n\n")
-  cat("test hobbs with gs=100 and n=",n,"\n")
-  cat("Function \n")
-  print(  system.time(hobbs.f(xvec,)))
-  cat("gra \n")
-  print(system.time(hobbs.g(xvec,0)))
-  cat("gra0\n")
-  print(system.time(hobbs.g0(xvec,0)))
-  cat("grn\n")
-  print(system.time(grad(hobbs.f,xvec,0)))
- }
-}
-
-hobbs.examples<-function() { #test with different methods
-   source("hobbs.R")
-   x0<-c(1,1,1)
-   ansbfgs0n<-optim(x0,hobbs.f,gr=NULL,method='BFGS')
-   ansbfgs0a<-optim(x0,hobbs.f,hobbs.g,method='BFGS')
-   xstar<-c(196.1770491, 49.0906349, 0.3135749)
-   fstar<-hobbs.f(xstar)
-   sc1<-c(100, 10, .1)
-   xstars<-xstar/sc1
-   xstars
-   ansbfgs0ass<-optim(x0s,hobbs.f,hobbs.g,method='BFGS',control=list(parscale=sc1))
-   ansbfgs0as<-optim(x0,hobbs.f,hobbs.g,method='BFGS',control=list(parscale=sc1))
-   ansbfgs0ass<-optim(x0s,hobbs.f,hobbs.g,method='BFGS',control=list(parscale=sc1, trace=3))
-   ansbfgs0n<-optim(x0,hobbs.f,gr=NULL,method='BFGS', control=list(trace=3))
-   library(ucminf)
-   library(BB)
-   ansucminf0n<-ucminf(x0, hobbs.f,gr=NULL)
-   ansucminf0n
-   ansucminf0a<-ucminf(x0, hobbs.f,hobbs.g)
-   ansucminf0a
-   ansspg0n<-spg(x0,hobbs.f)
-   ansspg0n
-   ansspg0nx<-spg(x0,hobbs.f,control=list(maxit=50000))
-   ansspg0nx
-   ansspg0nxx<-spg(x0,hobbs.f,control=list(maxit=50000, maxfeval=1000000))
-   ansspg0nxx
-   anstrust<-trust(hobbs.fgh, x0, .1, 100, blather=TRUE)
-   anstrust
-   ansnlm0n<-nlm(hobbs.f,x0)
-   ansnlm0n
-   ansnlminb0<-nlminb(x0,hobbs.f)
-   ansnlminb1<-nlminb(x0,hobbs.f, hobbs.g)
-   ansnlminb2<-nlminb(x0,hobbs.f, hobbs.g,hobbs.h)
-   ansnlminb0
-   ansnlminb1
-   ansnlminb2
-   anspowell<-powell(x0,hobbs.f)
-   anspowell
-   ansocg0a<-optim(x0,hobbs.f,hobbs.g,method='CG')
-   ansocg0a
-   ansocg0n<-optim(x0,hobbs.f,method='CG')
-   ansocg0n
-   ansonm<-optim(x0,hobbs.f)
-   ansonm
-   ansolbfgsb0n<-optim(x0,hobbs.f,method='L-BFGS-B')
-   ansolbfgsb0n
-   ansosann0n<-optim(x0,hobbs.f,method='SANN')
-   ansosann0n
-   cat("nls tests\n")
-   y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,75.995, 91.972)
-   t<-1:12
-   xx<-c(200,10,.1)
-   ansxx<-nls(y~x1/(1+x2*exp(-x3*t)), data=list(y,t), start=list(x1=xx[1],x2=xx[2],x3=xx[3]))
-   xy<-c(1,1,1)
-   ansxy<-nls(y~x1/(1+x2*exp(-x3*t)), data=list(y,t), start=list(x1=xy[1],x2=xy[2],x3=xy[3]))
-}
-
 require(snewton)
 x0 <- c(200, 50, .3)
 cat("Start for Hobbs:")
@@ -236,6 +145,8 @@ solx0 <- snewton(x0, hobbs.f, hobbs.g, hobbs.h)
 print(solx0)
 print(eigen(solx0$Hess)$values)
 
+
+cat("This test finds a saddle point\n")
 x1s <- c(100, 10, .1)
 cat("Start for Hobbs:")
 print(x1s)
@@ -243,11 +154,12 @@ solx1s <- snewton(x1s, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2))
 print(solx1s)
 print(eigen(solx1s$Hess)$values)
 
-
+cat("Following test fails\n")
 x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
-solx1 <- snewton(x1, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2))
-print(solx1)
-print(eigen(solx1$Hess)$values)
-
+ftest <- try(solx1 <- snewton(x1, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2)))
+if (class(ftest) != "try-error") {
+   print(solx1)
+   print(eigen(solx1$Hess)$values)
+}

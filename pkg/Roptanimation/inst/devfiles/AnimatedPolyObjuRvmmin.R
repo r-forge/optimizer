@@ -61,7 +61,8 @@ PolyTrack <- R6Class("PolyTrack",
       carea <- max(unlist(self$areas))
 #      txt <- paste("Max polygon area =",carea,"  last=",unlist(self$areas)[-1])
       sarea <- sprintf("%.5f",carea)
-      txt <- paste("Max polygon area =",sarea," after", self$countobj)
+      rarea <- sprintf("%2.2f", (carea/(.75*sin(pi/3))))
+      txt <- paste("Max polygon area =",sarea," ",rarea," after", self$countobj)
       title(main=txt)
       sobj <- sprintf("%.5f",self$fvals[[i]])
       sviol <- sprintf("%.5f",self$maxviol[[i]])
@@ -360,7 +361,13 @@ print(sqrt(myhexc))
 start <- myhex$par0
 # options(scipen=5) # did not work
 
+
 pt1 <- PolyTrack$new()
+
+pf <- 1e-3
+cat("Start:")
+print(start)
+cat("Initial function value=",polyobju(start, penfactor=pf),"\n")
 
 library(optimrx)
 ub <- c(rep(1,(nv-1)), rep(0.75*pi, (nv-2))) # approx for angles
@@ -373,6 +380,7 @@ tmp <- readline("cont.")
 
 # Redo the plots/animation after the optimization
 # JN June 3 -- not quite working. Looks like almost.
-tkexamp(pt1$PlotPolys(), list(i=list('animate', init=1, from=1, to=length(pt1$parms), 
-   delay=pt1$Delay*100)), vscale=1.25, hscale=1.25)
+tkexamp(pt1$PlotPolys(), 
+        list(i=list('animate', init=1, from=1, to=length(pt1$parms), delay=pt1$Delay*100)), 
+        vscale=1.25, hscale=1.25)
 

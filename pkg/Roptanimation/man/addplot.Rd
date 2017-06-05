@@ -1,7 +1,7 @@
 \name{addplot}
 \alias{addplot}
 \encoding{UTF-8}
-\title{Area of a Polygon Given as Special Radial Coordinates.}
+\title{Save Polygon Parameters in Named Environment for Replotting.}
 \description{
   Save current parameters, objective and area in named environment array \code{psave}
   and draw selected polygons.

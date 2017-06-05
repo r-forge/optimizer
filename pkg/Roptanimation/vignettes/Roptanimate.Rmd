@@ -16,7 +16,8 @@ vignette: >
 ## Abstract
 
 **Roptanimation** is an experimental R package to display the progress of 
-geometric animations. A classic example is the **largest small polygon** where
+geometric animations of optimization problems that have a suitable structure
+for illustration. A classic example is the **largest small polygon** where
 we aim to maximize the area of the polygon subject to the constraint that no
 two vertices are separated by more than one unit of distance. This article discusses 
 the problem and how the animation is created, but only shows snapshots of the 
@@ -507,7 +508,8 @@ them.
 ```{r polyexu}        
 library(optimrx)
 methset <- c("Rvmmin", "L-BFGS-B", "nlminb")
-suall <- opm(x0, polyobju, polygradu, method=methset, control=list(trace=0, kkt=FALSE), penfactor=1e-5)
+penvir <- new.env()
+suall <- opm(x0, polyobju, polygradu, method=methset, control=list(trace=0, kkt=FALSE), penfactor=1e-5, penv=penvir)
 # NOTE: Got complex Hessian eigenvalues when trying for KKT tests
 suall <- summary(suall, order=value)
 print(suall)

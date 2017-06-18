@@ -1,8 +1,8 @@
 ---
 title: "gloptim -- a wrapper for global optimization methods in R"
-author: "John C. Nash & Hans Werner Borchers"
+author: "Hans Werner Borchers & John C. Nash"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: pdf_document
 bibliography: nlpd.bib
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -549,7 +549,7 @@ where we do not see any progress.
 
 
 In many cases, it is possible to simply use a selection of starting vectors
-with a \B{local} minimizer to achieve desired results. In the case of the 
+with a \textbf{local} minimizer to achieve desired results. In the case of the 
 Rastrigin function, this does not appear to be the case. Let us use `Rvmmin}
 with the bounds specified above and generate 500 random starts uniformly distributed
 across each coordinate. Note we do not do very well.

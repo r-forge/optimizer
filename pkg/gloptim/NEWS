@@ -1,5 +1,7 @@
 NEWS for gloptim package
 
+2017.01-30  o  minor fixes to satisfy R CMD check
+
 2017.01-30  o  glopt() calls all available global solvers in sequence.
             o  Method names can now be included and excluded.
 

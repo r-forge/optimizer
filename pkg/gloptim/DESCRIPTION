@@ -9,11 +9,12 @@ Imports: stats,
          pso, hydroPSO, RCEIM, nloptr, rCMA, parma, rgenoud,
          Rmalschains, smoof, ParamHelpers, cmaesr, 
          soma, smco
-Suggests: globalOptTests
-Version: 2017.01-30
-Date: 2017-01-30
+Suggests: globalOptTests, knitr, Rvmmin, reportr, gaoptim
+Version: 2017.06-16
+Date: 2017-06-16
 Author: John C. Nash, University of Ottawa, and Hans W. Borchers,
         ABB Corporate Research.
+VignetteBuilder: knitr
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 License: GPL (>= 2)
 LazyLoad: yes

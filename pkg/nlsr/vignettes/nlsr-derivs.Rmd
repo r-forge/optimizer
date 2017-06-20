@@ -66,7 +66,7 @@ is undefined. This is clearly a bug.
 `D()`, `deriv()` and `deriv3()`: As `deriv3()` is stated to be the same as `deriv()` but with
 argument `hessian=TRUE`, we will for now only consider the first two.
 
-```{r}
+```{r chunk01}
 dx2x <- deriv(~ x^2, "x") 
 dx2x
 mode(dx2x)
@@ -75,7 +75,8 @@ x <- -1:2
 eval(dx2x) # This is evaluated at -1, 0, 1, 2, with the result in the "gradient" attribute
 # Note that we cannot (easily) differentiate this again.
 firstd <- attr(dx2x,"gradient")
-str(firstd)
+str
+#  ... and the following gives an error
 d2x2x <- try(deriv(firstd, "x"))
 str(d2x2x)
 #- Build a function from the expression
@@ -148,7 +149,7 @@ DD(expression(sin(x^2)), "x", 3)
 
 ### nlsr
 
-```{r}
+```{r chunk02}
 require(nlsr)
 dx2xn <- nlsDeriv(~ x^2, "x")
 dx2xn
@@ -199,7 +200,7 @@ By default the arguments to the function are constructed from
 all variables in the
 expression.  In the example below this includes `x`.
 
-```{r}
+```{r chunk03}
 codeDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
 #- Include parameters as arguments
 fj.1 <- fnDeriv(parse(text="b0 + b1 * 2^(-x/th)"), c("b0", "b1", "th")) 
@@ -248,7 +249,7 @@ x <- -1:2
 
 The following examples are drawn from the `example(Deriv)` contained in the `Deriv` package.
 
-```{r}
+```{r chunk04}
 require(Deriv)
 
 f <- function(x) x^2
@@ -347,8 +348,8 @@ fc1(-10)
 fc1(0.001, 1)
 
 #- Example of a first argument that cannot be evaluated in the current environment:
-  suppressWarnings(rm("xx", "yy")) #- Make sure there are no objects xx or yy
-  Deriv(xx^2+yy^2)
+  try(suppressWarnings(rm("xx", "yy"))) #- Make sure there are no objects xx or yy
+  Deriv(~ xx^2+yy^2)
 #- Should show
 #- c(xx = 2 * xx, yy = 2 * yy)
 #- ?? What is the meaning / purpose of this construct?
@@ -389,18 +390,18 @@ fld(2) #- and evaluate at a value
 **Deriv** has some design choices that can get the user into trouble. The following
 example shows one such problem.
 
-```{r}
+```{r chunk05}
 library(Deriv)
 rm(x) # ensures x is undefined
-Deriv(x, "x")  # returns [1] 1 -- clearly a bug!
-Deriv(x^2, "x")   # returns 2 * x
+Deriv(~ x, "x")  # returns [1] 1 -- clearly a bug!
+Deriv(~ x^2, "x")   # returns 2 * x
 x <- quote(x^2)
 Deriv(x, "x") # returns 2 * x
 ```
 
 By comparison, **nlsr**
 
-```{r}
+```{r chunk06}
 rm(x) # in case it is defined
 library(nlsr)
 try(nlsDeriv(x, "x")  ) # fails, not a formula
@@ -424,7 +425,7 @@ the derivatives available in `Ryacas` beyond the following example
 provided by Gabor Grothendieck.
 
 
-```{r eval = require(Ryacas)}
+```{r chunk07, eval = require(Ryacas)}
 require(nlsr)
 dnlsr <- nlsr::nlsDeriv(~ sin(x+y), "x")
 print(dnlsr)
@@ -459,7 +460,7 @@ arguments (but derivative only with respect to the first)."
 This package supports the derivatives that `D` supports, as well
 as a few others, and users can add their own definitions.  The current
 list is
-```{r}
+```{r chunk08}
 ls(nlsr::sysDerivs)
 ```
 
@@ -468,7 +469,7 @@ ls(nlsr::sysDerivs)
 Here is a slightly expanded testing of the elements of the `nlsr` derivatives
 table.
 
-```{r}
+```{r chunk09}
 require(nlsr)
 ## Try different ways to supply the log function
 aDeriv <- nlsDeriv(~ log(x), "x")
@@ -648,11 +649,11 @@ derivative is almost certainly acceptable in computations. Similarly for `sign(x
  
 **nlsr** also includes some tools for simplification of algebraic expressions, extensible by the user.  Currently these
 involve the following functions:
-```{r}
+```{r chunk10}
 ls(nlsr::sysSimplifications)
 ```
 
-```{r}
+```{r chunk11}
 #- Remove ##? to see reproducible error
 #- ?? For some reason, if we leave packages attached, we get errors.
 #- Here we detach all the non-base packages and then reload nlsr
@@ -663,7 +664,7 @@ ls(nlsr::sysSimplifications)
 ```
 
 
-```{r}
+```{r chunk12}
 #- ?? For some reason, if we leave packages attached, we get errors.
 #- Here we detach all the non-base packages and then reload nlsr
 sessionInfo()
@@ -751,9 +752,7 @@ nlsSimplify(quote(-(-(a+b))))
 
 ### Simplifications
 
-
-
-```{r}
+```{r chunk13}
 #- ?? For some reason, if we leave packages attached, we get errors.
 #- Here we detach all the non-base packages and then reload nlsr
 sessionInfo()
@@ -857,7 +856,7 @@ transformations.
 We also note that the different tools for symbolic derivatives use slightly
 different inputs. For example, for the derivative of log(x), we have
 
-```{r}
+```{r chunk14}
 require(nlsr)
 dlogx <- nlsr::nlsDeriv(~ log(x), "x")
 str(dlogx)
@@ -870,7 +869,7 @@ we need to specify that we do NOT execute the *substitute()* function.
 Here we
 show how to do this implicitly and with an explicit object.
 
-```{r}
+```{r chunk15}
 require(nlsr)
 dlogxs <- nlsr::nlsDeriv(expression(log(x)), "x", do_substitute=FALSE)
 str(dlogxs)
@@ -905,7 +904,7 @@ as well that is a list of strings. Can we then act on those strings to automate
 the whole setup?
 
 
-```{r}
+```{r chunk16}
 require(nlsr)
 # require(stats)
 # require(Deriv)
@@ -943,7 +942,7 @@ can get things to work nicely.)
 As an example, how could we take object **new** and embed it in a function we can then use
 in **R**? We can certainly copy and paste the output into a function template, as follows,
 
-```{r}
+```{r chunk17}
 fnfromnew <- function(x,y){
     .value <- 1 + x + y
     .grad <- array(0, c(length(.value), 2L), list(NULL, c("x", 
@@ -969,7 +968,7 @@ both our old and new functions give a gradient that is seemingly reasonable. Whi
 gradient of this simple function could be considered to be defined for ANY values of x and
 y, I (JN) am sure most users would wish for a warning at the very least in such cases.
 
-```{r}
+```{r chunk18}
 x <- NA
 y <- Inf
 print(eval(new))
@@ -982,7 +981,7 @@ We could define a way to avoid the issue of character vs. expression (and possib
 other classes) as follows:
 
 
-```{r}
+```{r chunk19}
 safeD <- function(obj, var) {
    # safeguarded D() function for symbolic derivs
    if (! is.character(var) ) stop("The variable var MUST be character type")
@@ -1009,7 +1008,7 @@ Erin Hodgess on R-help in January 2015 raised the issue of taking the
 derivative of an expression that contains an indexed variable. We
 show the example and its resolution, then give an explanation.
 
-```{r}
+```{r chunk20}
 zzz <- expression(y[3]*r1 + r2)
 try(deriv(zzz,c("r1","r2")))
 require(nlsr)
@@ -1040,7 +1039,7 @@ following examples illustrate this.
 
 
 
-```{r}
+```{r chunk21}
 try(nlsr::nlsDeriv(zzz, "y[3]"))
 try(nlsr::nlsDeriv(y3*r1+r2,"y3"))
 try(nlsr::nlsDeriv(y[3]*r1+r2,"y[3]"))

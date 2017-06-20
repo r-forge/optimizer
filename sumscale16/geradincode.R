@@ -1,4 +1,3 @@
-<<geradincode, echo=FALSE, cache=TRUE>>=
 ax<-function(x, AA){
    u<-as.numeric(AA%*%x)
 }
@@ -7,13 +6,14 @@ bx<-function(x, BB){
    v<-as.numeric(BB%*%x)
 }
 
+
 geradin<-function(x, ax, bx, AA, BB, control=list(trace=TRUE, maxit=1000)){
 # Geradin minimize Rayleigh Quotient, Nash CMN Alg 25
   print(control)
   trace<-control$trace
   n<-length(x)
   tol<-n*n*.Machine$double.eps^2
-  offset<-1e+5 # equality check offset
+  offset<-1e+6 # equality check offset
   if (trace) cat("geradin.R, using tol=",tol,"\n")
   ipr<-0 # counter for matrix mults
   pa<-.Machine$double.xmax
@@ -22,6 +22,9 @@ geradin<-function(x, ax, bx, AA, BB, control=list(trace=TRUE, maxit=1000)){
 # step 1 -- main loop
   keepgoing<-TRUE
   while (keepgoing) {
+    # Normalization test -- 170620
+    x <- x/sqrt(as.numeric(crossprod(x)))
+    # ?? when is this needed -- should be only when iterates big?
     avec<-ax(x, AA); bvec<-bx(x, BB); ipr<-ipr+1
     xax<-as.numeric(crossprod(x, avec));  
     xbx<-as.numeric(crossprod(x, bvec));
@@ -96,13 +99,35 @@ geradin<-function(x, ax, bx, AA, BB, control=list(trace=TRUE, maxit=1000)){
 # step 26
   ans<-list(x=x, RQ=p0, ipr=ipr, msg=msg)
 }
-@
 
-<<rungeradin1, echo=FALSE, cache=TRUE>>=
+## rungeradin1
+molerbuild<-function(n){ # Create the moler matrix of order n
+  # A[i,j] = i for i=j, min(i,j)-2 otherwise
+  A <- matrix(0, nrow = n, ncol = n)
+  j <- 1:n
+  for (i in 1:n) {
+    A[i, 1:i] <- pmin(i, 1:i) - 2
+  }
+  A <- A + t(A)
+  diag(A) <- 1:n
+  A
+}
+
+frankbuild<-function(n){ # Create the Frank matrix of order n
+  # A[i,j] = min(i,j)
+  A <- matrix(0, nrow = n, ncol = n)
+  for (i in 1:n){
+     for (j in 1:n){ A[i,j] <- min(i, j)}
+  }
+  A
+}
+
 
 cat("Test geradin\n")
-n<-10
-AA<-molerbuild(n)
+#n<-10
+n<-100
+# AA<-molerbuild(n)
+AA <- frankbuild(n)
 x<-runif(n)
 #cat("A Matrix:\n")
 #print(AA)
@@ -112,16 +137,23 @@ BB=diag(rep(1,n))
 cat("xstart:")
 print(x)
 tg<-system.time(ag<-geradin(x, ax, bx, AA=AA, BB=BB, 
-   control=list(trace=FALSE)))[[3]]
+   control=list(trace=TRUE)))[[3]]
 cat("Minimal eigensolution\n")
 ag$x<-ag$x/sqrt(as.numeric(crossprod(ag$x))) # rescale
 print(ag)
 cat("Geradin time=",tg,"\n")
 tgn<-system.time(agn<-geradin(x, ax, bx, AA=-AA, BB=BB,
-   control=list(trace=FALSE)))[[3]]
+   control=list(trace=TRUE)))[[3]]
 cat("Maximal eigensolution (negative matrix)\n")
-agn$x<-agn$x/sqrt(as.numeric(crossprod(agn$x))) # rescale
+agn$x<-agn$x/sqrt(as.numeric(crossprod(agn$x))) # rescaleA
 print(agn)
 cat("Geradin time=",tgn,"\n")
-@
-
+esol <- eigen(AA)
+cat("Maximal solution - value=",esol$values[1],"  diff =",esol$values[1]+agn$RQ,"\n")
+# Note using negative matrix, so use +
+print(esol$vectors[,1])
+cat("max(abs(diff))=", max(abs(esol$vectors[,1]-agn$x)),"\n")
+cat("Minimal solution - value=",esol$values[n],"  diff =",esol$values[n]-ag$RQ,"\n")
+# Note using negative matrix, so use +
+print(esol$vectors[,n])
+cat("max(abs(diff))=", max(abs(esol$vectors[,n]-ag$x)),"\n")

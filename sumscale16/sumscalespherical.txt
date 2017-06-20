@@ -1,0 +1,234 @@
+Sumscale spherical all
+
+Sorry there was a bug in my #2. proj and proj2 are not the same
+transformation.  In point #2 it seems I used proj2 to transform the
+objective but then post porocessed it with proj by mistake.  If we use
+either proj or proj2 consistently it seems to work.  Regards.
+
+> proj2 <- function(theta) {
++    theta2 <- theta^2
++    s2 <- theta2 / (1 + theta2)
++    cumprod(c(1, s2)) * c(1-s2, 1)
++ }
+> obj <- function(theta) - sum(log(proj2(theta)))
+>
+> n <- 5
+>
+> ans <- spg(seq(n-1), obj)
+iter:  0  f-value:  11.15175  pgrad:  3
+iter:  10  f-value:  8.78015  pgrad:  0.5806909
+iter:  20  f-value:  8.04719  pgrad:  3.925749e-06
+>
+> proj2(ans$par)
+[1] 0.2000000 0.2000007 0.2000002 0.1999996 0.1999995
+
+On Mon, May 6, 2013 at 10:39 AM, Ravi Varadhan <ravi.varadhan@jhu.edu> wrote:
+> With this approach, I am not getting the correct answer, which is supposed to be x[1] = ... = x[5] = 0.2
+>
+> proj2 <- function(theta) {
+>    theta2 <- theta^2
+>    s2 <- theta2 / (1 + theta2)
+>    cumprod(c(1, s2)) * c(1-s2, 1)
+> }
+> proj <- function(theta) {
+>    s2 <- sin(theta)^2
+>    cumprod(c(1, s2)) * c(1-s2, 1)
+> }
+>
+> obj <- function(theta) - sum(log(proj2(theta)))
+>
+> n <- 5
+>
+> ans <- spg(seq(n-1), obj)
+>
+> proj(ans$par)
+>
+> Ravi
+>
+> -----Original Message-----
+> From: Gabor Grothendieck [mailto:ggrothendieck@gmail.com]
+> Sent: Monday, May 06, 2013 10:09 AM
+> To: Ravi Varadhan
+> Cc: Prof J C Nash (U30A)
+> Subject: Re: sumscale paper
+>
+> The objective function after incorporating proj() is obj().  Its the same example we have been using all along: maximize prod(x) subject to
+> sum(x) = 1 and x[i] in the interval [0,1] for all i.  In the sumscale paper we are using the projection/transformation x -> x/sum(x) and adding constraints to force the parameters to lie between 0 and 1 either via the objective or using upper and lower arguments to optimx.
+>  Spherical coordinates seem to be an alternative to this projection/transformation.  Regards.
+>
+>
+> On Mon, May 6, 2013 at 9:39 AM, Ravi Varadhan <ravi.varadhan@jhu.edu> wrote:
+>> I don't understand your example.  What is the objective function?  What is the answer that you are supposed to get?
+>>
+>> I would not use the term "projection" for this kind of stuff.  Projection has a precise mathematical definition.  It is more appropriate to call your approach an example of "parameter transformation".
+>>
+>> Ravi
+>>
+>> -----Original Message-----
+>> From: Gabor Grothendieck [mailto:ggrothendieck@gmail.com]
+>> Sent: Monday, May 06, 2013 8:02 AM
+>> To: Prof J C Nash (U30A)
+>> Cc: Ravi Varadhan
+>> Subject: Re: sumscale paper
+>>
+>> I am not sure if there is any benefit to this but one way to handle the constraints:
+>>
+>> x[i] between 0 and 1 for all i
+>> sum(x) = 1
+>>
+>> is to use spherical coordinates.  See: Spherical Coordinates section of:
+>> http://en.wikipedia.org/wiki/N-sphere
+>>
+>> Do you think its worthwhile to add such an example of an alternate projection?
+>>
+>> 1. Using the fact that sin(x)^2 + cos(x)^2=1 to simplify proj we have:
+>>
+>> n <- 5
+>>
+>> proj <- function(theta) {
+>>    s2 <- sin(theta)^2
+>>    cumprod(c(1, s2)) * c(1-s2, 1)
+>> }
+>>
+>> # run optimx
+>> obj <- function(theta) - sum(log(proj(theta))) ans <- optimx(seq(n-1),
+>> obj, control = list(all.methods = TRUE))
+>>
+>> # get projected coordinates
+>> # As we are projecting from n-1 to n drop last col so it fits.
+>> # (Some new feature may be nice here.)
+>> coef(ans) <- t(apply(coef(ans), 1, proj))[, -n] ans
+>>
+>>
+>> 2.  Actually we could save calculating the sin as we can replace
+>> sin(x)^2 with any projection to [0,1]:
+>>
+>> n <- 5
+>> proj2 <- function(theta) {
+>>    theta2 <- theta^2
+>>    s2 <- theta2 / (1 + theta2)
+>>    cumprod(c(1, s2)) * c(1-s2, 1)
+>> }
+>> obj <- function(theta) - sum(log(proj2(theta))) ans <-
+>> optimx(seq(n-1), obj, control = list(all.methods = TRUE))
+>> coef(ans) <- t(apply(coef(ans), 1, proj))[, -n] ans
+>>
+>> Regards.
+>>
+>> On Fri, May 3, 2013 at 6:27 PM, Gabor Grothendieck <ggrothendieck@gmail.com> wrote:
+>>> coef<- was not working in optimx because I had forgotten to export it
+>>> in the NAMESPACE file. I must have had it in my workspace so I didn't
+>>> notice.  I have now done that and attached the new version of optimx.
+>>> With this version the R-help example at the end could be written
+>>> compactly like this.  Note that its better to use library than
+>>> require unless the require if within an if, e.g. if (require(...))
+>>> ... since you want to force it to fail right at the library statement
+>>> if the package is missing for ease of debugging.  Also set.seed
+>>> should be used for reproducibility.  I have factored out the proj()
+>>> function and used it both in the ssums definition as well as the
+>>> fixup afterwards (which makes use of the new coef<- functionality).
+>>>
+>>> library(optimx)
+>>>
+>>> set.seed(123)
+>>>
+>>> proj <- function(x) x / sum(x)
+>>> ssums <- function(x) sum(seq_along(x) * proj(x)^2)
+>>>
+>>> st <- runif(3)
+>>> aos <- optimx(st, ssums, control=list(all.methods=TRUE))
+>>>
+>>> coef(aos) <- t(apply(coef(aos), 1, proj)) aos
+>>>
+>>> Regards.
+>>>
+>>> On Fri, May 3, 2013 at 5:46 PM, Prof J C Nash (U30A) <nashjc@uottawa.ca> wrote:
+>>>> Does help to add the files.
+>>>>
+>>>> J
+>>>>
+>>>>
+>>>>
+>>>> -------- Original Message --------
+>>>> Subject: sumscale paper
+>>>> Date: Fri, 03 May 2013 17:44:42 -0400
+>>>> From: Prof J C Nash (U30A) <nashjc@uottawa.ca>
+>>>> To: Gabor Grothendieck <ggrothendieck@gmail.com>,  Ravi Varadhan
+>>>> <RVaradhan@jhmi.edu>
+>>>>
+>>>> Using Gabor's notes I've gone through the paper again:
+>>>>
+>>>> - simplified Tran example. I think we should keep it, as it does
+>>>> point out that these sorts of problems arise. I also think it is
+>>>> "easier" to solve by optimx() than by quadprog. I may be biased!
+>>>>
+>>>> - Ravi: I dropped the spg with projection method on this as I could
+>>>> not get it to work. However, I think it would be good to figure out
+>>>> why it failed. Can you give it a try? I used proj = x/sum(x) approach.
+>>>>
+>>>> - removed much of the Geradin write-up and just refer to it.
+>>>>
+>>>> - I could not figure out what Gabor found wrong with the RQ results.
+>>>> I have now noted that -A must be used to get maximal ev. I also
+>>>> checked that the solutions are equivalent to eigen() results (sign
+>>>> may be different, and for degenerate eigenvalues, vectors for a
+>>>> given value may be orthogonal  linear combinations of several
+>>>> vectors. One time a service provider spent 2 weeks trying to find what was "wrong"
+>>>> when they agreed to port Univac 1100 to IBM 360 code. Rounding on an
+>>>> eigenvalue problem caused different vectors.
+>>>>
+>>>> Let me know if something is wrong.
+>>>>
+>>>> Still to do:
+>>>>
+>>>> - final check?
+>>>> - formatting for R Journal (or propose alternative venue).
+>>>>
+>>>> --------------------------------------------------------------------
+>>>> -
+>>>>
+>>>> Other stuff:
+>>>>
+>>>> I have new version of optimx() from Gabor and have done a
+>>>> preliminary pass over it. I want to trim the examples and move the
+>>>> extras to the demo area as GG suggested. Will try to do this before
+>>>> I leave for Germany and Poland on Wed evening. I'm giving a seminar
+>>>> in Jena, and have had to get that ready, as I'm not sure I'll have time on the road.
+>>>> However, I've uploaded the new version to R-forge (svn repository).
+>>>>
+>>>> Best, JN
+>>>>
+>>>>
+>>>
+>>>
+>>>
+>>> --
+>>> Statistics & Software Consulting
+>>> GKX Group, GKX Associates Inc.
+>>> tel: 1-877-GKX-GROUP
+>>> email: ggrothendieck at gmail.com
+>>
+>>
+>>
+>> --
+>> Statistics & Software Consulting
+>> GKX Group, GKX Associates Inc.
+>> tel: 1-877-GKX-GROUP
+>> email: ggrothendieck at gmail.com
+>
+>
+>
+> --
+> Statistics & Software Consulting
+> GKX Group, GKX Associates Inc.
+> tel: 1-877-GKX-GROUP
+> email: ggrothendieck at gmail.com
+
+
+
+-- 
+Statistics & Software Consulting
+GKX Group, GKX Associates Inc.
+tel: 1-877-GKX-GROUP
+email: ggrothendieck at gmail.com
+

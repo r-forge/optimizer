@@ -1,0 +1,86 @@
+runoptprob <- function(pfilename=NULL, minmeth='nls', submeth=NULL,
+options=list(args=NULL, control=NULL) ) {
+optecho <- TRUE # temporarily at least, or put in a profile
+#- Get the path to the files (where should these be? Probably somehow related to pkg)
+pfile <- paste(pfilename, ".R", sep='')
+source(pfile, echo=optecho) # -- filename (at least the root)
+#- now have a lot of the information
+#-    -- which tool to use (optimr, nls, nlmrt, nlsr tools, minpack.LM tools)
+#-    -- choice of gradient function or approximation (gr= (gr, "grfwd", etc.))
+#-    -- controls -- as per the control list in programs
+#-    -- other arguments
+#-    -- xdata or dotargs (how to specify might be interesting)
+#-    -- timing control (e.g., microbenchmark or simple timing)
+#-  - read output control profile (initially just use sink())
+#-  -- make sure we have time/date stamp on all runs
+fname<-paste(pfilename, format(Sys.time(), "%Y%m%d%H%M"),".out",sep='')
+sink(fname, append=TRUE, split=TRUE)
+#-  - read the file and execute it (make sure it has **R** commands so we can
+#-   actually source() it)
+eval(parse(pfilename)) #- should set up functions
+#- - analyze the call to runprob and do the appropriate call
+#- - format output and extract and store summaries
+#-  -- this may be multilayerd and take a lot of work
+#-  -- start with no formatting, and gradually add features
+#-  -- need to save conditions
+if (minmeth == 'nls') {
+nls("")
+}
+}
+# This attempts to call up a test problem and run it
+pfname <- "DanielWood"
+# try it
+testsol <- runoptprob(pfilename=pfname, minmeth="nls", options=list(args=list(trace=TRUE)))
+testsol
+testsol <- runoptprob(pfilename=pfname, minmeth="nls", options=list(args=list(trace=TRUE)))
+pfilename<-pfname
+pfilename
+pfile <- paste(pfilename, ".R", sep='')
+source(pfile, echo=optecho) # -- filename (at least the root)
+optecho <- TRUE # temporarily at least, or put in a profile
+#- Get the path to the files (where should these be? Probably somehow related to pkg)
+pfile <- paste(pfilename, ".R", sep='')
+source(pfile, echo=optecho) # -- filename (at least the root)
+fname<-paste(pfilename, format(Sys.time(), "%Y%m%d%H%M"),".out",sep='')
+fname
+ls()
+psetup
+psetup$data
+pstart <- c(b1= 1, b2 = 5) # fix later for more starts
+dframe
+pstart
+mformula
+mformula <- ( y ~ b1*x**b2 )
+testsol <- nls(mformula, data=dframe, start=pstart, trace=TRUE)
+start1
+ls()
+temp <- psetup()
+psetup
+psetup.fn <- eval(parse(psetup))
+eval(parse(psetup))
+eval(parse(text=psetup))
+DanielWood.setup()
+temp<-DanielWood.setup()
+rm(list=ls())
+source("DanielWood.R")
+eval(parse(psetup.txt))
+eval(parse(text=psetup.txt))
+dw <- eval(parse(text=psetup.txt))
+dw
+source("DanielWood.R")
+dw <- eval(parse(text=psetup.txt))
+dw
+dwd <- dw()
+dwd
+starts[1,]
+dw$starts[1,]
+dwd$starts[1,]
+eval(parse(text=psetup.txt))
+DanielWood.setup()
+ls()
+dw<-DanielWood.setup()
+dw
+dw$df
+run1 <- nls(mformula, data=dw$df, start=dw$starts[1,], trace=TRUE)
+summary(run1)
+savehistory("161110DWrun1.txt")

@@ -1,0 +1,153 @@
+
+
+Thanks for the comments. A few quick reactions below, but the main thrust will get taken up. It's really difficult with
+so many choices to work in a vacuum, so the comments are necessary!
+
+On 16-11-26 11:15 AM, Paul Gilbert wrote:
+> John
+>
+> I went over this rather quickly, so have undoubtedly missed a lot and may misunderstand much too, but here are some
+> thoughts.
+>
+> -I'm still not certain of the overall objective. The points you have in the abstract seem more about what is necessary
+> to achieve the unstated objective than they are about what the objective actual is. I think the objective may best be
+> described by points 1 to 3 under "Running test problems". If so, it would be better to put that at the beginning. To
+> that list I would add "running tests problems with different operating systems and versions of R."
+
+Yes. Definitely intend different OS and versions. In fact working today on trying to get the capture of that info in
+some coherent structure.
+
+And, yes, those are the objectives -- now 4. I'm particularly concerned over time that changes somewhere seemingly
+innocuous will cause unintended glitches elsewhere. Also to be able to compare methods on a problem in a disciplined way.
+
+>
+> -You could consider defining a problem object in place of a file. This might have a constructor, eg OptProblem() which
+> you would call like this:
+
+I like this idea, but I also like plain text files, since they can be transformed so easily to other systems. In essence
+I create the objects anyway, so maybe I'll break up the runoptprob.R to first make the object from the file,
+then run the problem from the object. This is more or less what happens, but it can be made more explicit, and that
+may be more useful for others. And of course what you suggest below can be source()d just as I do now.
+
+>
+> DanielWood <- OptProblem(
+>     name = "DanielWood",
+>     description = "hese data and model are ...",
+>     formula = ( y ~ b1*x**b2 ),
+>     data = data.frame(
+>             x=c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680),
+>             y=c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)),
+>     start = function(indx) {...}
+>   ...
+> )
+>
+> -The constructor would return an object of class "OptProblem". You might have subclasses "constrainted" or
+> "unconstrained", or simply flag this in the object some way.
+
+I'm already picking up bounded vs unconstrained by presence of lower and/or upper, so we are at least moving in the same
+direction on this. (Logical 'havebounds' is created and used.)
+
+
+>
+> - The result of a test problem run should probably be another object, which can store everything that one might consider
+> important. Then you can define functions like print(), and summary(), residual(), iterationCount() to extract various
+> parts. One big advantage of this is that it allows you to customize reports without re-running the optimization.
+
+I actually tried this a couple of years ago and got caught on a largish problem (I think an extended Rosenbrock of
+n=5000 where the trajectory was turned on and blew memory away. i.e., 5000 doubles per point, lots of points.)
+But the idea has enough merit that I should make sure a "result object" is easily interchanged with a "result file",
+and that does not seem such a big task -- bits of it are sure to be needed for comparisons anyway. It is part of the
+vignette and the code that is pretty empty just now. It may be that output control needs to be set up so modest
+problems yield an object, while ones that can get large stream some material to files, or some other choice.
+
+>
+> -You are forcing too hard to fit things into a data.frame. I would use lists for general structures and data.frames only
+> for more data (matrix) like things.
+
+I've pretty well abandoned data frames except for the data for nls() and friends (they are needed there as part of the
+calling sequence). The stuff in the appendix is just to keep what I did on file. When things get more settled, I'll
+separate that out.
+
+FYI, I've actually had some concerns about using variables in the environment vs. explicitly declaring dataframe with
+nls() and similar functions. Mainly I find it awkward to figure out which data is being used if I'm not specifying
+things explicitly. I think nls() allows the dot args too -- something I've got to document soon as I'm supposed to work
+on this with Duncan in December.  My nlxb() and nlfb() both require the dataframe, but maybe I can relax that if I do it
+carefully.
+
+>
+> -I think the problem file or object also needs the expected results (function value, parameter values, ...) so you can
+> assess success or not.
+>
+
+Yes. Much of that is still pending. I've started to do some -- already trying to put in the function value at each start.
+
+> -I think you are trying to set up too many things in your problem file. I suggest having fewer options and more problem
+> files. For example, just one starting value in a problem file, and then a separate problem file for a different starting
+> value. If you go with objects then they might be used something like this
+>
+>  DanielWood  <- OptProblem( as above)
+>  DanielWood2 <- DanielWood
+>  start(DanielWood2)  <- whatever different starting value
+>
+
+Yes. A bit ambitious, but I'm pleasantly surprised how well it works. The separation into multiple similarly named files
+already got started with the idea that a bounds constrained problem can't be kept in same structure without overly
+complicating things. However, I think I've got the starting values issue more or less worked out with the XRosenbrock
+test, using the character string identifier for the start. I've noted folk tend to add different starts to functions
+like that. Some variation in size and type of start is certainly useful, but which ones should be the "standard" is
+still open except for things like Rosenbrock from -1.2, 1.
+
+> -I don't think of "optimization" as generally implying constraints, but I do think of it as including things like linear
+> programming and some kinds of combinatoric problems. "Solvers" cover some of this, but also include things like
+> differential equations, which have multi-dimension objectives, so I do not consider them an "optimization" problem.
+> (However, some people would argue that they can be set up as an optimization.) It might be better just to avoid the
+> terminology argument and simply state what you are considering (real valued objective function, continuous, smooth, ...)
+> and how you are going to refer to them (optimization, solver, ...?).
+
+We can get into quite a few religious issues with those. I'm open to changing title (these tests are really all about
+function minimization, including sums of squares), but Ripley seems to have set the name with optim(). Sigh. I'm not yet
+at the point where I want to tackle math programming or combinatoric optimization.
+
+>
+> Perusing CRAN for something else, I came across package
+> https://cran.r-project.org/web/packages/cec2005benchmark/index.html, which you may want to look at if you have not seen
+> it already.
+
+Thanks. I hadn't seen that one. I've seen several of these conference benchmark competition things, but didn't know
+anyone had converted to R. Have not had a reply from the Simon Fraser guy. Maybe that project simply ran out of
+steam.
+
+BTW, I really would like to be able to scan the source of a whole repository for instances of calls e.g., to optim().
+I'm not sure how easy that is -- I think Duncan had a way of doing it -- but I'd like to see what kinds of applications
+people are making. I've set up a blog post at https://nashjc.wordpress.com/ which r-bloggers re-feeds to try to get folk
+to look beyond the tools in optim().
+
+Will keep grinding -- this won't be done quickly, but I'm sensing some progress.
+
+Cheers, JN
+
+>
+> Best,
+> Paul
+>
+> On 11/25/2016 11:38 AM, John Nash wrote:
+>> Paul,
+>>
+>> I've finished what I think is a reasonable 1st draft. Far from definitive, but your comments forced
+>> me to think a good deal. I think I've got the "input" side more or less worked out and tested.
+>>
+>> Running problems seems to work, but I've not got much "output", just the general structure I think
+>> is needed for a long-term approach.
+>>
+>> The vignette is being used as a way to think about the issues and test them. The Appendices are where I'm
+>> putting the different things I've tested, so they are pretty scrappy. I think the body of the vignette is
+>> fairly tidy and explains my concerns. However, I'm sure I've forgotten some things.
+>>
+>> All the material is on https://r-forge.r-project.org/R/?group_id=395 under package NISTO (which I need to
+>> rename). The output of the vignette is attached since it doesn't get included in svn with Rstudio.
+>>
+>> In the process, I discovered the site https://www.sfu.ca/~ssurjano/. It has a lot of tests, but not a lot
+>> of structure to use them. I've emailed the "maintainer" but so far no reply.
+>>
+>> Best, JN
+>>

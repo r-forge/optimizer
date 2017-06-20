@@ -1,0 +1,314 @@
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+library(NISTO)
+?runoptprob
+getwd()
+source("./inst/extdata/DanielWood.prb")
+counters <- new.env()
+source("./inst/extdata/DanielWood.prb")
+library(nls2)
+?nls2
+?nls
+library(minpack.lm)
+?nlsLM
+?nlmert
+library(nlmrt)
+?nlxb
+debugSource('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+counters <- new.env()
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+rm(list=ls())
+source("R/runoptprob.R")
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+counters <- new.env()
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+source("R/runoptprob.R")
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/tests/tDanielWood-nls.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/tests/tDanielWood-nls.R', echo=TRUE)
+getwd()
+source("inst/extdata/XRosenbrock.prb")
+source("inst/extdata/XRosenbrock.prb")
+source("inst/extdata/XRosenbrock.prb")
+source("inst/extdata/XRosenbrock.prb")
+counters <- new.env()
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+test <- runoptprob("XRosenbrock", minmeth="optimrx", submeth="Rvmmin", nstart="2:HHR")
+ls()
+st <- XRosenbrock.star("2:HHR")
+st <- XRosenbrock.starr("2:HHR")
+st <- XRosenbrock.start("2:HHR")
+st
+st <- XRosenbrock.start("6:pi")
+st
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+test <- runoptprob("XRosenbrock", minmeth="optimrx", submeth="Rvmmin", nstart="2:HHR")
+test <- runoptprob("XRosenbrock", minmeth="optimrx", submeth="Rvmmin", istart="2:HHR")
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R', echo=TRUE)
+counters <- new.env()
+## @knitr XRosenbrock.prb
+# This is file XRosenbrock.prb
+probname <- "XRosenbrock"
+probdesc <- " This is the second multidimensional variation of the Rosenbrock function
+from Wikipedia's article https://en.wikipedia.org/wiki/Rosenbrock_function. The original
+2-parameter function is from Rosenbrock, H.H. (1960). 'An automatic method for finding the
+greatest or least value of a function'. The Computer Journal. 3: 175–184.
+doi:10.1093/comjnl/3.3.175. ISSN 0010-4620.
+"
+#- Note: environment / list "counter" must already exist
+if (! exists("counters")) {stop("The 'counters' environment must exist before problems are run.")}
+#- setup
+XRosenbrock.start <- function(indx) {
+#- indx is character string to allow for more general forms e.g., XRosenbrock
+#- split the index
+ivec <- strsplit(indx, ":")[[1]] # only want first element of list
+npar <- as.numeric(ivec[1])
+if ( (npar ==2) && (ivec[2]=="HHR")) { start = c(-1.2, 1) } # Traditional start n=2
+else { if (ivec[2] == "pi") {
+start <- rep(pi, npar)
+} else { start <- rep(as.numeric(ivec[2]), npar) }
+}
+pstring <- c()
+for (k in 1:npar) {pstring[k] <- paste("p",k,sep='')} # name the parameters
+names(start)<-pstring
+start
+}
+XRosenbrock.f <- function (x)
+{
+n <- length(x)
+x1 <- x[2:n]
+x2 <- x[1:(n - 1)]
+sum(100 * (x1 - x2^2)^2 + (1 - x2)^2)
+}
+XRosenbrock.g <- function (x)
+{
+n <- length(x)
+g <- rep(NA, n)
+g[1] <- 2 * (x[1] - 1) + 400 * x[1] * (x[1]^2 - x[2])
+if (n > 2) {
+ii <- 2:(n - 1)
+g[ii] <- 2 * (x[ii] - 1) + 400 * x[ii] * (x[ii]^2 - x[ii +
+1]) + 200 * (x[ii] - x[ii - 1]^2)
+}
+g[n] <- 200 * (x[n] - x[n - 1]^2)
+g
+}
+library(optimrx)
+st <- XRosenbrock.start("10:pi")
+st
+tesx <- opm(st, XRosenbrock.f, XRosenbrock.g, method="ALL")
+summary(tesx, order=value, par.select=1:4)
+summary(tesx, order=value, par.select=1:3)
+savehistory("rXR161125.txt")
+ls()
+source("inst/extdata/DanielWood.prb")
+ls()
+DanielWood.start
+dws1 <- DanielWood.start("1")
+dws2 <- DanielWood.start("2")
+dws1
+dws2
+fdws1 <- DanielWood.f(dws1)
+fdws1
+fdws2 <- DanielWood.f(dws2)
+fdws2
+source("inst/extdata/DanielWood.prb")
+fdws1 <- DanielWood.f(dws1)
+fdws1
+str(fdws1)
+DanielWood.start
+?attr
+dws1 <- DanielWood.start("1")
+dws1
+source('~/rsvnall/optimizer/pkg/NISTO/R/runoptprob.R')
+install.packages("rmdshower")
+source('~/rsvnall/optimizer/pkg/nltestprob/R/runoptprob.R')
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+source('~/rsvnall/optimizer/pkg/nltestprob/R/runoptprob.R')
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+lanczos1.setup<-function() {
+library(NISTnls) # get parent collection
+data(Lanczos1) # and load up the data into x and y
+}
+ls()
+lanczos1.setup()
+ls()
+Lanczos1
+lancdata <- lanczos1.setup()
+lancdata
+rm(list=ls())
+ls()
+NISTdata<-function(dataname) {
+library(NISTnls) # get parent collection
+data(dataname) # and load up the data into x and y
+}
+lancdata <- NISTdata(Lanczos1)
+lancdata <- NISTdata(dataname=Lanczos1)
+lancdata <- NISTdata(dataname="Lanczos1")
+data(Lanczos1)
+ls()
+lancdata
+rm("lancdata")
+ls()
+rm("Lanczos")
+rm("Lanczos1")
+ls()
+dataname <- language(Lanczos1)
+dataname <- lang(Lanczos1)
+dataname <- expression(Lanczos1)
+mylanc <- data(dataname)
+?data
+dataname <- "Lanczos1"
+mylanc <- data(dataname)
+mylanc <- data(list=dataname)
+mylanc
+mylanc
+data(Lanczos1)
+ls()
+Lanczos1
+rm(list=ls())
+library(NISTnls)
+dataname<-"Lanczos1"
+data(list=dataname)
+ls()
+Lanczos1
+mylanc<-data(list=dataname)
+mylanc
+mylanc<-Lanczos1
+mylanc
+ls()
+dataname
+rm(mylanc)
+mylanc <- parse(dataname)
+mylanc <- parse(text=dataname)
+mylanc
+rm(mylanc)
+Lanczos1
+str(Lanczos1)
+?rename
+??rename
+?parse
+ls()
+eval(dataname)
+eval(parse(dataname))
+eval(parse(text=dataname))
+ls()
+rm(Lanczos1)
+ls()
+mylanc<-data(list=dataname)
+mylanc
+mylanc<-eval(parse(text=data(list=dataname)))
+mylanc
+rm(list=ls())
+NISTdata<-function(dataname) {
+library(NISTnls) # get parent collection
+eval(parse(text=data(dataname))) # and load up the data into x and y
+}
+ls()
+mylanc<-NISTdata("Lanczos2")
+mylanc<-NISTdata(dataname="Lanczos2")
+NISTdata<-function(dataname) {
+library(NISTnls) # get parent collection
+eval(parse(text=data(list=dataname))) # and load up the data into x and y
+}
+mylanc<-NISTdata("Lanczos2")
+mylanc
+data(Lanczos1)
+Lanczos1
+Lanczos2
+Lanczos1
+mydata<-probdata("DanielWood0", "DanielWood")
+probdata<-function(dataname, pkgname) {
+library(pkgname) # get parent collection
+eval(parse(text=data(list=dataname))) # and load up the data into x and y
+}
+ls()
+try(NISTdata)
+try(NISTnls)
+try(data(NISTnls))
+?data
+date(package="NISTnls")
+data(package="NISTnls")
+mydata<-probdata("DanielWood", "DanielWood")
+probdata<-function(dataname, pkgname) {
+library(pkgname) # get parent collection
+eval(parse(text=data(list=dataname))) # and load up the data into x and y
+}
+mydata<-probdata("DanielWood", "DanielWood")
+mydata<-probdata("DanielWood", "NISTnls")
+mydata<-probdata("DanielWood", pkgname="NISTnls")
+pkgname <- "NISTnls"
+library(pkgname)
+?library
+library(pkgname, character.only=TRUE)
+probdata<-function(dataname, pkgname) {
+library(pkgname, character.only=TRUE) # get parent collection
+eval(parse(text=data(list=dataname))) # and load up the data into x and y
+}
+mydata<-probdata("DanielWood", "NISTnls")
+mydata
+library(numDeriv)
+?jacobian
+source('~/rsvnall/optimizer/pkg/nltestprob/inst/probfiles/Lanczos.R')
+ls()
+start1<-c(1.2,0.3,5.6,5.5,6.5,7.6)
+JJ <- lanczos1.jac(start1, mydata)
+JJ
+jacobian(lanczos.res, start1, pdata=mydata)
+library(nlsr)
+sol <- nlfb(start1, lanczos.res, pdata=mydata, trace=TRUE)
+sol
+solj <- nlfb(start1, lanczos.res, lanczos1.jac, pdata=mydata, trace=TRUE)
+ls()
+lanczos1.jac
+JJ
+JJn
+JJn<-jacobian(lanczos.res, start1, pdata=mydata)
+JJn-JJ
+lancos.res(start1, mydata)
+lanczos.res(start1, mydata)
+mydata
+mydata<-probdata("Lanczos1", "NISTnls")
+mydata
+JJ <- lanczos1.jac(start1, mydata)
+JJn<-jacobian(lanczos.res, start1, pdata=mydata)
+JJ-JJn
+sol <- nlfb(start1, lanczos.res, pdata=mydata, trace=TRUE)
+sol
+solj <- nlfb(start1, lanczos.res, lanczos1.jac, pdata=mydata, trace=TRUE)
+source('~/rsvnall/optimizer/pkg/nltestprob/inst/probfiles/Lanczos.R')
+source('~/rsvnall/optimizer/pkg/nltestprob/inst/probfiles/Lanczos.R')
+source('~/rsvnall/optimizer/pkg/nltestprob/inst/probfiles/Lanczos.R')
+solj <- nlfb(start1, lanczos.res, lanczos1.jac, pdata=mydata, trace=TRUE)
+traceback()
+ls
+ls()
+crossprod(JJ)
+sol
+solj <- nlfb(start1, lanczos.res, lanczos.jac, pdata=mydata, trace=TRUE)
+savehistory("lanczos170303a.txt")

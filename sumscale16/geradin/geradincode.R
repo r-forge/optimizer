@@ -142,13 +142,20 @@ cat("Minimal eigensolution\n")
 ag$x<-ag$x/sqrt(as.numeric(crossprod(ag$x))) # rescale
 print(ag)
 cat("Geradin time=",tg,"\n")
+esol <- eigen(AA)
+esolmaxe <- esol$values[1]
+esolmaxv <- esol$vectors[,1]
+esolmine <- esol$values[n]
+esolminv <- esol$vectors[,n]
+chkmax <- max(abs(AA %*% esolmaxv - esolmaxe*esolmaxv))
+chkmin <- max(abs(AA %*% esolminv - esolmine*esolminv))
+
 tgn<-system.time(agn<-geradin(x, ax, bx, AA=-AA, BB=BB,
    control=list(trace=TRUE)))[[3]]
 cat("Maximal eigensolution (negative matrix)\n")
 agn$x<-agn$x/sqrt(as.numeric(crossprod(agn$x))) # rescaleA
 print(agn)
 cat("Geradin time=",tgn,"\n")
-esol <- eigen(AA)
 cat("Maximal solution - value=",esol$values[1],"  diff =",esol$values[1]+agn$RQ,"\n")
 # Note using negative matrix, so use +
 print(esol$vectors[,1])

@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -12,7 +12,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2016-12-23" />
+<meta name="date" content="2017-06-20" />
 
 <title>nlsr Derivatives</title>
 
@@ -70,18 +70,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">nlsr Derivatives</h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2016-12-23</em></h4>
+<h4 class="date"><em>2017-06-20</em></h4>
 
 
 
 <p>This vignette is an attempt to catalog and illustrate the various capabilities in the <strong>R</strong> statistical computing system to perform differentiation. There are many traps and pitfalls for the unwary in doing this, and it is hoped that this rather long treatment will serve to record these and show how to avoid them, and how to reliably compute the derivatives desired. Derivative capabilities of <strong>R</strong> are in the base system (essentially the functions <code>D()</code> and <code>deriv()</code>) and in different packages, namely <code>nlsr</code>, <code>Deriv</code>, <code>Ryacas</code>. General tools for approximations to derivatives are found in the package <code>numDeriv</code> as well as <code>optextras</code>. Particular approximations may be embedded in various packages, but not necessarily exported for use in scripts or packages.</p>
 <p>As a way of recording where attention is needed either to this document or to the functions and methods described, I have put double question marks in various places.</p>
 <p>Note: To distinguish output results (which are prefaced ‘<code>##</code>’ by <strong>knitr</strong>, comments in the <strong>R</strong> code are prefaced by ‘<code>#-</code>’.)</p>
-<div id="todos" class="section level2">
-<h2>TODOS</h2>
-<p>?? in nlsr and Deriv, does a new derivative rule replace existing one? Warning? DM: in newDeriv, a warning is now issued if the rule is changed. In Deriv, no warning is issued.</p>
-<p>?? Change name of Deriv and fnDeriv in nlsr to Drv, fnDrv to avoid conflict and allow simultaneous load. Simplify -&gt; Smplfy etc. Any others? DM: I’d prefer not to leave out the vowels: Drv doesn’t look like “derivative” to me, it looks like “drive”. But the idea of avoiding conflict is good. I have changed the names to nlsDeriv and nlsSimplify. We can change again if we don’t like those…</p>
-</div>
 <div id="available-analytic-differentiation-tools" class="section level2">
 <h2>Available analytic differentiation tools</h2>
 <p><strong>R</strong> has a number of tools for finding analytic derivatives.</p>
@@ -96,10 +91,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="how-the-tools-are-used" class="section level2">
 <h2>How the tools are used</h2>
 <p>This is an overview section to give an idea of the capabilities. It is not intended to be exhaustive, but to give pointers to how the tools can be used quickly.</p>
+<p>An important issue that may cause a lot of difficulty is the iterating of the tools. That is, we compute a derivative, then want to apply a tool to the derivative to get a second derivative. In doing so, we need to be careful that the type (class??) of the quantity output by the tool is passed back into the tool in a form that will generate a derivative expression. Some examples are presented.</p>
+<p>We also note that the <strong>Deriv</strong> package will give a result in cases when the input is undefined. This is clearly a bug.</p>
 <div id="stats" class="section level3">
 <h3>stats</h3>
 <p><code>D()</code>, <code>deriv()</code> and <code>deriv3()</code>: As <code>deriv3()</code> is stated to be the same as <code>deriv()</code> but with argument <code>hessian=TRUE</code>, we will for now only consider the first two.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dx2x &lt;-<span class="st"> </span><span class="kw">deriv</span>(~<span class="st"> </span>x^<span class="dv">2</span>, <span class="st">&quot;x&quot;</span>) 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dx2x &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>) 
 dx2x</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- x^2
@@ -111,8 +108,8 @@ dx2x</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mode</span>(dx2x)</code></pre></div>
 <pre><code>## [1] &quot;expression&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(dx2x)</code></pre></div>
-<pre><code>##   expression({     .value &lt;- x^2     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))     .grad[, &quot;x&quot;] &lt;- 2 * x     attr(.value, &quot;gradient&quot;) &lt;- .grad     .value })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span>-<span class="dv">1</span>:<span class="dv">2</span>
+<pre><code>##   expression({  .value &lt;- x^2  .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))  .grad[, &quot;x&quot;] &lt;- 2 * x | __truncated__</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">1</span><span class="op">:</span><span class="dv">2</span>
 <span class="kw">eval</span>(dx2x) <span class="co"># This is evaluated at -1, 0, 1, 2, with the result in the &quot;gradient&quot; attribute</span></code></pre></div>
 <pre><code>## [1] 1 0 1 4
 ## attr(,&quot;gradient&quot;)
@@ -123,9 +120,13 @@ dx2x</code></pre></div>
 ## [4,]  4</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Note that we cannot (easily) differentiate this again.</span>
 firstd &lt;-<span class="st"> </span><span class="kw">attr</span>(dx2x,<span class="st">&quot;gradient&quot;</span>)
-<span class="kw">str</span>(firstd)</code></pre></div>
-<pre><code>##  NULL</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d2x2x &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">deriv</span>(firstd, <span class="st">&quot;x&quot;</span>))
+str</code></pre></div>
+<pre><code>## function (object, ...) 
+## UseMethod(&quot;str&quot;)
+## &lt;bytecode: 0x15f61f0&gt;
+## &lt;environment: namespace:utils&gt;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#  ... and the following gives an error</span>
+d2x2x &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">deriv</span>(firstd, <span class="st">&quot;x&quot;</span>))
 <span class="kw">str</span>(d2x2x)</code></pre></div>
 <pre><code>## Class 'try-error'  atomic [1:1] Error in deriv.default(firstd, &quot;x&quot;) : 
 ##   invalid expression in 'FindSubexprs'
@@ -135,7 +136,7 @@ firstd &lt;-<span class="st"> </span><span class="kw">attr</span>(dx2x,<span cla
 ##   .. ..$ call   : language deriv.default(firstd, &quot;x&quot;)
 ##   .. ..- attr(*, &quot;class&quot;)= chr [1:3] &quot;simpleError&quot; &quot;error&quot; &quot;condition&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Build a function from the expression</span>
-fdx2x&lt;-function(x){<span class="kw">eval</span>(dx2x)}
+fdx2x&lt;-<span class="cf">function</span>(x){<span class="kw">eval</span>(dx2x)}
 <span class="kw">fdx2x</span>(<span class="dv">1</span>)</code></pre></div>
 <pre><code>## [1] 1
 ## attr(,&quot;gradient&quot;)
@@ -146,7 +147,7 @@ fdx2x&lt;-function(x){<span class="kw">eval</span>(dx2x)}
 ## attr(,&quot;gradient&quot;)
 ##         x
 ## [1,] 6.42</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fdx2x</span>(<span class="dv">1</span>:<span class="dv">5</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fdx2x</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)</code></pre></div>
 <pre><code>## [1]  1  4  9 16 25
 ## attr(,&quot;gradient&quot;)
 ##       x
@@ -156,10 +157,10 @@ fdx2x&lt;-function(x){<span class="kw">eval</span>(dx2x)}
 ## [4,]  8
 ## [5,] 10</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- # Now try D()</span>
-Dx2x &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">expression</span>(x^<span class="dv">2</span>), <span class="st">&quot;x&quot;</span>)
+Dx2x &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">expression</span>(x<span class="op">^</span><span class="dv">2</span>), <span class="st">&quot;x&quot;</span>)
 Dx2x</code></pre></div>
 <pre><code>## 2 * x</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span>-<span class="dv">1</span>:<span class="dv">2</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">1</span><span class="op">:</span><span class="dv">2</span>
 <span class="kw">eval</span>(Dx2x)</code></pre></div>
 <pre><code>## [1] -2  0  2  4</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># We can differentiate aggain</span>
@@ -178,13 +179,13 @@ sDx2x</code></pre></div>
 <span class="co"># x exists, it fails</span>
 x</code></pre></div>
 <pre><code>## [1] -1  0  1  2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Dx2xx &lt;-<span class="st"> </span><span class="kw">D</span>(x^<span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Dx2xx &lt;-<span class="st"> </span><span class="kw">D</span>(x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)
 Dx2xx</code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">eval</span>(Dx2xx)</code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-  Something 'tougher':</span>
-trig.exp &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">sin</span>(<span class="kw">cos</span>(x +<span class="st"> </span>y^<span class="dv">2</span>)))
+trig.exp &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">sin</span>(<span class="kw">cos</span>(x <span class="op">+</span><span class="st"> </span>y<span class="op">^</span><span class="dv">2</span>)))
 ( D.sc &lt;-<span class="st"> </span><span class="kw">D</span>(trig.exp, <span class="st">&quot;x&quot;</span>) )</code></pre></div>
 <pre><code>## -(cos(cos(x + y^2)) * sin(x + y^2))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">all.equal</span>(<span class="kw">D</span>(trig.exp[[<span class="dv">1</span>]], <span class="st">&quot;x&quot;</span>), D.sc)</code></pre></div>
@@ -215,7 +216,7 @@ trig.exp &lt;-<span class="st"> </span><span class="kw">expression</span>(<span 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">eval</span>(D.sc)</code></pre></div>
 <pre><code>## [1]  0.0000000 -0.7216061 -0.8316919 -0.0774320</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-  function returned:</span>
-<span class="kw">deriv</span>((y ~<span class="st"> </span><span class="kw">sin</span>(<span class="kw">cos</span>(x) *<span class="st"> </span>y)), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>,<span class="st">&quot;y&quot;</span>), <span class="dt">func =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<span class="kw">deriv</span>((y <span class="op">~</span><span class="st"> </span><span class="kw">sin</span>(<span class="kw">cos</span>(x) <span class="op">*</span><span class="st"> </span>y)), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>,<span class="st">&quot;y&quot;</span>), <span class="dt">func =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## function (x, y) 
 ## {
 ##     .expr1 &lt;- cos(x)
@@ -232,8 +233,8 @@ trig.exp &lt;-<span class="st"> </span><span class="kw">expression</span>(<span 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- ??#-  Surely there is an error, since documentation says no lhs! i.e.,</span>
 <span class="co">#- &quot;expr: a 'expression' or 'call' or (except 'D') a formula with no lhs.&quot;</span>
 <span class="co">#-  function with defaulted arguments:</span>
-(fx &lt;-<span class="st"> </span><span class="kw">deriv</span>(y ~<span class="st"> </span>b0 +<span class="st"> </span>b1 *<span class="st"> </span><span class="dv">2</span>^(-x/th), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>),
-             function(b0, b1, th, <span class="dt">x =</span> <span class="dv">1</span>:<span class="dv">7</span>){} ) )</code></pre></div>
+(fx &lt;-<span class="st"> </span><span class="kw">deriv</span>(y <span class="op">~</span><span class="st"> </span>b0 <span class="op">+</span><span class="st"> </span>b1 <span class="op">*</span><span class="st"> </span><span class="dv">2</span><span class="op">^</span>(<span class="op">-</span>x<span class="op">/</span>th), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>),
+             <span class="cf">function</span>(b0, b1, th, <span class="dt">x =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">7</span>){} ) )</code></pre></div>
 <pre><code>## function (b0, b1, th, x = 1:7) 
 ## {
 ##     .expr3 &lt;- 2^(-x/th)
@@ -258,15 +259,15 @@ trig.exp &lt;-<span class="st"> </span><span class="kw">expression</span>(<span 
 ## [6,]  1 0.3535534 0.2756976
 ## [7,]  1 0.2973018 0.2704720</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-  First derivative</span>
-<span class="kw">D</span>(<span class="kw">expression</span>(x^<span class="dv">2</span>), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<span class="kw">D</span>(<span class="kw">expression</span>(x<span class="op">^</span><span class="dv">2</span>), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 2 * x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-  stopifnot(D(as.name(&quot;x&quot;), &quot;x&quot;) == 1) #- A way of testing. </span>
 <span class="co">#- This works by coercing &quot;x&quot; to name/symbol, and derivative should be 1.</span>
 <span class="co">#- Would fail only if &quot;x&quot; cannot be so coerced. How could this happen??</span>
 <span class="co">#-  Higher derivatives showing deriv3</span>
-myd3 &lt;-<span class="st"> </span><span class="kw">deriv3</span>(y ~<span class="st"> </span>b0 +<span class="st"> </span>b1 *<span class="st"> </span><span class="dv">2</span>^(-x/th), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>),
+myd3 &lt;-<span class="st"> </span><span class="kw">deriv3</span>(y <span class="op">~</span><span class="st"> </span>b0 <span class="op">+</span><span class="st"> </span>b1 <span class="op">*</span><span class="st"> </span><span class="dv">2</span><span class="op">^</span>(<span class="op">-</span>x<span class="op">/</span>th), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>),
      <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>, <span class="st">&quot;x&quot;</span>) )
-<span class="kw">myd3</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>, <span class="dt">x=</span><span class="dv">1</span>:<span class="dv">7</span>)</code></pre></div>
+<span class="kw">myd3</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>, <span class="dt">x=</span><span class="dv">1</span><span class="op">:</span><span class="dv">7</span>)</code></pre></div>
 <pre><code>## [1] 4.522689 4.121320 3.783811 3.500000 3.261345 3.060660 2.891905
 ## attr(,&quot;gradient&quot;)
 ##      b0        b1        th
@@ -311,9 +312,9 @@ myd3 &lt;-<span class="st"> </span><span class="kw">deriv3</span>(y ~<span class
 ## [6,]  0 0.09189920 -0.06618667
 ## [7,]  0 0.09015733 -0.05321485</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- check against deriv()</span>
-myd3a &lt;-<span class="st"> </span><span class="kw">deriv</span>(y ~<span class="st"> </span>b0 +<span class="st"> </span>b1 *<span class="st"> </span><span class="dv">2</span>^(-x/th), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>),
+myd3a &lt;-<span class="st"> </span><span class="kw">deriv</span>(y <span class="op">~</span><span class="st"> </span>b0 <span class="op">+</span><span class="st"> </span>b1 <span class="op">*</span><span class="st"> </span><span class="dv">2</span><span class="op">^</span>(<span class="op">-</span>x<span class="op">/</span>th), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>),
      <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>, <span class="st">&quot;x&quot;</span>), <span class="dt">hessian=</span><span class="ot">TRUE</span> )
-<span class="kw">myd3a</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>, <span class="dt">x=</span><span class="dv">1</span>:<span class="dv">7</span>)</code></pre></div>
+<span class="kw">myd3a</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>, <span class="dt">x=</span><span class="dv">1</span><span class="op">:</span><span class="dv">7</span>)</code></pre></div>
 <pre><code>## [1] 4.522689 4.121320 3.783811 3.500000 3.261345 3.060660 2.891905
 ## attr(,&quot;gradient&quot;)
 ##      b0        b1        th
@@ -360,12 +361,12 @@ myd3a &lt;-<span class="st"> </span><span class="kw">deriv</span>(y ~<span class
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">identical</span>(myd3a, myd3) <span class="co">#- Remember to check things!</span></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-  Higher derivatives:</span>
-DD &lt;-<span class="st"> </span>function(expr, name, <span class="dt">order =</span> <span class="dv">1</span>) {
-   if(order &lt;<span class="st"> </span><span class="dv">1</span>) <span class="kw">stop</span>(<span class="st">&quot;'order' must be &gt;= 1&quot;</span>)
-   if(order ==<span class="st"> </span><span class="dv">1</span>) <span class="kw">D</span>(expr, name)
-   else <span class="kw">DD</span>(<span class="kw">D</span>(expr, name), name, order -<span class="st"> </span><span class="dv">1</span>)
+DD &lt;-<span class="st"> </span><span class="cf">function</span>(expr, name, <span class="dt">order =</span> <span class="dv">1</span>) {
+   <span class="cf">if</span>(order <span class="op">&lt;</span><span class="st"> </span><span class="dv">1</span>) <span class="kw">stop</span>(<span class="st">&quot;'order' must be &gt;= 1&quot;</span>)
+   <span class="cf">if</span>(order <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="kw">D</span>(expr, name)
+   <span class="cf">else</span> <span class="kw">DD</span>(<span class="kw">D</span>(expr, name), name, order <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
 }
-<span class="kw">DD</span>(<span class="kw">expression</span>(<span class="kw">sin</span>(x^<span class="dv">2</span>)), <span class="st">&quot;x&quot;</span>, <span class="dv">3</span>)</code></pre></div>
+<span class="kw">DD</span>(<span class="kw">expression</span>(<span class="kw">sin</span>(x<span class="op">^</span><span class="dv">2</span>)), <span class="st">&quot;x&quot;</span>, <span class="dv">3</span>)</code></pre></div>
 <pre><code>## -(sin(x^2) * (2 * x) * 2 + ((cos(x^2) * (2 * x) * (2 * x) + sin(x^2) * 
 ##     2) * (2 * x) + sin(x^2) * (2 * x) * 2))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-  showing the limits of the internal &quot;simplify()&quot; :</span>
@@ -376,14 +377,14 @@ DD &lt;-<span class="st"> </span>function(expr, name, <span class="dt">order =</
 <h3>nlsr</h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nlsr)</code></pre></div>
 <pre><code>## Loading required package: nlsr</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dx2xn &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(~<span class="st"> </span>x^<span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dx2xn &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)
 dx2xn</code></pre></div>
 <pre><code>## 2 * x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mode</span>(dx2xn)</code></pre></div>
 <pre><code>## [1] &quot;call&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(dx2xn)</code></pre></div>
 <pre><code>##  language 2 * x</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span>-<span class="dv">1</span>:<span class="dv">2</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">1</span><span class="op">:</span><span class="dv">2</span>
 <span class="kw">eval</span>(dx2xn) <span class="co"># This is evaluated at -1, 0, 1, 2, BUT result is returned directly,</span></code></pre></div>
 <pre><code>## [1] -2  0  2  4</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-  NOT in &quot;gradient&quot; attribute</span>
@@ -393,15 +394,33 @@ firstdn &lt;-<span class="st"> </span>dx2xn
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d2x2xn &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(firstdn, <span class="st">&quot;x&quot;</span>)
 d2x2xn</code></pre></div>
 <pre><code>## [1] 2</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d2x2xnF &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(firstdn, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+d2x2xnF <span class="co"># in this case we get the same result</span></code></pre></div>
+<pre><code>## [1] 2</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d2x2xnT &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(firstdn, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">TRUE</span>)
+d2x2xnT <span class="co"># 0 ## WATCH OUT</span></code></pre></div>
+<pre><code>## [1] 0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- ?? We can iterate the derivatives</span>
 <span class="kw">nlsDeriv</span>(d2x2xn, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<pre><code>## [1] 0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)<span class="co"># 0</span></code></pre></div>
+<pre><code>## [1] 0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)<span class="co"># 0</span></code></pre></div>
+<pre><code>## [1] 0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">TRUE</span>) <span class="co"># 2 * x</span></code></pre></div>
+<pre><code>## [1] 0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>) <span class="co"># 2 * x</span></code></pre></div>
+<pre><code>## 2 * x</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>) <span class="co"># 2 * x</span></code></pre></div>
+<pre><code>## 2 * x</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">TRUE</span>) <span class="co"># 2 * x</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#?? firstde &lt;- quote(firstd)</span>
 <span class="co">#?? firstde</span>
 <span class="co">#?? firstde &lt;- bquote(firstd)</span>
 <span class="co">#?? firstde</span>
 <span class="co">#?? nlsDeriv(firstde, &quot;x&quot;)</span>
-d2 &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(<span class="dv">2</span> *<span class="st"> </span>x, <span class="st">&quot;x&quot;</span>)
+d2 &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>x, <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(d2)</code></pre></div>
 <pre><code>##  num 0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d2</code></pre></div>
@@ -413,38 +432,68 @@ d2 &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(<span class="d
 <span class="co">#?? fdx2xn(1)</span>
 <span class="co">#?? fdx2xn(3.21)</span>
 <span class="co">#?? fdx2xn(1:5)</span></code></pre></div>
-<p>The tool <code>fnDeriv</code> returns an expression which can be used in several ways.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Include parameters as arguments</span>
-fj<span class="fl">.1</span> &lt;-<span class="st"> </span>function(x, b0, b1, th) {}
-<span class="kw">body</span>(fj<span class="fl">.1</span>) &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="st">&quot;b0 + b1 * 2^(-x/th)&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>)) 
-<span class="kw">fj.1</span>(<span class="dt">x=</span><span class="dv">1</span>, <span class="dt">b0=</span><span class="dv">2</span>, <span class="dt">b1=</span><span class="dv">3</span>, <span class="dt">th=</span><span class="dv">4</span>)</code></pre></div>
-<pre><code>## [1] 4.522689
-## attr(,&quot;gradient&quot;)
-##      b0        b1        th
-## [1,]  1 0.8408964 0.1092872</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Get parameters from the environment</span>
-fj<span class="fl">.2</span> &lt;-<span class="st"> </span>function(x) {}
-<span class="kw">body</span>(fj<span class="fl">.2</span>) &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="st">&quot;b0 + b1 * 2^(-x/th)&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>)) 
-b0 &lt;-<span class="st"> </span><span class="dv">2</span>
-b1 &lt;-<span class="st"> </span><span class="dv">3</span>
-th &lt;-<span class="st"> </span><span class="dv">4</span>
-<span class="kw">fj.2</span>(<span class="dv">1</span>)</code></pre></div>
-<pre><code>## [1] 4.522689
-## attr(,&quot;gradient&quot;)
-##      b0        b1        th
-## [1,]  1 0.8408964 0.1092872</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Just use an expression</span>
-fje &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="st">&quot;b0 + b1 * 2^(-x/th)&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>))
-x &lt;-<span class="st"> </span><span class="dv">1</span>
-<span class="kw">eval</span>(fje)</code></pre></div>
-<pre><code>## [1] 4.522689
-## attr(,&quot;gradient&quot;)
-##      b0        b1        th
-## [1,]  1 0.8408964 0.1092872</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dx2xnf &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(~<span class="st"> </span>x^<span class="dv">2</span>, <span class="st">&quot;x&quot;</span>) <span class="co">#- Use tilde</span>
-dx2xnf &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">expression</span>(x^<span class="dv">2</span>), <span class="st">&quot;x&quot;</span>) <span class="co">#- or use expression()</span>
-dx2xnf</code></pre></div>
+<p>The tool <code>codeDeriv</code> returns an R expression to evaluate the derivative efficiently. <code>fnDeriv</code> wraps it in a function. By default the arguments to the function are constructed from all variables in the expression. In the example below this includes <code>x</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">codeDeriv</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="st">&quot;b0 + b1 * 2^(-x/th)&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>)) </code></pre></div>
 <pre><code>## {
+##     .expr1 &lt;- -x
+##     .expr2 &lt;- .expr1/th
+##     .expr3 &lt;- 2^.expr2
+##     .value &lt;- b0 + b1 * 2^(.expr2)
+##     .grad &lt;- array(0, c(length(.value), 3L), list(NULL, c(&quot;b0&quot;, 
+##     &quot;b1&quot;, &quot;th&quot;)))
+##     .grad[, &quot;b0&quot;] &lt;- 1
+##     .grad[, &quot;b1&quot;] &lt;- .expr3
+##     .grad[, &quot;th&quot;] &lt;- b1 * (.expr3 * 0.693147180559945 * -(.expr1/th^2))
+##     attr(.value, &quot;gradient&quot;) &lt;- .grad
+##     .value
+## }</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Include parameters as arguments</span>
+fj.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="st">&quot;b0 + b1 * 2^(-x/th)&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>)) 
+<span class="kw">head</span>(fj.<span class="dv">1</span>)</code></pre></div>
+<pre><code>##                                     
+## 1 function (b0, b1, x, th)          
+## 2 {                                 
+## 3     .expr1 &lt;- -x                  
+## 4     .expr2 &lt;- .expr1/th           
+## 5     .expr3 &lt;- 2^.expr2            
+## 6     .value &lt;- b0 + b1 * 2^(.expr2)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fj.1</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>)</code></pre></div>
+<pre><code>## [1] 2.189207
+## attr(,&quot;gradient&quot;)
+##      b0        b1        th
+## [1,]  1 0.5946036 0.1545554</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Get all parameters from the calling environment</span>
+fj.<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="st">&quot;b0 + b1 * 2^(-x/th)&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>),
+        <span class="dt">args =</span> <span class="kw">character</span>())
+<span class="kw">head</span>(fj.<span class="dv">2</span>)</code></pre></div>
+<pre><code>##                                     
+## 1 function ()                       
+## 2 {                                 
+## 3     .expr1 &lt;- -x                  
+## 4     .expr2 &lt;- .expr1/th           
+## 5     .expr3 &lt;- 2^.expr2            
+## 6     .value &lt;- b0 + b1 * 2^(.expr2)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">b0 &lt;-<span class="st"> </span><span class="dv">1</span>
+b1 &lt;-<span class="st"> </span><span class="dv">2</span>
+x &lt;-<span class="st"> </span><span class="dv">3</span>
+th &lt;-<span class="st"> </span><span class="dv">4</span> 
+<span class="kw">fj.2</span>()</code></pre></div>
+<pre><code>## [1] 2.189207
+## attr(,&quot;gradient&quot;)
+##      b0        b1        th
+## [1,]  1 0.5946036 0.1545554</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Just use an expression</span>
+fje &lt;-<span class="st"> </span><span class="kw">codeDeriv</span>(<span class="kw">parse</span>(<span class="dt">text=</span><span class="st">&quot;b0 + b1 * 2^(-x/th)&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;b0&quot;</span>, <span class="st">&quot;b1&quot;</span>, <span class="st">&quot;th&quot;</span>))
+<span class="kw">eval</span>(fje)</code></pre></div>
+<pre><code>## [1] 2.189207
+## attr(,&quot;gradient&quot;)
+##      b0        b1        th
+## [1,]  1 0.5946036 0.1545554</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dx2xnf &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>) <span class="co">#- Use tilde</span>
+dx2xnf &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">expression</span>(x<span class="op">^</span><span class="dv">2</span>), <span class="st">&quot;x&quot;</span>) <span class="co">#- or use expression()</span>
+dx2xnf</code></pre></div>
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- x^2
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 2 * x
@@ -452,10 +501,10 @@ dx2xnf</code></pre></div>
 ##     .value
 ## }</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mode</span>(dx2xnf)</code></pre></div>
-<pre><code>## [1] &quot;call&quot;</code></pre>
+<pre><code>## [1] &quot;function&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(dx2xnf)</code></pre></div>
-<pre><code>##  language {  .value &lt;- x^2; .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;)); .grad[, &quot;x&quot;] &lt;- 2 * x; attr(.value, &quot;gradient&quot;) &lt;- .grad; .value }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span>-<span class="dv">1</span>:<span class="dv">2</span>
+<pre><code>## function (x)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="op">-</span><span class="dv">1</span><span class="op">:</span><span class="dv">2</span>
 <span class="co">#?? eval(dx2xnf) # This is evaluated at -1, 0, 1, 2, BUT result is returned directly,</span>
 <span class="co">#-  NOT in &quot;gradient&quot; attribute</span>
 <span class="co"># Note that we cannot (easily) differentiate this again.</span>
@@ -478,7 +527,7 @@ dx2xnf</code></pre></div>
 <p>The following examples are drawn from the <code>example(Deriv)</code> contained in the <code>Deriv</code> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(Deriv)</code></pre></div>
 <pre><code>## Loading required package: Deriv</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(x) x^<span class="dv">2</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span><span class="cf">function</span>(x) x<span class="op">^</span><span class="dv">2</span>
 <span class="kw">Deriv</span>(f)</code></pre></div>
 <pre><code>## function (x) 
 ## 2 * x</code></pre>
@@ -494,7 +543,7 @@ f1 <span class="co">#- print it</span></code></pre></div>
 f2 <span class="co">#- print it</span></code></pre></div>
 <pre><code>## function (x) 
 ## 2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(x, y) <span class="kw">sin</span>(x) *<span class="st"> </span><span class="kw">cos</span>(y)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span><span class="cf">function</span>(x, y) <span class="kw">sin</span>(x) <span class="op">*</span><span class="st"> </span><span class="kw">cos</span>(y)
 f_ &lt;-<span class="st"> </span><span class="kw">Deriv</span>(f)
 f_ <span class="co">#- print it</span></code></pre></div>
 <pre><code>## function (x, y) 
@@ -509,14 +558,14 @@ f_ <span class="co">#- print it</span></code></pre></div>
 <span class="co">#-              x         y</span>
 <span class="co">#- [1,] 0.6471023 0.1068000</span>
 
-f2 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(~<span class="st"> </span><span class="kw">f</span>(x, y^<span class="dv">2</span>), <span class="st">&quot;y&quot;</span>) <span class="co">#- This has a tilde to render the 1st argument as a formula object</span>
+f2 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">f</span>(x, y<span class="op">^</span><span class="dv">2</span>), <span class="st">&quot;y&quot;</span>) <span class="co">#- This has a tilde to render the 1st argument as a formula object</span>
 <span class="co">#- Also we are substituting in y^2 for y</span>
 f2 <span class="co">#- print it</span></code></pre></div>
 <pre><code>## -(2 * (y * sin(x) * sin(y^2)))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- -(2 * (y * sin(x) * sin(y^2)))</span>
 <span class="kw">mode</span>(f2) <span class="co">#- check what type of object it is</span></code></pre></div>
 <pre><code>## [1] &quot;call&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">arg1 &lt;-<span class="st"> </span><span class="er">~</span><span class="st"> </span><span class="kw">f</span>(x,y^<span class="dv">2</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">arg1 &lt;-<span class="st"> </span><span class="er">~</span><span class="st"> </span><span class="kw">f</span>(x,y<span class="op">^</span><span class="dv">2</span>)
 <span class="kw">mode</span>(arg1) <span class="co">#- check the type</span></code></pre></div>
 <pre><code>## [1] &quot;call&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f2a &lt;-<span class="st"> </span><span class="kw">Deriv</span>(arg1, <span class="st">&quot;y&quot;</span>)
@@ -527,16 +576,16 @@ x</code></pre></div>
 <pre><code>## [1] -1  0  1  2</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y</code></pre></div>
 <pre><code>## [1] 1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">f</span>(x,y^<span class="dv">2</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">f</span>(x,y<span class="op">^</span><span class="dv">2</span>)</code></pre></div>
 <pre><code>## [1] -0.4546487  0.0000000  0.4546487  0.4912955</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">eval</span>(f2a) <span class="co">#- We need x and y defined to do this.</span></code></pre></div>
 <pre><code>## [1]  1.416147  0.000000 -1.416147 -1.530295</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f3 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">quote</span>(<span class="kw">f</span>(x, y^<span class="dv">2</span>)), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>), <span class="dt">cache.exp=</span><span class="ot">FALSE</span>) <span class="co">#- check cache.exp operation</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f3 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">quote</span>(<span class="kw">f</span>(x, y<span class="op">^</span><span class="dv">2</span>)), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>), <span class="dt">cache.exp=</span><span class="ot">FALSE</span>) <span class="co">#- check cache.exp operation</span>
 <span class="co">#- Note that we need to quote or will get evaluation at current x, y values (if they exist)</span>
 f3 <span class="co">#- print it</span></code></pre></div>
 <pre><code>## c(x = cos(x) * cos(y^2), y = -(2 * (y * sin(x) * sin(y^2))))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- c(x = cos(x) * cos(y^2), y = -(2 * (y * sin(x) * sin(y^2))))</span>
-f3c &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">quote</span>(<span class="kw">f</span>(x, y^<span class="dv">2</span>)), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>), <span class="dt">cache.exp=</span><span class="ot">TRUE</span>) <span class="co">#- check cache.exp operation</span>
+f3c &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="kw">quote</span>(<span class="kw">f</span>(x, y<span class="op">^</span><span class="dv">2</span>)), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>), <span class="dt">cache.exp=</span><span class="ot">TRUE</span>) <span class="co">#- check cache.exp operation</span>
 f3c <span class="co">#- print it</span></code></pre></div>
 <pre><code>## {
 ##     .e1 &lt;- y^2
@@ -556,13 +605,13 @@ y &lt;-<span class="st"> </span><span class="dv">4</span>
 <pre><code>##         x         y 
 ## 0.9480757 0.3250313</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- or we can create functions</span>
-f3cf &lt;-<span class="st"> </span>function(x, y){<span class="kw">eval</span>(f3c)}
+f3cf &lt;-<span class="st"> </span><span class="cf">function</span>(x, y){<span class="kw">eval</span>(f3c)}
 <span class="kw">f3cf</span>(<span class="dt">x=</span><span class="dv">1</span>, <span class="dt">y=</span><span class="dv">2</span>)</code></pre></div>
 <pre><code>##          x          y 
 ## -0.3531652  2.5473094</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#-          x          y </span>
 <span class="co">#- -0.3531652  2.5473094 </span>
-f3f &lt;-<span class="st"> </span>function(x,y){<span class="kw">eval</span>(f3)}
+f3f &lt;-<span class="st"> </span><span class="cf">function</span>(x,y){<span class="kw">eval</span>(f3)}
 <span class="kw">f3f</span>(<span class="dt">x=</span><span class="dv">3</span>, <span class="dt">y=</span><span class="dv">4</span>)</code></pre></div>
 <pre><code>##         x         y 
 ## 0.9480757 0.3250313</code></pre>
@@ -570,7 +619,7 @@ f3f &lt;-<span class="st"> </span>function(x,y){<span class="kw">eval</span>(f3)
 <span class="co">#- 0.9480757 0.3250313 </span>
 
 <span class="co">#- try an expression</span>
-<span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">sin</span>(x^<span class="dv">2</span>) *<span class="st"> </span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">sin</span>(x<span class="op">^</span><span class="dv">2</span>) <span class="op">*</span><span class="st"> </span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression(2 * (x * y * cos(x^2)))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- should see</span>
 <span class="co">#- expression(2 * (x * y * cos(x^2)))</span>
@@ -590,13 +639,13 @@ f3f &lt;-<span class="st"> </span>function(x,y){<span class="kw">eval</span>(f3)
 <span class="co">#- Compound function example (here abs(x) smoothed near 0)</span>
 <span class="co">#- Note that this introduces the possibilty of `if` statements in the code</span>
 <span class="co">#- BUT (JN) seems to give back quoted string, so we must parse.</span>
-fc &lt;-<span class="st"> </span>function(x, <span class="dt">h=</span><span class="fl">0.1</span>) if (<span class="kw">abs</span>(x) &lt;<span class="st"> </span>h) <span class="fl">0.5</span>*h*(x/h)**<span class="dv">2</span> else <span class="kw">abs</span>(x)-<span class="fl">0.5</span>*h
+fc &lt;-<span class="st"> </span><span class="cf">function</span>(x, <span class="dt">h=</span><span class="fl">0.1</span>) <span class="cf">if</span> (<span class="kw">abs</span>(x) <span class="op">&lt;</span><span class="st"> </span>h) <span class="fl">0.5</span><span class="op">*</span>h<span class="op">*</span>(x<span class="op">/</span>h)<span class="op">**</span><span class="dv">2</span> <span class="cf">else</span> <span class="kw">abs</span>(x)<span class="op">-</span><span class="fl">0.5</span><span class="op">*</span>h
 efc1 &lt;-<span class="st"> </span><span class="kw">Deriv</span>(<span class="st">&quot;fc(x)&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="dt">cache.exp=</span><span class="ot">FALSE</span>) 
 <span class="co">#- &quot;if (abs(x) &lt; h) x/h else sign(x)&quot;</span>
 <span class="co">#- A few checks on the results</span>
 efc1</code></pre></div>
 <pre><code>## [1] &quot;if (abs(x) &lt; h) x/h else sign(x)&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fc1 &lt;-<span class="st"> </span>function(x,<span class="dt">h=</span><span class="fl">0.1</span>){ <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span>efc1)) }
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fc1 &lt;-<span class="st"> </span><span class="cf">function</span>(x,<span class="dt">h=</span><span class="fl">0.1</span>){ <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text=</span>efc1)) }
 fc1</code></pre></div>
 <pre><code>## function(x,h=0.1){ eval(parse(text=efc1)) }</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## h=0.1
@@ -604,15 +653,15 @@ fc1</code></pre></div>
 <pre><code>## [1] 1</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fc1</span>(<span class="fl">0.001</span>)</code></pre></div>
 <pre><code>## [1] 0.01</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fc1</span>(-<span class="fl">0.001</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fc1</span>(<span class="op">-</span><span class="fl">0.001</span>)</code></pre></div>
 <pre><code>## [1] -0.01</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fc1</span>(-<span class="dv">10</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fc1</span>(<span class="op">-</span><span class="dv">10</span>)</code></pre></div>
 <pre><code>## [1] -1</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fc1</span>(<span class="fl">0.001</span>, <span class="dv">1</span>)</code></pre></div>
 <pre><code>## [1] 0.001</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Example of a first argument that cannot be evaluated in the current environment:</span>
-  <span class="kw">suppressWarnings</span>(<span class="kw">rm</span>(<span class="st">&quot;xx&quot;</span>, <span class="st">&quot;yy&quot;</span>)) <span class="co">#- Make sure there are no objects xx or yy</span>
-  <span class="kw">Deriv</span>(xx^<span class="dv">2</span>+yy^<span class="dv">2</span>)</code></pre></div>
+  <span class="kw">try</span>(<span class="kw">suppressWarnings</span>(<span class="kw">rm</span>(<span class="st">&quot;xx&quot;</span>, <span class="st">&quot;yy&quot;</span>))) <span class="co">#- Make sure there are no objects xx or yy</span>
+  <span class="kw">Deriv</span>(<span class="op">~</span><span class="st"> </span>xx<span class="op">^</span><span class="dv">2</span><span class="op">+</span>yy<span class="op">^</span><span class="dv">2</span>)</code></pre></div>
 <pre><code>## c(xx = 2 * xx, yy = 2 * yy)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Should show</span>
 <span class="co">#- c(xx = 2 * xx, yy = 2 * yy)</span>
@@ -620,7 +669,7 @@ fc1</code></pre></div>
   
 <span class="co">#- ?? Is following really AD?  </span>
 <span class="co">#- Automatic differentiation (AD), note intermediate variable 'd' assignment</span>
-<span class="kw">Deriv</span>(~{d &lt;-<span class="st"> </span>((x-m)/s)^<span class="dv">2</span>; <span class="kw">exp</span>(-<span class="fl">0.5</span>*d)}, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<span class="kw">Deriv</span>(<span class="op">~</span>{d &lt;-<span class="st"> </span>((x<span class="op">-</span>m)<span class="op">/</span>s)<span class="op">^</span><span class="dv">2</span>; <span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.5</span><span class="op">*</span>d)}, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## {
 ##     .e1 &lt;- x - m
 ##     -(exp(-(0.5 * (.e1/s)^2)) * .e1/s^2)
@@ -635,10 +684,10 @@ fc1</code></pre></div>
 
 
 <span class="co">#- Custom derivative rule. Note that this needs explanations??</span>
-  myfun &lt;-<span class="st"> </span>function(x, <span class="dt">y=</span><span class="ot">TRUE</span>) <span class="ot">NULL</span> <span class="co">#- do something useful</span>
-  dmyfun &lt;-<span class="st"> </span>function(x, <span class="dt">y=</span><span class="ot">TRUE</span>) <span class="ot">NULL</span> <span class="co">#- myfun derivative by x.</span>
+  myfun &lt;-<span class="st"> </span><span class="cf">function</span>(x, <span class="dt">y=</span><span class="ot">TRUE</span>) <span class="ot">NULL</span> <span class="co">#- do something useful</span>
+  dmyfun &lt;-<span class="st"> </span><span class="cf">function</span>(x, <span class="dt">y=</span><span class="ot">TRUE</span>) <span class="ot">NULL</span> <span class="co">#- myfun derivative by x.</span>
   drule[[<span class="st">&quot;myfun&quot;</span>]] &lt;-<span class="st"> </span><span class="kw">alist</span>(<span class="dt">x=</span><span class="kw">dmyfun</span>(x, y), <span class="dt">y=</span><span class="ot">NULL</span>) <span class="co">#- y is just a logical</span>
-  <span class="kw">Deriv</span>(<span class="kw">myfun</span>(z^<span class="dv">2</span>, <span class="ot">FALSE</span>), <span class="st">&quot;z&quot;</span>)</code></pre></div>
+  <span class="kw">Deriv</span>(<span class="kw">myfun</span>(z<span class="op">^</span><span class="dv">2</span>, <span class="ot">FALSE</span>), <span class="st">&quot;z&quot;</span>)</code></pre></div>
 <pre><code>## 2 * (z * dmyfun(z^2, FALSE))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="co"># 2 * (z * dmyfun(z^2, FALSE))</span>
 
@@ -646,7 +695,7 @@ fc1</code></pre></div>
   theta &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">m=</span><span class="fl">0.1</span>, <span class="dt">sd=</span><span class="dv">2</span>.) <span class="co">#- Why do we set values??</span>
   x &lt;-<span class="st"> </span><span class="kw">names</span>(theta) <span class="co">#- and why these particular names??</span>
   <span class="kw">names</span>(x)=<span class="kw">rep</span>(<span class="st">&quot;theta&quot;</span>, <span class="kw">length</span>(theta))
-  <span class="kw">Deriv</span>(~<span class="kw">exp</span>(-(x-theta$m)**<span class="dv">2</span>/(<span class="dv">2</span>*theta$sd)), x, <span class="dt">cache.exp=</span><span class="ot">FALSE</span>)</code></pre></div>
+  <span class="kw">Deriv</span>(<span class="op">~</span><span class="kw">exp</span>(<span class="op">-</span>(x<span class="op">-</span>theta<span class="op">$</span>m)<span class="op">**</span><span class="dv">2</span><span class="op">/</span>(<span class="dv">2</span><span class="op">*</span>theta<span class="op">$</span>sd)), x, <span class="dt">cache.exp=</span><span class="ot">FALSE</span>)</code></pre></div>
 <pre><code>## c(theta_m = exp(-((x - theta$m)^2/(2 * theta$sd))) * (x - theta$m)/theta$sd, 
 ##     theta_sd = 2 * (exp(-((x - theta$m)^2/(2 * theta$sd))) * 
 ##         (x - theta$m)^2/(2 * theta$sd)^2))</code></pre>
@@ -654,26 +703,40 @@ fc1</code></pre></div>
 <span class="co">#- c(theta_m = exp(-((x - theta$m)^2/(2 * theta$sd))) *</span>
 <span class="co">#-  (x - theta$m)/theta$sd, theta_sd = 2 * (exp(-((x - theta$m)^2/</span>
 <span class="co">#-  (2 * theta$sd))) * (x - theta$m)^2/(2 * theta$sd)^2))</span>
-lderiv &lt;-<span class="st">  </span><span class="kw">Deriv</span>(~<span class="kw">exp</span>(-(x-theta$m)**<span class="dv">2</span>/(<span class="dv">2</span>*theta$sd)), x, <span class="dt">cache.exp=</span><span class="ot">FALSE</span>)
-fld &lt;-<span class="st"> </span>function(x){ <span class="kw">eval</span>(lderiv)} <span class="co">#- put this in a function</span>
+lderiv &lt;-<span class="st">  </span><span class="kw">Deriv</span>(<span class="op">~</span><span class="kw">exp</span>(<span class="op">-</span>(x<span class="op">-</span>theta<span class="op">$</span>m)<span class="op">**</span><span class="dv">2</span><span class="op">/</span>(<span class="dv">2</span><span class="op">*</span>theta<span class="op">$</span>sd)), x, <span class="dt">cache.exp=</span><span class="ot">FALSE</span>)
+fld &lt;-<span class="st"> </span><span class="cf">function</span>(x){ <span class="kw">eval</span>(lderiv)} <span class="co">#- put this in a function</span>
 <span class="kw">fld</span>(<span class="dv">2</span>) <span class="co">#- and evaluate at a value</span></code></pre></div>
 <pre><code>##   theta_m  theta_sd 
 ## 0.3852768 0.1830065</code></pre>
 <p><strong>Deriv</strong> has some design choices that can get the user into trouble. The following example shows one such problem.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(Deriv)
-<span class="kw">Deriv</span>(x, <span class="st">&quot;x&quot;</span>)  <span class="co"># returns [1] 1</span></code></pre></div>
-<pre><code>## [1] &quot;0&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(x^<span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)   <span class="co"># returns 2 * x</span></code></pre></div>
+<span class="kw">rm</span>(x) <span class="co"># ensures x is undefined</span>
+<span class="kw">Deriv</span>(<span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;x&quot;</span>)  <span class="co"># returns [1] 1 -- clearly a bug!</span></code></pre></div>
+<pre><code>## [1] 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Deriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)   <span class="co"># returns 2 * x</span></code></pre></div>
 <pre><code>## 2 * x</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">quote</span>(x^<span class="dv">2</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">quote</span>(x<span class="op">^</span><span class="dv">2</span>)
 <span class="kw">Deriv</span>(x, <span class="st">&quot;x&quot;</span>) <span class="co"># returns 2 * x</span></code></pre></div>
+<pre><code>## 2 * x</code></pre>
+<p>By comparison, <strong>nlsr</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(x) <span class="co"># in case it is defined</span>
+<span class="kw">library</span>(nlsr)
+<span class="kw">try</span>(<span class="kw">nlsDeriv</span>(x, <span class="st">&quot;x&quot;</span>)  ) <span class="co"># fails, not a formula</span>
+<span class="kw">try</span>(<span class="kw">nlsDeriv</span>(<span class="kw">as.expression</span>(<span class="st">&quot;x&quot;</span>), <span class="st">&quot;x&quot;</span>)  ) <span class="co"># expression(NULL)</span>
+<span class="kw">try</span>(<span class="kw">nlsDeriv</span>(<span class="op">~</span>x, <span class="st">&quot;x&quot;</span>)  ) <span class="co"># 1</span></code></pre></div>
+<pre><code>## [1] 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">nlsDeriv</span>(x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>))   <span class="co"># fails</span>
+<span class="kw">try</span>(<span class="kw">nlsDeriv</span>(<span class="op">~</span>x<span class="op">^</span><span class="dv">2</span>, <span class="st">&quot;x&quot;</span>)) <span class="co"># 2 * x</span></code></pre></div>
+<pre><code>## 2 * x</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">quote</span>(x<span class="op">^</span><span class="dv">2</span>)
+<span class="kw">try</span>(<span class="kw">nlsDeriv</span>(x, <span class="st">&quot;x&quot;</span>)) <span class="co"># returns 2 * x</span></code></pre></div>
 <pre><code>## 2 * x</code></pre>
 </div>
 <div id="ryacas" class="section level3">
 <h3>Ryacas</h3>
 <p>There is at least one other symbolic package for R. Here we look at <strong>Ryacas</strong>. The structures for using yacas tools do not seem at the time of writing (2016-10-21) to be suitable for working with nonlinear least squares or optimization facilities of <strong>R</strong>. Thus, for the moment, we will not pursue the derivatives available in <code>Ryacas</code> beyond the following example provided by Gabor Grothendieck.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nlsr)
-dnlsr &lt;-<span class="st"> </span>nlsr::<span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">sin</span>(x+y), <span class="st">&quot;x&quot;</span>)
+dnlsr &lt;-<span class="st"> </span>nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">sin</span>(x<span class="op">+</span>y), <span class="st">&quot;x&quot;</span>)
 <span class="kw">print</span>(dnlsr)</code></pre></div>
 <pre><code>## cos(x + y)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(dnlsr)</code></pre></div>
@@ -681,12 +744,21 @@ dnlsr &lt;-<span class="st"> </span>nlsr::<span class="kw">nlsDeriv</span>(~<spa
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">detach</span>(<span class="st">&quot;package:nlsr&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)
 <span class="kw">detach</span>(<span class="st">&quot;package:Deriv&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)
 
-<span class="kw">require</span>(Ryacas)</code></pre></div>
-<pre><code>## Loading required package: Ryacas</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">Sym</span>(<span class="st">&quot;x&quot;</span>)
+x &lt;-<span class="st"> </span><span class="kw">Sym</span>(<span class="st">&quot;x&quot;</span>)
 y &lt;-<span class="st"> </span><span class="kw">Sym</span>(<span class="st">&quot;y&quot;</span>)
-dryacas &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw">sin</span>(x+y), x)
+dryacas &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw">sin</span>(x<span class="op">+</span>y), x)
 <span class="kw">print</span>(dryacas)</code></pre></div>
+<pre><code>## Warning in structure(x$children, class = &quot;XMLNodeList&quot;): Calling 'structure(NULL, *)' is deprecated, as NULL cannot have attributes.
+##   Consider 'structure(list(), *)' instead.
+
+## Warning in structure(x$children, class = &quot;XMLNodeList&quot;): Calling 'structure(NULL, *)' is deprecated, as NULL cannot have attributes.
+##   Consider 'structure(list(), *)' instead.
+
+## Warning in structure(x$children, class = &quot;XMLNodeList&quot;): Calling 'structure(NULL, *)' is deprecated, as NULL cannot have attributes.
+##   Consider 'structure(list(), *)' instead.
+
+## Warning in structure(x$children, class = &quot;XMLNodeList&quot;): Calling 'structure(NULL, *)' is deprecated, as NULL cannot have attributes.
+##   Consider 'structure(list(), *)' instead.</code></pre>
 <pre><code>## expression(cos(x + y))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(dryacas)</code></pre></div>
 <pre><code>## [1] &quot;Sym&quot;       &quot;character&quot;</code></pre>
@@ -696,23 +768,29 @@ dryacas &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class=
 <div id="derivatives-and-simplifications-base-r" class="section level2">
 <h2>Derivatives and simplifications – base <strong>R</strong></h2>
 <p>See specific notes either in comments or at the end of the section.</p>
-<p>?? What are the functions for which we can take derivatives</p>
+<p>The help page for <code>D</code> lists the functions for which derivatives are known: “The internal code knows about the arithmetic operators <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> and <code>^</code>, and the single-variable functions <code>exp</code>, <code>log</code>, <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>sinh</code>, <code>cosh</code>, <code>sqrt</code>, <code>pnorm</code>, <code>dnorm</code>, <code>asin</code>, <code>acos</code>, <code>atan</code>, <code>gamma</code>, <code>lgamma</code>, <code>digamma</code> and <code>trigamma</code>, as well as <code>psigamma</code> for one or two arguments (but derivative only with respect to the first).”</p>
 </div>
 <div id="derivatives-and-simplifications-package-nlsr" class="section level2">
 <h2>Derivatives and simplifications – package <code>nlsr</code></h2>
-<p>See specific notes either in comments or at the end of the section.</p>
+<p>This package supports the derivatives that <code>D</code> supports, as well as a few others, and users can add their own definitions. The current list is</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ls</span>(nlsr<span class="op">::</span>sysDerivs)</code></pre></div>
+<pre><code>##  [1] &quot;^&quot;        &quot;~&quot;        &quot;-&quot;        &quot;/&quot;        &quot;(&quot;        &quot;*&quot;       
+##  [7] &quot;+&quot;        &quot;abs&quot;      &quot;acos&quot;     &quot;asin&quot;     &quot;atan&quot;     &quot;cos&quot;     
+## [13] &quot;cosh&quot;     &quot;digamma&quot;  &quot;dnorm&quot;    &quot;exp&quot;      &quot;gamma&quot;    &quot;lgamma&quot;  
+## [19] &quot;log&quot;      &quot;pnorm&quot;    &quot;psigamma&quot; &quot;sign&quot;     &quot;sin&quot;      &quot;sinh&quot;    
+## [25] &quot;sqrt&quot;     &quot;tan&quot;      &quot;trigamma&quot;</code></pre>
 <div id="derivatives-table" class="section level3">
 <h3>Derivatives table</h3>
 <p>Here is a slightly expanded testing of the elements of the <code>nlsr</code> derivatives table.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nlsr)</code></pre></div>
 <pre><code>## Loading required package: nlsr</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Try different ways to supply the log function
-aDeriv &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
+aDeriv &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
 <span class="kw">class</span>(aDeriv)</code></pre></div>
 <pre><code>## [1] &quot;call&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aDeriv</code></pre></div>
 <pre><code>## 1/x</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aderiv &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">deriv</span>( ~<span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aderiv &lt;-<span class="st"> </span><span class="kw">try</span>(<span class="kw">deriv</span>( <span class="op">~</span><span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>))
 <span class="kw">class</span>(aderiv)</code></pre></div>
 <pre><code>## [1] &quot;expression&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aderiv</code></pre></div>
@@ -731,7 +809,7 @@ aDeriv &lt;-<span class="st"> </span><span class="kw">nlsDeriv</span>(~<span cla
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;but </span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre></div>
 <pre><code>## but</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">D</span>( <span class="st">&quot;~ log(x)&quot;</span>, <span class="st">&quot;x&quot;</span>)) <span class="co"># fails -- gives NA rather than expected answer due to quotes</span>
-<span class="kw">try</span>(<span class="kw">D</span>( ~<span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>))
+<span class="kw">try</span>(<span class="kw">D</span>( <span class="op">~</span><span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>))
 interm &lt;-<span class="st"> </span><span class="er">~</span><span class="st"> </span><span class="kw">log</span>(x)
 interm</code></pre></div>
 <pre><code>## ~log(x)</code></pre>
@@ -750,25 +828,26 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>), <span class="st">&quot;x&quot;</span> ) <span class="co"># OK</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>), <span class="st">&quot;x&quot;</span> ) <span class="co"># OK</span></code></pre></div>
 <pre><code>## 1/(x * 1.09861228866811)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>)), <span class="st">&quot;x&quot;</span> )) <span class="co"># fails - only single-argument calls supported</span>
-<span class="kw">try</span>(<span class="kw">deriv</span>(~<span class="st"> </span><span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>), <span class="st">&quot;x&quot;</span> )) <span class="co"># fails - only single-argument calls supported</span>
+<span class="kw">try</span>(<span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>), <span class="st">&quot;x&quot;</span> )) <span class="co"># fails - only single-argument calls supported</span>
 <span class="kw">try</span>(<span class="kw">deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>)), <span class="st">&quot;x&quot;</span> )) <span class="co"># fails - only single-argument calls supported</span>
 <span class="kw">try</span>(<span class="kw">deriv3</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>)), <span class="st">&quot;x&quot;</span> )) <span class="co"># fails - only single-argument calls supported</span>
 <span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">log</span>(x, <span class="dt">base=</span><span class="dv">3</span>)), <span class="st">&quot;x&quot;</span> )</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- log(x, base = 3)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 1/(x * 1.09861228866811)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">exp</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">exp</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## exp(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">exp</span>(x)), <span class="st">&quot;x&quot;</span>) <span class="co"># OK</span></code></pre></div>
 <pre><code>## exp(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">exp</span>(x), <span class="st">&quot;x&quot;</span>) <span class="co"># OK, but much more complicated</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">exp</span>(x), <span class="st">&quot;x&quot;</span>) <span class="co"># OK, but much more complicated</span></code></pre></div>
 <pre><code>## expression({
 ##     .expr1 &lt;- exp(x)
 ##     .value &lt;- .expr1
@@ -778,7 +857,8 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .expr1 &lt;- exp(x)
 ##     .value &lt;- .expr1
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
@@ -786,11 +866,11 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">sin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">sin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## cos(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">sin</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## cos(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">sin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">sin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- sin(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -799,18 +879,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">sin</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- sin(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- cos(x)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">cos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">cos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## -sin(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">cos</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## -sin(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="st"> </span><span class="kw">cos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">cos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- cos(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -819,18 +900,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">cos</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- cos(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- -sin(x)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">tan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">tan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/cos(x)^2</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">tan</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/cos(x)^2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="st"> </span><span class="kw">tan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">tan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- tan(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -839,18 +921,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">tan</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- tan(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 1/cos(x)^2
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">sinh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">sinh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## cosh(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">sinh</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## cosh(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">sinh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">sinh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- sinh(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -859,18 +942,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">sinh</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- sinh(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- cosh(x)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">cosh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">cosh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## sinh(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">cosh</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## sinh(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">cosh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">cosh</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- cosh(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -879,18 +963,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">cosh</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- cosh(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- sinh(x)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">sqrt</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 0.5/sqrt(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">sqrt</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 0.5 * x^-0.5</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">sqrt</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">sqrt</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- sqrt(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -899,7 +984,8 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">sqrt</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .expr1 &lt;- sqrt(x)
 ##     .value &lt;- .expr1
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
@@ -907,11 +993,11 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">pnorm</span>(q), <span class="st">&quot;q&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">pnorm</span>(q), <span class="st">&quot;q&quot;</span>)</code></pre></div>
 <pre><code>## dnorm(q)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">pnorm</span>(q)), <span class="st">&quot;q&quot;</span>)</code></pre></div>
 <pre><code>## dnorm(q)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">pnorm</span>(q), <span class="st">&quot;q&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">pnorm</span>(q), <span class="st">&quot;q&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- pnorm(q)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;q&quot;)))
@@ -920,18 +1006,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">pnorm</span>(q)), <span class="st">&quot;q&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (q) 
+## {
 ##     .value &lt;- pnorm(q)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;q&quot;))
 ##     .grad[, &quot;q&quot;] &lt;- dnorm(q)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">dnorm</span>(x, mean), <span class="st">&quot;mean&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">dnorm</span>(x, mean), <span class="st">&quot;mean&quot;</span>)</code></pre></div>
 <pre><code>## dnorm(x - mean) * (x - mean)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">dnorm</span>(x, mean)), <span class="st">&quot;mean&quot;</span>)</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">dnorm</span>(x, mean), <span class="st">&quot;mean&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">dnorm</span>(x, mean), <span class="st">&quot;mean&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- dnorm(x, mean)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;mean&quot;)))
@@ -940,7 +1027,8 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">dnorm</span>(x, mean)), <span class="st">&quot;mean&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x, mean) 
+## {
 ##     .expr1 &lt;- x - mean
 ##     .value &lt;- dnorm(x, mean)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;mean&quot;))
@@ -948,11 +1036,11 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">asin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">asin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/sqrt(1 + x^2)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">asin</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/sqrt(1 - x^2)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">asin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">asin</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- asin(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -961,18 +1049,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">asin</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- asin(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 1/sqrt(1 + x^2)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">acos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">acos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## -1/sqrt(1 + x^2)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">acos</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## -(1/sqrt(1 - x^2))</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">acos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">acos</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- acos(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -981,18 +1070,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">acos</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- acos(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- -1/sqrt(1 + x^2)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">atan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">atan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/(1 + x^2)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">atan</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/(1 + x^2)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">atan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">atan</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- atan(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1001,18 +1091,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">atan</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- atan(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 1/(1 + x^2)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">gamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">gamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## gamma(x) * digamma(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">gamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## gamma(x) * digamma(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">gamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">gamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .expr1 &lt;- gamma(x)
 ##     .value &lt;- .expr1
@@ -1022,7 +1113,8 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">gamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .expr1 &lt;- gamma(x)
 ##     .value &lt;- .expr1
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
@@ -1030,11 +1122,11 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">lgamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">lgamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## digamma(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">lgamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## digamma(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">lgamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">lgamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- lgamma(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1043,18 +1135,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">lgamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- lgamma(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- digamma(x)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">digamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">digamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## trigamma(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">digamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## trigamma(x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">digamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">digamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- digamma(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1063,18 +1156,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">digamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- digamma(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- trigamma(x)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">trigamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">trigamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## psigamma(x, 2L)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">trigamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## psigamma(x, 2L)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">trigamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">trigamma</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- trigamma(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1083,18 +1177,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">trigamma</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- trigamma(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- psigamma(x, 2L)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">psigamma</span>(x, <span class="dt">deriv =</span> <span class="dv">5</span>), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">psigamma</span>(x, <span class="dt">deriv =</span> <span class="dv">5</span>), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## psigamma(x, 6)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">psigamma</span>(x, <span class="dt">deriv =</span> <span class="dv">5</span>)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## psigamma(x, 6L)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="kw">psigamma</span>(x, <span class="dt">deriv =</span> <span class="dv">5</span>), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="kw">psigamma</span>(x, <span class="dt">deriv =</span> <span class="dv">5</span>), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- psigamma(x, deriv = 5)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1103,18 +1198,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">psigamma</span>(x, <span class="dt">deriv =</span> <span class="dv">5</span>)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- psigamma(x, deriv = 5)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- psigamma(x, 6)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span>x*y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">*</span>y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## y</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(x*y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(x<span class="op">*</span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## y</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~x*y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span>x<span class="op">*</span>y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- x * y
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1122,19 +1218,20 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(x*y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(x<span class="op">*</span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<pre><code>## function (x, y) 
+## {
 ##     .value &lt;- x * y
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- y
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span>x/y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">/</span>y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/y</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(x/y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(x<span class="op">/</span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## 1/y</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~x/y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span>x<span class="op">/</span>y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- x/y
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1142,19 +1239,20 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(x/y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(x<span class="op">/</span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<pre><code>## function (x, y) 
+## {
 ##     .value &lt;- x/y
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 1/y
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span>x^y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>x<span class="op">^</span>y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## y * x^(y - 1)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(x^y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(x<span class="op">^</span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## x^(y - 1) * y</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~x^y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span>x<span class="op">^</span>y, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- x^y
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1162,19 +1260,20 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(x^y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(x<span class="op">^</span>y), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<pre><code>## function (x, y) 
+## {
 ##     .value &lt;- x^y
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- y * x^(y - 1)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## [1] 1</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>((x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## [1] 1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- (x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1183,18 +1282,19 @@ interm</code></pre></div>
 ##     .value
 ## })</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>((x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- (x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 1
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span>+x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="op">+</span>x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## [1] 1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(+x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="op">+</span>x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## [1] 1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="st"> </span>+x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span><span class="op">+</span>x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- +x
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1202,19 +1302,20 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(+x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="op">+</span>x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- +x
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 1
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span>-x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="op">-</span>x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## [1] -1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(-<span class="st"> </span>x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">D</span>(<span class="kw">expression</span>(<span class="op">-</span><span class="st"> </span>x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## -1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(~<span class="st"> </span>-x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span><span class="op">-</span>x, <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- -x
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, c(&quot;x&quot;)))
@@ -1222,32 +1323,35 @@ interm</code></pre></div>
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(-x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="op">-</span>x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- -x
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- -1
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">abs</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">abs</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## sign(x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">abs</span>(x)), <span class="st">&quot;x&quot;</span>)) <span class="co"># 'abs' not in derivatives table</span>
-<span class="kw">try</span>(<span class="kw">deriv</span>(~<span class="st"> </span><span class="kw">abs</span>(x), <span class="st">&quot;x&quot;</span>))
+<span class="kw">try</span>(<span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">abs</span>(x), <span class="st">&quot;x&quot;</span>))
 <span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">abs</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- abs(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- sign(x)
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## }</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(~<span class="st"> </span><span class="kw">sign</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">sign</span>(x), <span class="st">&quot;x&quot;</span>)</code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">sign</span>(x)), <span class="st">&quot;x&quot;</span>)) <span class="co"># 'sign' not in derivatives table</span>
-<span class="kw">try</span>(<span class="kw">deriv</span>(~<span class="st"> </span><span class="kw">sign</span>(x), <span class="st">&quot;x&quot;</span>))
+<span class="kw">try</span>(<span class="kw">deriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">sign</span>(x), <span class="st">&quot;x&quot;</span>))
 <span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="kw">sign</span>(x)), <span class="st">&quot;x&quot;</span>)</code></pre></div>
-<pre><code>## {
+<pre><code>## function (x) 
+## {
 ##     .value &lt;- sign(x)
 ##     .grad &lt;- array(0, c(length(.value), 1L), list(NULL, &quot;x&quot;))
 ##     .grad[, &quot;x&quot;] &lt;- 0
@@ -1258,14 +1362,17 @@ interm</code></pre></div>
 <div id="notes" class="section level3">
 <h3>Notes:</h3>
 <ul>
-<li><p>the base tool deriv (and likely deriv3 ?? need to explore and explain) and nlsr::fnDeriv are intended to output an expression to compute a derivative. deriv generates an expression object, while fnDeriv will generate a language object. Do we need to explain this more?? Note that input to deriv is of the form of a tilde expression with no left hand side, while fnDeriv uses a quoted expression. ?? We should explore more ways to input things to these tools.</p></li>
-<li><p>the base tool D and nlsr::nlsDeriv generate expressions, but D requires an expression, while nlsDeriv can handle the expression without a wrapper. ?? Do we need to discuss more??</p></li>
-<li><p>nlsr includes abs(x) and sign(x) in the derivatives table despite conventional wisdom that these are not differentiable. However, abs(x) clearly has a defined derivative everywhere except at x = 0, where assigning a value of 0 to the derivative is almost certainly acceptable in computations. Similarly for sign(x).</p></li>
+<li><p>the base tool <code>deriv</code> (and <code>deriv3</code>) and <code>nlsr::codeDeriv</code> are intended to output an expression to compute a derivative. <code>deriv</code> generates an expression object, while <code>codeDeriv</code> will generate a language object. Note that input to <code>deriv</code> is of the form of a tilde expression with no left hand side, while <code>codeDeriv</code> is more flexible: quoted expressions, or length-1 expression vectors may also be used.</p></li>
+<li><p>the base tool <code>D</code> and <code>nlsr::nlsDeriv</code> generate expressions, but <code>D</code> requires an expression, while <code>nlsDeriv</code> can handle the expression without a wrapper. ?? Do we need to discuss more??</p></li>
+<li><p><strong>nlsr</strong> includes <code>abs(x)</code> and <code>sign(x)</code> in the derivatives table despite conventional wisdom that these are not differentiable. However, <code>abs(x)</code> clearly has a defined derivative everywhere except at x = 0, where assigning a value of 0 to the derivative is almost certainly acceptable in computations. Similarly for <code>sign(x)</code>.</p></li>
 </ul>
 </div>
 <div id="simplifying-algebraic-expressions" class="section level3">
 <h3>Simplifying algebraic expressions</h3>
-<p><strong>nlsr</strong> also includes some tools for simplification of algebraic expressions. Such simplification does not appear to be available / exposed in the package <code>Deriv</code>.</p>
+<p><strong>nlsr</strong> also includes some tools for simplification of algebraic expressions, extensible by the user. Currently these involve the following functions:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ls</span>(nlsr<span class="op">::</span>sysSimplifications)</code></pre></div>
+<pre><code>##  [1] &quot;^&quot;       &quot;||&quot;      &quot;-&quot;       &quot;!&quot;       &quot;/&quot;       &quot;(&quot;       &quot;*&quot;      
+##  [8] &quot;&amp;&amp;&quot;      &quot;+&quot;       &quot;exp&quot;     &quot;if&quot;      &quot;log&quot;     &quot;missing&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Remove ##? to see reproducible error</span>
 <span class="co">#- ?? For some reason, if we leave packages attached, we get errors.</span>
 <span class="co">#- Here we detach all the non-base packages and then reload nlsr</span>
@@ -1276,9 +1383,13 @@ interm</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- ?? For some reason, if we leave packages attached, we get errors.</span>
 <span class="co">#- Here we detach all the non-base packages and then reload nlsr</span>
 <span class="kw">sessionInfo</span>()</code></pre></div>
-<pre><code>## R version 3.3.2 (2016-10-31)
+<pre><code>## R version 3.4.0 (2017-04-21)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
 ## Running under: Linux Mint 18
+## 
+## Matrix products: default
+## BLAS: /usr/lib/libblas/libblas.so.3.6.0
+## LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C              
@@ -1292,114 +1403,113 @@ interm</code></pre></div>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] nlsr_2016.10.18
+## [1] nlsr_2017.6.18
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.8     XML_3.98-1.5    digest_0.6.10   rprojroot_1.1  
-##  [5] backports_1.0.4 magrittr_1.5    evaluate_0.10   stringi_1.1.2  
-##  [9] rmarkdown_1.2   tools_3.3.2     stringr_1.1.0   yaml_2.1.14    
-## [13] htmltools_0.3.5 knitr_1.15.1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span class="kw">loadedNamespaces</span>()){<span class="kw">detach</span>(<span class="st">&quot;package:Deriv&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)} 
+##  [1] Rcpp_0.12.10    XML_3.98-1.8    digest_0.6.12   rprojroot_1.2  
+##  [5] backports_1.0.5 magrittr_1.5    evaluate_0.10   stringi_1.1.5  
+##  [9] rmarkdown_1.4   tools_3.4.0     stringr_1.2.0   yaml_2.1.14    
+## [13] compiler_3.4.0  htmltools_0.3.5 knitr_1.15.1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="st">&quot;Deriv&quot;</span> <span class="op">%in%</span><span class="st"> </span><span class="kw">loadedNamespaces</span>()){<span class="kw">detach</span>(<span class="st">&quot;package:Deriv&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)} 
   <span class="co">#- ?? Do we need to unload too.</span>
-if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:nlsr&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
-if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:Ryacas&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
-<span class="kw">require</span>(nlsr)
-<span class="co">#- require(Deriv)</span>
+<span class="cf">if</span> (<span class="st">&quot;nlsr&quot;</span> <span class="op">%in%</span><span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:nlsr&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
+<span class="cf">if</span> (<span class="st">&quot;Ryacas&quot;</span> <span class="op">%in%</span><span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:Ryacas&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
+<span class="kw">require</span>(nlsr)</code></pre></div>
+<pre><code>## Loading required package: nlsr</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- require(Deriv)</span>
 <span class="co">#- require(stats)</span>
 <span class="co">#- Various simplifications</span>
 <span class="co">#- ?? Do we need quote() to stop attempt to evaluate before applying simplification</span>
 
-<span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(+(a+b)))</code></pre></div>
+<span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="op">+</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(-<span class="dv">5</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="op">-</span><span class="dv">5</span>))</code></pre></div>
 <pre><code>## [1] -5</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(--(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="op">--</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="kw">log</span>(a+b))))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="kw">log</span>(a<span class="op">+</span>b))))</code></pre></div>
 <pre><code>## a + b</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="dv">1</span>)))</code></pre></div>
 <pre><code>## [1] 2.718282</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="kw">exp</span>(a+b))))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="kw">exp</span>(a<span class="op">+</span>b))))</code></pre></div>
 <pre><code>## a + b</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="dv">1</span>)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(!<span class="ot">TRUE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="op">!</span><span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>## [1] FALSE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(!<span class="ot">FALSE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="op">!</span><span class="ot">FALSE</span>))</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a +<span class="st"> </span>b +<span class="st"> </span><span class="dv">0</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a <span class="op">+</span><span class="st"> </span>b <span class="op">+</span><span class="st"> </span><span class="dv">0</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> +<span class="st"> </span>a +<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>a <span class="op">+</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b) +<span class="st"> </span>(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">+</span><span class="st"> </span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## 2 * (a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">1</span> +<span class="st"> </span><span class="dv">4</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="dv">4</span>))</code></pre></div>
 <pre><code>## [1] 5</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a +<span class="st"> </span>b -<span class="st"> </span><span class="dv">0</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a <span class="op">+</span><span class="st"> </span>b <span class="op">-</span><span class="st"> </span><span class="dv">0</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> -<span class="st"> </span>a -<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> <span class="op">-</span><span class="st"> </span>a <span class="op">-</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## -a - b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b) -<span class="st"> </span>(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">-</span><span class="st"> </span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">5</span> -<span class="st"> </span><span class="dv">3</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">5</span> <span class="op">-</span><span class="st"> </span><span class="dv">3</span>))</code></pre></div>
 <pre><code>## [1] 2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span>*(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span><span class="op">*</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b)*<span class="dv">0</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b)<span class="op">*</span><span class="dv">0</span>))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(1L *<span class="st"> </span>(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(1L <span class="op">*</span><span class="st"> </span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b) *<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">*</span><span class="st"> </span><span class="dv">1</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((-<span class="dv">1</span>)*(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((<span class="op">-</span><span class="dv">1</span>)<span class="op">*</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## -(a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b)*(-<span class="dv">1</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b)<span class="op">*</span>(<span class="op">-</span><span class="dv">1</span>)))</code></pre></div>
 <pre><code>## -(a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">2</span>*<span class="dv">5</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">2</span><span class="op">*</span><span class="dv">5</span>))</code></pre></div>
 <pre><code>## [1] 10</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b) /<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">/</span><span class="st"> </span><span class="dv">1</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b) /<span class="st"> </span>(-<span class="dv">1</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">/</span><span class="st"> </span>(<span class="op">-</span><span class="dv">1</span>)))</code></pre></div>
 <pre><code>## -(a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span>/(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">0</span><span class="op">/</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">1</span>/<span class="dv">3</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">1</span><span class="op">/</span><span class="dv">3</span>))</code></pre></div>
 <pre><code>## [1] 0.3333333</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a+b) ^<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">^</span><span class="st"> </span><span class="dv">1</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">2</span>^<span class="dv">10</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="dv">2</span><span class="op">^</span><span class="dv">10</span>))</code></pre></div>
 <pre><code>## [1] 1024</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="kw">exp</span>(a), <span class="dv">3</span>)))</code></pre></div>
 <pre><code>## a/1.09861228866811</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> &amp;&amp;<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> <span class="op">&amp;&amp;</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## [1] FALSE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a &amp;&amp;<span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a <span class="op">&amp;&amp;</span><span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>## a</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="ot">TRUE</span> &amp;&amp;<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="ot">TRUE</span> <span class="op">&amp;&amp;</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a ||<span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a <span class="op">||</span><span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> ||<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> <span class="op">||</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a ||<span class="st"> </span><span class="ot">FALSE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(a <span class="op">||</span><span class="st"> </span><span class="ot">FALSE</span>))</code></pre></div>
 <pre><code>## a</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(if (<span class="ot">TRUE</span>) a+b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">TRUE</span>) a<span class="op">+</span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(if (<span class="ot">FALSE</span>) a+b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">FALSE</span>) a<span class="op">+</span>b))</code></pre></div>
 <pre><code>## NULL</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(if (<span class="ot">TRUE</span>) a+b else a*b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">TRUE</span>) a<span class="op">+</span>b <span class="cf">else</span> a<span class="op">*</span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(if (<span class="ot">FALSE</span>) a+b else a*b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">FALSE</span>) a<span class="op">+</span>b <span class="cf">else</span> a<span class="op">*</span>b))</code></pre></div>
 <pre><code>## a * b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(if (cond) a+b else a+b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (cond) a<span class="op">+</span>b <span class="cf">else</span> a<span class="op">+</span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- This one is wrong... the double minus is an error, yet it works ??.</span>
-<span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(--(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="op">--</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- By comparison</span>
-<span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(-(-(a+b))))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nlsSimplify</span>(<span class="kw">quote</span>(<span class="op">-</span>(<span class="op">-</span>(a<span class="op">+</span>b))))</code></pre></div>
 <pre><code>## a + b</code></pre>
 </div>
 </div>
@@ -1413,9 +1523,13 @@ if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- ?? For some reason, if we leave packages attached, we get errors.</span>
 <span class="co">#- Here we detach all the non-base packages and then reload nlsr</span>
 <span class="kw">sessionInfo</span>()</code></pre></div>
-<pre><code>## R version 3.3.2 (2016-10-31)
+<pre><code>## R version 3.4.0 (2017-04-21)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
 ## Running under: Linux Mint 18
+## 
+## Matrix products: default
+## BLAS: /usr/lib/libblas/libblas.so.3.6.0
+## LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C              
@@ -1429,17 +1543,17 @@ if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] nlsr_2016.10.18
+## [1] nlsr_2017.6.18
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.8     XML_3.98-1.5    digest_0.6.10   rprojroot_1.1  
-##  [5] backports_1.0.4 magrittr_1.5    evaluate_0.10   stringi_1.1.2  
-##  [9] rmarkdown_1.2   tools_3.3.2     stringr_1.1.0   yaml_2.1.14    
-## [13] htmltools_0.3.5 knitr_1.15.1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span class="kw">loadedNamespaces</span>()){<span class="kw">detach</span>(<span class="st">&quot;package:Deriv&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)} 
+##  [1] Rcpp_0.12.10    XML_3.98-1.8    digest_0.6.12   rprojroot_1.2  
+##  [5] backports_1.0.5 magrittr_1.5    evaluate_0.10   stringi_1.1.5  
+##  [9] rmarkdown_1.4   tools_3.4.0     stringr_1.2.0   yaml_2.1.14    
+## [13] compiler_3.4.0  htmltools_0.3.5 knitr_1.15.1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span> (<span class="st">&quot;Deriv&quot;</span> <span class="op">%in%</span><span class="st"> </span><span class="kw">loadedNamespaces</span>()){<span class="kw">detach</span>(<span class="st">&quot;package:Deriv&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)} 
   <span class="co">#- ?? Do we need to unload too.</span>
-if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:nlsr&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
-if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:Ryacas&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
+<span class="cf">if</span> (<span class="st">&quot;Deriv&quot;</span> <span class="op">%in%</span><span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:nlsr&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
+<span class="cf">if</span> (<span class="st">&quot;Deriv&quot;</span> <span class="op">%in%</span><span class="st"> </span><span class="kw">loadedNamespaces</span>() ){<span class="kw">detach</span>(<span class="st">&quot;package:Ryacas&quot;</span>, <span class="dt">unload=</span><span class="ot">TRUE</span>)}
 <span class="kw">require</span>(Deriv)</code></pre></div>
 <pre><code>## Loading required package: Deriv</code></pre>
 <pre><code>## 
@@ -1450,97 +1564,97 @@ if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- Various simplifications</span>
 <span class="co">#- ?? Do we need quote() to stop attempt to evaluate before applying simplification</span>
 
-<span class="kw">Simplify</span>(<span class="kw">quote</span>(+(a+b)))</code></pre></div>
+<span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="op">+</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(-<span class="dv">5</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="op">-</span><span class="dv">5</span>))</code></pre></div>
 <pre><code>## [1] -5</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(--(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="op">--</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="kw">log</span>(a+b))))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="kw">log</span>(a<span class="op">+</span>b))))</code></pre></div>
 <pre><code>## exp(log(a + b))</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">exp</span>(<span class="dv">1</span>)))</code></pre></div>
 <pre><code>## [1] 2.718282</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="kw">exp</span>(a+b))))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="kw">exp</span>(a<span class="op">+</span>b))))</code></pre></div>
 <pre><code>## a + b</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="dv">1</span>)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(!<span class="ot">TRUE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="op">!</span><span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>## [1] FALSE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(!<span class="ot">FALSE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="op">!</span><span class="ot">FALSE</span>))</code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a +<span class="st"> </span>b +<span class="st"> </span><span class="dv">0</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a <span class="op">+</span><span class="st"> </span>b <span class="op">+</span><span class="st"> </span><span class="dv">0</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> +<span class="st"> </span>a +<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> <span class="op">+</span><span class="st"> </span>a <span class="op">+</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b) +<span class="st"> </span>(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">+</span><span class="st"> </span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## 2 * (a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">1</span> +<span class="st"> </span><span class="dv">4</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="dv">4</span>))</code></pre></div>
 <pre><code>## [1] 5</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a +<span class="st"> </span>b -<span class="st"> </span><span class="dv">0</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a <span class="op">+</span><span class="st"> </span>b <span class="op">-</span><span class="st"> </span><span class="dv">0</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> -<span class="st"> </span>a -<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span> <span class="op">-</span><span class="st"> </span>a <span class="op">-</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## -(a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b) -<span class="st"> </span>(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">-</span><span class="st"> </span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">5</span> -<span class="st"> </span><span class="dv">3</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">5</span> <span class="op">-</span><span class="st"> </span><span class="dv">3</span>))</code></pre></div>
 <pre><code>## [1] 2</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span>*(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span><span class="op">*</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b)*<span class="dv">0</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b)<span class="op">*</span><span class="dv">0</span>))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(1L *<span class="st"> </span>(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(1L <span class="op">*</span><span class="st"> </span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b) *<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">*</span><span class="st"> </span><span class="dv">1</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((-<span class="dv">1</span>)*(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((<span class="op">-</span><span class="dv">1</span>)<span class="op">*</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## -(a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b)*(-<span class="dv">1</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b)<span class="op">*</span>(<span class="op">-</span><span class="dv">1</span>)))</code></pre></div>
 <pre><code>## -(a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">2</span>*<span class="dv">5</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">2</span><span class="op">*</span><span class="dv">5</span>))</code></pre></div>
 <pre><code>## [1] 10</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b) /<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">/</span><span class="st"> </span><span class="dv">1</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b) /<span class="st"> </span>(-<span class="dv">1</span>)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">/</span><span class="st"> </span>(<span class="op">-</span><span class="dv">1</span>)))</code></pre></div>
 <pre><code>## -(a + b)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span>/(a+b)))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">0</span><span class="op">/</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">1</span>/<span class="dv">3</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">1</span><span class="op">/</span><span class="dv">3</span>))</code></pre></div>
 <pre><code>## [1] 0.3333333</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a+b) ^<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>((a<span class="op">+</span>b) <span class="op">^</span><span class="st"> </span><span class="dv">1</span>))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">2</span>^<span class="dv">10</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="dv">2</span><span class="op">^</span><span class="dv">10</span>))</code></pre></div>
 <pre><code>## [1] 1024</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="kw">log</span>(<span class="kw">exp</span>(a), <span class="dv">3</span>)))</code></pre></div>
 <pre><code>## a/1.09861228866811</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> &amp;&amp;<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> <span class="op">&amp;&amp;</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## FALSE &amp;&amp; b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a &amp;&amp;<span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a <span class="op">&amp;&amp;</span><span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>## a &amp;&amp; TRUE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="ot">TRUE</span> &amp;&amp;<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="ot">TRUE</span> <span class="op">&amp;&amp;</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## TRUE &amp;&amp; b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a ||<span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a <span class="op">||</span><span class="st"> </span><span class="ot">TRUE</span>))</code></pre></div>
 <pre><code>## a || TRUE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> ||<span class="st"> </span>b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="ot">FALSE</span> <span class="op">||</span><span class="st"> </span>b))</code></pre></div>
 <pre><code>## FALSE || b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a ||<span class="st"> </span><span class="ot">FALSE</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(a <span class="op">||</span><span class="st"> </span><span class="ot">FALSE</span>))</code></pre></div>
 <pre><code>## a || FALSE</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(if (<span class="ot">TRUE</span>) a+b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">TRUE</span>) a<span class="op">+</span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(if (<span class="ot">FALSE</span>) a+b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">FALSE</span>) a<span class="op">+</span>b))</code></pre></div>
 <pre><code>## if (FALSE) a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(if (<span class="ot">TRUE</span>) a+b else a*b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">TRUE</span>) a<span class="op">+</span>b <span class="cf">else</span> a<span class="op">*</span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(if (<span class="ot">FALSE</span>) a+b else a*b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (<span class="ot">FALSE</span>) a<span class="op">+</span>b <span class="cf">else</span> a<span class="op">*</span>b))</code></pre></div>
 <pre><code>## a * b</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(if (cond) a+b else a+b))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="cf">if</span> (cond) a<span class="op">+</span>b <span class="cf">else</span> a<span class="op">+</span>b))</code></pre></div>
 <pre><code>## a + b</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- This one is wrong... the double minus is an error, yet it works ??.</span>
-<span class="kw">Simplify</span>(<span class="kw">quote</span>(--(a+b)))</code></pre></div>
+<span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="op">--</span>(a<span class="op">+</span>b)))</code></pre></div>
 <pre><code>## a + b</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#- By comparison</span>
-<span class="kw">Simplify</span>(<span class="kw">quote</span>(-(-(a+b))))</code></pre></div>
+<span class="kw">Simplify</span>(<span class="kw">quote</span>(<span class="op">-</span>(<span class="op">-</span>(a<span class="op">+</span>b))))</code></pre></div>
 <pre><code>## a + b</code></pre>
 </div>
 <div id="comparison-with-other-approaches" class="section level3">
@@ -1562,26 +1676,26 @@ if (<span class="st">&quot;Deriv&quot;</span> %in%<span class="st"> </span><span
 <p>One of the key tasks with tools for derivatives is that of taking objects in one or other form (that is, <strong>R</strong> class) and using it as an input for a symbolic function. The object may, of course, be an output from another such function, and this is one of the reasons we need to do such transformations.</p>
 <p>We also note that the different tools for symbolic derivatives use slightly different inputs. For example, for the derivative of log(x), we have</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nlsr)
-dlogx &lt;-<span class="st"> </span>nlsr::<span class="kw">nlsDeriv</span>(<span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
+dlogx &lt;-<span class="st"> </span>nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(<span class="op">~</span><span class="st"> </span><span class="kw">log</span>(x), <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(dlogx)</code></pre></div>
-<pre><code>##  NULL</code></pre>
+<pre><code>##  language 1/x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogx)</code></pre></div>
-<pre><code>## NULL</code></pre>
+<pre><code>## 1/x</code></pre>
 <p>Unfortunately, there are complications when we have an expression object, and we need to specify that we do NOT execute the <em>substitute()</em> function. Here we show how to do this implicitly and with an explicit object.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(nlsr)
-dlogxs &lt;-<span class="st"> </span>nlsr::<span class="kw">nlsDeriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+dlogxs &lt;-<span class="st"> </span>nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
 <span class="kw">str</span>(dlogxs)</code></pre></div>
-<pre><code>##   expression(1/x)</code></pre>
+<pre><code>##  language 1/x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogxs)</code></pre></div>
-<pre><code>## expression(1/x)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="kw">as.character</span>(dlogxs), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre></div>
 <pre><code>## 1/x</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="kw">as.character</span>(dlogxs), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</code></pre></div>
+<pre><code>## / 1 x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fne &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">log</span>(x))
-dlogxe &lt;-<span class="st"> </span>nlsr::<span class="kw">nlsDeriv</span>(fne, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
+dlogxe &lt;-<span class="st"> </span>nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(fne, <span class="st">&quot;x&quot;</span>, <span class="dt">do_substitute=</span><span class="ot">FALSE</span>)
 <span class="kw">str</span>(dlogxe)</code></pre></div>
-<pre><code>##   expression(1/x)</code></pre>
+<pre><code>##  language 1/x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dlogxe)</code></pre></div>
-<pre><code>## expression(1/x)</code></pre>
+<pre><code>## 1/x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># base R</span>
 dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(dblogx)</code></pre></div>
@@ -1589,7 +1703,7 @@ dblogx &lt;-<span class="st"> </span><span class="kw">D</span>(<span class="kw">
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(dblogx)</code></pre></div>
 <pre><code>## 1/x</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(Deriv)
-ddlogx &lt;-<span class="st"> </span>Deriv::<span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
+ddlogx &lt;-<span class="st"> </span>Deriv<span class="op">::</span><span class="kw">Deriv</span>(<span class="kw">expression</span>(<span class="kw">log</span>(x)), <span class="st">&quot;x&quot;</span>)
 <span class="kw">str</span>(ddlogx)</code></pre></div>
 <pre><code>##   expression(1/x)</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(ddlogx)</code></pre></div>
@@ -1609,8 +1723,8 @@ ddlogx &lt;-<span class="st"> </span>Deriv::<span class="kw">Deriv</span>(<span 
 
 <span class="co"># Various derivatives </span>
 
-new &lt;-<span class="st"> </span><span class="kw">fnDeriv</span>(<span class="kw">quote</span>(<span class="dv">1</span> +<span class="st"> </span>x +<span class="st"> </span>y), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>))
-old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw">quote</span>(<span class="dv">1</span> +<span class="st"> </span>x +<span class="st"> </span>y), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>))
+new &lt;-<span class="st"> </span><span class="kw">codeDeriv</span>(<span class="kw">quote</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span>y), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>))
+old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw">quote</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span>y), <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>))
 <span class="kw">print</span>(new)</code></pre></div>
 <pre><code>## {
 ##     .value &lt;- 1 + x + y
@@ -1625,7 +1739,7 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 <span class="kw">class</span>(new)</code></pre></div>
 <pre><code>## [1] &quot;{&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(new)</code></pre></div>
-<pre><code>##  language {  .value &lt;- 1 + x + y; .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;x&quot;, &quot;y&quot;; ))); .grad[, &quot;x&quot;] &lt;- 1; .grad[, &quot;y&quot;] &lt;- 1; attr(.value, &quot;gradient&quot;) &lt;- .grad; .value }</code></pre>
+<pre><code>##  language {  .value &lt;- 1 + x + y; .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;x&quot;, &quot;y&quot;; ))); .grad[, &quot;x&quot;] &lt;- 1; .| __truncated__</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">as.expression</span>(new)</code></pre></div>
 <pre><code>## expression({
 ##     .value &lt;- 1 + x + y
@@ -1636,7 +1750,7 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 ##     attr(.value, &quot;gradient&quot;) &lt;- .grad
 ##     .value
 ## })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">newf &lt;-<span class="st"> </span>function(x, y){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">newf &lt;-<span class="st"> </span><span class="cf">function</span>(x, y){
    <span class="kw">eval</span>(new)
 }
 <span class="kw">newf</span>(<span class="dv">3</span>,<span class="dv">5</span>)</code></pre></div>
@@ -1657,8 +1771,8 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(old)</code></pre></div>
 <pre><code>## [1] &quot;expression&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(old)</code></pre></div>
-<pre><code>##   expression({     .value &lt;- 1 + x + y     .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;x&quot;, &quot;y&quot;)))     .grad[, &quot;x&quot;] &lt;- 1     .grad[, &quot;y&quot;] &lt;- 1     attr(.value, &quot;gradient&quot;) &lt;- .grad     .value })</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">oldf &lt;-<span class="st"> </span>function(x,y){
+<pre><code>##   expression({  .value &lt;- 1 + x + y  .grad &lt;- array(0, c(length(.value), 2L), list(NULL, c(&quot;x&quot;, &quot;y&quot;)))  .grad[, &quot;x&quot;| __truncated__</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">oldf &lt;-<span class="st"> </span><span class="cf">function</span>(x,y){
     <span class="kw">eval</span>(old)
 }
 <span class="kw">oldf</span>(<span class="dv">3</span>,<span class="dv">5</span>)</code></pre></div>
@@ -1668,8 +1782,8 @@ old &lt;-<span class="st"> </span><span class="kw">deriv</span>(<span class="kw"
 ## [1,] 1 1</code></pre>
 <p>Unfortunately, the inputs and outputs are not always easily transformed so that the symbolic derivatives can be found. (?? Need to codify this and provide filters so we can get things to work nicely.)</p>
 <p>As an example, how could we take object <strong>new</strong> and embed it in a function we can then use in <strong>R</strong>? We can certainly copy and paste the output into a function template, as follows,</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fnfromnew &lt;-<span class="st"> </span>function(x,y){
-    .value &lt;-<span class="st"> </span><span class="dv">1</span> +<span class="st"> </span>x +<span class="st"> </span>y
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fnfromnew &lt;-<span class="st"> </span><span class="cf">function</span>(x,y){
+    .value &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">+</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span>y
     .grad &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(<span class="kw">length</span>(.value), 2L), <span class="kw">list</span>(<span class="ot">NULL</span>, <span class="kw">c</span>(<span class="st">&quot;x&quot;</span>, 
     <span class="st">&quot;y&quot;</span>)))
     .grad[, <span class="st">&quot;x&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
@@ -1703,18 +1817,18 @@ y &lt;-<span class="st"> </span><span class="ot">Inf</span>
 <div id="safed" class="section level4">
 <h4>SafeD</h4>
 <p>We could define a way to avoid the issue of character vs. expression (and possibly other classes) as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">safeD &lt;-<span class="st"> </span>function(obj, var) {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">safeD &lt;-<span class="st"> </span><span class="cf">function</span>(obj, var) {
    <span class="co"># safeguarded D() function for symbolic derivs</span>
-   if (!<span class="st"> </span><span class="kw">is.character</span>(var) ) <span class="kw">stop</span>(<span class="st">&quot;The variable var MUST be character type&quot;</span>)
-   if (<span class="kw">is.character</span>(obj) ) {
+   <span class="cf">if</span> (<span class="op">!</span><span class="st"> </span><span class="kw">is.character</span>(var) ) <span class="kw">stop</span>(<span class="st">&quot;The variable var MUST be character type&quot;</span>)
+   <span class="cf">if</span> (<span class="kw">is.character</span>(obj) ) {
        eobj &lt;-<span class="st"> </span><span class="kw">parse</span>(<span class="dt">text=</span>obj)
        result &lt;-<span class="st"> </span><span class="kw">D</span>(eobj, var)
-   } else {
+   } <span class="cf">else</span> {
        result &lt;-<span class="st"> </span><span class="kw">D</span>(obj, var)
    }
 }
 
-lxy2 &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">log</span>(x+y^<span class="dv">2</span>))
+lxy2 &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="kw">log</span>(x<span class="op">+</span>y<span class="op">^</span><span class="dv">2</span>))
 clxy2 &lt;-<span class="st"> &quot;log(x+y^2)&quot;</span>
 <span class="kw">try</span>(<span class="kw">print</span>(<span class="kw">D</span>(clxy2, <span class="st">&quot;y&quot;</span>)))
 <span class="kw">print</span>(<span class="kw">try</span>(<span class="kw">D</span>(lxy2, <span class="st">&quot;y&quot;</span>)))</code></pre></div>
@@ -1728,15 +1842,15 @@ clxy2 &lt;-<span class="st"> &quot;log(x+y^2)&quot;</span>
 <div id="indexed-parameters-or-variables" class="section level2">
 <h2>Indexed parameters or variables</h2>
 <p>Erin Hodgess on R-help in January 2015 raised the issue of taking the derivative of an expression that contains an indexed variable. We show the example and its resolution, then give an explanation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">zzz &lt;-<span class="st"> </span><span class="kw">expression</span>(y[<span class="dv">3</span>]*r1 +<span class="st"> </span>r2)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">zzz &lt;-<span class="st"> </span><span class="kw">expression</span>(y[<span class="dv">3</span>]<span class="op">*</span>r1 <span class="op">+</span><span class="st"> </span>r2)
 <span class="kw">try</span>(<span class="kw">deriv</span>(zzz,<span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))
 <span class="kw">require</span>(nlsr)
-<span class="kw">try</span>(nlsr::<span class="kw">nlsDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre></div>
+<span class="kw">try</span>(nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre></div>
 <pre><code>## Warning in if (as.character(expr) == name) return(1) else return(0): the
 ## condition has length &gt; 1 and only the first element will be used</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(<span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))
 <span class="kw">newDeriv</span>(<span class="st">`</span><span class="dt">[</span><span class="st">`</span>(x,y), <span class="kw">stop</span>(<span class="st">&quot;no derivative when indexing&quot;</span>))
-<span class="kw">try</span>(nlsr::<span class="kw">nlsDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre></div>
+<span class="kw">try</span>(nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre></div>
 <pre><code>## Warning in if (as.character(expr) == name) return(1) else return(0): the
 ## condition has length &gt; 1 and only the first element will be used
 
@@ -1745,9 +1859,10 @@ clxy2 &lt;-<span class="st"> &quot;log(x+y^2)&quot;</span>
 
 ## Warning in if (as.character(expr) == name) return(1) else return(0): the
 ## condition has length &gt; 1 and only the first element will be used</code></pre>
-<pre><code>## expression(y[3] + stop(&quot;no derivative when indexing&quot;) * r1)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nlsr::<span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre></div>
-<pre><code>## {
+<pre><code>## y[3] + stop(&quot;no derivative when indexing&quot;) * r1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nlsr<span class="op">::</span><span class="kw">fnDeriv</span>(zzz, <span class="kw">c</span>(<span class="st">&quot;r1&quot;</span>,<span class="st">&quot;r2&quot;</span>)))</code></pre></div>
+<pre><code>## function (y, r1, r2) 
+## {
 ##     .expr1 &lt;- y[3]
 ##     .expr2 &lt;- stop(&quot;no derivative when indexing&quot;)
 ##     .expr3 &lt;- .expr2 * r1
@@ -1765,13 +1880,10 @@ clxy2 &lt;-<span class="st"> &quot;log(x+y^2)&quot;</span>
 <pre><code>&quot;[&quot;(y,3)</code></pre>
 <p>that is, as a function. Duncan Murdoch pointed out the availability of <strong>nlsr</strong> and the use of newDeriv() to redefine the “[” function for the purposes of derivatives.</p>
 <p>This is not an ideal resolution, especially as we would like to be able to get the gradients of functions with respect to vectors of parameters (Noted also by Sergei Sokol in the manual for package <strong>Deriv</strong>). The following examples illustrate this.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nlsr::<span class="kw">nlsDeriv</span>(zzz, <span class="st">&quot;y[3]&quot;</span>))</code></pre></div>
-<pre><code>## expression(stop(&quot;no derivative when indexing&quot;) * r1)</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nlsr::<span class="kw">nlsDeriv</span>(y3*r1+r2,<span class="st">&quot;y3&quot;</span>))
-<span class="kw">try</span>(nlsr::<span class="kw">nlsDeriv</span>(y[<span class="dv">3</span>]*r1+r2,<span class="st">&quot;y[3]&quot;</span>))</code></pre></div>
-</div>
-<div id="references" class="section level1">
-<h1>References</h1>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(zzz, <span class="st">&quot;y[3]&quot;</span>))</code></pre></div>
+<pre><code>## stop(&quot;no derivative when indexing&quot;) * r1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">try</span>(nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(y3<span class="op">*</span>r1<span class="op">+</span>r2,<span class="st">&quot;y3&quot;</span>))
+<span class="kw">try</span>(nlsr<span class="op">::</span><span class="kw">nlsDeriv</span>(y[<span class="dv">3</span>]<span class="op">*</span>r1<span class="op">+</span>r2,<span class="st">&quot;y[3]&quot;</span>))</code></pre></div>
 </div>
 
 

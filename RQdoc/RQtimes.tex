@@ -1,0 +1,1480 @@
+\documentclass[10pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage{fullpage}
+\usepackage{graphicx} %If you want to include postscript graphics
+\usepackage{wrapfig} 
+%\usepackage{mystyle} %Create your own file, mystyle.sty where you put all your own \newcommand statements, for example.
+
+\usepackage{chicago}
+
+\raggedbottom
+\newcommand{\R}{{\sf R\ }}
+%% \newcommand{\V}{\fontsize{\tiny}\\ {\fontsize{\normalsize}}}
+%% \newcommand{\eq}{ \begin{equation} }
+
+%% \newcommand{\ee}{ \end{equation} }  These did not work.
+
+%% \newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+%% suddenly was lacking this in tex file?? 120629
+
+\newcommand{\B}[1]{{\bf #1 \rm}}
+
+\newcommand{\Splus}{{\sf S-PLUS}}
+\newcommand{\fixme}[1]{\textbf{FIXME: #1}}
+%\newcommand{\fixme}[1]{}
+\newcommand{\code}[1]{{\tt #1}}
+\newcommand{\pkg}[1]{\bf{\tt #1}\rm }
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in parse\_objects(paths[1L]): file cache/\_\_objects not found}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in parse\_objects(paths[2L]): file cache/\_\_globals not found}}\end{kframe}
+\end{knitrout}
+
+\title{Timing Rayleigh Quotient minimization in \R}
+\author{John C. Nash, Telfer School of Management, University of Ottawa}
+\date{July 2012, with update December 2016}
+\maketitle
+
+\section*{Abstract}
+
+This vignette is simply to record the methods and results for timing 
+various Rayleigh Quotient minimizations with \R using different functions
+and different ways of running the computations, in particular trying Fortran
+subroutines and the \R byte compiler.
+
+\section{The computational task}
+
+The maximal and minimal eigensolutions of a symmetric matrix $A$ are extrema of the Rayleigh Quotient
+
+$ R(x) =  (x' A x)  / (x' x) $
+
+We could also deal with generalized eigenproblems of the form 
+
+$A x = e B x$
+
+where B is symmetric and positive definite by using the Rayleigh Quotient (RQ)
+
+$ R_g(x) =  (x' A x)  / (x' B x) $
+
+In this document, B will always be an identity matrix, but some programs we test
+assume that it is present.
+
+Noth that the objective is scaled by the parameters, in fact by by their 
+sum of squares. Alternatively, 
+we may think of requiring the \B{normalized} eigensolution, which is given as 
+
+$ x_{normalized} = x/sqrt(x' x) $
+
+\section{Timings and speedups}
+
+In \R, execution times can be measured by the function \code{system.time},
+and in particular the first element of the object this function returns the time
+taken by the code which is the argument to the function. 
+However, various factors influence computing times in a modern computational
+system, so we generally want to run replications of the times. The \R packages
+\pkg{rbenchmark} and \pkg{microbenchmark} can be used for this. I have a 
+preference for the latter. However, to keep the time to prepare this vignette
+with \pkg{Sweave} or \pkg{knitR} reasonable, many of the timings will be
+done with only \code{system.time}.
+
+There are some ways to speed up \R computations. 
+
+\begin{itemize}
+\item{The code can be modified to use more efficient language structures. We
+show some of these below, in particular, to use vector operations.}
+\item{We can use the \R byte code compiler by Luke Tierney, which has been 
+part of the \R distribution since version 2.14.}
+\item{We can use compiled code in other languages. Here we show how Fortran
+subroutines can be used.}
+\end{itemize}
+
+Note that the timings here are intended to provide a guide to the relative 
+efficiency of equivalent computations of the same results. There are hardware,
+operating system, library, and package effects that we will largely ignore.
+The particular machine used to develop this article is described using 
+the following script.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{sessionInfo}\hlstd{()}
+\end{alltt}
+\begin{verbatim}
+## R version 3.4.0 (2017-04-21)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Linux Mint 18
+## 
+## Matrix products: default
+## BLAS: /usr/lib/libblas/libblas.so.3.6.0
+## LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
+## 
+## locale:
+##  [1] LC_CTYPE=en_CA.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_CA.UTF-8        LC_COLLATE=en_CA.UTF-8    
+##  [5] LC_MONETARY=en_CA.UTF-8    LC_MESSAGES=en_CA.UTF-8   
+##  [7] LC_PAPER=en_CA.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_CA.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] knitr_1.15.1
+## 
+## loaded via a namespace (and not attached):
+## [1] compiler_3.4.0 magrittr_1.5   tools_3.4.0    stringi_1.1.5 
+## [5] digest_0.6.12  stringr_1.2.0  evaluate_0.10
+\end{verbatim}
+\begin{alltt}
+\hlkwd{print}\hlstd{(}\hlkwd{system}\hlstd{(}\hlstr{"inxi"}\hlstd{))} \hlcom{# special bash script for Linux}
+\end{alltt}
+\begin{verbatim}
+## [1] 0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+The results presented in this article will very likely differ on other 
+machinery and other operating environments. However, the code is included -- you
+are more than welcome to re-run the timings, and I would be delighted to learn
+of any significant variations from the general findings reported here, especially
+if the source of such variations can be discovered. 
+
+
+\section{Our example matrix}
+
+We will use a matrix called the Moler matrix \cite[Appendix 1]{cnm79}. 
+This is a positive definite
+symmetric matrix with one small eigenvalue. We will show a couple of 
+examples of computing the small eigenvalue solution, but will mainly
+perform timings using the maximal eigenvalue solution, which we will
+find by minimizing the RQ of (-1) times the matrix. (The eigenvalue
+of this matrix is the negative of the maximal eigenvalue of the 
+original, but the eigenvectors are equivalent to within a scaling
+factor for non-degenerate eigenvalues.)
+
+Here is the code for generating the Moler matrix.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{molermat}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}
+   \hlstd{A}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlnum{NA}\hlstd{,} \hlkwc{nrow}\hlstd{=n,} \hlkwc{ncol}\hlstd{=n)}
+   \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n)\{}
+      \hlkwa{for} \hlstd{(j} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
+          \hlkwa{if} \hlstd{(i} \hlopt{==} \hlstd{j) A[i,i]}\hlkwb{<-}\hlstd{i}
+          \hlkwa{else} \hlstd{A[i,j]}\hlkwb{<-}\hlkwd{min}\hlstd{(i,j)} \hlopt{-} \hlnum{2}
+      \hlstd{\}}
+   \hlstd{\}}
+   \hlstd{A}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+However, since \R is more efficient with vectorized code, the following routine by 
+Ravi Varadhan should do much better.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{molerfast} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{) \{}
+\hlcom{# A fast version of `molermat'}
+\hlstd{A} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlkwc{nrow} \hlstd{= n,} \hlkwc{ncol} \hlstd{= n)}
+\hlstd{j} \hlkwb{<-} \hlnum{1}\hlopt{:}\hlstd{n}
+\hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
+\hlstd{A[i,} \hlnum{1}\hlopt{:}\hlstd{i]} \hlkwb{<-} \hlkwd{pmin}\hlstd{(i,} \hlnum{1}\hlopt{:}\hlstd{i)} \hlopt{-} \hlnum{2}
+\hlstd{\}}
+\hlstd{A} \hlkwb{<-} \hlstd{A} \hlopt{+} \hlkwd{t}\hlstd{(A)}
+\hlkwd{diag}\hlstd{(A)} \hlkwb{<-} \hlnum{1}\hlopt{:}\hlstd{n}
+\hlstd{A}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\subsection{Time to build the matrix}
+
+Let us see how long it takes to build the Moler matrix of different sizes.
+However, given that it is easy to use the byte-code compiler, we will compare
+results. We also include times for the \code{eigen()} function that computes
+the full set of eigensolutions very quickly.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: compiler}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+##       n buildi buildc   osize eigentime bfast bfastc
+## 1   100  0.028  0.012   80200     0.012 0.020  0.004
+## 2   200  0.044  0.040  320200     0.044 0.004  0.008
+## 3   300  0.096  0.096  720200     0.132 0.012  0.012
+## 4   400  0.168  0.160 1280200     0.288 0.016  0.020
+## 5   500  0.256  0.260 2000200     0.536 0.028  0.024
+## 6   600  0.368  0.368 2880200     0.984 0.032  0.032
+## 7   700  0.516  0.496 3920200     1.500 0.040  0.044
+## 8   800  0.660  0.660 5120200     2.196 0.048  0.048
+## 9   900  0.836  0.832 6480200     3.140 0.060  0.068
+## 10 1000  1.032  1.032 8000200     4.188 0.072  0.076
+## buildi - interpreted build time; buildc - byte compiled build time
+## osize - matrix size in bytes; eigentime - all eigensolutions time
+## bfast - interpreted vectorized build time; bfastc - same code, byte compiled time
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+We can graph the times, and show a definite advantage for
+using the byte code compiler. The code, which is not 
+echoed here, also models the times and the object size
+created as almost perfect quadratic models in \code{n}. However,
+the vectorized code is much, much faster, and the byte code
+compiler does not appear to help.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/drawtime1-1} 
+
+\end{knitrout}
+
+We can also model these timings. If we try to fit a quadratic model in the
+matrix size, we find almost perfect fits for both interpreted and byte-compiled
+timings over the cases tried.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{n2}\hlkwb{<-}\hlstd{n}\hlopt{*}\hlstd{n}
+\hlstd{itime}\hlkwb{<-}\hlkwd{lm}\hlstd{(ti}\hlopt{~}\hlstd{n}\hlopt{+}\hlstd{n2)}
+\hlkwd{summary}\hlstd{(itime)}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = ti ~ n + n2)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -0.0054545 -0.0027455 -0.0012970  0.0001636  0.0109091 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  1.653e-02  6.446e-03   2.565   0.0373 *  
+## n           -4.873e-05  2.692e-05  -1.810   0.1132    
+## n2           1.067e-06  2.385e-08  44.725  7.3e-10 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.00548 on 7 degrees of freedom
+## Multiple R-squared:  0.9998,	Adjusted R-squared:  0.9998 
+## F-statistic: 1.837e+04 on 2 and 7 DF,  p-value: 9.538e-14
+\end{verbatim}
+\begin{alltt}
+\hlstd{ctime}\hlkwb{<-}\hlkwd{lm}\hlstd{(tc}\hlopt{~}\hlstd{n}\hlopt{+}\hlstd{n2)}
+\hlkwd{summary}\hlstd{(ctime)}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = tc ~ n + n2)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -0.0062364 -0.0016909 -0.0004182  0.0023773  0.0049455 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  4.600e-03  4.538e-03   1.014    0.345    
+## n           -2.409e-05  1.895e-05  -1.271    0.244    
+## n2           1.050e-06  1.679e-08  62.529 7.03e-11 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.003859 on 7 degrees of freedom
+## Multiple R-squared:  0.9999,	Adjusted R-squared:  0.9999 
+## F-statistic: 3.739e+04 on 2 and 7 DF,  p-value: 7.933e-15
+\end{verbatim}
+\begin{alltt}
+\hlstd{osize}\hlkwb{<-}\hlkwd{lm}\hlstd{(os}\hlopt{~}\hlstd{n}\hlopt{+}\hlstd{n2)}
+\hlkwd{summary}\hlstd{(osize)}
+\end{alltt}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in summary.lm(osize): essentially perfect fit: summary may be unreliable}}\begin{verbatim}
+## 
+## Call:
+## lm(formula = os ~ n + n2)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -7.707e-10 -1.136e-11  8.319e-11  1.607e-10  1.963e-10 
+## 
+## Coefficients:
+##               Estimate Std. Error    t value Pr(>|t|)    
+## (Intercept)  2.000e+02  3.821e-10  5.235e+11   <2e-16 ***
+## n           -4.101e-12  1.596e-12 -2.570e+00    0.037 *  
+## n2           8.000e+00  1.414e-15  5.659e+15   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.248e-10 on 7 degrees of freedom
+## Multiple R-squared:      1,	Adjusted R-squared:      1 
+## F-statistic: 3.188e+32 on 2 and 7 DF,  p-value: < 2.2e-16
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\section{Computing the Rayleigh Quotient}
+
+\label{sect:crq}
+
+The Rayleigh Quotient requires the quadratic form $ x' A x$ divided
+by the inner product $x' x$. \R lets us form this in several ways. 
+Given that we know \code{for} loops are slow, we will not actually
+use the direct code (incorporating the minus sign)
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{rqdir}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{)\{}
+  \hlstd{rq}\hlkwb{<-}\hlnum{0.0}
+  \hlstd{n}\hlkwb{<-}\hlkwd{length}\hlstd{(x)} \hlcom{# assume x, AA conformable}
+  \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
+     \hlkwa{for} \hlstd{(j} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
+        \hlstd{rq}\hlkwb{<-}\hlstd{rq}\hlopt{-}\hlstd{x[i]}\hlopt{*}\hlstd{AA[[i,j]]}\hlopt{*}\hlstd{x[j]} \hlcom{# Note - sign}
+     \hlstd{\}}
+  \hlstd{\}}
+  \hlstd{rq}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Somewhat better (as we shall show below) is
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{ray1}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{)\{}
+    \hlstd{rq}\hlkwb{<-} \hlopt{-} \hlkwd{t}\hlstd{(x)}\hlopt{%*%}\hlstd{AA}\hlopt{%*%}\hlstd{x}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+and better still is 
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{ray2}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{)\{}
+    \hlstd{rq}\hlkwb{<-} \hlopt{-} \hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x,} \hlkwd{crossprod}\hlstd{(AA,x)))}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Note that we include the minus sign already in these
+routines.
+
+If we already have the inner product $ A x$ as \code{ax} from some other 
+computation, then we can simply use 
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{ray3}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{,} \hlkwc{ax}\hlstd{=axftn)\{}
+    \hlcom{# ax is a function to form AA%*%x }
+    \hlstd{rq}\hlkwb{<-} \hlopt{-} \hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x,} \hlkwd{ax}\hlstd{(x, AA)))}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\section{Matrix-vector products}
+
+In generating the RQ, we do not actually need the matrix itself, 
+but simply the inner product with a vector \code{x}, from which 
+a second inner produce with \code{x} gives us the quadratic form
+$ x' A x$. If \code{n} is the order of the problem, then for large
+\code{n}, we avoid storing and manipulating a very large matrix if
+we use \B{implicit inner product} formation. We do this with the
+following code. For future reference, we include the multiplication
+by an identity. 
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{ax}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{)\{}
+   \hlstd{u}\hlkwb{<-} \hlkwd{as.numeric}\hlstd{(AA}\hlopt{%*%}\hlstd{x)}
+\hlstd{\}}
+
+\hlstd{axx}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{)\{}
+   \hlstd{u}\hlkwb{<-} \hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(AA, x))}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Note that second argument, supposedly communicating the matrix which is
+to be used in the matrix-vector product, is ignored in the following
+implicit product routine. It is present only to provide a common syntax
+when we wish to try different routines within other computations.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{aximp}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{)\{} \hlcom{# implicit moler A*x}
+   \hlstd{n}\hlkwb{<-}\hlkwd{length}\hlstd{(x)}
+   \hlstd{y}\hlkwb{<-}\hlkwd{rep}\hlstd{(}\hlnum{0}\hlstd{,n)}
+   \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n)\{}
+      \hlstd{tt}\hlkwb{<-}\hlnum{0.}
+      \hlkwa{for} \hlstd{(j} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
+          \hlkwa{if} \hlstd{(i} \hlopt{==} \hlstd{j) tt}\hlkwb{<-}\hlstd{tt}\hlopt{+}\hlstd{i}\hlopt{*}\hlstd{x[i]}
+          \hlkwa{else} \hlstd{tt}\hlkwb{<-}\hlstd{tt}\hlopt{+}\hlstd{(}\hlkwd{min}\hlstd{(i,j)} \hlopt{-} \hlnum{2}\hlstd{)}\hlopt{*}\hlstd{x[j]}
+      \hlstd{\}}
+      \hlstd{y[i]}\hlkwb{<-}\hlstd{tt}
+   \hlstd{\}}
+   \hlstd{y}
+\hlstd{\}}
+\hlstd{ident}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{B}\hlstd{=}\hlnum{1}\hlstd{) x} \hlcom{# identity}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+However, Ravi Varadhan has suggested the following vectorized code for
+the implicit matrix-vector product.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{axmolerfast} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{) \{}
+\hlcom{# A fast and memory-saving version of A%*%x  }
+\hlcom{# For Moler matrix. Note we need a matrix argument to match other functions}
+\hlstd{n} \hlkwb{<-} \hlkwd{length}\hlstd{(x)}
+\hlstd{j} \hlkwb{<-} \hlnum{1}\hlopt{:}\hlstd{n}
+\hlstd{ax} \hlkwb{<-} \hlkwd{rep}\hlstd{(}\hlnum{0}\hlstd{, n)}
+\hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
+\hlstd{term} \hlkwb{<-} \hlstd{x} \hlopt{*} \hlstd{(}\hlkwd{pmin}\hlstd{(i, j)} \hlopt{-} \hlnum{2}\hlstd{)}
+\hlstd{ax[i]} \hlkwb{<-} \hlkwd{sum}\hlstd{(term[}\hlopt{-}\hlstd{i])}
+\hlstd{\}}
+\hlstd{ax} \hlkwb{<-} \hlstd{ax} \hlopt{+} \hlstd{j}\hlopt{*}\hlstd{x}
+\hlstd{ax}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+We can also use external language routines, for example in Fortran. 
+However, this needs a Fortran \B{subroutine} which outputs the result as one of
+the returned components. The subroutine is in file \code{moler.f}.
+
+\begin{verbatim}
+      subroutine moler(n, x, ax)
+      integer n, i, j
+      double precision x(n), ax(n), sum
+c     return ax = A * x for A = moler matrix
+c     A[i,j]=min(i,j)-2 for i<>j, or i for i==j
+      do 20 i=1,n
+         sum=0.0
+         do 10 j=1,n
+            if (i.eq.j) then
+               sum = sum+i*x(i)
+            else
+               sum = sum+(min(i,j)-2)*x(j)
+            endif
+ 10      continue
+         ax(i)=sum
+ 20   continue
+      return
+      end
+\end{verbatim}
+
+This is then compiled in a form suitable for R use by the command:
+
+\begin{verbatim}
+R CMD SHLIB moler.f
+\end{verbatim}
+
+This creates files \code{moler.o} and \code{moler.so}, the latter being the
+dynamically loadable library we need to bring into our \R session. Normally
+the compilation is run as a command-line tool, and at first was run in Ubuntu Linux 
+in a directory containing
+the file \code{moler.f} but outside this vignette. When I came to check and possibly
+update this file, I discovered that there were some minor syntax changes in the
+\textbf{knitr} package so that directives for \code{cache} caused errors and needed
+to be deleted. Also the dynamic load library files \code{moler.o} and \code{moler.so}
+would not load, apparently because they were compiled using different versions of
+the Fortran libraries. Recompiling removed this issue. However, we can automate the
+process to avoid future difficulties as the operating system infrastructure is 
+updated. 
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{system}\hlstd{(}\hlstr{"rm moler.so"}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{"rm moler.o"}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{"R CMD SHLIB moler.f"}\hlstd{)}
+\hlkwd{cat}\hlstd{(}\hlstr{"Dynamic libraries rebuilt \textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Dynamic libraries rebuilt
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{dyn.load}\hlstd{(}\hlstr{"moler.so"}\hlstd{)}
+\hlkwd{cat}\hlstd{(}\hlstr{"Is the mat multiply loaded? "}\hlstd{,}\hlkwd{is.loaded}\hlstd{(}\hlstr{"moler"}\hlstd{),}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Is the mat multiply loaded?  TRUE
+\end{verbatim}
+\begin{alltt}
+\hlstd{axftn}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{) \{} \hlcom{# ignore second argument}
+   \hlstd{n}\hlkwb{<-}\hlkwd{length}\hlstd{(x)} \hlcom{# could speed up by having this passed}
+   \hlstd{vout}\hlkwb{<-}\hlkwd{rep}\hlstd{(}\hlnum{0}\hlstd{,n)} \hlcom{# purely for storage}
+   \hlstd{res}\hlkwb{<-}\hlstd{(}\hlkwd{.Fortran}\hlstd{(}\hlstr{"moler"}\hlstd{,} \hlkwc{n}\hlstd{=}\hlkwd{as.integer}\hlstd{(n),} \hlkwc{x}\hlstd{=}\hlkwd{as.double}\hlstd{(x),} \hlkwc{vout}\hlstd{=}\hlkwd{as.double}\hlstd{(vout)))}\hlopt{$}\hlstd{vout}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+We can also byte compile each of the routines above
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{require}\hlstd{(compiler)}
+\hlstd{axc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(ax)}
+\hlstd{axxc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(axx)}
+\hlstd{axftnc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(axftn)}
+\hlstd{aximpc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(aximp)}
+\hlstd{axmfc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(axmolerfast)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Now it is possible to time the different approaches to the matrix-vector
+product. We only use matrix sizes up to 500 here. 
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{dyn.load}\hlstd{(}\hlstr{"moler.so"}\hlstd{)}
+\hlkwd{cat}\hlstd{(}\hlstr{"Is the mat multiply loaded? "}\hlstd{,}\hlkwd{is.loaded}\hlstd{(}\hlstr{"moler"}\hlstd{),}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Is the mat multiply loaded?  TRUE
+\end{verbatim}
+\begin{alltt}
+\hlcom{# require(microbenchmark)}
+\hlstd{nmax}\hlkwb{<-}\hlnum{10}
+\hlstd{ptable}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlnum{NA}\hlstd{,} \hlkwc{nrow}\hlstd{=nmax,} \hlkwc{ncol}\hlstd{=}\hlnum{11}\hlstd{)} \hlcom{# to hold results}
+\hlcom{# loop over sizes}
+\hlkwa{for} \hlstd{(ni} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{nmax)\{}
+  \hlstd{n}\hlkwb{<-}\hlnum{100}\hlopt{*}\hlstd{ni}
+  \hlstd{x}\hlkwb{<-}\hlkwd{runif}\hlstd{(n)} \hlcom{# generate a vector }
+  \hlstd{ptable[[ni,} \hlnum{1}\hlstd{]]}\hlkwb{<-}\hlstd{n}
+  \hlstd{AA}\hlkwb{<-}\hlkwd{molermat}\hlstd{(n)}
+  \hlstd{tax}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oax}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{ax}\hlstd{(x, AA))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlstd{taxc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaxc}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{axc}\hlstd{(x, AA))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaxc))} \hlkwd{stop}\hlstd{(}\hlstr{"oaxc NOT correct"}\hlstd{)}
+  \hlstd{taxx}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaxx}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{axx}\hlstd{(x, AA))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaxx))} \hlkwd{stop}\hlstd{(}\hlstr{"oaxx NOT correct"}\hlstd{)}
+  \hlstd{taxxc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaxxc}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{axxc}\hlstd{(x, AA))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaxxc))} \hlkwd{stop}\hlstd{(}\hlstr{"oaxxc NOT correct"}\hlstd{)}
+  \hlstd{taxftn}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaxftn}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{axftn}\hlstd{(x,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaxftn))} \hlkwd{stop}\hlstd{(}\hlstr{"oaxftn NOT correct"}\hlstd{)}
+  \hlstd{taxftnc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaxftnc}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{axftnc}\hlstd{(x,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaxftnc))} \hlkwd{stop}\hlstd{(}\hlstr{"oaxftnc NOT correct"}\hlstd{)}
+  \hlstd{taximp}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaximp}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{aximp}\hlstd{(x,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaximp))} \hlkwd{stop}\hlstd{(}\hlstr{"oaximp NOT correct"}\hlstd{)}
+  \hlstd{taximpc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaximpc}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{aximpc}\hlstd{(x,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaximpc))} \hlkwd{stop}\hlstd{(}\hlstr{"oaximpc NOT correct"}\hlstd{)}
+  \hlstd{taxmfi}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaxmfi}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{axmolerfast}\hlstd{(x,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaxmfi))} \hlkwd{stop}\hlstd{(}\hlstr{"oaxmfi NOT correct"}\hlstd{)}
+  \hlstd{taxmfc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(oaxmfc}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{axmfc}\hlstd{(x,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{))[,}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwa{if} \hlstd{(}\hlopt{!} \hlkwd{identical}\hlstd{(oax, oaxmfc))} \hlkwd{stop}\hlstd{(}\hlstr{"oaxmfc NOT correct"}\hlstd{)}
+  \hlstd{ptable[[ni,} \hlnum{2}\hlstd{]]}\hlkwb{<-}\hlstd{tax}
+  \hlstd{ptable[[ni,} \hlnum{3}\hlstd{]]}\hlkwb{<-}\hlstd{taxc}
+  \hlstd{ptable[[ni,} \hlnum{4}\hlstd{]]}\hlkwb{<-}\hlstd{taxx}
+  \hlstd{ptable[[ni,} \hlnum{5}\hlstd{]]}\hlkwb{<-}\hlstd{taxxc}
+  \hlstd{ptable[[ni,} \hlnum{6}\hlstd{]]}\hlkwb{<-}\hlstd{taxftn}
+  \hlstd{ptable[[ni,} \hlnum{7}\hlstd{]]}\hlkwb{<-}\hlstd{taxftnc}
+  \hlstd{ptable[[ni,} \hlnum{8}\hlstd{]]}\hlkwb{<-}\hlstd{taximp}
+  \hlstd{ptable[[ni,} \hlnum{9}\hlstd{]]}\hlkwb{<-}\hlstd{taximpc}
+  \hlstd{ptable[[ni,} \hlnum{10}\hlstd{]]}\hlkwb{<-}\hlstd{taxmfi}
+  \hlstd{ptable[[ni,} \hlnum{11}\hlstd{]]}\hlkwb{<-}\hlstd{taxmfc}
+\hlcom{#  cat(n,tax, taxc, taxx, taxxc, taxftn, taxftnc, taximp, taximpc,"\textbackslash{}n")}
+\hlstd{\}}
+\hlstd{axtym}\hlkwb{<-}\hlkwd{data.frame}\hlstd{(}\hlkwc{n}\hlstd{=ptable[,}\hlnum{1}\hlstd{],} \hlkwc{ax}\hlstd{=ptable[,}\hlnum{2}\hlstd{],} \hlkwc{axc}\hlstd{=ptable[,}\hlnum{3}\hlstd{],}
+  \hlkwc{axx}\hlstd{=ptable[,}\hlnum{4}\hlstd{],} \hlkwc{axxc}\hlstd{=ptable[,}\hlnum{5}\hlstd{],}
+  \hlkwc{axftn}\hlstd{=ptable[,}\hlnum{6}\hlstd{],} \hlkwc{axftnc}\hlstd{=ptable[,}\hlnum{7}\hlstd{],}
+  \hlkwc{aximp}\hlstd{=ptable[,}\hlnum{8}\hlstd{],} \hlkwc{aximpc}\hlstd{=ptable[,}\hlnum{9}\hlstd{],} \hlkwc{axmfast}\hlstd{=ptable[,}\hlnum{10}\hlstd{],}
+  \hlkwc{amfastc}\hlstd{=ptable[,}\hlnum{11}\hlstd{])}
+\hlkwd{print}\hlstd{(axtym)}
+\end{alltt}
+\begin{verbatim}
+##       n    ax   axc   axx  axxc axftn axftnc  aximp aximpc axmfast amfastc
+## 1   100 0.008 0.004 0.004 0.004 0.012  0.008  0.240  0.204   0.084   0.064
+## 2   200 0.000 0.004 0.000 0.004 0.004  0.004  0.908  0.828   0.132   0.144
+## 3   300 0.004 0.008 0.008 0.008 0.012  0.008  1.856  1.856   0.252   0.240
+## 4   400 0.012 0.012 0.012 0.012 0.016  0.016  3.276  3.340   0.360   0.360
+## 5   500 0.016 0.016 0.020 0.020 0.028  0.024  5.136  5.196   0.488   0.484
+## 6   600 0.028 0.028 0.028 0.028 0.036  0.036  7.424  7.448   0.632   0.628
+## 7   700 0.044 0.044 0.044 0.044 0.048  0.048 10.072 10.068   0.780   0.784
+## 8   800 0.056 0.056 0.060 0.056 0.064  0.060 13.160 12.900   1.028   0.956
+## 9   900 0.072 0.076 0.076 0.076 0.076  0.080 16.228 16.228   1.140   1.140
+## 10 1000 0.088 0.092 0.092 0.092 0.096  0.096 19.968 20.004   1.340   1.344
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+From the above output, we see that the \code{crossprod} variant of the 
+matrix-vector product appears to be the fastest. However, we have omitted
+the time to build the matrix. If we must build the matrix, then we need 
+somehow to include that time. Because the times for the matrix-vector 
+product were so short, we used \code{replicate} above to run 20 copies 
+of the same calculation, which may give some distortion of the timings.
+However, we believe the scale of the times is more or less correct. To 
+compare these times to the times for the Fortran or implicit matrix-vector
+routines, we should add a multiple of the relevant interpreted or
+compiled build times. Here we have used the times for the rather poor
+\code{molermat()} function, but this is simply to illustrate the range
+of potential timings. Apportioning such "fixed costs" to timings is
+never a trivial decision. Similarly if, where and how to store
+large matrices if we do build them, and whether it is worth building
+them more than once if storage is an issue, are all questions that 
+may need to be addressed if performance becomes important.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{bmattym} \hlkwb{<-} \hlstd{bmattym[}\hlnum{1}\hlopt{:}\hlnum{10}\hlstd{,]}
+\hlstd{adjtym}\hlkwb{<-}\hlkwd{data.frame}\hlstd{(}\hlkwc{n}\hlstd{=axtym}\hlopt{$}\hlstd{n,} \hlkwc{axx1}\hlstd{=axtym}\hlopt{$}\hlstd{axx}\hlopt{+}\hlnum{1}\hlopt{*}\hlstd{bmattym}\hlopt{$}\hlstd{buildi,}
+     \hlkwc{axxz}\hlstd{=axtym}\hlopt{$}\hlstd{axx}\hlopt{+}\hlnum{20}\hlopt{*}\hlstd{bmattym}\hlopt{$}\hlstd{buildi,}
+     \hlkwc{axxc1}\hlstd{=axtym}\hlopt{$}\hlstd{axxc}\hlopt{+}\hlnum{1}\hlopt{*}\hlstd{bmattym}\hlopt{$}\hlstd{buildc,}\hlkwc{axxcz}\hlstd{=axtym}\hlopt{$}\hlstd{axxc}\hlopt{+}\hlnum{20}\hlopt{*}\hlstd{bmattym}\hlopt{$}\hlstd{buildc,}
+     \hlkwc{axftn}\hlstd{=axtym}\hlopt{$}\hlstd{axftn,} \hlkwc{aximp}\hlstd{=axtym}\hlopt{$}\hlstd{aximp,} \hlkwc{aximpc}\hlstd{=axtym}\hlopt{$}\hlstd{aximpc)}
+\hlkwd{print}\hlstd{(adjtym)}
+\end{alltt}
+\begin{verbatim}
+##       n  axx1   axxz axxc1  axxcz axftn  aximp aximpc
+## 1   100 0.032  0.564 0.016  0.244 0.012  0.240  0.204
+## 2   200 0.044  0.880 0.044  0.804 0.004  0.908  0.828
+## 3   300 0.104  1.928 0.104  1.928 0.012  1.856  1.856
+## 4   400 0.180  3.372 0.172  3.212 0.016  3.276  3.340
+## 5   500 0.276  5.140 0.280  5.220 0.028  5.136  5.196
+## 6   600 0.396  7.388 0.396  7.388 0.036  7.424  7.448
+## 7   700 0.560 10.364 0.540  9.964 0.048 10.072 10.068
+## 8   800 0.720 13.260 0.716 13.256 0.064 13.160 12.900
+## 9   900 0.912 16.796 0.908 16.716 0.076 16.228 16.228
+## 10 1000 1.124 20.732 1.124 20.732 0.096 19.968 20.004
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Out of all this, we see that the Fortran implicit matrix-vector product is 
+the overall winner at all values of \code{n}. Moreover, it does NOT 
+require the creation and storage of the matrix. However, using Fortran
+does involve rather more work for the user, and for most applications 
+it is likely we could live with the use of either 
+
+\begin{itemize}
+\item{the interpreted matrix-product based on \code{crossprod} 
+and an actual matrix is good enough, especially if a fast 
+matrix build is used and we have plenty of memory, or}
+\item{the interpreted or byte-code compiled implicit matrix-vector 
+multiply \code{axmolerfast}.} 
+\end{itemize}
+
+
+\section{RQ computation times}
+
+We have in Section \ref{sect:crq} above set up three versions of a Rayleigh 
+Quotient calculation in addition to the direct form. The third 
+form is set up to use the \code{axftn} routine that we have 
+already shown is efficient. We could also use the
+implicit matrix-vector product \code{axmolerfast}.
+
+It seems overkill to show the RQ computation time for all versions
+and matrices, so we will do the timing simply for a matrix of 
+order 500.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{require}\hlstd{(compiler)}
+\hlstd{rqdirc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(rqdir)}
+\hlstd{ray1c}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(ray1)}
+\hlstd{ray2c}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(ray2)}
+\hlstd{ray3c}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(ray3)}
+\hlkwd{dyn.load}\hlstd{(}\hlstr{"moler.so"}\hlstd{)}
+  \hlstd{n}\hlkwb{<-}\hlnum{500}
+  \hlstd{x}\hlkwb{<-}\hlkwd{runif}\hlstd{(n)} \hlcom{# generate a vector }
+  \hlstd{AA}\hlkwb{<-}\hlkwd{molermat}\hlstd{(n)}
+  \hlstd{tdi}\hlkwb{<-}\hlkwd{system.time}\hlstd{(rdi}\hlkwb{<-}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,}\hlkwd{rqdir}\hlstd{(x, AA))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlstd{tdc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,rdc}\hlkwb{<-}\hlkwd{rqdirc}\hlstd{(x, AA))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwd{cat}\hlstd{(}\hlstr{"Direct algorithm: interpreted="}\hlstd{,tdi,}\hlstr{"   byte-compiled="}\hlstd{,tdc,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Direct algorithm: interpreted= 1.952    byte-compiled= 1.944
+\end{verbatim}
+\begin{alltt}
+  \hlstd{t1i}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r1i}\hlkwb{<-}\hlkwd{ray1}\hlstd{(x, AA))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlstd{t1c}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r1c}\hlkwb{<-}\hlkwd{ray1c}\hlstd{(x, AA))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwd{cat}\hlstd{(}\hlstr{"ray1: mat-mult algorithm: interpreted="}\hlstd{,t1i,}\hlstr{"   byte-compiled="}\hlstd{,t1c,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## ray1: mat-mult algorithm: interpreted= 0.028    byte-compiled= 0.024
+\end{verbatim}
+\begin{alltt}
+  \hlstd{t2i}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r2i}\hlkwb{<-}\hlkwd{ray2}\hlstd{(x, AA))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlstd{t2c}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r2c}\hlkwb{<-}\hlkwd{ray2c}\hlstd{(x, AA))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwd{cat}\hlstd{(}\hlstr{"ray2: crossprod algorithm: interpreted="}\hlstd{,t2i,}\hlstr{"   byte-compiled="}\hlstd{,t2c,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## ray2: crossprod algorithm: interpreted= 0.032    byte-compiled= 0.02
+\end{verbatim}
+\begin{alltt}
+  \hlstd{t3fi}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r3i}\hlkwb{<-}\hlkwd{ray3}\hlstd{(x, AA,} \hlkwc{ax}\hlstd{=axftn))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlstd{t3fc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r3i}\hlkwb{<-}\hlkwd{ray3c}\hlstd{(x, AA,} \hlkwc{ax}\hlstd{=axftnc))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwd{cat}\hlstd{(}\hlstr{"ray3: ax Fortran + crossprod: interpreted="}\hlstd{,t3fi,}\hlstr{"   byte-compiled="}\hlstd{,t3fc,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## ray3: ax Fortran + crossprod: interpreted= 0.032    byte-compiled= 0.028
+\end{verbatim}
+\begin{alltt}
+  \hlstd{t3ri}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r3i}\hlkwb{<-}\hlkwd{ray3}\hlstd{(x, AA,} \hlkwc{ax}\hlstd{=axmolerfast))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlstd{t3rc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(}\hlkwd{replicate}\hlstd{(}\hlnum{20}\hlstd{,r3i}\hlkwb{<-}\hlkwd{ray3c}\hlstd{(x, AA,} \hlkwc{ax}\hlstd{=axmfc))[}\hlnum{1}\hlstd{])[[}\hlnum{1}\hlstd{]]}
+  \hlkwd{cat}\hlstd{(}\hlstr{"ray3: ax fast R implicit + crossprod: interpreted="}\hlstd{,t3ri,}\hlstr{"   byte-compiled="}\hlstd{,t3rc,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## ray3: ax fast R implicit + crossprod: interpreted= 0.484    byte-compiled= 0.484
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Here we see that the use of the \code{crossprod} in \code{ray2} is 
+very fast, and this is interpreted code. Once again, we note that all 
+timings except those for \code{ray3} should have some adjustment for
+the building of the matrix. If storage is an issue, then \code{ray3},
+which uses the implicit matrix-vector product in Fortran, is the 
+approach of choice. My own preference would be to use this option
+if the Fortran matrix-vector product subroutine is already available
+for the matrix required. I would not, however, generally choose to
+write the Fortran subroutine for a "new" problem matrix. 
+
+
+\section{Solution by \code{spg}}
+
+To actually solve the eigensolution problem we will first use the 
+projected gradient method \code{spg} from \pkg{BB}. We repeat the 
+RQ function so that it is clear which routine we are using.
+
+
+
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{testsol} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{A}\hlstd{,}\hlkwc{eval}\hlstd{,} \hlkwc{evec}\hlstd{)\{} \hlcom{# test a trial eigensolution}
+     \hlstd{cmpval} \hlkwb{<-} \hlkwd{length}\hlstd{(evec)}\hlopt{*}\hlnum{1e-5}
+     \hlstd{tvec} \hlkwb{<-} \hlstd{A} \hlopt{%*%} \hlstd{evec} \hlopt{-} \hlstd{eval}\hlopt{*}\hlstd{evec}
+     \hlstd{etest} \hlkwb{<-} \hlkwd{max}\hlstd{(}\hlkwd{abs}\hlstd{(tvec))}
+     \hlstd{ntest} \hlkwb{<-} \hlkwd{abs}\hlstd{(}\hlnum{1}\hlopt{-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(evec)))}
+     \hlkwd{cat}\hlstd{(}\hlstr{"Eigenvalue solution test:"}\hlstd{, etest ,}\hlstr{"   Normtest:"}\hlstd{, ntest ,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+     \hlkwa{if} \hlstd{((ntest} \hlopt{>} \hlstd{cmpval)} \hlopt{||} \hlstd{(etest} \hlopt{>} \hlstd{cmpval))} \hlstr{"FAIL"} \hlkwa{else} \hlstr{"OK"}
+\hlstd{\}}
+\hlstd{rqt}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{)\{}
+    \hlstd{rq}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x,} \hlkwd{crossprod}\hlstd{(AA,x)))}\hlopt{/}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x))}
+\hlstd{\}}
+\hlstd{proj}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) \{ x}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{crossprod}\hlstd{(x)) \}}
+\hlkwd{require}\hlstd{(BB)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: BB}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE, : there is no package called 'BB'}}\begin{alltt}
+\hlstd{n}\hlkwb{<-}\hlnum{100}
+\hlstd{x}\hlkwb{<-}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlstd{,n)}
+\hlstd{AA}\hlkwb{<-}\hlkwd{molermat}\hlstd{(n)}
+\hlstd{tevs} \hlkwb{<-} \hlkwd{system.time}\hlstd{(evs}\hlkwb{<-}\hlkwd{eigen}\hlstd{(AA))[[}\hlnum{1}\hlstd{]]}
+\hlkwd{cat}\hlstd{(}\hlstr{"Time to compute full eigensystem = "}\hlstd{, tevs,} \hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Time to compute full eigensystem =  0.008
+\end{verbatim}
+\begin{alltt}
+\hlstd{tmin}\hlkwb{<-}\hlkwd{system.time}\hlstd{(amin}\hlkwb{<-}\hlkwd{spg}\hlstd{(x,} \hlkwc{fn}\hlstd{=rqt,} \hlkwc{project}\hlstd{=proj,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{),} \hlkwc{AA}\hlstd{=AA))[[}\hlnum{1}\hlstd{]]}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in spg(x, fn = rqt, project = proj, control = list(trace = FALSE), : could not find function "{}spg"{}}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Timing stopped at: 0 0 0.001}}\begin{alltt}
+\hlcom{#amin}
+\hlstd{tmax}\hlkwb{<-}\hlkwd{system.time}\hlstd{(amax}\hlkwb{<-}\hlkwd{spg}\hlstd{(x,} \hlkwc{fn}\hlstd{=rqt,} \hlkwc{project}\hlstd{=proj,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{),} \hlkwc{AA}\hlstd{=}\hlopt{-}\hlstd{AA))[[}\hlnum{1}\hlstd{]]}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in spg(x, fn = rqt, project = proj, control = list(trace = FALSE), : could not find function "{}spg"{}}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Timing stopped at: 0 0 0}}\begin{alltt}
+\hlcom{#amax}
+\hlstd{evalmax}\hlkwb{<-}\hlstd{evs}\hlopt{$}\hlstd{values[}\hlnum{1}\hlstd{]}
+\hlstd{evecmax}\hlkwb{<-}\hlstd{evs}\hlopt{$}\hlstd{vectors[,}\hlnum{1}\hlstd{]}
+\hlstd{evecmax}\hlkwb{<-}\hlkwd{sign}\hlstd{(evecmax[}\hlnum{1}\hlstd{])}\hlopt{*}\hlstd{evecmax}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(evecmax)))}
+\hlstd{emax}\hlkwb{<-}\hlkwd{list}\hlstd{(}\hlkwc{evalmax}\hlstd{=evalmax,} \hlkwc{evecmax}\hlstd{=evecmax)}
+\hlkwd{save}\hlstd{(emax,} \hlkwc{file}\hlstd{=}\hlstr{"temax.Rdata"}\hlstd{)}
+\hlstd{evalmin}\hlkwb{<-}\hlstd{evs}\hlopt{$}\hlstd{values[n]}
+\hlstd{evecmin}\hlkwb{<-}\hlstd{evs}\hlopt{$}\hlstd{vectors[,n]}
+\hlstd{evecmin}\hlkwb{<-}\hlkwd{sign}\hlstd{(evecmin[}\hlnum{1}\hlstd{])}\hlopt{*}\hlstd{evecmin}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(evecmin)))}
+\hlstd{avecmax}\hlkwb{<-}\hlstd{amax}\hlopt{$}\hlstd{par}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'amax' not found}}\begin{alltt}
+\hlstd{avecmin}\hlkwb{<-}\hlstd{amin}\hlopt{$}\hlstd{par}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'amin' not found}}\begin{alltt}
+\hlstd{avecmax}\hlkwb{<-}\hlkwd{sign}\hlstd{(avecmax[}\hlnum{1}\hlstd{])}\hlopt{*}\hlstd{avecmax}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(avecmax)))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'avecmax' not found}}\begin{alltt}
+\hlstd{avecmin}\hlkwb{<-}\hlkwd{sign}\hlstd{(avecmin[}\hlnum{1}\hlstd{])}\hlopt{*}\hlstd{avecmin}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(avecmin)))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'avecmin' not found}}\begin{alltt}
+\hlkwd{cat}\hlstd{(}\hlstr{"minimal eigensolution: Value="}\hlstd{,amin}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmin,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in cat("{}minimal eigensolution: Value="{}, amin\$value, "{}in time "{}, : object 'amin' not found}}\begin{alltt}
+\hlkwd{cat}\hlstd{(}\hlstr{"Eigenvalue - result from eigen="}\hlstd{,amin}\hlopt{$}\hlstd{value}\hlopt{-}\hlstd{evalmin,}\hlstr{"  vector max(abs(diff))="}\hlstd{,}
+      \hlkwd{max}\hlstd{(}\hlkwd{abs}\hlstd{(avecmin}\hlopt{-}\hlstd{evecmin)),}\hlstr{"\textbackslash{}n\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in cat("{}Eigenvalue - result from eigen="{}, amin\$value - evalmin, : object 'amin' not found}}\begin{alltt}
+\hlkwd{print}\hlstd{(}\hlkwd{testsol}\hlstd{(AA, amin}\hlopt{$}\hlstd{value, avecmin))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in testsol(AA, amin\$value, avecmin): object 'avecmin' not found}}\begin{alltt}
+\hlkwd{cat}\hlstd{(}\hlstr{"maximal eigensolution: Value="}\hlstd{,}\hlopt{-}\hlstd{amax}\hlopt{$}\hlstd{value,}\hlstr{"in time "}\hlstd{,tmax,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in cat("{}maximal eigensolution: Value="{}, -amax\$value, "{}in time "{}, : object 'amax' not found}}\begin{alltt}
+\hlkwd{cat}\hlstd{(}\hlstr{"Eigenvalue - result from eigen="}\hlstd{,}\hlopt{-}\hlstd{amax}\hlopt{$}\hlstd{value}\hlopt{-}\hlstd{evalmax,}\hlstr{"  vector max(abs(diff))="}\hlstd{,}
+      \hlkwd{max}\hlstd{(}\hlkwd{abs}\hlstd{(avecmax}\hlopt{-}\hlstd{evecmax)),}\hlstr{"\textbackslash{}n\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in cat("{}Eigenvalue - result from eigen="{}, -amax\$value - evalmax, : object 'amax' not found}}\begin{alltt}
+\hlkwd{print}\hlstd{(}\hlkwd{testsol}\hlstd{(AA,} \hlopt{-}\hlstd{amax}\hlopt{$}\hlstd{value, avecmax))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in testsol(AA, -amax\$value, avecmax): object 'avecmax' not found}}\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: BB}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE, : there is no package called 'BB'}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in cmpfun(spg): object 'spg' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in spg(x, fn = rqt, project = proj, control = list(trace = FALSE), : could not find function "{}spg"{}}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Timing stopped at: 0 0 0}}\begin{verbatim}
+##     n spgrqt spgcrqtcaxc tbldc
+## 1  50     NA          NA    NA
+## 2  NA     NA          NA    NA
+## 3  NA     NA          NA    NA
+## 4  NA     NA          NA    NA
+## 5  NA     NA          NA    NA
+## 6  NA     NA          NA    NA
+## 7  NA     NA          NA    NA
+## 8  NA     NA          NA    NA
+## 9  NA     NA          NA    NA
+## 10 NA     NA          NA    NA
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\section{Solution by other optimizers}
+
+We can try other optimizers, but we must note that unlike \code{spg} they 
+do not take account explicitly of the scaling. However, we can build in a transformation, 
+since our function is always the same for all sets of parameters scaled by the
+square root of the parameter inner product. The function \code{nobj} forms the
+quadratic form that is the numerator of the Rayleigh Quotient using the more 
+efficient \code{crossprod()} function
+
+\code{    rq<- as.numeric(crossprod(y, crossprod(AA,y))) }
+
+but we first form
+
+\code{    y<-x/sqrt(as.numeric(crossprod(x))) }
+
+to scale the parameters. 
+
+Since we are running a number of gradient-based optimizers in the wrapper
+\code{optimx}, we have reduced the matrix sizes and numbers.
+
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{nobj}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{=}\hlopt{-}\hlstd{AA)\{}
+   \hlstd{y}\hlkwb{<-}\hlstd{x}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x)))} \hlcom{# prescale}
+   \hlstd{rq}\hlkwb{<-} \hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(y,} \hlkwd{crossprod}\hlstd{(AA,y)))}
+\hlstd{\}}
+
+\hlstd{ngrobj}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{=}\hlopt{-}\hlstd{AA)\{}
+   \hlstd{y}\hlkwb{<-}\hlstd{x}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x)))}
+   \hlstd{n}\hlkwb{<-}\hlkwd{length}\hlstd{(x)}
+   \hlstd{dd}\hlkwb{<-}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x)))}
+   \hlstd{T1}\hlkwb{<-}\hlkwd{diag}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlstd{,n))}\hlopt{/}\hlstd{dd}
+   \hlstd{T2}\hlkwb{<-} \hlstd{x}\hlopt{%o%}\hlstd{x}\hlopt{/}\hlstd{(dd}\hlopt{*}\hlstd{dd}\hlopt{*}\hlstd{dd)}
+   \hlstd{gt}\hlkwb{<-}\hlstd{T1}\hlopt{-}\hlstd{T2}
+   \hlstd{gy}\hlkwb{<-} \hlkwd{as.vector}\hlstd{(}\hlnum{2.}\hlopt{*}\hlkwd{crossprod}\hlstd{(AA,y))}
+   \hlstd{gg}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(gy, gt))}
+\hlstd{\}}
+\hlkwd{require}\hlstd{(optimrx)}
+\end{alltt}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Loading required package: optimrx}}
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE, : there is no package called 'optimrx'}}\begin{alltt}
+\hlcom{# mset<-c("L-BFGS-B", "BFGS", "CG", "spg", "ucminf", "nlm", "nlminb", "Rvmmin", "Rcgmin")}
+\hlstd{mset}\hlkwb{<-}\hlstr{"Rcgmin"}
+\hlstd{nmax}\hlkwb{<-}\hlnum{5}
+\hlkwa{for} \hlstd{(ni} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{nmax)\{}
+  \hlstd{n}\hlkwb{<-}\hlnum{20}\hlopt{*}\hlstd{ni}
+  \hlstd{x}\hlkwb{<-}\hlkwd{runif}\hlstd{(n)} \hlcom{# generate a vector }
+\hlcom{#  AA<-molerc(n) # make sure defined}
+  \hlstd{AA}\hlkwb{<-}\hlkwd{molermat}\hlstd{(n)}
+  \hlstd{aall}\hlkwb{<-}\hlkwd{opm}\hlstd{(x,} \hlkwc{fn}\hlstd{=nobj,} \hlkwc{gr}\hlstd{=ngrobj,} \hlkwc{method}\hlstd{=mset,} \hlkwc{AA}\hlstd{=}\hlopt{-}\hlstd{AA,}
+     \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{starttests}\hlstd{=}\hlnum{FALSE}\hlstd{,}  \hlkwc{dowarn}\hlstd{=}\hlnum{FALSE}\hlstd{))}
+  \hlkwd{print}\hlstd{(}\hlkwd{summary}\hlstd{(aall,} \hlkwc{order}\hlstd{=value,} \hlkwc{par.select}\hlstd{=}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{))}
+  \hlkwd{cat}\hlstd{(}\hlstr{"Above for n="}\hlstd{,n,}\hlstr{" \textbackslash{}n"}\hlstd{)}
+\hlstd{\}}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in opm(x, fn = nobj, gr = ngrobj, method = mset, AA = -AA, control = list(starttests = FALSE, : could not find function "{}opm"{}}}\end{kframe}
+\end{knitrout}
+
+The timings for these matrices of order 20 to 100 are likely too short to be very
+reliable in detail, but do show that the RQ problem using the scaling transformation
+and with an analytic gradient can be solved very quickly, especially by the limited
+memory methods such as L-BFGS-B and Rcgmin. Below we use the latter (in its 
+unconstrained implementation) to show the times over different matrix sizes.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(optimrx)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in library(optimrx): there is no package called 'optimrx'}}\begin{alltt}
+\hlstd{ctable}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlnum{NA}\hlstd{,} \hlkwc{nrow}\hlstd{=}\hlnum{10}\hlstd{,} \hlkwc{ncol}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlstd{nmax}\hlkwb{<-}\hlnum{10}
+\hlkwa{for} \hlstd{(ni} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{nmax)\{}
+  \hlstd{n}\hlkwb{<-}\hlnum{50}\hlopt{*}\hlstd{ni}
+  \hlstd{x}\hlkwb{<-}\hlkwd{runif}\hlstd{(n)} \hlcom{# generate a vector }
+\hlcom{#  AA<-molerc(n) # make sure defined}
+  \hlstd{AA}\hlkwb{<-}\hlkwd{molermat}\hlstd{(n)}
+  \hlstd{tcgu}\hlkwb{<-}\hlkwd{system.time}\hlstd{(arcgu}\hlkwb{<-}\hlkwd{optimr}\hlstd{(x,} \hlkwc{fn}\hlstd{=nobj,} \hlkwc{gr}\hlstd{=ngrobj,} \hlkwc{method}\hlstd{=}\hlstr{"Rcgmin"}\hlstd{,} \hlkwc{AA}\hlstd{=}\hlopt{-}\hlstd{AA))[[}\hlnum{1}\hlstd{]]}
+  \hlstd{ctable[[ni,}\hlnum{1}\hlstd{]]} \hlkwb{<-} \hlstd{n}
+  \hlstd{ctable[[ni,}\hlnum{2}\hlstd{]]} \hlkwb{<-} \hlstd{tcgu}
+\hlstd{\}}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in optimr(x, fn = nobj, gr = ngrobj, method = "{}Rcgmin"{}, AA = -AA): could not find function "{}optimr"{}}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Timing stopped at: 0.004 0 0}}\begin{alltt}
+\hlstd{cgtime}\hlkwb{<-}\hlkwd{data.frame}\hlstd{(}\hlkwc{n}\hlstd{=ctable[,}\hlnum{1}\hlstd{],} \hlkwc{tRcgminu}\hlstd{=ctable[,}\hlnum{2}\hlstd{])}
+\hlkwd{print}\hlstd{(cgtime)}
+\end{alltt}
+\begin{verbatim}
+##     n tRcgminu
+## 1  NA       NA
+## 2  NA       NA
+## 3  NA       NA
+## 4  NA       NA
+## 5  NA       NA
+## 6  NA       NA
+## 7  NA       NA
+## 8  NA       NA
+## 9  NA       NA
+## 10 NA       NA
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\section{A specialized minimizer - Geradin's method}
+
+For comparison, let us try the \cite{Geradin71} routine (Appendix 1) as implemented in \R by one of 
+us (JN). This is a specialized conjugate gradient minimization routine for eigenvalue problems.
+
+
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{cat}\hlstd{(}\hlstr{"Test geradin with explicit matrix multiplication\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Test geradin with explicit matrix multiplication
+\end{verbatim}
+\begin{alltt}
+\hlstd{n}\hlkwb{<-}\hlnum{10}
+\hlstd{AA}\hlkwb{<-}\hlkwd{molermat}\hlstd{(n)}
+\hlstd{BB}\hlkwb{=}\hlkwd{diag}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlstd{,n))}
+\hlstd{x}\hlkwb{<-}\hlkwd{runif}\hlstd{(n)}
+\hlstd{tg}\hlkwb{<-}\hlkwd{system.time}\hlstd{(ag}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, ax, bx,} \hlkwc{AA}\hlstd{=AA,} \hlkwc{BB}\hlstd{=BB,}
+   \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{)))[[}\hlnum{1}\hlstd{]]}
+\hlkwd{cat}\hlstd{(}\hlstr{"Minimal eigensolution\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Minimal eigensolution
+\end{verbatim}
+\begin{alltt}
+\hlkwd{print}\hlstd{(ag)}
+\end{alltt}
+\begin{verbatim}
+## $x
+##  [1] -706161.664 -353082.348 -176544.962  -88280.436  -44156.317
+##  [6]  -22110.452  -11119.860   -5689.222   -3103.207   -2068.801
+## 
+## $RQ
+## [1] 8.582807e-06
+## 
+## $ipr
+## [1] 51
+## 
+## $msg
+## [1] "Small gradient -- done"
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cat}\hlstd{(}\hlstr{"Geradin time="}\hlstd{,tg,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Geradin time= 0.2
+\end{verbatim}
+\begin{alltt}
+\hlstd{tgn}\hlkwb{<-}\hlkwd{system.time}\hlstd{(agn}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, ax, bx,} \hlkwc{AA}\hlstd{=}\hlopt{-}\hlstd{AA,} \hlkwc{BB}\hlstd{=BB,}
+   \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{)))[[}\hlnum{1}\hlstd{]]}
+\hlkwd{cat}\hlstd{(}\hlstr{"Maximal eigensolution (negative matrix)\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Maximal eigensolution (negative matrix)
+\end{verbatim}
+\begin{alltt}
+\hlkwd{print}\hlstd{(agn)}
+\end{alltt}
+\begin{verbatim}
+## $x
+##  [1]  10139500929   -342726276 -10813395547 -20918690433 -30317033945
+##  [6] -38690828537 -45756996144 -51276766405 -55063595421 -56989550735
+## 
+## $RQ
+## [1] -31.58981
+## 
+## $ipr
+## [1] 37
+## 
+## $msg
+## [1] "Small gradient -- done"
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cat}\hlstd{(}\hlstr{"Geradin time="}\hlstd{,tgn,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Geradin time= 0.004
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Let us time this routine with different matrix vector approaches.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{naximp}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{A}\hlstd{=}\hlnum{1}\hlstd{)\{} \hlcom{# implicit moler A*x}
+   \hlstd{n}\hlkwb{<-}\hlkwd{length}\hlstd{(x)}
+   \hlstd{y}\hlkwb{<-}\hlkwd{rep}\hlstd{(}\hlnum{0}\hlstd{,n)}
+   \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n)\{}
+      \hlstd{tt}\hlkwb{<-}\hlnum{0.}
+      \hlkwa{for} \hlstd{(j} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{}
+          \hlkwa{if} \hlstd{(i} \hlopt{==} \hlstd{j) tt}\hlkwb{<-}\hlstd{tt}\hlopt{+}\hlstd{i}\hlopt{*}\hlstd{x[i]}
+          \hlkwa{else} \hlstd{tt}\hlkwb{<-}\hlstd{tt}\hlopt{+}\hlstd{(}\hlkwd{min}\hlstd{(i,j)} \hlopt{-} \hlnum{2}\hlstd{)}\hlopt{*}\hlstd{x[j]}
+      \hlstd{\}}
+      \hlstd{y[i]}\hlkwb{<-} \hlopt{-}\hlstd{tt} \hlcom{# include negative sign}
+   \hlstd{\}}
+   \hlstd{y}
+\hlstd{\}}
+
+\hlkwd{dyn.load}\hlstd{(}\hlstr{"moler.so"}\hlstd{)}
+\hlkwd{cat}\hlstd{(}\hlstr{"Is the mat multiply loaded? "}\hlstd{,}\hlkwd{is.loaded}\hlstd{(}\hlstr{"moler"}\hlstd{),}\hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Is the mat multiply loaded?  TRUE
+\end{verbatim}
+\begin{alltt}
+\hlstd{naxftn}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{A}\hlstd{) \{} \hlcom{# ignore second argument}
+   \hlstd{n}\hlkwb{<-}\hlkwd{length}\hlstd{(x)} \hlcom{# could speed up by having this passed}
+   \hlstd{vout}\hlkwb{<-}\hlkwd{rep}\hlstd{(}\hlnum{0}\hlstd{,n)} \hlcom{# purely for storage}
+   \hlstd{res}\hlkwb{<-}\hlstd{(}\hlopt{-}\hlnum{1}\hlstd{)}\hlopt{*}\hlstd{(}\hlkwd{.Fortran}\hlstd{(}\hlstr{"moler"}\hlstd{,} \hlkwc{n}\hlstd{=}\hlkwd{as.integer}\hlstd{(n),} \hlkwc{x}\hlstd{=}\hlkwd{as.double}\hlstd{(x),} \hlkwc{vout}\hlstd{=}\hlkwd{as.double}\hlstd{(vout)))}\hlopt{$}\hlstd{vout}
+\hlstd{\}}
+
+\hlkwd{require}\hlstd{(compiler)}
+\hlstd{naxftnc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(naxftn)}
+\hlstd{naximpc}\hlkwb{<-}\hlkwd{cmpfun}\hlstd{(naximp)}
+
+\hlcom{# require(microbenchmark)}
+\hlstd{nmax}\hlkwb{<-}\hlnum{10}
+\hlstd{gtable}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlnum{NA}\hlstd{,} \hlkwc{nrow}\hlstd{=nmax,} \hlkwc{ncol}\hlstd{=}\hlnum{6}\hlstd{)} \hlcom{# to hold results}
+\hlcom{# loop over sizes}
+\hlkwa{for} \hlstd{(ni} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{nmax)\{}
+  \hlstd{n}\hlkwb{<-}\hlnum{50}\hlopt{*}\hlstd{ni}
+  \hlstd{x}\hlkwb{<-}\hlkwd{runif}\hlstd{(n)} \hlcom{# generate a vector }
+  \hlstd{gtable[[ni,} \hlnum{1}\hlstd{]]}\hlkwb{<-}\hlstd{n}
+  \hlstd{AA}\hlkwb{<-}\hlkwd{molermat}\hlstd{(n)}
+  \hlstd{BB}\hlkwb{<-}\hlkwd{diag}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlstd{,n))}
+  \hlstd{tgax}\hlkwb{<-}\hlkwd{system.time}\hlstd{(ogax}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, ax, bx,} \hlkwc{AA}\hlstd{=}\hlopt{-}\hlstd{AA,} \hlkwc{BB}\hlstd{=BB,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{)))[[}\hlnum{1}\hlstd{]]}
+  \hlstd{gtable[[ni,} \hlnum{2}\hlstd{]]}\hlkwb{<-}\hlstd{tgax}
+  \hlstd{tgaximp}\hlkwb{<-}\hlkwd{system.time}\hlstd{(ogaximp}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, naximp, ident,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{BB}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{)))[[}\hlnum{1}\hlstd{]]}
+  \hlstd{gtable[[ni,} \hlnum{3}\hlstd{]]}\hlkwb{<-}\hlstd{tgaximp}
+  \hlstd{tgaximpc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(ogaximpc}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, naximpc, ident,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{BB}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{)))[[}\hlnum{1}\hlstd{]]}
+  \hlstd{gtable[[ni,} \hlnum{4}\hlstd{]]}\hlkwb{<-}\hlstd{tgaximpc}
+  \hlstd{tgaxftn}\hlkwb{<-}\hlkwd{system.time}\hlstd{(ogaxftn}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, naxftn, ident,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{BB}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{)))[[}\hlnum{1}\hlstd{]]}
+  \hlstd{gtable[[ni,} \hlnum{5}\hlstd{]]}\hlkwb{<-}\hlstd{tgaxftn}
+  \hlstd{tgaxftnc}\hlkwb{<-}\hlkwd{system.time}\hlstd{(ogaxftnc}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, naxftnc, ident,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{BB}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{)))[[}\hlnum{1}\hlstd{]]}
+  \hlstd{gtable[[ni,} \hlnum{6}\hlstd{]]}\hlkwb{<-}\hlstd{tgaxftnc}
+\hlcom{#  cat(n,tgax, tgaximp, tgaximpc, tgaxftn, tgaxftnc,"\textbackslash{}n")}
+\hlstd{\}}
+
+\hlstd{gtym}\hlkwb{<-}\hlkwd{data.frame}\hlstd{(}\hlkwc{n}\hlstd{=gtable[,}\hlnum{1}\hlstd{],} \hlkwc{ax}\hlstd{=gtable[,}\hlnum{2}\hlstd{],} \hlkwc{aximp}\hlstd{=gtable[,}\hlnum{3}\hlstd{],}
+  \hlkwc{aximpc}\hlstd{=gtable[,}\hlnum{4}\hlstd{],} \hlkwc{axftn}\hlstd{=gtable[,}\hlnum{5}\hlstd{],} \hlkwc{axftnc}\hlstd{=gtable[,}\hlnum{6}\hlstd{])}
+\hlkwd{print}\hlstd{(gtym)}
+\end{alltt}
+\begin{verbatim}
+##      n    ax aximp aximpc axftn axftnc
+## 1   50 0.000 0.116  0.084 0.012  0.000
+## 2  100 0.008 0.344  0.320 0.004  0.004
+## 3  150 0.008 0.768  0.768 0.008  0.008
+## 4  200 0.016 1.372  1.436 0.008  0.008
+## 5  250 0.016 2.300  2.312 0.012  0.016
+## 6  300 0.024 2.780  2.836 0.020  0.016
+## 7  350 0.036 4.280  4.340 0.028  0.028
+## 8  400 0.048 5.888  5.944 0.036  0.032
+## 9  450 0.064 7.492  7.504 0.040  0.044
+## 10 500 0.080 9.252  9.252 0.048  0.048
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Let us check that the solution for \code{n = 100} by Geradin is consistent
+with the answer via \code{eigen()}.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{n}\hlkwb{<-}\hlnum{100}
+\hlstd{x}\hlkwb{<-}\hlkwd{runif}\hlstd{(n)}
+\hlkwd{load}\hlstd{(}\hlstr{"temax.Rdata"}\hlstd{)}
+\hlstd{evalmax}\hlkwb{<-}\hlstd{emax}\hlopt{$}\hlstd{evalmax}
+\hlstd{evecmac}\hlkwb{<-}\hlstd{emax}\hlopt{$}\hlstd{evecmax}
+\hlstd{ogaxftn}\hlkwb{<-}\hlkwd{geradin}\hlstd{(x, naxftn, ident,} \hlkwc{AA}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{BB}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{FALSE}\hlstd{))}
+\hlstd{gvec}\hlkwb{<-}\hlstd{ogaxftn}\hlopt{$}\hlstd{x}
+\hlstd{gval}\hlkwb{<-} \hlopt{-}\hlstd{ogaxftn}\hlopt{$}\hlstd{RQ}
+\hlstd{gvec}\hlkwb{<-}\hlkwd{sign}\hlstd{(gvec[[}\hlnum{1}\hlstd{]])}\hlopt{*}\hlstd{gvec}\hlopt{/}\hlkwd{sqrt}\hlstd{(}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(gvec)))}
+\hlstd{diff}\hlkwb{<-}\hlstd{gvec}\hlopt{-}\hlstd{evecmax}
+\hlkwd{cat}\hlstd{(}\hlstr{"Geradin diff eigenval from eigen result: "}\hlstd{,gval}\hlopt{-}\hlstd{evalmax,}\hlstr{"   max(abs(vector diff))="}\hlstd{,}
+      \hlkwd{max}\hlstd{(}\hlkwd{abs}\hlstd{(diff)),} \hlstr{"\textbackslash{}n"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Geradin diff eigenval from eigen result:  -1.435319e-08    max(abs(vector diff))= 4.691479e-07
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\section{Perspective}
+
+We can compare the different approaches by looking at the ratio of the best
+solution time for each method (compiled or interpreted, with best choice of
+function) to the time for the Geradin approach for the different matrix sizes. 
+In this we will ignore the fact that some approaches do not build the matrix.
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in plot.window(...): need finite 'ylim' values}}\end{kframe}
+\includegraphics[width=\maxwidth]{figure/persp1-1} 
+
+\end{knitrout}
+
+
+Note that the conjugate gradients method is about as fast as the Geradin specialized 
+method, so the latter may be overkill. The eigenvalue solver is finding all solutions, 
+so it uses more time as the size of the problems increase. However, finding all solutions
+this way is still faster than finding just one with the \code{spg()} function. Nevertheless,
+the latter may still be worth keeping in our toolbox as its projection approach is 
+sometimes much quicker to set up and test. Human time is more valuable than computer
+time in most situations.
+
+
+To check the value of the Geradin approach, let us use a much larger problem,
+with \code{n=2000}. 
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in optimr(x, fn = nobj, gr = ngrobj, method = "{}Rcgmin"{}, AA = -AA): could not find function "{}optimr"{}}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# Timing stopped at: 0 0 0}}\begin{verbatim}
+## Times in seconds
+\end{verbatim}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in cat("{}Build ="{}, t2000b, "{} eigen():"{}, t2000e, "{}\ \ Rcgminu:"{}, t2000c, : object 't2000c' not found}}
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in cat("{}Ratios: build="{}, t2000b/t2000g, "{} eigen="{}, t2000e/t2000g, : object 't2000c' not found}}\end{kframe}
+\end{knitrout}
+
+
+\section{Conclusions}
+
+The Rayleigh Quotient minimization approach to eigensolutions has an 
+intuitive appeal and seemingly offers an interesting optimization 
+test problem, especially if we can make it computationally efficient.
+To improve time efficiency, we can apply the \R byte code compiler, 
+use a Fortran (or other compiled language) subroutine, and choose
+how we set up our objective functions and gradients. To improve
+memory use, we can consider using a matrix implicitly.
+
+From the tests in this vignette, here is what we may say about these
+attempts, which we caution are based on a relatively small sample of
+tests:
+
+\begin{itemize}
+\item{The \R byte code compiler offers a useful gain in speed when 
+our code has statements that access array elements rather than uses
+them in vectorized form.}
+\item{The \code{crossprod()} function is very efficient.}
+\item{Fortran is not very difficult to use for small subroutines
+that compute a function such as the implicit matrix-vector product, 
+and it allows efficient computations for such operations.}
+\item{The \code{eigen()} routine is a highly effective tool for
+computing all eigensolutions, even of a large matrix. It does,
+however, require the explicit full matrix.}
+\item{It is only
+worth computing a single solution when the matrix is very large,
+in which case a specialized method such as that of Geradin makes
+sense and offers significant savings, especially when combined with
+the Fortran implicit matrix-product routine. If such a specialized
+code is unavailable, a general conjugate gradients code can be quite
+competitive for minimizing the Rayleigh Quotient when the other
+speed improvements are applied. Both approaches save memory when
+an implicit matrix-vector product is used.}
+\end{itemize}
+
+\section*{Acknowledgements}
+
+This vignette originated due to a problem suggested by Gabor Grothendieck. Ravi Varadhan
+has provided insightful comments and some vectorized functions which
+greatly altered some of the observations.
+
+\bibliographystyle{chicago} %The style you want to use for references.
+\bibliography{RQ} %The files containing all the articles and 
+
+
+\section*{Appendix 1: Geradin routine}
+
+\begin{knitrout}\scriptsize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{ax}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{AA}\hlstd{)\{}
+   \hlstd{u}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(AA}\hlopt{%*%}\hlstd{x)}
+\hlstd{\}}
+\hlstd{bx}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{BB}\hlstd{)\{}
+   \hlstd{v}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(BB}\hlopt{%*%}\hlstd{x)}
+\hlstd{\}}
+\hlstd{geradin}\hlkwb{<-}\hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{ax}\hlstd{,} \hlkwc{bx}\hlstd{,} \hlkwc{AA}\hlstd{,} \hlkwc{BB}\hlstd{,} \hlkwc{control}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{trace}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{maxit}\hlstd{=}\hlnum{1000}\hlstd{))\{}
+\hlcom{# Geradin minimize Rayleigh Quotient, Nash CMN Alg 25}
+\hlcom{# print(control)}
+  \hlstd{trace}\hlkwb{<-}\hlstd{control}\hlopt{$}\hlstd{trace}
+  \hlstd{n}\hlkwb{<-}\hlkwd{length}\hlstd{(x)}
+  \hlstd{tol}\hlkwb{<-}\hlstd{n}\hlopt{*}\hlstd{n}\hlopt{*}\hlstd{.Machine}\hlopt{$}\hlstd{double.eps}\hlopt{^}\hlnum{2}
+  \hlstd{offset}\hlkwb{<-}\hlnum{1e+5} \hlcom{# equality check offset}
+  \hlkwa{if} \hlstd{(trace)} \hlkwd{cat}\hlstd{(}\hlstr{"geradin.R, using tol="}\hlstd{,tol,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+  \hlstd{ipr}\hlkwb{<-}\hlnum{0} \hlcom{# counter for matrix mults}
+  \hlstd{pa}\hlkwb{<-}\hlstd{.Machine}\hlopt{$}\hlstd{double.xmax}
+  \hlstd{R}\hlkwb{<-}\hlstd{pa}
+  \hlstd{msg}\hlkwb{<-}\hlstr{"no msg"}
+\hlcom{# step 1 -- main loop}
+  \hlstd{keepgoing}\hlkwb{<-}\hlnum{TRUE}
+  \hlkwa{while} \hlstd{(keepgoing) \{}
+    \hlstd{avec}\hlkwb{<-}\hlkwd{ax}\hlstd{(x, AA); bvec}\hlkwb{<-}\hlkwd{bx}\hlstd{(x, BB); ipr}\hlkwb{<-}\hlstd{ipr}\hlopt{+}\hlnum{1}
+    \hlstd{xax}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x, avec));}
+    \hlstd{xbx}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x, bvec));}
+    \hlkwa{if} \hlstd{(xbx} \hlopt{<=} \hlstd{tol) \{}
+       \hlstd{keepgoing}\hlkwb{<-}\hlnum{FALSE} \hlcom{# not really needed}
+       \hlstd{msg}\hlkwb{<-}\hlstr{"avoid division by 0 as xbx too small"}
+       \hlkwa{break}
+    \hlstd{\}}
+    \hlstd{p0}\hlkwb{<-}\hlstd{xax}\hlopt{/}\hlstd{xbx}
+    \hlkwa{if} \hlstd{(p0}\hlopt{>}\hlstd{pa) \{}
+       \hlstd{keepgoing}\hlkwb{<-}\hlnum{FALSE} \hlcom{# not really needed}
+       \hlstd{msg}\hlkwb{<-}\hlstr{"Rayleigh Quotient increased in step"}
+       \hlkwa{break}
+    \hlstd{\}}
+    \hlstd{pa}\hlkwb{<-}\hlstd{p0}
+    \hlstd{g}\hlkwb{<-}\hlnum{2}\hlopt{*}\hlstd{(avec}\hlopt{-}\hlstd{p0}\hlopt{*}\hlstd{bvec)}\hlopt{/}\hlstd{xbx}
+    \hlstd{gg}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(g))} \hlcom{# step 6}
+    \hlkwa{if} \hlstd{(trace)} \hlkwd{cat}\hlstd{(}\hlstr{"Before loop: RQ="}\hlstd{,p0,}\hlstr{" after "}\hlstd{,ipr,}\hlstr{" products, gg="}\hlstd{,gg,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+    \hlkwa{if} \hlstd{(gg}\hlopt{<}\hlstd{tol) \{} \hlcom{# step 7}
+       \hlstd{keepgoing}\hlkwb{<-}\hlnum{FALSE} \hlcom{# not really needed}
+       \hlstd{msg}\hlkwb{<-}\hlstr{"Small gradient -- done"}
+       \hlkwa{break}
+    \hlstd{\}}
+    \hlstd{t}\hlkwb{<-} \hlopt{-}\hlstd{g} \hlcom{# step 8}
+    \hlkwa{for} \hlstd{(itn} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{n) \{} \hlcom{# major loop step 9}
+       \hlstd{y}\hlkwb{<-}\hlkwd{ax}\hlstd{(t, AA); z}\hlkwb{<-}\hlkwd{bx}\hlstd{(t, BB); ipr}\hlkwb{<-}\hlstd{ipr}\hlopt{+}\hlnum{1} \hlcom{# step 10}
+       \hlstd{tat}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(t, y))} \hlcom{# step 11}
+       \hlstd{xat}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x, y))}
+       \hlstd{xbt}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x, z))}
+       \hlstd{tbt}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(t, z))}
+       \hlstd{u}\hlkwb{<-}\hlstd{tat}\hlopt{*}\hlstd{xbt}\hlopt{-}\hlstd{xat}\hlopt{*}\hlstd{tbt}
+       \hlstd{v}\hlkwb{<-}\hlstd{tat}\hlopt{*}\hlstd{xbx}\hlopt{-}\hlstd{xax}\hlopt{*}\hlstd{tbt}
+       \hlstd{w}\hlkwb{<-}\hlstd{xat}\hlopt{*}\hlstd{xbx}\hlopt{-}\hlstd{xax}\hlopt{*}\hlstd{xbt}
+       \hlstd{d}\hlkwb{<-}\hlstd{v}\hlopt{*}\hlstd{v}\hlopt{-}\hlnum{4}\hlopt{*}\hlstd{u}\hlopt{*}\hlstd{w}
+       \hlkwa{if} \hlstd{(d}\hlopt{<}\hlnum{0}\hlstd{)} \hlkwd{stop}\hlstd{(}\hlstr{"Geradin: imaginary roots not possible"}\hlstd{)} \hlcom{# step 13}
+       \hlstd{d}\hlkwb{<-}\hlkwd{sqrt}\hlstd{(d)} \hlcom{# step 14}
+       \hlkwa{if} \hlstd{(v}\hlopt{>}\hlnum{0}\hlstd{) k}\hlkwb{<-}\hlopt{-}\hlnum{2}\hlopt{*}\hlstd{w}\hlopt{/}\hlstd{(v}\hlopt{+}\hlstd{d)} \hlkwa{else} \hlstd{k}\hlkwb{<-}\hlnum{0.5}\hlopt{*}\hlstd{(d}\hlopt{-}\hlstd{v)}\hlopt{/}\hlstd{u}
+       \hlstd{xlast}\hlkwb{<-}\hlstd{x} \hlcom{# NOT as in CNM -- can be avoided with loop}
+       \hlstd{avec}\hlkwb{<-}\hlstd{avec}\hlopt{+}\hlstd{k}\hlopt{*}\hlstd{y; bvec}\hlkwb{<-}\hlstd{bvec}\hlopt{+}\hlstd{k}\hlopt{*}\hlstd{z} \hlcom{# step 15, update}
+       \hlstd{x}\hlkwb{<-}\hlstd{x}\hlopt{+}\hlstd{k}\hlopt{*}\hlstd{t}
+       \hlstd{xax}\hlkwb{<-}\hlstd{xax}\hlopt{+}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x,avec))}
+       \hlstd{xbx}\hlkwb{<-}\hlstd{xbx}\hlopt{+}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x,bvec))}
+       \hlkwa{if} \hlstd{(xbx}\hlopt{<}\hlstd{tol)} \hlkwd{stop}\hlstd{(}\hlstr{"Geradin: xbx has become too small"}\hlstd{)}
+       \hlstd{chcount}\hlkwb{<-}\hlstd{n} \hlopt{-} \hlkwd{length}\hlstd{(}\hlkwd{which}\hlstd{((xlast}\hlopt{+}\hlstd{offset)}\hlopt{==}\hlstd{(x}\hlopt{+}\hlstd{offset)))}
+       \hlkwa{if} \hlstd{(trace)} \hlkwd{cat}\hlstd{(}\hlstr{"Number of changed components = "}\hlstd{,chcount,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+       \hlstd{pn}\hlkwb{<-}\hlstd{xax}\hlopt{/}\hlstd{xbx} \hlcom{# step 17 different order}
+       \hlkwa{if} \hlstd{(chcount}\hlopt{==}\hlnum{0}\hlstd{) \{}
+         \hlstd{keepgoing}\hlkwb{<-}\hlnum{FALSE} \hlcom{# not really needed}
+         \hlstd{msg}\hlkwb{<-}\hlstr{"Unchanged parameters -- done"}
+         \hlkwa{break}
+       \hlstd{\}}
+       \hlkwa{if} \hlstd{(pn} \hlopt{>=} \hlstd{p0) \{}
+         \hlkwa{if} \hlstd{(trace)} \hlkwd{cat}\hlstd{(}\hlstr{"RQ not reduced, restart\textbackslash{}n"}\hlstd{)}
+         \hlkwa{break} \hlcom{# out of itn loop, not while loop (TEST!)}
+       \hlstd{\}}
+       \hlstd{p0}\hlkwb{<-}\hlstd{pn} \hlcom{# step 19}
+       \hlstd{g}\hlkwb{<-}\hlnum{2}\hlopt{*}\hlstd{(avec}\hlopt{-}\hlstd{pn}\hlopt{*}\hlstd{bvec)}\hlopt{/}\hlstd{xbx}
+       \hlstd{gg}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(g))}
+       \hlkwa{if} \hlstd{(trace)} \hlkwd{cat}\hlstd{(}\hlstr{"Itn"}\hlstd{, itn,}\hlstr{" RQ="}\hlstd{,p0,}\hlstr{" after "}\hlstd{,ipr,}\hlstr{" products, gg="}\hlstd{,gg,}\hlstr{"\textbackslash{}n"}\hlstd{)}
+       \hlkwa{if} \hlstd{(gg}\hlopt{<}\hlstd{tol)\{} \hlcom{# step 20}
+         \hlkwa{if} \hlstd{(trace)} \hlkwd{cat}\hlstd{(}\hlstr{"Small gradient in iteration, restart\textbackslash{}n"}\hlstd{)}
+         \hlkwa{break} \hlcom{# out of itn loop, not while loop (TEST!)}
+       \hlstd{\}}
+       \hlstd{xbt}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(x,z))} \hlcom{# step 21}
+       \hlstd{w}\hlkwb{<-}\hlstd{y}\hlopt{-}\hlstd{pn}\hlopt{*}\hlstd{z} \hlcom{# step 22}
+       \hlstd{tabt}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(t,w))}
+       \hlstd{beta}\hlkwb{<-}\hlkwd{as.numeric}\hlstd{(}\hlkwd{crossprod}\hlstd{(g,(w}\hlopt{-}\hlstd{xbt}\hlopt{*}\hlstd{g)))}
+       \hlstd{beta}\hlkwb{<-}\hlstd{beta}\hlopt{/}\hlstd{tabt} \hlcom{# step 23}
+       \hlstd{t}\hlkwb{<-}\hlstd{beta}\hlopt{*}\hlstd{t}\hlopt{-}\hlstd{g}
+    \hlstd{\}} \hlcom{# end loop on itn -- step 24}
+  \hlstd{\}} \hlcom{# end main loop -- step 25}
+  \hlstd{ans}\hlkwb{<-}\hlkwd{list}\hlstd{(}\hlkwc{x}\hlstd{=x,} \hlkwc{RQ}\hlstd{=p0,} \hlkwc{ipr}\hlstd{=ipr,} \hlkwc{msg}\hlstd{=msg)} \hlcom{# step 26}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\end{document}} 

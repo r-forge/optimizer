@@ -90,7 +90,7 @@ cat("Geradin time=",tgn,"Eigenvalue=",-agn$RQ,"\n")
 cat("Maxres - Geradin:", geigres(AA, BB, agn$x, -agn$RQ),"   geigen:",
     geigres(AA, BB, esolmaxv, esolmaxe),"\n")
 
--- more or less ok to here --
+## -- more or less ok to here --
 cat("Maximal solution - value=",esol$values[1],"  diff =",esol$values[1]+agn$RQ,"\n")
 # Note using negative matrix, so use +
 print(esol$vectors[,1])
@@ -99,3 +99,4 @@ cat("Minimal solution - value=",esol$values[n],"  diff =",esol$values[n]-ag$RQ,"
 # Note using negative matrix, so use +
 print(esol$vectors[,n])
 cat("max(abs(diff))=", max(abs(esol$vectors[,n]-ag$x)),"\n")
+

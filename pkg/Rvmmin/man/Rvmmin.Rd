@@ -164,9 +164,9 @@ the method terminates.
 
 ## Rosenbrock Banana function
 fr <- function(x) {
-    x1 <- x[1]
-    x2 <- x[2]
-    100 * (x2 - x1 * x1)^2 + (1 - x1)^2
+  x1 <- x[1]
+  x2 <- x[2]
+  100 * (x2 - x1 * x1)^2 + (1 - x1)^2
 }
 
 ansrosenbrock <- Rvmmin(fn=fr,gr="grfwd", par=c(1,2))
@@ -179,8 +179,14 @@ print(ansrosenbrock0)
 
 #####################
 # Simple bounds and masks test
+#
+# The function is a sum of squares, but we impose the 
+# constraints so that there are lower and upper bounds
+# away from zero, and parameter 6 is fixed at the initial
+# value
+
 bt.f<-function(x){
- sum(x*x)
+  sum(x*x)
 }
 
 bt.g<-function(x){
@@ -194,35 +200,45 @@ upper<-lower # to get arrays set
 bdmsk<-rep(1,n)
 bdmsk[(trunc(n/2)+1)]<-0
 for (i in 1:n) { 
-   lower[i]<-1.0*(i-1)*(n-1)/n
-   upper[i]<-1.0*i*(n+1)/n
+  lower[i]<-1.0*(i-1)*(n-1)/n
+  upper[i]<-1.0*i*(n+1)/n
 }
 xx<-0.5*(lower+upper)
+cat("Initial parameters:")
+print(xx)
+cat("Lower bounds:")
+print(lower)
+cat("upper bounds:")
+print(upper)
+cat("Masked (fixed) parameters:")
+print(which(bdmsk == 0))
+
 ansbt<-Rvmmin(xx, bt.f, bt.g, lower, upper, bdmsk, control=list(trace=1))
 
 print(ansbt)
 
 #####################
+# A version of a generalized Rosenbrock problem
 genrose.f<- function(x, gs=NULL){ # objective function
-## One generalization of the Rosenbrock banana valley function (n parameters)
-	n <- length(x)
-        if(is.null(gs)) { gs=100.0 }
-	fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
-        return(fval)
+  ## One generalization of the Rosenbrock banana valley function (n parameters)
+  n <- length(x)
+  if(is.null(gs)) { gs=100.0 }
+  fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
+  return(fval)
 }
 genrose.g <- function(x, gs=NULL){
-# vectorized gradient for genrose.f
-# Ravi Varadhan 2009-04-03
-	n <- length(x)
-        if(is.null(gs)) { gs=100.0 }
-	gg <- as.vector(rep(0, n))
-	tn <- 2:n
-	tn1 <- tn - 1
-	z1 <- x[tn] - x[tn1]^2
-	z2 <- 1 - x[tn]
-	gg[tn] <- 2 * (gs * z1 - z2)
-	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
-	gg
+  # vectorized gradient for genrose.f
+  # Ravi Varadhan 2009-04-03
+  n <- length(x)
+  if(is.null(gs)) { gs=100.0 }
+  gg <- as.vector(rep(0, n))
+  tn <- 2:n
+  tn1 <- tn - 1
+  z1 <- x[tn] - x[tn1]^2
+  z2 <- 1 - x[tn]
+  gg[tn] <- 2 * (gs * z1 - z2)
+  gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
+  gg
 }
 
 # analytic gradient test
@@ -255,20 +271,20 @@ print(ab)
 cat("diff fu-fb=",au$value-ab$value,"\n")
 cat("max abs parameter diff = ", max(abs(au$par-ab$par)),"\n")
 
-
+# Test that Rvmmin will maximize as well as minimize
 
 maxfn<-function(x) {
-      	n<-length(x)
-	ss<-seq(1,n)
-	f<-10-(crossprod(x-ss))^2
-	f<-as.numeric(f)
-	return(f)
+  n<-length(x)
+  ss<-seq(1,n)
+  f<-10-(crossprod(x-ss))^2
+  f<-as.numeric(f)
+  return(f)
 }
 
 
 negmaxfn<-function(x) {
-	f<-(-1)*maxfn(x)
-	return(f)
+  f<-(-1)*maxfn(x)
+  return(f)
 }
 
 cat("test that maximize=TRUE works correctly\n")
@@ -348,7 +364,7 @@ print(grbds8)
 cat("test n=1 problem using simple squares of parameter\n")
 
 sqtst<-function(xx) {
-   res<-sum((xx-2)*(xx-2))
+  res<-sum((xx-2)*(xx-2))
 }
 
 nn<-1

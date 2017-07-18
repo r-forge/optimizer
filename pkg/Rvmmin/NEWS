@@ -8,6 +8,14 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2017-7-18
+   o    Simplify example
+
+   o    Added tests
+
+2016-11-30
+   o    Vignette added (incomplete)
+
 2015-11-30
    o    Changed control "stopbadupdate" to TRUE from FALSE.
 

@@ -1,0 +1,4 @@
+ I. Zelinka (2004). SOMA - self-organizing migrating algorithm. In
+     G.C. Onwubolu & B.V. Babu, eds, New optimization techniques in
+     engineering. Volume 141 of ``Studies in Fuzziness and Soft
+     Computing'', pp. 167-217. Springer.

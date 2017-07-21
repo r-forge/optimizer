@@ -1,4 +1,4 @@
-optimr <- function(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
+optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
 # Check if bounded

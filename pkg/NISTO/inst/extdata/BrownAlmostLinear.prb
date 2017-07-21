@@ -1,0 +1,11 @@
+balf <- function(x) {   ## Brown Almost Linear Function
+	n <- length(x)
+	f<-as.vector(matrix(0,10,1))
+	sumx<-sum(x)
+	for (i in 1:(n-1)) {
+		f[i] <- x[i] + sumx - (n+1);
+	}
+	f[n] <- prod(x) -1;
+  	sum(f^2);
+}
+

@@ -1,0 +1,9 @@
+importFrom("utils", "data")
+importFrom("stats", "nls")
+importFrom("optimrx", "optimr")
+importFrom("nlmrt", "nlxb")
+
+export(
+  runoptprob
+)
+

@@ -1,3 +1,4 @@
 export(
-  "snewton"
+  "snewton",
+  "snewtonm"
 )

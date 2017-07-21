@@ -1,12 +1,16 @@
 \name{snewton}
 \alias{snewton}
+\alias{snewtonm}
 \encoding{UTF-8}
-\title{Safeguarded Newton method for function minimization using R functions.}
-\description{This version of the safeguarded Newton solves the equations with
-the R function solve() and uses the optimize() function as a line search.
+\title{Safeguarded Newton methods for function minimization using R functions.}
+\description{These version of the safeguarded Newton solves the equations with
+the R function solve(). In \code{snewton} a backtracking line search is used,
+while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
 \usage{
    snewton(par, fn, gr, hess, control = list(trace=1, maxit=500), \dots)
+
+   snewtonm(par, fn, gr, hess, control = list(trace=1, maxit=500), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -102,12 +106,20 @@ fgh <- function(x){ #function and gradient
 
 x0 <- c(-1.2, 1)
 
-sdefault <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
-print(sdefault)
+sr <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
+print(sr)
+
+srm <- snewtonm(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
+print(srm)
 
 
 #Example 2: Wood function
 #
+wood.f <- function(x){
+  res <- 100*(x[1]^2-x[2])^2+(1-x[1])^2+90*(x[3]^2-x[4])^2+(1-x[3])^2+
+    10.1*((1-x[2])^2+(1-x[4])^2)+19.8*(1-x[2])*(1-x[4])
+  return(res)
+}
 #gradient:
 wood.g <- function(x){
   g1 <- 400*x[1]^3-400*x[1]*x[2]+2*x[1]-2
@@ -115,11 +127,6 @@ wood.g <- function(x){
   g3 <- 360*x[3]^3-360*x[3]*x[4]+2*x[3]-2
   g4 <- -180*x[3]^2+200.2*x[4]+19.8*x[2]-40
   return(c(g1,g2,g3,g4))
-}
-wood.f <- function(x){
-  res <- 100*(x[1]^2-x[2])^2+(1-x[1])^2+90*(x[3]^2-x[4])^2+(1-x[3])^2+
-    10.1*((1-x[2])^2+(1-x[4])^2)+19.8*(1-x[2])*(1-x[4])
-  return(res)
 }
 #hessian:
 wood.h <- function(x){
@@ -132,8 +139,13 @@ wood.h <- function(x){
   return(H)
 }
 #################################################
-wdefault <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=TRUE))
-print(wdefault)
+w0 <- c(-3, -1, -3, -1)
+
+wd <- snewton(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
+print(wd)
+
+wdm <- snewtonm(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
+print(wdm)
 
 
 

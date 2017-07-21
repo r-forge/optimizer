@@ -40,8 +40,10 @@ library(snewton)
 cat("This FAILS to find minimum\n")
 wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
 print(wd)
+wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
+print(wdm)
 
-cat("\n\n nlm() gives same result\n")
+cat("\n\n nlm() gives similar results\n")
 tnlm <- nlm(wood.fgh, x0, print.level=2)
 print(tnlm)
 

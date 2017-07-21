@@ -1,5 +1,5 @@
 snewton<-function(par, fn, gr, hess, control=list(trace=1, maxit=500),...) {
-## Safeguarded Newton minimizer 
+## Safeguarded Newton minimizer with backtrack line search
 ##
 ##Input
 ##       - fn is the function we wish to minimize
@@ -103,7 +103,8 @@ cat("trace =",trace,"\n")
     nf <- nf + 1
     if (trace > 1) cat("f(xnew)=",fval,"\n")
     while ((fval > fbest + control$acctol*st*gprj) 
-           && (all((control$offset+xnew) != (control$offset+xb)))) { # continue until satisfied
+           && (all((control$offset+xnew) != (control$offset+xb)))) { 
+        # continue until satisfied
         st <- st * control$stepdec
         if (trace > 1) cat("Stepsize now =",st,"\n")
         xnew <- xb + st*d # new point
@@ -113,7 +114,7 @@ cat("trace =",trace,"\n")
     }
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 93 # no progress in linesearch
-        if (trace > 0) cat("No progress IN linesearch!\n")
+        if (trace > 0) cat("No progress in linesearch!\n")
         break
     }
     if (trace > 1) cat("end major loop\n")  
@@ -126,7 +127,7 @@ cat("trace =",trace,"\n")
   out$value<-fbest
   out$grad<-grd
   out$Hess<-H
-  out$niter<-niter
+  out$counts <- list(niter=niter,  nfn=nf, ngr=ng, nhess=nh)
   out$convcode <- convcode
   out
 }

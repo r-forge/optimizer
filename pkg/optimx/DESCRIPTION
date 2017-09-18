@@ -1,7 +1,7 @@
 Package: optimx
-Version: 2017.4.4
-Date: 2017-04-04
-Title: A Replacement and Extension of the 'optim' Function
+Version: 2017.4.5
+Date: 2017-09-18
+Title: A Replacement and Extension of the 'optim' Function. Deprecated!
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
     "Ravi", family = "Varadhan", role = "aut", email =
@@ -14,8 +14,7 @@ Description: Provides a replacement and extension of the optim()
     function to unify and streamline optimization capabilities in R
     for smooth, possibly box constrained functions of several or
     many parameters. This is the CRAN version of the package.
-    NOTE: It is intended to replace this with the optimr package
-    on R-forge.
+    NOTE: This should be replaced with the optimr package.
 License: GPL-2
 LazyLoad: Yes
 Imports: numDeriv, ucminf, BB, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, lbfgsb3,

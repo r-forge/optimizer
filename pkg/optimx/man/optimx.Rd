@@ -12,6 +12,7 @@
 \concept{minimization}
 \concept{maximization}
 \description{
+  Superceded by optimr.
   General-purpose optimization wrapper function that calls other
   R tools for optimization, including the existing optim() function.
   \code{optimx} also tries to unify the calling sequence to allow

@@ -8,6 +8,7 @@
 
 %% from Ross Ihaka doc.
 
+
 \newcommand{\R}{{\sf R\ }}
 
 \newcommand{\B}[1]{{\bf#1\rm}}

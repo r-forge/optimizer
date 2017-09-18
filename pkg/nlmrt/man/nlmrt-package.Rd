@@ -3,11 +3,14 @@
 \alias{nlmrt}
 \docType{package}
 \title{
-Tools for solving nonlinear least squares problems. UNDER DEVELOPMENT.
+Tools for solving nonlinear least squares problems. DEPRECATED.
 }
 \description{
 The package provides some tools related to using the Nash variant
 of Marquardt's algorithm for nonlinear least squares. 
+This package has been replaced with package nlsr that has
+similar and improved capabilities, but with some differences
+in structure and syntax.
 }
 \details{
 \tabular{ll}{

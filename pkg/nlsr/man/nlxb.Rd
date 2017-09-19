@@ -9,7 +9,9 @@
    and a start vector where parameters used in the model formula are named,
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
+   sub-problem is solved by a qr method. This is a restructured version
+   of a function by the same name from package \code{nlmrt} which is now
+   deprecated.
 }
 \usage{
    nlxb(formula, start, trace=FALSE, data, lower=-Inf, upper=Inf,

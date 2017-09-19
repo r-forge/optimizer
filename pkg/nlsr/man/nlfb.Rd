@@ -8,7 +8,9 @@
    \code{resfn} and a start vector of parameter values for that function, 
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
+   sub-problem is solved by a qr method. This is a restructured version
+   of a function by the same name from package \code{nlmrt} which is now
+   deprecated.
 }
 \usage{
    nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 

@@ -14,7 +14,7 @@ Description: Provides a replacement and extension of the optim()
     function to unify and streamline optimization capabilities in R
     for smooth, possibly box constrained functions of several or
     many parameters. This is the CRAN version of the package.
-    NOTE: This should be replaced with the optimr package.
+    NOTE: This package should be replaced with the optimr package.
 License: GPL-2
 LazyLoad: Yes
 Imports: numDeriv, ucminf, BB, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, lbfgsb3,

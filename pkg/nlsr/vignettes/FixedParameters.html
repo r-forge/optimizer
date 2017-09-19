@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -12,7 +12,7 @@
 
 <meta name="author" content="John C. Nash" />
 
-<meta name="date" content="2016-12-12" />
+<meta name="date" content="2017-09-19" />
 
 <title>Specifying Fixed Parameters</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Specifying Fixed Parameters</h1>
 <h4 class="author"><em>John C. Nash</em></h4>
-<h4 class="date"><em>2016-12-12</em></h4>
+<h4 class="date"><em>2017-09-19</em></h4>
 
 
 
@@ -107,7 +107,7 @@ where upper[“parameter”] - lower[“parameter”] &lt; tol to a fixed or mas
 <li>-3.5 for a parameter that is out of bounds low (&lt; lower bound)</li>
 </ul>
 <p>Not all these possibilities will be used by all methods that use <code>bdmsk</code>.</p>
-<p>The -1 and -3 are historical, and arose in the development of BASIC codes for Nash J C and Walker-Smith M (1987) <strong>Nonlinear parameter estimation: and integrated system in BASIC</strong> New York: Dekker. Now available for free download from archive.org. (<a href="https://archive.org/details/ost-engineering-jnmws2004" class="uri">https://archive.org/details/ost-engineering-jnmws2004</a>). In particular, adding 2 gives 1 for an upper bound and -1 for a lower bound, simplifying the expression to decide if an optimization trial step will move away from a bound.</p>
+<p>The -1 and -3 are historical, and arose in the development of BASIC codes for Nash J C and Walker-Smith M (1987) <strong>Nonlinear parameter estimation: and integrated system in BASIC</strong> New York: Dekker. Now available for free download from archive.org. (). In particular, adding 2 gives 1 for an upper bound and -1 for a lower bound, simplifying the expression to decide if an optimization trial step will move away from a bound.</p>
 </div>
 </div>
 <div id="proposed-approaches" class="section level2">
@@ -127,18 +127,18 @@ where upper[“parameter”] - lower[“parameter”] &lt; tol to a fixed or mas
 <p>?? put them in</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(Rvmmin)</code></pre></div>
 <pre><code>## Loading required package: Rvmmin</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sq&lt;-function(x){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sq&lt;-<span class="cf">function</span>(x){
    nn&lt;-<span class="kw">length</span>(x)
-   yy&lt;-<span class="dv">1</span>:nn
-   f&lt;-<span class="kw">sum</span>((yy-x)^<span class="dv">2</span>)
+   yy&lt;-<span class="dv">1</span><span class="op">:</span>nn
+   f&lt;-<span class="kw">sum</span>((yy<span class="op">-</span>x)<span class="op">^</span><span class="dv">2</span>)
 <span class="co">#   cat(&quot;Fv=&quot;,f,&quot; at &quot;)</span>
 <span class="co">#   print(x)</span>
    f
 }
-sq.g &lt;-<span class="st"> </span>function(x){
+sq.g &lt;-<span class="st"> </span><span class="cf">function</span>(x){
    nn&lt;-<span class="kw">length</span>(x)
-   yy&lt;-<span class="dv">1</span>:nn
-   gg&lt;-<span class="st"> </span><span class="dv">2</span>*(x -<span class="st"> </span>yy)
+   yy&lt;-<span class="dv">1</span><span class="op">:</span>nn
+   gg&lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span>(x <span class="op">-</span><span class="st"> </span>yy)
 }
 xx &lt;-<span class="st"> </span><span class="kw">c</span>(.<span class="dv">3</span>, <span class="dv">4</span>)
 uncans &lt;-<span class="st"> </span><span class="kw">Rvmmin</span>(xx, sq, sq.g)
@@ -183,133 +183,57 @@ cans</code></pre></div>
 <pre><code>## Loading required package: nlsr</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weed &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">5.308</span>, <span class="fl">7.24</span>, <span class="fl">9.638</span>, <span class="fl">12.866</span>, <span class="fl">17.069</span>, <span class="fl">23.192</span>, <span class="fl">31.443</span>,
    <span class="fl">38.558</span>, <span class="fl">50.156</span>, <span class="fl">62.948</span>, <span class="fl">75.995</span>, <span class="fl">91.972</span>)
-ii &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="dv">12</span>
+ii &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">12</span>
 wdf &lt;-<span class="st"> </span><span class="kw">data.frame</span>(weed, ii)
-weedux &lt;-<span class="st"> </span><span class="kw">nlxb</span>(weed~b1/(<span class="dv">1</span>+b2*<span class="kw">exp</span>(-b3*ii)), <span class="dt">start=</span><span class="kw">c</span>(<span class="dt">b1=</span><span class="dv">200</span>, <span class="dt">b2=</span><span class="dv">50</span>, <span class="dt">b3=</span><span class="fl">0.3</span>)) </code></pre></div>
+weedux &lt;-<span class="st"> </span><span class="kw">nlxb</span>(weed<span class="op">~</span>b1<span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>b2<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>b3<span class="op">*</span>ii)), <span class="dt">start=</span><span class="kw">c</span>(<span class="dt">b1=</span><span class="dv">200</span>, <span class="dt">b2=</span><span class="dv">50</span>, <span class="dt">b3=</span><span class="fl">0.3</span>)) </code></pre></div>
 <pre><code>## vn:[1] &quot;weed&quot; &quot;b1&quot;   &quot;b2&quot;   &quot;b3&quot;   &quot;ii&quot;  
-## model2rjfun: modelformula = weed ~ b1/(1 + b2 * exp(-b3 * ii))
-## [1] &quot;formula&quot;
-## Starting pnum=   b1    b2    b3 
-## 200.0  50.0   0.3</code></pre>
+## no weights</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weedux</code></pre></div>
-<pre><code>## nlsr class object: x 
+<pre><code>## nlsr object: x 
 ## residual sumsquares =  2.5873  on  12 observations
 ##     after  5    Jacobian and  6 function evaluations
 ##   name            coeff          SE       tstat      pval      gradient    JSingval   
 ## b1               196.186         11.31      17.35  3.167e-08  -1.334e-10        1011  
 ## b2               49.0916         1.688      29.08  3.284e-10  -5.431e-11      0.4605  
 ## b3               0.31357      0.006863      45.69  5.768e-12   3.865e-08     0.04714</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weedcx &lt;-<span class="st"> </span><span class="kw">nlxb</span>(weed~b1/(<span class="dv">1</span>+b2*<span class="kw">exp</span>(-b3*ii)), <span class="dt">start=</span><span class="kw">c</span>(<span class="dt">b1=</span><span class="dv">200</span>, <span class="dt">b2=</span><span class="dv">50</span>, <span class="dt">b3=</span><span class="fl">0.3</span>), <span class="dt">masked=</span><span class="kw">c</span>(<span class="st">&quot;b1&quot;</span>)) </code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weedcx &lt;-<span class="st"> </span><span class="kw">nlxb</span>(weed<span class="op">~</span>b1<span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>b2<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>b3<span class="op">*</span>ii)), <span class="dt">start=</span><span class="kw">c</span>(<span class="dt">b1=</span><span class="dv">200</span>, <span class="dt">b2=</span><span class="dv">50</span>, <span class="dt">b3=</span><span class="fl">0.3</span>), <span class="dt">masked=</span><span class="kw">c</span>(<span class="st">&quot;b1&quot;</span>)) </code></pre></div>
 <pre><code>## vn:[1] &quot;weed&quot; &quot;b1&quot;   &quot;b2&quot;   &quot;b3&quot;   &quot;ii&quot;  
-## model2rjfun: modelformula = weed ~ b1/(1 + b2 * exp(-b3 * ii))
-## [1] &quot;formula&quot;
-## Starting pnum=   b1    b2    b3 
-## 200.0  50.0   0.3</code></pre>
+## no weights</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weedcx</code></pre></div>
-<pre><code>## nlsr class object: x 
+<pre><code>## nlsr object: x 
 ## residual sumsquares =  2.6182  on  12 observations
 ##     after  4    Jacobian and  5 function evaluations
 ##   name            coeff          SE       tstat      pval      gradient    JSingval   
 ## b1                   200  M         NA         NA         NA           0        1022  
 ## b2               49.5108            NA         NA         NA   2.292e-11      0.4569  
 ## b3              0.311461            NA         NA         NA   1.035e-08           0</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rfn &lt;-<span class="st"> </span>function(bvec, <span class="dt">weed=</span>weed, <span class="dt">ii=</span>ii){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rfn &lt;-<span class="st"> </span><span class="cf">function</span>(bvec, <span class="dt">weed=</span>weed, <span class="dt">ii=</span>ii){
   res &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">length</span>(ii))
-  for (i in ii){
-    res[i]&lt;-<span class="st"> </span>bvec[<span class="dv">1</span>]/(<span class="dv">1</span>+bvec[<span class="dv">2</span>]*<span class="kw">exp</span>(-bvec[<span class="dv">3</span>]*i))-weed[i]
+  <span class="cf">for</span> (i <span class="cf">in</span> ii){
+    res[i]&lt;-<span class="st"> </span>bvec[<span class="dv">1</span>]<span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>bvec[<span class="dv">2</span>]<span class="op">*</span><span class="kw">exp</span>(<span class="op">-</span>bvec[<span class="dv">3</span>]<span class="op">*</span>i))<span class="op">-</span>weed[i]
   }
   res
 }
 weeduf &lt;-<span class="st"> </span><span class="kw">nlfb</span>(<span class="dt">start=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">50</span>, <span class="fl">0.3</span>),<span class="dt">resfn=</span>rfn,<span class="dt">weed=</span>weed, <span class="dt">ii=</span>ii)</code></pre></div>
-<pre><code>## Starting pnum=[1] 200.0  50.0   0.3</code></pre>
+<pre><code>## no weights</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weeduf</code></pre></div>
-<pre><code>## $resid
-##  [1]  0.011900 -0.032755  0.092030  0.208782  0.392634 -0.057594 -1.105728
-##  [8]  0.715786 -0.107648 -0.348396  0.652593 -0.287568
-## 
-## $jacobian
-##           [,1]     [,2]     [,3]
-##  [1,] 0.027117 -0.10543   5.1756
-##  [2,] 0.036737 -0.14142  13.8849
-##  [3,] 0.049596 -0.18837  27.7424
-##  [4,] 0.066645 -0.24858  48.8137
-##  [5,] 0.089005 -0.32404  79.5373
-##  [6,] 0.117921 -0.41568 122.4383
-##  [7,] 0.154635 -0.52241 179.5225
-##  [8,] 0.200186 -0.63986 251.2937
-##  [9,] 0.255106 -0.75941 335.5263
-## [10,] 0.319083 -0.86828 426.2516
-## [11,] 0.390688 -0.95133 513.7254
-## [12,] 0.467334 -0.99482 586.0465
-## 
-## $feval
-## [1] 6
-## 
-## $jeval
-## [1] 5
-## 
-## $coefficients
-## [1] 196.18626  49.09164   0.31357
-## 
-## $ssquares
-## [1] 2.5873
-## 
-## $lower
-## [1] -Inf -Inf -Inf
-## 
-## $upper
-## [1] Inf Inf Inf
-## 
-## $maskidx
-## NULL
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;nlmrt&quot;</code></pre>
+<pre><code>## nlsr object: x 
+## residual sumsquares =  2.5873  on  12 observations
+##     after  5    Jacobian and  6 function evaluations
+##   name            coeff          SE       tstat      pval      gradient    JSingval   
+## p_1              196.186         11.31      17.35  3.167e-08  -1.328e-10        1011  
+## p_2              49.0916         1.688      29.08  3.284e-10  -5.401e-11      0.4605  
+## p_3              0.31357      0.006863      45.69  5.768e-12   3.867e-08     0.04714</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weedcf &lt;-<span class="st"> </span><span class="kw">nlfb</span>(<span class="dt">start=</span><span class="kw">c</span>(<span class="dv">200</span>, <span class="dv">50</span>, <span class="fl">0.3</span>),<span class="dt">resfn=</span>rfn,<span class="dt">weed=</span>weed, <span class="dt">ii=</span>ii, <span class="dt">maskidx=</span><span class="kw">c</span>(<span class="dv">1</span>))</code></pre></div>
-<pre><code>## Starting pnum=[1] 200.0  50.0   0.3</code></pre>
+<pre><code>## no weights</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">weedcf</code></pre></div>
-<pre><code>## $resid
-##  [1]  0.059607  0.017849  0.142305  0.253763  0.425600 -0.044449 -1.119381
-##  [8]  0.672873 -0.172209 -0.410460  0.638603 -0.186566
-## 
-## $jacobian
-##       [,1]     [,2]     [,3]
-##  [1,]    0 -0.10550   5.2236
-##  [2,]    0 -0.14127  13.9889
-##  [3,]    0 -0.18788  27.9061
-##  [4,]    0 -0.24760  49.0365
-##  [5,]    0 -0.32244  79.8215
-##  [6,]    0 -0.41341 122.8110
-##  [7,]    0 -0.51960 180.0821
-##  [8,]    0 -0.63694 252.2845
-##  [9,]    0 -0.75725 337.4271
-## [10,]    0 -0.86815 429.8282
-## [11,]    0 -0.95474 519.9707
-## [12,]    0 -1.00307 595.9513
-## 
-## $feval
-## [1] 5
-## 
-## $jeval
-## [1] 4
-## 
-## $coefficients
-## [1] 200.00000  49.51082   0.31146
-## 
-## $ssquares
-## [1] 2.6182
-## 
-## $lower
-## [1] -Inf -Inf -Inf
-## 
-## $upper
-## [1] Inf Inf Inf
-## 
-## $maskidx
-## [1] 1
-## 
-## attr(,&quot;class&quot;)
-## [1] &quot;nlmrt&quot;</code></pre>
+<pre><code>## nlsr object: x 
+## residual sumsquares =  2.6182  on  12 observations
+##     after  4    Jacobian and  5 function evaluations
+##   name            coeff          SE       tstat      pval      gradient    JSingval   
+## p_1                  200  M         NA         NA         NA           0        1022  
+## p_2              49.5108            NA         NA         NA   2.277e-11      0.4569  
+## p_3             0.311461            NA         NA         NA   1.053e-08           0</code></pre>
 </div>
 </div>
 

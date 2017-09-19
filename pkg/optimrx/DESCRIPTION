@@ -15,7 +15,11 @@ Description: Provides a replacement and extension of the optim()
     and the R package universe 
     for smooth, possibly box constrained functions of several or
     many parameters. optimr is a refactoring of the optimx package
-    to simplify maintenance and extension.
+    to simplify maintenance and extension. A great deal of this 
+    package is derived from the earlier package \code{optimx}, but
+    some functionality has been separated into distinct functions
+    to allow for easier maintenance and use, as well as future
+    development.
 License: GPL-2
 LazyLoad: Yes
 Imports: optextras, numDeriv

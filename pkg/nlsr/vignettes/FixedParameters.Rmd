@@ -100,7 +100,7 @@ The -1 and -3 are historical, and arose in the development of BASIC
 codes for Nash J C and Walker-Smith M (1987)
 **Nonlinear parameter estimation: and integrated system in BASIC** New York: Dekker. 
 Now available for free download
-from archive.org. (https://archive.org/details/ost-engineering-jnmws2004). 
+from archive.org. (\url{https://archive.org/details/NLPE87plus}). 
 In particular, adding 2 gives 1 for an upper bound and -1 for a lower bound, 
 simplifying the expression to decide if an optimization trial step will move away from a bound.
 

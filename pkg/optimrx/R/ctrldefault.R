@@ -7,6 +7,12 @@ ctrldefault <- function(npar) {
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
                 "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
                 "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", "lbfgs", "subplex")
+
+#  allpkg has package where element of allmeth is found
+      allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
+                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "BB", "ucminf",
+                "minqa", "minqa", "dfoptim", "dfoptim", "optimr", "lbfgs", "subplex")
+
      # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
       bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
@@ -18,6 +24,7 @@ ctrldefault <- function(npar) {
         acctol = 0.0001, 
         all.methods = FALSE,
         allmeth = allmeth,
+        allpkg = allpkg,
       	badval = (0.5)*.Machine$double.xmax,
         bdmeth = bdmeth,
         defgrapprox = "grfwd",

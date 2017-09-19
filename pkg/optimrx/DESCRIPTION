@@ -18,9 +18,9 @@ Description: Provides a replacement and extension of the optim()
     to simplify maintenance and extension.
 License: GPL-2
 LazyLoad: Yes
-Imports: optextras, numDeriv 
+Imports: optextras, numDeriv
 NeedsCompilation: no
-Suggests: knitr, rmarkdown, BB, ucminf, minqa, setRNG, dfoptim, 
-         Rtnmin, Rvmmin, Rcgmin, lbfgsb3, lbfgs, subplex
+Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim, 
+        Rtnmin, Rvmmin, Rcgmin, lbfgsb3, lbfgs, subplex
 VignetteBuilder: knitr
 

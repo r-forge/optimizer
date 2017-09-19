@@ -1,9 +1,14 @@
 optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
-  outmethod <- checksolver(method) # there will only be one! 
+
+  npar <- length(par)
+  defctrl <- ctrldefault(npar) # could leave this out in most cases
+  if (is.null(method)) method <- defctrl$defmethod
+
+  outmethod <- checksolver(method, defctrl$allmeth, defctrl$allpkg) # there will only be one! 
   if (is.null(outmethod)) {
-		if (control$trace > 0) cat("nlm failed for this problem\n")
+		if (control$trace > 0) cat("Solver ",method," missing\n")
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 8888 # failed in run
 		ans$value <- defctrl$badval
@@ -12,7 +17,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	        ans$counts[2] <- NA # save function and gradient count information
 	        ans$message <- paste("Missing method ",method)
                 ans$hessian <- NULL
+                return(ans) # can't proceed without solver
   }
+
+
 
 # Check if bounded
   bdmsk <- bmchk(par, lower=lower, upper=upper)
@@ -23,11 +31,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   orig.fn <- fn
   savehess <- hessian
 
-  npar <- length(par)
-  defctrl <- ctrldefault(npar) # could leave this out in most cases
-
-
-  if (is.null(method)) method <- defctrl$defmethod
 
   if (is.null(control$trace)) control$trace <- defctrl$trace
 
@@ -282,10 +285,11 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxit <- control$maxit # 151217 JN
         if (! is.null(egr)) {
   	  if (control$have.bounds) { # 151220 -- this was not defined
-   	    ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
+            # 170919 -- explicit reference to package
+   	    ans <- try(Rcgmin::Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=msk, control=mcontrol, ...))
 	  } else {
-   	     ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
+   	     ans <- try(Rcgmin::Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	  }
         }
         if (!is.null(egr) && (class(ans)[1] != "try-error")) {
@@ -319,11 +323,11 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
 	if (! is.null(egr)) {
-          if(control$have.bounds) {
-   	     ans <- try(Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
+          if(control$have.bounds) { # 170919 make package explicit
+   	     ans <- try(Rvmmin::Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=msk, control=mcontrol, ...))
 	  } else {
-             ans <- try(Rvmminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
+             ans <- try(Rvmmin::Rvmminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	  }
         }
         if (! is.null(egr) && (class(ans)[1] != "try-error")) {
@@ -351,7 +355,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rvmmin
 ## --------------------------------------------
       else if (method == "hjn") {# Use JN Hooke and Jeeves
-        if (control$trace > 0) {
+        if (control$trace > 0) { # this function is in optimr, so does not need explicit package
            cat("hjn:control$have.bounds =",control$have.bounds,"\n")
            cat("optimr - hjn - msk:")
            print(msk)
@@ -385,7 +389,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             mcontrol$trace <- TRUE
             if (control$trace > 1) mcontrol$triter <- 1 # default is 10
         } else { mcontrol$trace <- FALSE }
-        ans <- try(spg(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,  
+        ans <- try(BB::spg(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,  
 		control=mcontrol, ...))
         if (class(ans)[1] != "try-error") { 
            ans$par <- ans$par*pscale
@@ -424,7 +428,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         } else {
           
          uhessian <- 0 # Ensure hessian NOT computed
-         ans <- try(ucminf(par=spar, fn=efn, gr=egr, 
+         ans <- try(ucminf::ucminf(par=spar, fn=efn, gr=egr, 
                    hessian = uhessian,  control=mcontrol, ...))
         }
         if (class(ans)[1] != "try-error") {
@@ -475,10 +479,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             class(ans)[1] <- "try-error"            
         }
 	if (control$have.bounds) {
-   	   ans <- try(tnbc(x=spar, fgfun=nlmfn, lower=slower,
+   	   ans <- try(Rtnmin::tnbc(x=spar, fgfun=nlmfn, lower=slower,
                 upper=supper, trace=mcontrol$trace, ...))
 	} else {
-   	   ans <- try(tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
+   	   ans <- try(Rtnmin::tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
 	}
         if (class(ans)[1] == "try-error") {
         	if (control$trace>0) cat("Rtnmin failed for current problem \n")
@@ -674,10 +678,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          if (control$trace > 0) { mcontrol$trace <- TRUE } # logical needed, not integer         
          else { mcontrol$trace<-FALSE }
          if (control$have.bounds) {
-            ans <- try(nmkb(par=spar, fn=efn, lower = slower, 
+            ans <- try(dfoptim::nmkb(par=spar, fn=efn, lower = slower, 
               upper = supper, control=mcontrol, ...))
-         } else {
-            ans <- try(nmk(par=spar, fn=efn, control=mcontrol, ...))
+         } else {# 170919 explicit package in call
+            ans <- try(dfoptim::nmk(par=spar, fn=efn, control=mcontrol, ...))
          }
          if (control$trace > 1) {
             cat("Outputting ans for nmkb:\n")
@@ -716,10 +720,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          } else { mcontrol$info <- FALSE }
          mcontrol$maxfeval <- control$maxfeval
          if (control$have.bounds) {
-            ans <- try(hjkb(par=spar, fn=efn, lower = slower, 
+            ans <- try(dfoptim::hjkb(par=spar, fn=efn, lower = slower, 
                 upper = supper, control=mcontrol, ...))
          } else {
-            ans <- try(hjk(par=spar, fn=efn, control=mcontrol, ...))
+            ans <- try(dfoptim::hjk(par=spar, fn=efn, control=mcontrol, ...))
          }
          if (class(ans)[1] != "try-error") {
            ans$value <- as.numeric(ans$value)
@@ -751,10 +755,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         if (control$have.bounds) { ## Note call uses prm not par
             slower <- lower/pscale
             supper <- upper/pscale
-            ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
-                upper = supper, control=mcontrol, ...))
+            ans <- try(lbfgsb3::lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
+                upper = supper, control=mcontrol, ...)) # explicit pkg in call 170919
         } else {
-            ans <- try(lbfgsb3(prm=spar, fn=efn, gr=egr, control=mcontrol, ...))
+            ans <- try(lbfgsb3::lbfgsb3(prm=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
         if (class(ans)[1] != "try-error") {
  ## Need to check these carefully??

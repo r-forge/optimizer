@@ -13,7 +13,9 @@
   in \code{optimr()}.
 
   There is a pseudo-method "ALL" that runs all available methods. Note that
-  this is upper-case.
+  this is upper-case. This function is a replacement for optimx() from the
+  optimx package that calls the optimr() function for each solver in the
+  \code{method} list.
 }
 \usage{
 opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 

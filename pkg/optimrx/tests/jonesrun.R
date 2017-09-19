@@ -44,7 +44,7 @@ tufn <- function (par) {
 # tmp <- readline("continue")
 
 
-library(optimrx)
+library(optimr)
 
 xx<-0.5*c(pi,pi)
 ans<-opm(xx, jones, jonesg, method="ALL", control=list(trace=1))

@@ -1,16 +1,6 @@
 import(
   optextras,
-  numDeriv,
-  BB, 
-  dfoptim,
-  setRNG,
-  ucminf,
-  Rtnmin,
-  Rvmmin,
-  Rcgmin,
-  lbfgsb3,
-  lbfgs,
-  subplex
+  numDeriv
 )
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("utils", "str")
@@ -24,6 +14,7 @@ export(
   "polyopt",
   "multistart",
   "hjn",
+  "checksolver",
   "ctrldefault"
 )
 S3method("[", "opm")

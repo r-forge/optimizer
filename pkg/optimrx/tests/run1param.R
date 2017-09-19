@@ -5,7 +5,7 @@
 #   source(runit.1); clearLog(); test.1()
 #   Log()
 
-library(optimrx)
+library(optimr)
 
 # test.1 <- function() {
 

@@ -1,6 +1,19 @@
 optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
+  outmethod <- checksolver(method) # there will only be one! 
+  if (is.null(outmethod)) {
+		if (control$trace > 0) cat("nlm failed for this problem\n")
+		ans<-list() # ans not yet defined, so set as list
+                ans$convergence <- 8888 # failed in run
+		ans$value <- defctrl$badval
+		ans$par<-rep(NA,npar)
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA # save function and gradient count information
+	        ans$message <- paste("Missing method ",method)
+                ans$hessian <- NULL
+  }
+
 # Check if bounded
   bdmsk <- bmchk(par, lower=lower, upper=upper)
   control$have.bounds <- bdmsk$bounds # and set a control value

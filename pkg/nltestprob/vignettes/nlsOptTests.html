@@ -12,7 +12,7 @@
 
 <meta name="author" content="John C. Nash and Paul Gilbert" />
 
-<meta name="date" content="2017-05-03" />
+<meta name="date" content="2017-09-19" />
 
 <title>A structure for building and running nonlinear equations, least squares, and optimization tests for R</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">A structure for building and running nonlinear equations, least squares, and optimization tests for <strong>R</strong></h1>
 <h4 class="author"><em>John C. Nash and Paul Gilbert</em></h4>
-<h4 class="date"><em>2017-05-03</em></h4>
+<h4 class="date"><em>2017-09-19</em></h4>
 
 
 
@@ -897,7 +897,7 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x4bc1e88&gt;
+## &lt;environment: 0x5e73e40&gt;
 ## no weights
 ## lower:[1] -Inf -Inf
 ## upper:[1] Inf Inf
@@ -1135,7 +1135,7 @@ txr &lt;-<span class="st"> </span><span class="kw">opm</span>(st, XRosenbrock.f,
 ## L-BFGS-B     1.00000 1.00000 1.00000 1.000000 2.4373e-09     52     52
 ## lbfgsb3      1.00000 1.00000 1.00000 1.000000 2.4373e-09     52     52
 ## newuoa       1.00000 1.00000 1.00000 1.000004 2.6313e-08   2709     NA
-## hjkb         1.00000 1.00000 0.99999 0.999991 1.2809e-07   6600     NA
+## hjkb         1.00000 0.99999 0.99999 0.999983 3.1921e-07  10600     NA
 ## spg          1.00004 1.00007 1.00014 1.000284 1.1443e-04   1783   1501
 ## nmkb         1.00144 1.00264 1.00497 1.007443 9.8517e-02   1500     NA
 ## subplex      1.00225 1.00437 1.00803 1.016509 6.5353e-01  15000     NA
@@ -1143,23 +1143,23 @@ txr &lt;-<span class="st"> </span><span class="kw">opm</span>(st, XRosenbrock.f,
 ## Nelder-Mead  0.69041 0.48245 0.23967 0.053578 1.0600e+02   1499     NA
 ##             convergence  kkt1  kkt2 xtime
 ## Rvmmin                0  TRUE  TRUE 0.008
-## BFGS                  0  TRUE  TRUE 0.612
+## BFGS                  0  TRUE  TRUE 0.656
 ## nlminb                0  TRUE  TRUE 0.004
 ## ucminf                0  TRUE  TRUE 0.004
 ## Rcgmin                0  TRUE  TRUE 0.008
-## lbfgs                 0  TRUE  TRUE 0.000
-## CG                    0  TRUE  TRUE 0.016
-## Rtnmin                0  TRUE  TRUE 0.108
-## hjn                   0  TRUE  TRUE 0.120
-## bobyqa                0  TRUE  TRUE 0.080
-## L-BFGS-B              0  TRUE  TRUE 0.000
+## lbfgs                 0  TRUE  TRUE 0.008
+## CG                    0  TRUE  TRUE 0.024
+## Rtnmin                0  TRUE  TRUE 0.112
+## hjn                   0  TRUE  TRUE 0.116
+## bobyqa                0  TRUE  TRUE 0.076
+## L-BFGS-B              0  TRUE  TRUE 0.004
 ## lbfgsb3               0  TRUE  TRUE 0.024
-## newuoa                0  TRUE  TRUE 0.060
-## hjkb                  0 FALSE  TRUE 0.100
-## spg                   1 FALSE  TRUE 0.180
-## nmkb                  1 FALSE  TRUE 0.120
-## subplex               1 FALSE  TRUE 0.100
-## nlm                   0  TRUE  TRUE 0.000
+## newuoa                0  TRUE  TRUE 0.076
+## hjkb                  0 FALSE  TRUE 0.144
+## spg                   1 FALSE  TRUE 0.184
+## nmkb                  1 FALSE  TRUE 0.124
+## subplex               1 FALSE  TRUE 0.112
+## nlm                   0  TRUE  TRUE 0.004
 ## Nelder-Mead           0 FALSE FALSE 0.012</code></pre>
 </div>
 <div id="next-steps" class="section level2">

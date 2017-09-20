@@ -34,7 +34,8 @@ or on a new computing platform;
 
 - be able to compare performance of solvers on a single or a group of problems;
 
-- be able to compare performance of particular computing platforms on a single or a group of problems;
+- be able to compare performance of particular computing platforms on a single 
+problem or a group of problems;
 
 - be able to report successes and failures in a manner that allows for rapid detection
 of potential issues with solvers, platforms, or other conditions.
@@ -57,7 +58,8 @@ usually with overlap in their
 coverage, for nonlinear equations, nonlinear least squares and function minimization.
 In some cases, such tests include bounds constraints or fixed parameters. 
 
-In 2009, I built the incomplete package `NISTopt` to allow the same problems as in `NISTnls`
+In 2009, one of the authors (JN)
+built the incomplete package `NISTopt` to allow the same problems as in `NISTnls`
 to be approached as unconstrained function minimization problems. Similarly, the Google 
 Summer of Code project OptimGUI by Yixuan Qiu in 2011 attempted to provide a point-and-click
 interface to aid in building and running function minimization problems in **R**, and 
@@ -77,7 +79,7 @@ are also constraints.
 ## Approach
 
 We want to avoid having to write specific code to run each test. 
-The package **optimrx** (@optimrx16) can call most of the function 
+The package **optimr** (@optimr16) can call most of the function 
 minimization tools in **R** and can be extended to include others, and the
 functions within this package standardize the call to each of the minimization
 solvers. Thus we can simplify the code to test such solvers, using only their 

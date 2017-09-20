@@ -1,7 +1,7 @@
 Package: optimr
-Version: 2016-10.3
-Date: 2016-10-03
-Title: A Replacement and Extension of the 'optim' Function
+Version: 2017-9.18
+Date: 2017-09-18
+Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
     "Ravi", family = "Varadhan", role = "aut", email =
@@ -10,15 +10,21 @@ Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     "ggrothendieck@gmail.com") )
 Author: John C Nash [aut, cre], Ravi Varadhan [aut], Gabor Grothendieck [ctb]
 Maintainer: John C Nash <nashjc@uottawa.ca>
-Description: Provides a test of replacement and extension of the optim()
+Description: Provides a replacement and extension of the optim()
     function to unify and streamline optimization capabilities in R
+    and the R package universe 
     for smooth, possibly box constrained functions of several or
-    many parameters. This version has a reduced set of methods and is
-    intended to be on CRAN.
+    many parameters. optimr is a refactoring of the optimx package
+    to simplify maintenance and extension. A great deal of this 
+    package is derived from the earlier package \code{optimx}, but
+    some functionality has been separated into distinct functions
+    to allow for easier maintenance and use, as well as future
+    development.
 License: GPL-2
 LazyLoad: Yes
-Imports: optextras, numDeriv, setRNG, Rvmmin, Rcgmin
+Imports: optextras, numDeriv
 NeedsCompilation: no
-Suggests: knitr,
-    rmarkdown
+Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim, 
+        Rtnmin, Rvmmin, Rcgmin, lbfgsb3, lbfgs, subplex
 VignetteBuilder: knitr
+

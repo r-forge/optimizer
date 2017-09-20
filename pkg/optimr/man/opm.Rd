@@ -1,35 +1,21 @@
-% File src/library/stats/man/optimx.Rd
-% Part of the R package, http://www.R-project.org
-% Copyright 1995-2007 R Core Development Team
-% Distributed under GPL 2 or later
-
 \name{opm}
 \alias{opm}
-% \alias{[.optimx}
-% \alias{as.data.frame.optimx}
 \encoding{UTF-8}
 \title{General-purpose optimization}
 \concept{minimization}
 \concept{maximization}
 \description{
-  General-purpose optimization wrapper function that calls other
-  R tools for optimization, including the existing optim() function.
-  \code{optimx} also tries to unify the calling sequence to allow
-  a number of tools to use the same front-end. These include 
-  \code{spg} from the BB package, \code{ucminf}, \code{nlm}, \code{nlminb},
-  \code{Rtnmin}, \code{lbfgsb3}, \code{lbfgs}, \code{nmkb} and \code{hjkb}
-  from the dfoptim package, \code{uobyqa}, \code{newuoa} and \code{bobyqa} 
-  from the minqa package. 
+  General-purpose optimization wrapper function that calls multiple other
+  R tools for optimization, including the existing optim() function tools.
 
-  Note that 
-  optim() itself allows Nelder--Mead, quasi-Newton and 
-  conjugate-gradient algorithms as well as box-constrained optimization 
-  via L-BFGS-B. Because SANN does not return a meaningful convergence code
+  Because SANN does not return a meaningful convergence code
   (conv), \code{opm()} does not call the SANN method, but it can be invoked 
   in \code{optimr()}.
 
-  There is a pseudo-method "ALL" that runs all methods but SANN. Note that
-  this is upper-case.
+  There is a pseudo-method "ALL" that runs all available methods. Note that
+  this is upper-case. This function is a replacement for optimx() from the
+  optimx package that calls the optimr() function for each solver in the
+  \code{method} list.
 }
 \usage{
 opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
@@ -41,20 +27,25 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
  \item{par}{a vector of initial values for the parameters 
    for which optimal values are to be found. Names on the elements
    of this vector are preserved and used in the results data frame.}  
- \item{fn}{A function to be minimized (or maximized), with first
+ \item{fn}{A function to be minimized (or maximized), with a first
    argument the vector of parameters over which minimization is to take
    place.  It should return a scalar result.}
  \item{gr}{A function to return (as a vector) the gradient for those methods that 
    can use this information.
 
-   If 'gr' is \code{NULL}, a finite-difference approximation will be used.
-   An open question concerns whether the SAME approximation code used for all methods, 
-   or whether there are differences that could/should be examined? }
+   If 'gr' is \code{NULL}, whatever default actions are supplied by the methods
+   specified will be used. However, some methods REQUIRE a gradient function, so 
+   will fail in this case. \code{opm()} will generally return with \code{convergence}
+   set to 9998 for such methods.
 
+   If 'gr' is a character string, this character string will be taken to be the name
+   of an available gradient approximation function. Examples are "grfwd", "grback", 
+   "grcentral" and "grnd", with the last name referring to the default method of 
+   package \code{numDeriv}.}
  \item{hess}{A function to return (as a symmetric matrix) the Hessian of the objective 
    function for those methods that can use this information.}
  \item{lower, upper}{Bounds on the variables for methods such as \code{"L-BFGS-B"} that can
-   handle box (or bounds) constraints.}
+   handle box (or bounds) constraints. These are vectors.}
  \item{method}{A vector of the methods to be used, each as a character string.
        Note that this is an important change from optim() that allows
        just one method to be specified. See \sQuote{Details}. If \code{method}
@@ -70,16 +61,74 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     and \code{gr}; otherwise, further arguments are not used.}
 }
 \details{
-  This routine is essentially the same as that in package \code{optimrx} which is
-  NOT in CRAN. This version permits the selection of fewer optimizers in the 
-  \code{method} argument. This reduced selection is intended to avoid failures if dependencies
-  are not available. The available methods are listed in the variable \code{allmeth}
-  in the file \code{ctrldefault.R}.
-
   Note that arguments after \code{\dots} must be matched exactly.
 
-  See the manual for function \code{optimr()}.
+  For details of how \code{opm()} calls the methods, see the documentation
+  and code for \code{optimr()}. The documentation and code for individual
+  methods may also be useful. Note that some simplification of the calls
+  may have been necessary, for example, to provide reasonable default values
+  for method controls.
 
+  The \code{control} argument is a list that can supply any of the
+  following components:
+  \describe{
+    \item{\code{trace}}{Non-negative integer. If positive,
+      tracing information on the
+      progress of the optimization is produced. Higher values may
+      produce more tracing information: for method \code{"L-BFGS-B"}
+      there are six levels of tracing. trace = 0 gives no output 
+      (To understand exactly what these do see the source code: higher 
+      levels give more detail.)}
+    \item{\code{fnscale}}{An overall scaling to be applied to the value
+      of \code{fn} and \code{gr} during optimization. If negative,
+      turns the problem into a maximization problem. Optimization is
+      performed on \code{fn(par)/fnscale}. For methods from the set in
+      \code{optim()}. Note potential conflicts with the control \code{maximize}.}
+    \item{\code{parscale}}{A vector of scaling values for the parameters.
+	Optimization is performed on \code{par/parscale} and these should be
+	comparable in the sense that a unit change in any element produces
+	about a unit change in the scaled value.For \code{optim}.}
+    \item{\code{save.failures}}{ = TRUE (default) if we wish to keep "answers" from runs 
+      where the method does not return convcode==0. FALSE otherwise.}
+    \item{\code{maximize}}{ = TRUE if we want to maximize rather than minimize 
+      a function. (Default FALSE). Methods nlm, nlminb, ucminf cannot maximize a
+      function, so the user must explicitly minimize and carry out the adjustment
+      externally. However, there is a check to avoid
+      usage of these codes when maximize is TRUE. See \code{fnscale} below for 
+      the method used in \code{optim} that we deprecate.}
+    \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
+      methods.  This is equivalent to setting \code{method="ALL"}}
+    \item{\code{kkt}}{=FALSE if we do NOT want to test the Kuhn, Karush, Tucker
+      optimality conditions. The default is generally TRUE. However, because the Hessian
+      computation may be very slow, we set \code{kkt} to be FALSE if there are 
+      more than than 50 parameters when the gradient function \code{gr} is not 
+      provided, and more than 500
+      parameters when such a function is specified. We return logical values \code{KKT1}
+      and \code{KKT2} TRUE if first and second order conditions are satisfied approximately.
+      Note, however, that the tests are sensitive to scaling, and users may need
+      to perform additional verification. If \code{hessian} is TRUE, this overrides 
+      control \code{kkt}.}
+    \item{\code{all.methods}}{= TRUE if we want to use all available (and suitable)
+      methods.}
+    \item{\code{kkttol}}{= value to use to check for small gradient and negative
+      Hessian eigenvalues. Default = .Machine$double.eps^(1/3) }
+    \item{\code{kkt2tol}}{= Tolerance for eigenvalue ratio in KKT test of positive 
+      definite Hessian. Default same as for kkttol }
+    \item{\code{dowarn}}{= FALSE if we want to suppress warnings generated by \code{opm()} or
+      \code{optimr()}. Default is TRUE.}
+    \item{\code{badval}}{= The value to set for the function value when try(fn()) fails.
+      Default is (0.5)*.Machine$double.xmax }
+  }
+
+  There may be \code{control} elements that apply only to some of the methods. Using these
+  may or may not "work" with \code{opm()}, and errors may occur with methods for which 
+  the controls have no meaning. 
+  However, it should be possible to call the underlying \code{optimr()} function with 
+  these method-specific controls.
+
+  Any names given to \code{par} will be copied to the vectors passed to
+  \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
+  are copied over. (We have not verified this as at 2009-07-29.)
 }
 \value{
 
@@ -114,6 +163,9 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method; see component \code{message} for further details.}
       \item{\code{52}}{indicates an error from the \code{"L-BFGS-B"}
       method; see component \code{message} for further details.}
+      \item{\code{9998}}{indicates that the method has been called with a NULL 'gr'
+         function, and the method requires that such a function be supplied.}
+      \item{\code{9999}}{indicates the method has failed.}
     }
   }
   \item{kkt1}{A logical value returned TRUE if the solution reported has a ``small'' gradient.}
@@ -197,13 +249,14 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 }
 
 \seealso{
-  \code{\link{nlm}}, \code{\link{nlminb}},
-  \code{\link[Rcgmin]{Rcgmin}}, 
-  \code{\link[Rvmmin]{Rvmmin}}, 
+  \code{\link[BB]{spg}}, \code{\link{nlm}}, \code{\link{nlminb}},
+  \code{\link[minqa]{bobyqa}}, \code{\link[Rcgmin]{Rcgmin}}, 
+  \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}}, 
+  \code{\link[dfoptim]{nmkb}},
+  \code{\link[dfoptim]{hjkb}}.
   \code{\link{optimize}} for one-dimensional minimization;
-  \code{\link{constrOptim}}  for linearly constrained optimization.
+  \code{\link{constrOptim}} or \code{\link[BB]{spg}} for linearly constrained optimization.
 }
-
 
 \examples{
 require(graphics)

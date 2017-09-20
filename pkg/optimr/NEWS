@@ -5,7 +5,7 @@ NOTE: optimr is intended for CRAN and has a limited set of solvers to avoid
       non-functional. optimrx has a more extensive set of solvers and lives
       (at 2016-7-11) on R-forge. The test scripts in the tests directory have
       a "0" at the end of the script name e.g. hobbs15b0.R for optimr because
-      of the appropriate library() call.
+      of the appropriate library() call. 
 
 TODO
       o Drop nmkb from methods for bounds if start is on bound
@@ -30,6 +30,21 @@ TODO
 	Consider check to see if other package is loaded e.g., don't want
 	optimr and optimrx to be loaded simulataneously, but possibly R takes
 	care of that.
+      o Check all failures reported below are fixed!
+
+VERSION 2017-04-05
+      o allowed hessian in opm() and optimr() (for nlm)
+
+VERSION 2017-02-15
+      o added subplex method
+
+VERSION 2016-09-16
+      o Harry Joe reported troubles with numerical gradient approximations. Found
+        	some glitches and conflicts to fix. Also documentation is less than ideal.
+        Scaling spar to par was INSIDE control$trace
+
+VERSION 2016-08-16
+      o checked and released on CRAN
 
 VERSION 2016-07-10
       o hessian=TRUE is NOT properly executed

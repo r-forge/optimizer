@@ -1,12 +1,12 @@
 \name{polyopt}
 \alias{polyopt}
 \encoding{UTF-8}
-\title{General-purpose optimization - multiple starts}
+\title{General-purpose optimization - sequential application of methods}
 \concept{minimization}
 \concept{maximization}
 \description{
-  Multiple initial parameter wrapper function that calls other
-  R tools for optimization, including the existing optimr() function.
+  Multiple minimization methods are applied in sequence to a single problem,
+  with the output parameters of one method being used to start the next.
 }
 \usage{
 polyopt(par, fn, gr=NULL, lower=-Inf, upper=Inf, 
@@ -48,6 +48,9 @@ polyopt(par, fn, gr=NULL, lower=-Inf, upper=Inf,
   Note that arguments after \code{\dots} must be matched exactly.
 
   See \code{optimr()} for other details.
+  
+  Note that this function does not (yet?) make use of a hess function
+  to compute the hessian.
 }
 \value{
 

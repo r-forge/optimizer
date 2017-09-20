@@ -1,8 +1,10 @@
-# BROWN, K.M. A quadratically convergent Newton-like method based upon Gaussian elimination. S I A M J. Numer. Anal. 6 (1969), 560-569.
+# BrownAlmostLinear.prb
+# BROWN, K.M. A quadratically convergent Newton-like method based upon Gaussian elimination. 
+# S I A M J. Numer. Anal. 6 (1969), 560-569.
 
 balf.f <- function(x) {   ## Brown Almost Linear Function
 	n <- length(x)
-	f<-as.vector(matrix(0,10,1))
+	f<-as.vector(matrix(0,n,1))
 	sumx<-sum(x)
 	for (i in 1:(n-1)) {
 		f[i] <- x[i] + sumx - (n+1);
@@ -11,3 +13,30 @@ balf.f <- function(x) {   ## Brown Almost Linear Function
   	sum(f^2);
 }
 
+
+balf.res <- function(x) {   ## Brown Almost Linear Function
+	n <- length(x)
+	f<-as.vector(matrix(0,n,1))
+	sumx<-sum(x)
+	for (i in 1:(n-1)) {
+		f[i] <- x[i] + sumx - (n+1);
+	}
+	f[n] <- prod(x) -1;
+	f  	
+}
+
+balf.jac <- function(x){    ## Brown Almost Linear Function
+  n <- length(x)
+  J <- matrix(0, n, n)
+  for (i in 1:(n-1)) {
+     for (j in 1:n) {
+        J[i,j] <- 1 # from sum(x)
+     }
+     J[i,i] <- 2 # 1 from x[i], 1 from sum(x)    
+  }
+  for (j in 1:n) {
+     J[n,j] <- prod(x[-j])
+  }
+  J
+}
+}

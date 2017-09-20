@@ -1,6 +1,20 @@
-# BrownAlmostLinear.prb
-# BROWN, K.M. A quadratically convergent Newton-like method based upon Gaussian elimination. 
+## @knitr BrownAlmostLinear.prb
+# This is file BrownAlmostLinear.prb
+probname <- "BrownAlmostLinear"
+probdesc <- "This problem has variable number of parameters.
+It is a nonlinear least squares problem with m = n, and
+seems to be suitable for nonlinear equations, as there is
+a solution of 0 at (alpha, alpha, ...., alpha, alpha^(1-n))
+where alpha satisfies
+n alpha^n - (n+1) alpha^(n-1) + 1 = 0 and in particular 
+	alpha = 1.
+f = 1 at (0,...,0, (n+1))
+x0 = rep(0.5, n)
+"
+# Reference: BROWN, K.M. A quadratically convergent Newton-like 
+# method based upon Gaussian elimination. 
 # S I A M J. Numer. Anal. 6 (1969), 560-569.
+# Also More et al. problem #27
 
 balf.f <- function(x) {   ## Brown Almost Linear Function
 	n <- length(x)
@@ -39,4 +53,16 @@ balf.jac <- function(x){    ## Brown Almost Linear Function
   }
   J
 }
-}
+
+balf.test <- function(n = 5) {
+  cat("Brown Almost Linear Problem\n")
+  n <- 10
+  x0 <- rep(0.5, n)
+  solnm <- optim(x0, balf.f, control=list(trace=1, maxit=10000))
+  print(solnm)
+  library(optimr)
+  solnewuoa <- optimr(x0, balf.f, method="newuoa", control=list(trace=1))
+  print(solnewuoa)
+} 
+
+balf.test(10)

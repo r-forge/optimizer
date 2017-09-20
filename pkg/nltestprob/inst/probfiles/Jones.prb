@@ -1,4 +1,4 @@
-# test function from book by Owen Jones et al book
+# test function from book by Owen Jones et al 
 
 # function is 2 variables to be maximized
 #  f(x,y)=sin(x^2/2 - y^2/4)*cos(2x-exp(y))

@@ -1,0 +1,58 @@
+#*****************************************************************************
+## fphelical evaluates the Fletcher-Powell helical valley function.
+
+# JN 170920 -- note that Burkardt helical.m has errors!!!
+#
+#  Parameters:
+#
+#    Input, real x of length 3, the argument.
+#
+#    Output, real f, the value of the function.
+#
+# atan2(y, x) = atan(y/x)
+
+## jbfphelical.f <- function(x) { # from Burkardt helical.m
+##    if ( x[1] > 0.0 ) {
+##       theta <- atan2 ( x[2], x[1] ) / 2.0 / pi
+##    } else if ( x[1] < 0.0 ) {
+##       theta <- 0.5 + atan2 ( x[2], x[1] ) / 2.0 / pi
+##    } else if ( x[1] == 0.0 ) { theta <- 0.25 }
+##           else stop("fphelical.f -- impossible condition!")
+##   fx1 = x[3] - 10.0 * theta
+##   fx2 = sqrt ( x[1] * x[1] + x[2] * x[2] )
+##   fx3 = x[3]
+##   fx = 100.0 * fx1 * fx1 + fx2 * fx2 +  fx3 * fx3;
+###  Note: this is a sum of squares -- should be able to produce nls form
+##   fx
+## }
+
+
+fphelical.f <- function(x) {#  From Fletcher-Powell 1963 paper on Davidon method
+   if (x[1] == 0) {theta <- sign(x[2])*1e+20 } # safety setting
+   else { if ( x[1] > 0.0 ) { theta <- atan(x[2]/x[1])/(2*pi) }
+           else { theta <- 0.5 + atan(x[2]/x[1])/(2.0*pi) }
+   }
+   r <- sqrt(x[1] * x[1] + x[2] * x[2])
+   f <- 100 * ( (x[3] - 10*theta)^2 + (r-1)^2 ) + x[3]^2
+}
+
+
+
+fphelical.test <- function() {
+  x0 <- c(-1, 0, 0)
+  xstar <- c(1, 0, 0)
+  
+  f0fp <- fphelical.f(x0)
+  cat("x0=")
+  print(x0)
+  cat("fphelical(x0)=")
+  print(f0fp)
+  cat("\n")
+  cat("xstar=")
+  print(xstar)
+  cat("fphelical(xstar)=")  
+  fstarfp <- fphelical.f(xstar)
+  print(fstarfp)
+}
+
+fphelical.test()

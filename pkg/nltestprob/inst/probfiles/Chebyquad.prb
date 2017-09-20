@@ -1,7 +1,32 @@
 ## cyq.R -- Fletcher's Chebyquad problem
+## @knitr cyq.prb
+# This is file cyq.prb
+probname <- "cyq"
+probdesc <- "
+ Ref: Fletcher, R. (1965) Function minimization without calculating 
+ derivatives -- a review, Computer J., 8, 33-41.
+ More et al problem 35
 
-# Ref: Fletcher, R. (1965) Function minimization without calculating derivatives -- a review,
-#         Computer J., 8, 33-41.
+Note that this has m >= n cases, but often uses m=n in tests.
+
+"
+
+#- Note: environment / list "pe" must already exist
+if (exists("pe")) { 
+      rm("pe")  
+  }
+
+pe <- new.env()
+pe$kf <- 0
+pe$kg <- 0
+pe$kjac <- 0
+pe$kres <- 0
+
+#- nls format expression
+## cyq.formula <- ??
+
+#- setup
+# cyq.setup<-function() {
 
 # Note we do not have all components here e.g., .jsd, .h
 
@@ -10,6 +35,25 @@ cyq.f <- function (x) {
   f<-sum(rv*rv)
 }
 
+#- gradient
+cyq.g <- function (x) {
+   cj<-cyq.jac(x)
+   rv<-cyq.res(x)
+   gg<- as.vector(2.0* rv %*% cj)
+}
+
+#- hessian
+cyq.h <- function(x) {
+#- THIS IS NOT COMPLETE??
+  stop("cyq.h IS NOT COMPLETE")
+  res<-cyq.res(x)
+  JJ<-cyq.jac(x)
+  pe$khess <- pe$khess + 1
+  H <- t(JJ) %*% JJ
+}
+
+
+#- residual
 cyq.res <- function (x) {
 # Fletcher's chebyquad function m = n -- residuals 
    n<-length(x)
@@ -36,6 +80,7 @@ cyq.res <- function (x) {
     res
 }
 
+#- Jacobian
 cyq.jac<- function (x) {
 #  Chebyquad Jacobian matrix
    n<-length(x)
@@ -63,14 +108,13 @@ cyq.jac<- function (x) {
    cj
 }
 
+#- nleq -- ?? section if appropriate
 
-cyq.g <- function (x) {
-   cj<-cyq.jac(x)
-   rv<-cyq.res(x)
-   gg<- as.vector(2.0* rv %*% cj)
-}
+#- test
+## put example calls of the function, possibly including calls to 
+# optimizations and nonlinear least squares etc.
 
-cyq.setup <- function (n = NULL, probcase=NULL) {
+cyq.setup <- function(n = NULL, probcase=NULL) {
   cat("Fletcher chebyquad function in file cyq.R\n")
   if (is.null(n)) {
      n <- as.numeric(readline("order of problem (n) ="))
@@ -88,4 +132,25 @@ cyq.setup <- function (n = NULL, probcase=NULL) {
   result<-list(x=x, lower=lower, upper=upper, bdmsk=bdmsk)
 }
 
+cyq.test <- function(n=5){
+  lower<-rep(-10.0, n)
+  upper<-rep(10.0, n) 
+  bdmsk<-rep(1, n) # free all parameters
+  library(optimr)
+  x0 <- 1:n/(n+1.0)
+  cat("x0=")
+  print(x0)
+  cat("\n")
+  cat("Chebyquad function at x0 = ",cyq.f(x0),"\n")  
+  solnm <- optim(x0, cyq.f, method="Nelder-Mead", control=list(maxit=10000, trace=0))
+  print(solnm)
 
+}
+
+cyq.test()
+
+cyq.test(9)
+
+
+
+#- End cyq.prb   

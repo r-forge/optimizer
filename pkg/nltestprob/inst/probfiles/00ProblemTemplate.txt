@@ -1,0 +1,67 @@
+## @knitr ##YourProblem.prb
+# This is file ##YourProblem.prb
+probname <- "##YourProblem"
+probdesc <- "Put your description in double quotes.
+"
+
+#- Note: environment / list "counters" must already exist
+
+if (! exists("counters")) {stop("Environment 'counters' must exist before running problems.")}
+
+##YourProblem.formula <- ( y ~ b1*x**b2 )
+
+#- setup
+# ##YourProblem.setup<-function() {
+y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660) # example only
+x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
+##YourProblem.df <- data.frame(x,y)
+rm(x)
+rm(y)
+
+##YourProblem.start <- function(indx) {
+  ...
+
+  start
+}
+#- Problem types will be determined from available functions / formulas
+#- ?? We could have problems with quotation marks WITHIN the code.
+#- lower = NA # if bounds are present, then we use bounded methods
+#- upper = NA # 
+
+#- function
+##YourProblem.f <- function(x) { # ?? should remove -- this is a sumsquares problem
+...
+f
+}
+
+#- gradient
+##YourProblem.g<-function(x) {
+#-   stop('not defined')
+return(gg)
+}
+
+#- hessian
+##YourProblem.h <- function(x) {
+#- THIS IS NOT COMPLETE??
+  stop("DanielWood.h IS NOT COMPLETE")
+  res<-DanielWood.res(x)
+  JJ<-DanielWood.jac(x)
+  counters$khess <- counters$khess + 1
+  H <- t(JJ) %*% JJ
+}
+
+
+#- residual
+##YourProblem.res <- function(b) {
+return(res)
+}
+
+#- Jacobian
+# DanielWood - Jacobian
+##YourProblem.jac <- function(b) {
+return(J)
+}
+
+#- nls format expression
+
+#- End DanielWood.prb   

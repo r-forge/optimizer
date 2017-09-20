@@ -1,4 +1,6 @@
-balf <- function(x) {   ## Brown Almost Linear Function
+# BROWN, K.M. A quadratically convergent Newton-like method based upon Gaussian elimination. S I A M J. Numer. Anal. 6 (1969), 560-569.
+
+balf.f <- function(x) {   ## Brown Almost Linear Function
 	n <- length(x)
 	f<-as.vector(matrix(0,10,1))
 	sumx<-sum(x)

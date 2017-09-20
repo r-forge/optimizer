@@ -61,6 +61,7 @@ return(gg)
 #- hessian
 DanielWood.h <- function(x) {
 #- THIS IS NOT COMPLETE??
+  stop("DanielWood.h IS NOT COMPLETE")
   res<-DanielWood.res(x)
   JJ<-DanielWood.jac(x)
   counters$khess <- counters$khess + 1

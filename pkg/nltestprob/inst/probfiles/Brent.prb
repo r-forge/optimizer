@@ -2,7 +2,7 @@
 # ref??
 
 
-brent.f <- function(x) {
+brent.res <- function(x) {
  n <- length(x)
  tnm1 <- 2:(n-1)
  F <- rep(NA, n)
@@ -12,7 +12,7 @@ brent.f <- function(x) {
  F
  }
 
-brent.g <- function(x) {
+brent.jac <- function(x) {
     stop(" GRADIENT NOT YET DEFINED ")
       
 }

@@ -199,6 +199,7 @@ read_chunk('../inst/probfiles/DanielWood.prb')
 
 ```{r}
 #- We need to have 'counters' environment before we load problem file
+#- ?? Explain why we need this environment.
 counters <- new.env()
 ```
 

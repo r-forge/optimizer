@@ -82,7 +82,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><p>be able to quickly and easily run a specific test on all available solvers;</p></li>
 <li><p>be able to quickly and easily run all available tests on an updated or new solver, or on a new computing platform;</p></li>
 <li><p>be able to compare performance of solvers on a single or a group of problems;</p></li>
-<li><p>be able to compare performance of particular computing platforms on a single or a group of problems;</p></li>
+<li><p>be able to compare performance of particular computing platforms on a single problem or a group of problems;</p></li>
 <li><p>be able to report successes and failures in a manner that allows for rapid detection of potential issues with solvers, platforms, or other conditions.</p></li>
 </ul>
 <p>The last two criteria, and especially the last, require that there be a way to save and access the results of test runs. Because each test instance can generate quite a lot of data, and the combinatorial possibilities of tests, solvers, and solver options such as choice of gradient approximation, saving test information could demand considerable storage space and data management effort. We outline some possible approaches to the data management aspect of optimization testing.</p>
@@ -90,13 +90,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="motivation" class="section level2">
 <h2>Motivation</h2>
 <p><a href="http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml" class="uri">http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml</a> presents a number of nonlinear regression (nonlinear least squares) problems that are more or less difficult to solve numerically. Doug Bates prepared an <strong>R</strong> package <code>NISTnls</code> which adapted these problems to <strong>R</strong> and tested them with the <code>nls()</code> function of which he was a major author. There are a number of other test function collections (some referenced below), usually with overlap in their coverage, for nonlinear equations, nonlinear least squares and function minimization. In some cases, such tests include bounds constraints or fixed parameters.</p>
-<p>In 2009, I built the incomplete package <code>NISTopt</code> to allow the same problems as in <code>NISTnls</code> to be approached as unconstrained function minimization problems. Similarly, the Google Summer of Code project OptimGUI by Yixuan Qiu in 2011 attempted to provide a point-and-click interface to aid in building and running function minimization problems in <strong>R</strong>, and developed a structure for storing such problems in a consistent manner. This vignette is an attempt to better document such ideas. It is especially concerned with how to <strong>efficiently</strong> add, modify, run and review tests of the <strong>R</strong> tools to solve such problems.</p>
+<p>In 2009, one of the authors (JN) built the incomplete package <code>NISTopt</code> to allow the same problems as in <code>NISTnls</code> to be approached as unconstrained function minimization problems. Similarly, the Google Summer of Code project OptimGUI by Yixuan Qiu in 2011 attempted to provide a point-and-click interface to aid in building and running function minimization problems in <strong>R</strong>, and developed a structure for storing such problems in a consistent manner. This vignette is an attempt to better document such ideas. It is especially concerned with how to <strong>efficiently</strong> add, modify, run and review tests of the <strong>R</strong> tools to solve such problems.</p>
 <p>Note that the test problems used are <strong>NOT</strong> always good illustrations of the tasks to which the various function minimization tools should be applied by general <strong>R</strong> users. However, they do suggest limits of performance of these tools.</p>
 <p>We note that in <strong>R</strong> circles, function minimization is often called “optimization”, though that generally implies that there are also constraints.</p>
 </div>
 <div id="approach" class="section level2">
 <h2>Approach</h2>
-<p>We want to avoid having to write specific code to run each test. The package <strong>optimrx</strong> (<span class="citation">Nash (2016)</span>) can call most of the function minimization tools in <strong>R</strong> and can be extended to include others, and the functions within this package standardize the call to each of the minimization solvers. Thus we can simplify the code to test such solvers, using only their method name within the calls to either <code>optimr()</code> or <code>opm()</code>. Furthermore, these functions allow a consistent syntax for specifying analytic gradients (if available), the built-in gradient approximation (if this is part of the solver), else one of several pre-defined gradient approximations callable in the <strong>optextras</strong> package. At the time of writing, an effort is in process to try to similarly unify the nonlinear least squares tools for <strong>R</strong>, namely, the <code>nls()</code> function in the <strong>stats</strong> package, and the tools in packages <strong>nlmrt</strong>, <strong>minpack.lm</strong> and <strong>nls2</strong> as well as some new efforts.</p>
+<p>We want to avoid having to write specific code to run each test. The package <strong>optimr</strong> (<span class="citation">Nash (2016)</span>) can call most of the function minimization tools in <strong>R</strong> and can be extended to include others, and the functions within this package standardize the call to each of the minimization solvers. Thus we can simplify the code to test such solvers, using only their method name within the calls to either <code>optimr()</code> or <code>opm()</code>. Furthermore, these functions allow a consistent syntax for specifying analytic gradients (if available), the built-in gradient approximation (if this is part of the solver), else one of several pre-defined gradient approximations callable in the <strong>optextras</strong> package. At the time of writing, an effort is in process to try to similarly unify the nonlinear least squares tools for <strong>R</strong>, namely, the <code>nls()</code> function in the <strong>stats</strong> package, and the tools in packages <strong>nlmrt</strong>, <strong>minpack.lm</strong> and <strong>nls2</strong> as well as some new efforts.</p>
 <div id="specification-of-problems" class="section level3">
 <h3>Specification of problems</h3>
 <p>Code developed in the trial package <strong>NISTopt</strong> suggested that a given problem could be specified by a particular name. Thus, the problem of <span class="citation">Daniel and Wood (1980)</span>, is called <strong>DanielWood</strong>.</p>
@@ -897,7 +897,7 @@ test1 &lt;-<span class="st"> </span><span class="kw">runoptprob</span>(<span cla
 ##     localdata &lt;- list2env(as.list(prm), parent = data)
 ##     eval(residexpr, envir = localdata)
 ## }
-## &lt;environment: 0x5e73e40&gt;
+## &lt;environment: 0x60887c8&gt;
 ## no weights
 ## lower:[1] -Inf -Inf
 ## upper:[1] Inf Inf
@@ -1134,8 +1134,8 @@ txr &lt;-<span class="st"> </span><span class="kw">opm</span>(st, XRosenbrock.f,
 ## bobyqa       1.00000 1.00000 1.00000 0.999999 1.6638e-09   2921     NA
 ## L-BFGS-B     1.00000 1.00000 1.00000 1.000000 2.4373e-09     52     52
 ## lbfgsb3      1.00000 1.00000 1.00000 1.000000 2.4373e-09     52     52
+## hjkb         1.00000 1.00000 1.00000 1.000003 1.2319e-08   7100     NA
 ## newuoa       1.00000 1.00000 1.00000 1.000004 2.6313e-08   2709     NA
-## hjkb         1.00000 0.99999 0.99999 0.999983 3.1921e-07  10600     NA
 ## spg          1.00004 1.00007 1.00014 1.000284 1.1443e-04   1783   1501
 ## nmkb         1.00144 1.00264 1.00497 1.007443 9.8517e-02   1500     NA
 ## subplex      1.00225 1.00437 1.00803 1.016509 6.5353e-01  15000     NA
@@ -1143,24 +1143,24 @@ txr &lt;-<span class="st"> </span><span class="kw">opm</span>(st, XRosenbrock.f,
 ## Nelder-Mead  0.69041 0.48245 0.23967 0.053578 1.0600e+02   1499     NA
 ##             convergence  kkt1  kkt2 xtime
 ## Rvmmin                0  TRUE  TRUE 0.008
-## BFGS                  0  TRUE  TRUE 0.656
+## BFGS                  0  TRUE  TRUE 0.620
 ## nlminb                0  TRUE  TRUE 0.004
 ## ucminf                0  TRUE  TRUE 0.004
 ## Rcgmin                0  TRUE  TRUE 0.008
-## lbfgs                 0  TRUE  TRUE 0.008
-## CG                    0  TRUE  TRUE 0.024
+## lbfgs                 0  TRUE  TRUE 0.000
+## CG                    0  TRUE  TRUE 0.020
 ## Rtnmin                0  TRUE  TRUE 0.112
-## hjn                   0  TRUE  TRUE 0.116
-## bobyqa                0  TRUE  TRUE 0.076
-## L-BFGS-B              0  TRUE  TRUE 0.004
-## lbfgsb3               0  TRUE  TRUE 0.024
-## newuoa                0  TRUE  TRUE 0.076
-## hjkb                  0 FALSE  TRUE 0.144
+## hjn                   0  TRUE  TRUE 0.120
+## bobyqa                0  TRUE  TRUE 0.080
+## L-BFGS-B              0  TRUE  TRUE 0.000
+## lbfgsb3               0  TRUE  TRUE 0.032
+## hjkb                  0 FALSE  TRUE 0.104
+## newuoa                0  TRUE  TRUE 0.060
 ## spg                   1 FALSE  TRUE 0.184
-## nmkb                  1 FALSE  TRUE 0.124
-## subplex               1 FALSE  TRUE 0.112
-## nlm                   0  TRUE  TRUE 0.004
-## Nelder-Mead           0 FALSE FALSE 0.012</code></pre>
+## nmkb                  1 FALSE  TRUE 0.128
+## subplex               1 FALSE  TRUE 0.108
+## nlm                   0  TRUE  TRUE 0.000
+## Nelder-Mead           0 FALSE FALSE 0.008</code></pre>
 </div>
 <div id="next-steps" class="section level2">
 <h2>Next steps</h2>
@@ -1388,8 +1388,8 @@ soln2 &lt;-<span class="st"> </span><span class="kw">optimr</span>(x, sq, sq.g, 
 <div id="ref-Martins2003">
 <p>Martins, Joaquim R. R. A., Peter Sturdza, and Juan J. Alonso. 2003. “The Complex-Step Derivative Approximation.” <em>ACM Trans. Math. Softw.</em> 29 (3). New York, NY, USA: ACM: 245–62. doi:<a href="https://doi.org/10.1145/838250.838251">10.1145/838250.838251</a>.</p>
 </div>
-<div id="ref-optimrx16">
-<p>Nash, John C. 2016. <em>optimr: A Replacement and Extension of the ’Optim’ Function</em>. <a href="http://download.r-forge.r-project.org/src/contrib/optimrx_2016-10.3.tar.gz" class="uri">http://download.r-forge.r-project.org/src/contrib/optimrx_2016-10.3.tar.gz</a>.</p>
+<div id="ref-optimr16">
+<p>Nash, John C. 2016. <em>optimr: A Replacement and Extension of the ’Optim’ Function</em>. <a href="http://CRAN.R-project.org/package=optimr" class="uri">http://CRAN.R-project.org/package=optimr</a>.</p>
 </div>
 <div id="ref-Rosenbrock60">
 <p>Rosenbrock, H. H. 1960. “An Automatic Method for Finding the Greatest or Least Value of a Function.” <em>The Computer Journal</em> 3: 175–84.</p>

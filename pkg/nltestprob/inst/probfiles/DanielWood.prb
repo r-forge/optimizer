@@ -8,9 +8,22 @@ energy radieted from a carbon filament lamp per cm**2 per second, and the
 predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
 "
 
-#- Note: environment / list "counters" must already exist
+#- Note: environment / list "pe" must already exist for runoptprob
+## ?? maybe use pe for Problem Environment and put in pe and 
+## data and other stuff.
 
-if (! exists("counters")) {stop("Environment 'counters' must exist before running problems.")}
+if (exists("pe")) { 
+      rm("pe")  
+  }
+
+pe <- new.env()
+pe$kf <- 0
+pe$kg <- 0
+pe$kjac <- 0
+pe$kres <- 0
+
+  
+  ## {stop("Environment 'pe' must exist before running problems.")}
 
 DanielWood.formula <- ( y ~ b1*x**b2 )
 
@@ -19,8 +32,13 @@ DanielWood.formula <- ( y ~ b1*x**b2 )
 y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
 x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
 DanielWood.df <- data.frame(x,y)
+pe$df <- DanielWood.df
 rm(x)
 rm(y)
+# }
+print(DanielWood.df)
+cat("and in pe:")
+print(pe$df)
 
 DanielWood.start <- function(indx) {
   #- indx is character string to allow for more general forms e.g., XRosenbrock
@@ -44,7 +62,7 @@ DanielWood.start <- function(indx) {
 #- function
 DanielWood.f <- function(x) { # ?? should remove -- this is a sumsquares problem
 res<-DanielWood.res(x)
-counters$kf <- counters$kf + 1
+pe$kf <- pe$kf + 1
 f<-sum(res*res)
 }
 
@@ -54,38 +72,38 @@ DanielWood.g<-function(x) {
 JJ<-DanielWood.jac(x)
 res<-DanielWood.res(x)
 gg<-as.vector(2.0*t(JJ) %*% res)
-counters$kg <- counters$kg + 1
+pe$kg <- pe$kg + 1
 return(gg)
 }
 
 #- hessian
-DanielWood.h <- function(x) {
+DanielWood.h <- function(x, DanielWood.df) {
 #- THIS IS NOT COMPLETE??
   stop("DanielWood.h IS NOT COMPLETE")
   res<-DanielWood.res(x)
   JJ<-DanielWood.jac(x)
-  counters$khess <- counters$khess + 1
+  pe$khess <- pe$khess + 1
   H <- t(JJ) %*% JJ
 }
 
 
 #- residual
-DanielWood.res <- function(b) {
-xx<-DanielWood.df$x # case !!
-yy<-DanielWood.df$y
+DanielWood.res <- function(b, DanielWood.df) {
+xx<-pe$df$x # case !!
+yy<-pe$df$y
 res <- rep(NA, length(xx))
 b1<-b[1]
 b2<-b[2]
 res<-b1*(xx**b2) - yy
-counters$kres <- counters$kres + 1
+pe$kres <- pe$kres + 1
 return(res)
 }
 
 #- Jacobian
 # DanielWood - Jacobian
 DanielWood.jac <- function(b) {
-xx<-DanielWood.df$x
-yy<-DanielWood.df$y
+xx<-pe$df$x
+yy<-pe$df$y
 n<-length(b)
 m<-length(xx)
 b1<-b[1]
@@ -94,7 +112,41 @@ J<-matrix(0,m,n) # define the size of the Jacobian
 expr1 <- xx^b2
 J[, 1] <- expr1
 J[, 2] <- b1 * (expr1 * log(xx))
-counters$kjac <- counters$kjac + 1
+pe$kjac <- pe$kjac + 1
 return(J)
 }
+
+# DanielWood - test
+DanielWood.test <- function() {
+# tests and examples of calls to DanielWood problem
+y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
+x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
+DanielWood.df <- data.frame(x,y)
+rm(x)
+rm(y)
+st1 <- DanielWood.start(1)
+nls.sol <- nls(formula<-DanielWood.formula, data=DanielWood.df,
+    start=st1, trace=TRUE)
+print(nls.sol)
+summary(nls.sol)
+
+# optimr
+require(optimr)
+print(DanielWood.df)
+# Note problem of passing data frame down through the functions. Need problem environment
+
+optimr.sol <- optimr(st1, DanielWood.f, gr="grcentral")
+
+}
+
+DanielWood.test()
+
+
+
+
+
+
+
+
+
 #- End DanielWood.prb   

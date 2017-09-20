@@ -8,6 +8,7 @@ probdesc <- "Put your description in double quotes.
 
 if (! exists("counters")) {stop("Environment 'counters' must exist before running problems.")}
 
+#- nls format expression
 ##YourProblem.formula <- ( y ~ b1*x**b2 )
 
 #- setup
@@ -62,6 +63,13 @@ return(res)
 return(J)
 }
 
-#- nls format expression
+#- nleq -- ?? section if appropriate
+
+
+#- test
+## put example calls of the function, possibly including calls to 
+# optimizations and nonlinear least squares etc.
+
+
 
 #- End DanielWood.prb   

@@ -22,6 +22,6 @@ for (i in 1:n) {
 }
 xx<-0.5*(lower+upper)
 
-abt<-lbfgsb3(xx, bt.f, bt.g, lower=lower, upper=upper, control=list(trace=1, iprint=200L))
+abt<-lbfgsb3(xx, bt.f, bt.g, lower=lower, upper=upper, control=list(trace=1))
 print(abt)
 

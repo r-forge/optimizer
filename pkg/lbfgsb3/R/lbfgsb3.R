@@ -32,23 +32,28 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
  
 # if (!is.loaded("lbfgsb3.so")) dyn.load("lbfgsb3.so") # get the routines attached
 
+    factr <- 1.0e+7
+    pgtol <- 1.0e-5
+    nmax <- 1024L
+    mmax <- 17L
+
+    if (length(prm) > nmax) stop("The number of parameters cannot exceed 1024")
+    n <- as.integer(length(prm))
+    m <- 5L # default 
+
 # control defaults -- idea from spg
-ctrl <- list(maxit = 500, trace = 0, iprint = 0L)
+ctrl <- list(trace = 0, maxit = 100*n) ## ??  iprint = 0L)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
 
-
 # Here expand control list, but for moment leave alone
-      iprint <- as.integer(ctrl$iprint)
-      factr <- 1.0e+7
-      pgtol <- 1.0e-5
-      nmax <- 1024L
-      mmax <- 17L
-if (length(prm) > nmax) stop("The number of parameters cannot exceed 1024")
-      n <- as.integer(length(prm))
-      m <- 5L # default 
+      iprint <- as.integer(ctrl$trace)
+      if (iprint == 0) { iprint <- as.integer(-1L) } # Note this excludes iprint=0 case
+      # from working in the Fortran code, but because of R restrictions on Fortran
+      # output, some intermediate output is suppressed.
+
 ## Define the storage
 nbd <- rep(2L, n) # start by defining them "on" -- adjust below
 nwa<-2*mmax*nmax + 5*nmax + 11*mmax*mmax + 8*mmax
@@ -92,6 +97,7 @@ for (i in 1:n) {
       task <- tasklist[itask]
       f <- .Machine$double.xmax / 100
       g <- rep(f, n)
+      nfg <- 0 # initialize counter
 
 ##        ------- the beginning of the loop ----------
 icsave <- 0 # to make sure defined
@@ -103,7 +109,7 @@ repeat {
        cat("Before call, f=",f,"  task number ",itask," ")
        print(task)
       }
-      result <- .Fortran('lbfgsb3', n = as.integer(n),m = as.integer(m),
+      result <- .Fortran('lbfgsb3f', n = as.integer(n),m = as.integer(m),
                    x = as.double(prm), l = as.double(lower), u = as.double(upper),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
                    factr = as.double(factr), pgtol = as.double(pgtol),
@@ -139,6 +145,7 @@ repeat {
          }
 ##        Compute function value f for the sample problem.
          f <- fn(prm, ...)
+         nfg <- nfg + 1 # increment counter
 ##        Compute gradient g for the sample problem.
          if (is.null(gr)) {
              g <- grad(fn, prm, ...)
@@ -152,6 +159,12 @@ repeat {
             }
             cat("\n")
          }
+         if (nfg > ctrl$maxit) {
+            if (ctrl$trace > 0) {
+               cat("Exceeded function/gradient evaluation limit\n")
+               break
+            }
+         }
       } else {
         if (itask == 1L )  { # NEW_X
 ##          tmp <- readline("Continue") # eventually remove this
@@ -164,5 +177,6 @@ repeat {
   info <- list(task = task, itask = itask, lsave = lsave, 
                 icsave = icsave, dsave = dsave, isave = isave)
   ans <- list(prm = prm, f = f, g = g, info = info)
+  ans # to return the answer visibly
 ##======================= The end of driver1 ============================
 } # end of lbfgsb3()

@@ -43,12 +43,12 @@
   The list of controls for the algorithm contains:
   \describe{
       \item{\code{trace}}{an integer which if 0 (default) causes no intermediate
-         output in the R section of the code, otherwise some diagnostic information}
-      \item{\code{iprint}}{an integer value which if < 0 (-1L default) causes no
-         intermediate output during the running of the Fortran code for lbfgsb3. 
-         Other values (see the code lbfgsb.f) give varying amounts of information.}
-      \item{\code{femax}}{NOT YET ACTIVE - Maximum function evaluations. }
-      \item{\code{gemax}}{NOT YET ACTIVE - Maximum number of gradient evaluations. }
+         output in the R section of the code, otherwise some diagnostic information.
+         The larger the value of \code{trace} the greater the amount of information.
+         In the Fortran code, see the variable \code{iprint}, which is equal to \code{trace} for
+         positive values of \code{trace}, and set to -1 for \code{trace=0}. (\code{iprint=0} is not 
+         possible via this R wrapper.)}
+      \item{\code{maxit}}{Maximum number of function/gradient evaluations. }
   }
 
 

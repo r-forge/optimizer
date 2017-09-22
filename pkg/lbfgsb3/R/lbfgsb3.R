@@ -159,7 +159,7 @@ repeat {
             }
             cat("\n")
          }
-         if (nfg > ctrl$maxit) {
+         if (nfg >= ctrl$maxit) {
             if (ctrl$trace > 0) {
                cat("Exceeded function/gradient evaluation limit\n")
                break

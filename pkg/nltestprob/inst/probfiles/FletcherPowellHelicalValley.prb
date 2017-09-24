@@ -1,3 +1,12 @@
+## @knitr ##FletcherPowellHelicalValley.prb
+# This is file ##FletcherPowellHelicalValley.prb
+probname <- "##FletcherPowellHelicalValley"
+probdesc <- "
+
+
+"
+
+
 #*****************************************************************************
 ## fphelical evaluates the Fletcher-Powell helical valley function.
 
@@ -27,6 +36,42 @@
 ## }
 
 
+#- Note: environment / list "counters" must already exist
+
+if (exists("pe")) { 
+      rm("pe")  
+  }
+
+pe <- new.env()
+pe$kf <- 0
+pe$kg <- 0
+pe$kjac <- 0
+pe$kres <- 0
+
+#- nls format expression
+##FletcherPowellHelicalValley.formula <- ( y ~ b1*x**b2 )
+
+#- setup
+# ##FletcherPowellHelicalValley.setup<-function() {
+y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660) # example only
+x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
+##FletcherPowellHelicalValley.df <- data.frame(x,y)
+rm(x)
+rm(y)
+
+##FletcherPowellHelicalValley.start <- function(indx) {
+  ...
+
+  start
+}
+#- Problem types will be determined from available functions / formulas
+#- ?? We could have problems with quotation marks WITHIN the code.
+#- lower = NA # if bounds are present, then we use bounded methods
+#- upper = NA # 
+
+#- function
+##FletcherPowellHelicalValley.f <- function(x) { # ?? should remove -- this is a 
+
 fphelical.f <- function(x) {#  From Fletcher-Powell 1963 paper on Davidon method
    if (x[1] == 0) {theta <- sign(x[2])*1e+20 } # safety setting
    else { if ( x[1] > 0.0 ) { theta <- atan(x[2]/x[1])/(2*pi) }
@@ -36,6 +81,27 @@ fphelical.f <- function(x) {#  From Fletcher-Powell 1963 paper on Davidon method
    f <- 100 * ( (x[3] - 10*theta)^2 + (r-1)^2 ) + x[3]^2
 }
 
+#- gradient
+##FletcherPowellHelicalValley.g<-function(x) {
+#-   stop('not defined')
+
+#- hessian
+##FletcherPowellHelicalValley.h <- function(x) {
+#- THIS IS NOT COMPLETE??
+
+
+#- residual
+##FletcherPowellHelicalValley.res <- function(b) {
+
+#- Jacobian
+##FletcherPowellHelicalValley.jac <- function(b) {
+
+#- nleq -- ?? section if appropriate
+
+
+#- test
+## put example calls of the function, possibly including calls to 
+# optimizations and nonlinear least squares etc.
 
 
 fphelical.test <- function() {
@@ -56,3 +122,10 @@ fphelical.test <- function() {
 }
 
 fphelical.test()
+
+
+
+#- End FletcherPowellHelicalValley.prb   
+
+
+

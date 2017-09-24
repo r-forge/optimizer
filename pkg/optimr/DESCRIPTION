@@ -1,6 +1,6 @@
 Package: optimr
-Version: 2017-9.18
-Date: 2017-09-18
+Version: 2017-9.24
+Date: 2017-09-24
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =

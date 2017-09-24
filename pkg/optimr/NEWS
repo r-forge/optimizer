@@ -25,12 +25,14 @@ TODO
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o grchk() -- can it be cleaned up -- it is in optextras
       o Put counters in efn, egr ??
-      o Set up optimrx on R-forge or/and github, and optimr for CRAN with only
-	optim, nlm, nlminb, Rvmmin, Rtnmin, Rcgmin and hjn methods.
-	Consider check to see if other package is loaded e.g., don't want
-	optimr and optimrx to be loaded simulataneously, but possibly R takes
-	care of that.
       o Check all failures reported below are fixed!
+
+VERSION 2017-09-24
+      o comments include 2017-09-18 version
+      o brought optimx solvers into optimr and added check that packages 
+        are available
+      o Fix for lbfgsb3 which was changed at same time to correct and
+        simplify some control parameters
 
 VERSION 2017-04-05
       o allowed hessian in opm() and optimr() (for nlm)

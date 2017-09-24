@@ -749,8 +749,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       else if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
         if (control$trace > 1) cat("lbfgsb3\n")
         mcontrol$trace <- control$trace
-        if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
-        # ?? use maxfevals rather than maxit for lbfgsb3 ?
+# 170924 no longer needed
+##        if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
         if (control$trace > 0) cat("lbfgsb3:control$have.bounds =",control$have.bounds,"\n")
         if (control$have.bounds) { ## Note call uses prm not par
             slower <- lower/pscale

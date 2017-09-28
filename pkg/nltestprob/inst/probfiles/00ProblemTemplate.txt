@@ -28,10 +28,6 @@ rm(x)
 rm(y)
 
 ##YourProblem.start <- function(indx) {
-  ...
-
-  start
-}
 #- Problem types will be determined from available functions / formulas
 #- ?? We could have problems with quotation marks WITHIN the code.
 #- lower = NA # if bounds are present, then we use bounded methods
@@ -39,37 +35,20 @@ rm(y)
 
 #- function
 ##YourProblem.f <- function(x) { # ?? should remove -- this is a sumsquares problem
-...
-f
-}
 
 #- gradient
 ##YourProblem.g<-function(x) {
 #-   stop('not defined')
-return(gg)
-}
 
 #- hessian
 ##YourProblem.h <- function(x) {
-#- THIS IS NOT COMPLETE??
-  stop("DanielWood.h IS NOT COMPLETE")
-  res<-DanielWood.res(x)
-  JJ<-DanielWood.jac(x)
-  counters$khess <- counters$khess + 1
-  H <- t(JJ) %*% JJ
-}
 
 
 #- residual
 ##YourProblem.res <- function(b) {
-return(res)
-}
 
 #- Jacobian
-# DanielWood - Jacobian
 ##YourProblem.jac <- function(b) {
-return(J)
-}
 
 #- nleq -- ?? section if appropriate
 
@@ -77,7 +56,6 @@ return(J)
 #- test
 ## put example calls of the function, possibly including calls to 
 # optimizations and nonlinear least squares etc.
-
 
 
 #- End YourProblem.prb

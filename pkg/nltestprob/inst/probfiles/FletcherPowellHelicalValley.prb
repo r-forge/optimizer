@@ -83,7 +83,27 @@ fphelical.f <- function(x) {#  From Fletcher-Powell 1963 paper on Davidon method
 
 #- gradient
 ##FletcherPowellHelicalValley.g<-function(x) {
-#-   stop('not defined')
+fphelical.g <- function(x) {
+   if (x[1] == 0) {theta <- sign(x[2])*1e+20 } # safety setting
+   else { if ( x[1] > 0.0 ) { theta <- atan(x[2]/x[1])/(2*pi) }
+           else { theta <- 0.5 + atan(x[2]/x[1])/(2.0*pi) }
+   }
+   r <- sqrt(x[1] * x[1] + x[2] * x[2])
+  if (x[1] == 0) { gt2 <- 0 }
+  else {  gt2 <- (1/x[1])/((1+(x[2]/x[1])^2)*(2*pi)) }
+
+  if (x[1] == 0) { gt1 <- 0 }
+  else {  gt1 <- (-x[2]/(x[1]^2))/((1+(x[2]/x[1])^2)*(2*pi)) }
+
+  r1 <- x[1]/r
+  r2 <- x[2]/r   
+  g1 <- 100*( -20*(x[3]-10*theta)*gt1 + 2*(r-1)*r1)
+  g2 <- 100*( -20*(x[3]-10*theta)*gt2 + 2*(r-1)*r2)
+
+  g3 <- 202*x[3] - 2000*theta
+  gg <- c(g1, g2, g3)
+  gg
+}
 
 #- hessian
 ##FletcherPowellHelicalValley.h <- function(x) {

@@ -75,7 +75,32 @@ probdata<-function(dataname, pkgname) {
 }
 
 
-lanczos1.test<-function() {
-  start1<-c(1.2,0.3,5.6,5.5,6.5,7.6)
-  start2<-c(0.5,0.7,3.6,4.2,4,6.3)
-}   
+lanczos.setup <- function(idxdata=NULL, idxstart=NULL) {
+   if(is.null(idxdata)) {
+      cat("There are three Lanczos data sets, indexed 1:3\n")     
+   } else {
+      if (idxdata %in% 1:3) {
+          dsetname <- paste("Lanczos",idxdata,sep='')
+          mypdata <- probdata(dsetname, "NISTnls")
+      } else { stop("ERROR-Lanczos data set index out of range = ",idxdata)}
+   }
+  if(is.null(idxstart)) {
+    cat("There are two Lanczos starting points, indexed 1:2, or 0 to enter from keyboard\n")     
+  } else {
+    if (idxstart %in% 0:2) {
+        if (idxstart == 0) {
+             cat("Enter the 6 elements of the starting vector:")
+             for (jj in 1:6) {
+                  start[jj] <- readline("? ")
+             }
+        } else { 
+             if (idxstart == 1) { 
+                 start<-c(1.2,0.3,5.6,5.5,6.5,7.6)
+             } else { 
+                 start<-c(0.5,0.7,3.6,4.2,4,6.3) 
+                 }
+        }
+    } else { stop("ERROR-Lanczos starting point index out of range = ",idxdata)}
+  }
+  Lz <- list(mypdata=mypdata, start=start)
+}

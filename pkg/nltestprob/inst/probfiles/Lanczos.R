@@ -29,7 +29,7 @@ pe$kjac <- 0
 pe$kres <- 0
 
 #- nls format expression
-Lanczos.formula <- ( y ~ b1*exp(-b2*xx) + b3*exp(-b4*xx) + b5*exp(-b6*xx)) # Lanczos
+lanczos.formula <- ( y ~ b1*exp(-b2*x) + b3*exp(-b4*x) + b5*exp(-b6*x)) # Lanczos
 # lanczos1 from NISTnls
 # ??ref...
 
@@ -76,27 +76,27 @@ lanczos.jac <- function(b, pdata) {
    J
 }
 
-lanczos1.h <- function(x) {
+lanczos1.h <- function(x, pdata) {
 stop("not defined")
-   JJ<-lanczos1.jac(x)
+   JJ<-lanczos1.jac(x, pdata)
    H <- t(JJ) %*% JJ
-   res<-lanczos1.res(x)
+   res<-lanczos1.res(x, pdata)
 stop("not defined")
 
 }
 
-lanczos1.g<-function(x) {
+lanczos1.g<-function(x, pdata) {
 #   stop("not defined")
-   JJ<-lanczos1.jac(x)
-   res<-lanczos1.res(x)
+   JJ<-lanczos1.jac(x, pdata)
+   res<-lanczos1.res(x, pdata)
    gg<-as.vector(2.0*t(JJ) %*% res)
    return(gg)
 }
 
-lanczos1.fgh<-function(x) {
-   f<-lanczos1.f(x)
-   g<-lanczos1.g(x)
-   H<-lanczos1.h(x)
+lanczos1.fgh<-function(x, pdata) {
+   f<-lanczos1.f(x, pdata)
+   g<-lanczos1.g(x, pdata)
+   H<-lanczos1.h(x, pdata)
    fgh<-list(value=f,gradient=g,hessian=H)
 }
 
@@ -130,8 +130,33 @@ lanczos.setup <- function(idxdata=NULL, idxstart=NULL) {
              } else { 
                  start<-c(0.5,0.7,3.6,4.2,4,6.3) 
                  }
+                 names(start)<-c("b1","b2","b3","b4","b5","b6")
         }
     } else { stop("ERROR-Lanczos starting point index out of range = ",idxdata)}
   }
   Lz <- list(mypdata=mypdata, start=start)
 }
+
+################################################################################
+lset <- lanczos.setup(1,1)
+print(lset)
+
+library(nlsr)
+
+#lanzosnlxb11 <- nlxb(lanczos.formula, lset$start, trace=TRUE, data=lset$mypdata, lower=c(-1000, -1000, 0, 0, 0, 0),
+#                       upper=c(1000,1000, 0,0,0,0))
+
+st12 <- c(1.2, 0.3, 0,0,0,0)
+names(st12) <- names(lset$start)
+lanczosnlxb12 <- nlxb(lanczos.formula, st12, trace=TRUE, data=lset$mypdata, masked=c("b3","b4","b5","b6"))
+print(lanczosnlxb12)
+
+st14 <- c(1.2,0.3,5.6,5.5,0,0)
+names(st14) <- names(lset$start)
+lanczosnlxb14 <- nlxb(lanczos.formula, st12, trace=TRUE, data=lset$mypdata, masked=c("b5","b6"))
+print(lanczosnlxb14)
+
+st16 <- c(1.2,0.3,5.6,5.5,6.5,7.6)
+names(st16) <- names(lset$start)
+lanczosnlxb16 <- nlxb(lanczos.formula, st12, trace=TRUE, data=lset$mypdata)
+print(lanczosnlxb16)

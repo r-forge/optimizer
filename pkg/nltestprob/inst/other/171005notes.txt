@@ -1,0 +1,3 @@
+Notes 171005
+
+Seems nlxb may NOT be getting std errs from Lanczos.R problem file.

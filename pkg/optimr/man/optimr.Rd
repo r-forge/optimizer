@@ -49,7 +49,7 @@ optimr(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    but this behaviour has NOT yet been defined and users are cautioned.)}
  \item{method}{A character string giving the name of the optimization method to be
     applied. See the list \code{allmeth} in file 
-  \code{ctrldefault.R} which is part of this package.}
+    \code{ctrldefault.R} which is part of this package.}
  \item{hessian}{A logical control that if TRUE forces the computation of an approximation 
        to the Hessian at the final set of parameters. Note that this will NOT necessarily
        use the same approximation as may be provided by the method called. Instead, 

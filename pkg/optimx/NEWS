@@ -2,6 +2,10 @@ NEWS about R package optimx
 
 TODO
 
+VERSION 2017-10-05
+      o Ravi Varadhan takes over as maintainer.
+      o Warning about combining options.
+
 VERSION 2017-04-04
       o Thanks to Marie Boehnstedt for catching error in creation of
         the composite function and gradient for calling nlm() method.

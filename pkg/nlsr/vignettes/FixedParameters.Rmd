@@ -27,7 +27,7 @@ optimization using R tools** Chichester UK: Wiley, in particular chapters
 
 Here are some of the ways fixed parameters may be specified in R packages.
 
-From `nlxb` in package `nlsr` or `nlxb` in package `nlmrt`.
+From `nlxb` in package `nlsr` or previously in `nlxb` in package `nlmrt`.
 
 masked  
 

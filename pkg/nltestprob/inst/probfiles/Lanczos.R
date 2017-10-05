@@ -1,4 +1,35 @@
-# Optimization test function lanczos1
+## @knitr ##Lanczos.prb
+# This is file ##Lanczos.prb
+probname <- "##Lanczos"
+probdesc <- "
+   From C. Lanczos (1956)  Applied Analysis,
+         Prentice-Hall: Englewood Cliffs, NJ
+         Reprinted by Dover: New York, 1988
+
+   This is an almost impossible problem, as shown
+   by Lanczos. Here we present the worst
+   case (3 exponentials, 6 parameters).
+   The 1 and 2 parameter cases can be derived
+   easily IF (big IF) the solvers can mask, that
+   is, fix the value of, parameters to zero.
+}
+Put your description in double quotes.
+"
+
+#- Note: environment / list "counters" must already exist
+
+if (exists("pe")) { 
+  rm("pe")  
+}
+
+pe <- new.env()
+pe$kf <- 0
+pe$kg <- 0
+pe$kjac <- 0
+pe$kres <- 0
+
+#- nls format expression
+Lanczos.formula <- ( y ~ b1*exp(-b2*xx) + b3*exp(-b4*xx) + b5*exp(-b6*xx)) # Lanczos
 # lanczos1 from NISTnls
 # ??ref...
 

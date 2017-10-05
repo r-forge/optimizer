@@ -20,6 +20,7 @@ pe$kres <- 0
 ##YourProblem.formula <- ( y ~ b1*x**b2 )
 
 #- setup
+## 171004 Combine data and start into setup. 
 # ##YourProblem.setup<-function() {
 y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660) # example only
 x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)

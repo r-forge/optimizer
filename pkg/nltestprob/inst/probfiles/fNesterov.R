@@ -24,6 +24,7 @@ Nesterov.start <- function(indx) {
 
   start
 }
+
 #- Problem types will be determined from available functions / formulas
 #- ?? We could have problems with quotation marks WITHIN the code.
 #- lower = NA # if bounds are present, then we use bounded methods

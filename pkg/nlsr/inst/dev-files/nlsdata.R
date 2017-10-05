@@ -112,6 +112,7 @@ if (class(tdots) != "try-error") {print(nlsLMframe)} else {cat("try-error\n") }
 #- does not work
 
 detach("package:nlsr", unload=TRUE)
+## Uses nlmrt here for comparison
 library(nlmrt)
 txq <- try( nlxbquiet <- nlxb(formula=hobsc, start=ste))
 if (class(txq) != "try-error") {print(nlxbquiet)} else { cat("try-error\n")}

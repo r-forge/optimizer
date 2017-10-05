@@ -58,7 +58,7 @@ desirable.
 extracts and displays the coefficients for a model 
     estimated by nlxb() or nlfb() in the nlsr structured object. 
 
-```{r}
+```{r  c001}
 library(nlsr)
 ydat<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
        75.995, 91.972)
@@ -81,7 +81,7 @@ respectively, though the argument lists do not match exactly.
 be added. The following is an expanded and commented version of the 
 examples from the manual for these functions.
 
-```{r}
+```{r c002}
 require(nlsr)
 newDeriv() # a call with no arguments returns a list of available functions
            # for which derivatives are currently defined
@@ -121,7 +121,7 @@ f(1)
 These functions create functions to evaluate residuals or sums of 
 squares at particular parameter locations.
 
-```{r}
+```{r c003}
 weed <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
           38.558, 50.156, 62.948, 75.995, 91.972)
 ii <- 1:12
@@ -176,7 +176,7 @@ print(wrjdoc)
    uses the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
    sub-problem is solved by a qr method.
 
-```{r}
+```{r c004}
 shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
   # This variant uses looping
   if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
@@ -222,7 +222,7 @@ coef(ans1)-coef(ans1n)
    sub-problem is solved by a qr method. The process is to develop the 
    residual and Jacobian functions using `model2rjfun`, then call `nlfb`.
 
-```{r}
+```{r c005}
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
             38.558, 50.156, 62.948, 75.995, 91.972) # for testing
@@ -240,7 +240,7 @@ Print summary output (but involving some serious computations!) of
     an object of class nlsr from \code{nlxb} or \code{nlfb} from package
     \code{nlsr}.
 
-```{r}
+```{r c006}
 ### From examples above
 print(weedux)
 print(ans1)
@@ -254,7 +254,7 @@ print(ans1)
    Jacobian at a set of parameters. This routine computes the gradient, 
    that is, t(Jacobian) %*% residuals. 
 
-```{r}
+```{r c007}
 ## Use shobbs example
 RG <- resgr(st, shobbs.res, shobbs.jac)
 RG
@@ -275,7 +275,7 @@ by **newSimplification**.
 **findSubexprs** finds common subexpressions in an expression vector
 so that duplicate computation can be avoided.
 
-```{r}
+```{r c008}
 ## nlsSimplify
 nlsSimplify(quote(a + 0))
 nlsSimplify(quote(exp(1)), verbose = TRUE)
@@ -351,7 +351,7 @@ to find the minimum of the residual sum of squares using the Nash variant
 (Nash, 1979) of the Marquardt algorithm, where the linear sub-problem is 
 solved by a qr method.
 
-```{r}
+```{r c009}
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
             38.558, 50.156, 62.948, 75.995, 91.972) # for testing
@@ -397,7 +397,7 @@ Note that neither `nlsr::nlxb` nor `nlsr::nlfb` can use the weighted.MM function
 directly. This is one of the more awkward aspects of nonlinear least squares and
 nonlinear optimization.
 
-```{r}
+```{r c010}
 Treated <- Puromycin[Puromycin$state == "treated", ]
 weighted.MM <- function(resp, conc, Vm, K)
 {
@@ -416,7 +416,7 @@ Pur.wtnlspred <- nls( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
                start = list(Vm = 200, K = 0.1))
 summary(Pur.wtnlspred)
 
-## nlxb cannog use this form
+## nlxb cannot use this form
 Pur.wtnlxbpred <- try(nlxb( ~ weighted.MM(rate, conc, Vm, K), data = Treated,
                start = list(Vm = 200, K = 0.1)))
 ## and the structure is wrong for nlfb. See wres.MM below.
@@ -898,7 +898,7 @@ gnjn <- function(start, resfn, jacfn = NULL, trace = FALSE,
 fitgnjn0 <- gnjn(st, trf, trj, data=mydata)
 ## Another way
 #- set lamda = 0 in nlxb, fix laminc, lamdec
-library(nlmrt)
+library(nlsr)
 nlx00 <- try(nlxb(y0 ~ aa * exp(-bb*tt) + cc, start=st, data=mydata, trace=TRUE,
                      control=list(lamda=0, laminc=0, lamdec=0, watch=TRUE)))
 nlx00
@@ -1326,7 +1326,7 @@ These examples show dotargs do NOT work for any of nlsr, nls, or minpack.lm.
 Use of a dataframe or local (calling) environment objects does work in all.
 
 
-```{r cache=FALSE, echo=FALSE}
+```{r appx1, cache=FALSE, echo=FALSE}
 library(knitr)
 # read chunk (does not run code)
 # read_chunk('/home/john/rsvnall/optimizer/pkg/nlsr/inst/dev-files/nlsdata.R')
@@ -1334,8 +1334,133 @@ read_chunk(system.file('dev-files/nlsdata.R', package = 'nlsr'))
 # We use this approach to avoid having differences between file here and in inst/extdata/
 ```
 
-```{r}
-<<nlsdata.R>>
+```{r nlsdata}
+## @knitr nlsdata.R
+# try different ways of supplying data to R nls stuff
+ydata <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558,
+50.156, 62.948, 75.995, 91.972)
+ttdata <- seq_along(ydata) # for testing
+
+mydata <- data.frame(y = ydata, tt = ttdata)
+
+hobsc <- y ~ 100*b1/(1 + 10*b2 * exp(-0.1 * b3 * tt))
+
+ste <- c(b1 = 2, b2 = 5, b3 = 3)
+
+# let's try finding the variables
+
+findmainenv <- function(formula, prm) {
+   vn <- all.vars(formula)
+   pnames <- names(prm)
+   ppos <- match(pnames, vn)
+   datvar <- vn[-ppos]
+   cat("Data variables:")
+   print(datvar)
+   cat("Are the variables present in the current working environment?\n")
+   for (i in seq_along(datvar)){
+       cat(datvar[[i]]," : present=",exists(datvar[[i]]),"\n")
+   }
+}
+
+
+findmainenv(hobsc, ste)
+y <- ydata
+tt <- ttdata
+findmainenv(hobsc, ste)
+rm(y)
+rm(tt)
+
+# ===============================
+
+
+# let's try finding the variables in dotargs
+
+finddotargs <- function(formula, prm, ...) {
+   dots <- list(...)
+   cat("dots:")
+   print(dots)
+   cat("names in dots:")
+   dtn <- names(dots)
+   print(dtn)
+   vn <- all.vars(formula)
+   pnames <- names(prm)
+   
+   ppos <- match(pnames, vn)
+   datvar <- vn[-ppos]
+   cat("Data variables:")
+   print(datvar)
+   cat("Are the variables present in the dot args?\n")
+   for (i in seq_along(datvar)){
+       dname <- datvar[[i]]
+       cat(dname," : present=",(dname %in% dtn),"\n")
+   }
+}
+
+finddotargs(hobsc, ste, y=ydata, tt=ttdata)
+# ===============================
+
+y <- ydata
+tt <- ttdata
+tryq <- try(nlsquiet <- nls(formula=hobsc, start=ste))
+if (class(tryq) != "try-error") {print(nlsquiet)} else {cat("try-error\n")}
+#- OK
+rm(y)
+rm(tt)
+
+
+tdots<-try(nlsdots <- nls(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+if ( class(tdots) != "try-error") {print(nlsdots)} else {cat("try-error\n")}
+#- Fails
+tframe <- try(nlsframe <- nls(formula=hobsc, start=ste, data=mydata))
+if (class(tframe) != "try-error") {print(nlsframe)} else {cat("try-error\n")}
+#- OK
+
+library(nlsr)
+y <- ydata
+tt <- ttdata
+tquiet <- try(nlsrquiet <- nlxb(formula=hobsc, start=ste))
+if ( class(tquiet) != "try-error") {print(nlsrquiet)}
+#- OK
+rm(y)
+rm(tt)
+test <- try(nlsrdots <- nlxb(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+  if (class(test) != "try-error") { print(nlsrdots) } else {cat("Try error\n") }
+#- Note -- does NOT work -- do we need to specify the present env. in nlfb for y, tt??
+test2 <- try(nlsframe <- nls(formula=hobsc, start=ste, data=mydata))
+if (class(test) != "try-error") {print(nlsframe) } else {cat("Try error\n") }
+#- OK
+
+
+library(minpack.lm)
+y <- ydata
+tt <- ttdata
+nlsLMquiet <- nlsLM(formula=hobsc, start=ste)
+print(nlsLMquiet)
+#- OK
+rm(y)
+rm(tt)
+## Dotargs
+tdots <- try(nlsLMdots <- nlsLM(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+if (class(tdots) != "try-error") { print(nlsLMdots) } else {cat("try-error\n") }
+#-  Note -- does NOT work
+## dataframe
+tframe <- try(nlsLMframe <- nlsLM(formula=hobsc, start=ste, data=mydata) )
+if (class(tdots) != "try-error") {print(nlsLMframe)} else {cat("try-error\n") }
+#- does not work
+
+## detach("package:nlsr", unload=TRUE)
+## Uses nlmrt here for comparison
+## library(nlmrt)
+## txq <- try( nlxbquiet <- nlxb(formula=hobsc, start=ste))
+## if (class(txq) != "try-error") {print(nlxbquiet)} else { cat("try-error\n")}
+#- Note -- does NOT work
+## txdots <- try( nlxbdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt) )
+## if (class(txdots) != "try-error") {print(nlxbdots)} else {cat("try-error\n")}
+#- Note -- does NOT work
+## dataframe
+## nlxbframe <- nlxb(formula=hobsc, start=ste, data=mydata)
+## print(nlxbframe)
+#- OK
 ```
 
 

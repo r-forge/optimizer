@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2017.4.5
-Date: 2017-09-18
+Version: 2017.10.5
+Date: 2017-10-05
 Title: A Replacement and Extension of the 'optim' Function. Deprecated!
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -9,7 +9,7 @@ Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     "Grothendieck", role = "ctb", email =
     "ggrothendieck@gmail.com") )
 Author: John C Nash [aut, cre], Ravi Varadhan [aut], Gabor Grothendieck [ctb]
-Maintainer: John C Nash <nashjc@uottawa.ca>
+Maintainer: Ravi Varadhan <RVaradhan@jhmi.edu>
 Description: Provides a replacement and extension of the optim()
     function to unify and streamline optimization capabilities in R
     for smooth, possibly box constrained functions of several or

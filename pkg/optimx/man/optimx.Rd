@@ -12,7 +12,6 @@
 \concept{minimization}
 \concept{maximization}
 \description{
-  Superceded by optimr.
   General-purpose optimization wrapper function that calls other
   R tools for optimization, including the existing optim() function.
   \code{optimx} also tries to unify the calling sequence to allow
@@ -23,7 +22,24 @@
   conjugate-gradient algorithms as well as box-constrained optimization 
   via L-BFGS-B. Because SANN does not return a meaningful convergence code
   (conv), optimx() does not call the SANN method.
+  
+  Note that package \code{optimr} allows solvers to be called individually
+  by the \code{optim()} syntax, with the \code{parscale} 
+  control to scale parameters applicable to all methods. However, 
+  running multiple methods, or using the \code{follow.on} capability
+  has been moved to separate routines in the \code{optimr} package.
+  
+  Cautions: 
+  
+  1) Using some control list options with different or multiple methods 
+  may give unexpected results. 
+  
+  2) Testing the KKT conditions can take much longer than solving the
+  optimization problem, especially when the number of parameters is large
+  and/or analytic gradients are not available. Note that the default for
+  the control \code{kkt} is TRUE.
 }
+
 \usage{
 optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,

@@ -80,7 +80,7 @@ pe$kjac <- 0
 pe$kres <- 0
 
   
-  ## {stop("Environment 'pe' must exist before running problems.")}
+## {stop("Environment 'pe' must exist before running problems.")}
 
 DanielWood.formula <- ( y ~ b1*x**b2 )
 

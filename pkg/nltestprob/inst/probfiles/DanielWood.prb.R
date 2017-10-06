@@ -1,11 +1,7 @@
 ## @knitr DanielWood.prb
 # This is file DanielWood.prb
 probname <- "DanielWood"
-probdesc <- "These data and model are described in Daniel and Wood (1980), and
-originally published in E.S.Keeping, 'Introduction to Statistical Inference,'
-Van Nostrand Company, Princeton, NJ, 1962, p. 354. The response variable is 
-energy radieted from a carbon filament lamp per cm**2 per second, and the 
-predictor variable is the absolute temperature of the filament in 1000 degrees Kelvin. 
+probdesc <- "
 NIST/ITL StRD
 Dataset Name:  DanWood           (DanWood.dat)
 
@@ -18,7 +14,7 @@ Procedure:     Nonlinear Least Squares Regression
 
 Description:   These data and model are described in Daniel and Wood
                (1980), and originally published in E.S.Keeping, 
-               "Introduction to Statistical Inference," Van Nostrand
+               'Introduction to Statistical Inference,' Van Nostrand
                Company, Princeton, NJ, 1962, p. 354.  The response
                variable is energy radieted from a carbon filament
                lamp per cm**2 per second, and the predictor variable
@@ -174,7 +170,6 @@ return(J)
 }
 
 # DanielWood - test
-DanielWood.test <- function() {
 # tests and examples of calls to DanielWood problem
 y <- c( 2.138, 3.421, 3.597, 4.340, 4.882, 5.660)
 x <- c( 1.309, 1.471, 1.490, 1.565, 1.611, 1.680)
@@ -185,7 +180,12 @@ st1 <- DanielWood.start(1)
 nls.sol <- nls(formula<-DanielWood.formula, data=DanielWood.df,
     start=st1, trace=TRUE)
 print(nls.sol)
-# summary(nls.sol)
+summary(nls.sol)
+library(nlsr)
+nlxb.sol <- nlxb(formula<-DanielWood.formula, data=DanielWood.df,
+               start=st1, trace=TRUE)
+print(nlxb.sol)
+
 
 # optimr
 require(optimr)
@@ -203,12 +203,6 @@ st2 <- DanielWood.start(2)
 print(st2)
 opmdw2 <- opm(st2, DanielWood.f, gr="grcentral", method="ALL")
 print(summary(opmdw2, order=value))
-
-
-}
-
-DanielWood.test()
-
 
 
 #- End DanielWood.prb   

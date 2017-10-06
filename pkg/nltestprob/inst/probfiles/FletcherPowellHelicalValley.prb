@@ -1,9 +1,31 @@
 ## @knitr ##FletcherPowellHelicalValley.prb
 # This is file ##FletcherPowellHelicalValley.prb
 probname <- "##FletcherPowellHelicalValley"
-probdesc <- "
+probdesc <- "From Fletcher and Powell 1963:
+  A function with a steep sided helical valley. This function
+     f(x1, x2, x3) = 100{[x3 - 10 theta(x1, x2)]^2 
+                     + [r(x1, x2) - 1]^2 } + x3^2
 
+where
 
+2 pi theta(x1, x2) = arctan(x2/x1) for x1 > 0
+                   = pi + arctan (x2/x1) for x1 < 0
+
+and
+
+   r(x1, x2) = (x1^2 + x2^2)^(0.5)
+
+has a helical valley in the x3 direction with pitch 10 and
+radius 1. It is only considered for
+
+      — pi/2 < 2 pi theta < 3 pi/2
+
+that is
+
+           —2.5 < x3 < 7.5
+
+JN: ?? Thy does this follow. theta is about x1 and x2, not x3.
+What does pitch 10 and radius 1 mean?
 "
 
 
@@ -60,10 +82,10 @@ rm(x)
 rm(y)
 
 ##FletcherPowellHelicalValley.start <- function(indx) {
-  ...
+#  ...
 
-  start
-}
+#  start
+#}
 #- Problem types will be determined from available functions / formulas
 #- ?? We could have problems with quotation marks WITHIN the code.
 #- lower = NA # if bounds are present, then we use bounded methods
@@ -123,6 +145,7 @@ fphelical.g <- function(x) {
 ## put example calls of the function, possibly including calls to 
 # optimizations and nonlinear least squares etc.
 
+library(numDeriv)
 
 fphelical.test <- function() {
   x0 <- c(-1, 0, 0)
@@ -134,14 +157,35 @@ fphelical.test <- function() {
   cat("fphelical(x0)=")
   print(f0fp)
   cat("\n")
+  ga0 <- fphelical.g(x0)
+  gn0 <- grad(fphelical.f, x0)
+  cat("gradient at x0:")
+  print(ga0)
+  cat("numerical  gn0:")
+  print(gn0)
+  cat("max(abs(diff))=", max(abs(ga0-gn0)),"\n")
+  
   cat("xstar=")
   print(xstar)
   cat("fphelical(xstar)=")  
   fstarfp <- fphelical.f(xstar)
   print(fstarfp)
+  gas <- fphelical.g(xstar)
+  gns <- grad(fphelical.f, xstar)
+  cat("gradient at xstar:")
+  print(gas)
+  cat("numerical  gnstar:")
+  print(gns)
+  cat("max(abs(diff))=", max(abs(gas-gns)),"\n")
 }
 
-fphelical.test()
+fphelical.test() # To verify that function is working correctly
+
+## Examples
+library(optimr)
+x0 <- c(-1, 0, 0)
+fphall <- opm(x0, fphelical.f, fphelical.g, method="ALL")
+summary(fphall, order=value)
 
 
 

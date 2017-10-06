@@ -1,3 +1,23 @@
+## @knitr ##Ratkowsky3.prb
+# This is file ##Ratkowsky3.prb.R
+probname <- "##Ratkowsky3"
+probdesc <- "Put your description in double quotes.
+"
+
+#- Note: environment / list "counters" must already exist
+
+if (exists("pe")) { 
+      rm("pe")  
+  }
+
+pe <- new.env()
+pe$kf <- 0
+pe$kg <- 0
+pe$kjac <- 0
+pe$kres <- 0
+
+#- nls format expression
+ratkowsky3.formula <- ( y ~ b1*x**b2 ) ??
 # Optimization test function ratkowsky3
 # ratkowsky3 from NISTnls
 # ??ref...

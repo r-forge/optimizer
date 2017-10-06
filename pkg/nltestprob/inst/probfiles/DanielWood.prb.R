@@ -128,24 +128,29 @@ st1 <- DanielWood.start(1)
 nls.sol <- nls(formula<-DanielWood.formula, data=DanielWood.df,
     start=st1, trace=TRUE)
 print(nls.sol)
-summary(nls.sol)
+# summary(nls.sol)
 
 # optimr
 require(optimr)
+cat("DanielWood.df:\n")
 print(DanielWood.df)
 # Note problem of passing data frame down through the functions. Need problem environment
 
-optimr.sol <- optimr(st1, DanielWood.f, gr="grcentral")
+cat("opm on DanielWood.f, start 1:\n")
+print(st1)
+opmdw1 <- opm(st1, DanielWood.f, gr="grcentral", method="ALL")
+print(summary(opmdw1, order=value))
+
+cat("opm on DanielWood.f, start 2:\n")
+st2 <- DanielWood.start(2)
+print(st2)
+opmdw2 <- opm(st2, DanielWood.f, gr="grcentral", method="ALL")
+print(summary(opmdw2, order=value))
+
 
 }
 
 DanielWood.test()
-
-
-
-
-
-
 
 
 

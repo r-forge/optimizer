@@ -185,7 +185,8 @@ fphelical.test() # To verify that function is working correctly
 library(optimr)
 x0 <- c(-1, 0, 0)
 fphall <- opm(x0, fphelical.f, fphelical.g, method="ALL")
-summary(fphall, order=value)
+
+print(summary(fphall, order=value))
 
 
 

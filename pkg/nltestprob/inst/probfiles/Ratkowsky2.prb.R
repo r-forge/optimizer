@@ -87,11 +87,7 @@ pe$kjac <- 0
 pe$kres <- 0
 
 #- nls format expression
-ratkowsky2.formula <- ( y ~ b1*x**b2 )
-
-# Optimization test function ratkowsky2
-# ratkowsky2 from NISTnls
-# ??ref...
+ratkowsky2.formula <- ( y ~ b1 / (1+exp(b2-b3*x)) )
 
 
 ratkowsky2.f <- function(x) {
@@ -153,9 +149,48 @@ ratkowsky2.setup<-function() {
    data(Ratkowsky2) # and load up the data into x and y
 }
 
-ratkowsky2.test<-function() {
    start1<-c(100,1,.1)
    start2<-c(75,2.5,0.07)
    start0<-rep(1,3)
+   names(start0) <- c("b1","b2","b3")
+   names(start1) <- c("b1","b2","b3")
+   names(start2) <- c("b1","b2","b3")
+   
+library(NISTnls, character.only=TRUE) # get parent collection
 
-}
+mypdata <- eval(parse(text=data(list="Ratkowsky2")))
+cat("Rat42=Ratkowsky2 data:\n")
+print(mypdata)
+
+cat("nls tries\n")
+rat2nls0 <- try(nls(formula=ratkowsky2.formula, start=start0, trace=TRUE, data=mypdata))
+print(rat2nls0)
+
+rat2nls1 <- try(nls(formula=ratkowsky2.formula, start=start1, trace=TRUE, data=mypdata))
+print(rat2nls1)
+
+rat2nls2 <- try(nls(formula=ratkowsky2.formula, start=start2, trace=TRUE, data=mypdata))
+print(rat2nls2)
+
+cat("nlxb tries\n")
+library(nlsr)
+rat2nlxb0 <- try(nlxb(formula=ratkowsky2.formula, start=start0, trace=TRUE, data=mypdata))
+print(rat2nlxb0)
+
+rat2nlxb1 <- try(nlxb(formula=ratkowsky2.formula, start=start1, trace=TRUE, data=mypdata))
+print(rat2nlxb1)
+
+rat2nlxb2 <- try(nlxb(formula=ratkowsky2.formula, start=start2, trace=TRUE, data=mypdata))
+print(rat2nlxb2)
+
+cat("optimr tries\n")
+library(optimr)
+rat2opm0 <- opm(start0, ratkowsky2.f, "grcentral", method="ALL")
+summary(rat2opm0, order=value)
+
+rat2opm1 <- opm(start1, ratkowsky2.f, "grcentral", method="ALL")
+summary(rat2opm1, order=value)
+
+rat2opm2 <- opm(start2, ratkowsky2.f, "grcentral", method="ALL")
+summary(rat2opm2, order=value)
+

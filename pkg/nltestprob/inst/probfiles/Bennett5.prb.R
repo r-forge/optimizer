@@ -236,7 +236,7 @@ Bennett5.formula <- ( y ~ b1*(b2+x)^(-1/b3) )
 
 #- setup
 
-library(NISTnls, character.only=TRUE)
+library("NISTnls", character.only=TRUE)
 mypdata <- eval(parse(text=data("Bennett5")))
 
 
@@ -305,9 +305,9 @@ names(start2) <- c("b1", "b2", "b3")
 cat("tests on Bennett5\n")
 
 Bennett5nls1 <- try(nls(start=start1, formula=Bennett5.formula, trace=TRUE, data=mypdata))
-summary(Bennett5nls1)
+print(summary(Bennett5nls1))
 Bennett5nls2 <- try(nls(start=start2, formula=Bennett5.formula, trace=TRUE, data=mypdata))
-summary(Bennett5nls2)
+print(summary(Bennett5nls2))
 
 library(nlsr)
 Bennett5nlxb1 <- try(nlxb(start=start1, formula=Bennett5.formula, trace=TRUE, data=mypdata))
@@ -335,7 +335,19 @@ cat("max abs deviation between analytic and numerical gradient =", max(abs(B5gn2
 
 
 Bennett5opm1 <- opm(start1, Bennett5.f, Bennett5.g, method="ALL")
-summary(Bennett5opm1, order=value)
+print(summary(Bennett5opm1, order=value))
 
 Bennett5opm2 <- opm(start2, Bennett5.f, Bennett5.g, method="ALL")
-summary(Bennett5opm2, order=value)
+print(summary(Bennett5opm2, order=value))
+
+Bennett5opm1fwdg <- opm(start1, Bennett5.f, "grfwd", method="ALL")
+print(summary(Bennett5opm1fwdg, order=value))
+
+Bennett5opm2fwdg <- opm(start2, Bennett5.f, "grfwd", method="ALL")
+print(summary(Bennett5opm2fwdg, order=value))
+
+Bennett5opm1centralg <- opm(start1, Bennett5.f, "grcentral", method="ALL")
+print(summary(Bennett5opm1centralg, order=value))
+
+Bennett5opm2centralg <- opm(start2, Bennett5.f, "grcentral", method="ALL")
+print(summary(Bennett5opm2centralg, order=value))

@@ -1,0 +1,20 @@
+source('~/current/getoptimxmaintainers.R')
+mlist
+library(optimx)
+library(adagio)
+?adagio
+ls("package:adagio")
+solallfollow <- optimx(c(-1,-2), fnRosenbrock, grRosenbrock, method="ALL", control=list(trace=1, maxit=25, follow-on=TRUE))
+solallfollow <- optimx(c(-1,-2), fnRosenbrock, grRosenbrock, method="ALL", control=list(trace=1, maxit=25, follow.on=TRUE))
+solallfollow <- optimx(c(-1,-2), fnRosenbrock, grRosenbrock, control=list(all.methods=TRUE, trace=1, maxit=25, follow.on=TRUE))
+ls
+ls()
+solallfollow
+solallpar <- optimx(c(-1,-2), fnRosenbrock, grRosenbrock, control=list(all.methods=TRUE, trace=1, maxit=25, parscale=c(10,1))
+)
+ls()
+solallpar
+solallnooar <- optimx(c(-1,-2), fnRosenbrock, grRosenbrock, control=list(all.methods=TRUE, trace=1, maxit=25)
+)
+solallnooar
+savehistory("tryoptimxoptions.txt")

@@ -114,43 +114,32 @@ cyq.jac<- function (x) {
 ## put example calls of the function, possibly including calls to 
 # optimizations and nonlinear least squares etc.
 
-cyq.setup <- function(n = NULL, probcase=NULL) {
+cyq.setup <- function(n = NULL) { 
   cat("Fletcher chebyquad function in file cyq.R\n")
   if (is.null(n)) {
      n <- as.numeric(readline("order of problem (n) ="))
   }
-  if(is.null(probcase)) { probcase<-1 }
-  # ?? error checking
   lower<-rep(-10.0, n)
   upper<-rep(10.0, n) 
   bdmsk<-rep(1, n) # free all parameters
-  if (probcase == 1) {
     x<-1:n
     x<-x/(n+1.0) # Initial value suggested by Fletcher
-  } 
-#  else if (probcase == 2) {
   result<-list(x=x, lower=lower, upper=upper, bdmsk=bdmsk)
 }
 
-cyq.test <- function(n=5){
-  lower<-rep(-10.0, n)
-  upper<-rep(10.0, n) 
-  bdmsk<-rep(1, n) # free all parameters
+## Examples 
+
+for (n in 2:9) { 
+  cs <- cyq.setup(n)
   library(optimr)
-  x0 <- 1:n/(n+1.0)
   cat("x0=")
+  x0 <- cs$x
   print(x0)
   cat("\n")
   cat("Chebyquad function at x0 = ",cyq.f(x0),"\n")  
-  solnm <- optim(x0, cyq.f, method="Nelder-Mead", control=list(maxit=10000, trace=0))
-  print(solnm)
-
+  opmcyq <- opm(x0, cyq.f, cyq.g, method="ALL")
+  print(summary(opmcyq, order=value, par.select=1:4))
 }
-
-cyq.test()
-
-cyq.test(9)
-
 
 
 #- End cyq.prb   

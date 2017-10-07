@@ -9,6 +9,7 @@ NOTE: Formerly optimr was intended for CRAN and had a limited set of solvers to 
 
 TODO
       o Seems to be a printout of maxit that should be conditional (171007)
+      o Should add examples, esp. of use of summary.
       o Drop nmkb from methods for bounds if start is on bound
       o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
       o Add nloptr methods -- there are a number and we need to choose how

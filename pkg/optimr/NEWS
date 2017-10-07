@@ -1,6 +1,6 @@
 NEWS about R package optimr and optimrx (formerly optimz in R-forge)
 
-NOTE: optimr is intended for CRAN and has a limited set of solvers to avoid
+NOTE: Formerly optimr was intended for CRAN and had a limited set of solvers to avoid
       issues of maintenance if those solvers become deprecated or otherwise
       non-functional. optimrx has a more extensive set of solvers and lives
       (at 2016-7-11) on R-forge. The test scripts in the tests directory have
@@ -8,6 +8,7 @@ NOTE: optimr is intended for CRAN and has a limited set of solvers to avoid
       of the appropriate library() call. 
 
 TODO
+      o Seems to be a printout of maxit that should be conditional (171007)
       o Drop nmkb from methods for bounds if start is on bound
       o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
       o Add nloptr methods -- there are a number and we need to choose how

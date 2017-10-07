@@ -859,7 +859,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     }
     if (class(ans)[1] == "undefined"){
           # Do we want parscale or use spar??
-          cat("maxit =",defctrl$maxfeval,"\n")
+          # cat("maxit =",defctrl$maxfeval,"\n")
           ans <- try(subplex::subplex(par=spar, fn=efn, control=list(maxit=defctrl$maxfeval)))
     }
     #        cat("interim answer:")

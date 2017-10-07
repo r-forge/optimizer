@@ -1,6 +1,7 @@
 Changes in Rtnmin
 
 TODOS
+   o    20171007 -- make lmqnbc printout conditional on trace??
    o    Simplification and streamlining of code to mesh
 	better with other R optimization tools.
 

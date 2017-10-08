@@ -161,7 +161,7 @@ start1<-c(500, 0.0001)
 names(start1) <- c("b1", "b2")
 
 start2<-c(250, 0.0005)
-names(start1) <- c("b1", "b2")
+names(start2) <- c("b1", "b2")
 
 ## Examples
 
@@ -189,7 +189,10 @@ library(nlsr)
 misra1anlxb1 <- nlxb(start=start1, formula=Misra1a.formula, data=mypdata, trace=TRUE)
 print(misra1anlxb1)
 
-?? doesn/t work
+
+misra1anls2 <- nls(start=start2, formula=Misra1a.formula, data=mypdata, trace=TRUE)
+print(misra1anls2)
+
 misra1anlxb2 <- nlxb(start=start2, formula=Misra1a.formula, data=mypdata, trace=TRUE)
 print(misra1anlxb2)
 

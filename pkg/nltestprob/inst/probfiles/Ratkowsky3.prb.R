@@ -174,26 +174,26 @@ NISTRat3$ses<-c(1.6302297817E+01, 2.0828735829E+00, 1.9566123451E-01,6.876193638
 
 
 
-
+Try <- function(expr) if (!inherits(val <- try(expr), "try-error")) val
 ## causes NA/NaN/Inf error
-try(fm1 <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
+Try(fm1 <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
                start = c(b1 = 100, b2 = 10, b3 = 1, b4 = 1),
                trace = TRUE))
-try(fm1a <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
+Try(fm1a <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
                 start = c(b1 = 100, b2 = 10, b3 = 1, b4 = 1),
                 alg = "port", trace = TRUE))
 
-try(fm2 <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
+Try(fm2 <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
                start = c(b1 = 700, b2 = 5, b3 = 0.75, b4 = 1.3),
                trace = TRUE))
-try(fm2a <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
+Try(fm2a <- nls(y ~ b1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
                 start = c(b1 = 700, b2 = 5, b3 = 0.75, b4 = 1.3),
                 alg = "port", trace = TRUE))
 
-try(fm3 <- nls(y ~ 1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
+Try(fm3 <- nls(y ~ 1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
                start = c(b2 = 10, b3 = 1, b4 = 1), algorithm = "plinear",
                trace = TRUE))
-try(fm4 <- nls(y ~ 1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
+Try(fm4 <- nls(y ~ 1 / ((1+exp(b2-b3*x))**(1/b4)), data = Ratkowsky3,
                start = c(b2 = 5, b3 = 0.75, b4 = 1.3), algorithm = "plinear",
                trace = TRUE))
 

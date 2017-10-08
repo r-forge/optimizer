@@ -1,5 +1,6 @@
 ## @knitr ##Kirby2.prb
 # This is file ##Kirby2.prb
+rm(list=ls())
 probname <- "##Kirby2"
 probdesc <- "
 NIST/ITL StRD
@@ -313,6 +314,31 @@ summary(Kirby2nls1)
 Kirby2nls2 <- try(nls(formula=Kirby2.formula, start=start2, trace=TRUE, data=mypdata))
 print(Kirby2nls2)
 summary(Kirby2nls2)
+
+Try <- function(expr) if (!inherits(val <- try(expr), "try-error")) val
+plot(y ~ x, data = Kirby2)
+Try(fm1 <- nls(y ~ (b1 + b2*x + b3*x**2) / (1 + b4*x + b5*x**2),
+               data = Kirby2, trace = TRUE,
+               start = c(b1 = 2, b2 = -0.1, b3 = 0.003,
+                         b4 = -0.001, b5 = 0.00001)))
+Try(fm1a <- nls(y ~ (b1 + b2*x + b3*x**2) / (1 + b4*x + b5*x**2),
+                data = Kirby2, trace = TRUE, alg = "port",
+                start = c(b1 = 2, b2 = -0.1, b3 = 0.003,
+                          b4 = -0.001, b5 = 0.00001)))
+Try(fm2 <- nls(y ~ (b1 + b2*x + b3*x**2) / (1 + b4*x + b5*x**2),
+               data = Kirby2, trace = TRUE,
+               start = c(b1 = 1.5, b2 = -0.15, b3 = 0.0025,
+                         b4 = -0.0015, b5 = 0.00002)))
+Try(fm2a <- nls(y ~ (b1 + b2*x + b3*x**2) / (1 + b4*x + b5*x**2),
+                data = Kirby2, trace = TRUE, alg = "port",
+                start = c(b1 = 1.5, b2 = -0.15, b3 = 0.0025,
+                          b4 = -0.0015, b5 = 0.00002)))
+Try(fm3 <- nls(y ~ cbind(1, x, x**2)/(1 + x*(b4 + b5*x)),
+               data = Kirby2, trace = TRUE, algorithm = "plinear",
+               start = c(b4 = -0.001, b5 = 0.00001)))
+Try(fm4 <- nls(y ~ cbind(1, x, x**2)/(1 + x*(b4 + b5*x)),
+               data = Kirby2, trace = TRUE, algorithm = "plinear",
+               start = c(b4 = -0.0015, b5 = 0.00002)))
 
 library(nlsr)
 Kirby2nlxb1 <- try(nlxb(formula=Kirby2.formula, start=start1, trace=TRUE, data=mypdata))

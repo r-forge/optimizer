@@ -1,5 +1,6 @@
 ## @knitr ##Ratkowsky2
 # This is file ##Ratkowsky2.prb.R
+rm(list=ls())
 probname <- "##Ratkowsky2"
 probdesc <- "
 NIST/ITL StRD
@@ -144,10 +145,6 @@ ratkowsky2.fgh<-function(x) {
    fgh<-list(value=f,gradient=g,hessian=H)
 }
 
-ratkowsky2.setup<-function() {
-   library(NISTnls) # get parent collection
-   data(Ratkowsky2) # and load up the data into x and y
-}
 
    start1<-c(100,1,.1)
    start2<-c(75,2.5,0.07)
@@ -156,7 +153,7 @@ ratkowsky2.setup<-function() {
    names(start1) <- c("b1","b2","b3")
    names(start2) <- c("b1","b2","b3")
    
-library(NISTnls, character.only=TRUE) # get parent collection
+library("NISTnls", character.only=TRUE) # get parent collection
 
 mypdata <- eval(parse(text=data(list="Ratkowsky2")))
 cat("Rat42=Ratkowsky2 data:\n")
@@ -171,6 +168,28 @@ print(rat2nls1)
 
 rat2nls2 <- try(nls(formula=ratkowsky2.formula, start=start2, trace=TRUE, data=mypdata))
 print(rat2nls2)
+
+Try <- function(expr) if (!inherits(val <- try(expr), "try-error")) val
+plot(y ~ x, data = Ratkowsky2)
+
+Try(fm1 <- nls(y ~ b1 / (1+exp(b2-b3*x)), data = Ratkowsky2, trace = TRUE,
+               start = c(b1 = 100, b2 = 1, b3 = 0.1)))
+Try(fm1a <- nls(y ~ b1 / (1+exp(b2-b3*x)), data = Ratkowsky2,
+                trace = TRUE, alg = "port", 
+                start = c(b1 = 100, b2 = 1, b3 = 0.1)))
+Try(fm2 <- nls(y ~ b1 / (1+exp(b2-b3*x)), data = Ratkowsky2, trace = TRUE,
+               start = c(b1 = 75, b2 = 2.5, b3 = 0.07)))
+Try(fm2a <- nls(y ~ b1 / (1+exp(b2-b3*x)), data = Ratkowsky2,
+                trace = TRUE, alg = "port", 
+                start = c(b1 = 75, b2 = 2.5, b3 = 0.07)))
+Try(fm3 <- nls(y ~ 1 / (1+exp(b2-b3*x)), data = Ratkowsky2, trace = TRUE,
+               start = c(b2 = 1, b3 = 0.1), alg = "plinear"))
+Try(fm4 <- nls(y ~ 1 / (1+exp(b2-b3*x)), data = Ratkowsky2, trace = TRUE,
+               start = c(b2 = 2.5, b3 = 0.07), alg = "plinear"))
+
+## Using a self-starting model
+Try(fm5 <- nls(y ~ SSlogis(x, Asym, xmid, scal), data = Ratkowsky2))
+summary(fm5)
 
 cat("nlxb tries\n")
 library(nlsr)

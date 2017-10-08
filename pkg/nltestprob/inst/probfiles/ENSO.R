@@ -1,4 +1,28 @@
-# Optimization test function enso
+## @knitr ##ENSO.prb
+# This is file ##ENSO.prb
+probname <- "##ENSO"
+probdesc <- "Put your description in double quotes.
+"
+
+#- Note: environment / list "counters" must already exist
+
+if (exists("pe")) { 
+  rm("pe")  
+}
+
+pe <- new.env()
+pe$kf <- 0
+pe$kg <- 0
+pe$kjac <- 0
+pe$kres <- 0
+
+#- nls format expression
+##ENSO.formula <- ( y ~ b1*x**b2 )
+
+#- setup
+
+library(NISTnls, character.only=TRUE)
+mypdata <- eval(parse(text=data("ENSO")))# Optimization test function enso
 # enso from NISTnls
 # ??ref...
 

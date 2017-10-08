@@ -1,5 +1,8 @@
 ## @knitr ##ENSO.prb
 # This is file ##ENSO.prb
+
+rm(list=ls()) # May want to do this on each problem for safety.
+
 probname <- "##ENSO"
 probdesc <- "
 NIST/ITL StRD
@@ -246,11 +249,13 @@ pe$kjac <- 0
 pe$kres <- 0
 
 #- nls format expression
-##ENSO.formula <- ( y ~ b1*x**b2 )
+ENSO.formula <- ( y ~ b1 + b2*cos( 2*pi*x/12 ) + b3*sin( 2*pi*x/12 ) +
+                              b5*cos( 2*pi*x/b4 ) + b6*sin( 2*pi*x/b4 ) +
+                              b8*cos( 2*pi*x/b7 ) + b9*sin( 2*pi*x/b7 ) )
 
 #- setup
 
-library(NISTnls, character.only=TRUE)
+library("NISTnls", character.only=TRUE)
 mypdata <- eval(parse(text=data("ENSO")))# Optimization test function enso
 # enso from NISTnls
 # ??ref...
@@ -317,10 +322,61 @@ enso.fgh<-function(x) {
    fgh<-list(value=f,gradient=g,hessian=H)
 }
 
-enso.setup<-function() {
-   library(NISTnls) # get parent collection
-   data(ENSO) # and load up the data into x and y
-}
+start1 <- c( 11.0,  3.0, 0.5, 40.0, -0.7, -1.3, 25.0, -0.3, 1.4)
+names(start1) <- c("b1","b2","b3","b4","b5","b6","b7","b8","b9")
+start2 <- c(10.0, 3.0, 0.5, 44.0, -1.5, 0.5, 26.0, -0.1, 1.5) 
+names(start2) <- c("b1","b2","b3","b4","b5","b6","b7","b8","b9")
+       
+## Examples
 
-enso.test<-function() {
-}   
+cat("Examples from NISTnls:\n")
+
+Try <- function(expr) if (!inherits(val <- try(expr), "try-error")) val
+plot(y ~ x, data = ENSO)
+plot(y ~ x, data = ENSO, type = "l")  # to see the pattern more clearly
+Try(fm1 <- nls(y ~ b1 + b2*cos( 2*pi*x/12 ) + b3*sin( 2*pi*x/12 ) 
+               + b5*cos( 2*pi*x/b4 ) + b6*sin( 2*pi*x/b4 )
+               + b8*cos( 2*pi*x/b7 ) + b9*sin( 2*pi*x/b7 ),
+               data = ENSO, trace = TRUE,
+               start = c(b1 = 11.0, b2 = 3.0, b3 = 0.5, b4 = 40.0, b5 = -0.7,
+                         b6 = -1.3, b7 = 25.0, b8 = -0.3, b9 = 1.4)))
+Try(fm1a <- nls(y ~ b1 + b2*cos( 2*pi*x/12 ) + b3*sin( 2*pi*x/12 ) 
+                + b5*cos( 2*pi*x/b4 ) + b6*sin( 2*pi*x/b4 )
+                + b8*cos( 2*pi*x/b7 ) + b9*sin( 2*pi*x/b7 ),
+                data = ENSO, trace = TRUE, alg = "port",
+                start = c(b1 = 11.0, b2 = 3.0, b3 = 0.5, b4 = 40.0, b5 = -0.7,
+                          b6 = -1.3, b7 = 25.0, b8 = -0.3, b9 = 1.4)))
+Try(fm2 <- nls(y ~ b1 + b2*cos( 2*pi*x/12 ) + b3*sin( 2*pi*x/12 ) 
+               + b5*cos( 2*pi*x/b4 ) + b6*sin( 2*pi*x/b4 )
+               + b8*cos( 2*pi*x/b7 ) + b9*sin( 2*pi*x/b7 ),
+               data = ENSO, trace = TRUE,
+               start = c(b1 = 10.0, b2 =  3.0, b3 =  0.5, b4 = 44.0, b5 = -1.5,
+                         b6 =  0.5, b7 = 26.0, b8 = -0.1, b9 =  1.5)))
+Try(fm2a <- nls(y ~ b1 + b2*cos( 2*pi*x/12 ) + b3*sin( 2*pi*x/12 ) 
+                + b5*cos( 2*pi*x/b4 ) + b6*sin( 2*pi*x/b4 )
+                + b8*cos( 2*pi*x/b7 ) + b9*sin( 2*pi*x/b7 ),
+                data = ENSO, trace = TRUE, alg = "port",
+                start = c(b1 = 10.0, b2 =  3.0, b3 =  0.5, b4 = 44.0, b5 = -1.5,
+                          b6 =  0.5, b7 = 26.0, b8 = -0.1, b9 =  1.5)))
+Try(fm3 <- nls(y ~ cbind(1, cos( 2*pi*x/12 ), sin( 2*pi*x/12 ), cos( 2*pi*x/b4 ),
+                         sin( 2*pi*x/b4 ), cos( 2*pi*x/b7 ), sin( 2*pi*x/b7 )),
+               data = ENSO, trace = TRUE,
+               start = c(b4 = 40.0, b7 = 25.0), algorithm = "plinear"))
+Try(fm4 <- nls(y ~ cbind(1, cos( 2*pi*x/12 ), sin( 2*pi*x/12 ), cos( 2*pi*x/b4 ),
+                         sin( 2*pi*x/b4 ), cos( 2*pi*x/b7 ), sin( 2*pi*x/b7 )),
+               data = ENSO, trace = TRUE,
+               start = c(b4 = 44.0, b7 = 26.0), algorithm = "plinear"))
+
+
+library(nlsr)
+ENSO1nlxb <- nlxb(start=start1, trace=TRUE, formula=ENSO.formula, data=mypdata)
+print(ENSO1nlxb)
+
+ENSO2nlxb <- nlxb(start=start2, trace=TRUE, formula=ENSO.formula, data=mypdata)
+print(ENSO2nlxb)
+
+library(optimr)
+ENSO1opmfwd <- opm(start1, enso.f, "grfwd", method="ALL")
+summary(ENSO1opmfwd, order=value)
+ENSO2opmfwd <- opm(start2, enso.f, "grfwd", method="ALL")
+summary(ENSO2opmfwd, order=value)

@@ -21,7 +21,7 @@ pe$kres <- 0
 
 #- setup
 
-library(NISTnls, character.only=TRUE)
+library("NISTnls", character.only=TRUE)
 mypdata <- eval(parse(text=data("YourProblem")))
 
 

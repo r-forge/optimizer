@@ -1,5 +1,6 @@
 ## @knitr ##YourProblem.prb
 # This is file ##YourProblem.prb
+rm(list=ls())
 probname <- "##YourProblem"
 probdesc <- "Put your description in double quotes.
 "

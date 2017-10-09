@@ -1,8 +1,0 @@
-library(TeachingDemos)
-example(tkexamp)
-
-gives
-
-
-> Error in do.call("tkscale", alist) : could not find function "tkscale"
-> ?tkscale

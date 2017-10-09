@@ -1,6 +1,0 @@
-export(
-  gradminu,
-  lsback,
-  lsnone,
-  snewt
-)

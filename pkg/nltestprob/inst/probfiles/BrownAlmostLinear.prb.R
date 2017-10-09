@@ -24,19 +24,26 @@ balf.f <- function(x) {   ## Brown Almost Linear Function
 		f[i] <- x[i] + sumx - (n+1);
 	}
 	f[n] <- prod(x) -1;
-  	sum(f^2);
+  sum(f^2);
 }
 
+balf.g <- function(x) {
+  n <- length(x)
+  res <- balf.res(x)
+  JJ <- balf.jac(x)
+  gg <- 2*as.vector(t(JJ) %*% res)
+  gg
+}
 
 balf.res <- function(x) {   ## Brown Almost Linear Function
 	n <- length(x)
-	f<-as.vector(matrix(0,n,1))
-	sumx<-sum(x)
+	f <- as.vector(matrix(0,n,1))
+	sumx <- sum(x)
 	for (i in 1:(n-1)) {
-		f[i] <- x[i] + sumx - (n+1);
+		f[i] <- x[i] + sumx - (n+1)
 	}
-	f[n] <- prod(x) -1;
-	f  	
+	f[n] <- prod(x) - 1 
+	as.vector(f)
 }
 
 balf.jac <- function(x){    ## Brown Almost Linear Function
@@ -51,18 +58,49 @@ balf.jac <- function(x){    ## Brown Almost Linear Function
   for (j in 1:n) {
      J[n,j] <- prod(x[-j])
   }
+  attr(J,"gradient")<-J
   J
 }
 
-balf.test <- function(n = 5) {
-  cat("Brown Almost Linear Problem\n")
-  n <- 10
-  x0 <- rep(0.5, n)
-  solnm <- optim(x0, balf.f, control=list(trace=1, maxit=10000))
-  print(solnm)
-  library(optimr)
-  solnewuoa <- optimr(x0, balf.f, method="newuoa", control=list(trace=1))
-  print(solnewuoa)
-} 
+cat("Brown Almost Linear Problem\n")
 
-balf.test(10)
+n <- 10
+start0 <- rep(0.5, n)
+nlist <- rep("b",n)
+for (i in 1:n) {
+  nlist[i] <- paste(nlist[i],i,sep='')
+}
+names(start0) <- nlist
+cat("start0:")
+print(start0)
+
+library(numDeriv)
+x<-start0
+cat("f:", balf.f(x),"\n")
+cat("g:")
+print(balf.g(x))
+gn <- grad(balf.f, x)
+cat("numgrad=")
+print(gn)
+cat("maxdiff =", max(abs(gn-balf.g(x))),"\n")
+
+cat("res:")
+rr <- balf.res(x)
+print(rr)
+cat("Jac:")
+JA <- (balf.jac(x))
+print(JA)
+JN <- jacobian(balf.res, start0)
+print (JN)
+cat("maxdiff =", max(abs(JN-JA)),"\n")
+
+library(optimr)
+BALP5opm <- opm(start0, balf.f, balf.g, method="ALL", control=list(kkt=FALSE))
+summary(BALP5opm, order=value)
+
+library(nlsr)
+
+BALP5nlfb <- nlfb(start0, balf.res, jacfn=balf.jac, trace=TRUE)
+print(BALP5nlfb)
+
+

@@ -1,3 +1,29 @@
+## @knitr ##Valverde-Dani.prb
+# This is file ##Valverde-Dani.prb
+rm(list=ls())
+probname <- "##Valverde-Dani"
+probdesc <- "Put your description in double quotes.
+"
+
+#- Note: environment / list "counters" must already exist
+
+if (exists("pe")) { 
+      rm("pe")  
+  }
+
+pe <- new.env()
+pe$kf <- 0
+pe$kg <- 0
+pe$kjac <- 0
+pe$kres <- 0
+
+#- nls format expression
+##Valverde.formula <- ( y ~ b1*x**b2 )
+
+#- setup
+
+## library("NISTnls", character.only=TRUE)
+## mypdata <- eval(parse(text=data("Valverde-Dani")))
 ## Optimization test function dani
 ## ?? refs (put in .doc??)
 ## Nash and Walker-Smith (1987, 1989) ...
@@ -198,8 +224,7 @@ require(numDeriv)
  }
 }
 
-dani.examples<-function() { #test with different methods
-   source("dani.R")
+source("dani.R")
    x0<-c(1,1,1)
    ansbfgs0n<-optim(x0,dani.f,gr=NULL,method='BFGS')
    ansbfgs0a<-optim(x0,dani.f,dani.g,method='BFGS')
@@ -258,11 +283,9 @@ dani.examples<-function() { #test with different methods
 
 
 
-}
 
-valverde.nls<-function() {
-   AMP.nls <- nls(AMP~SSlogis(Time,Asym, xmid, scal), data = concentrations,model=T)
+AMP.nls <- nls(AMP~SSlogis(Time,Asym, xmid, scal), data = concentrations,model=T)
 
-   AMP.nls <- nls(y~SSlogis(t,Asym, xmid, scal), data = concentrations,model=T)
+AMP.nls <- nls(y~SSlogis(t,Asym, xmid, scal), data = concentrations,model=T)
 
-}
+

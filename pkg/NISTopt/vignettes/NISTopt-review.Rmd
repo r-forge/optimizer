@@ -1,0 +1,35 @@
+---
+title: "Review of optimization problems inspired by the NIST nonlinear least squares test problems"
+author: "John C. Nash"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+# Motivation
+
+
+http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml presents a number of nonlinear
+regression (nonlinear least squares) problems that are more or less difficult to solve
+numerically. Doug Bates prepared an **R** package `NISTnls` which adapted these problems
+to **R** and tested them with the `nls()` function of which he was a major author.
+I built a related package to allow the same problems to be approached as unconstrained function 
+minimization problems, which I named `NISTopt`. However, this package was, when I prepared
+it in 2009, incomplete, particularly in respect to the manuals (Rd files). This vignette
+is an attempt to better document that effort and in the process force a review of the
+package.
+
+Note that the problems here are **NOT** good illustrations of tasks to which the various
+function minimization (also called "optimization", though that generally implies that there
+are also constraints) tools should be applied. However, they do suggest limits 
+of performance of these tools. 
+
+# Approach
+
+?? We need to be able to set things up so that a separate command is not needed for each start
+or example. Need to think about this. Also the "setup" approach doesn't seem too helpful.
+

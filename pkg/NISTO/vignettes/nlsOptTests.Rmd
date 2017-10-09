@@ -1,0 +1,771 @@
+---
+title: "A structure for building and running optimization and nonlinear least squares tests for **R**"
+author: "John C. Nash and Paul Gilbert"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: nlsOptTests.bib
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+This article discusses how tests for nonlinear equations, least squares or equations 
+may be set up, executed and analyzed for **R**. This activity is sensitive to the 
+manner in which the test functions are computed, the choice of starting values, and
+the choice of measures of success. They may also be modified by changes in the solvers
+for the problems in question. Indeed, it is always a concern that seemingly minor 
+adjustments intended to improve such solvers may cause them to fail on particular problems
+or starting values. Thus it is desirable to be able to 
+
+- be able to quickly and easily run a specific test on a specific solver;
+
+- be able to quickly and easily run a specific test on all available solvers;
+
+- be able to quickly and easily run all available tests on an updated or new solver,
+or on a new computing platform;
+
+- be able to compare performance of solvers on a single or a group of problems;
+
+- be able to compare performance of particular computing platforms on a single or a group of problems;
+
+- be able to report successes and failures in a manner that allows for rapid detection
+of potential issues with solvers, platforms, or other conditions.
+
+
+The last two criteria, and especially the last, require that there be a way to save 
+and access the results of test runs.
+Because each test instance can generate quite a lot of data, and the combinatorial possibilities
+of tests, solvers, and solver options such as choice of gradient approximation, saving test
+information could demand considerable storage space and data management effort. We outline 
+some possible approaches to the data management aspect of optimization testing.
+
+#
+
+## Motivation
+
+http://www.itl.nist.gov/div898/strd/nls/nls_info.shtml presents a number of nonlinear
+regression (nonlinear least squares) problems that are more or less difficult to solve
+numerically. Doug Bates prepared an **R** package `NISTnls` which adapted these problems
+to **R** and tested them with the `nls()` function of which he was a major author.
+There are a number of other test function collections (some referenced below), 
+usually with overlap in their
+coverage, for nonlinear equations, nonlinear least squares and function minimization.
+In some cases, such tests include bounds constraints or fixed parameters. 
+
+In 2009, I built the incomplete package `NISTopt` to allow the same problems as in `NISTnls`
+to be approached as unconstrained function minimization problems. Similarly, the Google 
+Summer of Code project OptimGUI by Yixuan Qiu in 2011 attempted to provide a point-and-click
+interface to aid in building and running function minimization problems in **R**, and 
+developed a structure for storing such problems in a consistent manner. This vignette
+is an attempt to better document such ideas. It is especially concerned with how to 
+**efficiently** add, modify, run and review tests of the **R** tools to solve such problems. 
+
+Note that the test problems used are **NOT** always good illustrations of the tasks to 
+which the various
+function minimization tools should be applied by general **R** users. 
+However, they do suggest limits of performance of these tools. 
+
+We note that in **R** circles, function minimization
+is often called "optimization", though that generally implies that there
+are also constraints. 
+
+## Approach
+
+We want to avoid having to write specific code to run each test. 
+The package **optimrx** (@optimrx16) can call most of the function 
+minimization tools in **R** and can be extended to include others, and the
+functions within this package standardize the call to each of the minimization
+solvers. Thus we can simplify the code to test such solvers, using only their 
+method name within the calls to either `optimr()` or `opm()`. Furthermore, these
+functions allow a consistent syntax for specifying analytic gradients (if available),
+the built-in gradient approximation (if this is part of the solver), else one of 
+several pre-defined gradient approximations callable in the **optextras** package.
+At the time of writing, an effort is in process to try to similarly unify the 
+nonlinear least squares tools for **R**, namely, the `nls()` function in the **stats**
+package, and the tools in packages **nlmrt**, **minpack.lm** and **nls2** as well as some
+new efforts. 
+
+### Specification of problems
+
+Code developed in the trial package **NISTopt** suggested that a given problem could be
+specified by a particular name. Thus, the problem of @danwood1980, is called **DanielWood**.
+
+If we wish to solve this problem using one of the nonlinear least squares solvers that use a 
+syntax like that of `nls()`, then we need to provide a model formula and some data that
+is consistent with this model formula. By naming the formula as `DanielWood.formula`, and
+putting the data in a dataframe named `DanielWood.df`, we then need only a starting
+vector of parameters to have a well-specified formula-based nonlinear least squares 
+problem. Besides `nls()`, `nlxb()` from **nlmrt**, `nls2()` from **nls2** (CRAN version),
+and `nls.lm` from **minpack.lm**. We assign a **problem class** `formula` to this 
+specification of the DanielWood problem.
+
+Similarly, a function-based nonlinear least squares problem solvable by `nlfb()` from 
+package **nlmrt** or `nlsLM` from **minpack.lm** can be specified by an **R** function
+that computes the residual vector from a particular set of parameters. These functions
+can also use a Jacobian function if it is available. At the time of writing, an approximate
+Jacobian will be provided by these solvers if the provided argument is NULL. Work is 
+in process to try to provide particular derivative approximations by a mechanism similar
+to the one used in package **optimrx**. We can provide for use of such solvers by using
+the name `DanielWood.res` for the residual function and `DanielWood.jac` for the Jacobian.
+We assign the problem class `sumsquares` to this approach to the problem.
+
+Generally, for function minimization, we can specify `DanielWood.f` for a general function
+to be minimized, with the (optional) `DanielWood.g` for the gradient. This is given problem
+class `uncopt` for "unconstrained optimization".
+
+Finally, specifying lower or upper bounds in the vectors `lower` and/or `upper` results in
+a bounded function minimization problem that we assign problem class `boundopt`. Note that
+the solution of a bounded problem is usually different from its unconstrained version. We
+will use separate problem file names. For example, if there were a bounded version of the 
+DanielWood problem, we might name it `DanielWoodBounded`. (At the time of writing there
+is no such problem file.)
+
+Many optimization problems, including some test problems, need data other than the parameters.
+This can be provided in a data frame `DanielWood.df`. This will be created in the problem
+file as required.
+
+There are often several sets of starting parameters for given test problems, as well as
+the possibility of generated pseudo-random vectors, especially for those problems which have
+a variable number of parameters. These can be provided in a matrix called `starts` which has
+named columns, since the nonlinear least squares solvers using a model formula require 
+parameter names. When the problem has no model formula, we can and do provide parameter names
+as `p1, p2, ..., pn`. (?? not done yet, but it is in opm() already). We expect the 
+problem file to provide the `starts` matrix.
+
+Note that the `.res` function could be used to specify nonlinear equations problems if the 
+solution has all the residuals at zero. At the time of writing, we have not yet included
+this possibility.
+
+Considerations 170221??
+
+-- only specify bits that are available and let problem setup program (GUI) do the rest.
+
+-- steal ideas from optimgui
+
+-- allow scripting so it can be automated (and save such a script)
+
+-- 
+
+### Restrictions on the problems
+
+We do not wish (at the moment) to include general optimization 
+problems with general constraints.
+In fact, we will limit our attention to at most bounds constrained nonlinear optimization and
+nonlinear least squares problems. There are, however, a lot of 
+these. By considering lower and
+upper bounds that are equal, we could extend the constraints to fixed or **masked** 
+parameters, but at the time of writing have not included such tests.
+
+## A sample design
+
+Building on the ideas of the above section, we create the example **problem file** 
+`DanielWood.prb`. In this case, we provide all the elements above. Thus a problem file
+yields a
+**set** of problems, all of which can be accessed through a single structure. Through 
+some experiments, detailed in *Appendix A: Use of a data frame*, we found that one could,
+if desired, store such problems in a data frame, but this has since been discarded
+as overly complicated.
+Our flat, plain text files, one per named problem, should suffice. Some
+problems can be altered by including bounds. To simplify an already rich structure, 
+we will name the unconstrained and bounded problems separately since they may have
+different optima.
+
+Other structures for problem files are, of course, equally possible. However, we 
+will experiment with the current approach until we discover it cannot support our requirements. 
+
+### The **DanielWood** problem
+
+Let us implement, in **R**, a possible file for the problem of @danwood1980.
+
+```{r cache=FALSE, echo=FALSE}
+require(knitr)
+# read chunk (does not run code)
+read_chunk('../inst/extdata/DanielWood.prb')
+# We use this approach to avoid having differences between file here and in inst/extdata/
+```
+
+```{r}
+#- We need to have 'counters' environment before we load problem file
+counters <- new.env()
+```
+
+
+```{r}
+<<DanielWood.prb>>
+```
+
+### Challenges in the design
+
+Some questions may arise about this design. 
+
+- There is provision for multiple sets of starting parameters. To account for the possibility
+of different sizes of problems, we need to be able to parameterize the starts. Moreover, there
+could be different starting sets within each size. To allow for this, we use a character string
+index to specify which member of a **family** of problems is to be used. The starts are then
+created by a function which has the character index as its argument. Thus, for example, we could
+start the Extended Rosenbrock test function (https://en.wikipedia.org/wiki/Rosenbrock_function, based on @Rosenbrock60) with a set of 10 parameters each having 
+value `pi` by using an index "10:pi". 
+
+- The various pieces of the problem file define different aspects of a given overall optimization
+problem. However, in the DanielWood example
+problem file, it turns out that the ".f" and ".g" functions are trivially generated from the
+".res" and ".jac" functions. We should remove these from the problem file if we cannot find
+more efficient ways to specify these functions directly, since the presence of the functions
+may cause unnecessary duplication of trials. For the moment, they serve to illustrate possible
+parts of the file design.
+
+- For problems where there is a residual function and we use a method where gradients 
+are required but analytic derivatives are unavailable, one could think of computing the 
+Jacobian via a derivative approximation
+and proceeding from there to the approximate gradient. At the time of writing we will make
+an arbitrary decision to use an analytic Jacobian with the residual to generate the gradient,
+but, lacking the analytic Jacobian, will use an approximation of the gradient itself.
+
+## Running test problems
+
+There are a number of ways in which we want to run the test problems. We consider three
+main streams:
+
+ 1) running a specific test on a specific solver with specific conditions
+ such as the gradient choice or particular control settings;
+ 
+ 2) running a specific test problem on all available solvers;
+
+ 3) running all available tests on an updated or new solver.
+
+Some challenges in accomplishing these tasks arise from the following situations:
+
+- As noted, problems that can be specified via sum of squares functions 
+(possibly with Jacobian functions)
+are easily transformed into function minimizations with associated gradient
+functions. However, there may be ways to express the function to be minimized in ways that are
+more direct and do not explicitly involve the residuals.
+
+- We may wish to attempt the test function minimization using all available gradient 
+approximations. This will generate a lot of computations, without necessarily yielding
+much new insight. 
+
+- As mentioned, the specification of a nonlinear least squares problem by means of a 
+model formula is translated to the computation of
+residuals and Jacobian by the nonlinear least squares methods. In the case of package **nlmrt**
+(this will become package **nlsr** shortly), the Jacobian is computed 
+analytically if possible, and the residual
+and Jacobian functions are explicitly created. These may or may not be equivalent computationally
+to the functions that may be present in the problem file. 
+
+Overall, the challenges are combinatoric because a very large number of cases are generated, since there will be 
+
+- *P* problem files
+ 
+- potentially a formula, a residual, and a function presentation of each problem. Bounded
+  problems will be separately itemized in the problem files. 
+
+- multiple gradient options (at the time of writing these are analytic, forward, backward,
+  central and **numDeriv** as well as a "default" approximation in some methods)
+
+- *MF* nonlinear least squares methods using a formula, MS using a residual, and MO optimization 
+  methods. Some reduction in the possibilities occurs when we have bounds. 
+  
+- Several cases if there are choices such as the three update formulas for optim::CG, or the
+  "plinear" and "port" options for `nls()`.
+  
+- An unspecified number of extra cases if we set limits on the function evaluations etc., or 
+the controls such as various "convergence" tolerances.
+
+**Proposal**: To reduce the number of cases, it is suggested that, for any level of effort, limitations
+be put into the problem files. That is, we propose standardizing the test and consider an effort
+to have failed if it uses more counts than specified. Further, it is suggested that methods be
+primarily tested giving priority to 
+
+- the default settings of any algorithms
+- the default choices of convergence and termination tests
+- analytic gradients if available, else the default (internal) gradient approximation, though
+it may be sensible to also test with the central finite difference approximation. The purpose
+of using a common approximation is to allow comparison of methods, rather than methods
+coloured by a choice of gradient approximation. The central difference approximation 
+choice is a modest compromise between the simple forward approximation and the expensive but
+more accurate **numDeriv** approximation. Note that the complex step derivative (@Martins2003) would
+be a choice if it is known to be applicable. 
+  
+## Reporting experience running problems
+
+### The computing environment
+
+The computing environment is an important aspect of computational tests. However, it is
+often reported in summary and incomplete form. If we are to be thorough we should report
+
+- the computing hardware and particular settings (clock rates, extra features, etc.)
+
+- the operating system version and any add-ons
+
+- the choice of floating point and related computational libraries used
+
+- the version of the computing language processor (in our case, the **R** version)
+
+- the versions of any packages used, and packages loaded at the time of the test
+
+- how storage hardware is connected. While buffering may take care of this, writing to
+external storage, or sending information over communications links (these may be equivalent)
+may alter timings or other performance measures
+
+- any parallelism that could alter performance
+
+- other running processes that could alter performance.
+
+Note that some of the above environmental factors should not alter the computed optima, nor
+the counts that report the computational effort e.g., the number of function or gradient
+evaluations. However, some choices (e.g., arithmetic and function libraries) will affect 
+both computed values and the timings to arrive at them.
+
+In the past, the computational environment has been reported largely as a commentary to 
+published articles and reports. However, we believe that -- as far as possible -- the 
+information should be gathered automatically and included in log files of test runs. 
+**R** already has a useful `sessionInfo()` command that reports quite well at the level
+of the programming language. There are, in most operating systems, functions that will 
+provide information about the computing environment. Whether we can find a way to 
+gather sufficient information from all widely used platforms is still to be determined.
+
+In the last couple of years, the possibility of test variability due to changes in the 
+underlying computational environment has been addressed more explicitly. Some workers have 
+suggested the capture of the entire environment in a virtual machine. A somewhat
+less onerous variant of this is **Rocker** (see http://dirk.eddelbuettel.com/blog/2014/10/23/).
+At the time of writing, we are not considering such measures for testing optimization
+tools, but they are an attractive possibility to allow re-testing of suspect results.
+
+
+### Reproducible tests
+
+It is well-known that timing measures for real-world computers have variability. 
+There are also concerns about how timings are conducted (@Dolan2006). The differences
+between different timings  
+may be surprisingly large depending on the particular context within which test computations
+are performed. It is also possible that there may be non-timing variability if optimization
+methods use "random" search. We will presume (possibly heroically) that efforts have been
+made to eliminate factors that could result in differences in counts and other measures
+of performance excepting time. 
+
+We also believe that for some tests it is useful to employ tools such as **microbenchmark**
+to try to gauge the degree of variability in performance. This tool is almost certainly a
+key choice in measuring the impact of any instrumentation code we embed in our tests, such
+as the function, gradient, residual or Jacobian counts mentioned below.
+
+In the previous section we have suggested the possibility of capturing and saving the
+entire computational environment for a later rerun.
+
+### Measures of computational effort
+
+Running the function `opm()` with `method = "ALL"` very quickly reveals that 
+different solvers
+return different measures of effort. `opm()` is set up to report counts of function and 
+gradient evaluations. For some methods, these are not returned. Sometimes other measures, 
+such as "iterations" are reported. This makes it difficult to compare reported outcomes across
+methods.
+
+In response to this issue, we could insert counts into the various test function components.
+This will, of course, have an effect on reported timings, so some measure of that effort 
+should be taken from time to time. The effect should be small. It may be sensitive, however,
+to the computational environment of the previous section. At the time of writing, we have
+assigned a low priority to investigating the effect of instrumentation code on the overall
+performance, as we believe it is relatively small.
+
+How should this be implemented? In animating the optimization of the largest small hexagon
+problem (see @Grah75a), Greg Snow suggested using an R6class (@R6class), but here we
+can use the much simpler mechanism of creating and using a named **R** environment `counters`.
+A test is provided in Appendix B. 
+
+
+### What information should be saved?
+
+Ideally, a test run should record very complete information. This includes:
+
+- the hardware computational environment
+
+- the operating environment, that is, operating system and relevane computational libraries
+
+- the R version and package versions and other packages loaded
+
+- the test function and derivative calculations used
+
+- the solver and any settings or tolerances
+
+- measures of effort from the solver
+
+- measures of effort by direct count
+
+- the trajectory of the computations, including all evaluations of the function used
+for derivatives (sometimes the parameter inputs to derivative computations violate constraints,
+giving failures for which the reported errors may be difficult to interpret)
+
+- the reported solution or termination point
+
+### What information should be reported?
+
+The above information will be far too voluminous to report. We therefore need tools to 
+render summaries at various levels. 
+
+For many situations, it will be sufficient and desirable to have a "yes/no" or "red/yellow/green"
+indicator of success or failure for a specified method and given test problem. This may, in
+fact, be the most common report.
+
+In the numerical analysis literature, it has become quite popular to present **performance 
+profiles** of various types. 
+
+### Automated collection from diverse sources
+
+Assuming there is an established set of test functions along with a similarly prescribed 
+testing code, it is desirable to allow diverse workers to carry out computations and submit
+reports to a (likely centralized) data repository. This requires:
+
+- a standardized report format, which hopefully is embedded in the tool that runs the
+test computations
+
+- a secure method to accept reports into the data repository;
+
+- a streamlined approach to allow new contributors to join the group submitting test results;
+
+- a mechanism to test the submissions for acceptable quality;
+
+- tools to extract results, and organize, analyze, summarize or visualize them; and
+
+- tools to automatically report unexpected or unwanted results. For example we would like
+to know if a new version of a package causes failures on some test functions.
+
+### Managing the test output
+
+The previous sub-section has listed some desiderata for handling test output. Details that
+will be the burden of the work remain. What are key obstacles to success?
+
+First, we will need to deal with volume of data, particularly if trajectories are important.
+There are, of course, many choices for how to store the data. A database could be used, but
+imposes the choice of software to run it, as well as potential operating system issues if the
+overall project needs to be replicated or moved. A simpler arrangement is a tree structure
+of files. As a suggestion, we could use
+
+```   optimization_tests
+         probname1
+             probname1.prb - the problem file
+             probname1.runlist - a list of test runs pointing to files in the runs directory
+             runs
+                 probname1.instance1 - output of a give run
+                 ...         
+         probname2
+             probname2.prb - the problem file
+             probname2.runlist - a list of test runs pointing to files in the runs directory
+             runs
+                 probname2.instance1 - output of a give run
+                 ...
+
+```
+
+Given that the instance files will be plain text and quite large, as well as unlikely to 
+be accessed frequently, we could compress them using one of the standard tools.
+
+
+## Tools for preparing and using problem files
+
+### Access to problem files
+
+In order to use problem files, we need a way to list them, display their content in
+both summary and detail, and attempt to use them with various nonlinear least squares
+and/or function minimization software.
+
+#### Command line file lister and display tool
+
+We need a tool or tools that 
+
+- sets the directory where problems are found
+
+- lists the files, possibly flagging what resources are available for each problem
+
+- allows one or more files to be selected for running
+
+- displays information in a structured way (possibly according to some profile)
+
+- allows the profile for display to be edited somehow
+
+?? code here
+
+#### GUI file lister and display tool
+
+If there is a command-line tool for listing and displaying problem files, it 
+should be relatively straightforward to provide a graphical user interface (GUI)
+version. This will likely use the code of the command line tools, executing them 
+in response to mouse or pointer clicks via a tool like @traitr14.
+
+
+### Building problem files
+
+Can we set up tools that help us build the problem files? The files are structured.
+It could be easier to simply copy and edit existing files. However, it is attractive 
+to consider ideas that were tried in the experimental package **optimgui** by Yixuan
+Qiu and John Nash in 2011. See the **optimigui** material at
+https://r-forge.r-project.org/R/?group_id=395. 
+
+### Testing the problem files
+
+It is extremely easy to start to build problem files but save them in a state where
+functions are incomplete or incorrect. Therefore it is important that we have a tool
+to check the files. We have already mentioned the issue of listing the components of
+the file that are present, and it is feasible to provide a summary output that lists
+whether the ".f", ".res", ".start", etc. components of the problem file are present.
+
+It is also sensible to consider the provision of pre-computed function outputs for
+the starts provided. This can be placed in, for example, the attribute "fval" of the
+starting parameter vector selected. We could also provide the residual vector in 
+an attribute "resval", as well as other quantities available for test. However, it seems
+more reasonable to compute the sum of squares and compare to the "fval" attribute. 
+Similarly, while we could provide derivative outputs, it is likely more 
+sensible to verify gradients and Jacobians by use of approximations from **numDeriv**.
+
+
+## Running problems
+
+The principal function for running tests will be the **R** function `runoptprob`. 
+At the time of writing, this is a work in progress, and it seems likely that it will
+continue to be modified with growing experience and the time to provide desired 
+features. In order to use this function we must, at the very least, provide the problem
+name. Appending ".prb" to this name specifies our problem file.
+
+If we want to apply a single minimization tool to this problem, then we need to provide
+its name (argument `minmeth`). Some such methods, like **optimr** (actually **optimrx**) 
+require the tool to be particularized in argument `submeth`. 
+
+While we have considered allowing multiple starts, we consider different starts to more or
+less provide different problems for comparison, so a name for the start must be given. The
+default of argument `istart` is "1". 
+
+The argument `runopts` is a list. It will carry arguments to the minimizer. A particularly
+important choice here is that of gradient or Jacobian where that is needed. 
+
+Most methods have a series of controls, and the argument `control` is a list that more
+or less follows that described in the manual page to `optim()`.
+
+Dot arguments are used in **R** to allow named arguments to be provided to a function
+for passing to other computations. While we provide for dot arguments (`...`) 
+in the call to `runoptprob`, at the time of 
+writing we have no examples of the use of the dot arguments. Note that the `runopts`
+allows us to provide data if the internal code to `runoptprob` does not already
+handle this. For example, nonlinear least squares methods automatically 
+get data for the DanielWood problem from the `DanielWood.df` data frame.
+
+We have yet to decide the precise mechanisms for specifying how we want to present
+and save results, and how we will control the timing of runs 
+(e.g., microbenchmark or simple timing).
+
+
+```{r cache=FALSE, echo=FALSE}
+require(knitr)
+# read chunk (does not run code)
+read_chunk('../R/runoptprob.R')
+```
+
+```{r}
+require(nlmrt, quietly=TRUE)
+require(optimrx, quietly=TRUE)
+<<runoptprob.R>>
+```
+
+## Running multiple problems
+
+If we want to run a set of problems, we need to prepare a "play list", each "line"
+of which specifies the problem name, start index, and any special options. As a start,
+this could simply be an **R** script with a set of calls to `runoptprob`. It
+is not difficult to consider generating this script with another **R** script, so that
+we can prepare a set of runs of many problems with one method or of one problem with 
+as many tools as available. 
+
+While we have already considered the output we wish to save, it is important to be able
+to monitor progress, and indeed to be able to stop and restart the runs at reasonable
+break points. Otherwise we may wonder if our machine has "crashed" or find it unavailable
+when more pressing tasks demand our attention.
+
+Let us try some simple examples to get some experience. Note that `runoptprob` is not 
+yet saving much information.
+
+```{r}
+pfname <- "DanielWood"
+# try it
+test1 <- runoptprob(pfilename=pfname, minmeth="nls")
+test1
+tmp <- readline("continue")
+
+test2 <- runoptprob(pfilename=pfname, minmeth="nlxb")
+test2
+tmp <- readline("continue")
+
+test3 <- runoptprob(pfilename=pfname, minmeth="optimr", submeth="L-BFGS-B")
+test3
+
+#- But this doesn't work (yet!)
+#- test4 <- runoptprob(pfilename="XRosenbrock", minmeth="optimr")
+#- test4
+#- But this does function
+source("../inst/extdata/XRosenbrock.prb")
+st <- XRosenbrock.start("10:pi")
+txr <- opm(st, XRosenbrock.f, XRosenbrock.g, method="ALL")
+summary(txr, order=value, par.select=1:4)
+```
+
+
+## Next steps
+
+This document is but a first draft of a structure for ongoing efforts in testing optimization
+methods. We welcome comments and assistance.
+
+Contact information: nashjc@uottawa.ca  Paul??
+
+
+## Appendix A: Use of a data frame
+
+The following script shows that we can store problem materials, including functions,
+**INSIDE** an **R** data frame. Having established this possibility, I do not, however,
+consider it worthwhile pursuing.
+
+```{r, eval=FALSE}
+require(NISTO)
+ls(package:NISTO)
+NISTO::DanielWood.res
+NISTO:::DanielWood.res
+f1 <- y ~ (b1+x*(b2+x*(b3+b4*x))) / (1+x*(b5+x*(b6+x*b7)))
+str(f1)
+?NISTO
+?DanielWood
+data(DanielWood)
+DanielWood
+dwprob <- list(mform = f1, mdata=DanielWood, pname="DanielWood", ptype="nls")
+dwprob
+data()
+f2 <- y ~ b1 / (1+exp(b2-b3*x))
+r2data <-Ratkowsky2
+r2data
+r2prob <- list(mform = f2, mdata=Ratkowsky2, pname="Ratkowsky2", ptype="nls")
+r2prob
+myprobs <- rbind(dwprob, r2prob)
+myprobs
+str(myprobs)
+myprobs.d <- as.data.frame(myprobs)
+str(myprobs.d)
+f3 <- y ~ exp(-b1*x)/(b2+b3*x)
+c1data <- Chwirut1
+c1name <- "Chwirut1"
+c1prob <- list(mform = f3, mdata=Chwirut1, pname=c1name, ptype="nls")
+myprobs.d[3,] <- c1prob
+myprobs.d <- as.dataframe(rbind(myprobs.d, c1prob))
+myprobs.d <- as.data.frame(rbind(myprobs.d, c1prob))
+myprobs.d <- as.data.frame(rbind(myprobs, c1prob))
+myprobs.d
+str(myprobs.d)
+myprobs.d[,5] <- NA
+str(myprobs.d)
+colnames(myprobs.d[,5] <- "resfn")
+colnames(myprobs.d[,5]) <- "resfn"
+colnames(myprobs.d)[5] <- "resfn"
+myprobs.d
+DanielWood.res <- function(b) {
+   xx<-DanielWood$x # case !!
+   yy<-DanielWood$y
+   res <- rep(NA, length(xx))
+   b1<-b[1]
+   b2<-b[2]
+   res<-b1*(xx**b2) - yy
+   return(res)
+}
+myprobs.d[1,5] <- DanielWood.res
+myprobs.d[1,5] <- quote(DanielWood.res)
+dwreschr <- "DanielWood.res <- function(b) {;xx<-DanielWood$x; yy<-DanielWood$y; res <- rep(NA, length(xx)); b1<-b[1];  b2<-b[2];   res<-b1*(xx**b2) - yy;   return(res);}"
+myprobs.d[1,5] <- dwreschr
+ls()
+rm DanielWood.res
+rm( DanielWood.res)
+ls
+ls()
+source("myprobs.d[1,5])
+"
+)
+source("myprobs.d[1,5]")
+source(text="myprobs.d[1,5]")
+?source
+parse(text=myprobs.d[1,5])
+ls()
+eval(parse(text=myprobs.d[1,5]))
+ls()
+savehistory("NISTOx1.txt")
+```
+
+```{r, eval=FALSE}
+# NISTOx2.txt
+test <- "
+# Chwirut1 - Jacobian
+Chwirut1.jac <- function(b) {
+   xx<-Chwirut1$x
+   yy<-Chwirut1$y
+   n<-length(b)
+   m<-length(xx)
+   b1<-b[1]
+   b2<-b[2]
+   b3<-b[3]
+   J<-matrix(0,m,n) # define the size of the Jacobian
+   expr3 <- exp(-b1 * xx)
+   expr5 <- b2 + b3 * xx
+   expr7 <- expr3 * xx
+   expr10 <- expr5*expr5
+   value <- expr3/expr5
+   J[,1] <- -(expr7/expr5)
+   J[,2] <- -(expr3/expr10)
+   J[,3] <- -(expr7/expr10)
+   return(J)
+}
+"
+ftest <- eval(parse(test))
+ftest <- eval(parse(text=test))
+bstart <- c(1,1,1)
+print(ftest(bstart))
+savehistory("NISTOx2.txt")
+```
+
+## Appendix B: Test of counters inside functions.
+
+```{r cache=FALSE, echo=FALSE}
+require(knitr)
+# read chunk (does not run code)
+read_chunk('../inst/Rfiles/counttest.R')
+```
+
+```{r}
+<<counttest.R>>
+```
+
+## Appendix C: (Temporary) open issues for runoptprob
+
+- read output control profile (initially just use sink())
+
+- read the file and execute it (make sure it has **R** commands so we can
+actually source() it)
+
+- analyze the call to runprob and do the appropriate call
+
+- format output and extract and store summaries
+
+  -- this may be multilayerd and take a lot of work
+  
+  -- start with no formatting, and gradually add features
+  
+  -- need to save conditions
+  
+  -- make sure we have time/date stamp on all runs
+  
+Issues to address?? :
+ - sink() will save information, but there is a cost in time and space
+ - how to do ok/not or red/yellow/green nicely | Do we want on params and value?
+ - dealing with multiple solutions -- linear combination defined
+ - where to put setting of FUZZ, reporting of deviations
+  
+## References
+  

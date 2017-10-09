@@ -1,0 +1,17 @@
+# candlestick function
+# J C Nash 2011-2-3
+cstick.f<-function(x,alpha=1){
+	x<-as.vector(x)
+	r2<-crossprod(x)
+	f<-as.double(r2+alpha/r2)
+	return(f)
+}
+
+cstick.g<-function(x,alpha=1){
+	x<-as.vector(x)
+	r2<-crossprod(x)
+	g1<-2*x
+	g2 <- (-alpha)*2*x/(r2*r2)
+	g<-as.double(g1+g2)
+	return(g)
+}

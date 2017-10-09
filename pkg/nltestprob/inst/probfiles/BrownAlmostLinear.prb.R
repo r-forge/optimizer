@@ -94,13 +94,21 @@ JN <- jacobian(balf.res, start0)
 print (JN)
 cat("maxdiff =", max(abs(JN-JA)),"\n")
 
+fsol <- function(alpha, n) { 
+  val <- n * alpha^n - (n+1) * alpha^(n-1) + 1 
+  val
+}
+
+alstar <- uniroot(fsol, c(.8,.9999), n=n)$root
+cat("Solution via uniroot for n=",n," has p1-(n-1) =", alstar," pn =", alstar^(1-n), "\n")
+
 library(optimr)
-BALP5opm <- opm(start0, balf.f, balf.g, method="ALL", control=list(kkt=FALSE))
-summary(BALP5opm, order=value)
+BALP10opm <- opm(start0, balf.f, balf.g, method="ALL", control=list(kkt=FALSE))
+summary(BALP10opm, order=value)
 
 library(nlsr)
 
-BALP5nlfb <- nlfb(start0, balf.res, jacfn=balf.jac, trace=TRUE)
-print(BALP5nlfb)
+BALP10nlfb <- nlfb(start0, balf.res, jacfn=balf.jac, trace=TRUE)
+print(BALP10nlfb)
 
 

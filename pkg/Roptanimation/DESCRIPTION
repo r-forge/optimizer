@@ -1,0 +1,18 @@
+Package: Roptanimation
+Type: Package
+Version: 2016-11.30
+Date: 2016-11-30
+Title: Experimental development of visualization of optimization
+Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
+        c("aut", "cre"), email = "nashjc@uottawa.ca") )
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Provides R code to animate the current polygon for which the largest
+   area is desired subject to vertices of the polygon no further than 1 unit
+   apart while the optimization is taking place. The code or ideas are
+   intended to be transferred to other packages once working.
+License: GPL-2
+LazyLoad: Yes
+Depends: R (>= 3.0), knitr
+Suggests: optimr, Rvmmin, minqa
+VignetteBuilder: knitr
+

@@ -1,0 +1,433 @@
+---
+title: "gradmin: a general **R** routine for function minimization using gradients"
+author: "John C. Nash"
+date: '2017-04-10'
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{Rvmmin15}
+  %\usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::knitr}
+bibliography: gradmin.bib
+---
+
+# Gradient function minimization algorithms
+
+There is a huge number of methods for function minimization based on the 
+use of gradients of 
+the function to be minimized. This vignette presents **gradmin**, an **R** function that 
+allows many, possibly most, such algorithms to be tried, at least those that are not of
+the **reverse communication** type. ??ref
+
+Function minimization is the problem of finding the set of parameters $x_*$ for which there
+is no lower value of the function $f(x_*)$. Note that we can **maximize** the function by
+minimizing $ - f(x)$. Also note that the set of parameters $x_*$ may not be unique. There
+can be multiple or even an infinite number of sets of parameters which yield the lowest
+function value. There may also be no such set of parameters if the function has no
+lower bound, for example, $ f(x) = x $. 
+
+
+We will begin with **gradminu** for unconstrained minimization, that is, with no constraints.
+However, we will eventually wish to add various constraints on the parameters $x$, in particular,
+bounds or box constraints,
+
+$$  l_i <= x_i <= u_i $$  where $i$ is an index over all the parameters.
+ 
+ It is also useful to consider **masks**, or fixed paramters. That is, we may wish to fix the
+ value of some of the parameters and only minimize the function over the rest. This can be 
+ very useful in practice, since many problems include parameters which are set externally 
+ for a variety of reasons. At some stage, we may wish to allow these parameters to be changed.
+ 
+
+# Additional problem information used in optimization
+
+Almost all approaches to gradient minimization require not just the function $f(x)$, but also
+its gradient $g(x)$, a function that returns the vector of first derivatives of $f$ with respect
+to the parameters at the specified set of paramters. Furthermore, we may also have the Hessian,
+the matrix of second derivatives, computed by a routine that returns $H(x)$. However, many 
+methods do not require explicit functions for generating approximations or surrogates for 
+these objects.
+
+Furthermore, we shall usually require a set of starting parameters $x_0$, though some methods
+may generate this start from the bounds vectors $l$ and $u$. Choice of the starting parameters
+may critically affect the performance of a minimization method.
+ 
+# A general structure
+
+Minimization methods generally have the following structure:
+
+  - a **setup** phase, in which the function and possibly the gradient
+  and hessian are provided, along with a set of controls that particularize
+  the minimization method;
+  
+There follows an iteration of the following three components:
+  
+  - the **termination** test, which allows a decision to continue the method and
+  seek parameters with lower function values, or to stop and report our result;
+  
+  - the generation of a **search** direction, that is a vector of values of which we
+  add a multiple called the **steplength** to the current parameter vector to 
+  generate new trial points at which we hope to find lower function values;
+  
+  - the **line search**, which chooses a particular step length along the
+  search direction according to some rule. Generally the step length must
+  be positive, and many methods test or rely on the assumption of the 
+  search direction being "downhill".
+  
+Finally, we may have a **report** phase. In this we may **test** as well as report 
+results, for example, by computing the eigenvalues of the (possibly approximate)
+Hessian. In the context of the **gradmin** and most of my own packages, reporting
+is considered external to the minimization and our "report" is generally limited
+to returning the proposed best parameters and the function value at those 
+parameters and possibly the gradient evaluated there, along with some counts
+of the number of functions, gradients and hessians computed.
+
+## Termination tests -- TERMINATE
+
+**Termination** is often confused with **convergence**. The former applies to svn+ssh://nashjc@svn.r-forge.r-project.org/svnroot/optimizer/pkg/gradmin
+methods or programs, and is the way in which we stop our method. Terminationsvn+ssh://nashjc@svn.r-forge.r-project.org/svnroot/optimizer/pkg/gradmin
+tests do include tests that look at the mathematical conditions for a minimum,
+in particular a very small gradient. In some cases we may also test that the
+Hessian matrix at the suggested minimal set of parameters is positive definite, 
+However, the computation of a Hessian, analytic or approximate, can require 
+a large computational effort (in fact, greater than that of finding the 
+supposed minimum), so it is common to leave this to the reporting stage
+of the minimization process.
+
+## A search direction -- SRCHDIRN
+
+Generating a search direction is the stage of a method that is generally used
+to categorize it. Let us call the search direction $t$. Then a so-called
+Newton method will generate $t$ as the solution of 
+
+$$  H(x) * t = - g(x) $$
+
+A quasi-Newton or variable metric method -- and I ask to be excused for failing
+here to provide differentiating details -- uses some rule to compute an initial
+Hessian approximation $H_0$ and sequentially alters this at each iteration or cycle
+to some matrix $H_k$ where $k$ is the iteration counter. The update generally purports
+to generate an approximation to the true Hessian, but the reality of such methods is 
+that "approximation" is a very loose concept in this context.
+
+A very simple search generation is given by the **steepest descent** direction, namely,
+
+$$ t = - g(x) $$
+
+Despite the name, this is not generally a good method, as it tends to do poorly in 
+practice, with successive search directions being too similar. **Conjugate gradient**
+methods do much better. These start with the steepest descents direction, then update 
+the search by some simple rules in an attempt to generate directions which are not too
+similar to previous ones. However, the "rules" and formulas generally require some care
+to avoid numerical difficulty, and the cycle may need to be restarted at some point. 
+ 
+## A line search -- LNSRCH
+
+While it is perfectly possible to use a unit step along the search direction, we generally
+want to try to reduce the function value by searching along $t$, and try to find a good
+set of new parameters
+
+$$ x_{new} = x + step * t $$
+
+Thus we can have a "naive" method where we set $step = 1$, the choice of the 
+traditional Newton method, but in practice,
+this can sometimes mean that the function value is not reduced. We call this
+`lsnone`. Generally, however,  
+we try to apply some computations that reduce the function value by
+a suitable choice for $step$. 
+
+One possibility is to use a method that seeks the minimum of a function of 
+one variable. Thus we find the minimum of $f( x + step * t )$ with respect to
+$step$. There are several possibilities for doing this which can be explored,
+but in most cases we do not require a very precise step length. A particular
+choice uses ??ref Brent's one-dimensional function minimization, of which
+package **pracma** has function `fminbnd`. Using this gives us line search
+`lsbrent`.
+
+A generally more efficient method uses a simple backtrack choice. We start 
+with $step = 1$. If the function is suitably reduced, we replace $step$ with 
+$ r * step $ where $r$ is less than 1. I often use 0.1 or 0.2. We repeat until $x_t$
+is "suitable". This results in `lsback`.
+
+Suitablity is generally decided using the "sufficient decrease" condition, 
+
+$$f(x_t + step*s) < f(x_t) + c * step * g(x_t)^T*s$$
+
+where c is some number less than 1. Typically $ c = 1e-4 = 0.0001 $. We refer to this
+as the Armijo condition. Note that the product
+of gradient times search vector is negative for any reasonable situation, since we are 
+trying to go "downhill". The condition can be made slightly more stringent
+by taking the absolute value of the gradient projection, giving the 
+Wolfe conditions. See https://en.wikipedia.org/wiki/Wolfe_conditions. 
+
+## Program flow
+
+We combine the above components as follows:
+
+```
+   SETUP
+   
+   while (TERMINATE not TRUE){
+      SRCHDIRN
+      LNSRCH
+   }
+
+   REPORT
+```
+
+# Inspiration from Newton methods
+
+So-called **Newton** methods are among the most commonly mentioned in the solution of nonlinear
+equations or function minimization. However, as discussed in 
+https://en.wikipedia.org/wiki/Newton%27s_method#History,
+the **Newton** or **Newton-Raphson** method as we know it today was not what either of its
+supposed originators knew.
+
+## The basic "Newton" method
+
+If we have a function $f(x)$, with gradient $g(x)$ and second derivative (Hessian) $H(x)$
+the first order condition for an extremum (min or max) is  
+
+$g(x) = 0$
+
+To ensure a minimum, we want 
+
+$H(x) > 0 $
+
+The first order condition leads to a root-finding problem.
+
+It turns out that $x$ need not be a scalar. We can consider it to be a vector of 
+parameters to be determined. This renders $g(x)$ a vector also, and $H(x)$ a matrix.
+The conditions of optimality then require a zero gradient and positive-definite Hessian.
+
+The Newton approach to such 
+equations is to provide a guess to the root $x_try$ and to then solve the equation
+
+$H(x_t) * s = - g(x_t)$
+
+for the search vector $s$. We update $x_t$ to $x_t + s$ and repeat until we have 
+a very small gradient $g(x_t)$. If $H(x)$ is positive definite, we have a reasonable
+approximation to a (local) minimum. 
+
+## Motivational ideas
+
+A particular interest in Newton-like methods its theoretical quadratic convergence. See
+https://en.wikipedia.org/wiki/Newton%27s_method.
+That is, the method will converge in one step for a quadratic function $f(x)$, and for "reasonable"
+functions will converge very rapidly. There are, however, a number of conditions, and practical
+programs need to include safequards against mis-steps in the iterations.
+
+The principal issues concern the possiblity that $H(x)$ may not be positive definite, at least
+in some parts of the domain, and that the curvature may be such that a unit step $x_t + s$
+does not reduce the function $f$. We therefore get a number of possible variants of the 
+method when different possible safeguards are applied.
+
+# Algorithm possibilities for **gradmin**
+
+There are many choices we can make in building a practical code to implement the ideas
+above, that is, in choosing the components SRCHDIRN and LNSRCH. There will be some choices
+in SETUP and TERMINATE and REPORT, but those components will generally be dependent on the
+choices made for the search direction and line search. 
+
+# Some search direction generation methods
+
+## snewt -- a safeguarded Newton method
+
+## vmrf -- Fletcher's variable metric method
+
+## ?? -- CG
+
+## marqnewt -- stabilized Newton
+
+
+
+# Some line search methods
+
+## lsnone -- a fixed stepsize
+
+## lsback -- a backtracking search
+
+## lsbrent -- use of the Brent [1D] minimizer
+
+## others??
+
+
+# Choices within the computation of the search direction
+
+SRCHDIRN will often involve the solution of linear equations. For example, in a "Newton"
+method we solve the main equation $H(x_t) * s = - g(x_t)$. If $H(x_t)$ is not positive
+definite, or if it is singular, we still need to generate a "reasonable" search 
+vector $s$.
+   
+As indicated, the primary concern in solving for $s$ is that the 
+Hessian may not be positive definite. 
+This means that we cannot apply fast and stable methods like the Cholesky decomposition
+to the matrix. At the time of writing, we consider the following approaches:
+
+  - Attempt to solve $H(x_t) * s = - g(x_t)$ with **R** directly, and rely on internal
+  checks to catch any cases where the solution fails. We can use `try()` to stop the
+  program in this case.
+  
+  - Use a Levenberg-Marquardt (??ref) stabilization to ensure that we have an augmented
+  Hessian that is positive definite. Essentially, we create
+  $H_aug = H + \lambda * I$ where $I$ is the unit matrix of the size of $H$, and $\lambda$
+  is a scalar chosen to ensure the resulting matrix is positive definite.
+  
+  - Use the singular value decomposition and drop any singular planes where the singular
+  values fall below some threshhold. Note that deciding the threshhold is possibly a
+  non-trivial matter.
+  
+Note that even within these choices for solution, there are further details in how
+the solution is obtained, since there are various ways to solve linear equations and
+to find the singular value decomposition. (??refs, discussion??)
+
+# Programming details for efficient implementation
+
+The **gradmin** package is intended to show the variety of algorithms and methods for
+function minimization using gradient ideas. Howver there is a question of how to 
+program the structure within **R** so that the writing of the code is not too awkward.
+In particular, it is useful to avoid too many arguments in the calling of functions, 
+but also to avoid too many references to a workspace. Some choices follow.
+
+## Use explicit arguments and return lists
+
+This is the "default" and safe approach. However, it result in long argument lists for
+all the functions, particularly as many functions will NOT use most of there arguments.
+As an example, `lsnone` returns only the step size of 1, though there may be some
+attributes that need to be set for compatibility with the rest of the program.
+
+## Use a separate code builder
+
+We could store the components of the code in separate files and use a simple file
+consolidation program to put these together. This approach was used successfully for
+BASIC programs in @jnmws87. It requires the resulting code to be loaded or compiled
+(in **R** via the `source()` command). This approach requires some discipline and 
+up-front work, but is flexible and reliable. Note that we do NOT call sub-functions
+in this approach, but work in a single object level.
+
+## Use a workspace environment
+
+The test program `inst/devfiles/tryws.R` shows how a list can be converted to an environment
+within our main function minimization function. This workspace, given as an argument to called
+functions, is modified within those functions. Therefore we can use that work environment
+to store common information, such as counters, working data, historical gradients or function
+values, etc. A disadvantage is that we need to specify these objects. That is, the counter
+`nf` is referred to as `w$nf` where `s` is our work environment. This was the choice that
+allowed a workable implementation.
+
+## Attempt to use **R** scoping rules
+
+If our SRCHDIRN and LNSRCH functions are specified WITHIN the main **gradmin** function, 
+the objects created in the main routine should be available within those sub-fuctions. However,
+modification to the objects made in the sub-function may not be returned. See `inst/devfiles/tryscope.R`. I find that it is too easy to make errors of NOT transferring 
+back any changes to objects, so this is not an approach I will generally use.
+
+
+# ?? extra ??
+
+NOTE 2 jn: Could consider the structure to create a sort of method using Simplex.
+  -- get search direction from highest to extension point, then run line search
+  -- not quite using fbest, so minor adjustment
+
+
+?? Marquardt stabilization ??
+
+However, for the
+Marquardt approach above, it is common to use a unit step, but in the event we fail
+to reduce the function, we increase $\lambda$. This is repeated until either the
+function is reduced or the parameters are unchanged. (If $\lambda$ gets very large,
+the search vector becomes tiny, so there is no change in $x_t$.) Otherwise, it
+ is usual to have some sort of line search. There are many possibilities. 
+
+
+The vignette SNewton.pdf in the **snewton** package discusses the development of some 
+safeguarded variants of Newton methods for 
+function minimization in **R**. Note that there are other resources in **R** for solving 
+nonlinear equations by Newton-like methods in the packages **nleqslv** and **pracma**. 
+
+
+# Comparison of structures
+
+Newton
+
+0: Init from x0
+   x <- x0
+   f(x)
+
+Repeat {
+1: g(x), H(x)
+
+2: Terminate ?
+
+3: sd <- solve(H, -g)
+
+4: step <- lnsrch(sd, gval, f() )
+   new fbest
+}
+
+
+Variable Metric
+
+0: Init from x0
+   x <- x0
+   f(x)
+   lastg <- 1 (forces reset of B)
+
+Repeat {
+1:  g(x)
+1a: Update B, to I if ng == lastg
+    else using BFGS formula
+
+2: Terminate ?
+
+3: sd <- - B * g
+
+3: step <- lnsrch(sd, gval, f() )
+}
+
+Conjugate gradient
+
+0: Init from x0
+   x <- x0
+   f(x)
+   cycle <- 1 (forces reset of B)
+
+Repeat {
+1:  g(x)
+
+2: Terminate ?
+
+3: compute sd by YD method
+
+3: step <- lnsrch(sd, gval, f() )
+}
+
+# Programming notes
+
+1. We will pass fn(), gr() and hess() explicitly. But computed quantities resulting
+from these functions will be stored in workspace "w".
+
+2. Need to store names of functions BEFORE we pass them, otherwise the names are
+lost. i.e., method for srchdirn and lnsrch and fn and gr and hess
+
+
+
+```{r cache=FALSE, echo=FALSE}
+require(knitr)
+# read chunk (does not run code)
+read_chunk('../inst/probfiles/DanielWood.prb')
+# We use this approach to avoid having differences between file here and in inst/extdata/
+```  
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+
+# References
+
+
+
+

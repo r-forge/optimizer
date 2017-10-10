@@ -1,0 +1,13 @@
+export(
+  "polysetup", 
+  "polypar2XY", 
+  "polyarea", 
+  "polydistXY",
+  "polyobju",
+  "polygradu"
+)
+importFrom("grDevices", "hsv")
+importFrom("graphics", "axis", "box", "plot.new", "plot.window",
+             "points", "title")
+import(knitr)
+

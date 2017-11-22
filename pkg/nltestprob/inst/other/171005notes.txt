@@ -1,3 +1,10 @@
 Notes 171005
 
 Seems nlxb may NOT be getting std errs from Lanczos.R problem file.
+
+opm "unconstrained" message not conditional
+
+nlfb "no weights" needs conditional print
+
+Brown Almost Linear and nlfb seems not to work
+

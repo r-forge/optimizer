@@ -72,6 +72,7 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
 #             tmp <- readline("cont>")
           } 
        } # end not on upper bound
+       if (fcount >= control$maxfeval) break
        if (doneg) {
          resetpar <- TRUE # going to reset the paramter unless we improve
          if ((ptmp + offset) > (lower[j] + offset)) { # can do negative step
@@ -93,8 +94,14 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
        } # end doneg
        if (resetpar) { par[j] <- ptmp }
     } # end loop on axes
+    if (fcount >= control$maxfeval) {
+        ccode <- 1
+        if (control$trace > 0) cat("Function count limit exceeded\n")
+        ans <- list(par=pbest, value=fmin, counts=c(fcount, NA), convergence=ccode)
+        return(ans)
+    }
     if (control$trace > 0) { 
-       cat("axial search with stepsize =",stepsize,"  fn value = ",fmin,"  after ",fcount,"\n")
+       cat("axial search with stepsize =",stepsize,"  fn value = ",fmin,"  after ",fcount,"  maxfeval =", control$maxfeval,"\n")
     }
     if (fmin < fold) { # success -- do pattern move (control$trace > 0) cat("Pattern move \n")
        if (control$trace > 1) {
@@ -128,8 +135,10 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
 #       }
     } else { # no success in Axial Seart, so reduce stepsize
        if (fcount >= control$maxfeval) {
-          keepgoing <- FALSE # too many function evaluations
-          break
+        ccode <- 1
+        if (control$trace > 0) cat("Function count limit exceeded\n")
+        ans <- list(par=pbest, value=fmin, counts=c(fcount, NA), convergence=ccode)
+        return(ans)
        }
        # first check if point changed
        samepoint <- identical((par + offset),(pbase + offset))
@@ -145,6 +154,12 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
           }
           par <- pbase
        }
+    }
+    if (fcount >= control$maxfeval) {
+        ccode <- 1
+        if (control$trace > 0) cat("Function count limit exceeded\n")
+        ans <- list(par=pbest, value=fmin, counts=c(fcount, NA), convergence=ccode)
+        return(ans)
     }
   } # end keepgoing loop 
   if ( control$trace > 1 ) {

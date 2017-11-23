@@ -336,7 +336,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         } else {
             if (control$trace>0) {
                 cat("Rvmmin failed for current problem \n")
-                if(is.null(egr)) cat("Note: Rcgmin needs gradient function specified\n")
+                if(is.null(egr)) cat("Note: Rvmmin needs gradient function specified\n")
             }
 	    ans<-list() # ans not yet defined, so set as list
             ans$convergence <- 9999 # failed in run

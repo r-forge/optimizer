@@ -1,6 +1,6 @@
 Package: optimr
-Version: 2017-9.24
-Date: 2017-09-24
+Version: 2017-11.22
+Date: 2017-11-22
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -16,7 +16,7 @@ Description: Provides a replacement and extension of the optim()
     for smooth, possibly box constrained functions of several or
     many parameters. optimr is a refactoring of the optimx package
     to simplify maintenance and extension. A great deal of this 
-    package is derived from the earlier package \code{optimx}, but
+    package is derived from the earlier package 'optimx', but
     some functionality has been separated into distinct functions
     to allow for easier maintenance and use, as well as future
     development.

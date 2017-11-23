@@ -52,11 +52,14 @@ BroydenTestR.jac <- function(x) {
    return(NA)
 }
 
+
+
+
 #- hessfn
 BroydenTestR.h <- function(x) {
-## JJ<-BroydenTestR.jac(x)
-## H <- t(JJ) %*% JJ
-## res<-BroydenTestR.res(x)
+JJ<-BroydenTestR.jac(x)
+H <- t(JJ) %*% JJ
+res<-BroydenTestR.res(x)
 }
 
 #- gr

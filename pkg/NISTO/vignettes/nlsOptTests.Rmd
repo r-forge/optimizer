@@ -28,15 +28,12 @@ or starting values. Thus it is desirable to be able to
 
 - be able to quickly and easily run a specific test on all available solvers;
 
-- be able to quickly and easily run all available tests on an updated or new solver,
-or on a new computing platform;
+- be able to quickly and easily run all available tests on an updated or new solver;
 
 - be able to compare performance of solvers on a single or a group of problems;
 
-- be able to compare performance of particular computing platforms on a single or a group of problems;
-
 - be able to report successes and failures in a manner that allows for rapid detection
-of potential issues with solvers, platforms, or other conditions.
+of potential issues with solvers.
 
 
 The last two criteria, and especially the last, require that there be a way to save 
@@ -143,15 +140,6 @@ Note that the `.res` function could be used to specify nonlinear equations probl
 solution has all the residuals at zero. At the time of writing, we have not yet included
 this possibility.
 
-Considerations 170221??
-
--- only specify bits that are available and let problem setup program (GUI) do the rest.
-
--- steal ideas from optimgui
-
--- allow scripting so it can be automated (and save such a script)
-
--- 
 
 ### Restrictions on the problems
 
@@ -279,7 +267,7 @@ Overall, the challenges are combinatoric because a very large number of cases ar
 - An unspecified number of extra cases if we set limits on the function evaluations etc., or 
 the controls such as various "convergence" tolerances.
 
-**Proposal**: To reduce the number of cases, it is suggested that, for any level of effort, limitations
+**Proposal**: To reduce the number of cases, it is suggested that any level of effort limitations
 be put into the problem files. That is, we propose standardizing the test and consider an effort
 to have failed if it uses more counts than specified. Further, it is suggested that methods be
 primarily tested giving priority to 
@@ -625,8 +613,7 @@ Contact information: nashjc@uottawa.ca  Paul??
 ## Appendix A: Use of a data frame
 
 The following script shows that we can store problem materials, including functions,
-**INSIDE** an **R** data frame. Having established this possibility, I do not, however,
-consider it worthwhile pursuing.
+**INSIDE** an **R** data frame.
 
 ```{r, eval=FALSE}
 require(NISTO)

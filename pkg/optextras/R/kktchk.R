@@ -1,4 +1,4 @@
-kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, control=list(), ...) {
+kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALSE, control=list(), ...) {
 # Provide a check on Kuhn-Karush-Tucker conditions based on quantities
 # already computed. Some of these used only for reporting.
 ##
@@ -8,7 +8,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
 #  ngr = gradient evaluated at parameters par
 #  nHes = Hessian matrix evaluated at the parameters par
 #  nbm = number of active bounds and masks from gHgenb (gHgen returns 0)
-#  maxfn = logical TRUE if we want to maximize the function. Default FALSE.
+#  maximize = logical TRUE if we want to maximize the function. Default FALSE.
 #  control = list of controls, currently, 
 #            kkttol=1e-3, kkt2tol=1e-6, ktrace=FALSE
 #  ... = dot arguments
@@ -88,7 +88,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maxfn=FALSE, 
    } else { 
       nHes <- hess(par, ...)
    }
-   if (maxfn) {
+   if (maximize) {
       nHes<- -nHes
       if (control$trace > 0) cat("Maximizing: use negative Hessian\n")
    }

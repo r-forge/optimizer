@@ -7,6 +7,10 @@ TODOS
 
 Changes
 
+2017-11-25
+   o    Changed kktchk argument maxfn to maximize to agree with 
+        optimr and other packages
+
 2016-6-30
    o    Streamlined the package to get rid of ufn, ugr, uhess, 
         ugHgenb that are so far unused. 

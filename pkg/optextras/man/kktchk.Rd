@@ -16,7 +16,7 @@
 }
 \usage{
      kktchk(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, 
-                 maxfn=FALSE, control=list(), ...)
+                 maximize=FALSE, control=list(), ...)
 }
 \arguments{
  \item{par}{A vector of values for the parameters which are supposedly optimal.}
@@ -25,7 +25,7 @@
  \item{hess}{The Hessian function}
  \item{upper}{Upper bounds on the parameters}
  \item{lower}{Lower bounds on the parameters}
- \item{maxfn}{Logical TRUE if function is being maximized. Default FALSE.}
+ \item{maximize}{Logical TRUE if function is being maximized. Default FALSE.}
  \item{control}{A list of controls for the function}
  \item{...}{The dot arguments needed for evaluating the function and gradient and hessian}
 

@@ -48,7 +48,7 @@ opt2r<-optimr(x, trig.f, trig.g, method="Rvmmin")
 opt2r
 cat("====================")
 x<-rep(2,4)
-cat("optim(BFGS) vs Rvmmin\n")
+cat("optim(BFGS) vs optimr(BFGS)\n")
 opt4<-optim(x, trig.f, trig.g, method="BFGS")
 opt4
 opt4r<-optimr(x, trig.f, trig.g, method="Rvmmin")

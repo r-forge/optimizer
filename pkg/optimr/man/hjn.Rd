@@ -143,6 +143,7 @@ negmaxfn<-function(x) {
 
 
 \donttest{
+   cat("WARNING -- this example does NOT appear to terminate\n")
    cat("test that maximize=TRUE works correctly\n")
    # 160706 -- not set up to maximize yet, except through optimr perhaps
    n<-6

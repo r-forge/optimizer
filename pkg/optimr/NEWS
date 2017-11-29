@@ -2,12 +2,14 @@ NEWS about R package optimr and optimrx (formerly optimz in R-forge)
 
 NOTE: Formerly optimr was intended for CRAN and had a limited set of solvers to avoid
       issues of maintenance if those solvers become deprecated or otherwise
-      non-functional. optimrx has a more extensive set of solvers and lives
-      (at 2016-7-11) on R-forge. The test scripts in the tests directory have
-      a "0" at the end of the script name e.g. hobbs15b0.R for optimr because
-      of the appropriate library() call. 
+      non-functional. optimrx had a more extensive set of solvers and lived
+      (until late 2017) on R-forge. 
 
 TODO
+      o check method="ALL" and control(all.methods=TRUE) are equivalent, or
+	else remove all.methods=TRUE
+      o set trace=0 in all tests
+      o consolidate and simplify tests
       o Seems to be a printout of maxit that should be conditional (171007)
       o Should add examples, esp. of use of summary.
       o Drop nmkb from methods for bounds if start is on bound
@@ -28,6 +30,8 @@ TODO
       o grchk() -- can it be cleaned up -- it is in optextras
       o Put counters in efn, egr ??
       o Check all failures reported below are fixed!
+
+VERSION 2017-11-28
 
 VERSION 2017-09-24
       o comments include 2017-09-18 version

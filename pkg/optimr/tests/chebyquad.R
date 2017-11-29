@@ -1,8 +1,8 @@
 ## chebyquad.R -- Fletcher's Chebyquad problem
 
-# Ref: Fletcher, R. (1965) Function minimization without calculating derivatives -- a review,
-#         Computer J., 8, 33-41.
-
+# Ref: Fletcher, R. (1965) 
+#      Function minimization without calculating derivatives -- a review,
+#      Computer J., 8, 33-41.
 
 # Note we do not have all components here e.g., .jsd, .h
 
@@ -91,8 +91,7 @@ cyq.setup <- function (n = NULL) {
 
 
 #cat("Takes a long time, so there is an artificial variable skiprun set TRUE\n")
-
-skiprun <- TRUE
+skiprun <- FALSE
 ## tmp <- readline("Skip run :")
 ## if (length(tmp) == 0) { skiprun <- TRUE } else { skiprun <- FALSE }
 
@@ -112,8 +111,8 @@ for (i in 1:length(nn)) {
    lo <- strt$lower
    up <- strt$upper
    cat("n = ", n,"\n")
-#   au <- opm(x0, cyq.f, cyq.g, method="ALL", control=list(trace=1))
-    au <- opm(x0, cyq.f, cyq.g, control=list(all.methods=TRUE, trace=1))
+   au <- opm(x0, cyq.f, cyq.g, method="ALL", control=list(trace=1))
+#    au <- opm(x0, cyq.f, cyq.g, control=list(all.methods=TRUE, trace=1))
    print(summary(au, order=value))
 }
 

@@ -46,10 +46,10 @@ salb<-optimr(xx, sbt.f, sbt.g, lower=lower, upper=upper, method="L-BFGS-B", cont
 print(salb)
 
 
-alkkt <- optextras::kktchk(alb$par, sbt.f, sbt.g, hess=NULL, upper=upper, lower=lower,  maxfn=FALSE,  control=list(trace=1))
+alkkt <- optextras::kktchk(alb$par, sbt.f, sbt.g, hess=NULL, upper=upper, lower=lower,  maximize=FALSE,  control=list(trace=1))
 print(alkkt)
 
-salkkt <- optextras::kktchk(salb$par, sbt.f, sbt.g, hess=NULL, upper=upper, lower=lower,  maxfn=FALSE,  control=list(trace=1))
+salkkt <- optextras::kktchk(salb$par, sbt.f, sbt.g, hess=NULL, upper=upper, lower=lower,  maximize=FALSE,  control=list(trace=1))
 print(salkkt)
 
 aallbd <- opm(xx, sbt.f, sbt.g, lower=lower, upper=upper, method="ALL", control=list(trace=0))

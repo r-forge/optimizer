@@ -1,6 +1,8 @@
 # hjn.R -- R implementation of J Nash BASIC HJG.BAS 20160705
 hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0), ...){
   n <- length(par) # number of parameters
+  if (! is.null(control$maximize) && control$maximize) 
+           stop("Do NOT try to maximize with hjn()")
   if (is.null(control$trace)) control$trace <- 0 # just in case
   if (is.null(control$stepsize)) {
      stepsize <- 1 # initial step size (could put in control())

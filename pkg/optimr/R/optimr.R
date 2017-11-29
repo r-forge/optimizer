@@ -59,6 +59,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
           else stop("control$fnscale and control$maximize conflict")
        } # end ifelse
   } # end else
+  control$origmaximize <- control$maximize # save the original in case we need it
+  control$maximize <- FALSE # and ensure we minimize
   control$fnscale <- fnscale # to ensure set again
 
 # 160615 -- decided to abandon nloptr in optimz
@@ -355,7 +357,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rvmmin
 ## --------------------------------------------
       else if (method == "hjn") {# Use JN Hooke and Jeeves
-        if (control$trace > 0) { # this function is in optimr, so does not need explicit package
+        if (control$trace > 0) { 
+           # this function is in optimr, so does not need explicit package
            cat("hjn:control$have.bounds =",control$have.bounds,"\n")
            cat("optimr - hjn - msk:")
            print(msk)

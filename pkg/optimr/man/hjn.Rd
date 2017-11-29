@@ -42,6 +42,9 @@
      TRUE.}
    \item{\code{tol}}{Tolerance used in testing the size of the pattern search step.}
    }
+   
+   Note that the control \code{maximize} should NOT be used. 
+   
 }
 \value{
   A list with components:

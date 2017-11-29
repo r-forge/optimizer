@@ -104,7 +104,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
              wgr <- gr
              if (is.null(wgr)) wgr <- control$defgrapprox
              kktres <- kktchk(ans$par, fn, wgr, hess=NULL, upper=NULL, lower=NULL, 
-                    maxfn=control$maximize, control=control, ...) 
+                    maximize=control$maximize, control=control, ...) 
              ans$kkt1<-as.logical(kktres$kkt1)
              ans$kkt2<-as.logical(kktres$kkt2)
           }

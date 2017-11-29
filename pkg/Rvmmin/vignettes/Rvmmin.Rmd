@@ -270,10 +270,16 @@ xtabs(formula = nf ~ acctol + eps, data=resdf)
 xtabs(formula = ng ~ acctol + eps, data=resdf)
 ```
 
+The results above suggest that parameter scaling is not much of a problem. 
+Actually, these are the very best results I have found with any method for
+this problem, which is actually rather nasty. I suggest trying this problem
+on your favourite optimizer. Alternatively, use the package `optimr` and
+run the function `opm()` with `method="ALL"`.
+
 ### Weeds problem with random starts
 
 This notorious problem (see @cnm79, page 120, @nlpor14, page 205, for details
-under the Hobbs Weeds problem) is small but generally difficult due
+under the heading **Hobbs Weeds problem**) is small but generally difficult due
 to the possibility of bad scaling of both function and parameters and a 
 near-singular Hessian in the original parameterization.
 
@@ -285,7 +291,7 @@ settings for maxit in optim:BFGS, then the success rate
 drops to less than 2/3 of cases tried below.
 
 Below we use 100 "random" starting points for both Rvmmin and the
-optim:BFGS minimizers (which should, but are not quite, the same).
+optim:BFGS minimizers (which should be, but are not quite, the same).
 
 ```{r}
 ## hobbstarts.R -- starting points for Hobbs problem 
@@ -408,7 +414,7 @@ fgc <- data.frame(fRvm, foptim, gRvm, goptim)
 summary(fgc)
 ```
 
-## bounds and masks
+## Bounds and masks
 
 Let us make sure that Rvmminb is doing the right thing with 
 bounds and masks. (This is actually a test in the package.)

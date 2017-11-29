@@ -8,9 +8,11 @@ TODOS
    o    Eventual incorporation of line searches, possibly in a
         separate routine
 
+2017-11-25
+   o    Tidy tests
+
 2017-7-18
    o    Simplify example
-
    o    Added tests
 
 2016-11-30

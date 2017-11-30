@@ -6,6 +6,7 @@ NOTE: Formerly optimr was intended for CRAN and had a limited set of solvers to 
       (until late 2017) on R-forge. 
 
 TODO
+      o add bib references to vignette
       o check method="ALL" and control(all.methods=TRUE) are equivalent, or
 	else remove all.methods=TRUE
       o set trace=0 in all tests

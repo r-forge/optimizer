@@ -272,6 +272,13 @@ optimx(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
   There are \code{[.optimx}, \code{as.data.frame.optimx}, \code{\link{coef.optimx}} 
   and \code{\link{summary.optimx}} methods available.
+  
+  Note: Package \code{optimr} is a derivative of this package. It was developed
+  initially to overcome maintenance difficulties with the current package 
+  related to avoiding confusion if some multiple options were specified together,
+  and to allow the \code{optim()} function syntax to be used consistently, 
+  including the \code{parscale} control. However, this package does perform
+  well, and is called by a number of popular other packages.
 
 }
 \value{
@@ -396,6 +403,7 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
   \code{\link[dfoptim]{nmkb}},
   \code{\link[dfoptim]{hjkb}}.
   \code{\link{optimize}} for one-dimensional minimization;
+  \code{\link[optimr]{optimr}} for a restructured version of this code;
   \code{\link{constrOptim}} or \code{\link[BB]{spg}} for linearly constrained optimization.
 }
 

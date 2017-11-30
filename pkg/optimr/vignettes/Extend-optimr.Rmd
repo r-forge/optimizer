@@ -1,7 +1,7 @@
 ---
 title: "Using and extending the optimr package"
 author: "John C. Nash (nashjc _at_ uottawa.ca)"
-date: "`r Sys.Date()`"
+date: "2017-11-28"
 output: pdf_document
 ## output: rmarkdown::html_vignette
 vignette: >
@@ -10,12 +10,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-%% note VignetteEngine line -- other forms gave "no prebuilt vignette index" msg
+---
+% note VignetteEngine line -- other forms gave "no prebuilt vignette index" msg
+---
 
 ## Abstract
 
-`optimr` and `optimrx` are wrapper R packages to allow the regular R `optim()` 
-structure to be applied when using many different optimization 
+`optimr` is a wrapper package to allow the regular R `optim()` 
+calling syntax to be applied when using many different optimization 
 packages available to R users. In particular, we want
 
 * to use the structure of the `optim()` call;
@@ -29,28 +31,13 @@ of the `optextras` package;
 * to allow for experimentation in different approaches to bounds constraints
 and fixed (masked) parameters.
 
-The package `optimr` is intended to be available as an official CRAN
-package, so has a limited set of underlying optimizers. `optimrx` will be
-available on alternative package repositories (initially R-forge, in the
-**optimizer** project), and will allow the use of many optimizers. Since
-some of these optimizers may become deprecated or otherwise unavailable, 
-or else not be part of the official R repositories, I expect that the
-`optimrx` package will, from time to time, suffer glitches and failures.
-
-It is fully intended that users may wish to extend the packages, especially
-their `optimr()` functions. `optimr()` and `ctrldefault` are the only places
-where the R functions in the packages differ, with `ctrldefault.R` listing
-the optimizers available in each package and `optimr.R` having relevant
-code to match. Note that there are multiple 
+It is fully intended that users may wish to extend the package, especially
+the `optimr()` function. `ctrldefault.R` lists
+the optimizers available via this function in the code `optimr.R`. 
+Note that there are multiple 
 package lists in the `ctrldefault()`
 function for unconstrained, bounded and masked parameters. 
-There are particularizations in the test scripts, but these
-are restricted to the `library()` statements. 
-Package `optimrx` may also be expected to contain extra tests, 
-commentary, and other material of a developmental or experimental nature.
-Nevertheless, I believe users may find this larger collection more useful if
-they are having to attack difficult problems. 
-
+Users can add lists suitable to their needs. 
 
 ## Overview
 
@@ -64,6 +51,8 @@ multiple parameters subject to at most bounds constraints. Many methods
 offer extra facilities, but apart from **masks** (fixed parameters) for the 
 `hjn`, `Rcgmin` and `Rvmmin` methods, such features are
 likely inaccessible via this package without some customization of the code.
+
+**optimr** had its origin in the package **optimx** ??ref??
 
 In general, we wish to find the
 vector of parameters `bestpar` that minimize an objective
@@ -143,7 +132,7 @@ uses the transfinite transformation of the objective function to impose the boun
 (Chapter 11 of Nash, 2014), which causes an error if any of the initial parameters 
 are on one of the bounds. 
 
-There are several improvements in the `optimr` and `optimrx` packages relating to 
+There are several improvements in the `optimr` package relating to 
 bounds that would be especially nice to
 see, but I do not have any good ideas yet how to implement them all. Among these 
 unresolved improvements are:
@@ -177,7 +166,7 @@ As a computational approach, this is generally a very bad idea, but in the prese
 The method `hjn` is a Hooke and Jeeves axial search method that allows masks and bounds.
 It is coded using explicit loops, so will generally be much slower than an implementation
 (e.g., `hjkb` from `dfoptim` or the similar code in package `pracma`) that try to 
-employ vectorized computations. `hjn` was included in `optimr` and `optimrx` to provide
+employ vectorized computations. `hjn` was included in `optimr` to provide
 an example of a direct search method with masks. I do NOT recommend it for general use.
 
 There is a possibility that masks could be implemented globally in optimr. 
@@ -336,7 +325,7 @@ optimizer.
 
 For FORTRAN programs, Nash (2014), Chapter 18, has some suggestions. Particular issues
 concern the dot arguments (ellipsis or ... entries to allow exogenous data for the
-objective function and gradient), which can raise difficulties. In package `optimrx`
+objective function and gradient), which can raise difficulties. In package `optimr`
 the interface to the `lbfgs` shows one approach, which consolidates the arguments for
 `lbfgs()` into a list, then converts the list to an environment. 
 
@@ -474,7 +463,7 @@ specific problems they may be wildly inappropriate.
 ## Functions used from the `optextras` package
 
 Optimization methods share a lot of common infrastructure, and much of this has been 
-collected in my `optextras` package. The routines used in the current packages are as follows.
+collected in my `optextras` package. The routines used in the current package are as follows.
 
 ### kktchk()
 
@@ -549,14 +538,13 @@ latter are quite different, though both failed the test function `bt.f()` exampl
 has corrected the codes on CRAN. 
 
 Note that this is not a criticism of the creators of `dfoptim`. I have made similar choices
-myself with other packages.
-And it is challenging to balance clarity, maintainability, efficiency, and common
+myself with other packages. It is challenging to balance clarity, maintainability, efficiency, and common
 structure for a suite of related program codes. 
 
 
 ## Testing the package
 
-There are examples and tests within the packages. These include
+There are examples and tests within the package. These include
 
 - simple examples to illustrate the usage
 - individual method tests

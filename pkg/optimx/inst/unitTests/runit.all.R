@@ -1,10 +1,3 @@
-# To run these tests:
-#   library(optimx)
-#   library(svUnit)
-#   runit.all <- system.file("unitTests", "runit.all.R", package = "optimx")
-#   source(runit.all); clearLog(); test.all()
-#   Log()
-
 test.all <- function() {
 
 	## test 1
@@ -138,4 +131,11 @@ test.all <- function() {
 
 
 }
+
+# To run these tests:
+   library(optimx)
+   library(svUnit)
+   runit.all <- system.file("unitTests", "runit.all.R", package = "optimx")
+   source(runit.all); clearLog(); test.all()
+   Log()
 

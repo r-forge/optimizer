@@ -1,7 +1,7 @@
 Package: optimx
-Version: 2017.10.5
-Date: 2017-10-05
-Title: A Replacement and Extension of the 'optim' Function 
+Version: 2017.12.15
+Date: 2017-12-15
+Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
     "Ravi", family = "Varadhan", role = "aut", email =
@@ -13,10 +13,12 @@ Maintainer: Ravi Varadhan <RVaradhan@jhmi.edu>
 Description: Provides a replacement and extension of the optim()
     function to call to several function minimizers in R in a single
     statement. These methods handle smooth, possibly box constrained functions 
-    of several or many parameters. Note that package 'optimr' was prepared to
+    of several or many parameters. Note that function 'optimr()' was prepared to
     simplify the incorporation of minimizers going forward.
 License: GPL-2
 LazyLoad: Yes
-Imports: numDeriv, ucminf, BB, Rcgmin, Rvmmin, minqa, setRNG, dfoptim, lbfgsb3,
-        svUnit
+Imports: numDeriv, optextras
 NeedsCompilation: no
+Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim, Rtnmin,
+        Rvmmin, Rcgmin, lbfgsb3, lbfgs, subplex
+VignetteBuilder: knitr

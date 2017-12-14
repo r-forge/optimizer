@@ -1,19 +1,106 @@
 NEWS about R package optimx
 
+Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
+
 TODO
+      o Seems to be a printout of maxit that should be conditional (171007)
+      o Should add examples, esp. of use of summary.
+      o Drop nmkb from methods for bounds if start is on bound
+      o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
+      o Add nloptr methods -- there are a number and we need to choose how
+	to do so. Seems unable to handle parameter scaling or dot arguments
+      o Consider how the hyperbolic transformation (transfinite fn)
+        could be used in all unconstrained methods
+      o How can transfinite be made to work when start is on bounds?
+	To work when end is on bounds?
+      o Rcgmin seems to report reset of parameters to bounds when parameter
+        is apparently on the bound. Could have rounding issues, and should
+        avoid this warning if it is really not needed.
+      o Do NOT add ipoptr until non-standard install is fixed up.
+      o Note axsearch() is in the optextras package, but needs a good test.
+        May want to include a maximization test too.
+      o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
+      o grchk() -- can it be cleaned up -- it is in optextras
+      o Put counters in efn, egr ??
+      o Check all failures reported below are fixed!
+
+VERSION 2017-12-15
+      o merging optimr(x) into optimx
+      o some documentation of differences between opm() and optimx()
+      o Use pkg::fn style calls in optimx.run.R
+      o add bib references to vignette
+      o checked method="ALL" and control(all.methods=TRUE) are equivalent for opm()
+      o set trace=0 in all tests
+      o partially simplify tests
 
 VERSION 2017-10-05
-      o Ravi Varadhan takes over as maintainer.
+      o Ravi Varadhan as maintainer
       o Warning about combining options.
 
+VERSION 2017-09-24
+      o comments include 2017-09-18 version
+      o brought optimx solvers into optimr and added check that packages 
+        are available
+      o Fix for lbfgsb3 which was changed at same time to correct and
+        simplify some control parameters
+
 VERSION 2017-04-04
+      o allowed hessian in opm() and optimr() (for nlm)
       o Thanks to Marie Boehnstedt for catching error in creation of
         the composite function and gradient for calling nlm() method.
+
+VERSION 2017-02-15
+      o added subplex method
+
+VERSION 2016-09-16
+      o Harry Joe reported troubles with numerical gradient approximations. Found
+        	some glitches and conflicts to fix. Also documentation is less than ideal.
+        Scaling spar to par was INSIDE control$trace
 
 VERSION 2016-08-26
       o Thanks to Henrik Singmann for spotting a bug in optimx.run.R
         for the case where nlminb fails. I had missed resetting some
         elements of the solution object in this case.
+
+VERSION 2016-07-10
+      o hessian=TRUE is NOT properly executed
+      o Test function hobbs15b illustrates different scalings across all methods
+      o Appropriate lists of "ALL", "bounded" and "masked" methods are defined 
+        in the ctrldefault() function.
+      o jonesrun L-BFGS-B fails with numerical gradient approximation.
+      o dfoptim hjkb was fixed by Ravi Varadhan
+
+VERSION 2016-07-03
+      o Move allmeth, bdmeth, maskmeth into ctrldefault so we have just in
+	one place. Note that this will change with optimr/optimrx
+      o Masks for hjn(), and incorporate hjn in optimr
+      o time (xtimes) removed from optimr, but timing is included in opm()
+      o polyalgorithm wrapper polyopt() included and documented with example
+      o multistart wrapper multistart() included and documented with example
+      o renamed coef.optimx to coef.opm
+
+
+VERSION 2016-06-28
+      o Checked that controls do not conflict, e.g., maximize and fnscale. Note that
+        maximize is NOT in optim() call.
+      o Checked and fixed scaling of bounds in optimr. However, hjkb seems to fail
+      o Creates scbdtest.R,  a test function that is simple but bounded and scaled badly
+      o Get routines from optextras rather than have duplicates in optimr
+      o rename package to optimr for optimR(eplacement)
+      o Problems with lbfgs package (unconstrained) resolved
+      o test parameter scaling (but this could be improved)
+      o Demos still refer to optimx -- must be changed -- 160628 moved 
+        off to Roptimtest/current/
+
+
+VERSION 2016-05-30
+      o Crude setting of uobyqa and newuoa for control rhobeg.
+        Especially when parameters all 0, or bounds undefined, program 
+	will fail so we need to set this. May also be needed for rhoend.
+
+VERSION 2016-01-07
+      o realized control rhobeg needed to be set or bobyqa would fail.
+
 
 VERSION 2015-06-03
       o Added index to bstate in optimx.check.R to avoid unwanted 

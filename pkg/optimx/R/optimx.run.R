@@ -204,7 +204,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (meth == "spg") { # Use BB package routine spg as minimizer
         mcontrol$maximize<-NULL # Use external maximization approach
-        time <- system.time(ans <- try(spg(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper,  
+        time <- system.time(ans <- try(BB::spg(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper,  
 		control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") { 
    	   ans$convcode <- ans$convergence
@@ -234,7 +234,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 # Change 20100415 to avoid setting ctrl values when all.methods
         mcontrol$maxeval<-mcontrol$maxit # Note it is just function evals for ucminf
         mcontrol$maxit<-NULL
-        time <- system.time(ans <- try(ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
+        time <- system.time(ans <- try(ucminf::ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- ans$convergence
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
@@ -283,10 +283,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	         if (ctrl$trace>0) cat("Rcgmin using grfwd\n")
         }	     
 	if (have.bounds) {
-   	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
+   	   time <- system.time(ans <- try(Rcgmin::Rcgminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
 		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-   	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=tugr, 
+   	   time <- system.time(ans <- try(Rcgmin::Rcgminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") {
@@ -319,10 +319,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	         if (ctrl$trace>0) cat("Rvmmin using grfwd\n")
 	}
 	if (have.bounds) {
-   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
+   	   time <- system.time(ans <- try(Rvmmin::Rvmminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
 		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-   	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=tugr, 
+   	   time <- system.time(ans <- try(Rvmmin::Rvmminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") { # 150423 remove  "&& (ans$convergence==0"
@@ -359,7 +359,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 #	print(par)
 #	print(ufn)
 #	print(ugr)
-        time <- system.time(ans <- try(lbfgsb3(prm=par, fn=ufn, gr=ugr, 
+        time <- system.time(ans <- try(lbfgsb3::lbfgsb3(prm=par, fn=ufn, gr=ugr, 
 		lower=lower, upper=upper, control=mcontrol, ...), silent=TRUE))[1]
         if ((class(ans)[1] != "try-error")) {
 		ans$convcode <- 0
@@ -394,7 +394,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
-        time <- system.time(ans <- try(bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(minqa::bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- 0
                 # cat("bobyqa - ans$feval = ans$feval\n")
@@ -429,7 +429,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
 
-        time <- system.time(ans <- try(uobyqa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(minqa::uobyqa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- 0
                 if (ans$feval > mcontrol$maxfun) {
@@ -462,7 +462,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
-        time <- system.time(ans <- try(newuoa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
+        time <- system.time(ans <- try(minqa::newuoa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
 		ans$convcode <- 0
                 if (ans$feval > mcontrol$maxfun) {
@@ -517,23 +517,23 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 #        cat("nmkb par:")
 #        print(par)
 #         if (have.bounds) {
-#            time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
+#            time <- system.time(ans <- try(dfoptim::nmkb(par=par, fn=ufn, lower = lower, 
 #              upper = upper, control=mcontrol, ...), silent=TRUE))[1]
 #         } else {
-#            time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
+#            time <- system.time(ans <- try(dfoptim::nmk(par=par, fn=ufn, 
 #              control=mcontrol, ...), silent=TRUE))[1]
 #         }
          if (have.bounds) {
-            time <- system.time(ans <- try(nmkb(par=par, fn=ufn, lower = lower, 
+            time <- system.time(ans <- try(dfoptim::nmkb(par=par, fn=ufn, lower = lower, 
               upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
 ## this worked when control=mcontrol did not
-##            time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
+##            time <- system.time(ans <- try(dfoptim::nmk(par=par, fn=ufn, 
 ##              control=list(trace=TRUE), ...)))[1]
 ## as.list did not work
 #           print(str(mcontrol))
 #           print(class(mcontrol))
-            time <- system.time(ans <- try(nmk(par=par, fn=ufn, 
+            time <- system.time(ans <- try(dfoptim::nmk(par=par, fn=ufn, 
               control=mcontrol, ...), silent=TRUE))[1]
          }
          if (class(ans)[1] != "try-error") {
@@ -587,10 +587,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	 }
          mcontrol$maxit<-NULL # and null out control that is NOT used
          if (have.bounds) {
-            time <- system.time(ans <- try(hjkb(par=par, fn=ufn, lower = lower, 
+            time <- system.time(ans <- try(dfoptim::hjkb(par=par, fn=ufn, lower = lower, 
                 upper = upper, control=mcontrol, ...), silent=TRUE))[1]
          } else {
-            time <- system.time(ans <- try(hjk(par=par, fn=ufn, 
+            time <- system.time(ans <- try(dfoptim::hjk(par=par, fn=ufn, 
                 control=mcontrol, ...), silent=TRUE))[1]
          }
          if (class(ans)[1] != "try-error") {

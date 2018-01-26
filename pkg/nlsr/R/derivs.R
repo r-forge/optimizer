@@ -166,10 +166,7 @@ nlsDeriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, ve
         result <- Recurse(result)
         nlsSimplify(result, verbose = verbose, ...)
     } else if (is.name(expr))
-    	if (as.character(expr) == name)
-    	    return(1)
-    	else
-    	    return(0)        
+        return( as.numeric(as.character(expr) == name) )
 }
 
 # This is a more general version of deriv(), since it allows user specified 
@@ -253,7 +250,10 @@ fnDeriv <- function(expr, namevec, args = all.vars(expr), env = environment(expr
   fn
 }
 
-isFALSE <- function(x) identical(FALSE, x)
+if (getRversion() < "3.5.0") {
+  isFALSE <- function(x) identical(FALSE, x)
+} else 
+  isFALSE <- isFALSE
 isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0
 isONE  <- function(x) is.numeric(x) && length(x) == 1 && x == 1
 isMINUSONE <- function(x) is.numeric(x) && length(x) == 1 && x == -1

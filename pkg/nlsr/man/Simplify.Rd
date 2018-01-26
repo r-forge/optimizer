@@ -83,6 +83,11 @@ to \code{TRUE}.  This is used in the definition of the derivative
 for \code{x - y}, where the unary minus is seen as a missing \code{y}
 value.
 }
+\note{
+The \code{isFALSE} function was added to base \R in version 3.5.0;
+starting with that version, \code{nlsr::isFALSE} is simply a copy
+of it.
+}
 \value{
 \code{nlsSimplify} returns a simplification of the expression, assuming
 that variables and functions take real values.

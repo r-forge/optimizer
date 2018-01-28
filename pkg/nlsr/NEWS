@@ -2,9 +2,8 @@
 TODO:
          o    Should we use model.frame() anywhere??
 
-180126   o    A minor fix to derivs.R to avoid test on multi-component
-              object (only simple object will eventually be allowed in
-              such tests as R is updated)
+180128   o    A minor fix to derivs.R to avoid a bug when multiple
+              partials are computed at once
 
          o    isFALSE now becoming part of R, so nlsr::isFALSE has been
               adjusted to be that code

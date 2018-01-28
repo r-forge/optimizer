@@ -33,6 +33,10 @@ nlsDeriv( ~ -x, "x")
 nlsDeriv( ~ abs(x), "x")
 nlsDeriv( ~ sign(x), "x")
 
+# This was wrong...
+
+nlsDeriv(expression(y), c("x", "y"))
+
 # Various simplifications
 
 nlsSimplify(quote(+(a+b)))
@@ -95,4 +99,3 @@ nlsSimplify(quote(if (cond) a+b else a+b))
 
 # This one was wrong...
 nlsSimplify(quote(--(a+b)))
-

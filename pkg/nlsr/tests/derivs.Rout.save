@@ -1,7 +1,7 @@
 
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin13.4.0 (64-bit)
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -86,6 +86,11 @@ y * x^(y - 1)
 sign(x)
 > nlsDeriv( ~ sign(x), "x")
 [1] 0
+> 
+> # This was wrong...
+> 
+> nlsDeriv(expression(y), c("x", "y"))
+[1] 0 1
 > 
 > # Various simplifications
 > 
@@ -194,7 +199,6 @@ a + b
 > nlsSimplify(quote(--(a+b)))
 a + b
 > 
-> 
 > proc.time()
    user  system elapsed 
-  0.156   0.022   0.167 
+  0.290   0.036   0.310 

@@ -1,6 +1,18 @@
 
 TODO:
-         o    Should we use model.frame() anywhere??
+         o    Should we use model.frame() anywhere?
+
+         o    Need to ensure masks consistent between nlfb and nlxb.
+
+         o    Need to check if all parameters masked.
+
+         o    Should allow jacfn to be specified in quotation marks to
+              call numerical approximations of different types, as per
+              optimr / optimx.
+
+         o    Vignette to explain how stabilized Marquardt works, since
+              Compact Numerical Methods book is hard to find.
+
 
 180128   o    A minor fix to derivs.R to avoid a bug when multiple
               partials are computed at once

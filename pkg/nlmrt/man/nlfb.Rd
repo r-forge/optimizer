@@ -4,35 +4,28 @@
      qr linear solver.
 }
 \description{
-   Given a nonlinear model expressed as a vector valued residual function
-   \code{resfn} and a start vector of parameter values for that function, 
+   Given a nonlinear model expressed as an expression of the form
+         lhs ~ formula_for_rhs
+   and a start vector where parameters used in the model formula are named,
    attempts to find the minimum of the residual sum of squares using the
    Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method. This is a restructured version
-   of a function by the same name from package \code{nlmrt} which is now
-   deprecated.
+   sub-problem is solved by a qr method.
 }
 \usage{
    nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
-         maskidx=NULL, weights=NULL, data=NULL, control, ...)
+         maskidx=NULL, control, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{resfn}{
      A function that evaluates the residual vector for computing the elements of
-     the sum of squares function at the set of parameters \code{start}. Where this
-     function is created by actions on a formula or expression in \code{nlxb}, this
-     residual vector will be created by evaluation of the 'model - data', rather than
-     the conventional 'data - model' approach. The sum of squares is the same.
+     the sum of squares function at the set of parameters \code{start}. 
 }
   \item{jacfn}{
      A function that evaluates the Jacobian of the sum of squares function, that
      is, the matrix of partial derivatives of the residuals with respect to each
      of the parameters. If NULL (default), uses an approximation.
-
-     The Jacobian must be returned as the attribute "gradient" of this function,
-     allowing \code{jacfn} to have the same name and be the same code block
-     as \code{resfn}, which may permit some efficiencies of computation.
+     ?? put in character form as in optimx??
 }
   \item{start}{
      A named parameter vector. For our example, we could use
@@ -56,18 +49,6 @@
      which uses the names of the parameters.
 
 } 
-
-  \item{weights}{
-     A vector of fixed weights. The objective function that will be minimized is the
-     sum of squares where each residual is multiplied by the square root of the 
-     corresponding weight.  Default (NULL) implies unit weights.
-} 
-
-  \item{data}{
-     Data frame of variables used by resfn and jacfn to compute the
-     required residuals and Jacobian.
-}
-
   \item{control}{ 
      A list of controls for the algorithm. These are:
      \describe{
@@ -130,13 +111,16 @@
 \author{
 John C Nash <nashjc@uottawa.ca>
 }
+\note{
+   Special notes, if any, will appear here.
+}
 
 \seealso{
     Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
 }
 
 \examples{
-cat("See examples in nls14-package.Rd\n")
+cat("See examples in nlmrt-package.Rd\n")
 
 }
 \keyword{ nonlinear least squares }

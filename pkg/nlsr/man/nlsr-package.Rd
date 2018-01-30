@@ -34,8 +34,7 @@ The main functions in \code{nlsr} are:
 \describe{
 \item{nlfb}{Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using a residual and optionally Jacobian
-	described as \code{R} functions. 
-    20120803: Todo: Make masks more consistent between nlfb and nlxb.??}
+	described as \code{R} functions.}
 
 \item{nlxb}{Nash variant of the Marquardt procedure for nonlinear least squares,
 	with bounds constraints, using an expression to describe the residual via
@@ -69,7 +68,8 @@ Maintainer:  <nashjc@uottawa.ca>
      Linear Algebra and Function Minimisation._ Adam Hilger./Institute
      of Physics Publications
 
-     others!!??
+     Nash, J. C. (2014) _Nonlinear Parameter Optimization Using R Tools._
+     Wiley 
 
 }
 \keyword{ nls }
@@ -234,8 +234,6 @@ printsum(an1fm1)
 } # end dontrun
 
 
-# Need to check when all parameters masked.??
-
-
+# Need to check when all parameters masked.
 
 }

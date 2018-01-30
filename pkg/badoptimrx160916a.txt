@@ -1,0 +1,19 @@
+source("grapptest.R", echo=TRUE)
+ls()
+bfgs4n
+bfgs4nu<-optimru(s4, nondia.f, gr="grnd", method="BFGS")
+bfgs4nu
+ls()
+bfgs4fu<-optimru(s4, nondia.f, gr="grfwd", method="BFGS")
+bfgs4fu<-optimru(s4, nondia.f, gr="grfwd", method="BFGS", control=list(trace=1))
+bfgs4fu<-optimru(s4, nondia.f, gr="grfwd", method="BFGS", control=list(trace=3))
+bfgs4fu
+bfgs4nu<-optimru(s4, nondia.f, gr="grnd", method="BFGS", control=list(trace=3))
+bfgs4nu1<-optimru(s4, nondia.f, gr="grnd", method="BFGS")
+bfgs4nu1
+savehistory("badoptimrx160916a.txt")
+bfgs4nu1<-optimru(s4, nondia.f, gr="grnd", method="BFGS", control=list(trace=1))
+bfgs4nu1<-optimru(s4, nondia.f, gr="grnd", method="BFGS", control=list(trace=3))
+bfgs4nu1<-optimru(s4, nondia.f, gr="grnd", method="BFGS", control=list(trace=1))
+bfgs4nu1<-optimru(s4, nondia.f, gr="grnd", method="BFGS", control=list(trace=3))
+savehistory("badoptimrx160916a.txt")

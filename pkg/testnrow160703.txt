@@ -1,0 +1,15 @@
+?dim
+?nrow
+tmat <- function(matt){
+  mm <- nrow(matt)
+  nn <- ncol(matt)
+  cat("Rows and cols", mm, nn,"\n")
+  ans <- list(mm=mm, nn=nn)
+}
+mymat <- matrix(runif(90), nrow=15, ncol=6)
+mymat
+colnames(mymat) <- c("A","B","C","D","E","F")
+mymat
+ls()
+aa <- tmat(mymat)
+savehistory("testnrow160703.txt")

@@ -1,0 +1,31 @@
+latex from Rd seems to be having link troubles with functions from base and stats.
+
+Tried base::alist -- generated additional warning.
+
+R CMD Rd2pdf --no-clean nlsr
+
+-- needed to install texinfo. Where are files? --- in /tmp/ 
+
+Getting 
+
+pdfTeX warning (dest): name{Rfn.isTRUE} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.alist} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.D} has been referenced but does not exist, repl
+aced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.substitute} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.nls} has been referenced but does not exist, re
+placed by a fixed one
+
+pdfTeX warning (dest): name{Rfn.deriv} has been referenced but does not exist, 
+replaced by a fixed one
+
+pdfTeX warning (dest): name{Rfn.optim} has been referenced but does not exist, 
+replaced by a fixed one
+

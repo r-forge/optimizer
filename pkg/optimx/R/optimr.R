@@ -28,7 +28,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   orig.method <- method
   orig.gr <- gr
   orig.fn <- fn
-  savehess <- hessian
+  savehess <- hessian # logical -- whether to save hessian
 
 
   if (is.null(control$trace)) control$trace <- defctrl$trace

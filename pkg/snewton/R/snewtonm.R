@@ -1,4 +1,4 @@
-snewtonm<-function(par,fn,gr,hess,control=list(trace=1, maxit=500),...) {
+snewtonm<-function(par,fn,gr,hess,control=list(trace=0, maxit=500),...) {
   ## Safeguarded Newton minimizer 
   ##
   ##Input

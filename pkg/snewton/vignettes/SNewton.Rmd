@@ -169,7 +169,7 @@ hesst <- function(x, fscale=10){
 }
 
 library(snewton)
-t1 <- snewton(x0, fnt, grt, hesst, control=list(trace=2), fscale=3.0)
+t1 <- snewton(x0, fnt, grt, hesst, control=list(trace=0), fscale=3.0)
 print(t1)
 # we can also use nlm and nlminb
 fght <- function(x, fscale=10){
@@ -182,20 +182,20 @@ fght <- function(x, fscale=10){
      ff
 }
 
-t1nlm <- nlm(fght, x0, fscale=3.0, hessian=TRUE, print.level=1)
+t1nlm <- nlm(fght, x0, fscale=3.0, hessian=TRUE, print.level=0)
 print(t1nlm)
 
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method
-t1nlminb <- nlminb(x0, fnt, gradient=grt, hessian=hesst, fscale=3.0, control=list(trace=1))
+t1nlminb <- nlminb(x0, fnt, gradient=grt, hessian=hesst, fscale=3.0, control=list(trace=0))
 print(t1nlminb)
 # and call them from optimx (i.e., test this gives same results)
 
 library(optimx)
-t1nlmo <- optimr(x0, fnt, grt, hess=hesst, method="nlm", fscale=3.0, control=list(trace=1))
+t1nlmo <- optimr(x0, fnt, grt, hess=hesst, method="nlm", fscale=3.0, control=list(trace=0))
 print(t1nlmo)
 
 
-tst <- try(t1nlminbo <- optimr(x0, fnt, grt, hess=hesst, method="nlminb", fscale=3.0, control=list(trace=1)))
+tst <- try(t1nlminbo <- optimr(x0, fnt, grt, hess=hesst, method="nlminb", fscale=3.0, control=list(trace=0)))
 if (class(tst) == "try-error"){
     cat("try-error on attempt to run nlminb in optimr()\n")
 } else { print(t1nlminb) }
@@ -226,7 +226,7 @@ x0 <- c(-1.2, 1)
 xx <- x0
 
 # sink("mbrn1-170408.txt", split=TRUE)
-t1 <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=2))
+t1 <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=0))
 print(t1)
 
 # we can also use nlm and nlminb
@@ -241,20 +241,20 @@ fght <- function(x){
 }
 
 ## ?? SEEMS NOT TO WORK RIGHT!!
-t1nlm <- nlm(fght, x0, hessian=TRUE, print.level=2)
+t1nlm <- nlm(fght, x0, hessian=TRUE, print.level=0)
 print(t1nlm)
 
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method
-t1nlminb <- nlminb(x0, f, gradient=gr, hessian=h, control=list(trace=1))
+t1nlminb <- nlminb(x0, f, gradient=gr, hessian=h, control=list(trace=0))
 print(t1nlminb)
 # and call them from optimx (i.e., test this gives same results)
 
 library(optimx)
-t1nlmo <- optimr(x0, f, gr, hess=h, method="nlm", control=list(trace=1))
+t1nlmo <- optimr(x0, f, gr, hess=h, method="nlm", control=list(trace=0))
 print(t1nlmo)
 
 ## FOLLOWING SHOWS UP ERRORS??
-tst <- try(t1nlminbo <- optimr(x0, f, gr, hess=h, method="nlminb", control=list(trace=1)))
+tst <- try(t1nlminbo <- optimr(x0, f, gr, hess=h, method="nlminb", control=list(trace=0)))
 if (class(tst) == "try-error"){
     cat("try-error on attempt to run nlminb in optimr()\n")
 } else { print(t1nlminb) }
@@ -311,26 +311,26 @@ x0 <- c(-3,-1,-3,-1) # Wood standard start
 
 library(snewton)
 cat("This FAILS to find minimum\n")
-wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
+wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=0))
 print(wd)
-wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
+wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=0))
 print(wdm)
 
 cat("\n\n nlm() gives similar results\n")
-t1nlm <- nlm(wood.fgh, x0, print.level=2)
+t1nlm <- nlm(wood.fgh, x0, print.level=0)
 print(t1nlm)
 
 
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method
-t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hess=wood.h, control=list(trace=1))
+t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hess=wood.h, control=list(trace=0))
 print(t1nlminb)
 # and call them from optimx (i.e., test this gives same results)
 
 library(optimx)
-t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(trace=1))
+t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(trace=0))
 print(t1nlmo)
 
-tst<-try(t1nlminbo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlminb", control=list(trace=1)))
+tst<-try(t1nlminbo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlminb", control=list(trace=0)))
 if (class(tst) == "try-error"){
     cat("try-error on attempt to run nlminb in optimr()\n")
 } else { print(t1nlminb) }
@@ -412,7 +412,8 @@ print(eigen(sol50pim$Hess)$values)
 ```
 ## The Hobbs weed infestation problem
 
-??ref
+This problem is described in @cnm79. It has various nasty properties. Note that one starting point causes
+failure of the `snewton()` optimizer.
 
 ```{r}
 ## Optimization test function HOBBS
@@ -567,7 +568,7 @@ cat("This test finds a saddle point\n")
 x1s <- c(100, 10, .1)
 cat("Start for Hobbs:")
 print(x1s)
-solx1s <- snewton(x1s, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2))
+solx1s <- snewton(x1s, hobbs.f, hobbs.g, hobbs.h, control=list(trace=0))
 print(solx1s)
 print(eigen(solx1s$Hess)$values)
 
@@ -575,7 +576,7 @@ cat("Following test fails with ERROR -- Why?\n")
 x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
-ftest <- try(solx1 <- snewton(x1, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2)))
+ftest <- try(solx1 <- snewton(x1, hobbs.f, hobbs.g, hobbs.h, control=list(trace=0)))
 if (class(ftest) != "try-error") {
    print(solx1)
    print(eigen(solx1$Hess)$values)

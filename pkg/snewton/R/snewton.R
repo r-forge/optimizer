@@ -62,7 +62,7 @@ cat("trace =",trace,"\n")
       convcode <- 1
       break
     }
-    cat("nf=",nf,"\n")
+    # cat("nf=",nf,"\n")
     if (nf > control$maxfevals){
       if (trace > 0) cat("Too many (",nf," function evaluations\n")
       halt <- TRUE

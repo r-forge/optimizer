@@ -194,8 +194,8 @@ library(optimx)
 t1nlmo <- optimr(x0, fnt, grt, hess=hesst, method="nlm", fscale=3.0, control=list(trace=1))
 print(t1nlmo)
 
-## FOLLOWING SHOWS UP ERRORS??
-tst <- try(t1nlminbo <- optimr(x0, fnt, grt, hessian=hesst, method="nlminb", fscale=3.0, control=list(trace=1)))
+
+tst <- try(t1nlminbo <- optimr(x0, fnt, grt, hess=hesst, method="nlminb", fscale=3.0, control=list(trace=1)))
 if (class(tst) == "try-error"){
     cat("try-error on attempt to run nlminb in optimr()\n")
 } else { print(t1nlminb) }
@@ -254,7 +254,7 @@ t1nlmo <- optimr(x0, f, gr, hess=h, method="nlm", control=list(trace=1))
 print(t1nlmo)
 
 ## FOLLOWING SHOWS UP ERRORS??
-tst <- try(t1nlminbo <- optimr(x0, f, gr, hessian=h, method="nlminb", control=list(trace=1)))
+tst <- try(t1nlminbo <- optimr(x0, f, gr, hess=h, method="nlminb", control=list(trace=1)))
 if (class(tst) == "try-error"){
     cat("try-error on attempt to run nlminb in optimr()\n")
 } else { print(t1nlminb) }
@@ -322,7 +322,7 @@ print(t1nlm)
 
 
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method
-t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hessian=wood.h, control=list(trace=1))
+t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hess=wood.h, control=list(trace=1))
 print(t1nlminb)
 # and call them from optimx (i.e., test this gives same results)
 
@@ -330,8 +330,7 @@ library(optimx)
 t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(trace=1))
 print(t1nlmo)
 
-## FOLLOWING SHOWS UP ERRORS??
-tst<-try(t1nlminbo <- optimr(x0, wood.f, wood.g, hessian=wood.h, method="nlminb", control=list(trace=1)))
+tst<-try(t1nlminbo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlminb", control=list(trace=1)))
 if (class(tst) == "try-error"){
     cat("try-error on attempt to run nlminb in optimr()\n")
 } else { print(t1nlminb) }

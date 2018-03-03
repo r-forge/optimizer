@@ -102,6 +102,10 @@ cat("trace =",trace,"\n")
     fval <- fn(xnew, ...)    
     nf <- nf + 1
     if (trace > 1) cat("f(xnew)=",fval,"\n")
+#    if (fval > control$bigval) {
+#       warning("Function value infinite")
+#       fval <- control$bigval
+#    }
     while ((fval > fbest + control$acctol*st*gprj) 
            && (all((control$offset+xnew) != (control$offset+xb)))) { 
         # continue until satisfied
@@ -111,6 +115,10 @@ cat("trace =",trace,"\n")
         fval <- fn(xnew, ...)    
         nf <- nf + 1
         if (trace > 1) cat("* f(xnew)=",fval,"\n")
+#        if (fval > control$bigval) {
+#            warning("Function value infinite")
+#            fval <- control$bigval
+#        }
     }
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 93 # no progress in linesearch

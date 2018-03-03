@@ -1,7 +1,6 @@
 optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
-
   npar <- length(par)
   defctrl <- ctrldefault(npar) # could leave this out in most cases
   if (is.null(method)) method <- defctrl$defmethod
@@ -63,7 +62,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   control$maximize <- FALSE # and ensure we minimize
   control$fnscale <- fnscale # to ensure set again
 
-# 160615 -- decided to abandon nloptr in optimz
+# 160615 -- decided to postpone adding nloptr
 
   efn <- function(spar, ...) {
       # rely on pscale being defined in this enclosing environment
@@ -104,7 +103,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                       par <- spar*pscale
                       result <- hess(par, ...) * pscale * pscale * fnscale
                       result
-## ?? NEED TO CHECK THIS
+## ?? NEED TO CHECK THIS WORKS
                   }
   }
 

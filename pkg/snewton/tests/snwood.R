@@ -1,4 +1,4 @@
-#Example 2: Wood function
+#Example: Wood function
 #
 wood.f <- function(x){
   res <- 100*(x[1]^2-x[2])^2+(1-x[1])^2+90*(x[3]^2-x[4])^2+(1-x[3])^2+
@@ -44,7 +44,22 @@ wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
 print(wdm)
 
 cat("\n\n nlm() gives similar results\n")
-tnlm <- nlm(wood.fgh, x0, print.level=2)
-print(tnlm)
+t1nlm <- nlm(wood.fgh, x0, print.level=2)
+print(t1nlm)
 
 
+## BUT ... it looks like nlminb is NOT using a true Newton-type method
+t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hessian=wood.h, control=list(trace=1))
+print(t1nlminb)
+# and call them from optimx (i.e., test this gives same results)
+
+library(optimx)
+t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(trace=1))
+print(t1nlmo)
+
+## FOLLOWING SHOWS UP ERRORS??
+t1nlminbo <- optimr(x0, wood.f, wood.g, hessian=wood.h, method="nlminb", control=list(trace=1))
+print(t1nlminb)
+
+
+# sink()

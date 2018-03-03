@@ -163,3 +163,12 @@ if (class(ftest) != "try-error") {
    print(solx1)
    print(eigen(solx1$Hess)$values)
 }
+
+library(snewton)
+t1 <- snewton(x0, fnt, grt, hesst, control=list(trace=2), fscale=3.0)
+print(t1)
+# we can also use nlm and nlminb
+#??
+
+# and call them from optimx (i.e., test this gives same results)
+library(optimx)

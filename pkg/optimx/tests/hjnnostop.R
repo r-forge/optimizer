@@ -1,4 +1,4 @@
-library(optimr)
+library(optimx)
 maxfn<-function(x) {
   n <- length(x)
   ss <- seq(1,n)

@@ -3,6 +3,10 @@ NEWS about R package optimx
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
 TODO
+      o savehess seems to have bug with nlminb
+      o General issue: nlminb and possibly nlm not working as Newton with 
+	explicit Hessian
+      o nloptr difficult to incorporate -- for now left outside of optimr()
       o Seems to be a printout of maxit that should be conditional (171007)
       o Should add examples, esp. of use of summary.
       o Drop nmkb from methods for bounds if start is on bound

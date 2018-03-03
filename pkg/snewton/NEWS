@@ -3,6 +3,10 @@ Changes in snewton
 TODOS
   o can we add bounds and masks easily to Newton?
   o add convcode (align names with optimr)
+  o try to figure out nlminb failures / non-Newton-like behaviour
+
+2018-03-03
+  o update vignette and tests
   
 2017-04-20
   o unconstrained method is working. Several tests, but Hobbs

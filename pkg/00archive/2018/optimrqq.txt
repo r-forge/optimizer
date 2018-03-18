@@ -1,0 +1,13 @@
+## ?? NEED TO CHECK THIS WORKS
+# ?? do we want ehess ?    Not at 150714
+      else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
+            ## Need to check these carefully??
+            ans$message <- NA # Should add a msg ??
+           ans$convcode <- 9999 # failed in run - ?? consider special code for nmkb on bounds
+	   mcontrol$maxfeval <- 5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?
+           # What about 'restarts' and 'message'??
+ ## Need to check these carefully??
+            ans$g <- NULL ## perhaps keep -- but how??
+        ## Need to check these carefully??
+          # Do we want parscale or use spar??
+      ## Need to check these carefully??

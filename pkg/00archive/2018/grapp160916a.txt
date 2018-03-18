@@ -1,0 +1,282 @@
+
+> # Test for gradient approx in optimr and opm
+> nondia.f <- function(x){
++    n <- length(x)
++    if (n < 2) { stop("n too small for NONDIA function" .... [TRUNCATED] 
+
+> nondia.g <- function(x){
++    n <- length(x)
++    if (n < 2) { stop("n too small for NONDIA function") }
++    x1 <- x[1]
++    y <- x^2 - x1
++    z < .... [TRUNCATED] 
+
+> tmp <- readline("continue")
+
+> library(optimrx)
+
+> s4 <- rep(-1,4)
+
+> sol4 <- opm(s4, nondia.f, nondia.g, method="ALL")
+
+> summary(sol4, order=value)
+                   p1        p2        p3        p4        value fevals gevals
+hjkb        1.0000000 1.0000000 1.0000000 1.0000000 0.000000e+00    308     NA
+hjn         1.0000000 1.0000000 1.0000000 1.0000000 3.401963e-30    172     NA
+Rvmmin      1.0000000 1.0000000 1.0000000 1.0000000 1.640584e-29     36     22
+BFGS        1.0000000 1.0000000 1.0000000 1.0000000 3.203668e-24     62     25
+nlminb      1.0000000 1.0000000 1.0000000 1.0000000 7.851185e-18     31     23
+nlm         1.0000000 1.0000000 1.0000000 1.0000000 9.355845e-16     NA     19
+Rcgmin      1.0000000 1.0000000 1.0000000 1.0000000 1.203048e-15     43     22
+L-BFGS-B    1.0000000 1.0000000 1.0000000 1.0000000 6.736497e-15     21     21
+lbfgsb3     1.0000000 1.0000000 1.0000000 1.0000000 6.736497e-15     21     21
+Rtnmin      1.0000000 1.0000000 1.0000000 1.0000000 8.908378e-15     24     24
+ucminf      1.0000001 1.0000000 1.0000001 1.0000000 4.642557e-14     27     27
+lbfgs       1.0000000 1.0000000 1.0000000 1.0000000 5.745203e-14     NA     NA
+newuoa      1.0000000 1.0000000 1.0000000 1.0000000 7.298486e-14    162     NA
+CG          0.9999998 0.9999999 0.9999999 0.9999999 1.452837e-13    141     52
+bobyqa      1.0000000 1.0000001 1.0000000 0.9999999 2.792469e-13    226     NA
+spg         1.0000019 1.0000011 1.0000011 1.0000011 2.333414e-11     28     26
+nmkb        1.0000308 0.9999387 1.0000428 1.0000711 1.711483e-07    159     NA
+Nelder-Mead 1.0001972 1.0001069 1.0002383 1.0003004 1.317951e-06    407     NA
+            convergence  kkt1 kkt2 xtime
+hjkb                  0  TRUE TRUE 0.000
+hjn                   0  TRUE TRUE 0.000
+Rvmmin                0  TRUE TRUE 0.004
+BFGS                  0  TRUE TRUE 0.000
+nlminb                0  TRUE TRUE 0.000
+nlm                   0  TRUE TRUE 0.000
+Rcgmin                0  TRUE TRUE 0.000
+L-BFGS-B              0  TRUE TRUE 0.000
+lbfgsb3               0  TRUE TRUE 0.004
+Rtnmin                0  TRUE TRUE 0.004
+ucminf                0  TRUE TRUE 0.004
+lbfgs                 0  TRUE TRUE 0.000
+newuoa                0  TRUE TRUE 0.000
+CG                    0  TRUE TRUE 0.004
+bobyqa                0  TRUE TRUE 0.000
+spg                   0  TRUE TRUE 0.024
+nmkb                  0 FALSE TRUE 0.004
+Nelder-Mead           0 FALSE TRUE 0.004
+
+> tmp <- readline("continue")
+
+> sol4f <-opm(s4, nondia.f, gr="grfwd", method="ALL")
+
+> summary(sol4f, order=value)
+                    p1         p2         p3         p4         value fevals
+hjkb         1.0000000  1.0000000  1.0000000  1.0000000  0.000000e+00    308
+hjn          1.0000000  1.0000000  1.0000000  1.0000000  3.401963e-30    172
+newuoa       1.0000000  1.0000000  1.0000000  1.0000000  7.298486e-14    162
+bobyqa       1.0000000  1.0000001  1.0000000  0.9999999  2.792469e-13    226
+nmkb         1.0000308  0.9999387  1.0000428  1.0000711  1.711483e-07    159
+Nelder-Mead  1.0001972  1.0001069  1.0002383  1.0003004  1.317951e-06    407
+Rtnmin       0.3905170 -0.4994139 -0.4994139 -0.4994139  7.581717e+00      4
+lbfgsb3      0.3953374 -0.4976785 -0.4976785 -0.4976785  7.584930e+00     30
+lbfgs       -1.0000000 -1.0000000 -1.0000000 -1.0000000  7.584930e+00     NA
+Rcgmin       0.4934929 -0.4623425 -0.4623425 -0.4623425  7.860804e+00   2250
+Rvmmin       0.6000000 -0.4240000 -0.4240000 -0.4240000  8.592786e+00     33
+nlminb       0.6301453 -0.4131477 -0.4131477 -0.4131477  8.878203e+00     41
+ucminf       0.6971106 -0.3890402 -0.3890402 -0.3890402  9.632598e+00      3
+spg          0.0000000 -0.6400000 -0.6400000 -0.6400000  1.108207e+01   1178
+nlm          1.5000000 -0.1000000 -0.1000000 -0.1000000  3.277120e+01     NA
+BFGS                NA         NA         NA         NA 8.988466e+307     NA
+CG                  NA         NA         NA         NA 8.988466e+307     NA
+L-BFGS-B            NA         NA         NA         NA 8.988466e+307     NA
+            gevals convergence  kkt1  kkt2 xtime
+hjkb            NA           0  TRUE  TRUE 0.000
+hjn             NA           0  TRUE  TRUE 0.000
+newuoa          NA           0  TRUE  TRUE 0.000
+bobyqa          NA           0  TRUE  TRUE 0.000
+nmkb            NA           0 FALSE  TRUE 0.004
+Nelder-Mead     NA           0 FALSE  TRUE 0.004
+Rtnmin           4           3 FALSE FALSE 0.000
+lbfgsb3         30           0 FALSE FALSE 0.012
+lbfgs           NA       -1001 FALSE  TRUE 0.000
+Rcgmin         116           1 FALSE FALSE 0.028
+Rvmmin           3           3 FALSE FALSE 0.000
+nlminb           3           1 FALSE FALSE 0.000
+ucminf           3           0 FALSE FALSE 0.000
+spg             11           0 FALSE  TRUE 0.040
+nlm              2           0 FALSE FALSE 0.000
+BFGS            NA        9999    NA    NA 0.000
+CG              NA        9999    NA    NA 0.000
+L-BFGS-B        NA        9999    NA    NA 0.000
+
+> tmp <- readline("continue")
+
+> sol4c <-opm(s4, nondia.f, gr="grcentral", method="ALL")
+
+> summary(sol4c, order=value)
+                    p1         p2         p3         p4         value fevals
+hjkb         1.0000000  1.0000000  1.0000000  1.0000000  0.000000e+00    292
+hjn          1.0000000  1.0000000  1.0000000  1.0000000  3.401963e-30    172
+newuoa       1.0000000  1.0000000  1.0000000  1.0000000  7.298486e-14    162
+bobyqa       1.0000000  1.0000001  1.0000000  0.9999999  2.792469e-13    226
+nmkb         1.0000308  0.9999387  1.0000428  1.0000711  1.711483e-07    159
+Nelder-Mead  1.0001972  1.0001069  1.0002383  1.0003004  1.317951e-06    407
+Rtnmin       0.3905170 -0.4994139 -0.4994139 -0.4994139  7.581717e+00      4
+lbfgsb3      0.3953374 -0.4976785 -0.4976785 -0.4976785  7.584930e+00     30
+lbfgs       -1.0000000 -1.0000000 -1.0000000 -1.0000000  7.584930e+00     NA
+Rcgmin       0.4934929 -0.4623425 -0.4623425 -0.4623425  7.860804e+00   2250
+Rvmmin       0.6000000 -0.4240000 -0.4240000 -0.4240000  8.592786e+00     33
+nlminb       0.6301453 -0.4131477 -0.4131477 -0.4131477  8.878203e+00     41
+ucminf       0.6971106 -0.3890402 -0.3890402 -0.3890402  9.632598e+00      3
+spg          0.0000000 -0.6400000 -0.6400000 -0.6400000  1.108207e+01   1178
+nlm          1.5000000 -0.1000000 -0.1000000 -0.1000000  3.277120e+01     NA
+BFGS                NA         NA         NA         NA 8.988466e+307     NA
+CG                  NA         NA         NA         NA 8.988466e+307     NA
+L-BFGS-B            NA         NA         NA         NA 8.988466e+307     NA
+            gevals convergence  kkt1  kkt2 xtime
+hjkb            NA           0  TRUE  TRUE 0.000
+hjn             NA           0  TRUE  TRUE 0.000
+newuoa          NA           0  TRUE  TRUE 0.004
+bobyqa          NA           0  TRUE  TRUE 0.000
+nmkb            NA           0 FALSE  TRUE 0.004
+Nelder-Mead     NA           0 FALSE  TRUE 0.000
+Rtnmin           4           3 FALSE FALSE 0.004
+lbfgsb3         30           0 FALSE FALSE 0.012
+lbfgs           NA       -1001 FALSE  TRUE 0.000
+Rcgmin         116           1 FALSE FALSE 0.028
+Rvmmin           3           3 FALSE FALSE 0.000
+nlminb           3           1 FALSE FALSE 0.000
+ucminf           3           0 FALSE FALSE 0.000
+spg             11           0 FALSE  TRUE 0.040
+nlm              2           0 FALSE FALSE 0.004
+BFGS            NA        9999    NA    NA 0.000
+CG              NA        9999    NA    NA 0.000
+L-BFGS-B        NA        9999    NA    NA 0.000
+
+> tmp <- readline("continue")
+
+> sol4b <-opm(s4, nondia.f, gr="grback", method="ALL")
+
+> summary(sol4b, order=value)
+                    p1         p2         p3         p4         value fevals
+hjkb         1.0000000  1.0000000  1.0000000  1.0000000  0.000000e+00    292
+hjn          1.0000000  1.0000000  1.0000000  1.0000000  3.401963e-30    172
+newuoa       1.0000000  1.0000000  1.0000000  1.0000000  7.298486e-14    162
+bobyqa       1.0000000  1.0000001  1.0000000  0.9999999  2.792469e-13    226
+nmkb         1.0000308  0.9999387  1.0000428  1.0000711  1.711483e-07    159
+Nelder-Mead  1.0001972  1.0001069  1.0002383  1.0003004  1.317951e-06    407
+Rtnmin       0.3905170 -0.4994139 -0.4994139 -0.4994139  7.581717e+00      4
+lbfgsb3      0.3953374 -0.4976785 -0.4976785 -0.4976785  7.584930e+00     30
+lbfgs       -1.0000000 -1.0000000 -1.0000000 -1.0000000  7.584930e+00     NA
+Rcgmin       0.4934929 -0.4623425 -0.4623425 -0.4623425  7.860804e+00   2249
+Rvmmin       0.6000000 -0.4240000 -0.4240000 -0.4240000  8.592787e+00     33
+nlminb       0.6301453 -0.4131477 -0.4131477 -0.4131477  8.878203e+00     41
+ucminf       0.6971106 -0.3890402 -0.3890402 -0.3890402  9.632599e+00      3
+spg          0.0000000 -0.6400000 -0.6400000 -0.6400000  1.108207e+01   1178
+nlm          1.5000000 -0.1000000 -0.1000000 -0.1000000  3.277120e+01     NA
+BFGS                NA         NA         NA         NA 8.988466e+307     NA
+CG                  NA         NA         NA         NA 8.988466e+307     NA
+L-BFGS-B            NA         NA         NA         NA 8.988466e+307     NA
+            gevals convergence  kkt1  kkt2 xtime
+hjkb            NA           0  TRUE  TRUE 0.000
+hjn             NA           0  TRUE  TRUE 0.000
+newuoa          NA           0  TRUE  TRUE 0.000
+bobyqa          NA           0  TRUE  TRUE 0.000
+nmkb            NA           0 FALSE  TRUE 0.004
+Nelder-Mead     NA           0 FALSE  TRUE 0.004
+Rtnmin           4           3 FALSE FALSE 0.004
+lbfgsb3         30           0 FALSE FALSE 0.012
+lbfgs           NA       -1001 FALSE  TRUE 0.000
+Rcgmin         116           1 FALSE FALSE 0.048
+Rvmmin           3           3 FALSE FALSE 0.000
+nlminb           3           1 FALSE FALSE 0.000
+ucminf           3           0 FALSE FALSE 0.004
+spg             11           0 FALSE  TRUE 0.040
+nlm              2           0 FALSE FALSE 0.000
+BFGS            NA        9999    NA    NA 0.000
+CG              NA        9999    NA    NA 0.000
+L-BFGS-B        NA        9999    NA    NA 0.000
+
+> tmp <- readline("continue")
+
+> sol4n <-opm(s4, nondia.f, gr="grnd", method="ALL")
+
+> summary(sol4n, order=value)
+                    p1         p2         p3         p4         value fevals
+hjkb         1.0000000  1.0000000  1.0000000  1.0000000  0.000000e+00    292
+hjn          1.0000000  1.0000000  1.0000000  1.0000000  3.401963e-30    172
+newuoa       1.0000000  1.0000000  1.0000000  1.0000000  7.298486e-14    162
+bobyqa       1.0000000  1.0000001  1.0000000  0.9999999  2.792469e-13    226
+nmkb         1.0000308  0.9999387  1.0000428  1.0000711  1.711483e-07    159
+Nelder-Mead  1.0001972  1.0001069  1.0002383  1.0003004  1.317951e-06    407
+Rtnmin       0.3905170 -0.4994139 -0.4994139 -0.4994139  7.581717e+00      4
+lbfgs       -1.0000000 -1.0000000 -1.0000000 -1.0000000  7.584930e+00     NA
+lbfgsb3      0.3953374 -0.4976785 -0.4976785 -0.4976785  7.584930e+00     30
+Rcgmin       0.4934929 -0.4623425 -0.4623425 -0.4623425  7.860804e+00   2249
+Rvmmin       0.6000000 -0.4240000 -0.4240000 -0.4240000  8.592787e+00     32
+nlminb       0.6301453 -0.4131477 -0.4131477 -0.4131477  8.878203e+00     41
+ucminf       0.6971106 -0.3890402 -0.3890402 -0.3890402  9.632599e+00      3
+spg          0.0000000 -0.6400000 -0.6400000 -0.6400000  1.108207e+01   1178
+nlm          1.5000000 -0.1000000 -0.1000000 -0.1000000  3.277120e+01     NA
+BFGS                NA         NA         NA         NA 8.988466e+307     NA
+CG                  NA         NA         NA         NA 8.988466e+307     NA
+L-BFGS-B            NA         NA         NA         NA 8.988466e+307     NA
+            gevals convergence  kkt1  kkt2 xtime
+hjkb            NA           0  TRUE  TRUE 0.004
+hjn             NA           0  TRUE  TRUE 0.004
+newuoa          NA           0  TRUE  TRUE 0.004
+bobyqa          NA           0  TRUE  TRUE 0.004
+nmkb            NA           0 FALSE  TRUE 0.008
+Nelder-Mead     NA           0 FALSE  TRUE 0.000
+Rtnmin           4           3 FALSE FALSE 0.008
+lbfgs           NA       -1001 FALSE  TRUE 0.008
+lbfgsb3         30           0 FALSE FALSE 0.016
+Rcgmin         116           1 FALSE FALSE 0.060
+Rvmmin           3           3 FALSE FALSE 0.000
+nlminb           3           1 FALSE FALSE 0.000
+ucminf           3           0 FALSE FALSE 0.004
+spg             11           0 FALSE  TRUE 0.040
+nlm              2           0 FALSE FALSE 0.008
+BFGS            NA        9999    NA    NA 0.004
+CG              NA        9999    NA    NA 0.000
+L-BFGS-B        NA        9999    NA    NA 0.000
+
+> tmp <- readline("continue")
+
+> sol4dn <-opm(s4, nondia.f, gr=NULL, method="ALL")
+
+> summary(sol4dn, order=value)
+                    p1         p2         p3         p4        value fevals
+hjkb         1.0000000  1.0000000  1.0000000  1.0000000 0.000000e+00    316
+hjn          1.0000000  1.0000000  1.0000000  1.0000000 3.401963e-30    172
+newuoa       1.0000000  1.0000000  1.0000000  1.0000000 7.298486e-14    162
+bobyqa       1.0000000  1.0000001  1.0000000  0.9999999 2.792469e-13    226
+CG           0.9999987  0.9999990  0.9999990  0.9999990 1.895044e-11   5620
+BFGS         0.9999983  0.9999987  0.9999987  0.9999990 2.536801e-11    105
+L-BFGS-B     0.9999973  0.9999983  0.9999983  0.9999983 5.275711e-11     21
+nmkb         1.0000308  0.9999387  1.0000428  1.0000711 1.711483e-07    159
+Nelder-Mead  1.0001972  1.0001069  1.0002383  1.0003004 1.317951e-06    407
+Rtnmin       0.3905170 -0.4994139 -0.4994139 -0.4994139 7.581717e+00      4
+lbfgsb3      0.3953374 -0.4976785 -0.4976785 -0.4976785 7.584930e+00     30
+lbfgs       -1.0000000 -1.0000000 -1.0000000 -1.0000000 7.584930e+00     NA
+Rcgmin       0.4934929 -0.4623425 -0.4623425 -0.4623425 7.860804e+00   2250
+Rvmmin       0.6000000 -0.4240000 -0.4240000 -0.4240000 8.592786e+00     33
+nlminb       0.6301453 -0.4131477 -0.4131477 -0.4131477 8.878203e+00     41
+ucminf       0.6971106 -0.3890402 -0.3890402 -0.3890402 9.632598e+00      3
+spg          0.0000000 -0.6400000 -0.6400000 -0.6400000 1.108207e+01   1178
+nlm          1.5000000 -0.1000000 -0.1000000 -0.1000000 3.277120e+01     NA
+            gevals convergence  kkt1  kkt2 xtime
+hjkb            NA           0  TRUE  TRUE 0.004
+hjn             NA           0  TRUE  TRUE 0.000
+newuoa          NA           0  TRUE  TRUE 0.004
+bobyqa          NA           0  TRUE  TRUE 0.004
+CG            1001           1  TRUE  TRUE 0.032
+BFGS            30           0  TRUE  TRUE 0.004
+L-BFGS-B        21           0  TRUE  TRUE 0.000
+nmkb            NA           0 FALSE  TRUE 0.008
+Nelder-Mead     NA           0 FALSE  TRUE 0.004
+Rtnmin           4           3 FALSE FALSE 0.000
+lbfgsb3         30           0 FALSE FALSE 0.008
+lbfgs           NA       -1001 FALSE  TRUE 0.000
+Rcgmin         116           1 FALSE FALSE 0.028
+Rvmmin           3           3 FALSE FALSE 0.004
+nlminb           3           1 FALSE FALSE 0.000
+ucminf           3           0 FALSE FALSE 0.000
+spg             11           0 FALSE  TRUE 0.040
+nlm              2           0 FALSE FALSE 0.000
+
+> tmp <- readline("continue")

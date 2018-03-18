@@ -28,6 +28,12 @@ TODO
       o Put counters in efn, egr ??
       o Check all failures reported below are fixed!
 
+VERSION 2018-03-13
+      o added 
+           mcontrol$fnscale <- control$fnscale
+        in optim() section of optimr for correction of maximization 
+        Thanks fo Carlo Lapid cmlapid@up.edu.ph
+
 VERSION 2017-12-15
       o merging optimr(x) into optimx
       o some documentation of differences between opm() and optimx()

@@ -154,6 +154,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       mcontrol$trace <- control$trace
 ##	mcontrol$parscale <- control$parscale # Use internal scaling
       mcontrol$parscale <- NULL # using user fn 
+      mcontrol$fnscale <- control$fnscale # 180313 Carlo Lapid
 
 # Note: hessian always FALSE
 

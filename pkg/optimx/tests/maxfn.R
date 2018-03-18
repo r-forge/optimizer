@@ -23,3 +23,13 @@ print(ansmax)
 cat("using the negmax function should give same parameters\n")
 ansnegmax<-optimr(xx,negmaxfn, gr="grfwd",  method="Rvmmin", control=list(trace=0))
 print(ansnegmax)
+
+# Test Carlo Lapid suggested fix for optimr()  180313
+
+amaxo<-optimr(xx,maxfn, method="L-BFGS-B", control=list(maximize=TRUE,trace=0))
+print(ansmax)
+
+cat("using the negmax function should give same parameters\n")
+anegmaxo<-optimr(xx,negmaxfn, method="L-BFGS-B", control=list(trace=0))
+print(anegmaxo)
+

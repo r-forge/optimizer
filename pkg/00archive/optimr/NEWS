@@ -32,7 +32,15 @@ TODO
       o Put counters in efn, egr ??
       o Check all failures reported below are fixed!
 
-VERSION 2017-11-28
+VERSION 2017-03-18
+      o added 
+           mcontrol$fnscale <- control$fnscale
+        in optim() section of optimr for correction of maximization 
+        Thanks to Carlo Lapid cmlapid@up.edu.ph
+      o Thanks to playing with examples from Hans Werner Borchers for Nelder-Mead
+        style codes, found that optimr() did not transfer control$maxit to the
+        optim() functions. Fixed.
+
 
 VERSION 2017-09-24
       o comments include 2017-09-18 version

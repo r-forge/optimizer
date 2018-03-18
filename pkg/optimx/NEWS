@@ -3,6 +3,7 @@ NEWS about R package optimx
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
 TODO
+      o rationalize optimz-package, optimx-package
       o savehess seems to have bug with nlminb
       o General issue: nlminb and possibly nlm not working as Newton with 
 	explicit Hessian
@@ -28,11 +29,14 @@ TODO
       o Put counters in efn, egr ??
       o Check all failures reported below are fixed!
 
-VERSION 2018-03-13
+VERSION 2018-03-18
       o added 
            mcontrol$fnscale <- control$fnscale
         in optim() section of optimr for correction of maximization 
-        Thanks fo Carlo Lapid cmlapid@up.edu.ph
+        Thanks to Carlo Lapid cmlapid@up.edu.ph
+      o Thanks to playing with examples from Hans Werner Borchers for Nelder-Mead
+        style codes, found that optimr() did not transfer control$maxit to the
+        optim() functions. Fixed.
 
 VERSION 2017-12-15
       o merging optimr(x) into optimx

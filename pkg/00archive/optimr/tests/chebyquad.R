@@ -91,7 +91,7 @@ cyq.setup <- function (n = NULL) {
 
 
 #cat("Takes a long time, so there is an artificial variable skiprun set TRUE\n")
-skiprun <- FALSE
+skiprun <- TRUE
 ## tmp <- readline("Skip run :")
 ## if (length(tmp) == 0) { skiprun <- TRUE } else { skiprun <- FALSE }
 

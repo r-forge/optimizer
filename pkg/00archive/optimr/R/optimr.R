@@ -1,7 +1,6 @@
 optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf, 
             method=NULL, hessian=FALSE, control=list(), ...) {
 
-
   npar <- length(par)
   defctrl <- ctrldefault(npar) # could leave this out in most cases
   if (is.null(method)) method <- defctrl$defmethod
@@ -29,7 +28,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   orig.method <- method
   orig.gr <- gr
   orig.fn <- fn
-  savehess <- hessian
+  savehess <- hessian # logical -- whether to save hessian
 
 
   if (is.null(control$trace)) control$trace <- defctrl$trace
@@ -63,7 +62,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   control$maximize <- FALSE # and ensure we minimize
   control$fnscale <- fnscale # to ensure set again
 
-# 160615 -- decided to abandon nloptr in optimz
+# 160615 -- decided to postpone adding nloptr
 
   efn <- function(spar, ...) {
       # rely on pscale being defined in this enclosing environment
@@ -104,7 +103,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                       par <- spar*pscale
                       result <- hess(par, ...) * pscale * pscale * fnscale
                       result
-## ?? NEED TO CHECK THIS
+## ?? NEED TO CHECK THIS WORKS
                   }
   }
 
@@ -151,10 +150,12 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method == "CG" || 
       method == "SANN") {
       # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
-      mcontrol$maxit <- defctrl$maxit # 160922 
+      mcontrol$maxit <- defctrl$maxit # 160922 -- does not use control()!!
+      if (! is.null(control$maxit)) {mcontrol$maxit <- control$maxit}
       mcontrol$trace <- control$trace
 ##	mcontrol$parscale <- control$parscale # Use internal scaling
       mcontrol$parscale <- NULL # using user fn 
+      mcontrol$fnscale <- control$fnscale # 180313 Carlo Lapid
 
 # Note: hessian always FALSE
 

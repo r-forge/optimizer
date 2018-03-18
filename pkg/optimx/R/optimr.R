@@ -150,7 +150,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       method == "CG" || 
       method == "SANN") {
       # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
-      mcontrol$maxit <- defctrl$maxit # 160922 
+      mcontrol$maxit <- defctrl$maxit # 160922 -- does not use control()!!
+      if (! is.null(control$maxit)) {mcontrol$maxit <- control$maxit}
       mcontrol$trace <- control$trace
 ##	mcontrol$parscale <- control$parscale # Use internal scaling
       mcontrol$parscale <- NULL # using user fn 

@@ -230,7 +230,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- NULL
+	        ans$message <- "nlminb failed" # 180318 change from NULL
                 ans$hessian <- NULL
         }
         ## return(ans)
@@ -276,7 +276,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 		ans$par<-rep(NA,npar)
 	        ans$counts[1] <- NA # save function and gradient count information
 	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- NULL
+	        ans$message <- "nlm failed" # 180318 change from NULL
                 ans$hessian <- NULL
         }
         print.level <- NULL # clean up

@@ -52,7 +52,7 @@ cat("genrosenf uses grfwd standard numerical gradient\n")
 print(genrosenf)
 cat("genrosenullgr has no gradient specified\n")
 print(genrosenullgr)
-cat("If optextras is loaded, then other numerical gradients can be used.\n")
+# cat("If optextras is loaded, then other numerical gradients can be used.\n")
 
 cat("timings direct call Bounded vs Unbounded\n")
 require(Rvmmin)

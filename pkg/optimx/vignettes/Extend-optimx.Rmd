@@ -24,9 +24,9 @@ packages available to R users. Thus we want
 * to return a consistent result structure that as far as possible
   matches the list `optim()` returns;
 * to allow a number of methods to be compared easily via the `opm()`
-function (as such, `optimr` replaces the `optimx` package);
-* to employ some of the checks and extra optimization infrastructure
-of the `optextras` package;
+function (this is a more recent function than `optimx()`, using calling `optimr()` repeatedly);
+* to employ some of the checks and extra optimization infrastructure formerly in the `optextras` package
+   but now part of this package;
 * to allow for experimentation in different approaches to bounds constraints
 and fixed (masked) parameters.
 
@@ -78,7 +78,7 @@ As far as I am aware, all the optimizers included in the `optimx` package are
 **local** minimizers. That is, they attempt to find a local minimum of the 
 objective function. Global optimization is a much bigger problem. Even finding
 a local minimum can often be difficult, and to that end, the package uses the
-function `kktchk()` from package `optextras` to test the 
+function `kktchk()` to test the 
 Kuhn-Karush-Tucker conditions. These essentially
 require that a local minumum has a zero gradient and all nearby points on the 
 function surface have a greater function value. There are many details that 
@@ -499,7 +499,7 @@ evaluations. However, while I believe the values computed are "reasonable" in ge
 specific problems they may be wildly inappropriate.
 
 
-## Functions used from the `optextras` package
+## Functions that were formerly in the `optextras` package
 
 Optimization methods share a lot of common infrastructure, and much of this has been 
 collected in my `optextras` package. The routines used in the current package are as follows.

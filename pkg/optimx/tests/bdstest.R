@@ -43,7 +43,7 @@ print(alb)
 alhn<-optimr(xx, bt.f, lower=lower, upper=upper, method="hjn", control=list(trace=0))
 print(alhn)
 
-alkkt <- optextras::kktchk(alb$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=FALSE, control=list(trace=0))
+alkkt <- kktchk(alb$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=FALSE, control=list(trace=0))
 print(alkkt)
 
 

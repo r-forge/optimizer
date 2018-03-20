@@ -4,16 +4,17 @@ Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
 TODO
       o rationalize optimz-package, optimx-package
+      o tests/tgrchk tkktchck needs to be set up
       o savehess seems to have bug with nlminb
       o General issue: nlminb and possibly nlm not working as Newton with 
 	explicit Hessian
-      o nloptr difficult to incorporate -- for now left outside of optimr()
       o Seems to be a printout of maxit that should be conditional (171007)
       o Should add examples, esp. of use of summary.
       o Drop nmkb from methods for bounds if start is on bound
-      o Troubles with NAMESPACE collisions NOT resolved. (nloptr ??)
       o Add nloptr methods -- there are a number and we need to choose how
-	to do so. Seems unable to handle parameter scaling or dot arguments
+	to do so. Seems unable to handle parameter scaling or dot arguments.
+        nloptr difficult to incorporate -- for now left outside of optimr()
+        Troubles with NAMESPACE collisions NOT resolved for nloptr
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
       o How can transfinite be made to work when start is on bounds?
@@ -26,8 +27,12 @@ TODO
         May want to include a maximization test too.
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o grchk() -- can it be cleaned up -- it is in optextras
-      o Put counters in efn, egr ??
+      o Put counters in efn, egr
       o Check all failures reported below are fixed!
+
+VERSION 2018-03-20
+      o Merged optextras package into optimx
+      o Tests for grchk, kktchk, fnchk included
 
 VERSION 2018-03-18
       o added 
@@ -47,8 +52,14 @@ VERSION 2017-12-15
       o set trace=0 in all tests
       o partially simplify tests
 
+
+VERSION 2017-11-25 optextras
+   o    Changed kktchk argument maxfn to maximize to agree with 
+        optimr and other packages
+
+
 VERSION 2017-10-05
-      o Ravi Varadhan as maintainer
+      o Ravi Varadhan as maintainer (reverted later)
       o Warning about combining options.
 
 VERSION 2017-09-24
@@ -68,16 +79,16 @@ VERSION 2017-02-15
 
 VERSION 2016-09-16
       o Harry Joe reported troubles with numerical gradient approximations. Found
-        	some glitches and conflicts to fix. Also documentation is less than ideal.
+           some glitches and conflicts to fix. Also documentation is less than ideal.
         Scaling spar to par was INSIDE control$trace
 
 VERSION 2016-08-26
       o Thanks to Henrik Singmann for spotting a bug in optimx.run.R
         for the case where nlminb fails. I had missed resetting some
-        elements of the solution object in this case.
+        elements of the solution object in this case. ??check optimr()/opm()
 
 VERSION 2016-07-10
-      o hessian=TRUE is NOT properly executed
+      o hessian=TRUE is NOT properly executed ??
       o Test function hobbs15b illustrates different scalings across all methods
       o Appropriate lists of "ALL", "bounded" and "masked" methods are defined 
         in the ctrldefault() function.
@@ -93,6 +104,13 @@ VERSION 2016-07-03
       o multistart wrapper multistart() included and documented with example
       o renamed coef.optimx to coef.opm
 
+VERSION optextras 2016-06-30
+   o    Streamlined the package to get rid of ufn, ugr, uhess, 
+        ugHgenb that are so far unused. 
+   o    The optsp environment is only currently used
+        with the simple numerical gradient approximations.
+   o    kktc renamed to kktchk. scalecheck renamed to scalechk
+        for consistency with other naming.
 
 VERSION 2016-06-28
       o Checked that controls do not conflict, e.g., maximize and fnscale. Note that
@@ -115,7 +133,6 @@ VERSION 2016-05-30
 VERSION 2016-01-07
       o realized control rhobeg needed to be set or bobyqa would fail.
 
-
 VERSION 2015-06-03
       o Added index to bstate in optimx.check.R to avoid unwanted 
         elements in reporting bounds when trace > 0
@@ -128,22 +145,34 @@ VERSION 2015-04-23
 VERSION 2015-01-21
       o Added lbfgsb3, the 2011 version of this code.
 
+VERSION 2013-10-27 optextras
+   o    Inserted missing index in bmchk (bdmsk)
+
+VERSION 2013-9-11 optextras
+   o    Fixed some elements of manual. Alias optextras-package
+        to optextras.
+
+VERSION 2013-8-20 optextras
+   o    optsp scratchpad environment added. Note that it
+        is aliased in grfwd to avoid a warning in R CMD
+        check.
+   o    Can change this in numerical derivative routines
+        in case of parallel running.
+
 VERSION 2013-08-08
-      o Attempt to sort out Rvmmin and Rcgmin no gradient failures
-      
+      o Attempt to sort out Rvmmin and Rcgmin no gradient failures. 
+        Resolved by REQUIRING a gradient routine. In optimr() can provide
+        an approximation via quoted gradient function name.
       o Fix for nlm calls which sometimes failed due to inappropriate
         control settings and failure to clear (NULL) temporary settings.
 
 VERSION 2013-08-07
-
       o Moved optimizer packages to Imports and removed require() calls to
 	satisfy R 3.1.2.
-
       o This version is artificial! It is the version of 2013-08-06 with an 
 	updated CITATION and minor fixes to satisfy NAMESPACE requirements.
 	A new optimx is in process with quite sweeping changes that may or
 	may not result in changed behaviour and usage. (JN 2014-09-04).
-
       o Failure to have the following packages installed may give rise to 
 	diagnostic messages that can be confusing: Rvmmin, Rcgmin, ucminf,
 	minqa, BB, and dfoptim.
@@ -315,21 +344,33 @@ VERSION 2013-03-18
       o Removed all user accessible functions except optimx and added
         print.optimx.
 
-VERSION 2013-3-16
-
-      TODOS: Check the maximize flag works in all routines, 
-            especially get.best.
-
-            Splitting of optimx so preparation and loading
-            is separate from running.
-
-            all.methods = TRUE ??
-
+VERSION 2013-03-16
       o  get.result now emits a warning if method requested is not in
          optimx solution
-
       o  attempt 2013-3-17 to include summary() in methods to replace
          trimpars()
+
+VERSION 2012-07-18 optextras
+   o    Extracted helper routines from optplus to 
+        create optextras package to put on CRAN.
+        Formerly in optplus or optfntools on R-forge,
+        but difficulties with dependencies indicated
+        that the support routines need to be on CRAN.
+        Renamed to avoid name confusion.
+
+VERSION 2012-07-09 optextras
+   o    Suppress warnings in ugHgenb -- too much
+        unhelpful output
+   o    Fixed optansout to print parameters
+
+VERSION 2012-06-07 optextras
+   o    Merged optfntools into optplus to ensure 
+        R-forge build.
+
+VERSION 2012-05-26 optextras
+   o    Added check for "on a bound" in bmchk to aid
+	in use of tanh() transformation as in nmkb().
+
 
 ##### OPEN ISSUES: (any date order)
 # 091220 -- ?? kkt1 tolerance. Do we want to let this be an input control?

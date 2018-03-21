@@ -168,7 +168,7 @@ hesst <- function(x, fscale=10){
   hh
 }
 
-library(snewton)
+require(optimx)
 t1 <- snewton(x0, fnt, grt, hesst, control=list(trace=0), fscale=3.0)
 print(t1)
 # we can also use nlm and nlminb
@@ -206,7 +206,7 @@ if (class(tst) == "try-error"){
 ## The Rosenbrock function
 
 ```{r}
-require(snewton)
+require(optimx)
 #Rosenbrock banana valley function
 f <- function(x){
 return(100*(x[2] - x[1]*x[1])^2 + (1-x[1])^2)
@@ -310,7 +310,7 @@ wood.fgh <- function(x){
 #################################################
 x0 <- c(-3,-1,-3,-1) # Wood standard start
 
-library(snewton)
+require(optimx)
 cat("This FAILS to find minimum\n")
 wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=0))
 print(wd)
@@ -386,7 +386,7 @@ genrosa.h <- function(x, gs=NULL) { ## compute Hessian
         return(hh)
 }
 
-require(snewton)
+require(optimx)
 cat("Generalized Rosenbrock tests\n")
 
 cat("original function")
@@ -556,7 +556,7 @@ hobbs.fgh <- function(x) { # all 3 for trust method
          list(value = f, gradient = g, hessian = B)
 }
 
-require(snewton)
+require(optimx)
 x0 <- c(200, 50, .3)
 cat("Start for Hobbs:")
 print(x0)

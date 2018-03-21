@@ -1,3 +1,4 @@
+require(optimx)
 #Example: Wood function
 #
 wood.f <- function(x){

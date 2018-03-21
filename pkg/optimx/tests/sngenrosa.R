@@ -1,3 +1,4 @@
+require(optimx)
 # genrosa function code -- attempts to match the rosenbrock at gs=100 and x=c(-1.2,1)
 genrosa.f<- function(x, gs=NULL){ # objective function
 ## One generalization of the Rosenbrock banana valley function (n parameters)
@@ -38,7 +39,6 @@ genrosa.h <- function(x, gs=NULL) { ## compute Hessian
         return(hh)
 }
 
-# require(snewton)
 cat("Generalized Rosenbrock tests\n")
 
 cat("original function")

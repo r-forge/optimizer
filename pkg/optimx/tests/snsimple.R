@@ -1,3 +1,4 @@
+require(optimx)
 # Try testing calls to see what is transferred (eventually test also ...)
 # setup
 x0<-c(1,2,3,4)

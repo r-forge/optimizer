@@ -1,3 +1,4 @@
+require(optimx)
 ## Optimization test function HOBBS
 ## ?? refs (put in .doc??)
 ## Nash and Walker-Smith (1987, 1989) ...

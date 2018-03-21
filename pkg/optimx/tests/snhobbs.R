@@ -137,7 +137,7 @@ hobbs.fgh <- function(x) { # all 3 for trust method
          list(value = f, gradient = g, hessian = B)
 }
 
-require(snewton)
+# require(snewton)
 x0 <- c(200, 50, .3)
 cat("Start for Hobbs:")
 print(x0)

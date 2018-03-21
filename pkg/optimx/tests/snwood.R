@@ -36,7 +36,7 @@ wood.fgh <- function(x){
 #################################################
 x0 <- c(-3,-1,-3,-1) # Wood standard start
 
-library(snewton)
+# library(snewton)
 cat("This FAILS to find minimum\n")
 wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
 print(wd)

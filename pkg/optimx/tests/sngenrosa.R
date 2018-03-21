@@ -38,7 +38,7 @@ genrosa.h <- function(x, gs=NULL) { ## compute Hessian
         return(hh)
 }
 
-require(snewton)
+# require(snewton)
 cat("Generalized Rosenbrock tests\n")
 
 cat("original function")

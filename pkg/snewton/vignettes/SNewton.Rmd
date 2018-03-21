@@ -241,7 +241,8 @@ fght <- function(x){
 }
 
 ## ?? SEEMS NOT TO WORK RIGHT!!
-t1nlm <- nlm(fght, x0, hessian=TRUE, print.level=0)
+# t1nlm <- nlm(fght, x0, hessian=TRUE, print.level=2, iterlim=10000)
+t1nlm <- nlm(fght, x0, hessian=TRUE)
 print(t1nlm)
 
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method

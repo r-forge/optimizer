@@ -3,11 +3,8 @@ NEWS about R package optimx
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
 TODO
-      o tests/tgrchk tkktchck needs to be set up
-      o savehess seems to have bug with nlminb
       o General issue: nlminb and possibly nlm not working as Newton with 
 	explicit Hessian
-      o Seems to be a printout of maxit that should be conditional (171007)
       o Should add examples, esp. of use of summary.
       o Drop nmkb from methods for bounds if start is on bound
       o Add nloptr methods -- there are a number and we need to choose how
@@ -16,7 +13,7 @@ TODO
         Troubles with NAMESPACE collisions NOT resolved for nloptr
       o Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
-      o How can transfinite be made to work when start is on bounds?
+        How can transfinite be made to work when start is on bounds?
 	To work when end is on bounds?
       o Rcgmin seems to report reset of parameters to bounds when parameter
         is apparently on the bound. Could have rounding issues, and should
@@ -25,7 +22,6 @@ TODO
       o Note axsearch() is in the optextras package, but needs a good test.
         May want to include a maximization test too.
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
-      o grchk() -- can it be cleaned up -- it is in optextras
       o Put counters in efn, egr
       o Check all failures reported below are fixed!
 
@@ -33,7 +29,8 @@ VERSION 2018-03-20
       o Merged optextras package into optimx
       o rationalized  optimz-package.R, optimx-package.R into one set of code
       o Tests for grchk, kktchk, fnchk included
-
+      o Fixed unconditional printout of maxit
+      o savehess seems to now save (approximate!) hessian with nlminb
 
 VERSION 2018-03-18
       o added 

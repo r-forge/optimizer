@@ -1,6 +1,7 @@
 cat("Show how grchk works\n")
 
 require(numDeriv)
+require(optimx)
 
 jones<-function(xx){
   x<-xx[1]

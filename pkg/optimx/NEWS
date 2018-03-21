@@ -3,7 +3,6 @@ NEWS about R package optimx
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
 TODO
-      o rationalize optimz-package, optimx-package
       o tests/tgrchk tkktchck needs to be set up
       o savehess seems to have bug with nlminb
       o General issue: nlminb and possibly nlm not working as Newton with 
@@ -32,7 +31,9 @@ TODO
 
 VERSION 2018-03-20
       o Merged optextras package into optimx
+      o rationalized  optimz-package.R, optimx-package.R into one set of code
       o Tests for grchk, kktchk, fnchk included
+
 
 VERSION 2018-03-18
       o added 

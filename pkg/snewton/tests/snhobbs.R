@@ -167,4 +167,4 @@ if (class(ftest) != "try-error") {
 #??
 
 # and call them from optimx (i.e., test this gives same results)
-library(optimx)
+# library(optimx)

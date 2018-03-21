@@ -58,7 +58,7 @@ t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(tra
 print(t1nlmo)
 
 ## FOLLOWING SHOWS UP ERRORS??
-t1nlminbo <- optimr(x0, wood.f, wood.g, hessian=wood.h, method="nlminb", control=list(trace=1))
+t1nlminbo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlminb", control=list(trace=1))
 print(t1nlminb)
 
 

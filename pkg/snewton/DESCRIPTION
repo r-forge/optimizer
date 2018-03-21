@@ -11,5 +11,5 @@ LazyLoad: Yes
 License: GPL (>= 2)
 Author: John C. Nash [aut, cre]
 NeedsCompilation: no
-Suggests: knitr
+Suggests: knitr, optimx
 VignetteBuilder: knitr

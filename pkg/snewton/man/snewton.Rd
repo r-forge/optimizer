@@ -8,9 +8,9 @@ the R function solve(). In \code{snewton} a backtracking line search is used,
 while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
 \usage{
-   snewton(par, fn, gr, hess, control = list(trace=1, maxit=500), \dots)
+   snewton(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
 
-   snewtonm(par, fn, gr, hess, control = list(trace=1, maxit=500), \dots)
+   snewtonm(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}

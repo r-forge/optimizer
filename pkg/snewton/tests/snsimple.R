@@ -47,5 +47,5 @@ t1nlmo <- optimr(x0, fnt, grt, hess=hesst, method="nlm", fscale=3.0, control=lis
 print(t1nlmo)
 
 ## FOLLOWING SHOWS UP ERRORS??
-t1nlminbo <- optimr(x0, fnt, grt, hessian=hesst, method="nlminb", fscale=3.0, control=list(trace=1))
+t1nlminbo <- optimr(x0, fnt, grt, hess=hesst, method="nlminb", fscale=3.0, control=list(trace=1))
 print(t1nlminb)

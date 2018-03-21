@@ -1,4 +1,4 @@
-snewton<-function(par, fn, gr, hess, control=list(trace=1, maxit=500),...) {
+snewton<-function(par, fn, gr, hess, control=list(trace=0, maxit=500),...) {
 ## Safeguarded Newton minimizer with backtrack line search
 ##
 ##Input

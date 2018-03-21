@@ -6,6 +6,8 @@ TODO
       o General issue: nlminb and possibly nlm not working as Newton with 
 	explicit Hessian
       o Should add examples, esp. of use of summary.
+      o can we add bounds and masks easily to Newton?
+      o add convcode (align names with optimr)
       o Drop nmkb from methods for bounds if start is on bound
       o Add nloptr methods -- there are a number and we need to choose how
 	to do so. Seems unable to handle parameter scaling or dot arguments.
@@ -30,7 +32,7 @@ VERSION 2018-03-20
       o rationalized  optimz-package.R, optimx-package.R into one set of code
       o Tests for grchk, kktchk, fnchk included
       o Fixed unconditional printout of maxit
-      o savehess seems to now save (approximate!) hessian with nlminb
+      o savehess saves (approximate!) hessian with nlminb, call with 'hess' not 'hessian'
 
 VERSION 2018-03-18
       o added 
@@ -40,6 +42,10 @@ VERSION 2018-03-18
       o Thanks to playing with examples from Hans Werner Borchers for Nelder-Mead
         style codes, found that optimr() did not transfer control$maxit to the
         optim() functions. Fixed.
+
+2018-03-03
+  o update snewton vignette and tests
+  o sorted out optimr nlminb failure (used hessian vs hess in optimr call)
 
 VERSION 2017-12-15
       o merging optimr(x) into optimx
@@ -67,10 +73,17 @@ VERSION 2017-09-24
       o Fix for lbfgsb3 which was changed at same time to correct and
         simplify some control parameters
 
+2017-04-20
+  o unconstrained method is working. Several tests, but Hobbs
+    gives a problem from 1, 1, 1
+
 VERSION 2017-04-04
       o allowed hessian in opm() and optimr() (for nlm)
       o Thanks to Marie Boehnstedt for catching error in creation of
         the composite function and gradient for calling nlm() method.
+
+2017-04-10
+  o Initial setup of project with trial codes. No manuals
 
 VERSION 2017-02-15
       o added subplex method

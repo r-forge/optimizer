@@ -14,7 +14,8 @@ Description: Provides a replacement and extension of the optim()
     function to call to several function minimizers in R in a single
     statement. These methods handle smooth, possibly box constrained functions 
     of several or many parameters. Note that function 'optimr()' was prepared to
-    simplify the incorporation of minimizers going forward.
+    simplify the incorporation of minimizers going forward. Also implements some
+    utility codes and some extra solvers, including safeguarded Newton methods.
 License: GPL-2
 LazyLoad: Yes
 Imports: numDeriv

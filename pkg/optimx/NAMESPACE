@@ -29,8 +29,9 @@ export(
   "optchk",
   "optsp",
   "polyopt",
-  "scalechk"
-
+  "scalechk",
+  "snewton",
+  "snewtonm"
 )
 S3method("[", "opm")
 S3method("as.data.frame", "opm")

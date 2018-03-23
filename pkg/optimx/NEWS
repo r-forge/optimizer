@@ -6,7 +6,7 @@ TODO
       o General issue: nlminb and possibly nlm not working as Newton with 
 	explicit Hessian
       o Should add examples, esp. of use of summary.
-      o can we add bounds and masks easily to Newton?
+      o can we add bounds and masks easily to Newton methods?
       o add convcode (align names with optimr)
       o Drop nmkb from methods for bounds if start is on bound
       o Add nloptr methods -- there are a number and we need to choose how

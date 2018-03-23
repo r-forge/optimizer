@@ -41,6 +41,10 @@ x0 <- c(-3,-1,-3,-1) # Wood standard start
 cat("This FAILS to find minimum\n")
 wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
 print(wd)
+cat("  with optimr\n")
+wdo <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="snewton", control=list(trace=2))
+print(wdo)
+
 wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
 print(wdm)
 
@@ -54,7 +58,6 @@ t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hessian=wood.h, control=list(tra
 print(t1nlminb)
 # and call them from optimx (i.e., test this gives same results)
 
-library(optimx)
 t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(trace=1))
 print(t1nlmo)
 

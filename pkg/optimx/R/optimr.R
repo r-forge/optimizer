@@ -19,8 +19,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                 return(ans) # can't proceed without solver
   }
 
-
-
 # Check if bounded
   bdmsk <- bmchk(par, lower=lower, upper=upper)
   control$have.bounds <- bdmsk$bounds # and set a control value
@@ -261,10 +259,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         	# Translate output to common format
 		ans$value <- ans$minimum
 		ans$minimum <- NULL
-                ans$par <- ans$estimate*pscale
+    ans$par <- ans$estimate*pscale
 		ans$estimate <- NULL
-        	ans$counts[2] <- ans$iterations
-                ans$counts[1] <- NA
+    ans$counts[2] <- ans$iterations
+          ans$counts[1] <- NA
         	ans$iterations <- NULL
                 ans$hessian <- NULL
                 ans$gradient <- NULL # We lose information here
@@ -344,7 +342,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                 if(is.null(egr)) cat("Note: Rvmmin needs gradient function specified\n")
             }
 	    ans<-list() # ans not yet defined, so set as list
-            ans$convergence <- 9999 # failed in run
+
 	    ans$value <- defctrl$badval
 	    ans$par<-rep(NA,npar)
 	    ans$counts[1] <- NA # save function and gradient count information
@@ -359,6 +357,130 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ## return(ans)
       }  ## end if using Rvmmin
 ## --------------------------------------------
+      else if (method == "snewton") { # Use snewton routine (no bounds or masks??)
+        mcontrol$maxit <- control$maxit
+        mcontrol$maxfeval <- control$maxfeval # changed from maxfevals 180321
+       	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
+       	ans<-list() # ans not yet defined, so set as list
+       	ans<-convergence <- -1 # undefined
+       	if ( (! is.null(egr)) && (! is.null(ehess)) ) {
+          if (control$have.bounds) { # 170919 make package explicit
+           stop("snewton does not handle bounds") # ?? error -- doesn't handle bounds
+	        } 
+       	  ans <- try( snewton(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
+          cat("snewton returns ans:")
+          print(ans)
+          if  (class(ans)[1] != "try-error") { 
+             if (control$trace>0) {
+               ans$message <- "snewton failed"
+               cat(ans$message,"\n")
+               ans$convergence <- 9999
+             }
+          }
+       	} else {
+       	   if(is.null(egr)) {
+       	     ans$message <- "Must specify gradient function for snewton"
+       	     ans$convergence <- 9998 # for no gradient where needed
+       	     warning("Note: snewton needs gradient function specified")
+       	   }
+       	   if(is.null(ehess)) {
+       	     ans$message <- "Must specify gradient function for snewton"
+       	     ans$convergence <- 9997 # for no gradient where needed
+       	     warning("Note: snewton needs Hessian function specified")
+       	   }
+       	}
+       	if (ans$convergence > 9996){
+       	       ans$value <- defctrl$badval
+               ans$par<-rep(NA,npar)
+               ans$counts[1] <- NA # save function and gradient count information
+               ans$counts[2] <- NA # save function and gradient count information
+               # Note: in optim() no provision for hessian count
+               ans$hessian <- NULL
+               cat("snewton falure ans:")
+               print(ans)
+        } else { # have an answer               
+              ans$par <- ans$par*pscale
+              ans$bdmsk <- NULL
+              ans$par <- ans$xs
+              ans$xs <- NULL
+              ans$value <- ans$fv
+              ans$fv <- NULL
+              ans$grd <- NULL # would like to keep this!
+              ans$H <- NULL # this too!!
+              ans$counts[2] <- ans$niter
+              ans$counts[1] <- NULL
+              ans$niter <- NULL
+              ans$message <- "snewton finished" 
+              ans$convergence <- 0
+              ans$hessian <- NULL
+              cat("rejigged ans:")
+              print(ans)
+             } # end have answer
+         ## return(ans)
+      }  ## end if using snewton
+  ## --------------------------------------------
+  else if (method == "snewtonm") { # Use snewtonm routine (no bounds or masks??)
+    mcontrol$maxit <- control$maxit
+    mcontrol$maxfeval <- control$maxfeval # changed from maxfevals 180321
+    mcontrol$trace <- control$trace # 140902 Note no check on validity of values
+    ans<-list() # ans not yet defined, so set as list
+    ans<-convergence <- -1 # undefined
+    if ( (! is.null(egr)) && (! is.null(ehess)) ) {
+      if (control$have.bounds) { # 170919 make package explicit
+        stop("snewtonm does not handle bounds") # ?? error -- doesn't handle bounds
+      } 
+      ans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
+      cat("snewtonm returns ans:")
+      print(ans)
+      if  (class(ans)[1] != "try-error") { 
+        if (control$trace>0) {
+          ans$message <- "snewtonm failed"
+          cat(ans$message,"\n")
+          ans$convergence <- 9999
+        }
+      }
+    } else {
+      if(is.null(egr)) {
+        ans$message <- "Must specify gradient function for snewtonm"
+        ans$convergence <- 9998 # for no gradient where needed
+        warning("Note: snewtonm needs gradient function specified")
+      }
+      if(is.null(ehess)) {
+        ans$message <- "Must specify gradient function for snewtonm"
+        ans$convergence <- 9997 # for no gradient where needed
+        warning("Note: snewtonm needs Hessian function specified")
+      }
+    }
+    if (ans$convergence > 9996){
+      ans$value <- defctrl$badval
+      ans$par<-rep(NA,npar)
+      ans$counts[1] <- NA # save function and gradient count information
+      ans$counts[2] <- NA # save function and gradient count information
+      # Note: in optim() no provision for hessian count
+      ans$hessian <- NULL
+      cat("snewtonm falure ans:")
+      print(ans)
+    } else { # have an answer               
+      ans$par <- ans$par*pscale
+      ans$bdmsk <- NULL
+      ans$par <- ans$xs
+      ans$xs <- NULL
+      ans$value <- ans$fv
+      ans$fv <- NULL
+      ans$grd <- NULL # would like to keep this!
+      ans$H <- NULL # this too!!
+      ans$counts[2] <- ans$niter
+      ans$counts[1] <- NULL
+      ans$niter <- NULL
+      ans$message <- "snewtonm finished" 
+      ans$convergence <- 0
+      ans$hessian <- NULL
+      cat("rejigged ans:")
+      print(ans)
+    } # end have answer
+    ## return(ans)
+  }  ## end if using snewtonm
+  ## --------------------------------------------
       else if (method == "hjn") {# Use JN Hooke and Jeeves
         if (control$trace > 0) { 
            # this function is in optimr, so does not need explicit package
@@ -428,16 +550,15 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         if (control$have.bounds) {
               if (control$trace > 0) cat("ucminf cannot handle bounds\n")
               errmsg <- "ucminf cannot handle bounds\n"
-            ##  stop("ucminf tried with bounds")
-            ans <- list()
-            class(ans)[1] <- "try-error"
-        } else {
-          
-         uhessian <- 0 # Ensure hessian NOT computed
-         ans <- try(ucminf::ucminf(par=spar, fn=efn, gr=egr, 
+              stop(errmsg)
+              ans <- list()
+              class(ans)[1] <- "try-error"
+          } else {
+              uhessian <- 0 # Ensure hessian NOT computed
+              ans <- try(ucminf::ucminf(par=spar, fn=efn, gr=egr, 
                    hessian = uhessian,  control=mcontrol, ...))
-        }
-        if (class(ans)[1] != "try-error") {
+          }
+          if (class(ans)[1] != "try-error") {
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
 #                                           2 Stopped by small step (xtol).
 #                                           3 Stopped by function evaluation limit (maxeval).
@@ -448,30 +569,32 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #                                           -6 Computation did not start: maxeval <= 0.
 #                                           -7 Computation did not start: given Hessian not pos. definite.
 #                             message: String with reason of termination.
-		if (ans$convergence == 1 || ans$convergence == 2 || ans$convergence == 4) {
-         		ans$convergence <- 0
-		} 
-                ans$par <- ans$par*pscale
-        	ans$counts[1] <- ans$info[4]
-        	ans$counts[2] <- ans$info[4] # calls fn and gr together
-        	ans$info <- NULL # to erase conflicting name
-        	ans$nitns <- NULL
-                ans$hessian <- NULL
-                ans$invhessian.lt <- NULL
-		if (control$trace > 0) cat("ucminf message:",ans$message,"\n")
-        } else { # ucminf failed
-		if (control$trace > 0) cat("ucminf failed for this problem\n")
-		ans<-list() # ans not yet defined, so set as list
+		        if (ans$convergence == 1 
+		            || ans$convergence == 2 
+		            || ans$convergence == 4) {
+         		        ans$convergence <- 0
+		        } 
+            ans$par <- ans$par*pscale
+        	  ans$counts[1] <- ans$info[4]
+        	  ans$counts[2] <- ans$info[4] # calls fn and gr together
+        	  ans$info <- NULL # to erase conflicting name
+        	  ans$nitns <- NULL
+            ans$hessian <- NULL
+            ans$invhessian.lt <- NULL
+		        if (control$trace > 0) cat("ucminf message:",ans$message,"\n")
+            } else { # ucminf failed
+            		if (control$trace > 0) cat("ucminf failed for this problem\n")
+		            ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		ans$value <- defctrl$badval
-		ans$par<-rep(NA,npar)
-	        ans$counts[1] <- NA # save function and gradient count information
-	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- errmsg
+		            ans$value <- defctrl$badval
+		            ans$par<-rep(NA,npar)
+	               ans$counts[1] <- NA # save function and gradient count information
+	               ans$counts[2] <- NA # save function and gradient count information
+	               ans$message <- errmsg
                 ans$hessian <- NULL
-        }
-        uhessian <- NULL
-        ## return(ans)
+          }
+          uhessian <- NULL
+          ## return(ans)
       }  ## end if using ucminf
 ## --------------------------------------------
       else if (method == "Rtnmin") { # Use Rtnmin routines 

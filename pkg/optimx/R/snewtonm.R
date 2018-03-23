@@ -24,7 +24,7 @@ npar <- length(par)
 ctrldefault <- list(
   trace = 0,
   maxit = 500,
-  maxfevals = npar*500,
+  maxfeval = npar*500,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
   stepdec = 0.2, 

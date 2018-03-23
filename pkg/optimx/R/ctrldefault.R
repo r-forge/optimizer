@@ -5,13 +5,15 @@ ctrldefault <- function(npar) {
      ## These are DEFAULTS. They may be nonsense in some contexts.
 
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "spg", "ucminf", 
-                "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", "lbfgs", "subplex")
+                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
+                 "spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", 
+                 "lbfgs", "subplex")
 
 #  allpkg has package where element of allmeth is found
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
-                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "BB", "ucminf",
-                "minqa", "minqa", "dfoptim", "dfoptim", "optimr", "lbfgs", "subplex")
+                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "optimx", "optimx",
+                "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 
+                "optimx", "lbfgs", "subplex")
 
      # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
@@ -27,10 +29,13 @@ ctrldefault <- function(npar) {
         allpkg = allpkg,
       	badval = (0.5)*.Machine$double.xmax,
         bdmeth = bdmeth,
+        bigval = .Machine$double.xmax*0.01,
         defgrapprox = "grfwd",
         defmethod = "Nelder-Mead",
+        defstep=1,
         dowarn = TRUE, 
         eps = 1e-07, 
+        epstol = .Machine$double.eps,
         fnscale = 1.0, 
         grtesttol=(.Machine$double.eps)^(1/3), 
         have.bounds = FALSE,
@@ -44,16 +49,21 @@ ctrldefault <- function(npar) {
 	      maximize = FALSE,
         maxit = 500*round(sqrt(npar+1)),
 	      maxfeval = 5000*round(sqrt(npar+1)),
+        offset = 100.0,
         parchanged = FALSE, 
         parscale = rep(1, npar),
         reltest = 100.0,
         save.failures = TRUE,
       	scaletol = 3, 
+        stepdec = 0.2, 
         steplen0 = 0.75, 
+        stepmax = 5,
+        stepmin = 0,
         stepredn = 0.2,
         stopbadupdate = FALSE,
         tol = 0, 
-	trace = 0
+	      trace = 0,
+	      watch = FALSE
       )
 }
 ##################################################################

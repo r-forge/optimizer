@@ -348,7 +348,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (meth == "lbfgsb3") { # Use lbfgsb3
         mcontrol$maxit <- NULL
-        mcontrol$maxfevals <- NULL
+        mcontrol$maxfeval <- NULL # changed from maxfevals 180321
 	mcontrol$trace<-NULL
 	mcontrol$iprint <- -1L
 	if (ctrl$trace>0) {

@@ -20,7 +20,7 @@ nf <- ng <- nh <- niter <- 0 # counters
 ctrldefault <- list(
   trace = 0,
   maxit = 500,
-  maxfevals = npar*500,
+  maxfeval = npar*500,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
   stepdec = 0.2, 
@@ -63,7 +63,7 @@ cat("trace =",trace,"\n")
       break
     }
     # cat("nf=",nf,"\n")
-    if (nf > control$maxfevals){
+    if (nf > control$maxfeval){
       if (trace > 0) cat("Too many (",nf," function evaluations\n")
       halt <- TRUE
       convcode <- 91 # ?? value

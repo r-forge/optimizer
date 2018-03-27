@@ -361,13 +361,15 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            stop("snewton does not handle bounds") # ?? error -- doesn't handle bounds
 	        } 
        	  ans <- try( snewton(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
-          cat("snewton returns ans:")
-          print(ans)
+          if (control$trace>1) {
+              cat("snewton returns ans:")
+              print(ans)
+          }
           if  (class(ans)[1] != "try-error") { 
+             ans$message <- "snewton failed"
+             ans$convergence <- 9999
              if (control$trace>0) {
-               ans$message <- "snewton failed"
                cat(ans$message,"\n")
-               ans$convergence <- 9999
              }
           }
        	} else {
@@ -389,8 +391,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                ans$counts[2] <- NA # save function and gradient count information
                # Note: in optim() no provision for hessian count
                ans$hessian <- NULL
-               cat("snewton falure ans:")
-               print(ans)
+               if (control$trace>1) {
+                  cat("snewton falure ans:")
+                  print(ans)
+               }
         } else { # have an answer               
               ans$par <- ans$par*pscale
               ans$bdmsk <- NULL
@@ -406,8 +410,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
               ans$message <- "snewton finished" 
               ans$convergence <- 0
               ans$hessian <- NULL
-              cat("rejigged ans:")
-              print(ans)
+              if (control$trace>1) {
+                   cat("rejigged ans:")
+                   print(ans)
+              }
              } # end have answer
          ## return(ans)
       }  ## end if using snewton
@@ -423,13 +429,15 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         stop("snewtonm does not handle bounds") # ?? error -- doesn't handle bounds
       } 
       ans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
-      cat("snewtonm returns ans:")
-      print(ans)
+      if (control$trace>0) {
+           cat("snewtonm returns ans:")
+           print(ans)
+      }
       if  (class(ans)[1] != "try-error") { 
+        ans$message <- "snewtonm failed"
+        ans$convergence <- 9999
         if (control$trace>0) {
-          ans$message <- "snewtonm failed"
           cat(ans$message,"\n")
-          ans$convergence <- 9999
         }
       }
     } else {
@@ -452,8 +460,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       ans$counts[2] <- NA # save function and gradient count information
       # Note: in optim() no provision for hessian count
       ans$hessian <- NULL
-      cat("snewtonm falure ans:")
-      print(ans)
+      if (control$trace>1) {
+         cat("snewtonm falure ans:")
+         print(ans)
+      }
     } else { # have an answer               
       ans$par <- ans$par*pscale
       ans$bdmsk <- NULL
@@ -469,8 +479,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       ans$message <- "snewtonm finished" 
       ans$convergence <- 0
       ans$hessian <- NULL
-      cat("rejigged ans:")
-      print(ans)
+      if (control$trace>1) {
+         cat("snewtonm rejigged ans:")
+         print(ans)
+      }
     } # end have answer
     ## return(ans)
   }  ## end if using snewtonm

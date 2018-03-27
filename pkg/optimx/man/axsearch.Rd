@@ -40,9 +40,12 @@ parameters. This can be used to restart an optimizer, as in the optimx wrapper.
  \item{...}{Extra arguments for the user function.}
 }
 
-
 \details{
-None.
+  The axial search MAY give a lower function value, in which case, one can restart.
+  Its primary use is in presenting some features of the function surface in the
+  tilt and radius of curvature measures returned. However, better measures should
+  be possible, and this function should be regarded as largely experimental.
+
 }
 
 \value{

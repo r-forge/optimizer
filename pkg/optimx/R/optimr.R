@@ -153,9 +153,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       mcontrol$maxit <- defctrl$maxit # 160922 -- does not use control()!!
       if (! is.null(control$maxit)) {mcontrol$maxit <- control$maxit}
       mcontrol$trace <- control$trace
-##	mcontrol$parscale <- control$parscale # Use internal scaling
       mcontrol$parscale <- NULL # using user fn 
-      mcontrol$fnscale <- control$fnscale # 180313 Carlo Lapid
+      mcontrol$fnscale <- NULL
+##      mcontrol$fnscale <- control$fnscale # 180313 Carlo Lapid ?? wrong, use efn, egr
 
 # Note: hessian always FALSE
 
@@ -168,27 +168,20 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             class(ans)[1] <- "try-error"
             warning("optimr: optim() with bounds ONLY uses L-BFGS-B")
         } else {
-#            ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
-#                      lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
-#                       control=mcontrol, ...))
             ans <- try(optim(par=par, fn=efn, gr=egr, 
                       lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
                        control=mcontrol, ...))
           }
         } else {
-#          cat("calling optim() with no bounds\n")
-#          ans <- try(optim(par=par, fn=orig.fn, gr=orig.gr, 
-#                method=method, hessian=FALSE, control=mcontrol, ...))
           ans <- try(optim(par=par, fn=efn, gr=egr, 
                 method=method, hessian=FALSE, control=mcontrol, ...))
-#          print(ans)
-
         }
         if (class(ans)[1] == "try-error") { # bad result -- What to do?
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
                 errmsg <- "optim method failure\n"
-                if (method != "L-BFGS-B") errmsg <- paste("optim() with bounds ONLY uses L-BFGS-B: ", errmsg)
+                if (method != "L-BFGS-B") 
+                     errmsg <- paste("optim() with bounds ONLY uses L-BFGS-B: ", errmsg)
 		if (control$trace>0) cat(errmsg)
 		ans$value <- defctrl$badval
 		ans$par<-rep(NA,npar)
@@ -797,7 +790,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            ans <- list() # ans not yet defined, so set as list
            ans$value <- defctrl$badval
            ans$par <- rep(NA,npar)
-           ans$convcode <- 9999 # failed in run - ?? consider special code for nmkb on bounds
+           ans$convergence <- 9999 # failed in run - ?? consider special code for nmkb on bounds
            ans$fevals <- NA 
            ans$gevals <- NA 
            ans$nitns <- NA
@@ -1030,6 +1023,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
              stop(errmsg, call.=FALSE)
       }
 # Exit from routine
+      ans$value <- ans$value * fnscale # reset for maximum
       if (savehess) { # compute hessian
          if (is.null(orig.gr)) {
             hess <- hessian(orig.fn, ans$par, ...) # from numDeriv

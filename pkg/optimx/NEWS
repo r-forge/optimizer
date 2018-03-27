@@ -3,11 +3,13 @@ NEWS about R package optimx
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
 TODO
+      o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
+      o Put counters in efn, egr
       o General issue: nlminb and possibly nlm not working as Newton with 
-	explicit Hessian
+	explicit Hessian i.e., may "work", but not seemingly like Newton
       o Should add examples, esp. of use of summary.
+      o Rationalize tests, examples, unit tests and demos.
       o can we add bounds and masks easily to Newton methods?
-      o add convcode (align names with optimr)
       o Drop nmkb from methods for bounds if start is on bound
       o Add nloptr methods -- there are a number and we need to choose how
 	to do so. Seems unable to handle parameter scaling or dot arguments.
@@ -21,13 +23,12 @@ TODO
         is apparently on the bound. Could have rounding issues, and should
         avoid this warning if it is really not needed.
       o Do NOT add ipoptr until non-standard install is fixed up.
-      o Note axsearch() is in the optextras package, but needs a good test.
-        May want to include a maximization test too.
-      o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
-      o Put counters in efn, egr
-      o Check all failures reported below are fixed!
+      o Check all failures reported below are fixed! (As at 2018-03-27
+	JN believes they are.)
 
-VERSION 2018-03-20
+VERSION 2018-03-27
+      o Replace convcode in optimr() with convergence to align with optim() result
+      o axsearch() example added to bdstest.R in tests.
       o Merged optextras package into optimx
       o rationalized  optimz-package.R, optimx-package.R into one set of code
       o Tests for grchk, kktchk, fnchk included

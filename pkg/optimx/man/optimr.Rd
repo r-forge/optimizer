@@ -113,6 +113,15 @@ optimr(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   \code{fn} and \code{gr}.  Apparently no other attributes of \code{par}
   are copied over, but this may need to be verified, especially if parameters
   are passed to non-R routines.
+  
+  CAUTION: because there is a seldom-used parameter \code{hess}, you should NOT
+  make a call like 
+  
+ans <- optimr(start, myf, myg, lower, upper)
+     
+  or you will likely get wrong results. Instead use
+  
+ans <-  optimr(start, myf, myg, lower=lower, upper=upper)
 }
 
 \value{

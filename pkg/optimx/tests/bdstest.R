@@ -31,21 +31,59 @@ for (i in 1:n) {
 }
 xx<-0.5*(lower+upper)
 
+cat("lower bounds:")
+print(lower)
+cat("start:       ")
+print(xx)
+cat("upper bounds:")
+print(upper)
+
 cat("Rvmmin \n\n")
 # Note: trace set to 0 below. Change as needed to view progress. 
 
-abtrvm <- optimr(xx, bt.f, bt.g, lower, upper, method="Rvmmin", control=list(trace=0))
+abtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", control=list(trace=0))
+# Note: use lower=lower etc. because there is a missing hess= argument
 print(abtrvm)
 
-alb<-optimr(xx,bt.f, bt.g, lower=lower, upper=upper, method="L-BFGS-B", control=list(trace=0))
+cat("Axial search")
+axabtrvm <- axsearch(abtrvm$par, fn=bt.f, fmin=abtrvm$value, lower, upper, bdmsk=NULL, 
+              trace=0)
+print(axabtrvm)
+
+cat("Now force an early stop\n")
+abtrvm1 <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
+                  control=list(maxit=1, trace=0))
+print(abtrvm1)
+cat("Axial search")
+axabtrvm1 <- axsearch(abtrvm1$par, fn=bt.f, fmin=abtrvm1$value, lower, upper, bdmsk=NULL, 
+                     trace=0)
+print(axabtrvm1)
+
+
+cat("Maximization test\n")
+mabtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
+                 control=list(trace=1, maximize=TRUE))
+# Note: use lower=lower etc. because there is a missing hess= argument
+print(mabtrvm)
+cat("Do NOT try axsearch() with maximize\n")
+cat("KKT condition check\n")
+akktm <- kktchk(mabtrvm$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=TRUE, control=list(trace=0))
+print(akktm)
+
+
+
+
+alb<-optimr(xx,bt.f, bt.g, lower=lower, upper=upper, method="L-BFGS-B", 
+            control=list(trace=0))
 print(alb)
 
-alhn<-optimr(xx, bt.f, lower=lower, upper=upper, method="hjn", control=list(trace=0))
-print(alhn)
-
+cat("KKT condition check\n")
 alkkt <- kktchk(alb$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=FALSE, control=list(trace=0))
 print(alkkt)
 
+alhn<-optimr(xx, bt.f, lower=lower, upper=upper, method="hjn", 
+             control=list(trace=0))
+print(alhn)
 
 #sink()
 cat("All bounded methods attempt with opm\n")
@@ -54,12 +92,9 @@ allbds <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=li
 print(summary(allbds, order=value))
 
 cat("Now force a mask upper=lower for parameter 3 and see what happens\n")
-upper[3] <- lower[3]
+lower[3] <- upper[3]
 xx[3] <- lower[3] # MUST reset parameter also
 
 allbdm <- opm(xx, bt.f, bt.g, lower=lower, upper=upper, method="ALL", control=list(trace=0))
 print(summary(allbdm, order=value))
-
-
-
 

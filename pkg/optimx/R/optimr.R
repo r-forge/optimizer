@@ -384,9 +384,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        	     warning("Note: snewton needs gradient function specified")
        	   }
        	   if(is.null(ehess)) {
-       	     ans$message <- "Must specify gradient function for snewton"
+       	     ans$message <- "Must specify Hessian function (hess) for snewton"
        	     ans$convergence <- 9997 # for no gradient where needed
-       	     warning("Note: snewton needs Hessian function specified")
+       	     warning("Note: snewton needs Hessian function (hess) specified")
        	   }
        	}
        	if (ans$convergence > 9996){
@@ -446,6 +446,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         warning("Note: snewtonm needs gradient function specified")
       }
       if(is.null(ehess)) {
+        ans$message <- "Must specify Hessian function (hess) for snewtonm"
         ans$message <- "Must specify gradient function for snewtonm"
         ans$convergence <- 9997 # for no gradient where needed
         warning("Note: snewtonm needs Hessian function specified")
@@ -488,6 +489,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            cat("optimr - hjn - msk:")
            print(msk)
         }
+        # 180327 Cannot maximize with hjn itself.
+        mcontrol <- control # copy
+        mcontrol$maximize <- NULL # and null out maximize
         ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=msk, 
                         control=control, ...))
         if (class(ans)[1] != "try-error") {

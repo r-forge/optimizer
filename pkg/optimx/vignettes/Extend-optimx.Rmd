@@ -605,5 +605,60 @@ There are examples and tests within the package. These include
 
 At some future opportunity, I hope to be able to document these tests more fully.
 
+### Needed tests or examples to provide proper coverage
+
+For `optimr()`, which runs individual solvers, we need to run the following test combinations
+for those methods where the tests are appropriate:
+
+  - unconstrained 
+      - minimization
+      - maximization
+  - bounds constrained
+      - minimization
+      - maximization
+      - different ways of inputting bounds (single value, only lower, etc.)
+  - masks (fixed parameters)
+      - plus bounds
+      - no bounds
+      - possibly with maximization
+      
+For `axsearch(), an example of use. Currently a small example in `tests/bdstest.R`. 
+?? put example in Rd file.
+
+For `bmchk()` ?? improve example in Rd file.
+
+For `bmstep()` an example in the Rd file is needed. This is intended as an internal
+function that computes the maximum allowable step along a search direction (or returns
+Inf).
+
+  - checksolver.R
+  - ctrldefault.R
+  - fnchk.R
+  - gHgenb.R
+  - gHgen.R
+  - grback.R
+  - grcentral.R
+  - grchk.R
+  - grfwd.R
+  - grnd.R
+  - hesschk.R
+  - hjn.R
+  - kktchk.R
+  - multistart.R
+  - opm.R
+  - optchk.R
+  - optimr.R
+  - optimx.check.R
+  - optimx-package.R
+  - optimx.R
+  - optimx.run.R
+  - optimx.setup.R
+  - polyopt.R
+  - scalechk.R
+  - snewtonm.R
+  - snewton.R
+  - zzz.R
+
+
 # References
 

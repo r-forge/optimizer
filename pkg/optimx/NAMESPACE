@@ -1,6 +1,4 @@
-import(
-  numDeriv
-)
+#importFrom("Rvmmin", "Rvmmin", "Rvmminu", "Rvmminb")
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("numDeriv", "grad", "hessian", "jacobian")
 importFrom("utils", "str")
@@ -38,10 +36,10 @@ S3method("as.data.frame", "opm")
 S3method("coef", "opm")
 S3method("coef<-", "opm")
 S3method("summary", "opm")
-#S3method("[", "optimx")
+S3method("[", "optimx")
 S3method("as.data.frame", "optimx")
 S3method("coef", "optimx")
-#S3method("coef<-", "optimx")
+S3method("coef<-", "optimx")
 S3method("summary", "optimx")
 
 

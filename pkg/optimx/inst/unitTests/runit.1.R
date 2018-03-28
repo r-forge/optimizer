@@ -40,5 +40,19 @@ test.1 <- function() {
 	checkEquals(ansoneb.sum, ansoneb.sum.target)
 
 
+	sqtst<-function(xx) {
+	   res<-sum((xx-2)*(xx-2))
+	}
+
+	nn<-1
+	startx<-rep(0,nn)
+	onepar<-optimr(startx,sqtst, gr="grfwd", method="Rvmmin", control=list(trace=1)) 
+	print(onepar)
+
+	cat("Suppress warnings\n")
+	oneparnw<-optimr(startx,sqtst, gr="grfwd", method="Rvmmin", 
+            control=list(dowarn=FALSE,trace=1)) 
+	print(oneparnw)
+
 }
 

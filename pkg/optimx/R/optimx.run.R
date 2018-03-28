@@ -157,10 +157,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         } else {
             tufn <- ufn # use function without explicit gradient
         }
-        cat("ugr in nlm:\n")
-        print(ugr)
-        cat("tufn in nlm:\n")
-        print(tufn)
+#        cat("ugr in nlm:\n")
+#        print(ugr)
+#        cat("tufn in nlm:\n")
+#        print(tufn)
 	## 091215 added control for iteration limit
 	if (! is.null(mcontrol$maxit)) { 
 	    iterlim<-mcontrol$maxit 

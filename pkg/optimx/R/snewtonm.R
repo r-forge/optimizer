@@ -44,10 +44,7 @@ for (onename in nctrld) {
   }
 }
 trace <- control$trace # convenience
-cat("trace =",trace,"\n")
-
-
-  cat(" Start snewtonm ")
+#  cat(" Start snewtonm ")
   nfn <- 0
   ngr <- 0
   nhess <- 0

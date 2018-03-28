@@ -203,7 +203,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	} else { 
 		mcontrol$trace = 1 # this is EVERY iteration. nlminb trace is freq of reporting.
 	}
-        ans <- try(nlminb(start=spar, objective=efn, gradient=egr, lower=slower, 
+        ans <- try(nlminb(start=spar, objective=efn, gradient=egr, hessian=ehess, lower=slower, 
 		upper=supper, control=mcontrol,  ...))
         if (class(ans)[1] != "try-error") {
 		# Translate output to common format and names

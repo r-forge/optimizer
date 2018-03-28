@@ -40,7 +40,6 @@ for (onename in nctrld) {
   }
 }
 trace <- control$trace # convenience
-cat("trace =",trace,"\n")
 
   xb <- par # best so far
   fbest <- fn(xb, ...)

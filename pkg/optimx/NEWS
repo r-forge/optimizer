@@ -27,6 +27,7 @@ TODO
 	JN believes they are.)
 
 VERSION 2018-03-27
+      o Changed optimr() so nlminb() can use ehess() function
       o Replace convcode in optimr() with convergence to align with optim() result
       o axsearch() example added to bdstest.R in tests.
       o Merged optextras package into optimx

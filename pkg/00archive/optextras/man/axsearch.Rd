@@ -40,9 +40,12 @@ parameters. This can be used to restart an optimizer, as in the optimx wrapper.
  \item{...}{Extra arguments for the user function.}
 }
 
-
 \details{
-None.
+  The axial search MAY give a lower function value, in which case, one can restart.
+  Its primary use is in presenting some features of the function surface in the
+  tilt and radius of curvature measures returned. However, better measures should
+  be possible, and this function should be regarded as largely experimental.
+
 }
 
 \value{
@@ -57,6 +60,67 @@ None.
 }
 \examples{
 #####################
+require(optimx)
+# Simple bounds test for n=4
+bt.f<-function(x){
+ sum(x*x)
+}
+
+bt.g<-function(x){
+  gg<-2.0*x
+}
+
+n<-4
+lower<-rep(0,n)
+upper<-lower # to get arrays set
+bdmsk<-rep(1,n)
+# bdmsk[(trunc(n/2)+1)]<-0
+for (i in 1:n) { 
+    lower[i]<-1.0*(i-1)*(n-1)/n
+    upper[i]<-1.0*i*(n+1)/n
+}
+xx<-0.5*(lower+upper)
+
+cat("lower bounds:")
+print(lower)
+cat("start:       ")
+print(xx)
+cat("upper bounds:")
+print(upper)
+
+cat("Rvmmin \n\n")
+# Note: trace set to 0 below. Change as needed to view progress. 
+
+abtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", control=list(trace=0))
+# Note: use lower=lower etc. because there is a missing hess= argument
+print(abtrvm)
+
+cat("Axial search")
+axabtrvm <- axsearch(abtrvm$par, fn=bt.f, fmin=abtrvm$value, lower, upper, bdmsk=NULL, 
+              trace=0)
+print(axabtrvm)
+
+cat("Now force an early stop\n")
+abtrvm1 <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
+                  control=list(maxit=1, trace=0))
+print(abtrvm1)
+cat("Axial search")
+axabtrvm1 <- axsearch(abtrvm1$par, fn=bt.f, fmin=abtrvm1$value, lower, upper, bdmsk=NULL, 
+                     trace=0)
+print(axabtrvm1)
+
+
+cat("Maximization test\n")
+mabtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
+                 control=list(trace=1, maximize=TRUE))
+# Note: use lower=lower etc. because there is a missing hess= argument
+print(mabtrvm)
+cat("Do NOT try axsearch() with maximize\n")
+cat("KKT condition check\n")
+akktm <- kktchk(mabtrvm$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=TRUE, control=list(trace=0))
+print(akktm)
+
+
 
 }
 \keyword{nonlinear}

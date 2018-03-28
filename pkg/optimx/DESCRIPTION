@@ -18,7 +18,7 @@ Description: Provides a replacement and extension of the optim()
     utility codes and some extra solvers, including safeguarded Newton methods.
 License: GPL-2
 LazyLoad: Yes
-Imports: numDeriv
+Imports: numDeriv, optextras
 NeedsCompilation: no
 Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim, Rtnmin,
         Rvmmin, Rcgmin, lbfgsb3, lbfgs, subplex

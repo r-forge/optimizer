@@ -3,13 +3,17 @@ checksolver <- function(method, allmeth, allpkg){
 #    if (method %in% basestats) return(method)
 
     imeth <- which(method == allmeth)
-    pkg <- allpkg[imeth]
-
-    if (requireNamespace(pkg, quietly = TRUE)) {
-      return(method)
+    if (length(imeth) < 1) {
+       warning("Package ",method," not found")
+       return(NULL)
     } else {
-      warning("Package ",pkg," for method ",method," is not available")
-      return(NULL)
+      pkg <- allpkg[imeth][[1]]
+      if ( requireNamespace(pkg, quietly = TRUE)) {
+        return(method)
+      } else { 
+        warning("Package ",pkg," for method ",method," is not available")
+        return(NULL)
+      }
     }     
     NULL # just in case
 }

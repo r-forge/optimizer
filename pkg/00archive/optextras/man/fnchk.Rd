@@ -112,6 +112,9 @@ opros<-list2env(list(fn=fr, gr=NULL, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,n
        KFN=0, KGR=0, KHESS=0, dots=NULL))
 uros1<-fnchk(xtrad, ufn, trace=1, fnuser=opros)
 print(uros1)
+require(optextras)
+# require(optimx)
+cat("Show how fnchk works\n")
 
 }
 \keyword{optimize}

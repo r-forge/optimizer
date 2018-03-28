@@ -2,6 +2,7 @@ rm(list=ls())
 # fname<-paste(format(Sys.time(), "%Y%m%d%H%M"),"-btRvmmin.out",sep='')
 # sink(fname, append=TRUE, split=TRUE)
 require("optimx")
+require("optextras")
 #####################
 
 # This test script illustrates the use of bounds in optimr() with the

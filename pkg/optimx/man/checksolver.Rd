@@ -19,6 +19,18 @@
 \value{
   \code{checksolver} tests if requested function minimization solver is present.
 }
+\examples{
+   allmeth <- c("Rvmmin", "nlminb","ipopttest")
+   allpkg <- c("Rvmmin", "stats","ipoptr")
+   
+   print(checksolver("nlminb", allmeth, allpkg))
+   # If Rvmmin NOT available, get mst that PACKAGE not available.
+   print(checksolver("Rvmmin", allmeth, allpkg))
+   # Get message that SOLVER not found
+   print(checksolver("notasolver", allmeth, allpkg))
+
+}
+}
 \keyword{nonlinear}
 \keyword{optimize}
 

@@ -39,7 +39,21 @@ along a particular search direction from current parameters to bounds.
 }
 \examples{
 #####################
+xx <- c(1, 1)
+lo <- c(0, 0)
+up <- c(100, 40)
+sdir <- c(4,1)
+bm <- c(1,1) # both free
+ans <- bmstep(xx, sdir, lo, up, bm, trace=1)
+# stepsize
+print(ans)
+# distance
+print(ans*sdir)
+# New parameters
+print(xx+ans*sdir)
+
 }
+
 \keyword{nonlinear}
 \keyword{optimize}
 \keyword{upper}

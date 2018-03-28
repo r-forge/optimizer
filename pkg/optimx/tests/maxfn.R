@@ -1,4 +1,5 @@
 require(optimx)
+require(optextras)
 maxfn<-function(x) {
   n<-length(x)
   ss<-seq(1,n)

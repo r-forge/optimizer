@@ -53,8 +53,10 @@ grfwd        Forward numerical gradient approximation
 grnd         Gradient approximation using \code{numDeriv}
 hesschk      Check that Hessian function evaluation 
              matches numerical approximation
-kktchk         Check the Karush-Kuhn-Tucker optimality conditions
-scalechk   Check scale of initial parameters and bounds
+kktchk       Check the Karush-Kuhn-Tucker optimality conditions
+optsp        An environment to hold some globally useful items
+             used by optimization programs
+scalechk     Check scale of initial parameters and bounds
 }
 }
 \author{

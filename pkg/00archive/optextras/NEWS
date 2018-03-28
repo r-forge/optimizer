@@ -3,9 +3,12 @@ Changes in optextras
 Changes before 2012-5-26 not recorded 
 
 TODOS
-   o    Examples and tests for grchk, kktchk needed.
+   o scalechk should take account of masks
 
 Changes
+
+2018-03-28
+   o    Examples all functions added, checked, revised.
 
 2017-11-25
    o    Changed kktchk argument maxfn to maximize to agree with 

@@ -142,7 +142,7 @@ hobbs.fgh <- function(x) { # all 3 for trust method
 x0 <- c(200, 50, .3)
 cat("Start for Hobbs:")
 print(x0)
-solx0 <- snewton(x0, hobbs.f, hobbs.g, hobbs.h)
+solx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="snewton")
 print(solx0)
 print(eigen(solx0$Hess)$values)
 
@@ -151,7 +151,7 @@ cat("This test finds a saddle point\n")
 x1s <- c(100, 10, .1)
 cat("Start for Hobbs:")
 print(x1s)
-solx1s <- snewton(x1s, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2))
+solx1s <- optimr(x1s, hobbs.f, hobbs.g, hobbs.h, method="snewton", control=list(trace=2))
 print(solx1s)
 print(eigen(solx1s$Hess)$values)
 
@@ -159,13 +159,21 @@ cat("Following test fails\n")
 x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
-ftest <- try(solx1 <- snewton(x1, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2)))
+ftest <- try(solx1 <- optimr(x1, hobbs.f, hobbs.g, hobbs.h, method="snewton", control=list(trace=2)))
 if (class(ftest) != "try-error") {
    print(solx1)
    print(eigen(solx1$Hess)$values)
 }
+ftestm <- try(solx1m <- optimr(x1, hobbs.f, hobbs.g, hobbs.h, method="snewtonm", control=list(trace=2)))
+if (class(ftestm) != "try-error") {
+  print(solx1m)
+  print(eigen(solx1m$Hess)$values)
+}
 # we can also use nlm and nlminb
-#??
 
-# and call them from optimx (i.e., test this gives same results)
-# library(optimx)
+nlmx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="nlm")
+print(nlmx0)
+nlminbx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="nlminb")
+print(nlminbx0)
+
+

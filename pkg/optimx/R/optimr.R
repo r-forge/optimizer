@@ -320,12 +320,12 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
 	if (! is.null(egr)) {
-          if(control$have.bounds) { # 170919 make package explicit
-   	     ans <- try(Rvmmin::Rvmminb(par=spar, fn=efn, gr=egr, lower=slower,
+          ans <- try(Rvmmin::Rvmmin(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=msk, control=mcontrol, ...))
-	  } else {
-             ans <- try(Rvmmin::Rvmminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
-	  }
+        }
+        if (control$trace > 2) {
+            cat("Rvmmin ans:")
+            print(ans)
         }
         if (! is.null(egr) && (class(ans)[1] != "try-error")) {
             ans$par <- ans$par*pscale

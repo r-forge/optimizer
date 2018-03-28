@@ -368,6 +368,20 @@ objective function and gradient), which can raise difficulties. In package `opti
 the interface to the `lbfgs` shows one approach, which consolidates the arguments for
 `lbfgs()` into a list, then converts the list to an environment. 
 
+### Using internal functions
+
+It is tempting to use internal functions and avoid a lot of the overhead of checking that
+inputs are acceptable. For example, checking that starting values are within bounds is
+done in most routines. However, I have found to my cost, that this needs to be done 
+carefully. For example, in building optimr, the separate bounded and unconstrained 
+versions of `Rvmmin`, called `Rvmminb` and `Rvmminu`, were called separately depending
+on whether bounds constraints were present or not. However, `Rvmmin` uses an indicator
+vector `bdmsk` that needs to be set up carefully. Furthermore, it is essential that the
+bounds checking routine `bmchk` be run with `shift2bound = TRUE` and that the starting
+parameters then be taken from the `bvec` output of the call to `bmchk`. After getting
+a wrong result (from the `genrose` problem with `n = 4`, lower bounds at 2, upper
+bounds at 3, and all starting values at `pi`, hence above the upper bound), I have 
+now arranged to call the wrapping function `Rvmmin` from the package of the same name.
 
 ## Running multiple methods
 

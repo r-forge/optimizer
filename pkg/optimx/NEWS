@@ -27,6 +27,9 @@ TODO
 	JN believes they are.)
 
 VERSION 2018-03-27
+      o Changed Rvmmin call. Rvmminb and Rvmminu NOT now called separately,
+	as user may inadvertently supply inadmissible parameters and get wrong
+	answer.
       o Changed optimr() so nlminb() can use ehess() function
       o Replace convcode in optimr() with convergence to align with optim() result
       o axsearch() example added to bdstest.R in tests.

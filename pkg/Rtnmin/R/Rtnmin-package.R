@@ -236,7 +236,8 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    g<- attr(fg,"gradient")
    f<-fg
    flast  <- f
-   if (is.null(g) ) { ## 160922 change
+#   if (is.null(g) ) { ## 160922 change
+   if (! is.numeric(g) ) { # try fix 180328
      gnorm <- 1.0/eps 
    } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
 ## ---------------------------------------------------------
@@ -251,7 +252,8 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
       ipivot[ind] <- rep(0, length(ind)) 
    } 
    g <- ztime (g, ipivot) 
-   if (is.null(g) ) { ## 160922 change
+#   if (is.null(g) ) { ## 160922 change
+   if (! is.numeric(g) ) { # try fix 180328
      gnorm <- 1.0/eps 
    } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
    cat(nit,"\t", nf,"\t", ncg,"\t", f,"  ", gnorm,"\n")
@@ -505,8 +507,11 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    fg <- sfun(x, ...)
 #%    print(fg)
    g<- attr(fg, "gradient")
+   print(g)
+   if (is.null(g)) stop("Must have gradient defined for Rtnmin")
    f<-fg
-   if (is.null(g) ) { ## 160922 change
+#   if (is.null(g) ) { ## 160922 change
+   if (! is.numeric(g) ) { # try fix 180328
      gnorm <- 1.0/eps 
    } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
    nf     <- 1 
@@ -535,6 +540,7 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    conv   <- FALSE 
    ireset <- 0 
    ipivot <- 0 
+   cat("end initial values\n")
 ## ---------------------------------------------------------
 ##  initialize diagonal preconditioner to the identity
 ## ---------------------------------------------------------
@@ -545,9 +551,10 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 ##  compute search direction
 ## ---------------------------------------------------------
    argvec <- c(accrcy, gnorm, xnorm) 
+   cat("call modlnp\n")
    mres  <- modlnp (d, x, g, maxit, upd1, ireset, bounds=FALSE, ipivot, argvec, sfun, ...) 
    p <- mres$p
-#   cat("p from first call to modlnp\n")
+   cat("p from first call to modlnp\n")
 #   print(p)
 #   tmp<-readline("cont.")
 
@@ -567,6 +574,7 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 ## ---------------------------------------------------------
 ##  line search
 ## ---------------------------------------------------------
+      cat("start linesearch\n")
       pe     <- pnorm + eps 
       spe    <- stepmx/pe 
 #%       cat("gtp, spe:", gtp, spe,"\n")
@@ -585,7 +593,8 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
      nf <- nf + nf1 
 ## ---------------------------------------------------------
       nit <- nit + 1
-      if (is.null(g) ) { ## 160922 change
+#   if (is.null(g) ) { ## 160922 change
+   if (! is.numeric(g) ) { # try fix 180328
         gnorm <- 1.0/eps 
       } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
 ### Display info

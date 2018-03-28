@@ -616,13 +616,14 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             if (control$trace > 0) cat("Rtnmin MUST have gradient provided\n")
             errmsg <- "Rtnmin MUST have gradient provided"
             class(ans)[1] <- "try-error"            
+        } else {
+           if (control$have.bounds) {
+   	      ans <- try(Rtnmin::tnbc(x=spar, fgfun=nlmfn, lower=slower,
+                   upper=supper, trace=mcontrol$trace, ...))
+           } else {
+   	      ans <- try(Rtnmin::tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
+	   }
         }
-	if (control$have.bounds) {
-   	   ans <- try(Rtnmin::tnbc(x=spar, fgfun=nlmfn, lower=slower,
-                upper=supper, trace=mcontrol$trace, ...))
-	} else {
-   	   ans <- try(Rtnmin::tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
-	}
         if (class(ans)[1] == "try-error") {
         	if (control$trace>0) cat("Rtnmin failed for current problem \n")
                 ans$convergence <- 9999 # failed in run

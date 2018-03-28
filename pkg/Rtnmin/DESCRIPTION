@@ -1,8 +1,8 @@
 Package: Rtnmin
 Type: Package
 Title: Truncated Newton Function Minimization with Bounds Constraints
-Version: 2016-9.22
-Date: 2016-09-22
+Version: 2018-3.28
+Date: 2016-03-28
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
         c("aut", "cre", "cph"), email = "nashjc@uottawa.ca"),
           person(given = c("Stephen", "G"), family = "Nash", role =

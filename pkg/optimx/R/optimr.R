@@ -20,7 +20,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   }
 
 # Check if bounded
-  bdmsk <- bmchk(par, lower=lower, upper=upper)
+  bdmsk <- bmchk(par, lower=lower, upper=upper, shift2bound=TRUE)
+  if (bdmsk$parchanged) warning("Parameter(s) changed to nearest bounds\n")
   control$have.bounds <- bdmsk$bounds # and set a control value
 
   orig.method <- method

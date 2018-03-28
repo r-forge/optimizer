@@ -1,5 +1,9 @@
 To do
 
+2018-03-28
+    o Minor spacing issue in printing max(g)
+    o Remove extra file src/lbfgsb.f (not needed; stops build)
+
 2015-01-20
     o Fixup line longer than 72 chars in lbfgsb.f. Undeclared
       integer itask in errclb subroutine. Thanks to Berend Hasselman.

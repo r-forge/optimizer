@@ -109,6 +109,10 @@ cat("diff fu-fb=",au$value-ab$value,"\n")
 cat("max abs parameter diff = ", max(abs(au$par-ab$par)),"\n")
 
 ######### One dimension test
+sqtst<-function(xx) {
+   res<-sum((xx-2)*(xx-2))
+}
+
 nn<-1
 startx<-rep(0,nn)
 onepar<-hjn(startx,sqtst,control=list(trace=1)) 

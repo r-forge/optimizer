@@ -44,15 +44,13 @@ trace <- control$trace # convenience
   xb <- par # best so far
   fbest <- fn(xb, ...)
   nf <- nf + 1 
-  if (trace > 0) cat("Initial function value = ",fbest,"\n")
+  if (trace > 0) cat(niter," ",nf," ",ng,"  fbest=",fbest,"\n")
   if (trace > 1) print(xb)
-#  fval <- control$bigval # to ensure comparison unfavourable
-  #  while (niter < control$maxit) { # main loop
   repeat { # MAIN LOOP
     niter <- niter + 1
     grd<-gr(xb,...) # compute gradient
     ng <- ng + 1
-    if (trace > 1) cat("Termination test:")    
+#    if (trace > 2) cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
     if (niter > control$maxit) {
@@ -61,15 +59,12 @@ trace <- control$trace # convenience
       convcode <- 1
       break
     }
-    # cat("nf=",nf,"\n")
     if (nf > control$maxfeval){
       if (trace > 0) cat("Too many (",nf," function evaluations\n")
       halt <- TRUE
       convcode <- 91 # ?? value
       break
     }
-    #    if (ng > control$maxgevals){} # not implemented
-    #    if (nh > control$maxhevals){} # not implemented
     gmax <- max(abs(grd))
     if (trace > 1) cat("current gradient norm =",gmax,"\n")
     if (gmax <= control$epstol) {
@@ -79,14 +74,14 @@ trace <- control$trace # convenience
       break
     }
     # Note if we get here, 
-    if (trace > 0) {cat("Iteration ",niter,":")}
+#    if (trace > 0) {cat("Iteration ",niter,":")}
     H<-hess(xb,...)
     nh <- nh + 1
     d<-try(solve(H, -grd))
     if (class(d) == "class-error") {
           stop("Failure of default solve of Newton equations")
     }
-    if (trace > 1) {
+    if (trace > 2) {
          cat("Search vector:")
          print(d)
     }
@@ -138,4 +133,3 @@ trace <- control$trace # convenience
   out$convcode <- convcode
   out
 }
-

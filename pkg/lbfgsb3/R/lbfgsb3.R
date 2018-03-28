@@ -155,7 +155,7 @@ repeat {
          if (ctrl$trace > 0) {
             cat("At iteration ", isave[34]," f =",f)
             if (ctrl$trace > 1) {
-               cat("max(abs(g))=",max(abs(g)))
+               cat("  max(abs(g))=",max(abs(g)))
             }
             cat("\n")
          }

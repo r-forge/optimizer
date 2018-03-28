@@ -44,6 +44,7 @@ for (onename in nctrld) {
   }
 }
 trace <- control$trace # convenience
+
 #  cat(" Start snewtonm ")
   nfn <- 0
   ngr <- 0
@@ -63,7 +64,7 @@ trace <- control$trace # convenience
   while ( (itn <= control$maxit) && (fval < fbest) ) { ## main loop
     fbest <- fval
     lambda <- lambda * lamdec
-    if (control$trace) {cat("Iteration ",itn," fbest=",fbest,"\n")}
+    if (control$trace>0) {cat(itn," ",nfn," ",ngr," fbest=",fbest,"\n")}
     grd<-gr(par,...)
     ngr <- ngr + 1
     if ( max(abs(grd)) < eps ) {
@@ -88,12 +89,12 @@ trace <- control$trace # convenience
        if (control$trace) {cat(" lambda =", lambda,"  fval=", fval,"\n")}
        if (fval >= fbest) {lambda <- max(lambdamin,lambda)*laminc} # increase lambda
     }
-#    if (control$trace) {cat(" Success at lambda =", lambda,"  fval=", fval,"\n")}
+#    if (control$trace>0) {cat(" Success at lambda =", lambda,"  fval=", fval,"\n")}
      par<-xn
-     if (control$watch) { tmp <- readline("end iteration") }
+     if (control$watch>0) { tmp <- readline("end iteration") }
 
   }
-  if (itn==control$maxit) {
+  if (itn >= control$maxit) {
     print("NewtonR: Failed to converge!")
   }
   cat("Finished\n")

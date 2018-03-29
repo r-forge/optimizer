@@ -1,8 +1,6 @@
-# require(optextras)
-require(optimx)
+require(optextras)
+# require(optimx)
 cat("Show how fnchk works\n")
-
-
 
 # Want to illustrate each case.
 # Ben Bolker idea for a function that is NOT scalar

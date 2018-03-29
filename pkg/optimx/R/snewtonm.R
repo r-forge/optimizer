@@ -46,6 +46,7 @@ for (onename in nctrld) {
 trace <- control$trace # convenience
 
 #  cat(" Start snewtonm ")
+  convcode <- 0
   nfn <- 0
   ngr <- 0
   nhess <- 0
@@ -53,8 +54,10 @@ trace <- control$trace # convenience
   eps <- 10*eps0
   fval <- fn(par, ...)
   nfn <- nfn + 1
-  cat("  f0=",fval,"  at  ")
-  print(par)
+  if (control$trace > 0) {
+   cat("  f0=",fval,"  at  ")
+   print(par)
+  }
   fbest <- abs(fval)*1.1 + 100.
   itn <- 1
   lambdamin<-(eps0^(1/4)) ## ?? do better
@@ -95,14 +98,18 @@ trace <- control$trace # convenience
 
   }
   if (itn >= control$maxit) {
-    print("NewtonR: Failed to converge!")
-  }
+     msg <- "snewtonm: Too many iterations!\n"
+     if(control$trace > 0) cat(msg)
+     convcode <- 1
+  } else { msg <- "snewtonm: Normal exit" }
   cat("Finished\n")
   out<-NULL
-  out$xs<-xn
-  out$fv<-fn(xn,...)
-  out$grd<-grd
+  out$par<-xn
+  out$value<-fn(xn,...)
+  out$grad<-grd
   out$Hess<-H
   out$counts <- list(niter=itn, nfn=nfn, ngr=ngr, nhess=nhess)
+  out$convcode <- convcode
+  out$message <- msg
   out 
 }

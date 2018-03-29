@@ -253,10 +253,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         	# Translate output to common format
 		ans$value <- ans$minimum
 		ans$minimum <- NULL
-    ans$par <- ans$estimate*pscale
+                ans$par <- ans$estimate*pscale
 		ans$estimate <- NULL
-    ans$counts[2] <- ans$iterations
-          ans$counts[1] <- NA
+                ans$counts[2] <- ans$iterations
+                ans$counts[1] <- NA
         	ans$iterations <- NULL
                 ans$hessian <- NULL
                 ans$gradient <- NULL # We lose information here
@@ -355,18 +355,18 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxit <- control$maxit
         mcontrol$maxfeval <- control$maxfeval # changed from maxfevals 180321
        	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
-       	ans<-list() # ans not yet defined, so set as list
-       	ans<-convergence <- -1 # undefined
+       	ans<-list(par=NA, value=NA, counts=NA, convergence=-1,
+                  message=NA, hessian=NULL) # ans not yet defined, so set as list
        	if ( (! is.null(egr)) && (! is.null(ehess)) ) {
           if (control$have.bounds) { # 170919 make package explicit
            stop("snewton does not handle bounds") # ?? error -- doesn't handle bounds
-	        } 
-       	  ans <- try( snewton(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
+          } 
+       	  tans <- try( snewton(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
           if (control$trace>1) {
-              cat("snewton returns ans:")
-              print(ans)
+              cat("snewton returns tans:")
+              print(tans)
           }
-          if  (class(ans)[1] != "try-error") { 
+          if  (class(tans)[1] == "try-error") { 
              ans$message <- "snewton failed"
              ans$convergence <- 9999
              if (control$trace>0) {
@@ -396,21 +396,15 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                   cat("snewton falure ans:")
                   print(ans)
                }
-        } else { # have an answer               
-              ans$par <- ans$par*pscale
-              ans$bdmsk <- NULL
-              ans$par <- ans$xs
-              ans$xs <- NULL
-              ans$value <- ans$fv
-              ans$fv <- NULL
-              ans$grd <- NULL # would like to keep this!
-              ans$H <- NULL # this too!!
-              ans$counts[2] <- ans$niter
-              ans$counts[1] <- NULL
-              ans$niter <- NULL
-              ans$message <- "snewton finished" 
-              ans$convergence <- 0
-              ans$hessian <- NULL
+        } else { # have an answer
+              ans$par <- tans$par*pscale
+              attr(ans, "gradient") <- tans$grad
+              if(hessian) ans$hessian <- tans$Hess
+              ans$counts[2] <- tans$counts$nfn
+              ans$counts[1] <-  tans$counts$ngr
+              ans$message <- tans$message 
+              ans$convergence <- tans$convcode
+              tans <- NULL # probably unnecessary, but for safety
               if (control$trace>1) {
                    cat("rejigged ans:")
                    print(ans)
@@ -423,18 +417,18 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     mcontrol$maxit <- control$maxit
     mcontrol$maxfeval <- control$maxfeval # changed from maxfevals 180321
     mcontrol$trace <- control$trace # 140902 Note no check on validity of values
-    ans<-list() # ans not yet defined, so set as list
-    ans<-convergence <- -1 # undefined
+    ans<-list(par=NA, value=NA, counts=NA, convergence=-1,
+                  message=NA, hessian=NULL) # ans not yet defined, so set as list
     if ( (! is.null(egr)) && (! is.null(ehess)) ) {
       if (control$have.bounds) { # 170919 make package explicit
         stop("snewtonm does not handle bounds") # ?? error -- doesn't handle bounds
       } 
-      ans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
+      tans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
       if (control$trace>0) {
-           cat("snewtonm returns ans:")
-           print(ans)
+           cat("snewtonm returns tans:")
+           print(tans)
       }
-      if  (class(ans)[1] != "try-error") { 
+      if  (class(tans)[1] == "try-error") { 
         ans$message <- "snewtonm failed"
         ans$convergence <- 9999
         if (control$trace>0) {
@@ -449,39 +443,34 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }
       if(is.null(ehess)) {
         ans$message <- "Must specify Hessian function (hess) for snewtonm"
-        ans$message <- "Must specify gradient function for snewtonm"
-        ans$convergence <- 9997 # for no gradient where needed
+        ans$convergence <- 9997 # for no Hessian where needed
         warning("Note: snewtonm needs Hessian function specified")
       }
-    }
-    if (ans$convergence > 9996){
-      ans$value <- defctrl$badval
-      ans$par<-rep(NA,npar)
-      ans$counts[1] <- NA # save function and gradient count information
-      ans$counts[2] <- NA # save function and gradient count information
-      # Note: in optim() no provision for hessian count
-      ans$hessian <- NULL
+    } # end of fails
+    if (ans$convergence > 9996){ # Bad solution
+       ans$value <- defctrl$badval
+       ans$par<-rep(NA,npar)
+       ans$counts[1] <- NA # save function and gradient count information
+       ans$counts[2] <- NA # save function and gradient count information
+       # Note: in optim() no provision for hessian count
+       ans$hessian <- NULL
+       if (control$trace>1) {
+          cat("snewton falure ans:")
+          print(ans)
+       }
+    } else { # have an answer
+#      cat("copy answer with tans$par:\n") 
+#      print(tans$par)              
+      ans$par <- tans$par*pscale
+      attr(ans, "gradient") <- tans$grad
+      if(hessian) ans$hessian <- tans$Hess
+      ans$counts[2] <- tans$counts$nfn
+      ans$counts[1] <-  tans$counts$ngr
+      ans$message <- tans$message 
+      ans$convergence <- tans$convcode
+      tans <- NULL # probably unnecessary, but for safety
       if (control$trace>1) {
-         cat("snewtonm falure ans:")
-         print(ans)
-      }
-    } else { # have an answer               
-      ans$par <- ans$par*pscale
-      ans$bdmsk <- NULL
-      ans$par <- ans$xs
-      ans$xs <- NULL
-      ans$value <- ans$fv
-      ans$fv <- NULL
-      ans$grd <- NULL # would like to keep this!
-      ans$H <- NULL # this too!!
-      ans$counts[2] <- ans$niter
-      ans$counts[1] <- NULL
-      ans$niter <- NULL
-      ans$message <- "snewtonm finished" 
-      ans$convergence <- 0
-      ans$hessian <- NULL
-      if (control$trace>1) {
-         cat("snewtonm rejigged ans:")
+         cat("rejigged ans:")
          print(ans)
       }
     } # end have answer

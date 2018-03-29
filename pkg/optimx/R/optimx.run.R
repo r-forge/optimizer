@@ -177,8 +177,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         time <- system.time(ans <- try(nlm(f=tufn, p=par, ...,
            iterlim=iterlim, print.level=print.level), silent=TRUE))[1]
         if (class(ans)[1] != "try-error") {
+              if (ctrl$trace > 1) {
                 cat("nlm output ans:\n")
                 print(ans)
+              }
 		ans$convcode <- ans$code
 		if (ans$convcode == 1 || ans$convcode == 2 || ans$convcode == 3) ans$convcode <- 0
 		if (ans$convcode == 4) ans$convcode <- 1

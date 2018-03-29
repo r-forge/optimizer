@@ -66,6 +66,7 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
   \item{grd}{The value of the gradient at the best set of parameters found. A vector.}
   \item{H}{The value of the Hessian at the best set of parameters found. A matrix.}
   \item{niter}{The number of Newton iterations used in finding the solution.}
+  \item{message}{A message giving some information on the status of the solution.}
   }
 
 }

@@ -305,7 +305,8 @@ genrose.h <- function(x, gs=NULL) { ## compute Hessian
 
 startx<-4*seq(1:10)/3.
 ans8<-opm(startx,fn=genrose.f,gr=genrose.g, hess=genrose.h,
-   method="ALL", control=list(save.failures=TRUE, trace=1), gs=10)
+   method="ALL", control=list(save.failures=TRUE, trace=0), gs=10)
+# Set trace=1 for output of individual solvers
 ans8
 ans8[, "gevals"]
 ans8["spg", ]

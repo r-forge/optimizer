@@ -20,7 +20,7 @@ nf <- ng <- nh <- niter <- 0 # counters
 ctrldefault <- list(
   trace = 0,
   maxit = 500,
-  maxfevals = npar*500,
+  maxfeval = npar*500,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
   stepdec = 0.2, 
@@ -40,20 +40,17 @@ for (onename in nctrld) {
   }
 }
 trace <- control$trace # convenience
-cat("trace =",trace,"\n")
 
   xb <- par # best so far
   fbest <- fn(xb, ...)
   nf <- nf + 1 
-  if (trace > 0) cat("Initial function value = ",fbest,"\n")
+  if (trace > 0) cat(niter," ",nf," ",ng,"  fbest=",fbest,"\n")
   if (trace > 1) print(xb)
-#  fval <- control$bigval # to ensure comparison unfavourable
-  #  while (niter < control$maxit) { # main loop
   repeat { # MAIN LOOP
     niter <- niter + 1
     grd<-gr(xb,...) # compute gradient
     ng <- ng + 1
-    if (trace > 1) cat("Termination test:")    
+#    if (trace > 2) cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
     if (niter > control$maxit) {
@@ -62,32 +59,31 @@ cat("trace =",trace,"\n")
       convcode <- 1
       break
     }
-    # cat("nf=",nf,"\n")
-    if (nf > control$maxfevals){
-      if (trace > 0) cat("Too many (",nf," function evaluations\n")
+    if (nf > control$maxfeval){
+      msg <- paste("Too many (",nf," function evaluations\n")
+      if (trace > 0) cat(msg)
       halt <- TRUE
       convcode <- 91 # ?? value
       break
     }
-    #    if (ng > control$maxgevals){} # not implemented
-    #    if (nh > control$maxhevals){} # not implemented
     gmax <- max(abs(grd))
     if (trace > 1) cat("current gradient norm =",gmax,"\n")
     if (gmax <= control$epstol) {
-      if (trace > 1) cat("Small gradient norm\n")
+      msg <- paste("Small gradient norm\n")
+      if (trace > 1) cat(msg)
       halt <- TRUE
       convcode <- 0 # OK
       break
     }
     # Note if we get here, 
-    if (trace > 0) {cat("Iteration ",niter,":")}
+#    if (trace > 0) {cat("Iteration ",niter,":")}
     H<-hess(xb,...)
     nh <- nh + 1
     d<-try(solve(H, -grd))
     if (class(d) == "class-error") {
           stop("Failure of default solve of Newton equations")
     }
-    if (trace > 1) {
+    if (trace > 2) {
          cat("Search vector:")
          print(d)
     }
@@ -97,7 +93,9 @@ cat("trace =",trace,"\n")
     xnew <- xb + st*d # new point
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 92 # no progress
-        if (trace > 0) cat("No progress before linesearch!\n")
+        msg <- "No progress before linesearch!\n"
+        if (trace > 0) cat(msg)
+        break # finished        
     }
     fval <- fn(xnew, ...)    
     nf <- nf + 1
@@ -122,7 +120,8 @@ cat("trace =",trace,"\n")
     }
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 93 # no progress in linesearch
-        if (trace > 0) cat("No progress in linesearch!\n")
+        msg <- "No progress in linesearch!\n"
+        if (trace > 0) cat(msg)
         break
     }
     if (trace > 1) cat("end major loop\n")  
@@ -137,6 +136,6 @@ cat("trace =",trace,"\n")
   out$Hess<-H
   out$counts <- list(niter=niter,  nfn=nf, ngr=ng, nhess=nh)
   out$convcode <- convcode
+  out$message <- msg
   out
 }
-

@@ -73,10 +73,10 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     meth <- method[i] # extract the method name
     if (control$trace > 0) cat("Method: ",meth,"\n")
     # Note: not using try() here
-    if (is.character(gr) && (control$trace>0)) cat("Using numerical gradient ",gr," for method ", meth,"\n")
-    time <- system.time(ans <- optimr(par, fn, gr, method=meth, lower=lower, upper=upper, 
+    if (is.character(gr) && (control$trace>0)) 
+           cat("Using numerical gradient ",gr," for method ", meth,"\n")
+    time <- system.time(ans <- optimr(par, fn, gr, hess=hess, method=meth, lower=lower, upper=upper, 
            hessian=hessian, control=control, ...))[1]
-    # ?? FIX -- time is ALREADY done in optimr()
     if (control$trace > 2) print(ans)
     # add to list
 
@@ -86,7 +86,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       if (control$trace>0) { cat("Post processing for method ",meth,"\n") }
       if (exists("ans$message")) {
            amsg<-ans$message
-           ans$message <- NULL
+           ans$message <- NULL # ?? do we need this
       } else { amsg <- "none" }
       ngatend <- NA
       nhatend <- NA
@@ -95,11 +95,14 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       ans$fevals <- ans$counts[1]
       ans$kkt1<-NA
       ans$kkt2<-NA
-      kktres <- list(gmax=NA, evratio = NA, kkt1=NA, kkt2=NA, hev=rep(NA,npar), ngatend=NA, nhatend=NA)
-      if ( control$save.failures || (ans$convergence < 1) ){# Save soln if converged or directed to save
+      kktres <- list(gmax=NA, evratio = NA, kkt1=NA, kkt2=NA, 
+                     hev=rep(NA,npar), ngatend=NA, nhatend=NA)
+      if ( control$save.failures || (ans$convergence < 1) ){
+           # Save soln if converged or directed to save
+          cat("control$trace =",control$trace,"\n")
+          cat("ans$convergence =", ans$convergence,"\n")
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 
 # Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
-#          if ((control$kkt || hessian) && (ans$convergence != 9999)) {
            if ((control$kkt || hessian) && (ans$convergence < 9900)) { # chg 160917 for no gradient
              wgr <- gr
              if (is.null(wgr)) wgr <- control$defgrapprox

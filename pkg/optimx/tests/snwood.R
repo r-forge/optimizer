@@ -39,17 +39,17 @@ x0 <- c(-3,-1,-3,-1) # Wood standard start
 
 # library(snewton)
 cat("This FAILS to find minimum\n")
-wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
+wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wd)
 cat("  with optimr\n")
-wdo <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="snewton", control=list(trace=2))
+wdo <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="snewton", control=list(trace=1))
 print(wdo)
 
-wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=2))
+wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wdm)
 
 cat("\n\n nlm() gives similar results\n")
-t1nlm <- nlm(wood.fgh, x0, print.level=2)
+t1nlm <- nlm(wood.fgh, x0, print.level=1)
 print(t1nlm)
 
 

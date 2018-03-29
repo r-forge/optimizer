@@ -60,7 +60,8 @@ trace <- control$trace # convenience
       break
     }
     if (nf > control$maxfeval){
-      if (trace > 0) cat("Too many (",nf," function evaluations\n")
+      msg <- paste("Too many (",nf," function evaluations\n")
+      if (trace > 0) cat(msg)
       halt <- TRUE
       convcode <- 91 # ?? value
       break
@@ -68,7 +69,8 @@ trace <- control$trace # convenience
     gmax <- max(abs(grd))
     if (trace > 1) cat("current gradient norm =",gmax,"\n")
     if (gmax <= control$epstol) {
-      if (trace > 1) cat("Small gradient norm\n")
+      msg <- paste("Small gradient norm\n")
+      if (trace > 1) cat(msg)
       halt <- TRUE
       convcode <- 0 # OK
       break
@@ -91,7 +93,9 @@ trace <- control$trace # convenience
     xnew <- xb + st*d # new point
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 92 # no progress
-        if (trace > 0) cat("No progress before linesearch!\n")
+        msg <- "No progress before linesearch!\n"
+        if (trace > 0) cat(msg)
+        break # finished        
     }
     fval <- fn(xnew, ...)    
     nf <- nf + 1
@@ -116,7 +120,8 @@ trace <- control$trace # convenience
     }
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 93 # no progress in linesearch
-        if (trace > 0) cat("No progress in linesearch!\n")
+        msg <- "No progress in linesearch!\n"
+        if (trace > 0) cat(msg)
         break
     }
     if (trace > 1) cat("end major loop\n")  
@@ -131,5 +136,6 @@ trace <- control$trace # convenience
   out$Hess<-H
   out$counts <- list(niter=niter,  nfn=nf, ngr=ng, nhess=nh)
   out$convcode <- convcode
+  out$message <- msg
   out
 }

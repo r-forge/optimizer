@@ -42,7 +42,7 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
    \item{maxit}{A limit on the number of iterations (default 500 + 2*n where n is
       the number of parameters). This is the maximum number of gradient evaluations 
       allowed.}
-   \item{maxfevals}{A limit on the number of function evaluations allowed 
+   \item{maxfeval}{A limit on the number of function evaluations allowed 
      (default 3000 + 10*n).}
    \item{eps}{ a tolerance used for judging small gradient norm (default = 1e-07).
    	a gradient norm smaller than (1 + abs(fmin))*eps*eps is considered small 
@@ -66,6 +66,7 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
   \item{grd}{The value of the gradient at the best set of parameters found. A vector.}
   \item{H}{The value of the Hessian at the best set of parameters found. A matrix.}
   \item{niter}{The number of Newton iterations used in finding the solution.}
+  \item{message}{A message giving some information on the status of the solution.}
   }
 
 }

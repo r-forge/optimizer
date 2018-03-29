@@ -6,7 +6,7 @@ TODO
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o Put counters in efn, egr
       o General issue: nlminb and possibly nlm not working as Newton with 
-	explicit Hessian i.e., may "work", but not seemingly like Newton
+	explicit Hessian i.e., may "work", but seemingly not like Newton
       o Should add examples, esp. of use of summary.
       o Rationalize tests, examples, unit tests and demos.
       o can we add bounds and masks easily to Newton methods?
@@ -27,6 +27,7 @@ TODO
 	JN believes they are.)
 
 VERSION 2018-03-27
+      o Conditional output of nlm diagnostic info.
       o Changed Rvmmin call. Rvmminb and Rvmminu NOT now called separately,
 	as user may inadvertently supply inadmissible parameters and get wrong
 	answer.

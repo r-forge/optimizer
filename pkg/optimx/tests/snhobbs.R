@@ -1,3 +1,4 @@
+rm(list=ls())
 require(optimx)
 ## Optimization test function HOBBS
 ## ?? refs (put in .doc??)
@@ -86,72 +87,46 @@ hobbs.h <- function(x) { ## compute Hessian
 }
 
 
-hobbsrsd.tst<-function(x) { # test rsd calculations
-   hh<-1e-7 # use this for delta for derivatives
-   Ja<-hobbs.jac(x)
-   rsd<-hobbs.rsd(x)
-   x1<-x+c(hh,0,0)
-   x2<-x+c(0,hh,0)
-   x3<-x+c(0,0,hh)
-   Ja1<-hobbs.jac(x1)
-   Ja2<-hobbs.jac(x2)
-   Ja3<-hobbs.jac(x3)
-   cat("w.r.t. x1 ")
-   print(maxard((Ja1-Ja)/hh,rsd[,,1] ))
-   cat("w.r.t. x2 ")
-   print(maxard((Ja2-Ja)/hh,rsd[,,2] ))
-   cat("w.r.t. x3 ")
-   print(maxard((Ja3-Ja)/hh,rsd[,,3] ))
-}
 
-
-hobbs.doc <- function() { ## documentation for hobbs
-   cat("One generalization of the Rosenbrock banana valley function (n parameters)\n")
-   ## How should we do the documentation output?
-}
-
-
-hobbs.setup <- function(n=NULL, dotdat=NULL) {
-  # if (is.null(gs) ) { gs<-100.0 } # set the scaling
-  # if ( is.null(n) ) {
-  #    n <- readline("Order of problem (n):")
-  # }
-   n<-3 # fixed for Hobbs, as is m=12
-   x<-rep(2,n)
-   lower<-rep(-100.0, n)
-   upper<-rep(100.0, n)
-   bdmsk<-rep(1,n)
-   if (! is.null(dotdat) ) {
-       fargs<-paste("gs=",gs,sep='') # ?? still need to do this nicely
-   } else { fargs<-NULL }
-   gsu<-list(x=x,lower=lower,upper=upper,bdmsk=bdmsk,fargs=fargs)
-   return(gsu)
-
-}
-
-hobbs.fgh <- function(x) { # all 3 for trust method
-         stopifnot(is.numeric(x))
-         stopifnot(length(x) == 3)
-         f<-hobbs.f(x)
-         g<-hobbs.g(x)
-         B<-hobbs.h(x)
-         list(value = f, gradient = g, hessian = B)
-}
-
-# require(snewton)
 x0 <- c(200, 50, .3)
 cat("Start for Hobbs:")
 print(x0)
-solx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="snewton")
-print(solx0)
-print(eigen(solx0$Hess)$values)
+cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
+
+# ah0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="snewtonm", control=list(trace=2))
+# print(ah0)
+
+# stop("Done!")
+
+# Note: Can check via
+# require(snewton)
+# ah0s <- snewton(x0, hobbs.f, hobbs.g, hobbs.h)
+# print(ah0s)
+
+
+
+# ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=c("snewton", "snewtonm"), control=list(trace=4))
+print(summary(ahobb0, order=value))
+ stop("Done!")
+
+
+# solx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="snewton")
+# print(solx0)
+# Eigenvalues of Hessian at solution
+# print(eigen(solx0$Hess)$values)
+# Note direct solver solution has more output
+# solx0sn <- snewton(x0, hobbs.f, hobbs.g, hobbs.h)
+# print(solx0sn)
+
 
 
 cat("This test finds a saddle point\n")
 x1s <- c(100, 10, .1)
 cat("Start for Hobbs:")
 print(x1s)
-solx1s <- optimr(x1s, hobbs.f, hobbs.g, hobbs.h, method="snewton", control=list(trace=2))
+cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
+solx1s <- optimr(x1s, hobbs.f, hobbs.g, hobbs.h, method="snewton", control=list(trace=1))
 print(solx1s)
 print(eigen(solx1s$Hess)$values)
 

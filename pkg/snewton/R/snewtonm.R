@@ -24,7 +24,7 @@ npar <- length(par)
 ctrldefault <- list(
   trace = 0,
   maxit = 500,
-  maxfevals = npar*500,
+  maxfeval = npar*500,
   acctol = 0.0001,
   epstol = .Machine$double.eps,
   stepdec = 0.2, 
@@ -44,10 +44,9 @@ for (onename in nctrld) {
   }
 }
 trace <- control$trace # convenience
-cat("trace =",trace,"\n")
 
-
-  cat(" Start snewtonm ")
+#  cat(" Start snewtonm ")
+  convcode <- 0
   nfn <- 0
   ngr <- 0
   nhess <- 0
@@ -55,8 +54,10 @@ cat("trace =",trace,"\n")
   eps <- 10*eps0
   fval <- fn(par, ...)
   nfn <- nfn + 1
-  cat("  f0=",fval,"  at  ")
-  print(par)
+  if (control$trace > 0) {
+   cat("  f0=",fval,"  at  ")
+   print(par)
+  }
   fbest <- abs(fval)*1.1 + 100.
   itn <- 1
   lambdamin<-(eps0^(1/4)) ## ?? do better
@@ -66,7 +67,7 @@ cat("trace =",trace,"\n")
   while ( (itn <= control$maxit) && (fval < fbest) ) { ## main loop
     fbest <- fval
     lambda <- lambda * lamdec
-    if (control$trace) {cat("Iteration ",itn," fbest=",fbest,"\n")}
+    if (control$trace>0) {cat(itn," ",nfn," ",ngr," fbest=",fbest,"\n")}
     grd<-gr(par,...)
     ngr <- ngr + 1
     if ( max(abs(grd)) < eps ) {
@@ -91,20 +92,24 @@ cat("trace =",trace,"\n")
        if (control$trace) {cat(" lambda =", lambda,"  fval=", fval,"\n")}
        if (fval >= fbest) {lambda <- max(lambdamin,lambda)*laminc} # increase lambda
     }
-#    if (control$trace) {cat(" Success at lambda =", lambda,"  fval=", fval,"\n")}
+#    if (control$trace>0) {cat(" Success at lambda =", lambda,"  fval=", fval,"\n")}
      par<-xn
-     if (control$watch) { tmp <- readline("end iteration") }
+     if (control$watch>0) { tmp <- readline("end iteration") }
 
   }
-  if (itn==control$maxit) {
-    print("NewtonR: Failed to converge!")
-  }
+  if (itn >= control$maxit) {
+     msg <- "snewtonm: Too many iterations!\n"
+     if(control$trace > 0) cat(msg)
+     convcode <- 1
+  } else { msg <- "snewtonm: Normal exit" }
   cat("Finished\n")
   out<-NULL
-  out$xs<-xn
-  out$fv<-fn(xn,...)
-  out$grd<-grd
+  out$par<-xn
+  out$value<-fn(xn,...)
+  out$grad<-grd
   out$Hess<-H
   out$counts <- list(niter=itn, nfn=nfn, ngr=ngr, nhess=nhess)
+  out$convergence <- convcode
+  out$message <- msg
   out 
 }

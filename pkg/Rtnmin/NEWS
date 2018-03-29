@@ -12,6 +12,7 @@ TODOS
 
 2018-03-28
    o Try ! is.numeric(g) vs is.null(g)
+   o trace changed to integer
 
 ??2016-09-22 account for null gradient 
 

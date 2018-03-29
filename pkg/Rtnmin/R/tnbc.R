@@ -1,4 +1,4 @@
-tnbc <- function (x, fgfun, lower, upper, trace=FALSE, ...) {
+tnbc <- function (x, fgfun, lower, upper, trace=0, ...) {
 ##---------------------------------------------------------
 ## this routine solves the optimization problem
 ##

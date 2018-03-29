@@ -6,7 +6,7 @@
 for minimization of nonlinear functions subject to bounds (box) constraints. 
 }
 \usage{
-   tnbc(x, fgfun, lower, upper, trace=FALSE, \dots)
+   tnbc(x, fgfun, lower, upper, trace=0, \dots)
 }
 \arguments{
  \item{x}{A numeric vector of starting estimates.}
@@ -16,7 +16,7 @@ for minimization of nonlinear functions subject to bounds (box) constraints.
    The first argument of \code{fgfun} must be \code{par}. }
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
- \item{trace}{Set TRUE to cause intermediate output to allow progress
+ \item{trace}{Set >0 to cause intermediate output to allow progress
        to be followed.}
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }

@@ -1,6 +1,6 @@
 cnvtst <- function  (alpha, pnorm, xnorm, 
 		 dif, ftest, gnorm, gtp, f, flast, g, ipivot, accrcy) {
-
+## Note: trace is integer (changed 180329)
 ## ---------------------------------------------------------
 ##  test for convergence
 ## ---------------------------------------------------------
@@ -97,8 +97,8 @@ initpc <- function(d, upd1, ireset) {
       if (ireset) {
          envjn$hyk  <- d * envjn$sk # vector * vector by element??
          sds  <- as.numeric(crossprod(envjn$sk, envjn$hyk)) # matrix multiply
-         if (all(envjn$hyk == 0)) { cat("INITPC: envjn$hyk = 0 \n") }
-         if (sds == 0) { cat("INITPC: sds = 0 \n") }
+         if (all(envjn$hyk == 0) && trace > 1) { cat("INITPC: envjn$hyk = 0 \n") }
+         if (sds == 0 && trace > 1) { cat("INITPC: sds = 0 \n") }
          td   <- d - d*d*envjn$sk*envjn$sk/sds + envjn$yk*envjn$yk/envjn$yksk 
          # by element 
       } else {
@@ -192,7 +192,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
 # end globals
 
 ##   [ipivot, ierror, x] = crash(x, lower, upper) 
-   if (trace) cat("lmqnbc -- crout:")
+   if (trace > 1) cat("lmqnbc -- crout:")
    crout<-crash(x, lower, upper)
    if (trace) print(crout)
    ierror <- crout$ierror
@@ -208,8 +208,8 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
 ##  initialize variables, parameters, and constants
 ## ---------------------------------------------------------
    options(digits=5)
-   ## cat("stempmx, accrcy, maxfun:",stepmx, accrcy, maxfun, "\n")
-   cat('  it     nf     cg           f             |g|\n')
+   if (trace > 1) cat("stempmx, accrcy, maxfun:",stepmx, accrcy, maxfun, "\n")
+   if (trace > 0) cat('  it     nf     cg           f             |g|\n')
    eps <- .Machine$double.eps
    upd1   <- TRUE
    ncg    <- 0 
@@ -222,14 +222,16 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
       xstar <- x  
       almqn<-list(xstar=xstar, f=f, g=g, ierror=ierror,
                  nfngr=ncg)
-     cat("Exiting lmqnbc - almgn:")
-     print(almqn)
+     if (trace > 1) {
+        cat("Exiting lmqnbc - almgn:")
+        print(almqn)
+     }
      return(almqn)  # return 
    }
 ## ---------------------------------------------------------
 ##  compute initial function value and related information
 ## ---------------------------------------------------------
-#   cat("Try initial fn\n")
+   if (trace > 1) cat("Try initial fn\n")
    fg <- sfun(x, ...)
    nf     <- 1 
    nit    <- 0 
@@ -256,9 +258,11 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
    if (! is.numeric(g) ) { # try fix 180328
      gnorm <- 1.0/eps 
    } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
-   cat(nit,"\t", nf,"\t", ncg,"\t", f,"  ", gnorm,"\n")
-   ## print(x)
-   ## print(g)
+   if (trace > 0) cat(nit,"\t", nf,"\t", ncg,"\t", f,"  ", gnorm,"\n")
+   if (trace > 1) {
+      print(x)
+      print(g)
+   }
 ## ---------------------------------------------------------
 ##  check if the initial point is a local minimum.
 ## ---------------------------------------------------------
@@ -270,7 +274,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
       return(almqn)
    }
 
-      ## cat("before set initial, flast=",flast,"\n")
+   if (trace > 1) cat("before set initial, flast=",flast,"\n")
 
 ## ---------------------------------------------------------
 ##  set initial values to other parameters
@@ -362,8 +366,10 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
          xstar <- x  
          almqn<-list(xstar=xstar, f=f, g=g, ierror=ierror,
                  nfngr=ncg)
-         cat("Error updating active set -- almqn:")
-         print(almqn)
+         if (trace > 0) {
+            cat("Error updating active set -- almqn:")
+            print(almqn)
+         }
          return(almqn)
       }
 ## ---------------------------------------------------------
@@ -374,8 +380,10 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
          xstar <- x 
          almqn<-list(xstar=xstar, f=f, g=g, ierror=ierror,
                      nfngr=ncg)
-         cat("Too many function evaluations -- almqn:")
-         print(almqn)
+         if (trace > 0) {
+           cat("Too many function evaluations -- almqn:")
+           print(almqn)
+         }
          return(almqn)
       } 
 ## ---------------------------------------------------------
@@ -392,7 +400,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
       ftest <- 1 + abs(f) 
       xnorm <- max(abs(x))
 ############### DISPLAY ############## 
-      cat(nit,"\t", nf,"\t", ncg,"\t", f,"  ", gnorm,"\n")
+      if (trace > 0) cat(nit,"\t", nf,"\t", ncg,"\t", f,"  ", gnorm,"\n")
       ## print(x)
       ## print(g)
 ## ---------------------------------------------------------
@@ -507,7 +515,7 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    fg <- sfun(x, ...)
 #%    print(fg)
    g<- attr(fg, "gradient")
-   print(g)
+#%   print(g)
    if (is.null(g)) stop("Must have gradient defined for Rtnmin")
    f<-fg
 #   if (is.null(g) ) { ## 160922 change
@@ -540,7 +548,7 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
    conv   <- FALSE 
    ireset <- 0 
    ipivot <- 0 
-   cat("end initial values\n")
+   if (trace > 1) cat("end initial values\n")
 ## ---------------------------------------------------------
 ##  initialize diagonal preconditioner to the identity
 ## ---------------------------------------------------------
@@ -551,10 +559,10 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 ##  compute search direction
 ## ---------------------------------------------------------
    argvec <- c(accrcy, gnorm, xnorm) 
-   cat("call modlnp\n")
+#   cat("call modlnp\n")
    mres  <- modlnp (d, x, g, maxit, upd1, ireset, bounds=FALSE, ipivot, argvec, sfun, ...) 
    p <- mres$p
-   cat("p from first call to modlnp\n")
+#   cat("p from first call to modlnp\n")
 #   print(p)
 #   tmp<-readline("cont.")
 
@@ -574,10 +582,10 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
 ## ---------------------------------------------------------
 ##  line search
 ## ---------------------------------------------------------
-      cat("start linesearch\n")
+      if (trace > 1) cat("start linesearch\n")
       pe     <- pnorm + eps 
       spe    <- stepmx/pe 
-#%       cat("gtp, spe:", gtp, spe,"\n")
+      if (trace > 1) cat("gtp, spe:", gtp, spe,"\n")
       alpha0 <- step1 (f, gtp, spe) 
       reslin <- lin1 (p, x, f, alpha0, g, sfun, ...) 
 ##      [x, f, g, nf1, ierror, alpha] <- 
@@ -598,7 +606,7 @@ lmqn <- function (x, sfun, maxit, maxfun, stepmx, accrcy, trace, ...) {
         gnorm <- 1.0/eps 
       } else { gnorm  <- max(abs(g)) } ##  norm(g,'inf') 
 ### Display info
-      if (trace) cat("Itn ",nit," ",nf," ",ncg, " ",f, " ", gnorm,"\n")
+      if (trace > 0) cat("Itn ",nit," ",nf," ",ncg, " ",f, " ", gnorm,"\n")
       if (ierror == 3) { 
          if (length(ncg) == 0) { ncg <- 0 } # ?? is.null(ncg)??
          xstar <- x 

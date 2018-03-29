@@ -18,7 +18,7 @@ minimization. The algorithm is based on Nash (1979)
   the supplied set of parameters \code{par} using auxiliary data in
   \dots. The gradient is returned as attribute "gradient". 
    The first argument of \code{fgfun} must be \code{par}. }
- \item{trace}{TRUE if progress output is to be presented. (Not yet verified.)}
+ \item{trace}{ > 0 if progress output is to be presented. }
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }
 \details{

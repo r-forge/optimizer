@@ -18,8 +18,11 @@ x0 <- c(-1.2, 1)
 xx <- x0
 
 # sink("mbrn1-170408.txt", split=TRUE)
-t1 <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=2))
+t1 <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
 print(t1)
+
+t1m <- snewtonm(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
+print(t1m)
 
 # we can also use nlm and nlminb
 fght <- function(x){
@@ -32,8 +35,8 @@ fght <- function(x){
      ff
 }
 
-## ?? SEEMS NOT TO WORK RIGHT!!
-t1nlm <- nlm(fght, x0, hessian=TRUE, print.level=2)
+## Seems not to work as a Newton method
+t1nlm <- nlm(fght, x0, hessian=TRUE, print.level=1)
 print(t1nlm)
 
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method

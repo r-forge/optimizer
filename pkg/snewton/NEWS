@@ -5,7 +5,7 @@ TODOS
   o add convcode (align names with optimr)
   o try to figure out nlminb failures / non-Newton-like behaviour
 
-2018-02-29
+2018-03-29
   o minor fixes discovered working on optimx
 
 2018-03-03

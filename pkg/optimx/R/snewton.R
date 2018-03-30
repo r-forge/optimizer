@@ -44,8 +44,6 @@ trace <- control$trace # convenience
   xb <- par # best so far
   fbest <- fn(xb, ...)
   nf <- nf + 1 
-  if (trace > 0) cat(niter," ",nf," ",ng,"  fbest=",fbest,"\n")
-  if (trace > 1) print(xb)
   repeat { # MAIN LOOP
     if (trace > 0) cat(niter," ",nf," ",ng,"  fbest=",fbest,"\n")
     if (trace > 1) print(xb)
@@ -100,16 +98,20 @@ trace <- control$trace # convenience
         if (trace > 0) cat(msg)
         break # finished        
     }
-    fval <- fn(xnew, ...)    
+    fval <- try(fn(xnew, ...))
     nf <- nf + 1
+    if (class(fval)[1] == "try-error") stop("snewton: function evaluation error")
     if (trace > 1) {
        cat("f(xnew)=",fval," at ")
        print(xnew)
     }
-#    if (fval > control$bigval) {
-#       warning("Function value infinite")
+    if (fval > control$bigval) {
+       msg <- "snewton: New function value infinite\n"
+       if (trace > 1) cat(msg,"\n")
 #       fval <- control$bigval
-#    }
+       convcode <- 9999
+       break
+    }
     while ((fval > fbest + control$acctol*abs(st)*gprj) # 180330 Note abs(st)
            && (all((control$offset+xnew) != (control$offset+xb)))) { 
         # continue until satisfied
@@ -119,11 +121,10 @@ trace <- control$trace # convenience
         fval <- fn(xnew, ...)    
         nf <- nf + 1
         if (trace > 1) cat("* f(xnew)=",fval,"\n")
-#        if (fval > control$bigval) {
-#            warning("Function value infinite")
-#            fval <- control$bigval
-#        }
-    }
+        if (fval > control$bigval) {
+           stop("snewton: Function value infinite in backtrack")
+        }
+    } # end while
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 93 # no progress in linesearch
         msg <- "No progress in linesearch!\n"

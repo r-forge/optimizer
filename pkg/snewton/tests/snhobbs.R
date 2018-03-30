@@ -1,3 +1,5 @@
+rm(list=ls())
+require(snewton)
 ## Optimization test function HOBBS
 ## ?? refs (put in .doc??)
 ## Nash and Walker-Smith (1987, 1989) ...
@@ -85,59 +87,24 @@ hobbs.h <- function(x) { ## compute Hessian
 }
 
 
-hobbsrsd.tst<-function(x) { # test rsd calculations
-   hh<-1e-7 # use this for delta for derivatives
-   Ja<-hobbs.jac(x)
-   rsd<-hobbs.rsd(x)
-   x1<-x+c(hh,0,0)
-   x2<-x+c(0,hh,0)
-   x3<-x+c(0,0,hh)
-   Ja1<-hobbs.jac(x1)
-   Ja2<-hobbs.jac(x2)
-   Ja3<-hobbs.jac(x3)
-   cat("w.r.t. x1 ")
-   print(maxard((Ja1-Ja)/hh,rsd[,,1] ))
-   cat("w.r.t. x2 ")
-   print(maxard((Ja2-Ja)/hh,rsd[,,2] ))
-   cat("w.r.t. x3 ")
-   print(maxard((Ja3-Ja)/hh,rsd[,,3] ))
+cat("This appears to fail\n")
+x1 <- c(1, 1, 1)
+cat("Start for Hobbs:")
+print(x1)
+ftest <- try(solx1 <- snewton(x1, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2)))
+if (class(ftest) != "try-error") {
+  print(solx1)
+  cat("Eigenvalues of returned Hessian: ")
+  print(eigen(solx1$Hess)$values)
+}
+ftestm <- try(solx1m <- snewtonm(x1, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2)))
+if (class(ftestm) != "try-error") {
+  print(solx1m)
+  cat("Eigenvalues of returned Hessian: ")
+  print(eigen(solx1m$Hess)$values)
 }
 
 
-hobbs.doc <- function() { ## documentation for hobbs
-   cat("One generalization of the Rosenbrock banana valley function (n parameters)\n")
-   ## How should we do the documentation output?
-}
-
-
-hobbs.setup <- function(n=NULL, dotdat=NULL) {
-  # if (is.null(gs) ) { gs<-100.0 } # set the scaling
-  # if ( is.null(n) ) {
-  #    n <- readline("Order of problem (n):")
-  # }
-   n<-3 # fixed for Hobbs, as is m=12
-   x<-rep(2,n)
-   lower<-rep(-100.0, n)
-   upper<-rep(100.0, n)
-   bdmsk<-rep(1,n)
-   if (! is.null(dotdat) ) {
-       fargs<-paste("gs=",gs,sep='') # ?? still need to do this nicely
-   } else { fargs<-NULL }
-   gsu<-list(x=x,lower=lower,upper=upper,bdmsk=bdmsk,fargs=fargs)
-   return(gsu)
-
-}
-
-hobbs.fgh <- function(x) { # all 3 for trust method
-         stopifnot(is.numeric(x))
-         stopifnot(length(x) == 3)
-         f<-hobbs.f(x)
-         g<-hobbs.g(x)
-         B<-hobbs.h(x)
-         list(value = f, gradient = g, hessian = B)
-}
-
-require(snewton)
 x0 <- c(200, 50, .3)
 cat("Start for Hobbs:")
 print(x0)
@@ -146,7 +113,6 @@ print(solx0)
 print(eigen(solx0$Hess)$values)
 
 
-cat("This test finds a saddle point\n")
 x1s <- c(100, 10, .1)
 cat("Start for Hobbs:")
 print(x1s)
@@ -154,7 +120,7 @@ solx1s <- snewton(x1s, hobbs.f, hobbs.g, hobbs.h, control=list(trace=2))
 print(solx1s)
 print(eigen(solx1s$Hess)$values)
 
-cat("Following test fails\n")
+cat("This appears to fail\n")
 x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
@@ -166,5 +132,16 @@ if (class(ftest) != "try-error") {
 # we can also use nlm and nlminb
 #??
 
-# and call them from optimx (i.e., test this gives same results)
-# library(optimx)
+xtemp <- c(12.156272,  2.321825,  4.166667)
+fxtemp <- hobbs.f(xtemp)
+gxtemp <- hobbs.g(xtemp)
+fxtemp
+gxtemp
+
+
+xb <- c(12.156272,  2.321825,  4.166667)
+fxb <- hobbs.f(xb)
+fxb
+
+xc <- c(11.716841,  2.317431,  4.022304)
+print(hobbs.f(xc))

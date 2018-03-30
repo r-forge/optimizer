@@ -1,0 +1,170 @@
+rm(list=ls())
+require(optimx)
+## Optimization test function HOBBS
+## ?? refs (put in .doc??)
+## Nash and Walker-Smith (1987, 1989) ...
+
+
+hobbs.f<- function(x){ # # Hobbs weeds problem -- function
+    if (abs(12*x[3]) > 500) { # check computability
+       fbad<-.Machine$double.xmax
+       return(fbad)
+    }
+    res<-hobbs.res(x)
+    f<-sum(res*res)
+}
+
+
+hobbs.res<-function(x){ # Hobbs weeds problem -- residual
+# This variant uses looping
+    if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
+    y<-c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558, 50.156, 62.948,
+         75.995, 91.972)
+    t<-1:12
+    if(abs(12*x[3])>50) {
+       res<-rep(Inf,12)
+    } else {
+       res<-x[1]/(1+x[2]*exp(-x[3]*t)) - y
+    }
+}
+
+hobbs.jac<-function(x){ # Jacobian of Hobbs weeds problem
+   jj<-matrix(0.0, 12, 3)
+   t<-1:12
+    yy<-exp(-x[3]*t)
+    zz<-1.0/(1+x[2]*yy)
+     jj[t,1] <- zz
+     jj[t,2] <- -x[1]*zz*zz*yy
+     jj[t,3] <- x[1]*zz*zz*yy*x[2]*t
+   return(jj)
+}
+
+hobbs.g<-function(x){ # gradient of Hobbs weeds problem
+    # NOT EFFICIENT TO CALL AGAIN
+    jj<-hobbs.jac(x)
+    res<-hobbs.res(x)
+    gg<-as.vector(2.*t(jj) %*% res)
+    return(gg)
+}
+
+
+hobbs.rsd<-function(x) { # Jacobian second derivative
+    rsd<-array(0.0, c(12,3,3))
+    t<-1:12
+    yy<-exp(-x[3]*t)
+    zz<-1.0/(1+x[2]*yy)
+    rsd[t,1,1]<- 0.0
+    rsd[t,2,1]<- -yy*zz*zz
+    rsd[t,1,2]<- -yy*zz*zz
+    rsd[t,2,2]<- 2.0*x[1]*yy*yy*zz*zz*zz
+    rsd[t,3,1]<- t*x[2]*yy*zz*zz
+    rsd[t,1,3]<- t*x[2]*yy*zz*zz
+    rsd[t,3,2]<- t*x[1]*yy*zz*zz*(1-2*x[2]*yy*zz)
+    rsd[t,2,3]<- t*x[1]*yy*zz*zz*(1-2*x[2]*yy*zz)
+##    rsd[t,3,3]<- 2*t*t*x[1]*x[2]*x[2]*yy*yy*zz*zz*zz
+    rsd[t,3,3]<- -t*t*x[1]*x[2]*yy*zz*zz*(1-2*yy*zz*x[2])
+    return(rsd)
+}
+
+
+hobbs.h <- function(x) { ## compute Hessian
+#   cat("Hessian not yet available\n")
+#   return(NULL)
+    H<-matrix(0,3,3)
+    res<-hobbs.res(x)
+    jj<-hobbs.jac(x)
+    rsd<-hobbs.rsd(x)
+##    H<-2.0*(t(res) %*% rsd + t(jj) %*% jj)
+    for (j in 1:3) {
+       for (k in 1:3) {
+          for (i in 1:12) {
+             H[j,k]<-H[j,k]+res[i]*rsd[i,j,k]
+          }
+       }
+    }
+    H<-2*(H + t(jj) %*% jj)
+    return(H)
+}
+
+
+
+solx1s <- optimr(x1s, hobbs.f, hobbs.g, hobbs.h, method="snewton",
+                  hessian=TRUE, control=list(trace=1))
+print(solx1s)
+print(eigen(solx1s$hessian)$values)
+
+
+solx1sm <- optimr(x1s, hobbs.f, hobbs.g, hobbs.h, method="snewtonm",
+                 hessian=TRUE, control=list(trace=1))
+print(solx1sm)
+print(eigen(solx1sm$hessian)$values)
+
+# snewtonm from end of snewton
+solx1smx <- optimr(solx1s$par, hobbs.f, hobbs.g, hobbs.h, method="snewtonm",
+                   hessian=TRUE, control=list(trace=1))
+print(solx1smx)
+print(eigen(solx1smx$hessian)$values)
+
+# try snewton from same start
+solx1sxx <- optimr(solx1s$par, hobbs.f, hobbs.g, hobbs.h, method="snewton",
+                   hessian=TRUE, control=list(trace=1))
+print(solx1sxx)
+print(eigen(solx1sxx$hessian)$values)
+
+sdrn <- c(-75.4852409,   4.0706426,  -0.4183675)
+grd <- c( -100.9131,    783.5327, -82341.5897)
+
+stsz <- -.1
+while (abs(stsz) > 1e-10 ) {
+xtmp <- x1s + stsz*sdrn
+cat(stsz," -- ",hobbs.f(xtmp),":")
+print(xtmp)
+print(hobbs.g(xtmp))
+cat("  gproj: =", as.numeric(crossprod(hobbs.g(xtmp), sdrn)),"\n\n")
+stsz =stsz / 10
+}  
+  
+  
+  
+
+
+
+x0 <- c(200, 50, .3)
+cat("Start for Hobbs:")
+print(x0)
+cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
+ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+# ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=c("snewton", "snewtonm"), control=list(trace=4))
+print(summary(ahobb0, order=value))
+
+
+x1 <- c(1, 1, 1)
+cat("Start for Hobbs:")
+print(x1)
+ftest <- try(solx1 <- optimr(x1, hobbs.f, hobbs.g, hobbs.h, method="snewton", control=list(trace=2)))
+if (class(ftest) != "try-error") {
+   print(solx1)
+   print(eigen(solx1$Hess)$values)
+}
+ftestm <- try(solx1m <- optimr(x1, hobbs.f, hobbs.g, hobbs.h, method="snewtonm", control=list(trace=2)))
+if (class(ftestm) != "try-error") {
+  print(solx1m)
+  print(eigen(solx1m$Hess)$values)
+}
+# we can also use nlm and nlminb
+
+nlmx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="nlm")
+print(nlmx0)
+nlminbx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="nlminb")
+print(nlminbx0)
+
+
+ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+print(summary(ahobb0, order=value))
+
+ahobb1s<- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+print(summary(ahobb1s, order=value))
+      
+ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+print(summary(ahobb1, order=value))
+      

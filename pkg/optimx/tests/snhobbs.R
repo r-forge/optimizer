@@ -154,3 +154,12 @@ nlminbx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="nlminb")
 print(nlminbx0)
 
 
+ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+print(summary(ahobb0, order=value))
+
+ahobb1s<- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+print(summary(ahobb1s, order=value))
+      
+ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+print(summary(ahobb1, order=value))
+      

@@ -398,6 +398,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                }
         } else { # have an answer
               ans$par <- tans$par*pscale
+              ans$value <- tans$value
               attr(ans, "gradient") <- tans$grad
               if(hessian) ans$hessian <- tans$Hess
               ans$counts[2] <- tans$counts$nfn
@@ -462,6 +463,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 #      cat("copy answer with tans$par:\n") 
 #      print(tans$par)              
       ans$par <- tans$par*pscale
+      ans$value <- tans$value
       attr(ans, "gradient") <- tans$grad
       if(hessian) ans$hessian <- tans$Hess
       ans$counts[2] <- tans$counts$nfn
@@ -474,7 +476,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          print(ans)
       }
     } # end have answer
-    ## return(ans)
+    ans
   }  ## end if using snewtonm
   ## --------------------------------------------
       else if (method == "hjn") {# Use JN Hooke and Jeeves
@@ -976,48 +978,47 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
     if (control$trace > 1) cat("subplex:control$have.bounds =",control$have.bounds,"\n")
     ans <- list() # to define the answer object
-    errmsg <- NA
     if (control$trace > 0) warning("subplex has no trace mechanism")
     class(ans)[1] <- "undefined" # initial setting
     if (control$have.bounds) {
       cat("control$have.bounds seems TRUE\n")
       if (control$trace > 0) cat("subplex::subplex cannot handle bounds\n")
-      errmsg <- "subplex::subplex cannot handle bounds\n"
-      ##  stop("subplex::lbfgs tried with bounds")
-      class(ans)[1] <- "try-error"            
+      stop("subplex::subplex cannot handle bounds")
     }
     if (class(ans)[1] == "undefined"){
-          # Do we want parscale or use spar??
-          # cat("maxit =",defctrl$maxfeval,"\n")
-          ans <- try(subplex::subplex(par=spar, fn=efn, control=list(maxit=defctrl$maxfeval)))
+       ans <- try(subplex::subplex(par=spar, fn=efn, control=list(maxit=defctrl$maxfeval)))
     }
-    #        cat("interim answer:")
-    #        print(ans)
-    if (class(ans)[1] != "try-error") {
-      ## Need to check these carefully??
-      ans$par <- ans$par*pscale
-      ans$value <- ans$value*fnscale
-      ans$counts[1] <- ans$count
-      ans$counts[2] <- NA
-      ans$count <- NULL
-      ccode <- ans$convergence
-      if (ccode == -2) {ans$convergence <- 20}
-          else {if (ccode == 0) {ans$convergence <- 0 } # not needed
-               else {if (ccode == -1) {ans$convergence <- 1} else {ans$convergence <- 9999}}# unknown 
-           }
-    } else {
-      if (control$trace>0) cat("subplex failed for current problem \n")
-      ans<-list() # ans not yet defined, so set as list
+    if ((class(ans)[1] != "try-error") && (ans$convergence != -2)) {
+       ## Need to check these carefully??
+       ans$par <- ans$par*pscale
+       ans$value <- ans$value*fnscale
+       ans$counts[1] <- ans$count
+       ans$counts[2] <- NA
+       ans$count <- NULL
+       ccode <- ans$convergence
+       ans$convergence <- 9999
+       ans$message <- paste("subplex:",ans$message)
+       if ((ccode == 0) || (ccode == 1)) {
+                ans$convergence <- 0 
+                if (ccode == 0) { ans$message <- "subplex: success" }
+                else { ans$message <- "subplex: Limit of precision reached" }
+           } # converged OK
+           else {if (ccode == -1) {
+                    ans$convergence <- 1
+                    ans$message <- "subplex: function evaluation limit reached"
+                } # effort limit
+       }
+    } else { 
+      if (ccode == -2) {
+            ans$convergence <- 20
+      }
+      else { ans$convergence <- 9999}
       ans$value <- defctrl$badval
       ans$par <- rep(NA,npar)
-      ans$convergence <- 9999 # failed in run
-      if (is.null(egr)) ans$convergence <- 9998 # no gradient
       ans$counts[1] <- NA
-      ans$counts[1] <- NA
+      ans$counts[2] <- NA
       ans$hessian <- NULL
-      if (! is.na(errmsg)) ans$message <- errmsg
     }
-    ## return(ans)
   }  ## end if using subplex
 ## --------------------------------------------
 ## END OF optimrx extra methods

@@ -83,7 +83,6 @@ trace <- control$trace # convenience
        xn <- par + stp # try unit step
        if (identical(par,xn)) {
 #       if (max(abs(stp)) <= 1000*eps*max(abs(par))){
-             cat("Null step\n")
              break
        }
        #    if (control$trace) {cat(" step =", gvl,"  fval=", attr(gvl,"Fval"),"\n")}
@@ -102,7 +101,6 @@ trace <- control$trace # convenience
      if(control$trace > 0) cat(msg)
      convcode <- 1
   } else { msg <- "snewtonm: Normal exit" }
-  cat("Finished\n")
   out<-NULL
   out$par<-xn
   out$value<-fn(xn,...)

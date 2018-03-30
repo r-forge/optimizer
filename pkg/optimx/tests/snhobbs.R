@@ -105,10 +105,12 @@ cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
 
 
 
-# ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
-ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=c("snewton", "snewtonm"), control=list(trace=4))
+ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+# ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=c("snewton", "snewtonm"), control=list(trace=4))
 print(summary(ahobb0, order=value))
- stop("Done!")
+
+
+
 
 
 # solx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="snewton")

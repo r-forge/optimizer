@@ -99,8 +99,6 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                      hev=rep(NA,npar), ngatend=NA, nhatend=NA)
       if ( control$save.failures || (ans$convergence < 1) ){
            # Save soln if converged or directed to save
-          cat("control$trace =",control$trace,"\n")
-          cat("ans$convergence =", ans$convergence,"\n")
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 
 # Testing final soln. Use numDeriv for gradient & Hessian; compute Hessian eigenvalues
            if ((control$kkt || hessian) && (ans$convergence < 9900)) { # chg 160917 for no gradient

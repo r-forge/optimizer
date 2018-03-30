@@ -26,7 +26,9 @@ TODO
       o Check all failures reported below are fixed! (As at 2018-03-27
 	JN believes they are.)
 
-VERSION 2018-03-27
+VERSION 2018-03-30
+      o Cleanup of output from various solvers and fix some minor omissions
+	and errors in the returned information
       o Conditional output of nlm diagnostic info.
       o Changed Rvmmin call. Rvmminb and Rvmminu NOT now called separately,
 	as user may inadvertently supply inadmissible parameters and get wrong

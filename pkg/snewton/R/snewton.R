@@ -47,14 +47,15 @@ trace <- control$trace # convenience
   if (trace > 0) cat(niter," ",nf," ",ng,"  fbest=",fbest,"\n")
   if (trace > 1) print(xb)
   repeat { # MAIN LOOP
+    if (trace > 0) cat(niter," ",nf," ",ng,"  fbest=",fbest,"\n")
+    if (trace > 1) print(xb)
     niter <- niter + 1
     grd<-gr(xb,...) # compute gradient
     ng <- ng + 1
-#    if (trace > 2) cat("Termination test:")    
     halt <- FALSE # default is keep going
     # tests on too many counts??
     if (niter > control$maxit) {
-      if (trace > 0) cat("Too many (",niter," iterations\n")
+      if (trace > 0) cat("Too many (",niter,") iterations\n")
       halt <- TRUE
       convcode <- 1
       break
@@ -70,7 +71,7 @@ trace <- control$trace # convenience
     if (trace > 1) cat("current gradient norm =",gmax,"\n")
     if (gmax <= control$epstol) {
       msg <- paste("Small gradient norm\n")
-      if (trace > 1) cat(msg)
+      if (trace > 0) cat(msg)
       halt <- TRUE
       convcode <- 0 # OK
       break
@@ -88,8 +89,10 @@ trace <- control$trace # convenience
          print(d)
     }
     gprj <- as.numeric(crossprod(d, grd))
-    if (trace > 1) cat("Gradient projection = ",gprj,"\n")
+    if (trace > 0) cat("Gradient projection = ",gprj,"\n")
+# ?? Do we want a test on size of gprj
     st <- control$defstep
+    if (gprj > 0) st <- -st # added 180330 to allow downhill
     xnew <- xb + st*d # new point
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 92 # no progress
@@ -99,12 +102,15 @@ trace <- control$trace # convenience
     }
     fval <- fn(xnew, ...)    
     nf <- nf + 1
-    if (trace > 1) cat("f(xnew)=",fval,"\n")
+    if (trace > 1) {
+       cat("f(xnew)=",fval," at ")
+       print(xnew)
+    }
 #    if (fval > control$bigval) {
 #       warning("Function value infinite")
 #       fval <- control$bigval
 #    }
-    while ((fval > fbest + control$acctol*st*gprj) 
+    while ((fval > fbest + control$acctol*abs(st)*gprj) # 180330 Note abs(st)
            && (all((control$offset+xnew) != (control$offset+xb)))) { 
         # continue until satisfied
         st <- st * control$stepdec

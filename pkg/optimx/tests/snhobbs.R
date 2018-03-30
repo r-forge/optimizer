@@ -92,74 +92,21 @@ x0 <- c(200, 50, .3)
 cat("Start for Hobbs:")
 print(x0)
 cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
-
-# ah0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="snewtonm", control=list(trace=2))
-# print(ah0)
-
-# stop("Done!")
-
-# Note: Can check via
-# require(snewton)
-# ah0s <- snewton(x0, hobbs.f, hobbs.g, hobbs.h)
-# print(ah0s)
-
-
-
 ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
-# ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=c("snewton", "snewtonm"), control=list(trace=4))
 print(summary(ahobb0, order=value))
 
 
-
-
-
-# solx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="snewton")
-# print(solx0)
-# Eigenvalues of Hessian at solution
-# print(eigen(solx0$Hess)$values)
-# Note direct solver solution has more output
-# solx0sn <- snewton(x0, hobbs.f, hobbs.g, hobbs.h)
-# print(solx0sn)
-
-
-
-cat("This test finds a saddle point\n")
-x1s <- c(100, 10, .1)
-cat("Start for Hobbs:")
-print(x1s)
-cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
-solx1s <- optimr(x1s, hobbs.f, hobbs.g, hobbs.h, method="snewton", control=list(trace=1))
-print(solx1s)
-print(eigen(solx1s$Hess)$values)
-
-cat("Following test fails\n")
 x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
-ftest <- try(solx1 <- optimr(x1, hobbs.f, hobbs.g, hobbs.h, method="snewton", control=list(trace=2)))
-if (class(ftest) != "try-error") {
-   print(solx1)
-   print(eigen(solx1$Hess)$values)
-}
-ftestm <- try(solx1m <- optimr(x1, hobbs.f, hobbs.g, hobbs.h, method="snewtonm", control=list(trace=2)))
-if (class(ftestm) != "try-error") {
-  print(solx1m)
-  print(eigen(solx1m$Hess)$values)
-}
-# we can also use nlm and nlminb
-
-nlmx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="nlm")
-print(nlmx0)
-nlminbx0 <- optimr(x0, hobbs.f, hobbs.g, hobbs.h, method="nlminb")
-print(nlminbx0)
-
-
-ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
-print(summary(ahobb0, order=value))
-
-ahobb1s<- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
-print(summary(ahobb1s, order=value))
-      
+cat("Initial value of hobbs.f = ",hobbs.f(x1),"\n")
 ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
 print(summary(ahobb1, order=value))
-      
+
+x1s <- c(100, 10, .1)
+cat("Start for Hobbs:")
+print(x1s)
+cat("Initial value of hobbs.f = ",hobbs.f(x1s),"\n")
+ahobb1s <- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+print(summary(ahobb1s, order=value))
+

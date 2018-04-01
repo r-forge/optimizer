@@ -26,6 +26,9 @@ TODO
       o Check all failures reported below are fixed! (As at 2018-03-27
 	JN believes they are.)
 
+VERSION 2018-01-01
+      o Comments in tests etc. to explain why methods fail
+
 VERSION 2018-03-30
       o Cleanup of output from various solvers and fix some minor omissions
 	and errors in the returned information

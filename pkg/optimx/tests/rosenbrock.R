@@ -138,12 +138,13 @@ ag2<-optimr(xstart, genrose.f, genrose.g, method="Rvmmin")
 print(ag2)
 all.equal(ag2, aX2.target)
 
+# Newton methods fail with no hessian
 cat("All methods via opm -- no hessian\n")
 aX2all <- opm(xstart, XRosenbrock.f, XRosenbrock.g, method="ALL", control=list(kkt=FALSE))
 aX2all.sum <- summary(aX2all, order=value)
 print(aX2all.sum)
 
-ag2all <- opm(xstart, genrose.f, genrose.g, method="ALL", control=list(kkt=FALSE))
+ag2all <- opm(xstart, genrose.f, genrose.g, hess=genrose.h, method="ALL", control=list(kkt=FALSE))
 ag2all.sum <- summary(ag2all, order=value)
 print(ag2all.sum)
 

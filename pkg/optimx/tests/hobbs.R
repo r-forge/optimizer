@@ -89,6 +89,7 @@ hobbs.h <- function(x) { ## compute Hessian
 
 
 x0 <- c(200, 50, .3)
+# This start seems to be OK for all methods
 cat("Start for Hobbs:")
 print(x0)
 cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
@@ -97,6 +98,7 @@ print(summary(ahobb0, order=value))
 
 
 x1 <- c(1, 1, 1)
+# Several methods fail because f or g becomes Inf.
 cat("Start for Hobbs:")
 print(x1)
 cat("Initial value of hobbs.f = ",hobbs.f(x1),"\n")
@@ -104,6 +106,7 @@ ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
 print(summary(ahobb1, order=value))
 
 x1s <- c(100, 10, .1)
+# L-BFGS-B and lbfgb3 both fail because f or g becomes Inf.
 cat("Start for Hobbs:")
 print(x1s)
 cat("Initial value of hobbs.f = ",hobbs.f(x1s),"\n")

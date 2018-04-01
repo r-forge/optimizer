@@ -9,9 +9,13 @@ ssqb.g <- function(x){
   yy<-1:nn
   gg<- 2*(x - yy)
 }
+ssqb.h <- function(x){
+  nn<-length(x)
+  hh<- 2*diag(nn)
+}
 library(optimx)
 xx <- rep(pi, 4)
-all4b <- opm(xx, ssqb.f, ssqb.g, method="ALL")
+all4b <- opm(xx, ssqb.f, ssqb.g, hess=ssqb.h, method="ALL")
 summary(all4b, order=value)
 
 all4bx <- optimx(xx, ssqb.f, ssqb.g, control=list(all.methods=TRUE))

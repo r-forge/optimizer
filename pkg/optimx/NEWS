@@ -28,6 +28,7 @@ TODO
 
 VERSION 2018-01-01
       o Comments in tests etc. to explain why methods fail
+        Add hessian to simple test
 
 VERSION 2018-03-30
       o Cleanup of output from various solvers and fix some minor omissions

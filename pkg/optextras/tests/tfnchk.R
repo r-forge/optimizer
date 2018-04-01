@@ -1,5 +1,4 @@
 require(optextras)
-
 cat("Show how fnchk works\n")
 
 

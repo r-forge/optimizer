@@ -1,6 +1,6 @@
 Package: optextras
-Version: 2018-3.28
-Date: 2017-03-28
+Version: 2018-4.1
+Date: 2018-04-01
 Title: Tools to Support Optimization Possibly with Bounds and Masks
 Authors@R: c( person(given = c("John", "C"), family = "Nash", 
         role =c("aut", "cre"), email = "nashjc@uottawa.ca") )
@@ -15,6 +15,5 @@ Description: Tools to assist in safely applying user generated objective and
    Perform an axial search to seek lower points on the objective function surface. 
    Includes forward, central and backward gradient approximation codes.
 License: GPL-2
-Depends: numDeriv
-Suggests: optimx
+Imports: numDeriv, utils
 

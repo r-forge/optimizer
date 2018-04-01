@@ -64,6 +64,7 @@
   }
 }
 \examples{
+require(numDeriv)
 # genrose function code
 genrose.f<- function(x, gs=NULL){ # objective function
 ## One generalization of the Rosenbrock banana valley function (n parameters)
@@ -177,7 +178,7 @@ maxt<-gHgen(x0, maxfn, control=list(ktrace=TRUE), top=top)
 print(maxt)
 
 cat("test against negmaxfn\n")
-gneg<-grad(negmaxfn, x0)
+gneg <- grad(negmaxfn, x0)
 Hneg<-hessian(negmaxfn, x0)
 # gdiff<-max(abs(gneg-maxt$gn))/max(abs(maxt$gn))
 # Hdiff<-max(abs(Hneg-maxt$Hn))/max(abs(maxt$Hn))

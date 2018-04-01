@@ -42,7 +42,7 @@ gHgen <- function(par, fn, gr = NULL, hess = NULL, control = list(ktrace=0),
     if (ctrl$ktrace) 
         cat("Compute gradient approximation\n")
     if (is.null(gr)) {
-        gn <- try(grad(fn, par, ...), silent = TRUE)  # change 20100711
+        gn <- try(numDeriv::grad(fn, par, ...), silent = TRUE)  # change 20100711
     }
     else {
         gn <- try(gr(par, ...), silent = TRUE)  # Gradient at solution # change 20100711

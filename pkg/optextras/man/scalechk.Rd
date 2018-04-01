@@ -61,7 +61,9 @@ At this time scalechk does NOT take account of masks. (?? should 110702)
   print(srat)
   sratv<-c(srat$lpratio, srat$lbratio)
   if (max(sratv,na.rm=TRUE) > 3) { # scaletol from ctrldefault in optimx
-     warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
+     warnstr<-"Parameters or bounds appear to have different scalings.\n
+     This can cause poor performance in optimization. \n
+     It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
      cat(warnstr,"\n")
   }
 

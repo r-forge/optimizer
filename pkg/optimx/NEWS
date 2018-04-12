@@ -29,6 +29,11 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
+VERSION 2018-04-10
+      o optimx.run() had bounds expansion that caused failure in optim() routines
+	when Inf and -Inf expanded from length 1 to full dimension. Expansion now
+	occurs only when bounds are finite.
+
 VERSION 2018-01-01
       o Comments in tests etc. to explain why methods fail
         Add hessian to simple test

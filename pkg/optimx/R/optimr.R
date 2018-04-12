@@ -283,10 +283,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         if (! is.null(egr)) {
   	  if (control$have.bounds) { # 151220 -- this was not defined
             # 170919 -- explicit reference to package
-   	    ans <- try(Rcgmin::Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
+   	    ans <- try(Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=msk, control=mcontrol, ...))
 	  } else {
-   	     ans <- try(Rcgmin::Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
+   	     ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	  }
         }
         if (!is.null(egr) && (class(ans)[1] != "try-error")) {
@@ -320,7 +320,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxfeval <- control$maxfeval
 	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
 	if (! is.null(egr)) {
-          ans <- try(Rvmmin::Rvmmin(par=spar, fn=efn, gr=egr, lower=slower,
+          ans <- try(Rvmmin(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=msk, control=mcontrol, ...))
         }
         if (control$trace > 2) {
@@ -609,10 +609,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             class(ans)[1] <- "try-error"            
         } else {
            if (control$have.bounds) {
-   	      ans <- try(Rtnmin::tnbc(x=spar, fgfun=nlmfn, lower=slower,
+   	      ans <- try(tnbc(x=spar, fgfun=nlmfn, lower=slower,
                    upper=supper, trace=mcontrol$trace, ...))
            } else {
-   	      ans <- try(Rtnmin::tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
+   	      ans <- try(tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
 	   }
         }
         if (class(ans)[1] == "try-error") {

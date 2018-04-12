@@ -2,7 +2,8 @@
 \alias{optimx-package}
 \docType{package}
 \title{
-A replacement and extension of the optim() function
+A replacement and extension of the optim() function, plus various optimization
+tools
 }
 \description{
 \code{\link{optimx}}
@@ -21,8 +22,7 @@ function to be tested for validity and correctness. However, no set of tests is
 exhaustive, and extensions and improvements are welcome. The package 
 \code{numDeriv} is used for generation of numerical approximations to 
 derivatives.
-Examples can be found on the \code{\link{optimx}} help page and in the 
-demo directory, \code{demo(package = "optimx")}.
+
 }
 \details{
 
@@ -46,6 +46,8 @@ hesschk      Check that Hessian function evaluation
              matches numerical approximation
 kktchk         Check the Karush-Kuhn-Tucker optimality conditions
 scalechk   Check scale of initial parameters and bounds
+optsp        An environment to hold some globally useful items
+             used by optimization programs
 }
 
 }
@@ -61,7 +63,4 @@ Maintainer: John C Nash <nashjc@uottawa.ca>
 }
 \keyword{ package }
 \keyword{ optimization }
-\seealso{
-optimx
-}
 

@@ -1,3 +1,4 @@
+require(optimx)
 ssqb.f<-function(x){
   nn<-length(x)
   yy <- 1:nn
@@ -13,7 +14,6 @@ ssqb.h <- function(x){
   nn<-length(x)
   hh<- 2*diag(nn)
 }
-library(optimx)
 xx <- rep(pi, 4)
 all4b <- opm(xx, ssqb.f, ssqb.g, hess=ssqb.h, method="ALL")
 summary(all4b, order=value)

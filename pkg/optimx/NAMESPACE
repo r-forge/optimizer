@@ -1,10 +1,13 @@
 importFrom("stats", "nlm", "nlminb", "optim")
 importFrom("numDeriv", "grad", "hessian", "jacobian")
 importFrom("utils", "str")
-importFrom("optextras", 
+export(
   "axsearch",
   "bmchk",
   "bmstep",
+  "checksolver",
+  "ctrldefault",
+  "coef<-",
   "fnchk",
   "gHgen",
   "gHgenb",
@@ -14,21 +17,24 @@ importFrom("optextras",
   "grfwd",
   "grnd",
   "hesschk", 
-  "kktchk",
-  "optsp",
-  "scalechk"
-)
-export(
-  "checksolver",
-  "ctrldefault",
-  "coef<-",
   "hjn",
+  "kktchk",
   "multistart",
   "optimx",
   "optimr",
   "opm",
   "optchk",
+  "optsp",
   "polyopt",
+  "Rcgmin",
+  "Rcgminu",
+  "Rcgminb",
+  "tn",
+  "tnbc",
+  "Rvmmin",
+  "Rvmminb",
+  "Rvmminu",
+  "scalechk",
   "snewton",
   "snewtonm"
 )

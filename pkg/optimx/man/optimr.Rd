@@ -36,7 +36,7 @@ optimr(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    If 'gr' is a character string, then that string is taken as the name of 
    a gradient approximation function, for example, "grfwd", "grback" and
    "grcentral" for standard forward, backward and central approximations.
-   (See the code in package \code{optextras} for details.) Method "grnd" 
+   Method "grnd" 
    uses the \code{grad()} function from package \code{numDeriv}.
  }   
   \item{hess}{A function to return (as a matrix) the hessian for those methods that
@@ -168,12 +168,10 @@ ansfgh
 
 
 }
-\source{
-See the manual pages for \code{optim()} and the packages listed in NAMESPACE.
-}
+
 \references{
 
-See the manual pages for \code{optim()} and the packages listed in NAMESPACE.
+See the manual pages for \code{optim()}.
 
  Hooke R. and Jeeves, TA (1961). Direct search solution of numerical and statistical problems. 
    Journal of the Association for Computing Machinery (ACM). 8 (2): 212–229.

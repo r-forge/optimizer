@@ -43,7 +43,6 @@ t1nlminb <- nlminb(x0, fnt, gradient=grt, hessian=hesst, fscale=3.0, control=lis
 print(t1nlminb)
 # and call them from optimx (i.e., test this gives same results)
 
-library(optimx)
 t1nlmo <- optimr(x0, fnt, grt, hess=hesst, method="nlm", fscale=3.0, control=list(trace=1))
 print(t1nlmo)
 

@@ -1,4 +1,4 @@
-library(optimx)
+require(optimx)
 
 # Note that solving 1 dimensional problems with multi-dimensional
 # minimizers can be unpredictable!

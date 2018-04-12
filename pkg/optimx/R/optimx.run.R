@@ -5,9 +5,9 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   have.bounds<-ctrl$have.bounds
   ctrl$have.bounds<-NULL ## or we get errors in optim()
   npar<-length(par)
-## 131027
-  if (length(lower) == 1) lower<-rep(lower,npar)
-  if (length(upper) == 1) upper<-rep(upper,npar)
+## 131027 modified for Inf 180412
+  if (length(lower) == 1 && is.finite(lower) ) lower<-rep(lower,npar)
+  if (length(upper) == 1 && is.finite(upper) ) upper<-rep(upper,npar)
 ## end 131027
   nmeth<-length(method)
   pstring<-names(par)
@@ -285,10 +285,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	         if (ctrl$trace>0) cat("Rcgmin using grfwd\n")
         }	     
 	if (have.bounds) {
-   	   time <- system.time(ans <- try(Rcgmin::Rcgminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
+   	   time <- system.time(ans <- try(Rcgminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
 		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-   	   time <- system.time(ans <- try(Rcgmin::Rcgminu(par=par, fn=ufn, gr=tugr, 
+   	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") {
@@ -321,10 +321,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	         if (ctrl$trace>0) cat("Rvmmin using grfwd\n")
 	}
 	if (have.bounds) {
-   	   time <- system.time(ans <- try(Rvmmin::Rvmminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
+   	   time <- system.time(ans <- try(Rvmminb(par=par, fn=ufn, gr=tugr, lower=lower, upper=upper, 
 		bdmsk=bdmsk, control=mcontrol, ...), silent=TRUE))[1]
 	} else {
-   	   time <- system.time(ans <- try(Rvmmin::Rvmminu(par=par, fn=ufn, gr=tugr, 
+   	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
         if (class(ans)[1] != "try-error") { # 150423 remove  "&& (ans$convergence==0"

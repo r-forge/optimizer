@@ -250,8 +250,8 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
 \seealso{
   \code{\link[BB]{spg}}, \code{\link{nlm}}, \code{\link{nlminb}},
-  \code{\link[minqa]{bobyqa}}, \code{\link[Rcgmin]{Rcgmin}}, 
-  \code{\link[Rvmmin]{Rvmmin}}, \code{\link[ucminf]{ucminf}}, 
+  \code{\link[minqa]{bobyqa}}, 
+  \code{\link[ucminf]{ucminf}}, 
   \code{\link[dfoptim]{nmkb}},
   \code{\link[dfoptim]{hjkb}}.
   \code{\link{optimize}} for one-dimensional minimization;

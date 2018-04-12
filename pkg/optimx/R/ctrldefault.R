@@ -11,7 +11,7 @@ ctrldefault <- function(npar) {
 
 #  allpkg has package where element of allmeth is found
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
-                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "optimx", "optimx",
+                "lbfgsb3", "optimx", "optimx", "optimx", "optimx", "optimx",
                 "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 
                 "optimx", "lbfgs", "subplex")
 

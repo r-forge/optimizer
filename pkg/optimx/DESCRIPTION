@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2018-4.1
-Date: 2018-04-01
+Version: 2018-4.10
+Date: 2018-04-10
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -16,10 +16,13 @@ Description: Provides a replacement and extension of the optim()
     of several or many parameters. Note that function 'optimr()' was prepared to
     simplify the incorporation of minimizers going forward. Also implements some
     utility codes and some extra solvers, including safeguarded Newton methods.
+    Many methods previously separate are now included here.
 License: GPL-2
 LazyLoad: Yes
-Imports: numDeriv, optextras
+Imports: numDeriv
 NeedsCompilation: no
-Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim, Rtnmin,
-        Rvmmin, Rcgmin, lbfgsb3, lbfgs, subplex
+Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
+        lbfgsb3, lbfgs, subplex
 VignetteBuilder: knitr
+Packaged: 2018-04-02 17:20:45 UTC; john
+RoxygenNote: 6.0.1

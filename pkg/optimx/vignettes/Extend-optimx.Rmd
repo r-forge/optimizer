@@ -515,8 +515,8 @@ specific problems they may be wildly inappropriate.
 
 ## Functions that were formerly in the `optextras` package
 
-Optimization methods share a lot of common infrastructure, and much of this has been 
-collected in my `optextras` package. The routines used in the current package are as follows.
+Optimization methods share a lot of common infrastructure, and much of this was
+collected in my `optextras` package. (Now in the `optimx` package.) The routines used in the current package are as follows.
 
 ### kktchk()
 

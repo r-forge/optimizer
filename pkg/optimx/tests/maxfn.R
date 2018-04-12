@@ -1,5 +1,4 @@
 require(optimx)
-require(optextras)
 maxfn<-function(x) {
   n<-length(x)
   ss<-seq(1,n)
@@ -37,21 +36,6 @@ print(amaxo)
 cat("using the negmax function should give same parameters\n")
 anegmaxo<-optimr(xx,negmaxfn, method="L-BFGS-B", control=list(trace=0))
 print(anegmaxo)
-
-library(optimx)
-maxfn<-function(x) {
-  n <- length(x)
-  ss <- seq(1,n)
-  f <- 10-(crossprod(x-ss))^2
-  f <- as.numeric(f)
-  return(f)
-}
-
-negmaxfn<-function(x) {
-  f<-(-1)*maxfn(x)
-  return(f)
-}
-
 
 cat("WARNING -- this example should FAIL\n")
 cat("maximize=TRUE is NOT set up in hjn()\n")

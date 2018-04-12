@@ -1,4 +1,5 @@
-## Trig function 
+require(optimx)
+## Trig function
 # ref??
 
 trig.f <- function(x){
@@ -39,7 +40,6 @@ trig.g <- function(x) { # unvectorized
 }
 
 
-require(optimx)
 x<-rep(2,2)
 cat("opm\n")
 opt2<-optimr(x, trig.f, trig.g, method="BFGS")

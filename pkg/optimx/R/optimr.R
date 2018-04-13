@@ -139,8 +139,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # Run a single method
 
 # expand bounds
-  if (length(lower) == 1) lower<-rep(lower,npar)
-  if (length(upper) == 1) upper<-rep(upper,npar)
+  if (length(lower) == 1 && is.finite(lower) ) lower<-rep(lower,npar)
+  if (length(upper) == 1 && is.finite(upper) ) upper<-rep(upper,npar)
 
   mcontrol <- list() # define the control list
 

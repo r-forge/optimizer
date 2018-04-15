@@ -2,7 +2,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   upper = NULL, bdmsk = NULL, control = list(), ...) {
   #
   #  Author:  John C Nash
-  #  Date:  , Jan 8, 2015
+  #  Date:  , April 14, 2018 -- update to fix infinite loop
   #
   ## An R version of the Nash version of Fletcher's Variable
   #   Metric minimization -- bounds constrained parameters
@@ -24,10 +24,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   # For historical reasons, we use the same array as an
   #   indicator that a parameter is at a lower bound (-3) 
   #   or upper bound (-1) 
-  # 
-  # control = list of control parameters
+  #   # control = list of control parameters
   #    maxit = a limit on the number of iterations (default 500)
-  #    maximize = TRUE to maximize the function (default FALSE)
   #    trace = 0 (default) for no output,
   #            > 0 for output (bigger => more output)
   #    dowarn=TRUE by default. Set FALSE to suppress warnings.
@@ -38,11 +36,6 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   #    maxfeval = a limit on the function evaluations (default
   #             3000 + 10*n )
   #    maximize = TRUE to maximize the function (default FALSE)
-  #    trace = 0 (default) for no output,
-  #          > 0 for output (bigger => more output)
-  #    dowarn=TRUE by default. Set FALSE to suppress warnings.
-  #    stepredn = 0.2 (default). Step reduction factor for backtrack
-  #             line search
   #    reltest = 100.0 (default). Additive shift for equality test.
   #    stopbadupdate = TRUE (default). Don't stop when steepest
   #             descent search point results in failed inverse 
@@ -121,14 +114,18 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   if (nolower && noupper && all(bdmsk == 1)) { 
      bounds = FALSE
      stop("Do not use Rvmminb() without bounds.")
-  } else bounds = TRUE
-  if (trace > 1) 
+  } else { bounds = TRUE }
+
+  cat("trace=",trace,"\n") # This is not picked up -- Why?
+
+  if (trace > 1) {
      cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
-           " bounds = ", bounds, "\n")
+           " bounds = ", bounds, "\n") 
+  }
 #################################################################
 ## Set working parameters (See CNM Alg 22)
-  if (trace > 0) 
-     cat("Rvmminb -- J C Nash 2009-2015 - an R implementation of Alg 21\n")
+  if (trace > 0) {
+     cat("Rvmminb -- J C Nash 2009-2015 - an R implementation of Alg 21\n") }
   bvec <- par  # copy the parameter vector
   n <- length(bvec)  # number of elements in par vector
   if (trace > 0) {
@@ -182,10 +179,17 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
     }
     oldstep <- 1
     conv <- -1
+    gnorm <- sqrt(sum(g*g)) ## JN180414 
+    if (trace > 0) cat("ig=",ig,"  gnorm=",gnorm,"  ")
+    if (gnorm < (1 + abs(fmin))*eps*eps ) {
+         if (trace > 1) cat("Small gradient norm\n")
+         keepgoing <- FALSE
+         conv <- 2
+    }
     while (keepgoing) { ## main loop -- must remember to break out of it!
       if (ilast == ig) { # reset the approx. inverse hessian B to unit matrix
           B <- diag(1, n, n)  # create unit matrix of order n
-          if (trace > 2) cat("Reset Inv. Hessian approx at ilast = ", ilast, "\n")
+          if (trace > 1) cat("Reset Inv. Hessian approx at ilast = ", ilast, "\n")
       }
       fmin <- f
       if (trace > 0) cat(" ", ifn, " ", ig, " ", fmin, "\n")
@@ -251,8 +255,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
           warning("gradproj Nan")
           gradproj <- 0  # force null
       }
-      if (gradproj < 0) {
-        # Must be going downhill
+      if (gradproj <= 0) {
+        # Must be going downhill OR be converged
         ########################################################
         ####      Backtrack only Line search                ####
         changed <- TRUE  # Need to set so loop will start
@@ -285,6 +289,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
             print(bvec)
           }
           changed <- (!identical((bvec + reltest), (par + reltest)) )
+          if (trace > 2) cat("changed =",changed,"\n")
           if (changed) {
             # compute new step, if possible
             f <- try(fn(bvec, ...))
@@ -397,12 +402,12 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
       } # end if accpoint
       else { # no acceptable point
         if (trace > 0) cat("No acceptable point\n")
-        if ((ig == ilast) && ((ig > 2) || (abs(gradproj) < (1 + abs(fmin))*ctrl$eps*ctrl$eps))) {
+        if ( (ig == ilast) || (abs(gradproj) < (1 + abs(fmin))*ctrl$eps*ctrl$eps ) ) { # remove ig > 2
           # we reset to gradient and did new linesearch
           keepgoing <- FALSE  # no progress possible
           if (conv < 0) { # conv == -1 is used to indicate it is not set
             conv <- 0
-          }  
+          }
           msg <- "Converged"
           if (trace > 0) cat(msg, "\n")
         } # end ig == ilast

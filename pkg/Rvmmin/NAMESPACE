@@ -4,3 +4,4 @@ export(
   "Rvmminu"
 )
 importFrom("optextras", "bmchk", "grfwd", "grchk")
+importFrom("stats", "nlm", "nlminb", "optim")

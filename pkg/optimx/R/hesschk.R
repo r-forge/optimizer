@@ -9,16 +9,16 @@ hesschk <- function(xpar, ffn, ggr, hhess, trace=0, testtol=(.Machine$double.eps
       attr(hessOK, "hn")<-NA
       msg<-"Analytic Hessian not made available."
       attr(hessOK, "msg")<-msg
-      if (trace) cat(msg,"\n")
+      if (trace > 0) cat(msg,"\n")
    } else {
       attr(hessOK, "nullhess")<-FALSE
       hname <- deparse(substitute(hhess))
-      if (trace>0) cat("Analytic hessian from function ",hname,"\n\n")
+      if (trace > 0) cat("Analytic hessian from function ",hname,"\n\n")
       ha <- hhess(xpar, ... ) # analytic hessian 
 #      if (attr(ha,"inadmissible")) {
 #         msg<-"Analytic Hessian inadmissible."
 #         attr(hessOK, "msg")<-msg
-#         if (trace) cat(msg,"\n")
+#         if (trace > 0) cat(msg,"\n")
 #      }
       if (is.null(ggr)) {
          hn <- hessian(func=ffn, x=xpar, ...) 
@@ -35,7 +35,7 @@ hesschk <- function(xpar, ffn, ggr, hhess, trace=0, testtol=(.Machine$double.eps
           if (asym > asymtol) {
              msg<-"Analytic Hessian not symmetric."
              attr(hessOK, "msg")<-msg
-             if (trace) cat(msg,"\n")
+             if (trace > 0) cat(msg,"\n")
           } else hessOK <- TRUE
           hn <- 0.5 * (t(hn) + hn)
       }  # end if ! isSymmetric
@@ -45,7 +45,7 @@ hesschk <- function(xpar, ffn, ggr, hhess, trace=0, testtol=(.Machine$double.eps
          hessOK<-FALSE
          msg<-paste("Analytic Hessian and numeric Hessian differ more than ", testtol,"")
          attr(hessOK, "msg")<-msg
-         if (trace) cat(msg,"\n")
+         if (trace > 0) cat(msg,"\n")
       }
       attr(hessOK, "asym")<-asym
       attr(hessOK, "ha")<-ha

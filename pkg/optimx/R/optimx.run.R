@@ -314,7 +314,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       else if (meth == "Rvmmin") { # Use Rvmmin routine (ignoring masks)
 	bdmsk<-rep(1,npar)
 	mcontrol$trace<-NULL
-	if (ctrl$trace>0) mcontrol$trace <- 1
+	if (ctrl$trace>0) mcontrol$trace <- ctrl$trace # 180414 was set to 1
 	tugr <- ugr
         if (is.null(ugr)){
                  tugr <- "grfwd"

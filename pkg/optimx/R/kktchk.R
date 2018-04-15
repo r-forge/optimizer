@@ -29,7 +29,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    if (is.null(control$trace)) control$trace <- 0
    if (is.null(control$kkttol)) kkttol<-1e-3 else kkttol<-control$kkttol
    if (is.null(control$kkt2tol)) kkt2tol<-1e-6 else kkt2tol<-control$kkt2tol
-   if (control$trace > 0) { cat("kkttol=",kkttol,"   kkt2tol=",kkt2tol,
+   if (control$trace > 0) { cat("kktchk: kkttol=",kkttol,"   kkt2tol=",kkt2tol,
             "  control$trace=",control$trace,"\n") }
    dotargs <- list(...)
 #   cat("dotargs:\n")

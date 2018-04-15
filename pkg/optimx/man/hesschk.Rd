@@ -21,7 +21,7 @@
         User-supplied Hessian function
         }
     \item{trace}{
-        set >0 to provide output from grchk to the console, 0 otherwise
+        set >0 to provide output from hesschk to the console, 0 otherwise
         }
     \item{testtol}{
         tolerance for equality tests

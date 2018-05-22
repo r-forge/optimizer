@@ -1,0 +1,21 @@
+snllrv <- function(x) {- sum(log(x/sum(x)))}
+all5 <- opm(s5, snllrv, gr="grfwd", method=mlist, control=list(trace=1))
+all5
+all5 <- opm(s5, snllrv, gr="grnd", method=mlist, control=list(trace=1))
+all5
+all5 <- opm(s5, snllrv, method=mlist, control=list(trace=1))
+all5
+all5 <- opm(s5, snllrv, gr="grcentral", method="ALL", control=list(trace=1))
+all5
+n<-100
+s100 <- (1:100)/1e4
+allh <- opm(s100, snllrv, gr="grcentral", method="ALL", control=list(trace=1))
+summary(allh, order=value, par.select=1:3)
+stt
+cgt <- optimr(stt, snllrv, gr="grnd", method="Rcgmin")
+cgt <- optimr(stt, snllrv, gr="grcentral", method="Rcgmin")
+summary(cgt)
+cgt
+cgt <- optimr(stt, snllrv, gr="grback", method="Rcgmin")
+warnings()
+summary(allh, order=value, par.select=1:3)

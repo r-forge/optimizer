@@ -1,0 +1,10 @@
+proj3 <- function(x) {x/sqrt(sum(x^2))}
+tspgn3<-system.time(aspgn3 <- spg(par=(1:n)/n^2, fn=nllrv, gr=NULL, project=proj3))[[3]]
+aspgn3
+upar <- aspgn3$par
+upar
+spar <- upar/sqrt(sum(upar^2))
+spar
+sum(spar^2)
+cumprod(spar)
+prod(spar)

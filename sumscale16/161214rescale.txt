@@ -1,0 +1,8 @@
+
+dim(a5x)
+for (ir in 1:18){
+vec <- a5x[ir, 1:5]
+vec <- vec/sum(vec)
+a5x[ir,1:5] <- vec
+}
+a5x

@@ -55,18 +55,20 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       mcontrol$badval<-NULL
       mcontrol$scaletol<-NULL 
       # not used in any methods -- it is here for the scale check of parameters and bounds above
-      ans.ret[i, "value"] <- .Machine$double.xmax # to ensure defined for sort
+      ans.ret[i, "value"] <- .Machine$double.xmax # to ensure value defined for sort
 # Methods from optim()
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
-#       if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now 
+#       if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now, though SANN NOT really included
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
-
-#        cat("optim() par:")
-#        print(par)
-
-
-        time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper, 
-                method=meth, control=mcontrol, ...), silent=TRUE))[1]
+        if (have.bounds) { # 180417 to avoid issues with bounds
+           if (meth != "L-BFGS-B") stop("Bounds constraints for optim() require L-BFGS-B")
+           else { time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, 
+                             lower=lower, upper=upper, method=meth, 
+                             control=mcontrol, ...), silent=TRUE))[1]
+           }
+        } else {time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, 
+                           method=meth, control=mcontrol, ...), silent=TRUE))[1]
+        } # 180417
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
         if (class(ans)[1] != "try-error") { 

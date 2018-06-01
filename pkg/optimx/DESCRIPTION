@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2018-4.14
-Date: 2018-04-14
+Version: 2018-6.1
+Date: 2018-06-01
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -11,10 +11,10 @@ Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
 Author: John C Nash [aut, cre], Ravi Varadhan [aut], Gabor Grothendieck [ctb]
 Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Provides a replacement and extension of the optim()
-    function to call to several function minimizers in R in a single
+    function to call to several function minimization codes in R in a single
     statement. These methods handle smooth, possibly box constrained functions 
     of several or many parameters. Note that function 'optimr()' was prepared to
-    simplify the incorporation of minimizers going forward. Also implements some
+    simplify the incorporation of minimization codes going forward. Also implements some
     utility codes and some extra solvers, including safeguarded Newton methods.
     Many methods previously separate are now included here.
 License: GPL-2

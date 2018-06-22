@@ -27,8 +27,9 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
     cc[0]++;			// increment func eval count
 
     if (count_if(x, x + nn, R_finite) < nn)
-	throw range_error("non-finite x values not allowed in calfun");
-
+///	throw range_error("non-finite x values not allowed in calfun");
+      ::Rf_error("non-finite x values not allowed in calfun");
+///JN added :: 180621
     SEXP pp = PROTECT(::Rf_allocVector(REALSXP, nn));
     copy(x, x + nn, REAL(pp));
     double f = ::Rf_asReal(::Rf_eval(PROTECT(::Rf_lang2(as<SEXP>(cf), pp)), as<SEXP>(rho)));

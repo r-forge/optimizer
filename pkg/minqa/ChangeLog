@@ -1,3 +1,28 @@
+2014-10-03  K Mullen <mullenkate@gmail.com>
+        * src/minqa.cpp:  Changed format of output at return to add labels.
+	This affects output for iprint > 0.
+
+	* src/minqa.cpp: When rho changes and is printed, added labels to
+	output.  This affects output for iprint > 1.
+
+	* R/minqa.R:  Now print start parameter values and obj. function
+	value when iprint > 0.
+
+	* R/minqa.cpp:  If iprint > 3, the objective function value and
+	corresponding variables are output every \code{iprint} evaluations.
+	
+	* man/uobyqa.Rd: iprint updated.
+	* man/newuoa.Rd: iprint updated.
+	* man/bobyqa.Rd: iprint updated.
+2014-02-03  K Mullen <mullenkate@gmail.com>
+	DESCRIPTION:  Rcpp is now in Imports, not Depends. 
+	NAMESPACE: 'import(Rcpp)' added.  
+2012-05-07 K Mullen <mullenkate@gmail.com>
+	* R/minqa.R: Added check on length of obj. function, with stop if
+	obj. function does not return a numeric value of length 1.  As
+	Hans Borchers pointed out, R would crash if bobyqa was given an
+	objective function that returned a vector with length greater than
+	1.
 2012-03-14 Douglas Bates  <bates@stat.wisc.edu>
 	* src/minqa.cpp: avoid evaluating an Rcpp::Function object
 	and use direct calls to R's eval (which shows up as ::Rf_eval in

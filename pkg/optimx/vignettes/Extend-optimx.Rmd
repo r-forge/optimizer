@@ -355,6 +355,9 @@ Thus, if `print.level` is the desired control, and it more or less matches the `
 ```
 After the method has run, we may need to reset `control$trace`.
 
+There are some programming issues in the package with method controls
+and these are discussed in a [separate section](#ctrl). %% ignored if generating pdf_document
+
 ### Methods in other computing languages
 
 When the method we wish to call is not written in R, special care is generally needed
@@ -490,6 +493,15 @@ for a user to copy the structure of any of these routines and call their own gra
 the time of writing this (2016-6-29) I have not tried to do so. An example using the complex
 step derivative would also be useful to include in this vignette. I welcome contributions!
 
+**Note** As at 2018-7-8 Changcheng Li and John Nash we have preliminary success in using the 
+`autodiffr` package at https://github.com/Non-Contradiction/autodiffr/ to generate gradient, 
+hessian and jacobian functions via the Julia language automatic differentiation capabilities. 
+There are some issues of slow performance compared to native-R functions to computer these 
+collections of derivative information, but the ease of generation of the functions and the
+fact that they generate analytic results i.e., as good as R can compute the information, 
+allows for some improvements in results and also makes feasible the application of some
+Newton-like methods.
+
 ## Functions besides `optimr()` in the package
 
 ### opm()
@@ -512,6 +524,10 @@ which is used to compute values for termination tolerances and limits on functio
 evaluations. However, while I believe the values computed are "reasonable" in general, for 
 specific problems they may be wildly inappropriate.
 
+### dispdefault()
+
+This routine (in file `ctrldefault.R`) is intended to allow a compact display of the current
+default settings used within `optimx`.
 
 ## Functions that were formerly in the `optextras` package
 
@@ -593,6 +609,56 @@ has corrected the codes on CRAN.
 Note that this is not a criticism of the creators of `dfoptim`. I have made similar choices
 myself with other packages. It is challenging to balance clarity, maintainability, efficiency, and common
 structure for a suite of related program codes. 
+
+## Providing controls to different algorithms {#ctrl}
+
+We have already noted that it is important to provide control settings for the different methods.
+This can be a challenge, largely because some methods (or at least their instantiations in **R**
+codes or wrappers to other languages) only permit selected controls. The `ctrldefault` function 
+provides as many of the controls as possible, and provides them via the `control` list. However,
+many methods put the contols into separate parameters of their function call. For example, 
+the `control$maxit` iteration limit is `iterlim` for the function `nlm()`.
+
+A more subtle difficulty is that the multiple-method wrapper `opm()` will generally be called with
+consistent iteration and function count limits. However, we may wish to compare the underlying
+codes with their own, rather particular, limits. Again `nlm()` provides an example when we call
+the Wood 4-parameter test function starting at `w0 <- c(-3,-1,-3,-1)`. The default `iterlim`
+value in `nlm()` is 100, but `ctrldefault(npar=4)` returns a value for `maxit` of 1000. This
+has consequences, as seen in the following example, which also shows how to call `nlm` through
+`optimr()` and `opm()` using the internal default. ?? Note that we also need to be able to display
+the control defaults. ?? for trace > 1?
+
+
+```{r}
+  require(optimx)
+  npar <- 4
+  control<-list(maxit=NULL)
+  ctrl <- ctrldefault(npar)
+  ncontrol <- names(control)
+  nctrl <- names(ctrl)
+  for (onename in ncontrol) {
+     if (onename %in% nctrl) {
+       if (! is.null(control[onename]) || ! is.na(control[onename]) )
+       ctrl[onename]<-control[onename]
+     }
+  }
+  control <- ctrl # note the copy back! control now has a FULL set of values
+  print(control$maxit)
+  control<-list()
+  ctrl <- ctrldefault(npar)
+  ncontrol <- names(control)
+  nctrl <- names(ctrl)
+  for (onename in ncontrol) {
+     if (onename %in% nctrl) {
+       if (! is.null(control[onename]) || ! is.na(control[onename]) )
+       ctrl[onename]<-control[onename]
+     }
+  }
+  control <- ctrl # note the copy back! control now has a FULL set of values
+  print(control$maxit)
+
+```
+
 
 
 ## Testing the package

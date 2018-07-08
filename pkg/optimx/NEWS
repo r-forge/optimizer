@@ -29,6 +29,10 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
+VERSION 2018-07-06
+      o Changed setup of control vector using ctrldefault to allow for use of
+	individual method defaults
+
 VERSION 2018-04-17
       o Comments in tests etc. to explain why methods fail
         Add hessian to simple test

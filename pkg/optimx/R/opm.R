@@ -5,6 +5,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
   npar <- length(par)
   pstring<-names(par)
+  npar <- length(par)
   ctrl <- ctrldefault(npar)
   ncontrol <- names(control)
   nctrl <- names(ctrl)
@@ -14,7 +15,8 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        ctrl[onename]<-control[onename]
      }
   }
-  control <- ctrl
+  control <- ctrl # note the copy back! control now has a FULL set of values
+  ## 180706: Should we try to streamline?
   if(control$trace > 0) cat("opm: wrapper to call optimr to run multiple optimizers\n")
 
   fnscale <- 1 # default to ensure defined
@@ -97,6 +99,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       ans$kkt2<-NA
       kktres <- list(gmax=NA, evratio = NA, kkt1=NA, kkt2=NA, 
                      hev=rep(NA,npar), ngatend=NA, nhatend=NA)
+      cat("For method=",meth,"  str(control$save.failures)=",str(control$save.failures),"\n")
       if ( control$save.failures || (ans$convergence < 1) ){
            # Save soln if converged or directed to save
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 

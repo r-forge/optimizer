@@ -260,9 +260,6 @@ print(newpar)
 
 ```
 
-
-
-
 ## Issues in adding a new method
 
 ### Adjusting the objective function for different methods

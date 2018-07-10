@@ -22,6 +22,7 @@ ctrldefault <- function(npar) {
 
       maskmeth <- c("Rcgmin", "Rvmmin", "hjn")
  
+# offset changed from 100 to 1000 on 180710
       ctrl.default <- list(
         acctol = 0.0001, 
         all.methods = FALSE,
@@ -49,7 +50,7 @@ ctrldefault <- function(npar) {
         maximize = FALSE,
         maxit = 500*round(sqrt(npar+1)),
         maxfeval = 5000*round(sqrt(npar+1)),
-        offset = 100.0,
+        offset = 1000.0,
         parchanged = FALSE, 
         parscale = rep(1, npar),
         reltest = 100.0,

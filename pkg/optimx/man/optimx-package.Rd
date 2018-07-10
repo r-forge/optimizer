@@ -48,6 +48,7 @@ kktchk         Check the Karush-Kuhn-Tucker optimality conditions
 scalechk   Check scale of initial parameters and bounds
 optsp        An environment to hold some globally useful items
              used by optimization programs
+proptimr     compact output of optimr() result object             
 }
 
 }

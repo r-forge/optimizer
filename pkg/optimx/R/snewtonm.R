@@ -97,8 +97,8 @@ trace <- control$trace # convenience
 
   }
   if (itn >= control$maxit) {
-     msg <- "snewtonm: Too many iterations!\n"
-     if(control$trace > 0) cat(msg)
+     msg <- "snewtonm: Too many iterations!"
+     if(control$trace > 0) cat(msg,"\n")
      convcode <- 1
   } else { msg <- "snewtonm: Normal exit" }
   out<-NULL

@@ -99,7 +99,6 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       ans$kkt2<-NA
       kktres <- list(gmax=NA, evratio = NA, kkt1=NA, kkt2=NA, 
                      hev=rep(NA,npar), ngatend=NA, nhatend=NA)
-      cat("For method=",meth,"  str(control$save.failures)=",str(control$save.failures),"\n")
       if ( control$save.failures || (ans$convergence < 1) ){
            # Save soln if converged or directed to save
           if ((control$trace > 0) && (ans$convergence==0)) cat("Successful convergence! \n") 

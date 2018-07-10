@@ -27,6 +27,7 @@ export(
   "optchk",
   "optsp",
   "polyopt",
+  "proptimr",
   "Rcgmin",
   "Rcgminu",
   "Rcgminb",

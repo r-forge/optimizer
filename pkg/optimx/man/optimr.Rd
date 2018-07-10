@@ -164,7 +164,7 @@ tryfun.h = function(x) {
 strt <- c(1,2,3)
 ansfgh <- optimr(strt, tryfun.f, tryfun.g, tryfun.h, method="nlm",
      hessian=TRUE, control=list(trace=2))
-ansfgh
+proptimr(ansfgh) # compact output of result
 
 
 }

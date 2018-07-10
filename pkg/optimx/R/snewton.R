@@ -59,8 +59,8 @@ trace <- control$trace # convenience
       break
     }
     if (nf > control$maxfeval){
-      msg <- paste("Too many (",nf," function evaluations\n")
-      if (trace > 0) cat(msg)
+      msg <- paste("Too many (",nf," function evaluations")
+      if (trace > 0) cat(msg,"\n")
       halt <- TRUE
       convcode <- 91 # ?? value
       break
@@ -68,8 +68,8 @@ trace <- control$trace # convenience
     gmax <- max(abs(grd))
     if (trace > 1) cat("current gradient norm =",gmax,"\n")
     if (gmax <= control$epstol) {
-      msg <- paste("Small gradient norm\n")
-      if (trace > 0) cat(msg)
+      msg <- paste("Small gradient norm")
+      if (trace > 0) cat(msg,"\n")
       halt <- TRUE
       convcode <- 0 # OK
       break
@@ -94,8 +94,8 @@ trace <- control$trace # convenience
     xnew <- xb + st*d # new point
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 92 # no progress
-        msg <- "No progress before linesearch!\n"
-        if (trace > 0) cat(msg)
+        msg <- "No progress before linesearch!"
+        if (trace > 0) cat(msg,"\n")
         break # finished        
     }
     fval <- try(fn(xnew, ...))
@@ -106,7 +106,7 @@ trace <- control$trace # convenience
        print(xnew)
     }
     if (fval > control$bigval) {
-       msg <- "snewton: New function value infinite\n"
+       msg <- "snewton: New function value infinite"
        if (trace > 1) cat(msg,"\n")
 #       fval <- control$bigval
        convcode <- 9999
@@ -127,8 +127,8 @@ trace <- control$trace # convenience
     } # end while
     if (all((control$offset+xnew) == (control$offset+xb))) {
         convcode <- 93 # no progress in linesearch
-        msg <- "No progress in linesearch!\n"
-        if (trace > 0) cat(msg)
+        msg <- "No progress in linesearch!"
+        if (trace > 0) cat(msg,"\n")
         break
     }
     if (trace > 1) cat("end major loop\n")  

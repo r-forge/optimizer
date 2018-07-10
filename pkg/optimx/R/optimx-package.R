@@ -148,4 +148,3 @@ scalecheck<-function(par, lower=lower, upper=upper,dowarn){
 }
 # -------------- end scalecheck ----------------- #
 #################################################################
-

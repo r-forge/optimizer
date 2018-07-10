@@ -290,7 +290,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         	ans$iterations <- NULL
                 ans$hessian <- NULL
                 ans$gradient <- NULL # We lose information here
-                ans$message <- paste("Convergence indicator (code) = ",ans$code)
+                ans$message <- paste("nlm: Convergence indicator (code) = ",ans$code)
                 ans$code <- NULL
 	} else {
 		if (control$trace > 0) cat("nlm failed for this problem\n")
@@ -431,8 +431,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
               ans$value <- tans$value
               attr(ans, "gradient") <- tans$grad
               if(hessian) ans$hessian <- tans$Hess
-              ans$counts[2] <- tans$counts$nfn
-              ans$counts[1] <-  tans$counts$ngr
+              ans$counts[1] <- tans$counts$nfn
+              ans$counts[2] <-  tans$counts$ngr
               ans$message <- tans$message 
               ans$convergence <- tans$convcode
               tans <- NULL # probably unnecessary, but for safety
@@ -496,8 +496,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       ans$value <- tans$value
       attr(ans, "gradient") <- tans$grad
       if(hessian) ans$hessian <- tans$Hess
-      ans$counts[2] <- tans$counts$nfn
-      ans$counts[1] <-  tans$counts$ngr
+      ans$counts[1] <- tans$counts$nfn
+      ans$counts[2] <-  tans$counts$ngr
       ans$message <- tans$message 
       ans$convergence <- tans$convcode
       tans <- NULL # probably unnecessary, but for safety

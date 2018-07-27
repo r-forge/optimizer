@@ -30,6 +30,9 @@ NEWS from the optimx package
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
 VERSION 2018-07-10
+      o Rvmmin convergence codes added to opm.Rd etc.
+
+VERSION 2018-07-10
       o Added proptimr() compact display of result of optimr
       o Some minor changes to vignettes and to message (msg) output for 
         line ending

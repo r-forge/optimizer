@@ -27,14 +27,14 @@ lbound <- interval[1]
   ifn <- 2
   nbis <- 5
   fup <- f(ubound,...)
-  fup0<-fup # save it
+  fup0 <- fup # save it
 #  if notcomp then halt;
   flow <- f(lbound,...)
-  flow0<-flow # save it
+  flow0 <- flow # save it
 #  if notcomp then halt;
 #if (trace) cat('f(',lbound,')=',flow,'  f(',ubound,')=',fup,"\n")
 
-  if (fup*flow>0) {
+  if (fup * flow > 0) {
      noroot  <-  TRUE
   } else { noroot  <-  FALSE }
   op<-"start"
@@ -47,10 +47,15 @@ lbound <- interval[1]
     } else {
 #if (trace) cat('False position \n')
       op<-"FalsePos"
-      b  <-  (lbound*fup-ubound*flow)/(fup-flow)
+      if (identical(fup, flow)) {
+         if (trace) cat("b unchanged\n")
+         op <- "FP-nochange"
+      } else {
+         b  <-  (lbound*fup-ubound*flow)/(fup-flow)
+      }
     }
 
-#  cat("b =",b,"  lbound=",lbound,"  ubound=",ubound,"\n")
+## cat("b =",b,"  lbound=",lbound,"  ubound=",ubound,"\n") ## JN18
     if (b <= lbound) {
       b  <-  lbound
       ubound  <-  lbound

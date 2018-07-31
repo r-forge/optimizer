@@ -1,12 +1,9 @@
 % File src/library/stats/man/root1d.Rd
-% Part of the R package, http://www.R-project.org
-% Copyright 1995-2007 R Core Development Team
-% Distributed under GPL 2 or later
 
 \name{root1d}
 \alias{root1d}
 \encoding{UTF-8}
-\title{Find a single root of a function of one variable within a specified interval.}
+\title{root1d: Find a single root of a function of one variable within a specified interval.}
 \concept{root-finding}
 \description{
 Find a single root of a function of one variable within a specified interval.}
@@ -23,23 +20,36 @@ Find a single root of a function of one variable within a specified interval.}
  \item{...}{Extra data needed to compute the function \code{f}.}
 }
 \details{
-   To be added.
+   This routine is an all-R translation of Algorithm 18 of Nash (1979). This is a
+   variant of the Dekker-Brent approach. At the time it was written, the goal was
+   to produce a very short code that was robust in a low-precision environment. 
 }
 
 \value{
   The output is a list consisting of 
-    return(list(root=b, froot=NA, rtol=wtol, maxit=maxit)) ## Acceptable approx. is found
-
-  \item{root}{The estimate, b, of the position of the root.}
-  \item{froot}{The value of the function at this point, f(b).}
-  \item{rtol}{The width of the interval in which the root exists.}
-  \item{fcount}{The number of function evaluations used.}
+\itemize{  
+  \item{root} {The estimate, b, of the position of the root.}
+  \item{froot} {The value of the function at this point, f(b).}
+  \item{rtol} {The width of the interval in which the root exists.}
+  \item{fcount} {The number of function evaluations used.}
+}  
 }
+
+\references{
+  Nash, John C. (1979)
+  \emph{Compact numerical methods: linear algebra and function minimisation.}
+  Bristol UK: Adam Hilger.
+}
+
 \seealso{
     \code{\link{optimize}}
 }
 \examples{
-## Examples are in rootoned-package.Rd
+# Dekker example
+require(rootoned)
+dek <- function(x){ 1/(x-3) - 6 }
+r1 <- root1d(dek, c(3.0000001, 6), trace=TRUE)
+r1
 }
 \keyword{root-finding}
 

@@ -1,14 +1,14 @@
 % File src/library/stats/man/root1d.Rd
 
-\name{root1d}
-\alias{root1d}
+\name{zeroin}
+\alias{zeroin}
 \encoding{UTF-8}
 \title{root1d: Find a single root of a function of one variable within a specified interval.}
 \concept{root-finding}
 \description{
 Find a single root of a function of one variable within a specified interval.}
 \usage{
-   root1d(f, interval, tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) 
+   zeroin(f, interval, tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) 
 }
 \arguments{
  \item{f}{A real function of a single variable.}

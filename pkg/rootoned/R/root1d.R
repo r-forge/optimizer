@@ -1,53 +1,35 @@
 root1d <- function(f, interval,
                    tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) {
   
-  # trace <- FALSE
-  #     uniroot(f, interval,
-  #             lower = min(interval), upper = max(interval),
-  #             f.lower = f(lower, ...), f.upper = f(upper, ...),
-  #             tol = .Machine$double.eps^0.25, maxiter = 1000, ...)
-  
-  #var lbound, ubound: real;
-  #                 var ifn: integer;
-  #                     tol : real;
-  #                 var noroot: boolean );
-  
-  #var
-  # nbis: integer;
-  # b, fb, flow, fup : real;
-  # notcomp: boolean;
-  
-  
-  if (trace) cat('alg18 == root1d -- root of a function of one variable\n')
+  if (trace) cat('alg18 == root1d -- root of a function of one variable - Updated 2018 for R\n')
   
   ubound <- interval[2]
   lbound <- interval[1]
-  
   #  notcomp := FALSE; -- use try()
-  ifn <- 2
-  nbis <- 5
+  nbis <- 5 # Bisect at least every 5 (This could be an argument, but ...)
   fup <- f(ubound,...)
   fup0<-fup # save it
   #  if notcomp then halt;
   flow <- f(lbound,...)
   flow0<-flow # save it
+  ifn <- 2 # Automatically compute function twice
   #  if notcomp then halt;
-  #if (trace) cat('f(',lbound,')=',flow,'  f(',ubound,')=',fup,"\n")
-  
+
+  OKfp <- TRUE # initialize
   if (sign(fup)*sign(flow) > 0) {
     noroot  <-  TRUE
   } else { noroot  <-  FALSE }
   op<-"start"
-  lastwidth <- (ubound - lbound)
+  lastwidth <- (ubound - lbound) # Modification 2018 -- ensure width of interval decreasing
   while ( (! noroot) && ((ubound-lbound)>tol) && (ifn < maxiter)) {
     if (trace) cat("f(",lbound,")=",flow,"  f(",ubound,")=",fup,"  interval=",ubound-lbound,"  ",op,"\n")
-    cat("Width reduced: ", (ubound - lbound  >= lastwidth - tol))
+#    cat("Width reduced: ", (ubound - lbound  >= lastwidth - tol))
     if ( (( (nbis * ((ifn - 2) %/% nbis) == (ifn - 2)) ) && (ifn > 2)) || (ubound - lbound  >= lastwidth - tol) ){
       op<-"Bisect"
-      #if (trace) cat('Bisect  \n')
+#     if (trace) cat('Bisect  \n')
       b  <-  lbound + 0.5*(ubound - lbound)
     } else {
-      #if (trace) cat('False position \n')
+      # if (trace) cat('False position \n')
       op<-"FalsePos"
       ## 180820 JN: May give trouble if magnitudes wild
       b  <-  (lbound*fup-ubound*flow)/(fup-flow)
@@ -60,26 +42,24 @@ root1d <- function(f, interval,
     #  lbound[is.na(lbound)] <- 0
     ## END of edits
     
-    #    if (b <= lbound) {
-    #      b  <-  lbound
-    #      ubound  <-  lbound # force convergence? We cannot compute an in-range value.
-    #    }
-    #    if (b >= ubound) { 
-    #      b  <-  ubound
-    #      lbound  <-  ubound # force convergence? We cannot compute an in-range value.
-    #    } # But we DO NOT break successfully -- not following code in CNM79
-    if (b <= lbound) {
-      op <- "Fail-FP-low"
-      if (b <= lbound) {
-        ubound <- lbound
-      } else { lbound <- ubound} # close interval
-      cat("Fail-FP\n")
-      break
+    if (b <= lbound) {  
+          b  <-  lbound 
+          fb <- flow
+          op <- "Fail-FP-low"
+          # Could force convergence, but better to bisect
+    } else { if (b >= ubound) {
+               b <- ubound 
+               fb <- fup
+               op <- "Fail-FP-hi"
+               }
+           }
+
+    if (OKfp) {
+      ifn  <-  ifn+1
+      fb  <-  f(b, ...)
+      #  if notcomp then halt; ## not implemented yet (would need try())
+      if (trace) cat(ifn,' evalns: f(',b,')=',fb,"\n")
     }
-    ifn  <-  ifn+1
-    fb  <-  f(b, ...)
-    #    if notcomp then halt; ## not implemented yet (would need try())
-    if (trace) cat(ifn,' evalns: f(',b,')=',fb,"\n")
     if (trace) cat('  width interval= ',(ubound-lbound),"\n")
     if ( (ubound-lbound)>tol ){
       if (sign(fb)*sign(flow) < 0.0) {

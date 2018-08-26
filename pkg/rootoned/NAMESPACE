@@ -1,5 +1,18 @@
 export(
   "root1d",
   "zeroin",
-  "newt1d"
+  "newt1d",
+  "FnTrace",
+  "TraceSetup",
+  "rootwrap",
+  "multrfind"
 )
+importFrom("pracma",
+           "brent",
+           "bisect",
+           "muller",
+           "regulaFalsi",
+           "newton",
+           "secant"
+)
+importFrom ("stats", "uniroot")

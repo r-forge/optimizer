@@ -1,20 +1,27 @@
-\name{root1d}
-\alias{root1d}
+\name{FnTrace}
+\alias{FnTrace}
+\alias{TraceSetup}
+\alias{grTrace}
 \encoding{UTF-8}
-\title{root1d: Find a single root of a function of one variable within a specified interval.}
+\title{FnTrace: A function wrapper for rootfinding to allow diagnostic tracking of progress.}
 \concept{root-finding}
 \description{
-Find a single root of a function of one variable within a specified interval.}
+Track progress of rootfinding.}
 \usage{
-   root1d(f, interval, tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) 
+
+   TraceSetup(ifn=0, igr=0, ftrace=FALSE, fn=NA, gr=NA)
+   
+   FnTrace(x,...)
+   
+   grTrace(x,...)
 }
 \arguments{
- \item{f}{A real function of a single variable.}
- \item{interval}{A vector of two real numbers defining the ends of the interval in which to search.}
- \item{tol}{A tolerance for the root. When the interval within which a root exists is smaller than \code{tol}, 
-    root1d will terminate.}
- \item{maxiter}{A limit on the number of function evaluations permitted in the attempt to find a root.}
- \item{trace}{If TRUE, provided diagnostic output of the process of rootfinding.}
+ \item{ifn}{Count of the number of function evaluations.}
+ \item{igr}{Count of the number of gradient evaluations.}
+ \item{ftrace}{If TRUE, provide diagnostic output of the process of rootfinding.}
+ \item{fn}{The function for which roots are to be found.}
+ \item{gr}{The function giving the gradient of \code{gr}}
+ \item{x}{If used, the argument for which \code{fn} and \code{gr} are to be evaluated.}
  \item{...}{Extra data needed to compute the function \code{f}.}
 }
 \details{
@@ -29,7 +36,7 @@ Find a single root of a function of one variable within a specified interval.}
   \item{root} {The estimate, b, of the position of the root.}
   \item{froot} {The value of the function at this point, f(b).}
   \item{rtol} {The width of the interval in which the root exists.}
-  \item{fcount} {The number of function evaluations used.}
+  \item{iter} {The number of iteration cycles used.}
 }  
 }
 

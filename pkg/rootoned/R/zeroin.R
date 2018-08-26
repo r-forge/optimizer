@@ -41,13 +41,13 @@ wtol <- tol # to avoid changing tol
 	wtol <- 0.0
 	maxit <- 0
         if (trace) cat("fa is 0\n")
-	return(list(root=a, froot=0, wtol=0.0, maxit=2))
+	return(list(root=a, froot=0, wtol=0.0, iter=2))
     }
     if(fb ==  0.0) {
 	wtol <- 0.0
 	maxit <- 0
         if (trace) cat("fb is 0\n")
-	return(list(root=b, froot=0, wtol=0.0, maxit=2))
+	return(list(root=b, froot=0, wtol=0.0, iter=2))
     }
     maxit <- maxiter + 2 # count evaluations as maxiter-maxit
 
@@ -84,7 +84,7 @@ wtol <- tol # to avoid changing tol
 	{
             if (trace) cat("DONE! -- small new_step or fb=0\n")
 	    wtol = abs(c-b)
-	    return(list(root=b, froot=fb, rtol=wtol, maxit=maxiter-maxit)) ## Acceptable approx. is found	*/
+	    return(list(root=b, froot=fb, rtol=wtol, iter=maxiter-maxit)) ## Acceptable approx. is found	*/
 	}
 
 	## Decide if the interpolation can be tried	*/
@@ -152,6 +152,6 @@ wtol <- tol # to avoid changing tol
     if (trace) cat("Failed!\n")
     wtol <- abs(c-b)
     maxit <- -1
-    return(list(root=b, froot=NA, rtol=wtol, maxit=maxit)) ## Acceptable approx. is found	*/
+    return(list(root=b, froot=NA, rtol=wtol, iter=maxit)) ## Acceptable approx. is found	*/
 }
 

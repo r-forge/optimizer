@@ -1,26 +1,25 @@
-\name{zeroin}
-\alias{zeroin}
+\name{rootwrap}
+\alias{rootwrap}
 \encoding{UTF-8}
 \title{zeroin: Find a single root of a function of one variable within a specified interval.}
 \concept{root-finding}
 \description{
 Find a single root of a function of one variable within a specified interval. Brent's method.}
 \usage{
-   zeroin(f, interval, tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) 
+   rootwrap(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...)
 }
 \arguments{
- \item{f}{A real function of a single variable.}
- \item{interval}{A vector of two real numbers defining the ends of the interval in which to search.}
- \item{tol}{A tolerance for the root. When the interval within which a root exists is smaller than \code{tol}, 
-    root1d will terminate.}
- \item{maxiter}{A limit on the number of function evaluations permitted in the attempt to find a root.}
- \item{trace}{If TRUE, provided diagnostic output of the process of rootfinding.}
+ \item{fn}{A real function of a single variable for which a root is desired.}
+ \item{gr}{A real function of a single variable giving the gradient (derivative) of \code{fn}.}
+ \item{ri}{A vector of two real numbers defining the ends of the interval in which to search.}
+ \item{method}{A character string giving the name of the rootfinding method to be used. Must be
+       one of the methods \code{rootwrap} supports. See the source code.}
+ \item{ftrace}{If TRUE, provided diagnostic output of the process of rootfinding.}
  \item{...}{Extra data needed to compute the function \code{f}.}
 }
 \details{
-   This routine is an all-R translation of Algorithm 18 of Nash (1979). This is a
-   variant of the Dekker-Brent approach. At the time it was written, the goal was
-   to produce a very short code that was robust in a low-precision environment. 
+    This routine is a wrapper to allow a consistent calling sequence for a number of different
+    rootfiners. 
 }
 
 \value{
@@ -46,7 +45,7 @@ Find a single root of a function of one variable within a specified interval. Br
 # Dekker example
 # require(rootoned)
 dek <- function(x){ 1/(x-3) - 6 }
-r1 <- zeroin(dek, c(3.0000001, 6), trace=TRUE)
+r1 <- rootwrap(dek, ri=c(3.0000001, 6), ftrace=TRUE, method="uniroot")
 r1
 }
 \keyword{root-finding}

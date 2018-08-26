@@ -1,8 +1,3 @@
-% File src/library/stats/man/newt1d.Rd
-% Part of the R package, http://www.R-project.org
-% Copyright 1995-2007 R Core Development Team
-% Distributed under GPL 2 or later
-
 \name{newt1d}
 \alias{newt1d}
 \encoding{UTF-8}

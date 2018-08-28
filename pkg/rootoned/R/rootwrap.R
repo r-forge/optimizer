@@ -24,12 +24,13 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   if (is.na(ri[2])) {
       fguess = ri[1]
   } else if (ri[2] <= ri[1]){stop("Lower bound must be > upper bound")}
-  TraceSetup(ftrace=ftrace) # turn on the trace
+
+  envroot <- TraceSetup(ftrace=ftrace, fn=fn, gr=gr) # turn on the trace
   
 ## Beginning of methods
   
   if (method == "uniroot"){
-    envroot$fn <- fn
+#    envroot$fn <- fn
     envroot$label <- "uniroot"
     tst <- uniroot(FnTrace,ri,  ...)
     tst$froot <- tst$f.root
@@ -41,8 +42,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   }
   
   if (method == "root1d"){
-    if( ! require(rootoned, quietly=TRUE) ) stop("Package rootoned for root1d not found")
-    envroot$fn <- fn
+#    if( ! require(rootoned, quietly=TRUE) ) stop("Package rootoned for root1d not found")
+ #   envroot$ifn <- fn
     envroot$label <- "root1d" 
     tst <- root1d(FnTrace,ri, trace=ftrace, ...)
     tst$iter <- tst$fcount
@@ -52,8 +53,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   }
   
   if (method == "zeroin"){
-    if( ! require(rootoned, quietly=TRUE) ) stop("Package rootoned for zeroin not found")
-    envroot$fn <- fn
+#    if( ! require(rootoned, quietly=TRUE) ) stop("Package rootoned for zeroin not found")
+ #   envroot$ifn <- fn
     envroot$label <- "rootoned::newt1d"
     tst <- zeroin(FnTrace, ri, trace=ftrace, ...)
     tst$iter <- tst$maxit
@@ -62,8 +63,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   }
   
   if (method == "newt1d"){
-    if( ! require(rootoned, quietly=TRUE) ) stop("Package rootoned for root1d not found")
-    envroot$fn <- fn
+#    if( ! require(rootoned, quietly=TRUE) ) stop("Package rootoned for root1d not found")
+ #   envroot$ifn <- fn
     envroot$label <- "rootoned::newt1d"
     # gr <- function(x) { cos(x)}
     fguess<-ri[1]
@@ -75,8 +76,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   }
   
   if (method == "newton"){
-    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for newton not found")
-    envroot$fn <- fn
+#    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for newton not found")
+ #   envroot$ifn <- fn
     envroot$label <- "pracma::newton"
     # gr <- function(x) { cos(x)} ?? Why does newton not need gr?
     fguess<-ri[1]
@@ -90,8 +91,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   }
   
   if (method == "bisect"){
-    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for bisect not found")
-    envroot$fn <- fn
+#    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for bisect not found")
+ #   envroot$ifn <- fn
     envroot$label <- "pracma::bisect"
     tst <- bisect(f=FnTrace, ri[1], ri[2])
     tst$froot <- tst$f.root
@@ -102,11 +103,11 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   }
   
   if (method == "secant"){
-    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for secant not found")
-    envroot$fn <- fn
+#    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for secant not found")
+ #   envroot$ifn <- fn
     envroot$label <- "pracma::secant"
     fguess <- ri[1]
-    tst <- secant(f=FnTrace, fguess, (fguess+0.01*(abs(fguess)+1)), ...)
+    tst <- secant(fun=FnTrace, fguess, (fguess+0.01*(abs(fguess)+1)), ...)
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$rtol <- tst$estim.prec
@@ -115,8 +116,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   }
   
   if (method == "regulaFalsi"){
-    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for regulaFalsi not found")
-    envroot$fn <- fn
+#    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for regulaFalsi not found")
+ #   envroot$ifn <- fn
     envroot$label <- "pracma::regulaFalsi"
     tst <- regulaFalsi(f=FnTrace, ri[1], ri[2])
     tst$froot <- tst$f.root
@@ -129,8 +130,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   } 
 
    if (method == "muller"){
-    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for muller not found")
-    envroot$fn <- fn
+#    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for muller not found")
+ #   envroot$ifn <- fn
     envroot$label <- "pracma::muller"
     tst <- muller(f=FnTrace, ri[1], ri[2])
     tst$iter <- tst$niter
@@ -144,8 +145,8 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   
   
   if (method == "brent"){
-    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for brent(Dekker) not found")
-    envroot$fn <- fn
+#    if( ! require(pracma, quietly=TRUE) ) stop("Package pracma for brent(Dekker) not found")
+ #   envroot$ifn <- fn
     envroot$label <- "pracma::brent"
     tst <- muller(f=FnTrace, ri[1], ri[2])
     tst$froot <- tst$fval

@@ -1,8 +1,20 @@
 TraceSetup <- function(ifn=0, igr=0, ftrace=FALSE, fn=NA, gr=NA){
 # JN: Define globals here
-   groot<-list(ifn=ifn, igr=igr, ftrace=ftrace, fn=fn, gr=gr, label="none")
-   envroot<<-list2env(groot) # Note globals in FnTrace
+##    groot<-list(ifn=ifn, igr=igr, ftrace=ftrace, fn=fn, gr=gr, label="none")
+##    envroot <<- list2env(groot) # Note globals in FnTrace
+   ## if (getRversion() >= '2.15.1') utils::globalVariables(c('envroot'))
+   ## utils::globalVariables("envroot") # Try declaring here -- causes errors
+   ## This generates a NOTE that 
+   ## TraceSetup: no visible binding for '<<-' assignment to ‘envroot’
+   ## envroot<-list2env(groot, parent=.GlobalEnv) # Note globals in globals.R
 # end globals
+   envroot$ifn <- ifn
+   envroot$igr <- igr
+   envroot$ftrace <- ftrace
+   envroot$fn <- fn
+   envroot$gr <- gr
+   return()
+##   envroot
 }
 
 FnTrace <- function(x,...) { 

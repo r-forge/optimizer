@@ -95,7 +95,7 @@ grTrace <- function(x, ...) {
   }
   
   if (method == "bisect"){
-    tst <- bisect(f=FnTrace, ri[1], ri[2]) # No dotargs in pracma
+    tst <- bisect(f=FnTrace, ri[1], ri[2], ...) # No dotargs in pracma
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$rtol <- tst$estim.prec
@@ -105,7 +105,8 @@ grTrace <- function(x, ...) {
   
   if (method == "secant"){
     fguess <- ri[1]
-    tst <- secant(fun=FnTrace, fguess, (fguess+0.01*(abs(fguess)+1)), ...) # has dotargs in pracma
+    tst <- secant(fun=FnTrace, fguess, (fguess+0.01*(abs(fguess)+1)), ...) 
+    # has dotargs in pracma BUT DOES NOT USE THEM
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$rtol <- tst$estim.prec
@@ -114,7 +115,7 @@ grTrace <- function(x, ...) {
   }
   
   if (method == "regulaFalsi"){
-    tst <- regulaFalsi(f=FnTrace, ri[1], ri[2]) # no dotargs in pracma
+    tst <- regulaFalsi(f=FnTrace, ri[1], ri[2], ...) # no dotargs in pracma
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$rtol <- tst$estim.prec

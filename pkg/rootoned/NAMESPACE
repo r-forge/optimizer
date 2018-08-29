@@ -4,14 +4,15 @@ export(
   "newt1d",
   "rootwrap",
   "rwx",
+  "bisect",
+  "regulaFalsi",
+  "secant",
+  "ridders",
+  "brent",
   "multrfind"
 )
 importFrom("pracma",
-           "brent",
-           "bisect",
            "muller",
-           "regulaFalsi",
-           "newton",
-           "secant"
-)
+           "newton"
+)           
 importFrom ("stats", "uniroot")

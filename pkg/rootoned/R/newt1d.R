@@ -18,7 +18,9 @@ newt1d <- function(fn, gr, x0,
        if (abs(gval) > (offset*epsilon*(abs(fval)+1.))) {
           xnew<-xold - fval/gval
        } else {
-          stop("gradient too small")
+          warning("newt1d: gradient very small. Check solution.")
+          res<-list(root=xold, froot=fval, itn=itn)
+          return(res)
        }
        if (trace) cat(itn,":xold=",xold," f=",fval," g=",gval," xnew=",xnew,"\n")
        ## cat("Change =",xnew-xold,"\n")

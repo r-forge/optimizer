@@ -24,7 +24,7 @@ rwx <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...){
 FnTrace <- function(x, ...) { 
   # Substitute function to call when rootfinding
   # Evaluate fn(x, ...)
-    val <- envroot$fn(x=x, ...)
+    val <- envroot$fn(x, ...)
     envroot$ifn <- envroot$ifn + 1 # probably more efficient ways
     if (envroot$ftrace) {
        cat("f(",x,")=",val," after ",envroot$ifn," ",envroot$label,"\n")
@@ -35,7 +35,7 @@ FnTrace <- function(x, ...) {
 grTrace <- function(x, ...) { 
   # Substitute function to call when rootfinding
   # Evaluate fn(x, ...)
-  val <- envroot$gr(x=x, ...)
+  val <- envroot$gr(x, ...)
   envroot$igr <- envroot$igr + 1 # probably more efficient ways
   if (envroot$ftrace) {
     cat("gr(",x,")=",val," after ",envroot$igr," ",envroot$label,"\n")
@@ -104,8 +104,11 @@ grTrace <- function(x, ...) {
   }
   
   if (method == "secant"){
+    print(ri)
     fguess <- ri[1]
-    tst <- secant(fun=FnTrace, fguess, (fguess+0.01*(abs(fguess)+1)), ...) 
+    guess2 <- (fguess+0.01*(abs(fguess)+1))
+    cat("Start secant with fguess=", fguess," guess2=",guess2,"\n")
+    tst <- secant(f=FnTrace, fguess, guess2, ...) 
     # has dotargs in pracma BUT DOES NOT USE THEM
     tst$froot <- tst$f.root
     tst$f.root <- NULL
@@ -146,6 +149,17 @@ grTrace <- function(x, ...) {
     tst$rtol <- tst$estim.prec
     tst$estim.prec <- NULL
   } 
+
+  if (method == "ridders"){
+    tst <- ridders(f=FnTrace, ri[1], ri[2], ...) # no dotargs in pracma
+    tst$froot <- tst$f.root
+    tst$f.root <- NULL
+    tst$iter <- tst$niter
+    tst$niter <- NULL
+    tst$rtol <- tst$estim.prec
+    tst$estim.prec <- NULL
+  } 
+  
   
   
 ## End methods

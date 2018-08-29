@@ -1,7 +1,7 @@
 multrfind <- function(fn, gr=NULL, ri, ftrace=FALSE, meths="uniroot",...){
   # run multiple methods for rootfinding
   fguess <- c(ri[1],NA)
-  #  allmeth <- c( "uniroot", "root1d", "zeroin", "newt1d", "newton", "bisect", "secant", "regulaFalsi", "muller", "brent")
+  #  allmeth <- c( "uniroot", "root1d", "zeroin", "newt1d", "newton", "bisect", "secant", "regulaFalsi", "muller", "brent", "ridders")
   
   cnames <- c("root", "froot", "rtol", "iter", "fncount", "method")
   resdf <- as.data.frame(matrix(NA, nrow=length(meths), ncol=length(cnames)))

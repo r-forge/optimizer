@@ -91,7 +91,7 @@ regulaFalsi <- function(f, a, b, maxiter = 100, tol = .Machine$double.eps^0.5, .
 secant <- function(f, a, b, maxiter = 100, tol = .Machine$double.eps^0.5, ...)
 # Secant search for zero of a univariate function
 {
-    f <- match.fun(f)
+        #    f <- match.fun(f)
 
 	x1 <- a; x2 <- b
 	f1 <- f(x1, ...); if (abs(f1) <= tol) return(x1)

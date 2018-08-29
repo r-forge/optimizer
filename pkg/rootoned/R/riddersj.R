@@ -18,7 +18,7 @@ ridders <- function(f, a, b, maxiter = 100, tol = .Machine$double.eps^0.5, ...) 
             return(list(root = xm, f.root = 0, niter = niter, estim.prec = 0))
 
         x3 <- xm + (xm - x1) * sign(f1 - f2) * fm / sqrt(fm^2 - f1 * f2)
-        f3 <- f(x3);  niter <- niter + 2
+        f3 <- f(x3, ...);  niter <- niter + 2
         if (f3 == 0)
             return(list(root = x3, f.root = 0, niter = niter, estim.prec = 0))
 

@@ -2,9 +2,8 @@ export(
   "root1d",
   "zeroin",
   "newt1d",
-  "FnTrace",
-  "TraceSetup",
   "rootwrap",
+  "rwx",
   "multrfind"
 )
 importFrom("pracma",

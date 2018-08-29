@@ -1,5 +1,6 @@
 \name{rootwrap}
 \alias{rootwrap}
+\alias{rwx}
 \encoding{UTF-8}
 \title{zeroin: Find a single root of a function of one variable within a specified interval.}
 \concept{root-finding}
@@ -7,6 +8,7 @@
 Find a single root of a function of one variable within a specified interval. Brent's method.}
 \usage{
    rootwrap(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...)
+   rwx(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...)
 }
 \arguments{
  \item{fn}{A real function of a single variable for which a root is desired.}
@@ -44,9 +46,14 @@ Find a single root of a function of one variable within a specified interval. Br
 \examples{
 # Dekker example
 # require(rootoned)
-dek <- function(x){ 1/(x-3) - 6 }
-r1 <- rootwrap(dek, ri=c(3.0000001, 6), ftrace=TRUE, method="uniroot")
+# phi <- 6
+dek <- function(x, phi=0){ 1/(x-3) - phi }
+# r1 <- rootwrap(dek, ri=c(3.0000001, 6), ftrace=TRUE, method="uniroot", phi=6)
+r1 <- rwx(dek, ri=c(3.0000001, 6), ftrace=TRUE, method="uniroot", phi=6)
 r1
+# r2 <- rootwrap(dek, ri=c(3.0000001, 6), ftrace=TRUE, method="root1d", phi=6)
+r2 <- rwx(dek, ri=c(3.0000001, 6), ftrace=TRUE, method="root1d", phi=6)
+r2
 }
 \keyword{root-finding}
 

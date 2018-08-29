@@ -6,7 +6,7 @@
 \description{
 Find a single root of a function of one variable within a specified interval. Brent's method.}
 \usage{
-   multrfind(fn, gr=NULL, ri, ftrace=FALSE, meths="uniroot") 
+   multrfind(fn, gr=NULL, ri, ftrace=FALSE, meths="uniroot",...) 
 }
 \arguments{
  \item{fn}{A real function of a single variable.}
@@ -14,6 +14,7 @@ Find a single root of a function of one variable within a specified interval. Br
  \item{ri}{A vector of two real numbers defining the ends of the interval in which to search.}
  \item{ftrace}{TRUE if the progress of the methods is to be displayed}
  \item{meths}{A vector of character (quoted) names of methods to apply to find real roots of \code{fn}.}
+ \item{...}{Dot arguments -- extra information that is needed to compute the function and gradient.}
 }
 \details{
    This routine calls the rootfinder wrapper \code{rootwrap} for each of
@@ -38,8 +39,11 @@ Find a single root of a function of one variable within a specified interval. Br
 \examples{
 # Dekker example
 require(rootoned)
-dek <- function(x){ 1/(x-3) - 6 }
-r1 <- root1d(dek, c(3.0000001, 6), trace=TRUE)
+phi <- 6
+dek <- function(x, phi=6){ 1/(x-3) - phi }
+mymeth <- c("uniroot", "root1d", "zeroin")
+# r1 <- multrfind(dek, ri=c(3.0000001, 6), meths=mymeth, ftrace=TRUE, phi = 6)
+r1 <- multrfind(dek, ri=c(3.0000001, 6), meths=mymeth, ftrace=TRUE)
 r1
 }
 \keyword{root-finding}

@@ -17,6 +17,10 @@ John C. Nash <nashjc@uottawa.ca>
 \references{
 References to Brent and Dekker need to be added.
 
+Brent
+
+Dekker
+
 Nash J C (1979) Compact numerical methods for computers, Adam-Hilger: Bristol.
 Second Edition, 1990, Institute of Physics Publications: Bristol.
 
@@ -27,14 +31,7 @@ Second Edition, 1990, Institute of Physics Publications: Bristol.
 optimize
 }
 \examples{
-# test rootfinders JN 110817
-
-## Extract to dirctory above rootoned package to test
-# source("rootoned/R/root1d.R")
-# source("rootoned/R/zeroin.R")
-
-cat("simple test\n")
-
+cat("simple polynomial test\n")
 tf1<-function(x) { 10 - 3*x + x*x*x }
 gtf1<-function(x) { -3 + 3*x*x }
 tint<-c(-4,4)
@@ -42,56 +39,34 @@ tint<-c(-4,4)
 
 res1<-root1d(tf1, tint)
 cat("res1\n")
-res1
+print(unlist(res1))
 
 res2<-zeroin(tf1,tint)
 cat("res2\n")
-res2
+print(unlist(res2))
 
 x0<-tint[1]
 res3a<-newt1d(tf1, gtf1, x0)
-res3a
+print(unlist(res3a))
 x0<-tint[2]
 res3b<-newt1d(tf1, gtf1, x0)
-res3b
+print(unlist(res3b))
 
 
 
-cat("exponential case\n")
-alpha<-1.0
-efn<-function(x) { exp(-alpha*x) - 0.02 }
-gefn<-function(x){-alpha*exp(-alpha*x) }
-tint<-c(0,100)
+## cat("exponential example\n")
 
-for (al in 1:10){
-   alpha<-0.05*al
-#   curve(efn, from=0, to=100)
-   resr<-root1d(efn,tint,tol=1e-10)
-   cat("root1d:")
-   print(resr)
-   resz<-zeroin(efn,tint,tol=1e-10)
-   cat("zeroin:")
-   print(resz)
-##   cat("newt1d:")
-##   x0<-tint[1]
-##   resna<-newt1d(efn, gefn, x0, maxiter=1000, trace=TRUE)
-##   print(resna)
-##   x0<-tint[2]
-##   resnb<-newt1d(efn, gefn, x0, maxiter=1000, trace=TRUE)
-##   print(resnb)
-   tmp<-readline("Next?")
-}
-
-cat("Tangent function false root\n")
-mytan<-function(xdeg){ # tangent in degrees
-    xrad<-xdeg*pi/180.0 # conversion to radians
-    tt<-tan(xrad)
-}
-
-cat("find root between 80 and 100 degrees\n")
-tint<-c(80,100)
-rtan<-root1d(mytan, tint)
-print(rtan)
+## efn<-function(x) { exp(-alpha*x) - 0.02 }
+## gefn<-function(x){-alpha*exp(-alpha*x) }
+## mymeth <- c("zeroin", "root1d", "newt1d")
+## cat("seems to break here\n")
+## for (al in 1:10){
+##    alpha<- 0.05*al
+##    tint <- c(0, 10/alpha)
+##    res<-multrfind(fn=efn, gr=gefn, ri=tint, ftrace=TRUE, meths=mymeth, alpha=alpha)
+##    cat("alpha=",alpha,":\n")
+##    res
+##  }
 
 }
 \keyword{optimize}

@@ -10,8 +10,8 @@ newt1d <- function(fn, gr, x0,
    xold <- xnew+(1+abs(xnew)) # make sure it is different
    while ((xold + offset) != (xnew + offset)) {
        xold<-xnew
-       fval<-fn(xold)
-       gval<-gr(xold)
+       fval<-fn(xold,...)
+       gval<-gr(xold,...)
        itn<-itn+1
        if (itn > maxiter) stop("newt1d: Too many iterations")
        if (trace) cat(itn,":xold=",xold," f=",fval," g=",gval," xnew=",xnew,"\n")

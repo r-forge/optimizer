@@ -1,6 +1,8 @@
 root1d <- function(f, interval,
                    tol = .Machine$double.eps^0.5, maxiter = 1000, trace=FALSE, ...) {
   
+# JN 180828: Need to check if get f(x) == 0 as in Normal example
+
   if (trace) cat('alg18 == root1d -- root of a function of one variable - Updated 2018 for R\n')
   
   ubound <- interval[2]

@@ -1,4 +1,4 @@
-rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...){
+rwx <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...){
   ## A wrapper for a variety of rootfinders
   ## We will try to document here
   # fn = the function for which root is to be found
@@ -18,21 +18,13 @@ rootwrap <- function(fn=fn, gr=NULL, ri=NULL, method="uniroot", ftrace=TRUE, ...
   #  method
   # ?? NOT INCLUDED grcount -- only newt1d uses gr now
 
-  dots <- list(...)
-  groot<-list(ifn=0, igr=0, ftrace=ftrace, fn=fn, gr=gr, label=method, dots=dots)
-  # groot<-list(ifn=0, igr=0, ftrace=ftrace, fn=fn, gr=gr, label=method, ...)
+  groot<-list(ifn=0, igr=0, ftrace=ftrace, fn=fn, gr=gr, label=method)
   envroot <- list2env(groot)
-  #    print(envroot)
-  #    envroot
-  #    print(envroot$dots)
-  
-  
-FnTrace <- function(x) { 
+
+FnTrace <- function(x, ...) { 
   # Substitute function to call when rootfinding
   # Evaluate fn(x, ...)
-#    cat("FnTrace, envroot$dots =")
-#    print(envroot$dots)
-    val <- do.call(envroot$fn, c(x=x, envroot$dots))
+    val <- envroot$fn(x=x, ...)
     envroot$ifn <- envroot$ifn + 1 # probably more efficient ways
     if (envroot$ftrace) {
        cat("f(",x,")=",val," after ",envroot$ifn," ",envroot$label,"\n")
@@ -40,10 +32,10 @@ FnTrace <- function(x) {
     val
 }
 
-grTrace <- function(x) { 
+grTrace <- function(x, ...) { 
   # Substitute function to call when rootfinding
   # Evaluate fn(x, ...)
-  val <- do.call(envroot$gr, c(x=x, envroot$dots))
+  val <- envroot$gr(x=x, ...)
   envroot$igr <- envroot$igr + 1 # probably more efficient ways
   if (envroot$ftrace) {
     cat("gr(",x,")=",val," after ",envroot$igr," ",envroot$label,"\n")
@@ -51,10 +43,7 @@ grTrace <- function(x) {
   val
 }
 
-#    cat("test function value at ri[1]=",ri[1],"\n")
-#    cat(FnTrace(ri[1]))
   ## Preliminary checks
-  # print(ri)
   if (length(ri) != 2) {stop("ri - the interval in which root to be found, must be 2 elements")}
   if (is.na(ri[2])) {
       fguess = ri[1]
@@ -64,7 +53,7 @@ grTrace <- function(x) {
 ## Beginning of methods
   
   if (method == "uniroot"){
-    tst <- uniroot(FnTrace, interval=ri) # may still need dotargs for tolerances etc.
+    tst <- uniroot(FnTrace, interval=ri, ...) # may still need dotargs for tolerances etc.
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$rtol <- tst$estim.prec
@@ -74,20 +63,20 @@ grTrace <- function(x) {
   }
   
   if (method == "root1d"){
-    tst <- root1d(f=FnTrace, interval=ri, trace=ftrace)
+    tst <- root1d(f=FnTrace, interval=ri, trace=ftrace, ...)
     tst$iter <- tst$fcount
     tst$fcount <- NULL
   }
   
   if (method == "zeroin"){
-    tst <- zeroin(f=FnTrace, ri, trace=ftrace)
+    tst <- zeroin(f=FnTrace, ri, trace=ftrace, ...)
   }
   
   if (method == "newt1d"){
     if (is.null(gr)) stop("newt1d in rootwrap MUST have gradient")
     fguess<-ri[1]
     cat("fguess = ", fguess,"\n")
-    tst <- newt1d(fn=FnTrace, gr=grTrace, x0=fguess, trace=ftrace)
+    tst <- newt1d(fn=FnTrace, gr=grTrace, x0=fguess, trace=ftrace, ...)
     tst$iter <- tst$itn
     tst$itn <- NULL
     tst$rtol <- NA
@@ -96,7 +85,7 @@ grTrace <- function(x) {
   
   if (method == "newton"){
     fguess<-ri[1]
-    tst <- newton(FnTrace, fguess) # newton has dot args in pracma
+    tst <- newton(FnTrace, fguess, ...) # newton has dot args in pracma
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$rtol <- tst$estim.prec
@@ -116,7 +105,7 @@ grTrace <- function(x) {
   
   if (method == "secant"){
     fguess <- ri[1]
-    tst <- secant(fun=FnTrace, fguess, (fguess+0.01*(abs(fguess)+1))) # has dotargs in pracma
+    tst <- secant(fun=FnTrace, fguess, (fguess+0.01*(abs(fguess)+1)), ...) # has dotargs in pracma
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$rtol <- tst$estim.prec
@@ -136,7 +125,7 @@ grTrace <- function(x) {
   } 
 
    if (method == "muller"){
-    tst <- muller(f=FnTrace, ri[1], ri[2], 0.5*(ri[1]+ri[2])) # no dotargs in pracma
+    tst <- muller(f=FnTrace, ri[1], ri[2], 0.5*(ri[1]+ri[2]), ...) # no dotargs in pracma
     tst$iter <- tst$niter
     tst$niter <- NULL
     tst$froot <- tst$fval
@@ -148,7 +137,7 @@ grTrace <- function(x) {
   
   
   if (method == "brent"){
-    tst <- brent(f=FnTrace, ri[1], ri[2]) # no dotargs in pracma
+    tst <- brent(f=FnTrace, ri[1], ri[2], ...) # no dotargs in pracma
     tst$froot <- tst$f.root
     tst$f.root <- NULL
     tst$iter <- tst$f.calls

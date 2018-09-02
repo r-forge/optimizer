@@ -29,13 +29,13 @@ bisect <- function(f, a, b, maxiter = 100, tol = NA, ...)
 # Bisection search, trimmed for exactness, not no. of iterations
 {
     if (!is.na(tol)) warning("Deprecated: Argument 'tol' not used anymore.")
-        cat("...:")
-        print(list(...))
+        ## cat("...:")
+        ## print(list(...))
         fa <- f(a, ...)
         fb <- f(b, ...)
-        cat("fa, fb:")
-        print(fa)
-        print(fb)
+        ## cat("fa, fb:")
+        ## print(fa)
+        ## print(fb)
 	if ((fa*fb) > 0) {stop("f(a) and f(b) must have different signs.")}
 	x1 <- min(a, b); x2 <- max(a,b)
 	xm <- (x1+x2)/2.0

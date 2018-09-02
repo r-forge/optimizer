@@ -75,7 +75,7 @@ grTrace <- function(x, ...) {
   if (method == "newt1d"){
     if (is.null(gr)) stop("newt1d in rootwrap MUST have gradient")
     fguess<-ri[1]
-    cat("fguess = ", fguess,"\n")
+    if (ftrace) cat("fguess = ", fguess,"\n")
     tst <- newt1d(fn=FnTrace, gr=grTrace, x0=fguess, trace=ftrace, ...)
     tst$iter <- tst$itn
     tst$itn <- NULL
@@ -104,10 +104,10 @@ grTrace <- function(x, ...) {
   }
   
   if (method == "secant"){
-    print(ri)
+    if (ftrace) print(ri)
     fguess <- ri[1]
     guess2 <- (fguess+0.01*(abs(fguess)+1))
-    cat("Start secant with fguess=", fguess," guess2=",guess2,"\n")
+    if (ftrace) cat("Start secant with fguess=", fguess," guess2=",guess2,"\n")
     tst <- secant(f=FnTrace, fguess, guess2, ...) 
     # has dotargs in pracma BUT DOES NOT USE THEM
     tst$froot <- tst$f.root

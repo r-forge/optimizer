@@ -175,12 +175,14 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         print(g)
     }
     oldstep <- 1
-    conv <- -1
+    msg <- "Status not resolved"
+    conv <- -1 # status not resolved
     gnorm <- sqrt(sum(g*g)) ## JN180414 
     if (trace > 0) cat("ig=",ig,"  gnorm=",gnorm,"  ")
     if (gnorm < (1 + abs(fmin))*eps*eps ) {
          if (trace > 1) cat("Small gradient norm\n")
          keepgoing <- FALSE
+         msg <- "Small gradient norm"
          conv <- 2
     }
     while (keepgoing) { ## main loop -- must remember to break out of it!
@@ -370,6 +372,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
         if (gnorm < (1 + abs(fmin))*eps*eps ) {
           if (trace > 1) cat("Small gradient norm\n")
           keepgoing <- FALSE
+          msg <- "Small gradient norm"
           conv <- 2
           break
         }
@@ -392,6 +395,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           if (ig == ilast+1) {
             if (stopbadupdate && ! accpoint) keepgoing=FALSE # stop on update failure for s.d. search
             if (trace > 2) cat("keepgoing = ",keepgoing,"\n")
+            msg <- paste("UPDATE NOT POSSIBLE: ilast, ig",ilast, ig,sep ="")
             conv <- 3
           }
           ilast <- ig  # note gradient evaluation when update failed
@@ -405,7 +409,7 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
           if (conv < 0) { # conv == -1 is used to indicate it is not set
             conv <- 0
           }
-          msg <- "Converged"
+          msg <- "Rvmminu converged"
           if (trace > 0) cat(msg, "\n")
         } # end ig == ilast
         else {
@@ -415,8 +419,11 @@ Rvmminu <- function(par, fn, gr=NULL, control = list(), ...) {
       }  # end else no accpoint
     }  # end main loop  (while keepgoing)
     if (maximize) fmin <- (-1) * fmin
-    if (trace > 0) cat("Seem to be done Rvmminu\n")
-    msg <- "Rvmminu appears to have converged"
+    if (trace > 0) {
+       cat("Seem to be done Rvmminu\n")
+       cat(msg,"\n")
+    }
+    # msg <- "Rvmminu appears to have converged"
     counts <- c(ifn, ig)
     names(counts) <- c("function", "gradient")
     ans <- list(par, fmin, counts, convergence=conv, msg)

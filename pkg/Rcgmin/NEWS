@@ -6,6 +6,12 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2018-11-08
+   o    Thanks to Florian Schwendinger for noting that the condition
+          (f < min(fmin, f1)) 
+        can evaluate to NA if f evaluates to NaN. Changed to
+        isTRUE((f < min(fmin, f1)))). 
+
 2014-7-17
    o    Changed default of control$checkgrad to FALSE. Changed error message
 	that mentions Rvmmin to Rcgmin.

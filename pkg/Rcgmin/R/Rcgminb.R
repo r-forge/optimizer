@@ -498,7 +498,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     }
                     if (trace > 2) 
                       cat("fmin, f1, f: ", fmin, f1, f, "\n")
-                    if (f < min(fmin, f1)) {
+                    if (isTRUE(f < min(fmin, f1))) {
                       # success
                       OKpoint <- TRUE
                       accpoint <- (f <= fmin + gradproj * newstep * 

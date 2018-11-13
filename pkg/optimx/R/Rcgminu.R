@@ -106,7 +106,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     #!! getting rid of limit makes it work on negstart BUT inefficient
     # This does not appear to be in Y H Dai & Y Yuan, Annals of
-    # Operations Research 103, 33-47, 2001 aor01.pdf
+    #   Operations Research 103, 33--47, 2001
     # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
     ##    tol <- n * (n * .Machine$double.eps)  # # for gradient test.  
     ## Note -- integer overflow if n*n*d.eps

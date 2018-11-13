@@ -108,7 +108,7 @@ the method terminates.
        ( f <= fmin + gradproj * steplength * acctol ). This test is used to ensure progress
        is made at each iteration. }
    \item{stepredn}{Step reduction factor for backtrack line search (default 0.2)}
-   \item{reltest}{Additive shift for equality test (default 100.0)}
+   \item{offset}{Additive shift for equality test (default 100.0)}
    \item{stopbadupdate}{A logical flag that if set TRUE will halt the optimization
                 if the Hessian inverse cannot be updated after a steepest descent
                 search. This indicates an ill-conditioned Hessian. A settign of
@@ -134,6 +134,10 @@ the method terminates.
    \describe{
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
+      \item{\code{2}}{indicates that a point has been found with small
+      gradient norm (< (1 + abs(fmin))*eps*eps ).}
+      \item{\code{3}}{indicates approx. inverse Hessian cannot be updated
+       at steepest descent iteration (i.e., something very wrong).}
       \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
 	that the function cannot be computed or returns an infinite, NULL, or NA value.}
       \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}

@@ -98,7 +98,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     #############################################
     # gr MUST be provided
     if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
-       stop("A gradient calculation (analytic or numerical) MUST be provided for Rvmminb") 
+       stop("A gradient calculation (analytic or numerical) MUST be provided for Rcgminb") 
     }
     if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
@@ -119,8 +119,8 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     ifn <- 1  # count function evaluations (we always make 1 try below)
     stepredn <- 0.15  # Step reduction in line search
     acctol <- 1e-04  # acceptable point tolerance
-    reltest <- 100  # relative equality test
-    ceps <- .Machine$double.eps * reltest
+    offset <- 100  # relative equality test
+    ceps <- .Machine$double.eps * offset
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     fargs <- list(...)  # function arguments
@@ -344,7 +344,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             }
             c <- g  # save last gradient
             g3 <- 1  # !! Default to 1 to ensure it is defined -- t==0 on first cycle
-            if (gradsqr > tol * (abs(fmin) + reltest)) {
+            if (gradsqr > tol * (abs(fmin) + offset)) {
                 if (g2 > 0) {
                   betaDY <- gradsqr/g2
                   betaHS <- g1/g2
@@ -431,7 +431,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                       # end box constraint adjustment of step length
                     }  # end if bounds
                   bvec <- par + steplength * t
-                  changed <- (!identical((bvec + reltest), (par + reltest)))
+                  changed <- (!identical((bvec + offset), (par + offset)))
                   if (changed) {
                     # compute newstep, if possible
                     f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
@@ -490,8 +490,8 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                         # end box constraint adjustment of step length
                       }  # end if bounds
                     bvec <- par + newstep * t
-                    changed <- (!identical((bvec + reltest), 
-                      (par + reltest)))
+                    changed <- (!identical((bvec + offset), 
+                      (par + offset)))
                     if (changed) {
                       f <- fn(bvec, ...)
                       ifn <- ifn + 1

@@ -1,6 +1,7 @@
 NEWS about R package opt
 
 TODO
+      o Rcgmin does not use ctrldefault() yet 181113
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o Put counters in efn, egr
       o General issue: nlminb and possibly nlm not working as Newton with 

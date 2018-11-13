@@ -98,7 +98,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     #############################################
     # gr MUST be provided
     if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
-       stop("A gradient calculation (analytic or numerical) MUST be provided for Rcgmin") 
+       stop("A gradient calculation (analytic or numerical) MUST be provided for Rcgminb") 
     }
     if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
@@ -498,7 +498,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     }
                     if (trace > 2) 
                       cat("fmin, f1, f: ", fmin, f1, f, "\n")
-                    if (f < min(fmin, f1)) {
+                    if (isTRUE(f < min(fmin, f1))) {
                       # success
                       OKpoint <- TRUE
                       accpoint <- (f <= fmin + gradproj * newstep * 

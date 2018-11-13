@@ -36,7 +36,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   #    maxfeval = a limit on the function evaluations (default
   #             3000 + 10*n )
   #    maximize = TRUE to maximize the function (default FALSE)
-  #    reltest = 100.0 (default). Additive shift for equality test.
+  #    offset = 100.0 (default). Additive shift for equality test.
   #    stopbadupdate = TRUE (default). Don't stop when steepest
   #             descent search point results in failed inverse 
   #             Hessian update
@@ -87,7 +87,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   maxfeval <- 3000 + 10L * n
   ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
     trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
-    reltest=100.0, stopbadupdate = TRUE)
+    offset=100.0, stopbadupdate = TRUE)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -100,7 +100,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   acctol <- ctrl$acctol # 130125
   dowarn <- ctrl$dowarn  #
   stepredn <- ctrl$stepredn
-  reltest <- ctrl$reltest
+  offset <- ctrl$offset
   stopbadupdate <- ctrl$stopbadupdate
   fargs <- list(...)  # the ... arguments that are extra function / gradient data
 #################################################################
@@ -134,8 +134,8 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
   }
   ifn <- 1  # count function evaluations
   stepredn <- 0.2  # Step reduction in line search
-  reltest <- 100  # relative equality test
-  ceps <- .Machine$double.eps * reltest
+#?  offset <- 100  # relative equality test
+  ceps <- .Machine$double.eps * offset
   dblmax <- .Machine$double.xmax  # used to flag bad function
   #############################################
   # gr MUST be provided
@@ -290,7 +290,7 @@ Rvmminb <- function(par, fn, gr = NULL, lower = NULL,
             cat("new bvec:")
             print(bvec)
           }
-          changed <- (!identical((bvec + reltest), (par + reltest)) )
+          changed <- (!identical((bvec + offset), (par + offset)) )
           if (trace > 2) cat("changed =",changed,"\n")
           if (changed) {
             # compute new step, if possible

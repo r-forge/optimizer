@@ -108,7 +108,7 @@ the method terminates.
        ( f <= fmin + gradproj * steplength * acctol ). This test is used to ensure progress
        is made at each iteration. }
    \item{stepredn}{Step reduction factor for backtrack line search (default 0.2)}
-   \item{reltest}{Additive shift for equality test (default 100.0)}
+   \item{offset}{Additive shift for equality test (default 100.0)}
    \item{stopbadupdate}{A logical flag that if set TRUE will halt the optimization
                 if the Hessian inverse cannot be updated after a steepest descent
                 search. This indicates an ill-conditioned Hessian. A settign of

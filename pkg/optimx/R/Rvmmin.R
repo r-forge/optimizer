@@ -43,7 +43,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
   #           (default = 1e-07). See code for usage.
   #    stepredn = 0.2 (default). Step reduction factor for backtrack
   #             line search
-  #    reltest = 100.0 (default). Additive shift for equality test.
+  #    offset = 100.0 (local default). Additive shift for equality test.
   #    stopbadupdate = FALSE (default). Don't stop when steepest
   #             descent search point results in failed inverse 
   #             Hessian update

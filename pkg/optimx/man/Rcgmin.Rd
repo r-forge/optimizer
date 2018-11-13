@@ -83,10 +83,10 @@
      TRUE.}
    \item{\code{tol}}{Tolerance used in testing the size of the square of the gradient.
      Default is 0 on input, which uses a value of tolgr = npar*npar*.Machine$double.eps
-     in testing if crossprod(g) <= tolgr * (abs(fmin) + reltest). If the user supplies
+     in testing if crossprod(g) <= tolgr * (abs(fmin) + offset). If the user supplies
      a value for \code{tol} that is non-zero, then that value is used for tolgr.
 
-     reltest=100 is only alterable by changing the code. fmin is the current best 
+     offset=100 is only alterable by changing the code. fmin is the current best
      value found for the function minimum value. 
 
      Note that the scale of the gradient means that tests for a small gradient can

@@ -8,5 +8,6 @@ Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
 Maintainer: John C. Nash <nashjc@uottawa.ca>
 Description: Conjugate gradient minimization of nonlinear functions with box constraints using Dai/Yuan update.
 Depends: optextras
+Suggests: numDeriv
 License: GPL (>= 2)
 

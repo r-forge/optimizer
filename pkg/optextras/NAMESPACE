@@ -1,6 +1,7 @@
 export(
   "optsp",
   "axsearch",
+  "ctrldefault",
   "fnchk",
   "grback",
   "grcentral",

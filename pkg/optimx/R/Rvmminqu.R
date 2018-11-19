@@ -349,7 +349,7 @@ Rvmminqu <- function(par, fn, gr = NULL,
                   }
                   if (fq < f) {
                     accpointq <- (fq <= fmin + gradproj * sq * acctol) 
-                    cat("accpointq=",accpointq,"\n")  
+                    if(trace > 2) cat("accpointq=",accpointq,"\n")  
                     if (accpointq) {
                       f <- fq
                       stl <- sq

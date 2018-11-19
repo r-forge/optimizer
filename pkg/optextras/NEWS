@@ -7,6 +7,10 @@ TODOS
 
 Changes
 
+2018-11-18
+   o    Added ctrldefault() from optimx. Only for R-forge. 
+   o    optextras to be deprecated in CRAN
+
 2018-03-28
    o    Examples all functions added, checked, revised.
 

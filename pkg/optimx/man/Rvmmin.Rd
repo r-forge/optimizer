@@ -1,5 +1,6 @@
 \name{Rvmmin}
 \alias{Rvmmin}
+\alias{Rvmminq}
 \encoding{UTF-8}
 \title{Variable metric nonlinear function minimization, driver.}
 \description{A driver to call the unconstrained and bounds constrained versions of an 
@@ -9,8 +10,10 @@ of nonlinear functions, possibly subject to bounds (box) constraints and masks
 which is itself drawn from Fletcher's (1970) variable metric code. This is also the basis
 of optim() method 'BFGS' which, however, does not deal with bounds or masks. In the 
 present method, an approximation to the inverse Hessian (B) is used to generate a 
-search direction t = - B \%*\% g, a simple backtracking line search is used until an
-acceptable point is found, and the matrix B is updated using a BFGS formula. If no
+search direction t = - B \%*\% g. The basic versio uses a simple backtracking line 
+search until an acceptable point is found, and the matrix B is updated using a BFGS formula. 
+A slight modification in the "q" versions of the codes adds one application of quadratic
+inverse interpolation to this line search. If no
 acceptable point can be found, we reset B to the identity i.e., the search direction
 becomes the negative gradient. If the search along the negative gradient is unsuccessful,
 the method terminates. 
@@ -22,6 +25,9 @@ the method terminates.
 }
 \usage{
    Rvmmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
+
+   Rvmminq(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
+
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}

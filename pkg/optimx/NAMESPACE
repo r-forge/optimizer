@@ -36,6 +36,9 @@ export(
   "Rvmmin",
   "Rvmminb",
   "Rvmminu",
+  "Rvmminq",
+  "Rvmminqb",
+  "Rvmminqu",
   "scalechk",
   "snewton",
   "snewtonm"

@@ -381,6 +381,42 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ## return(ans)
       }  ## end if using Rvmmin
 ## --------------------------------------------
+      else if (method == "Rvmminq") { # Use Rvmminq routine (ignoring masks??)
+        mcontrol$maxit <- control$maxit
+        mcontrol$maxfeval <- control$maxfeval
+	mcontrol$trace <- control$trace # 140902 Note no check on validity of values
+	if (! is.null(egr)) {
+          ans <- try(Rvmminq(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=msk, control=mcontrol, ...))
+        }
+        if (control$trace > 2) {
+            cat("Rvmminq ans:")
+            print(ans)
+        }
+        if (! is.null(egr) && (class(ans)[1] != "try-error")) {
+            ans$par <- ans$par*pscale
+            ans$bdmsk <- NULL
+        } else {
+            if (control$trace>0) {
+                cat("Rvmminq failed for current problem \n")
+                if(is.null(egr)) cat("Note: Rvmminq needs gradient function specified\n")
+            }
+	    ans<-list() # ans not yet defined, so set as list
+
+	    ans$value <- control$badval
+	    ans$par<-rep(NA,npar)
+	    ans$counts[1] <- NA # save function and gradient count information
+	    ans$counts[2] <- NA # save function and gradient count information
+	    ans$message <- NULL        
+            if(is.null(egr)) {
+               ans$message <- "Must specify gradient function for Rvmminq"
+               ans$convergence <- 9998 # for no gradient where needed
+            }
+            ans$hessian <- NULL
+        }
+        ## return(ans)
+      }  ## end if using Rvmminq
+## --------------------------------------------
       else if (method == "snewton") { # Use snewton routine (no bounds or masks??)
         mcontrol$maxit <- control$maxit
         mcontrol$maxfeval <- control$maxfeval # changed from maxfevals 180321

@@ -5,22 +5,23 @@ ctrldefault <- function(npar) {
      ## These are DEFAULTS. They may be nonsense in some contexts.
 
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
+                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "Rvmminq", "snewton", "snewtonm",
                  "spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", 
                  "lbfgs", "subplex")
 
 #  allpkg has package where element of allmeth is found
+#  This list must match list allmeth in length
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
-                "lbfgsb3", "optimx", "optimx", "optimx", "optimx", "optimx",
+                "lbfgsb3", "optimx", "optimx", "optimx", "optimx", "optimx", "optimx",
                 "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 
                 "optimx", "lbfgs", "subplex")
 
      # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
       bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
-                "bobyqa", "nmkb", "hjkb", "hjn")
+                "Rvmminq", "bobyqa", "nmkb", "hjkb", "hjn")
 
-      maskmeth <- c("Rcgmin", "Rvmmin", "hjn")
+      maskmeth <- c("Rcgmin", "Rvmmin", "Rvmminq", "hjn")
  
 # offset changed from 100 to 1000 on 180710
       ctrl.default <- list(

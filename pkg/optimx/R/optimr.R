@@ -985,6 +985,45 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          ## return(ans)
       }  ## end if using lbfgsb3
 ## --------------------------------------------
+      else if (method == "lbfgsb3c") {# Use 2011 L-BFGS-B wrapper
+        if (control$trace > 1) cat("lbfgsb3c\n")
+        mcontrol$trace <- control$trace
+# 170924 no longer needed
+##        if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
+        if (control$trace > 0) cat("lbfgsb3c:control$have.bounds =",control$have.bounds,"\n")
+        if (control$have.bounds) { ## Note call uses prm not par
+            slower <- lower/pscale
+            supper <- upper/pscale
+            ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, lower = slower, 
+                upper = supper, control=mcontrol, ...)) # explicit pkg in call 170919
+        } else {
+            ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
+        }
+        if (class(ans)[1] != "try-error") {
+ ## Need to check these carefully??
+#            ans$convergence <- 0
+            ans$par <- ans$par*pscale
+#            ans$prm <- NULL
+#            ans$value<-as.numeric(ans$f)
+#            ans$f <- NULL
+#            ans$g <- NULL ## perhaps keep -- but how??
+#            ans$hessian <- NULL
+            ans$message <- NA
+            ans$niter <- NULL # loss of information
+         } else {
+            if (control$trace>0) cat("lbfgsb3 failed for current problem \n")
+            ans<-list(fevals=NA) # ans not yet defined, so set as list
+            ans$value <- control$badval
+            ans$par<-rep(NA,npar)
+            ans$convergence<-9999 # failed in run
+            ans$counts[1] <- NA
+            ans$counts[1] <- NA
+            ans$hessian <- NULL
+            ans$message <- NA
+         }
+         ## return(ans)
+      }  ## end if using lbfgsb3c
+## --------------------------------------------
       else if (method == "lbfgs") {# Use unconstrained method from lbfgs package
         if (control$trace > 1) cat("lbfgs\n")
         if (control$trace < 1) {invisible <- 1} else {invisible <- 0}

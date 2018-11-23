@@ -7,19 +7,19 @@ ctrldefault <- function(npar) {
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
                 "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "Rvmminq", "snewton", "snewtonm",
                  "spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", 
-                 "lbfgs", "subplex")
+                 "lbfgs", "subplex", "lbfgsb3c")
 
 #  allpkg has package where element of allmeth is found
 #  This list must match list allmeth in length
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
                 "lbfgsb3", "optimx", "optimx", "optimx", "optimx", "optimx", "optimx",
                 "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 
-                "optimx", "lbfgs", "subplex")
+                "optimx", "lbfgs", "subplex", "lbfgsb3c")
 
      # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
-      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
-                "Rvmminq", "bobyqa", "nmkb", "hjkb", "hjn")
+      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "lbfgsb3c", "Rcgmin", "Rtnmin",
+                 "Rvmmin", "Rvmminq", "bobyqa", "nmkb", "hjkb", "hjn")
 
       maskmeth <- c("Rcgmin", "Rvmmin", "Rvmminq", "hjn")
  

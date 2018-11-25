@@ -22,5 +22,5 @@ LazyLoad: Yes
 Imports: numDeriv
 NeedsCompilation: no
 Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
-        lbfgsb3, lbfgsb3c, lbfgs, subplex
+        lbfgsb3, lbfgsb3c, lbfgs, subplex, Rcgmin2
 VignetteBuilder: knitr

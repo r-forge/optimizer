@@ -30,6 +30,9 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
+VERSION 2018-11-23
+      o Added Rcgmin2 and lbfgsb3c
+
 VERSION 2018-11-19
       o Added Rvmminq -- quadratic inverse interpolation single step added to
         backtracking line search. Rcgmin could be cleaned up somewhat.

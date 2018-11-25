@@ -345,6 +345,44 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ## return(ans)
       }  ## end if using Rcgmin
 ## --------------------------------------------
+      else if (method == "Rcgmin2") { # Use Rcgmin2 routine (ignoring masks)
+        mcontrol$trace <- control$trace
+        mcontrol$maxit <- control$maxit # 151217 JN
+        if (! is.null(egr)) {
+  	  if (control$have.bounds) { # 151220 -- this was not defined
+            # 170919 -- explicit reference to package
+   	    ans <- try(Rcgmin2::Rcgminb(par=spar, fn=efn, gr=egr, lower=slower,
+                upper=supper, bdmsk=msk, control=mcontrol, ...))
+	  } else {
+   	     ans <- try(Rcgmin2::Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
+	  }
+        }
+        if (!is.null(egr) && (class(ans)[1] != "try-error")) {
+                ans$par <- ans$par*pscale
+	        ans$message <- NA        
+                ans$hessian <- NULL
+                ans$bdmsk <- NULL # clear this
+        } else {
+		if (control$trace>0) {
+                    cat("Rcgmin2 failed for current problem \n")
+                    if(is.null(egr)) cat("Note: Rcgmin2 needs gradient function specified\n")
+                }
+		ans<-list() # ans not yet defined, so set as list
+                ans$convergence <- 9999 # failed in run
+		ans$value <- control$badval
+		ans$par<-rep(NA,npar)
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA # save function and gradient count information
+	        ans$message <- NULL
+                if(is.null(egr)) {
+                   ans$message <- "Must specify gradient function for Rcgmin2"
+                   ans$convergence <- 9998 # for no gradient where needed
+                }
+                ans$hessian <- NULL
+        }
+        ## return(ans)
+      }  ## end if using Rcgmin2
+## --------------------------------------------
       else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
         mcontrol$maxit <- control$maxit
         mcontrol$maxfeval <- control$maxfeval

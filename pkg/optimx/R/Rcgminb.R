@@ -439,7 +439,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     #   unlikely.
                     ifn <- ifn + 1
                     if (is.na(f) || (!is.finite(f))) {
-                      warning("Rcgmin - undefined function")
+                      warning("Rcgminb - undefined function")
                       f <- .Machine$double.xmax
                     }
                     if (f < fmin) {

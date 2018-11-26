@@ -51,8 +51,10 @@ ctrldefault <- function(npar) {
         kkt2tol = 1.0E-6, # tolerance for testing KKT curvature condition
         maskmeth = maskmeth, # list of methods that allow masks (fixed parameters)
         maximize = FALSE, # normally MINIMIZE (see fnscale)
-        maxit = 500*round(sqrt(npar+1)), # limit on number of iterations or gradient evaluations
-        maxfeval = 5000*round(sqrt(npar+1)), # limit on function evaluations
+#        maxit = 500*round(sqrt(npar+1)), # limit on number of iterations or gradient evaluations
+        maxit = 500, # limit on number of iterations or gradient evaluations
+#        maxfeval = 5000*round(sqrt(npar+1)), # limit on function evaluations
+        maxfeval = 500*round(sqrt(npar+1)), # limit on function evaluations
         offset = 1000.0, # used for equality test (a + offset) == (b + offset)
         parchanged = FALSE, # set TRUE when bounds check has changed parameter values
         parscale = rep(1, npar), # vector of scaling factors for parameters. Try to get
@@ -69,7 +71,10 @@ ctrldefault <- function(npar) {
         stopbadupdate = FALSE,
         tol = 0, 
         trace = 0,
-        watch = FALSE
+        watch = FALSE,
+        cgoffset = 100,
+        cgstepredn = 0.15,
+        cgoldstep = 0.8
       )
 }
 ##################################################################

@@ -1,0 +1,12 @@
+export(
+  "cgdefault",
+  "Rcgmin",
+  "Rcgminu",
+  "Rcgminb"
+)
+importFrom("optimx","grchk")
+importFrom("optimx","bmchk")
+importFrom("optimx","grfwd")
+importFrom("optimx","grcentral")
+importFrom("optimx","grback")
+importFrom("optimx","grnd")

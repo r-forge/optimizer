@@ -1,0 +1,14 @@
+Package: Rcgmin2
+Type: Package
+Title: EXPERIMENTAL Conjugate gradient minimization of nonlinear functions with box constraints
+Version: 2018-11.27
+Date: 2018-11-27
+Authors@R: c( person(given = c("John", "C."), family = "Nash", role =
+        c("aut", "cre"), email = "nashjc@uottawa.ca") )
+Author: John C. Nash [aut, cre]
+Maintainer: John C. Nash <nashjc@uottawa.ca>
+Description: Conjugate gradient minimization of nonlinear functions with box constraints with Dai/Yuan update.
+Imports: optimx
+Suggests: numDeriv
+License: GPL (>= 2)
+

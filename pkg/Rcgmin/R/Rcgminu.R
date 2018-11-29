@@ -249,7 +249,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                     #   unlikely.
                     ifn <- ifn + 1
                     if (is.na(f) || (!is.finite(f))) {
-                      warning("Rcgmin - undefined function")
+                      warning("Rcgminu - undefined function")
                       f <- .Machine$double.xmax
                     }
                     if (f < fmin) {

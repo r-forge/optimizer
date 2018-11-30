@@ -41,6 +41,7 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
     n <- as.integer(length(prm))
     m <- 5L # default 
 
+if (control$trace > 2) print(control)
 # control defaults -- idea from spg
 ctrl <- list(trace = 0, maxit = 100*n) ## ??  iprint = 0L)
     namc <- names(control)
@@ -109,7 +110,7 @@ repeat {
        cat("Before call, f=",f,"  task number ",itask," ")
        print(task)
       }
-      result <- .Fortran('lbfgsb3f', n = as.integer(n),m = as.integer(m),
+      result <- .Fortran('lbfgsb3', n = as.integer(n),m = as.integer(m),
                    x = as.double(prm), l = as.double(lower), u = as.double(upper),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
                    factr = as.double(factr), pgtol = as.double(pgtol),

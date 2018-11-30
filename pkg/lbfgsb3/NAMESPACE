@@ -11,6 +11,6 @@ export(
 )
 
 # Load shared objects
-useDynLib(lbfgsb3, .registration=TRUE)
+useDynLib(lbfgsb3)
 
 # S4 Methods

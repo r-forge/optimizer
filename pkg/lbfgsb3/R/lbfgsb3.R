@@ -41,13 +41,15 @@ lbfgsb3 <- function(prm, fn, gr=NULL, lower = -Inf, upper = Inf,
     n <- as.integer(length(prm))
     m <- 5L # default 
 
-if (control$trace > 2) print(control)
 # control defaults -- idea from spg
 ctrl <- list(trace = 0, maxit = 100*n) ## ??  iprint = 0L)
     namc <- names(control)
     if (!all(namc %in% names(ctrl))) 
         stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
     ctrl[namc] <- control
+
+if (ctrl$trace > 2) print(control)
+
 
 # Here expand control list, but for moment leave alone
       iprint <- as.integer(ctrl$trace)

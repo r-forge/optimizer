@@ -3,7 +3,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 
 ## 180706: Problem with maxit. Likely issue is that opm gets ctrldefault and
 ## updates with actual control list. But here in nlm, maxit defaults to 100.
-## 181130: same with lbfgsb3 ??
   npar <- length(par)
   ctrl <- ctrldefault(npar)
   ncontrol <- names(control)
@@ -1028,7 +1027,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       else if (method == "lbfgsb3c") {# Use 2011 L-BFGS-B wrapper
         if (ctrl$trace > 1) cat("lbfgsb3c\n")
         mcontrol$maxit <- ctrl$maxit
-        if (ctrl$trace > 3) cat("lbfgsb3c: maxit=",mcontrol$maxit,"\n")
+        if (ctrl$trace > 2) cat("lbfgsb3c: maxit=",mcontrol$maxit,"\n")
         mcontrol$trace <- ctrl$trace
 # 170924 no longer needed
 ##        if (ctrl$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- ctrl$trace} 

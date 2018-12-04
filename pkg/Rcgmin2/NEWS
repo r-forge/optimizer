@@ -6,6 +6,9 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2008-12-03
+   o    Include control qiilev for higher quad inv. interp. trigger
+
 2018-11-27
    o    Include cgxu to document Rcgminu as much as possible
 

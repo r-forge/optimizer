@@ -345,8 +345,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rcgmin
 ## --------------------------------------------
       else if (method == "Rcgmin2") { # Use Rcgmin2 routine (ignoring masks)
-        mcontrol$trace <- ctrl$trace
-        mcontrol$maxit <- ctrl$maxit # 151217 JN
+        mcontrol <- ctrl # 181203 -- try this as a starter
+#        mcontrol$trace <- ctrl$trace
+#        mcontrol$maxit <- ctrl$maxit # 151217 JN
         if (! is.null(egr)) {
   	  if (ctrl$have.bounds) { # 151220 -- this was not defined
             # 170919 -- explicit reference to package
@@ -419,9 +420,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using Rvmmin
 ## --------------------------------------------
       else if (method == "Rvmminq") { # Use Rvmminq routine (ignoring masks??)
-        mcontrol$maxit <- ctrl$maxit
-        mcontrol$maxfeval <- ctrl$maxfeval
-	mcontrol$trace <- ctrl$trace # 140902 Note no check on validity of values
+         mcontrol <- ctrl
+#        mcontrol$maxit <- ctrl$maxit
+#        mcontrol$maxfeval <- ctrl$maxfeval
+#	mcontrol$trace <- ctrl$trace # 140902 Note no check on validity of values
 	if (! is.null(egr)) {
           ans <- try(Rvmminq(par=spar, fn=efn, gr=egr, lower=slower,
                 upper=supper, bdmsk=msk, control=mcontrol, ...))

@@ -84,11 +84,12 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
   #################################################################
   # control defaults
   n <- as.integer(length(par))  # number of elements in par vector
-  maxit <- 500 + 2L * n
-  maxfeval <- 3000 + 10L * n
-  ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
-    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
-    reltest=100.0, stopbadupdate = TRUE)
+#  maxit <- 500 + 2L * n
+#  maxfeval <- 3000 + 10L * n
+   ctrl <- ctrldefault(n)
+#  ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
+#    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
+#    reltest=100.0, stopbadupdate = TRUE)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -114,7 +115,7 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
   else noupper = FALSE
   if (nolower && noupper && all(bdmsk == 1)) { 
      bounds = FALSE
-     stop("Do not use Rvmminb() without bounds.")
+     stop("Do not use Rvmminqb() without bounds.")
   } else { bounds = TRUE }
 
   cat("trace=",trace,"\n") # This is not picked up -- Why?
@@ -141,7 +142,7 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
   #############################################
   # gr MUST be provided
   if (is.null(gr)) {  # if gr function is not provided STOP 
-    stop("A gradient calculation (analytic or numerical) MUST be provided for Rvmminb")
+    stop("A gradient calculation (analytic or numerical) MUST be provided for Rvmminqb")
   }
   if (is.character(gr)) { # assume numerical gradient
   # Convert string to function call, assuming it is a numerical gradient function
@@ -267,7 +268,7 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
         kf <- 0
         while ((f >= fmin) && changed && (!accpoint)) {
           # We seek a lower point, but must change parameters too
-          ###if (bounds) { # MUST have bounds in Rvmminb
+          ###if (bounds) { # MUST have bounds in Rvmminqb
           # Box constraint -- adjust step length for free parameters
           for (i in 1:n) { # loop on parameters -- vectorize??
             if ((bdmsk[i] == 1) && (t[i] != 0)) {
@@ -323,8 +324,9 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
               keepgoing <- FALSE
               break
             }
-            if (f < fmin) {
-              if ((kf == 1) && (f < fmin)) { # try quad point
+            if (f < fmin + ctrl$qiilev*(abs(fmin)+ctrl$epstol) ) { # try quad point -- note condition
+#            if (f < fmin) {
+#              if ((kf == 1) && (f < fmin)) { # try quad point
                 aa <- (f - fmin - gradproj*stl)/(stl*stl)
                 sq <- (-1)*gradproj/(2*aa)
                 if (trace > 2) cat("    aa, sq:",aa,sq,"   ")
@@ -354,7 +356,7 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
                       stl <- sq
                     }
                   }
-                }
+#                }
               } # end quadratic inverse interpolation 
               # We have a lower point. Is it 'low enough' i.e., acceptable
               accpoint <- (f <= fmin + gradproj * stl * acctol)
@@ -446,7 +448,7 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
           if (conv < 0) { # conv == -1 is used to indicate it is not set
             conv <- 0
           }
-          msg <- "Rvmminb converged"
+          msg <- "Rvmminqb converged"
           if (trace > 0) cat(msg, "\n")
         } # end ig == ilast
         else {
@@ -460,11 +462,11 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
        cat("Seem to be done Rvmminqb\n")
        cat(msg,"\n")
     }
-    #    msg <- "Rvmminb appears to have converged"
+    #    msg <- "Rvmminqb appears to have converged"
     counts <- c(ifn, ig)
     names(counts) <- c("function", "gradient")
     ans <- list(par, fmin, counts, convergence=conv, msg, bdmsk)
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message", "bdmsk")
     ans    #return(ans)
-}  ## end of Rvmminb
+}  ## end of Rvmminqb

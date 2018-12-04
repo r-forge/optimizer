@@ -59,15 +59,15 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   } 
    cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtime")
    ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
-  if (control$trace > 2) {
+  if (control$trace > 3) {
       print(ans.ret)
-      tmp <- readline("continue after printing ans.ret initial")
+#      tmp <- readline("continue after printing ans.ret initial")
   }
   ans.ret <- data.frame(ans.ret)
   colnames(ans.ret)<-cnames
   row.names(ans.ret)<-method
   ans.details <- list()
-  if (control$trace > 2) {
+  if (control$trace > 3) {
      cat("width of ans.ret =", npar+7,"\n")
      print(dim(ans.ret))
   }
@@ -81,7 +81,6 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            hessian=hessian, control=control, ...))[1]
     if (control$trace > 2) print(ans)
     # add to list
-
 ## --------------------------------------------
 ## Post-processing -- Kuhn Karush Tucker conditions
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
@@ -118,7 +117,7 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 		cat("Save results from method ",meth,"\n") 
 	  	print(ans)
 	  }
-	  if (control$trace > 2) { 
+	  if (control$trace > 3) { 
              cat("Assemble the answers\n") 
              cat("ans.ret now\n")
              print(ans.ret)
@@ -130,6 +129,11 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
              print(addvec)
           }
           ans.ret[meth, ] <- addvec
+	  if (control$trace > 2) { 
+             cat("Assemble the answers\n") 
+             cat("ans.ret now\n")
+             print(ans.ret)
+          }
       }  ## end post-processing of successful solution
       ans.details<-rbind(ans.details, list(method=meth, ngatend=kktres$ngatend, 
              nhatend=kktres$nhatend, hev=kktres$hev, message=amsg))

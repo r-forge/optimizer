@@ -83,7 +83,7 @@ Rcgminb <- function(par, fn, gr, lower, upper,
   ctrl <- cgdefault(n) # use control defaults
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
-     stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+     if(ctrl$trace > 0) warning("unknown names in control: ", namc[!(namc %in% names(ctrl))])
   ctrl[namc] <- control
   npar<-length(par)
   grNULL <- is.null(gr)
@@ -121,7 +121,7 @@ Rcgminb <- function(par, fn, gr, lower, upper,
   # This does not appear to be in Y H Dai & Y Yuan, Annals of
   #   Operations Research 103, 33--47, 2001
   # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
-  ##  tol <- n * (n * .Machine$double.eps)  # # for gradient test.  
+  if (ctrl$tol == 0) ctrl$tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  
   ## Note -- integer overflow if n*n*d.eps
   fargs <- list(...)  # function arguments
   if (ctrl$trace > 2) {
@@ -375,8 +375,7 @@ Rcgminb <- function(par, fn, gr, lower, upper,
             kf <- kf + 1 
             ifn <- ifn + 1 # should test but ...
             if (ctrl$trace > 2) cat("kf=",kf,"   f(",stl,")=",f)
-#            if ((kf == 1) && (f < fmin)) { # try quad point
-            if (f < fmin) { # try quad point # ?? might want to put in higher pt??
+            if (f < fmin + ctrl$qiilev*(abs(fmin)+ctrl$epstol) ) { # try quad point -- note condition
               aa <- (f - fmin - gradproj*stl)/(stl*stl)
               sq <- -gradproj/(2*aa)
               if (ctrl$trace > 2) cat("    aa, sq:",aa,sq,"   ")

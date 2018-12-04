@@ -85,11 +85,12 @@ Rvmminqu <- function(par, fn, gr = NULL,
   #################################################################
   # control defaults
   n <- as.integer(length(par))  # number of elements in par vector
-  maxit <- 500 + 2L * n
-  maxfeval <- 3000 + 10L * n
-  ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
-    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
-    reltest=100.0, stopbadupdate = TRUE)
+#  maxit <- 500 + 2L * n
+#  maxfeval <- 3000 + 10L * n
+   ctrl <- ctrldefault(n) # use standard method
+#  ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
+#    trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
+#    reltest=100.0, stopbadupdate = TRUE)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
      stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
@@ -266,6 +267,7 @@ Rvmminqu <- function(par, fn, gr = NULL,
         changed <- TRUE  # Need to set so loop will start
         stl <- oldstep # 131202 - 1 seems best value (Newton step)
         kf <- 0
+        if (ctrl$trace > 2) cat("qiilev =",ctrl$qiilev,"\n")
         while ((f >= fmin) && changed && (!accpoint)) {
           # We seek a lower point, but must change parameters too
 
@@ -324,8 +326,9 @@ Rvmminqu <- function(par, fn, gr = NULL,
               keepgoing <- FALSE
               break
             }
-            if (f < fmin) {
-              if ((kf == 1) && (f < fmin)) { # try quad point
+            if (f < fmin + ctrl$qiilev*(abs(fmin)+ctrl$epstol) ) { # try quad point -- note condition
+#            if (f < fmin) {
+#              if ((kf == 1) && (f < fmin)) { # try quad point
                 aa <- (f - fmin - gradproj*stl)/(stl*stl)
                 sq <- (-1)*gradproj/(2*aa)
                 if (trace > 2) cat("    aa, sq:",aa,sq,"   ")
@@ -355,7 +358,7 @@ Rvmminqu <- function(par, fn, gr = NULL,
                       stl <- sq
                     }
                   }
-                }
+#                }
               } # end quadratic inverse interpolation 
               # We have a lower point. Is it 'low enough' i.e., acceptable
               accpoint <- (f <= fmin + gradproj * stl * acctol)
@@ -447,7 +450,7 @@ Rvmminqu <- function(par, fn, gr = NULL,
           if (conv < 0) { # conv == -1 is used to indicate it is not set
             conv <- 0
           }
-          msg <- "Rvmminb converged"
+          msg <- "Rvmminqu converged"
           if (trace > 0) cat(msg, "\n")
         } # end ig == ilast
         else {
@@ -461,11 +464,11 @@ Rvmminqu <- function(par, fn, gr = NULL,
        cat("Seem to be done Rvmminqu\n")
        cat(msg,"\n")
     }
-    #    msg <- "Rvmminb appears to have converged"
+    #    msg <- "Rvmminu appears to have converged"
     counts <- c(ifn, ig)
     names(counts) <- c("function", "gradient")
     ans <- list(par, fmin, counts, convergence=conv, msg)
     names(ans) <- c("par", "value", "counts", "convergence", 
         "message")
     ans    #return(ans)
-}  ## end of Rvmminb
+}  ## end of Rvmminqu

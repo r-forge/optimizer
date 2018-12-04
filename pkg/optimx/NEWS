@@ -30,6 +30,9 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
+VERSION 2018-12-03
+      o Add possibility of using higher f to trigger quadratic inverse interpolation
+
 VERSION 2018-11-23
       o Added Rcgmin2 and lbfgsb3c
 

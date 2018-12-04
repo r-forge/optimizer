@@ -74,7 +74,8 @@ ctrldefault <- function(npar) {
         watch = FALSE,
         cgoffset = 100,
         cgstepredn = 0.15,
-        cgoldstep = 0.8
+        cgoldstep = 0.8,
+        qiilev = 0 # 
       )
 }
 ##################################################################

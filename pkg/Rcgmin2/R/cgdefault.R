@@ -28,6 +28,7 @@ cgdefault <- function(npar) {
         cgoldstep = 0.8,
         cgstinflate = 2.25,
         cgstep0max = 1,
-        cgfminplus = 0 # how many abs(fmin) to add to fmin allowed for quad inv interp??
+        qiilev = 0, # how many abs(fmin) to add to fmin allowed for quad inv interp??
+        tol = 0
       )
 }

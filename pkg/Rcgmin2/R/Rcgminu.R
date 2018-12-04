@@ -87,6 +87,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   ctrl[namc] <- control
   npar<-length(par)
   grNULL <- is.null(gr)
+  # print(ctrl)
   #############################################
   if (ctrl$maximize) { #!! NOTE
      warning("Rcgmin no longer supports maximize 111121 -- see documentation")
@@ -363,7 +364,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   #
   #
           kf <- 0
-#          cat("qiilev= ",ctrl$qiilev,"\n")
+          if (ctrl$trace > 3) cat("qiilev =",ctrl$qiilev,"\n")
           while (! isTRUE(accpoint)) { 
             bvec <- par + stl * t
             if (identical(bvec, par)) {

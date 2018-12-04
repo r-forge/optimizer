@@ -25,6 +25,7 @@ cgdefault <- function(npar) {
         trace = 0,
         cgoffset = 100,
         cgstepredn = 0.15,
+        cgminstep = 1e-7,
         cgoldstep = 0.8,
         cgstinflate = 2.25,
         cgstep0max = 1,

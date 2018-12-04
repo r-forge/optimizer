@@ -93,7 +93,7 @@ Rvmminqu <- function(par, fn, gr = NULL,
 #    reltest=100.0, stopbadupdate = TRUE)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
-     stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    { if(ctrl$trace > 0) warning("unknown names in control: ", namc[!(namc %in% names(ctrl))]) }
   ctrl[namc] <- control  #
   maxit <- ctrl$maxit  #
   maxfeval <- ctrl$maxfeval  #

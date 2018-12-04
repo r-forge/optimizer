@@ -362,7 +362,9 @@ Rcgminb <- function(par, fn, gr, lower, upper,
             if (ctrl$trace > 1) cat("reset steplegth=", stl, "\n")
             # end box constraint adjustment of step length
           }  # end if bounds
+          maxstep <- stl # set max here
           kf <- 0
+          if (ctrl$trace > 3) cat("qiilev =",ctrl$qiilev,"\n")
           while (! isTRUE(accpoint)) { 
             bvec <- par + stl * t
             if (identical(bvec, par)) {
@@ -379,6 +381,10 @@ Rcgminb <- function(par, fn, gr, lower, upper,
               aa <- (f - fmin - gradproj*stl)/(stl*stl)
               sq <- -gradproj/(2*aa)
               if (ctrl$trace > 2) cat("    aa, sq:",aa,sq,"   ")
+              if (sq > maxstep) {
+                 sq <- maxstep
+                 if (ctrl$trace > 2) cat("sq reduced to ",maxstep,"\n")
+              }
               bq <- par + sq*t
               if (! identical(bq, par)) {
                 fq <- fn(bq, ...)
@@ -423,8 +429,8 @@ Rcgminb <- function(par, fn, gr, lower, upper,
 #      oldstep <- oldstep*1.5 # ??
 #      oldstep <- stl # ?? may want to adjust
       if (ctrl$trace > 2) cat("oldstep=", oldstep,"\n")
-      if (oldstep > ctrl$steplenn/1.5) { oldstep <- ctrl$steplenn/1.5}
-      if (oldstep < acctol/1.5) { oldstep <- acctol/1.5} #   steplength
+      if (oldstep > ctrl$cgstep0max) { oldstep <- ctrl$cgstep0max}
+      if (oldstep < ctrl$cgminstep) { oldstep <- ctrl$cgminstep} #   steplength
     ## Check bounds
       if (bounds && (stl > 0)) {
         ## Reactivate constraints?

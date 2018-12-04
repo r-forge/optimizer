@@ -92,7 +92,7 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
 #    reltest=100.0, stopbadupdate = TRUE)
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
-     stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+    {if(ctrl$trace > 0) warning("unknown names in control: ", namc[!(namc %in% names(ctrl))])}
   ctrl[namc] <- control  #
   maxit <- ctrl$maxit  #
   maxfeval <- ctrl$maxfeval  #
@@ -266,6 +266,7 @@ Rvmminqb <- function(par, fn, gr = NULL, lower = NULL,
         changed <- TRUE  # Need to set so loop will start
         stl <- oldstep # 131202 - 1 seems best value (Newton step)
         kf <- 0
+        if (ctrl$trace > 3) cat("qiilev =",ctrl$qiilev,"\n")
         while ((f >= fmin) && changed && (!accpoint)) {
           # We seek a lower point, but must change parameters too
           ###if (bounds) { # MUST have bounds in Rvmminqb

@@ -341,10 +341,8 @@ Rcgminb <- function(par, fn, gr, lower, upper,
           }  # end if bounds
           ########################################################
           ####                  Line search                   ####
-#          stl <- min(oldstep*ctrl$stinflate, ctrl$cgstep0max)
           if (ctrl$trace > 2) cat("backtracklsq  oldstep=", oldstep,"  ")
           stl <- min(oldstep*ctrl$cgstinflate, ctrl$cgstep0max)
-#          stl <- min(oldstep*1.5, 1)
           if (ctrl$trace > 2) cat("stl=", stl,"  ")
           if (bounds) { # Box constraint -- adjust step length
             for (i in 1:n) { # loop on parameters -- vectorize??
@@ -361,8 +359,8 @@ Rcgminb <- function(par, fn, gr, lower, upper,
             }  # end loop on i to reduce step length
             if (ctrl$trace > 1) cat("reset steplegth=", stl, "\n")
             # end box constraint adjustment of step length
-          }  # end if bounds
-          maxstep <- stl # set max here
+          }  # end if boun	ds
+          maxstep <- stl # set max here based on bounds
           kf <- 0
           if (ctrl$trace > 3) cat("qiilev =",ctrl$qiilev,"\n")
           while (! isTRUE(accpoint)) { 
@@ -426,8 +424,6 @@ Rcgminb <- function(par, fn, gr, lower, upper,
           cycle <- 0 # restart
         }  # end stl <= 0
       }  # end of test on Yuan/Dai condition
-#      oldstep <- oldstep*1.5 # ??
-#      oldstep <- stl # ?? may want to adjust
       if (ctrl$trace > 2) cat("oldstep=", oldstep,"\n")
       if (oldstep > ctrl$cgstep0max) { oldstep <- ctrl$cgstep0max}
       if (oldstep < ctrl$cgminstep) { oldstep <- ctrl$cgminstep} #   steplength

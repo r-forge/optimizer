@@ -87,8 +87,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   ctrl[namc] <- control
   npar<-length(par)
   grNULL <- is.null(gr)
-  # print(ctrl)
-  #############################################
+   #############################################
   if (ctrl$maximize) { #!! NOTE
      warning("Rcgmin no longer supports maximize 111121 -- see documentation")
      msg<-"Rcgmin no longer supports maximize 111121"
@@ -342,10 +341,8 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   #
           ########################################################
           ####                  Line search                   ####
-#          stl <- min(oldstep*ctrl$stinflate, ctrl$cgstep0max)
           if (ctrl$trace > 2) cat("backtracklsq  oldstep=", oldstep,"  ")
           stl <- min(oldstep*ctrl$cgstinflate, ctrl$cgstep0max)
-#          stl <- min(oldstep*1.5, 1)
           if (ctrl$trace > 2) cat("stl=", stl,"  ")
   #
   #
@@ -362,7 +359,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   #
   #
   #
-  #
+          maxstep <- 2 * ctrl$cgstep0max # This is pure heuristic! ??
           kf <- 0
           if (ctrl$trace > 3) cat("qiilev =",ctrl$qiilev,"\n")
           while (! isTRUE(accpoint)) { 
@@ -381,6 +378,10 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
               aa <- (f - fmin - gradproj*stl)/(stl*stl)
               sq <- -gradproj/(2*aa)
               if (ctrl$trace > 2) cat("    aa, sq:",aa,sq,"   ")
+              if (sq > maxstep) {
+                 sq <- maxstep
+                 if (ctrl$trace > 2) cat("sq reduced to ",maxstep,"\n")
+              }
               bq <- par + sq*t
               if (! identical(bq, par)) {
                 fq <- fn(bq, ...)
@@ -422,11 +423,9 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
           cycle <- 0 # restart
         }  # end stl <= 0
       }  # end of test on Yuan/Dai condition
-#      oldstep <- oldstep*1.5 # ??
-#      oldstep <- stl # ?? may want to adjust
       if (ctrl$trace > 2) cat("oldstep=", oldstep,"\n")
-      if (oldstep > ctrl$steplenn/1.5) { oldstep <- ctrl$steplenn/1.5}
-      if (oldstep < acctol/1.5) { oldstep <- acctol/1.5} #   steplength
+      if (oldstep > ctrl$cgstep0max) { oldstep <- ctrl$cgstep0max}
+      if (oldstep < ctrl$cgminstep) { oldstep <- ctrl$cgminstep} #   steplength
   #
   #
   #

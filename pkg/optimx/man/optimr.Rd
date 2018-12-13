@@ -122,6 +122,8 @@ ans <- optimr(start, myf, myg, lower, upper)
   or you will likely get wrong results. Instead use
   
 ans <-  optimr(start, myf, myg, lower=lower, upper=upper)
+
+  NOTE: The \code{control} only passes \code{trace} to method Rcgmin2.
 }
 
 \value{

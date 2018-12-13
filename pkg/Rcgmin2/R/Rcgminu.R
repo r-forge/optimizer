@@ -299,7 +299,7 @@ Rcgminu <- function(par, fn, gr, control = list(trace=0), ...) {
       if (ctrl$trace > 1) cat("Gradsqr = ",gradsqr," g1, g2 ",g1," ",g2," fmin=",fmin,"\n")
       c <- g  # save last gradient
       g3 <- 1  # Default to 1 to ensure it is defined -- t==0 on first cycle
-      cat("ctrl$tol, fmin, ctrl$cgoffset:", ctrl$tol, fmin, ctrl$cgoffset, "\n")
+      # cat("ctrl$tol, fmin, ctrl$cgoffset:", ctrl$tol, fmin, ctrl$cgoffset, "\n")
       if (gradsqr > ctrl$tol * (abs(fmin) + ctrl$cgoffset)) { # ensure we haven't got a "small" gradient
         if (g2 > 0) {
            betaDY <- gradsqr/g2

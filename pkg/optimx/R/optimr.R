@@ -346,7 +346,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (method == "Rcgmin2") { # Use Rcgmin2 routine (ignoring masks)
         mcontrol <- ctrl # 181203 -- try this as a starter
-#        mcontrol$trace <- ctrl$trace
+        mcontrol <- NULL
+        mcontrol$trace <- ctrl$trace
 #        mcontrol$maxit <- ctrl$maxit # 151217 JN
         if (! is.null(egr)) {
   	  if (ctrl$have.bounds) { # 151220 -- this was not defined

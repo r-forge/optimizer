@@ -71,7 +71,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
           else stop("ctrl$fnscale and ctrl$maximize conflict")
        } # end ifelse
   } # end else
-  ctrl$origmaximize <- ctrl$maximize # save the original in case we need it
+  origmaximize <- ctrl$maximize # save the original in case we need it
   ctrl$maximize <- FALSE # and ensure we minimize
   ctrl$fnscale <- fnscale # to ensure set again
 

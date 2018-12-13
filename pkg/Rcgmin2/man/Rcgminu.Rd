@@ -5,15 +5,18 @@
    with the Dai / Yuan update and restart. Based on Nash (1979) Algorithm 22 
    for its main structure.  CALL THIS VIA \code{Rcgmin} AND DO NOT USE DIRECTLY.}
 \description{
-  The purpose of \code{Rcgminu} is to minimize an unconstrained function 
+  The purpose of \code{Rcgminu} is to minimize 
+  an unconstrained function 
   of many parameters by a nonlinear conjugate gradients method. This code is
   entirely in R to allow users to explore and understand the method. 
+
+
 
   This code should be called through \code{Rcgmin} which selects \code{Rcgminb}
   or \code{Rcgminu} according to the presence of bounds and masks.
 }
 \usage{
-   Rcgminu(par, fn, gr, control = list(), \dots)
+   Rcgminu(par, fn, gr, control = list(trace=0), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -26,6 +29,11 @@
    returns the gradient as a numeric vector.
 
    The use of numerical gradients for Rcgminu is STRONGLY discouraged.}
+
+
+
+
+
  \item{control}{
     An optional list of control settings.  
  }
@@ -80,6 +88,7 @@
 }
 \references{
    See \code{Rcgmin} documentation.
+
 }
 \seealso{\code{\link{optim}}}
 \keyword{nonlinear}

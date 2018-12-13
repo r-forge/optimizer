@@ -1,4 +1,4 @@
-Rcgminu <- function(par, fn, gr, control = list(), ...) {
+Rcgminu <- function(par, fn, gr, control = list(trace=0), ...) {
 
 
   ## An R version of the conjugate gradient minimization
@@ -26,7 +26,6 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   #
   #  control = list of control parameters. Rcgmin uses:
   #           maxit = a limit on the number of iterations (default 500)
-  #           (deprecated) maximize = TRUE to maximize the function (default FALSE)
   #           trace = 0 (default) for no output,
   #                  >0 for output (bigger => more output)
   #           eps=1.0e-7 (default) for use in computing numerical gradient approximations.
@@ -79,22 +78,27 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   #################################################################
   bvec <- par  # copy the parameter vector
   n <- length(bvec)  # number of elements in par vector
-  # control defaults -- idea from spg
-  ctrl <- cgdefault(n) # use control defaults
+  # control defaults
+  ctrl <- list(
+        maxfeval = 500*round(sqrt(n+1)), # limit on function evaluations
+        maxit = 500, 
+        tol =  n * (n * .Machine$double.eps),  # for gradient test.
+        # Note -- integer overflow if n*n*.Machine$double.eps, 
+        trace = 0,
+        cgoffset = 10000, # offset for test (a + reltest) == (b + reltest)
+        cgstepredn = 0.25,
+        cgminstep = 1e-5,
+        cgoldstep = 1,
+        cgstinflate = 1.125,
+        cgstep0max = 10,
+        qiilev = 0, # how many abs(fmin) to add to fmin allowed for quad inv interp??
+        acctol = 1e-6) # acceptable point tolerance
   namc <- names(control)
   if (!all(namc %in% names(ctrl))) 
-     if(ctrl$trace > 0) warning("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+     if(ctrl$trace > 0) stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
   ctrl[namc] <- control
-  npar<-length(par)
   grNULL <- is.null(gr)
-   #############################################
-  if (ctrl$maximize) { #!! NOTE
-     warning("Rcgmin no longer supports maximize 111121 -- see documentation")
-     msg<-"Rcgmin no longer supports maximize 111121"
-     ans <- list(par, NA, c(0, 0), 9999, msg)
-     return(ans)
-  }
-  #############################################
+	  #############################################
   # gr MUST be provided
   if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
      stop("A gradient calculation (analytic or numerical) MUST be provided for Rcgmin") 
@@ -113,21 +117,12 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   }
   ig <- 0  # count gradient evaluations
   ifn <- 1  # count function evaluations (we always make 1 try below)
-  acctol <- ctrl$acctol # acceptable point tolerance ??possibly change later
-  reltest <- ctrl$cgoffset # offset for relative test
-  stepredn <- ctrl$cgstepredn # factor for shrinking stepsize
   # for ceps
   cyclimit <- min(2.5 * n, 10 + sqrt(n))  # upper bound on when we restart CG cycle
   # This does not appear to be in Y H Dai & Y Yuan, Annals of
   #   Operations Research 103, 33--47, 2001
   # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
-  if (ctrl$tol == 0) ctrl$tol <- npar * (npar * .Machine$double.eps)  # for gradient test.  
   ## Note -- integer overflow if n*n*d.eps
-  fargs <- list(...)  # function arguments
-  if (ctrl$trace > 2) {
-    cat("Extra function arguments:")
-    print(fargs)
-  }
   #
   #
   #
@@ -238,7 +233,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
   # Start the minimization process
   keepgoing <- TRUE
   msg <- "not finished"  # in case we exit somehow
-  oldstep <- ctrl$cgoldstep  #?? Why this choice? == .8
+  oldstep <- ctrl$cgoldstep  #?? Why this choice?
   ####################################################################
   fdiff <- NA  # initially no decrease
   cycle <- 0  # cycle loop counter
@@ -304,7 +299,8 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
       if (ctrl$trace > 1) cat("Gradsqr = ",gradsqr," g1, g2 ",g1," ",g2," fmin=",fmin,"\n")
       c <- g  # save last gradient
       g3 <- 1  # Default to 1 to ensure it is defined -- t==0 on first cycle
-      if (gradsqr > ctrl$tol * (abs(fmin) + reltest)) { # ensure we haven't got a "small" gradient
+      cat("ctrl$tol, fmin, ctrl$cgoffset:", ctrl$tol, fmin, ctrl$cgoffset, "\n")
+      if (gradsqr > ctrl$tol * (abs(fmin) + ctrl$cgoffset)) { # ensure we haven't got a "small" gradient
         if (g2 > 0) {
            betaDY <- gradsqr/g2
            betaHS <- g1/g2
@@ -330,7 +326,6 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
         gradproj <- sum(t * g)  # gradient projection
         if (ctrl$trace > 1) cat("Gradproj =", gradproj, "\n")
         accpoint <- FALSE
-#        maxstep <- ctrl$steplenn # ?? clean up Do we need?
         if (gradproj < 0) {
   #
   #
@@ -374,7 +369,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
             kf <- kf + 1 
             ifn <- ifn + 1 # should test but ...
             if (ctrl$trace > 2) cat("kf=",kf,"   f(",stl,")=",f)
-            if (f < fmin + ctrl$qiilev*(abs(fmin)+ctrl$epstol) ) { # try quad point -- note condition
+            if (f < fmin + ctrl$qiilev*(abs(fmin)+.Machine$double.eps) ) { # try quad point -- note condition
               aa <- (f - fmin - gradproj*stl)/(stl*stl)
               sq <- -gradproj/(2*aa)
               if (ctrl$trace > 2) cat("    aa, sq:",aa,sq,"   ")
@@ -389,7 +384,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                 ifn <- ifn + 1
                 if (ctrl$trace > 2) cat("fq=",fq,"\n")
                 if (fq < f) {
-                  accpointq <- (fq <= fmin + gradproj * sq * acctol) 
+                  accpointq <- (fq <= fmin + gradproj * sq * ctrl$acctol) 
                   if (ctrl$trace > 2) cat("accpointq=",accpointq,"\n")  
                   if (accpointq) {
                     f <- fq
@@ -399,9 +394,9 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                 } # end fq < f
               } # end non-identical bq, par
             } # end try quadpoint
-            accpoint <- (f <= fmin + gradproj * stl * acctol)
+            accpoint <- (f <= fmin + gradproj * stl * ctrl$acctol)
             if (ctrl$trace > 2) cat("   accpoint=", accpoint,"\n")
-            if (! isTRUE(accpoint)) stl <- stl*stepredn # backtrack
+            if (! isTRUE(accpoint)) stl <- stl*ctrl$cgstepredn # backtrack
           } # end backtrack loop
           oldstep <- stl
           fdiff <- fmin - f

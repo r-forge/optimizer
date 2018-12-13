@@ -16,7 +16,7 @@
   or \code{Rcgminu} according to the presence of bounds and masks.
 }
 \usage{
-   Rcgminb(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
+   Rcgminb(par, fn, gr, lower, upper, bdmsk, control = list(trace=0), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}

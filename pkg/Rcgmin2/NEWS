@@ -6,6 +6,9 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2008-12-12
+   o    Set defaults to values found in axial search.
+
 2008-12-03
    o    Include control qiilev for higher quad inv. interp. trigger
 

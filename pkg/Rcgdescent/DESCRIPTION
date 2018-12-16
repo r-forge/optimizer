@@ -1,0 +1,17 @@
+Package: Rcgdescent
+Type: Package
+Title: Wrapper to the CG_DESCENT C package of Hager and Zhang
+Version: 2018-12.15
+Date: 2018-12-15
+Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
+    c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
+    "Steven", family = "Scott", role = ("aut, "cre"), email =
+    "steve.the.bayesian@gmail.com") )
+Author: John C Nash [aut, cre], Stevem Scott [aut, cre]
+Maintainer: Steven Scott <steve.the.bayesian@gmail.com>
+Description: Allows the use of the Hager / Zhang CG_DESCENT code
+to minimize unconstrained nonlinear functions of many variables. 
+Imports: optimx
+Suggests: numDeriv
+License: GPL (>= 2)
+

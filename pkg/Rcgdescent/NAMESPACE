@@ -1,0 +1,8 @@
+export(
+  "Rcgdescent"
+)
+importFrom("optimx","grchk") # gradient check
+importFrom("optimx","grfwd") # forward gradient approximation
+importFrom("optimx","grcentral") # central gradient approximation
+importFrom("optimx","grback") # backward gradient approximation
+importFrom("optimx","grnd") # numDeriv gradient approximation

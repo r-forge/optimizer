@@ -3,15 +3,23 @@ Type: Package
 Title: Wrapper to the CG_DESCENT C package of Hager and Zhang
 Version: 2018-12.15
 Date: 2018-12-15
-Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
-    c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
-    "Steven", family = "Scott", role = ("aut, "cre"), email =
-    "steve.the.bayesian@gmail.com") )
-Author: John C Nash [aut, cre], Stevem Scott [aut, cre]
+Authors@R: c( person(given = c("John", "C"), family = "Nash", 
+              role = c("aut"), 
+              email = "nashjc@uottawa.ca"), 
+              person(given = "Steven", family = "Scott", 
+              role = c("aut", "cre"),
+              email =  "steve.the.bayesian@gmail.com") )
+Author: John C. Nash [aut], Steven Scott [aut, cre]
 Maintainer: Steven Scott <steve.the.bayesian@gmail.com>
-Description: Allows the use of the Hager / Zhang CG_DESCENT code
-to minimize unconstrained nonlinear functions of many variables. 
-Imports: optimx
+Description: Conjugate gradient minimization via the Hager/Zhang CG Descent C
+  package.
+#Imports: optimx
 Suggests: numDeriv
 License: GPL (>= 2)
-
+Repository: R-Forge
+Repository/R-Forge/Project: optimizer
+Repository/R-Forge/Revision: 1798
+Repository/R-Forge/DateTimeStamp: 2018-12-13 13:22:44
+Date/Publication: 2018-12-13 13:22:44
+NeedsCompilation: yes
+Packaged: 2018-12-17 14:18:55 UTC; john

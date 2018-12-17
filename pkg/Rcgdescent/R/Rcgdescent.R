@@ -1,89 +1,595 @@
-Rcgdescent <- function(par, fn, gr = NULL, control = list(), ...) {
-    ## An R version of the conjugate gradient minimization
-    ## using the Dai-Yuan ideas
-    #  This version is for unconstrained functions.
-    #
-    # Input:
-    #  par  = a vector containing the starting point
-    #  fn = objective function (assumed to be sufficeintly
-    #     differentiable)
-    #  gr = gradient of objective function
-    #  control = list of control parameters
-    #           maxit = a limit on the number of iterations (default 500)
-    #           maximize = TRUE to maximize the function (default FALSE)
-    #           trace = 0 (default) for no output,
-    #                  >0 for output (bigger => more output)
-    # eps=1.0e-7 (default) for use in computing numerical
-    #   gradient approximations.
-    # dowarn=TRUE by default. Set FALSE to suppress warnings.
-    # checkgrad = FALSE by default. Check analytic gradient 
-    #             against numDeriv results.
-    # checkbounds = TRUE by default. Check parameters and bounds
-    #             for addmissible bounds and feasible start.
-    #
-    # Output:
-    #    A list with components:
-    #
-    #     par: The best set of parameters found.
-    #
-    #   value: The value of 'fn' corresponding to 'par'.
-    #
-    # counts: A two-element integer vector giving the number of
-    #   calls to
-    # 'fn' and 'gr' respectively. This excludes those calls
-    #   needed
-    # to compute the Hessian, if requested, and any calls to
-    #   'fn'
-    # to compute a finite-difference approximation to the
-    #   gradient.
-    #
-    # convergence: An integer code. '0' indicates successful
-    #   convergence.
-    #          Error codes are
-    #          '0' converged
-    # '1' indicates that the function evaluation count
-    #   'maxfeval'
-    #               was reached.
-    #          '2' indicates initial point is infeasible
-    #
-    # message: A character string giving any additional
-    #   information returned
-    #          by the optimizer, or 'NULL'.
-    #
-    # bdmsk: Returned index describing the status of bounds and
-    #   masks at the
-    # proposed solution. Parameters for which bdmsk are 1 are
-    #   unconstrained
-    # or 'free', those with bdmsk 0 are masked i.e., fixed. For
-    #   historical
-    # reasons, we indicate a parameter is at a lower bound
-    #   using -3
-    #          or upper bound using -1.
-    #
-    #
-    #  Author:  John C Nash
-    #  Date:  April 2, 2009; revised July 28, 2009
-    #################################################################
-    # control defaults -- idea from spg
-    if (is.null(control$trace)) control$trace=0
-    if (is.null(gr)) {
-       gr <- "grfwd" # use forward gradient approximation if no gradient code provided
-       if (control$trace > 0) cat("WARNING: forward gradient approximation being used\n")
-    } else {
-       if (is.character(gr)) { # assume numerical gradient
-           if (control$trace > 0) cat("WARNING: using gradient approximation ",gr,"\n")
+## The wrapped C code sets a large number of control parameters in a complicated
+## structure.  The ControlParams function allows the user to set these
+## parameters from R, if desired.  The defaults are often fine.
+ControlParams <- function(LBFGS = FALSE,
+  memory = 11,
+  SubCheck = 8,
+  SubSkip = 4,
+  eta0 = 0.001,
+  eta1 = 0.900,
+  eta2 = 1.0e-10,
+  AWolfe = FALSE,
+  AWolfeFac = 1.0e-3,
+  Qdecay = .7,
+  nslow = 1000,
+  StopRule = TRUE,
+  StopFac = 0.e-12,
+  PertRule = TRUE,
+  eps = 1.0e-6,
+  egrow = 10,
+  QuadStep = TRUE,
+  QuadCutOff = 1.0e-12,
+  QuadSafe = 1e-10,
+  UseCubic = TRUE,
+  CubicCutOff = 1e-12,
+  SmallCost = 1e-30,
+  debug = FALSE,
+  debugtol = 1e-10,
+  step = 0.000,
+  maxit = .Machine$integer.max,
+  ntries = 50,
+  ExpandSafe = 200,
+  SecantAmp = 1.05,
+  RhoGrow = 2.0,
+  neps = 5,
+  nshrink = 10,
+  nline = 50,
+  restart_fac = 6,
+  feps = 0.000,
+  nan_rho = 1.3,
+  nan_decay = 0.1) {
 
-       } else { # analytic gradient, so check if requested
-           if (is.null(control$checkgrad)) control$checkgrad <- FALSE
-           if (control$checkgrad) { # check gradient
-              testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
-              if (! testgrad) warning("Gradient code for Rcgdescent may be faulty - check it!")
-           }
-       } # end else
-    }
-    control$checkgrad<-NULL # to avoid problems in subsidiary routines
-    if (is.null(control$dowarn)) control$dowarn<-TRUE
-    #############################################
-##?? Here is where .Call will go    ans<-Rcgminu(par, fn, gr, control = control, ...)
-#    return(ans) # ?? is this needed
-}  ## end of Rcgdescent.R
+  params <- list(LBFGS = as.logical(LBFGS),
+    memory = as.integer(memory),
+    SubCheck = as.integer(SubCheck),
+    SubSkip = as.integer(SubSkip),
+    eta0 = as.double(eta0),
+    eta1 = as.double(eta1),
+    eta2 = as.double(eta2),
+    AWolfe = as.integer(AWolfe),
+    AWolfeFac = as.double(AWolfeFac),
+    Qdecay = as.double(Qdecay),
+    nslow = as.integer(nslow),
+    StopRule = as.logical(StopRule),
+    StopFac = as.double(StopFac),
+    PertRule = as.logical(PertRule),
+    eps = as.double(eps),
+    egrow = as.double(egrow),
+    QuadStep = as.logical(QuadStep),
+    QuadCutOff = as.double(QuadCutOff),
+    QuadSafe = as.double(QuadSafe),
+    UseCubic = as.logical(UseCubic),
+    CubicCutOff = as.double(CubicCutOff),
+    SmallCost = as.double(SmallCost),
+    debug = as.logical(debug),
+    debugtol = as.double(debugtol),
+    step = as.double(step),
+    maxit = as.integer(maxit),
+    ntries = as.integer(ntries),
+    ExpandSafe = as.double(ExpandSafe),
+    SecantAmp = as.double(SecantAmp),
+    RhoGrow = as.double(RhoGrow),
+    neps = as.integer(neps),
+    nshrink = as.integer(nshrink),
+    nline = as.integer(nline),
+    restart_fac = as.double(restart_fac),
+    nan_rho = as.double(nan_rho),
+    nan_decay = as.double(nan_decay))
+
+  for (prm in params) {
+    stopifnot(length(prm) == 1)
+  }
+  class(params) <- "ControlParams"
+  return(params)
+}
+
+FunctionWrapper <- function(f, ...) {
+  wrapped <- function(x) {
+    return(f(x, ...))
+  }
+  ans <- list(function.name = 'wrapped', env  = environment(wrapped)) 
+}
+
+RcgminuImpl <- function(initial.values,
+                        targetfun,
+                        gradient,
+                        control = ControlParams(),
+                        ...) {
+  ## Args:
+  ##   initial.values: A numeric vector containing the values of 'x' where the
+  ##     optimization should begin.
+  ##   targetfun: A function to be optimized.  The return value should be a
+  ##     numeric scalar.  The first argument is the target of the optimization
+  ##     routine.
+  ##   gradient: A function returning the gradient of 'targetfun'.  The
+  ##     arguments of 'gradient' must match 'targetfun' and be in the same
+  ##     order.
+  ##   control: A list of control parameters for fine tuning the optimization.
+  ##     In most cases the default values are fine.  See help(ControlParams) for
+  ##     details.
+  ##   ...: If targetfun and gradient take additional parameters, they can be
+  ##     supplied by name here.
+  stopifnot(is.function(targetfun))
+  stopifnot(is.function(gradient))
+  stopifnot(inherits(control, "ControlParams"))
+
+  target <- FunctionWrapper(targetfun, ...)
+  grad <- FunctionWrapper(gradient, ...)
+  ans <- .Call("cgminu_wrapper", target, grad, initial.values, control)
+  names(ans) <- c("par", "f", "eval.f", "eval.grad", "message", "converged")
+  return(ans)
+}
+                         
+
+## Rcgminu <- function(par, fn, gr, control = list(trace=0), ...) {
+
+##   ## An R version of the conjugate gradient minimization
+##   ## using the Dai-Yuan and Hager-Zhang ideas
+
+
+##   #  This version is for unconstrained functions.
+##   #
+##   # Input:
+##   #  par  = a vector containing the starting point
+##   # fn = objective function (assumed to be sufficeintly
+##   #   differentiable)
+##   #  gr = gradient of objective function
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #  control = list of control parameters. Rcgmin uses:
+##   #           maxit = a limit on the number of iterations (default 500)
+##   #           trace = 0 (default) for no output,
+##   #                  >0 for output (bigger => more output)
+##   #           eps=1.0e-7 (default) for use in computing numerical gradient approximations.
+##   #           dowarn=TRUE by default. Set FALSE to suppress warnings.
+##   # ?? others
+##   #
+##   # Output:
+##   #    A list with components:
+##   #
+##   #     par: The best set of parameters found.
+##   #
+##   #   value: The value of 'fn' corresponding to 'par'.
+##   #
+##   # counts: A two-element integer vector giving the number of
+##   #   calls to
+##   # 'fn' and 'gr' respectively. This excludes those calls
+##   #   needed
+##   # to compute the Hessian, if requested, and any calls to
+##   #   'fn'
+##   # to compute a finite-difference approximation to the
+##   #   gradient.
+##   #
+##   # convergence: An integer code. '0' indicates successful
+##   #   convergence.
+##   #          Error codes are
+##   #          '0' converged
+##   # '1' indicates that the function evaluation count
+##   #   'maxfeval'
+##   #               was reached.
+##   #          '2' indicates initial point is infeasible
+##   #
+##   # message: A character string giving any additional
+##   #   information returned
+##   #          by the optimizer, or 'NULL'.
+##   #
+##   # 
+##   # 
+##   # 
+##   # 
+##   # 
+##   # 
+##   # 
+##   # 
+##   # 
+##   #
+##   #
+##   #  Author:  John C Nash
+##   #  Date:  April 2, 2009; revised July 28, 2009
+##   #         Major rework November 20, 2018 onwards
+##   #################################################################
+##   bvec <- par  # copy the parameter vector
+##   n <- length(bvec)  # number of elements in par vector
+##   # control defaults
+##   ctrl <- list(
+##         maxfeval = 500*round(sqrt(n+1)), # limit on function evaluations
+##         maxit = 500, 
+##         tol =  n * (n * .Machine$double.eps),  # for gradient test.
+##         # Note -- integer overflow if n*n*.Machine$double.eps, 
+##         trace = 0,
+##         cgoffset = 10000, # offset for test (a + reltest) == (b + reltest)
+##         cgstepredn = 0.25,
+##         cgminstep = 1e-5,
+##         cgoldstep = 1,
+##         cgstinflate = 1.125,
+##         cgstep0max = 10,
+##         qiilev = 0, # how many abs(fmin) to add to fmin allowed for quad inv interp??
+##         acctol = 1e-6) # acceptable point tolerance
+##   namc <- names(control)
+##   if (!all(namc %in% names(ctrl))) 
+##      if(ctrl$trace > 0) stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
+##   ctrl[namc] <- control
+##   grNULL <- is.null(gr)
+## 	  #############################################
+##   # gr MUST be provided
+##   if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
+##      stop("A gradient calculation (analytic or numerical) MUST be provided for Rcgmin") 
+##   }
+##   if ( is.character(gr) ) {
+##   # Convert string to function call, assuming it is a numerical gradient function
+##      mygr<-function(par=par, userfn=fn, ...){
+##        do.call(gr, list(par, userfn, ...))
+##      }
+##   } else { mygr<-gr }
+##   ############# end test gr ####################
+##   ## Set working parameters (See CNM Alg 22)
+##   if (ctrl$trace > 0) {
+##     cat("Rcgminu -- J C Nash 2009 - unconstrained version CG min\n")
+##     cat("an R implementation of Alg 22 with Yuan/Dai modification\n")
+##   }
+##   ig <- 0  # count gradient evaluations
+##   ifn <- 1  # count function evaluations (we always make 1 try below)
+##   # for ceps
+##   cyclimit <- min(2.5 * n, 10 + sqrt(n))  # upper bound on when we restart CG cycle
+##   # This does not appear to be in Y H Dai & Y Yuan, Annals of
+##   #   Operations Research 103, 33--47, 2001
+##   # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
+##   ## Note -- integer overflow if n*n*d.eps
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   ######## check bounds and masks #############
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##     # At this point, we have full bounds in play
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   # Initial function value 
+##   if (ctrl$trace > 2) {
+##     cat("Try function at initial point:")
+##     print(bvec)
+##   }
+##   f <- try(fn(bvec, ...), silent = TRUE)  # Compute the function at initial point.
+##   if (class(f) == "try-error") {
+##     msg <- "Initial point is infeasible."
+##     if (ctrl$trace > 0) cat(msg, "\n")
+##     ans <- list(par, NA, c(ifn, 0), 2, msg)
+##     names(ans) <- c("par", "value", "counts", "convergence", "message")
+##     return(ans)
+##   }
+##   if (ctrl$trace > 0) cat("Initial function value=", f, "\n")
+##   fmin <- f # save the value
+##   if (ctrl$trace > 2) print(bvec)
+##   # Start the minimization process
+##   keepgoing <- TRUE
+##   msg <- "not finished"  # in case we exit somehow
+##   oldstep <- ctrl$cgoldstep  #?? Why this choice?
+##   ####################################################################
+##   fdiff <- NA  # initially no decrease
+##   cycle <- 0  # cycle loop counter
+##   kf <- 0
+##   while (keepgoing) { # main loop -- must remember to break out of it!!
+##     # (Re)start with steepest descent by zeroing last gradient and last searchdir
+##     t <- as.vector(rep(0, n))  # zero step vector
+##     c <- t  # zero 'last' gradient
+##     while (keepgoing && (cycle < cyclimit)) { ## cycle loop
+##       cycle <- cycle + 1
+##       if (ctrl$trace > 0) cat("f, g, kf, cycle:",ifn, " ", ig, " ",kf, " ", cycle, " ", fmin,
+##                 "  last decrease=", fdiff, "\n")
+##       if (ctrl$trace > 2) {print(bvec); cat("\n")}
+##       if (ifn > ctrl$maxfeval) {
+##          msg <- paste("Too many function evaluations (> ", ctrl$maxfeval, ") ", sep = "")
+##          if (ctrl$trace > 0) cat(msg, "\n")
+##          ans <- list(par, fmin, c(ifn, ig), 1, msg)  # 1 indicates not converged in function limit
+##          names(ans) <- c("par", "value", "counts", "convergence", "message")
+##          return(ans)
+##       }
+##       par <- bvec # save best parameters
+##       ig <- ig + 1 # count gradient evaluations
+##       if (ig > ctrl$maxit) {
+##         msg <- paste("Too many gradient evaluations (> ", ctrl$maxit, ") ", sep = "")
+##         if (ctrl$trace > 0) cat(msg, "\n")
+##         ans <- list(par, fmin, c(ifn, ig), 1, msg)  # 1 indicates not converged in function or gradient limit
+##         names(ans) <- c("par", "value", "counts", "convergence", "message")
+##         return(ans)
+##       }
+##       g <- mygr(bvec, ...) # Note: not checked by try(). May want to do that
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##       g1 <- sum(g * (g - c))  # gradient * grad-difference
+##       g2 <- sum(t * (g - c))  # oldsearch * grad-difference
+##       gradsqr <- sum(g * g)
+##       if (ctrl$trace > 1) cat("Gradsqr = ",gradsqr," g1, g2 ",g1," ",g2," fmin=",fmin,"\n")
+##       c <- g  # save last gradient
+##       g3 <- 1  # Default to 1 to ensure it is defined -- t==0 on first cycle
+##       # cat("ctrl$tol, fmin, ctrl$cgoffset:", ctrl$tol, fmin, ctrl$cgoffset, "\n")
+##       if (gradsqr > ctrl$tol * (abs(fmin) + ctrl$cgoffset)) { # ensure we haven't got a "small" gradient
+##         if (g2 > 0) {
+##            betaDY <- gradsqr/g2
+##            betaHS <- g1/g2
+##            g3 <- max(0, min(betaHS, betaDY))  # g3 is our new 'beta' !! Dai/Yuan 2001, (4.2)
+##         } #?? What if g2 <= 0?
+##       } else {
+##          msg <- paste("Very small gradient -- gradsqr =", gradsqr, sep = " ")
+##          if (ctrl$trace > 0) cat(msg, "\n")
+##          keepgoing <- FALSE  # done loops -- break
+##          break  # to leave inner loop
+##       }
+##       if (ctrl$trace > 2) cat("Betak = g3 = ", g3, "\n")
+##       if (g3 == 0 || cycle >= cyclimit) { # we are resetting to gradient in this case
+##          if (ctrl$trace > 0) {
+##            if (cycle < cyclimit) cat("Yuan/Dai cycle reset\n")
+##              else cat("Cycle limit reached -- reset\n")
+##          }
+##          fdiff <- NA
+##          cycle <- 0
+##          break  # to quit inner loop
+##       } else { # drop through if not Yuan/Dai or cycle limit reset
+##         t <- t * g3 - g  # t starts at zero, later is search vector
+##         gradproj <- sum(t * g)  # gradient projection
+##         if (ctrl$trace > 1) cat("Gradproj =", gradproj, "\n")
+##         accpoint <- FALSE
+##         if (gradproj < 0) {
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##           ########################################################
+##           ####                  Line search                   ####
+##           if (ctrl$trace > 2) cat("backtracklsq  oldstep=", oldstep,"  ")
+##           stl <- min(oldstep*ctrl$cgstinflate, ctrl$cgstep0max)
+##           if (ctrl$trace > 2) cat("stl=", stl,"  ")
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##           maxstep <- 2 * ctrl$cgstep0max # This is pure heuristic! ??
+##           kf <- 0
+##           if (ctrl$trace > 3) cat("qiilev =",ctrl$qiilev,"\n")
+##           while (! isTRUE(accpoint)) { 
+##             bvec <- par + stl * t
+##             if (identical(bvec, par)) {
+##               msg <- "linesearch: No progress"
+##               if (ctrl$trace > 0) cat(msg,"\n") 
+##               stl <- 0 # to ensure flagged
+##               break
+##             }
+##             f <- fn(bvec, ...) # Not testing in try()
+##             kf <- kf + 1 
+##             ifn <- ifn + 1 # should test but ...
+##             if (ctrl$trace > 2) cat("kf=",kf,"   f(",stl,")=",f)
+##             if (f < fmin + ctrl$qiilev*(abs(fmin)+.Machine$double.eps) ) { # try quad point -- note condition
+##               aa <- (f - fmin - gradproj*stl)/(stl*stl)
+##               sq <- -gradproj/(2*aa)
+##               if (ctrl$trace > 2) cat("    aa, sq:",aa,sq,"   ")
+##               if (sq > maxstep) {
+##                  sq <- maxstep
+##                  if (ctrl$trace > 2) cat("sq reduced to ",maxstep,"\n")
+##               }
+##               bq <- par + sq*t
+##               if (! identical(bq, par)) {
+##                 fq <- fn(bq, ...)
+##                 kf <- kf + 1
+##                 ifn <- ifn + 1
+##                 if (ctrl$trace > 2) cat("fq=",fq,"\n")
+##                 if (fq < f) {
+##                   accpointq <- (fq <= fmin + gradproj * sq * ctrl$acctol) 
+##                   if (ctrl$trace > 2) cat("accpointq=",accpointq,"\n")  
+##                   if (accpointq) {
+##                     f <- fq
+##                     stl <- sq
+##                     bvec <- bq
+##                   } # end accpointq
+##                 } # end fq < f
+##               } # end non-identical bq, par
+##             } # end try quadpoint
+##             accpoint <- (f <= fmin + gradproj * stl * ctrl$acctol)
+##             if (ctrl$trace > 2) cat("   accpoint=", accpoint,"\n")
+##             if (! isTRUE(accpoint)) stl <- stl*ctrl$cgstepredn # backtrack
+##           } # end backtrack loop
+##           oldstep <- stl
+##           fdiff <- fmin - f
+##           fmin <- f
+##           par <- bvec
+##           if (ctrl$trace > 2) cat("Have fmin=",fmin,"  OK accpoint with stl=",stl,"\n")
+##         } else {
+##           msg <- "Uphill search direction"
+##           if (ctrl$trace > 0) cat(msg,"\n") 
+##           stl <- -1 # flag uphill (probably don't need!!)
+##         } # gradproj test
+##         if (stl <= 0) { # not changed on step redn, or uphill
+##           if (cycle == 1) {
+##             msg <- " Converged -- no progress on new CG cycle"
+##             if (ctrl$trace > 0) cat("\n", msg, "\n")
+##             keekpgoing <- FALSE
+##             break  #!!
+##           }
+##           cycle <- 0 # restart
+##         }  # end stl <= 0
+##       }  # end of test on Yuan/Dai condition
+##       if (ctrl$trace > 2) cat("oldstep=", oldstep,"\n")
+##       if (oldstep > ctrl$cgstep0max) { oldstep <- ctrl$cgstep0max}
+##       if (oldstep < ctrl$cgminstep) { oldstep <- ctrl$cgminstep} #   steplength
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##   #
+##       if (ctrl$trace > 2) {
+##         cat("end inner loop -- stl, oldstep = ",stl,oldstep,"\n")
+##         cat("fmin =",fmin,"\n")
+##         print(par)
+##       }
+##   #   tmp <- readline("again")
+##     }  # end of inner loop (cycle)        
+##     if (ctrl$trace > 2) cat("End outer loop, cycle =", cycle, "\n")
+##   }  # end of outer loop
+##   msg <- "Rcgminu seems to have converged"
+##   if (ctrl$trace > 0) cat(msg, "after ",ifn," fn and ",ig," gr evals\n")
+##   #  par: The best set of parameters found.
+##   #  value: The value of 'fn' corresponding to 'par'.
+##   #  counts: number of calls to 'fn' and 'gr' (2 elements)
+##   # convergence: An integer code. '0' indicates successful
+##   #   convergence.
+##   #  message: A character string or 'NULL'.
+##   #
+##   #
+##   #
+##   ans <- list(par, fmin, c(ifn, ig), 0, msg)
+##   names(ans) <- c("par", "value", "counts", "convergence", "message")
+##   return(ans)
+## }  ## end of Rcgminu

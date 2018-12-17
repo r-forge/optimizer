@@ -1,8 +1,12 @@
 export(
-  "Rcgdescent"
+  "RcgminuImpl",
+  "ControlParams"
 )
-importFrom("optimx","grchk") # gradient check
-importFrom("optimx","grfwd") # forward gradient approximation
-importFrom("optimx","grcentral") # central gradient approximation
-importFrom("optimx","grback") # backward gradient approximation
-importFrom("optimx","grnd") # numDeriv gradient approximation
+## importFrom("optimx","grchk")
+## importFrom("optimx","bmchk")
+## importFrom("optimx","grfwd")
+## importFrom("optimx","grcentral")
+## importFrom("optimx","grback")
+## importFrom("optimx","grnd")
+
+useDynLib(Rcgdescent, .registration = TRUE)

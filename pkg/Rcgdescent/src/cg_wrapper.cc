@@ -482,7 +482,7 @@ extern "C" {
       SEXP r_function_evals = protector.protect(Rf_ScalarInteger(stats.nfunc));
       SEXP r_gradient_evals = protector.protect(Rf_ScalarInteger(stats.ngrad));
       SEXP r_return_status = protector.protect(CGMIN::ToRString(return_status.c_str()));
-      SEXP r_converged = protector.protect(Rf_ScalarLogical(return_code == 0));
+      SEXP r_converged = protector.protect(Rf_ScalarInteger(return_code));
       SEXP ans = protector.protect(Rf_allocVector(VECSXP, 6));
       SET_VECTOR_ELT(ans, 0, r_optimal_vector);
       SET_VECTOR_ELT(ans, 1, r_function_optimum);

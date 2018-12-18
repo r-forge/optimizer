@@ -54,6 +54,3 @@ S3method("coef", "optimx")
 S3method("coef<-", "optimx")
 S3method("summary", "optimx")
 
-
-
-

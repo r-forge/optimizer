@@ -384,6 +384,43 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ## return(ans)
       }  ## end if using Rcgmin2
 ## --------------------------------------------
+      else if (method == "Rcgdesc") { # Use Rcgdescent -- unconstrained
+        mcontrol <- NULL
+        if (! is.null(egr)) {
+  	  if (ctrl$have.bounds) { # 151220 -- this was not defined
+            # 170919 -- explicit reference to package
+   	    stop("Rcgdescent does not handle bounds")
+	  } else {
+   	     ans <- try(Rcgdescent::Rcgdesc(par=spar, fn=efn, gr=egr, ...))
+	  }
+        }
+        if (!is.null(egr) && (class(ans)[1] != "try-error")) {
+                ans$par <- ans$par*pscale
+                if (ans$convergence) ans$convergence <- 0 else ans$convergence <- 9997 # ???
+	        ans$message <- NA        
+                ans$hessian <- NULL
+                ans$bdmsk <- NULL # clear this
+        } else {
+		if (ctrl$trace>0) {
+                    cat("Rcgdescent failed for current problem \n")
+                    if(is.null(egr)) cat("Note: Rcgdescent needs gradient function specified\n")
+                }
+		ans<-list() # ans not yet defined, so set as list
+                ans$convergence <- 9999 # failed in run
+		ans$value <- ctrl$badval
+		ans$par<-rep(NA,npar)
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA # save function and gradient count information
+	        ans$message <- NULL
+                if(is.null(egr)) {
+                   ans$message <- "Must specify gradient function for Rcgmin2"
+                   ans$convergence <- 9998 # for no gradient where needed
+                }
+                ans$hessian <- NULL
+        }
+        ## return(ans)
+      }  ## end if using Rcgdescent
+## --------------------------------------------
       else if (method == "Rvmmin") { # Use Rvmmin routine (ignoring masks??)
         mcontrol$maxit <- ctrl$maxit
         mcontrol$maxfeval <- ctrl$maxfeval

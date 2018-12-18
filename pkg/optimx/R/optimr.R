@@ -396,7 +396,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         }
         if (!is.null(egr) && (class(ans)[1] != "try-error")) {
                 ans$par <- ans$par*pscale
-                if (ans$convergence) ans$convergence <- 0 else ans$convergence <- 9997 # ???
+                # if (ans$convergence) ans$convergence <- 0 else ans$convergence <- 9997 # ???
 	        ans$message <- NA        
                 ans$hessian <- NULL
                 ans$bdmsk <- NULL # clear this

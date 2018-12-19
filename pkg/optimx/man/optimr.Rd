@@ -124,6 +124,11 @@ ans <- optimr(start, myf, myg, lower, upper)
 ans <-  optimr(start, myf, myg, lower=lower, upper=upper)
 
   NOTE: The \code{control} only passes \code{trace} to method Rcgmin2.
+
+        Similarly, only \code{maxit} is passed to Rcgdescent.
+
+        The default update formula for the "CG" option of \code{optim()}
+        is \code{type=2} or Polak-Ribiere.
 }
 
 \value{

@@ -12,9 +12,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
        if (! is.null(control[onename]) || ! is.na(control[onename]) )
        ctrl[onename]<-control[onename]
      }
-  }
-  ## 180706: Should we try to streamline?
-
+  } ## 180706: Should we try to streamline?
   if (is.null(method)) method <- ctrl$defmethod
 
   outmethod <- checksolver(method, ctrl$allmeth, ctrl$allpkg) # there will only be one! 
@@ -185,8 +183,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       mcontrol$trace <- ctrl$trace
       mcontrol$parscale <- NULL # using user fn 
       mcontrol$fnscale <- NULL
-##      mcontrol$fnscale <- ctrl$fnscale # 180313 Carlo Lapid ?? wrong, use efn, egr
-
+      mcontrol$type <- ctrl$type  # Use Polak Ribiere default (2)
 # Note: hessian always FALSE in these calls. But savehess may recover it.
 
 #        cat("Before optim() call - ctrl$have.bounds =",ctrl$have.bounds,"\n")

@@ -71,6 +71,7 @@ ctrldefault <- function(npar) {
         stopbadupdate = FALSE,
         tol = 0, 
         trace = 0,
+        type = 2, # for optim::CG Polak Ribiere
         watch = FALSE,
         cgoffset = 100,
         cgstepredn = 0.15,

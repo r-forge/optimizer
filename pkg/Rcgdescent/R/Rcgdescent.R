@@ -90,10 +90,10 @@ FunctionWrapper <- function(f, ...) {
   ans <- list(function.name = 'wrapped', env  = environment(wrapped)) 
 }
 
-Rcgdesc <- function(par,
+Rcgdescent <- function(par,
                         fn,
                         gr,
-                        control = ControlParams(),
+                        control = list(maxit=500),
                         ...) {
   ## Args:
   ##   par: A numeric vector containing the values of 'x' where the
@@ -111,12 +111,37 @@ Rcgdesc <- function(par,
   ##     supplied by name here.
   stopifnot(is.function(fn))
   stopifnot(is.function(gr))
-  stopifnot(inherits(control, "ControlParams"))
+#  stopifnot(inherits(control, "ControlParams"))
+
+  ctrl <- ControlParams()
+  ncontrol <- names(control)
+  nctrl <- names(ctrl)
+  for (onename in ncontrol) {
+     if (onename %in% nctrl) {
+       if (! is.null(control[onename]) || ! is.na(control[onename]) )
+       ctrl[onename]<-control[onename]
+     }
+  }
 
   target <- FunctionWrapper(fn, ...)
   grad <- FunctionWrapper(gr, ...)
-  cans <- .Call("cgminu_wrapper", target, grad, par, control)
+  cans <- .Call("cgminu_wrapper", target, grad, par, ctrl)
   names(cans) <- c("par", "f", "eval.f", "eval.grad", "message", "converged")
+  cgdmsg <- c("convergence tolerance satisfied", 
+              "change in func <= feps*|f|", 
+              "total number of iterations exceeded maxit", 
+              "slope always negative in line search", 
+              "number of line search iterations exceeds nline", 
+              "search direction not a descent direction", 
+              "excessive updating of eps", 
+              "Wolfe conditions never satisfied", 
+              "debugger is on and the function value increases", 
+              "no cost or gradient improvement in 2n + Parm->nslow iterations", 
+              "out of memory", 
+              "function nan or +-INF and could not be repaired", 
+              "invalid choice for memory parameter")
+  cans$message <- cgdmsg[(cans$converged + 1)]
+
   ans <- list(par=cans$par, value=cans$f, counts=c(cans$eval.f, cans$eval.grad),
                 convergence=cans$converged, message=cans$message)
   return(ans)

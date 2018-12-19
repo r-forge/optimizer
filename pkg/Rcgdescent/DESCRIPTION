@@ -1,8 +1,8 @@
 Package: Rcgdescent
 Type: Package
 Title: Wrapper to the CG_DESCENT C package of Hager and Zhang
-Version: 2018-12.17
-Date: 2018-12-17
+Version: 2018-12.19
+Date: 2018-12-19
 Authors@R: c( person(given = c("John", "C"), family = "Nash", 
               role = c("aut"), 
               email = "nashjc@uottawa.ca"), 

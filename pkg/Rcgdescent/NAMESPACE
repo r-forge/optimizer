@@ -1,5 +1,5 @@
 export(
-  "Rcgdesc",
+  "Rcgdescent",
   "ControlParams"
 )
 ## importFrom("optimx","grchk")

@@ -9,6 +9,7 @@
 #include <ctime>
 #include <string>
 #include <sstream>
+#include <vector>
 
 using std::endl;
 
@@ -441,6 +442,7 @@ extern "C" {
     
       int dimension = Rf_length(Rinitial_values);
       double *data = REAL(Rinitial_values);
+      std::vector<double> x(data, data + dimension);
       cg_stats stats;
       cg_parameter params;
 
@@ -460,7 +462,7 @@ extern "C" {
 
       // This is where the work gets done.
       int return_code = cg_descent(
-          data,
+          x.data(),
           dimension,
           &stats,
           &params,
@@ -477,7 +479,7 @@ extern "C" {
       // IMPORTANT: The names for this list are set in the R function that calls
       // this code.  If you add return values here, be sure to adjust the names
       // in that R function accordingly.
-      SEXP r_optimal_vector = protector.protect(CGMIN::ToRVector(data, dimension));
+      SEXP r_optimal_vector = protector.protect(CGMIN::ToRVector(x.data(), dimension));
       SEXP r_function_optimum = protector.protect(Rf_ScalarReal(stats.f));
       SEXP r_function_evals = protector.protect(Rf_ScalarInteger(stats.nfunc));
       SEXP r_gradient_evals = protector.protect(Rf_ScalarInteger(stats.ngrad));

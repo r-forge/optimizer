@@ -111,9 +111,9 @@ Rcgdescent <- function(par,
   ##     supplied by name here.
   stopifnot(is.function(fn))
   stopifnot(is.function(gr))
-#  stopifnot(inherits(control, "ControlParams"))
 
   ctrl <- ControlParams()
+  stopifnot(inherits(ctrl, "ControlParams"))
   ncontrol <- names(control)
   nctrl <- names(ctrl)
   for (onename in ncontrol) {

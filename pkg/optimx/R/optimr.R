@@ -384,19 +384,18 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         ## return(ans)
       }  ## end if using Rcgmin2
 ## --------------------------------------------
-      else if (method == "Rcgdesc") { # Use Rcgdescent -- unconstrained
-        mcontrol <- NULL
+      else if (method == "Rcgdescent") { # Use Rcgdescent -- unconstrained
+        mcontrol <- NULL # only use maxit het.
+        if (! is.null(ctrl$maxit)) mcontrol$maxit <- ctrl$maxit
         if (! is.null(egr)) {
-  	  if (ctrl$have.bounds) { # 151220 -- this was not defined
-            # 170919 -- explicit reference to package
+  	  if (ctrl$have.bounds) { 
    	    stop("Rcgdescent does not handle bounds")
 	  } else {
-   	     ans <- try(Rcgdescent::Rcgdesc(par=spar, fn=efn, gr=egr, ...))
+   	     ans <- try(Rcgdescent::Rcgdescent(par=spar, fn=efn, gr=egr, ...))
 	  }
         }
         if (!is.null(egr) && (class(ans)[1] != "try-error")) {
                 ans$par <- ans$par*pscale
-                # if (ans$convergence) ans$convergence <- 0 else ans$convergence <- 9997 # ???
 	        ans$message <- NA        
                 ans$hessian <- NULL
                 ans$bdmsk <- NULL # clear this

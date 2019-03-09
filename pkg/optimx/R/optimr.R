@@ -409,7 +409,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	        ans$counts[2] <- NA # save function and gradient count information
 	        ans$message <- NULL
                 if(is.null(egr)) {
-                   ans$message <- "Must specify gradient function for Rcgmin2"
+                   ans$message <- "Must specify gradient function for Rcgdescent"
                    ans$convergence <- 9998 # for no gradient where needed
                 }
                 ans$hessian <- NULL

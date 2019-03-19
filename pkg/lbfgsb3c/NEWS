@@ -5,7 +5,8 @@ supposed to handle this.
 
 --------------------------------------------------------------
 2019-03-19
-    o Packages lbfgsb3 and lbfgsb3c merged. Vignette added.
+    o Packages lbfgsb3 and lbfgsb3c merged into latter. Vignette added.
+    o Suppressed printout when trace>2 and starting (f not defined)
 
 2015-01-20
     o Fixup line longer than 72 chars in lbfgsb.f. Undeclared

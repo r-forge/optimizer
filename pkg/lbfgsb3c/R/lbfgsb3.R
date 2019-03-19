@@ -164,6 +164,7 @@ lbfgsb3c <- function(par, fn, gr=NULL, lower = -Inf, upper = Inf,
         }
     }
     if (is(fn, "function") & is (gr, "function")){
+##        cat("USING fnR, grR\n")
         fnR <- function(x, rho){
             do.call(fn, c(list(x), as.list(rho)));
         }

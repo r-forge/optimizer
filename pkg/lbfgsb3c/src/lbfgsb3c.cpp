@@ -74,7 +74,9 @@ extern "C" void lbfgsb3C_(int n, int lmm, double *x, double *lower,
   taskList[27] = "Maximum number of iterations reached";
   while (true){
     if (trace >= 2){
-      Rprintf("\n================================================================================\nBefore call f=%f task number %d, or \"%s\"\n", *Fmin, itask, (as<std::string>(taskList[itask-1])).c_str());
+      if (itask != 2) {
+         Rprintf("\n================================================================================\nBefore call f=%f task number %d, or \"%s\"\n", *Fmin, itask, (as<std::string>(taskList[itask-1])).c_str());
+      }
     }
     if (itask==3) doExit=1;
     setulb_(&n, &lmm, x, lower, upper, nbd, Fmin, g, &factr, &pgtol,

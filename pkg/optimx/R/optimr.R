@@ -1016,7 +1016,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          ## return(ans)
       }  ## end if using hjkb
 ## --------------------------------------------
-      else if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper
+      else if (method == "lbfgsb3") {# Use 2011 L-BFGS-B wrapper. UPDATED for lbfgsb3c 190319
         if (ctrl$trace > 1) cat("lbfgsb3\n")
         mcontrol$trace <- ctrl$trace
         mcontrol$maxit <- ctrl$maxit
@@ -1027,10 +1027,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         if (ctrl$have.bounds) { ## Note call uses prm not par
             slower <- lower/pscale
             supper <- upper/pscale
-            ans <- try(lbfgsb3c::lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
+            ans <- try(lbfgsb3c::lbfgsb3(par=spar, fn=efn, gr=egr, lower = slower, 
                 upper = supper, control=mcontrol, ...)) # explicit pkg in call 170919
         } else {
-            ans <- try(lbfgsb3c::lbfgsb3(prm=spar, fn=efn, gr=egr, control=mcontrol, ...))
+            ans <- try(lbfgsb3c::lbfgsb3(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
         if (class(ans)[1] != "try-error") {
  ## Need to check these carefully??
@@ -1039,8 +1039,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             ans$prm <- NULL
             ans$value<-as.numeric(ans$f)
             ans$f <- NULL
-            ans$counts[1] <- ans$info$isave[34]
-            ans$counts[2] <- ans$counts[1]
+##            ans$counts[1] <- ans$info$isave[34]
+##            ans$counts[2] <- ans$counts[1]
             ans$info <- NULL ## Note -- throwing away a lot of information
             ans$g <- NULL ## perhaps keep -- but how??
             ans$hessian <- NULL
@@ -1053,7 +1053,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             ans$par<-rep(NA,npar)
             ans$convergence<-9999 # failed in run
             ans$counts[1] <- NA
-            ans$counts[1] <- NA
+            ans$counts[2] <- NA
             ans$hessian <- NULL
             ans$message <- NA
          }
@@ -1094,7 +1094,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             ans$par<-rep(NA,npar)
             ans$convergence<-9999 # failed in run
             ans$counts[1] <- NA
-            ans$counts[1] <- NA
+            ans$counts[2] <- NA
             ans$hessian <- NULL
             ans$message <- NA
          }
@@ -1148,7 +1148,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             ans$convergence <- 9999 # failed in run
             if (is.null(egr)) ans$convergence <- 9998 # no gradient
             ans$counts[1] <- NA
-            ans$counts[1] <- NA
+            ans$counts[2] <- NA
             ans$hessian <- NULL
             if (! is.na(errmsg)) ans$message <- errmsg
          }

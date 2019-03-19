@@ -363,7 +363,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 #	print(par)
 #	print(ufn)
 #	print(ugr)
-        time <- system.time(ans <- try(lbfgsb3::lbfgsb3(prm=par, fn=ufn, gr=ugr, 
+        time <- system.time(ans <- try(lbfgsb3c::lbfgsb3(prm=par, fn=ufn, gr=ugr, 
 		lower=lower, upper=upper, control=mcontrol, ...), silent=TRUE))[1]
         if ((class(ans)[1] != "try-error")) {
 		ans$convcode <- 0

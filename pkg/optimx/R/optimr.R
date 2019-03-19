@@ -1027,10 +1027,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         if (ctrl$have.bounds) { ## Note call uses prm not par
             slower <- lower/pscale
             supper <- upper/pscale
-            ans <- try(lbfgsb3::lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
+            ans <- try(lbfgsb3c::lbfgsb3(prm=spar, fn=efn, gr=egr, lower = slower, 
                 upper = supper, control=mcontrol, ...)) # explicit pkg in call 170919
         } else {
-            ans <- try(lbfgsb3::lbfgsb3(prm=spar, fn=efn, gr=egr, control=mcontrol, ...))
+            ans <- try(lbfgsb3c::lbfgsb3(prm=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
         if (class(ans)[1] != "try-error") {
  ## Need to check these carefully??

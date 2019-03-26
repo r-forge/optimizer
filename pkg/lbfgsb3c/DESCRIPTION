@@ -12,11 +12,13 @@ Authors@R: c(person(given = c("Matthew", "L"), family = "Fidler", role =
               person(given = "Jorge", family = "Nocedal", role = "aut"),
               person(given = c("Jose", "Luis"), family = "Morales", role = "aut"))
 Maintainer: Matthew L Fidler <matthew.fidler@gmail.com>
-Description: Interfacing to Nocedal et al. L-BFGS-B.3.0 (2011 <doi:10.1145/2049662.2049669>) limited
-	memory BFGS minimizer with bounds on parameters. This is a fork of 'lbfgsb3'.  This
-	registers a 'R' compatible 'C' interface to L-BFGS-B.3.0 that uses the same function types
-	and optimization as the optim() function (see writing 'R' extensions and source for
-	details).  Ths package also adds more stopping criterion as well as allows adjusting more tolerances.
+Description: Interfacing to Nocedal et al. L-BFGS-B.3.0 
+        (See <http://users.iems.northwestern.edu/~nocedal/lbfgsb.html>)
+        limited memory BFGS minimizer with bounds on parameters. This is a fork of 'lbfgsb3'. 
+	This registers a 'R' compatible 'C' interface to L-BFGS-B.3.0 that uses the same 
+	function types and optimization as the optim() function (see writing 'R' extensions and
+	source for details).  This package also adds more stopping criterion as well as allows
+	adjusting more tolerances.
 License: GPL-2
 Depends: R (>= 3.0.2)
 Imports: Rcpp (>= 0.12.3), numDeriv, methods
@@ -33,5 +35,3 @@ Author: Matthew L Fidler [aut, cre],
   Richard Byrd [aut],
   Jorge Nocedal [aut],
   Jose Luis Morales [aut]
-Repository: CRAN
-Date/Publication: 2018-12-01 05:20:04 UTC

@@ -1033,17 +1033,14 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             ans <- try(lbfgsb3c::lbfgsb3(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
         if (class(ans)[1] != "try-error") {
- ## Need to check these carefully??
-            ans$convergence <- 0
-            ans$par <- ans$prm*pscale
-            ans$prm <- NULL
-            ans$value<-as.numeric(ans$f)
-            ans$f <- NULL
-##            ans$counts[1] <- ans$info$isave[34]
-##            ans$counts[2] <- ans$counts[1]
-            ans$info <- NULL ## Note -- throwing away a lot of information
-            ans$g <- NULL ## perhaps keep -- but how??
-            ans$hessian <- NULL
+## Need to check these carefully??
+#            ans$convergence <- 0
+            ans$par <- ans$par*pscale
+#            ans$prm <- NULL
+#            ans$value<-as.numeric(ans$f)
+#            ans$f <- NULL
+#            ans$g <- NULL ## perhaps keep -- but how??
+#            ans$hessian <- NULL
             ans$message <- NA
             ans$niter <- NULL # loss of information
          } else {

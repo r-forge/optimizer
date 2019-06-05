@@ -30,6 +30,10 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
+VERSION 2019-06-05
+      o Correct mcontrol$iter.max for nlminb in optimr()
+        Thanks to Jonathan Babyn of Dalhousie.
+
 VERSION 2019-03-19
       o Adjust for new lbfgsb3c that incorporates lbfgsb3.
 

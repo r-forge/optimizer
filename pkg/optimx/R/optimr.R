@@ -221,7 +221,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
       else if (method == "nlminb") {
         # Here we use portLib routine nlminb rather than optim as our minimizer
-        mcontrol$iter.max<-mcontrol$maxit # different name for iteration limit in this routine
+        mcontrol$iter.max<-ctrl$maxit # different name for iteration limit in this routine
         mcontrol$maxit<-NULL # and we null it out
         mcontrol$abs.tol <- 0 # To fix issues when minimum is less than 0. 20100711
         mcontrol$eval.max <- ctrl$maxfeval

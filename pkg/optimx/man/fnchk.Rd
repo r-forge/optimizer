@@ -76,27 +76,32 @@ benbad<-function(x, y){
 y<-1:10
 x<-c(1)
 cat("test benbad() with y=1:10, x=c(1)\n")
-fc01<-fnchk(x, benbad, trace=1, y)
+tryfc01 <- try(fc01<-fnchk(x, benbad, trace=3, y))
+print(tryfc01)
 print(fc01)
 
 y<-as.vector(y)
 cat("test benbad() with y=as.vector(1:10), x=c(1)\n")
-fc02<-fnchk(x, benbad, trace=1, y)
+tryfc02 <- try(fc02<-fnchk(x, benbad, trace=1, y))
+print(tryfc02)
 print(fc02)
 
 y<-as.matrix(y)
 cat("test benbad() with y=as.matrix(1:10), x=c(1)\n")
-fc03<-fnchk(x, benbad, trace=1, y)
+tryfc03 <- try(fc03<-fnchk(x, benbad, trace=1, y))
+print(tryfc03)
 print(fc03)
    
 y<-as.array(y)
 cat("test benbad() with y=as.array(1:10), x=c(1)\n")
-fc04<-fnchk(x, benbad, trace=1, y)
+tryfc04 <- try(fc04<-fnchk(x, benbad, trace=1, y))
+print(tryfc04)
 print(fc04)
    
 y<-"This is a string"
 cat("test benbad() with y a string, x=c(1)\n")
-fc05<-fnchk(x, benbad, trace=1, y)
+tryfc05 <- try(fc05<-fnchk(x, benbad, trace=1, y))
+print(tryfc05)
 print(fc05)
 
 fr <- function(x) {   ## Rosenbrock Banana function
@@ -107,11 +112,14 @@ fr <- function(x) {   ## Rosenbrock Banana function
 xtrad<-c(-1.2,1)
 ros1<-fnchk(xtrad, fr, trace=1)
 print(ros1)
-npar<-2
-opros<-list2env(list(fn=fr, gr=NULL, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
-       KFN=0, KGR=0, KHESS=0, dots=NULL))
-uros1<-fnchk(xtrad, ufn, trace=1, fnuser=opros)
-print(uros1)
+
+## Too complicated
+## npar<-2
+## opros<-list2env(list(fn=fr, gr=NULL, hess=NULL, MAXIMIZE=FALSE,
+##       PARSCALE=rep(1,npar), FNSCALE=1,
+#3       KFN=0, KGR=0, KHESS=0, dots=NULL))
+## uros1<-fnchk(xtrad, ufn, trace=1, fnuser=opros)
+## print(uros1)
 
 }
 \keyword{optimize}

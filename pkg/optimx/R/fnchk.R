@@ -119,7 +119,7 @@ fnchk <- function(xpar, ffn, trace=0, ... ) {
       if (trace > 0) cat(msg,"\n")
    }
 
-   if (is.infinite(fval) || is.na(fval)) {
+   if (any(is.infinite(fval)) || any(is.na(fval))) {
       excode <- -1 
       msg <- "Function evaluation returned Inf or NA (non-computable)"
       infeasible <- TRUE

@@ -57,7 +57,8 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (is.null(pstring)) {
       for (j in 1:npar) {  pstring[[j]]<- paste("p",j,sep='')}
   } 
-   cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtime")
+##JN 190614 xtime -> xtimes
+   cnames <- c(pstring, "value", "fevals", "gevals", "convergence", "kkt1", "kkt2", "xtimes")
    ans.ret <- matrix(NA, nrow=nmeth, ncol=npar+7)
   if (control$trace > 3) {
       print(ans.ret)

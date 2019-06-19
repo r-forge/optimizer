@@ -1,0 +1,16 @@
+##
+##  NAMESPACE
+##
+import(
+    numDeriv
+)
+
+# Public routines
+export(
+   lbfgsb3
+)
+
+# Load shared objects
+useDynLib(lbfgsb3)
+
+# S4 Methods

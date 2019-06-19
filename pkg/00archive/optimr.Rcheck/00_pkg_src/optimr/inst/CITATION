@@ -1,0 +1,12 @@
+citHeader("To cite optimr in publications use:")
+
+citEntry(entry = "Manual",
+  title        = "{optimr}: A Replacement and Extension of the 'optim' Function",
+  author       = personList(as.person("John C Nash")),
+  url          = "https://cran.r-project.org/package=optimr",
+
+textVersion  =
+  paste("John C Nash (2016).",
+        "{optimr}: A Replacement and Extension of the 'optim' Function",
+        "URL http://CRAN.R-project.org/package=optimr")
+)

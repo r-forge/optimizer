@@ -1,0 +1,24 @@
+2019-2-12:
+
+Changed DESCRIPTION to give 
+
+Title: Limited Memory BFGS Minimizer with Bounds on Parameters with
+        'optim()' 'C' Interface
+Version: 2019-2.12
+
+The quotes around optim() removed one R CMD check note about title case.
+The version is to keep JN work separate from that of MF.
+
+Getting WARNING on 
+
+* checking compilation flags used ... WARNING
+Compilation used the following non-portable flag(s):
+  ‘-Wdate-time’ ‘-Werror=format-security’ ‘-Wformat’
+
+On JN UL30A laptop, get
+
+> R CMD config CFLAGS
+> -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g
+
+These are seemingly coming from /etc/R/Makeconf
+

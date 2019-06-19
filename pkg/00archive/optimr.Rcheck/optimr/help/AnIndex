@@ -1,0 +1,11 @@
+checksolver	checksolver
+coef.opm	coef.opm
+coef<-	coef.opm
+coef<-.opm	coef.opm
+ctrldefault	ctrldefault
+hjn	hjn
+multistart	multistart
+opm	opm
+optchk	optchk
+optimr	optimr
+polyopt	polyopt

@@ -1,0 +1,28 @@
+Package: lbfgsb3x
+Type: Package
+Title: Limited Memory BFGS Minimizer with Bounds on Parameters with
+        'optim()' 'C' Interface
+Version: 2019-3.13
+Encoding: UTF-8
+Authors@R: c(person(given = c("Matthew", "L"), family = "Fidler", role =
+              c("aut"), email = "matthew.fidler@gmail.com"),
+	      person(given = c("John", "C"), family = "Nash", role =
+              c("aut", "cre"), email = "nashjc@uottawa.ca"),
+              person(given = "Ciyou", family = "Zhu", role = "aut"), 
+              person(given = "Richard", family = "Byrd", role = "aut"), 
+              person(given = "Jorge", family = "Nocedal", role = "aut"),
+              person(given = c("Jose", "Luis"), family = "Morales", role = "aut"))
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Interfacing to Nocedal et al. L-BFGS-B.3.0 (2011 <doi:10.1145/2049662.2049669>) limited
+	memory BFGS minimizer with bounds on parameters. This is a fork of 'lbfgsb3'.  This
+	registers a 'R' compatible 'C' interface to L-BFGS-B.3.0 that uses the same function types
+	and optimization as the optim() function (see writing 'R' extensions and source for
+	details).  Ths package also adds more stopping criterion as well as allows adjusting more tolerances.
+License: GPL-2
+Depends: R (>= 3.0.2)
+Imports: Rcpp (>= 0.12.3), numDeriv, methods
+LinkingTo: Rcpp (>= 0.12.3), RcppArmadillo
+NeedsCompilation: yes
+RoxygenNote: 6.1.1
+VignetteBuilder: knitr, rmarkdown
+Suggests: testthat, knitr, rmarkdown, optimx, microbenchmark, lbfgsb3x

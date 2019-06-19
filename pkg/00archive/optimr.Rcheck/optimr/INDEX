@@ -1,0 +1,11 @@
+checksolver             Test if requested solver is present
+coef.opm                Summarize opm object
+ctrldefault             set control defaults
+hjn                     Compact R Implementation of Hooke and Jeeves
+                        Pattern Search Optimization
+multistart              General-purpose optimization - multiple starts
+opm                     General-purpose optimization
+optchk                  General-purpose optimization
+optimr                  General-purpose optimization
+polyopt                 General-purpose optimization - sequential
+                        application of methods

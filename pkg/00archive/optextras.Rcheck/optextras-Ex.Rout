@@ -1,0 +1,1685 @@
+
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "optextras"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('optextras')
+Loading required package: numDeriv
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("axsearch")
+> ### * axsearch
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: axsearch
+> ### Title: Perform axial search around a supposed minimum and provide
+> ###   diagnostics
+> ### Aliases: axsearch
+> ### Keywords: nonlinear optimize axial search
+> 
+> ### ** Examples
+> 
+> #####################
+> require(optimx)
+Loading required package: optimx
+
+Attaching package: ‘optimx’
+
+The following objects are masked from ‘package:optextras’:
+
+    axsearch, bmchk, bmstep, fnchk, gHgen, gHgenb, grback, grcentral,
+    grchk, grfwd, grnd, hesschk, kktchk, optsp, scalechk
+
+> # Simple bounds test for n=4
+> bt.f<-function(x){
++  sum(x*x)
++ }
+> 
+> bt.g<-function(x){
++   gg<-2.0*x
++ }
+> 
+> n<-4
+> lower<-rep(0,n)
+> upper<-lower # to get arrays set
+> bdmsk<-rep(1,n)
+> # bdmsk[(trunc(n/2)+1)]<-0
+> for (i in 1:n) { 
++     lower[i]<-1.0*(i-1)*(n-1)/n
++     upper[i]<-1.0*i*(n+1)/n
++ }
+> xx<-0.5*(lower+upper)
+> 
+> cat("lower bounds:")
+lower bounds:> print(lower)
+[1] 0.00 0.75 1.50 2.25
+> cat("start:       ")
+start:       > print(xx)
+[1] 0.625 1.625 2.625 3.625
+> cat("upper bounds:")
+upper bounds:> print(upper)
+[1] 1.25 2.50 3.75 5.00
+> 
+> cat("Rvmmin \n\n")
+Rvmmin 
+
+> # Note: trace set to 0 below. Change as needed to view progress. 
+> 
+> abtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", control=list(trace=0))
+> # Note: use lower=lower etc. because there is a missing hess= argument
+> print(abtrvm)
+$par
+[1] 0.00 0.75 1.50 2.25
+
+$value
+[1] 7.875
+
+$counts
+function gradient 
+       8        8 
+
+$convergence
+[1] 2
+
+$message
+[1] "Rvmminb appears to have converged"
+
+> 
+> cat("Axial search")
+Axial search> axabtrvm <- axsearch(abtrvm$par, fn=bt.f, fmin=abtrvm$value, lower, upper, bdmsk=NULL, 
++               trace=0)
+> print(axabtrvm)
+$bestfn
+[1] 7.875
+
+$par
+[1] 0.00 0.75 1.50 2.25
+
+$details
+  par0 fback fmin0     ffwd      parstep tilt roc
+1 0.00    NA 7.875 7.875000 3.666853e-07   90 Inf
+2 0.75    NA 7.875 7.875682 4.545258e-04   90 Inf
+3 1.50    NA 7.875 7.877727 9.086849e-04   90 Inf
+4 2.25    NA 7.875 7.881135 1.362844e-03   90 Inf
+
+> 
+> cat("Now force an early stop\n")
+Now force an early stop
+> abtrvm1 <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
++                   control=list(maxit=1, trace=0))
+Warning in Rvmminb(par, fn, gr, lower = lower, upper = upper, bdmsk = bdmsk,  :
+  Too many gradient evaluations
+> print(abtrvm1)
+$par
+[1] 0.625 1.625 2.625 3.625
+
+$value
+[1] 8.884958
+
+$counts
+function gradient 
+       2        2 
+
+$convergence
+[1] 1
+
+$message
+[1] "Rvmminb appears to have converged"
+
+> cat("Axial search")
+Axial search> axabtrvm1 <- axsearch(abtrvm1$par, fn=bt.f, fmin=abtrvm1$value, lower, upper, bdmsk=NULL, 
++                      trace=0)
+> print(axabtrvm1)
+$bestfn
+[1] 8.884958
+
+$par
+[1] 0.625 1.625 2.625 3.625
+
+$details
+   par0    fback    fmin0     ffwd      parstep      tilt          roc
+1 0.625 23.06203 8.884958 23.06297 0.0003788326 -51.34019 4.152308e-08
+2 1.625 23.05930 8.884958 23.06570 0.0009843780 -72.89727 2.687203e-06
+3 2.625 23.05416 8.884958 23.07085 0.0015899235 -79.21570 2.721735e-05
+4 3.625 23.04659 8.884958 23.07842 0.0021954689 -82.14669 1.332738e-04
+
+> 
+> 
+> cat("Maximization test\n")
+Maximization test
+> mabtrvm <- optimr(xx, bt.f, bt.g, lower=lower, upper=upper, method="Rvmmin", 
++                  control=list(trace=1, maximize=TRUE))
+Unit parameter scaling
+gradient test tolerance =  6.055454e-06   fval= -23.0625 
+ compare to max(abs(gn-ga))/(1+abs(fval)) =  3.374164e-12 
+admissible =  TRUE 
+maskadded =  FALSE 
+parchanged =  FALSE 
+Rvmminb -- J C Nash 2009-2015 - an R implementation of Alg 21
+Problem of size n= 4   Dot arguments:
+list()
+Initial fn= -23.0625 
+  1   1   -23.0625 
+ig= 2   gnorm= 8.689381     2   2   -43.87634 
+No acceptable point
+Reset to gradient search
+  2   2   -43.87634 
+ig= 3   gnorm= 4.974424     3   3   -45.24872 
+No acceptable point
+Reset to gradient search
+  3   3   -45.24872 
+ig= 4   gnorm= 1.923077     4   4   -46.23706 
+No acceptable point
+Reset to gradient search
+  4   4   -46.23706 
+ig= 5   gnorm= 0   Seem to be done Rvmminb
+> # Note: use lower=lower etc. because there is a missing hess= argument
+> print(mabtrvm)
+$par
+[1] 1.25 2.50 3.75 5.00
+
+$value
+[1] 46.875
+
+$counts
+function gradient 
+       5        5 
+
+$convergence
+[1] 2
+
+$message
+[1] "Rvmminb appears to have converged"
+
+> cat("Do NOT try axsearch() with maximize\n")
+Do NOT try axsearch() with maximize
+> cat("KKT condition check\n")
+KKT condition check
+> akktm <- kktchk(mabtrvm$par, bt.f, bt.g, hess=NULL, upper=upper, lower=lower,  maximize=TRUE, control=list(trace=0))
+Warning in kktchk(mabtrvm$par, bt.f, bt.g, hess = NULL, upper = upper, lower = lower,  :
+  All parameters are constrained
+> print(akktm)
+$gmax
+[1] 0
+
+$evratio
+[1] NA
+
+$kkt1
+[1] TRUE
+
+$kkt2
+[1] TRUE
+
+$hev
+[1] 0 0 0 0
+
+$ngatend
+[1]  2.5  5.0  7.5 10.0
+
+$nhatend
+     [,1] [,2] [,3] [,4]
+[1,]   -2    0    0    0
+[2,]    0   -2    0    0
+[3,]    0    0   -2    0
+[4,]    0    0    0   -2
+
+> 
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:optimx’
+
+> nameEx("bmchk")
+> ### * bmchk
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: bmchk
+> ### Title: Check bounds and masks for parameter constraints used in
+> ###   nonlinear optimization
+> ### Aliases: bmchk
+> ### Keywords: nonlinear optimize upper lower bound mask
+> 
+> ### ** Examples
+> 
+> #####################
+> 
+> cat("25-dimensional box constrained function\n")
+25-dimensional box constrained function
+> flb <- function(x)
++     { p <- length(x); sum(c(1, rep(4, p-1)) * (x - c(1, x[-p])^2)^2) }
+> 
+> start<-rep(2, 25)
+> cat("\n start:")
+
+ start:> print(start)
+ [1] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+> lo<-rep(2,25)
+> cat("\n lo:")
+
+ lo:> print(lo)
+ [1] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+> hi<-rep(4,25)
+> cat("\n hi:")
+
+ hi:> print(hi)
+ [1] 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+> bt<-bmchk(start, lower=lo, upper=hi, trace=1)
+admissible =  TRUE 
+maskadded =  FALSE 
+parchanged =  FALSE 
+At least one parameter is on a bound
+> print(bt)
+$bvec
+ [1] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+
+$bdmsk
+ [1] -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3 -3
+
+$bchar
+ [1] "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L" "L"
+[20] "L" "L" "L" "L" "L" "L"
+
+$lower
+ [1] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+
+$upper
+ [1] 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+
+$nolower
+[1] FALSE
+
+$noupper
+[1] FALSE
+
+$bounds
+[1] TRUE
+
+$admissible
+[1] TRUE
+
+$maskadded
+[1] FALSE
+
+$parchanged
+[1] FALSE
+
+$feasible
+[1] TRUE
+
+$onbound
+[1] TRUE
+
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("bmstep")
+> ### * bmstep
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: bmstep
+> ### Title: Compute the maximum step along a search direction.
+> ### Aliases: bmstep
+> ### Keywords: nonlinear optimize upper lower bound mask
+> 
+> ### ** Examples
+> 
+> #####################
+> xx <- c(1, 1)
+> lo <- c(0, 0)
+> up <- c(100, 40)
+> sdir <- c(4,1)
+> bm <- c(1,1) # both free
+> ans <- bmstep(xx, sdir, lo, up, bm, trace=1)
+Distances to bounds, lower then upper
+[1] 1 1
+[1] 99 39
+steplengths, lower then upper
+[1] 0 0
+[1] 24.75 39.00
+steplengths, truncated, lower then upper
+sslo NULL
+[1] 24.75 39.00
+> # stepsize
+> print(ans)
+[1] 24.75
+> # distance
+> print(ans*sdir)
+[1] 99.00 24.75
+> # New parameters
+> print(xx+ans*sdir)
+[1] 100.00  25.75
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("fnchk")
+> ### * fnchk
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: fnchk
+> ### Title: Run tests, where possible, on user objective function
+> ### Aliases: fnchk
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> # Want to illustrate each case.
+> # Ben Bolker idea for a function that is NOT scalar
+> 
+> benbad<-function(x, y){
++    # y may be provided with different structures
++    f<-(x-y)^2
++ } # very simple, but ...
+> 
+> y<-1:10
+> x<-c(1)
+> cat("test benbad() with y=1:10, x=c(1)\n")
+test benbad() with y=1:10, x=c(1)
+> fc01<-fnchk(x, benbad, trace=1, y)
+Function value at supplied parameters = [1]  0  1  4  9 16 25 36 49 64 81
+ num [1:10] 0 1 4 9 16 25 36 49 64 81
+NULL
+[1] TRUE
+Function evaluation returns a vector not a scalar 
+Function at given point= 0 1 4 9 16 25 36 49 64 81 
+> print(fc01)
+$fval
+ [1]  0  1  4  9 16 25 36 49 64 81
+
+$infeasible
+[1] TRUE
+
+$excode
+[1] -4
+
+$msg
+[1] "Function evaluation returns a vector not a scalar"
+
+> 
+> y<-as.vector(y)
+> cat("test benbad() with y=as.vector(1:10), x=c(1)\n")
+test benbad() with y=as.vector(1:10), x=c(1)
+> fc02<-fnchk(x, benbad, trace=1, y)
+Function value at supplied parameters = [1]  0  1  4  9 16 25 36 49 64 81
+ num [1:10] 0 1 4 9 16 25 36 49 64 81
+NULL
+[1] TRUE
+Function evaluation returns a vector not a scalar 
+Function at given point= 0 1 4 9 16 25 36 49 64 81 
+> print(fc02)
+$fval
+ [1]  0  1  4  9 16 25 36 49 64 81
+
+$infeasible
+[1] TRUE
+
+$excode
+[1] -4
+
+$msg
+[1] "Function evaluation returns a vector not a scalar"
+
+> 
+> y<-as.matrix(y)
+> cat("test benbad() with y=as.matrix(1:10), x=c(1)\n")
+test benbad() with y=as.matrix(1:10), x=c(1)
+> fc03<-fnchk(x, benbad, trace=1, y)
+Function value at supplied parameters =      [,1]
+ [1,]    0
+ [2,]    1
+ [3,]    4
+ [4,]    9
+ [5,]   16
+ [6,]   25
+ [7,]   36
+ [8,]   49
+ [9,]   64
+[10,]   81
+ num [1:10, 1] 0 1 4 9 16 25 36 49 64 81
+NULL
+[1] FALSE
+Function evaluation returns a matrix list not a scalar 
+Function evaluation returns an array not a scalar 
+Function returned not length 1, despite not vector, matrix or array 
+Function at given point= 0 1 4 9 16 25 36 49 64 81 
+> print(fc03)
+$fval
+      [,1]
+ [1,]    0
+ [2,]    1
+ [3,]    4
+ [4,]    9
+ [5,]   16
+ [6,]   25
+ [7,]   36
+ [8,]   49
+ [9,]   64
+[10,]   81
+
+$infeasible
+[1] TRUE
+
+$excode
+[1] -4
+
+$msg
+[1] "Function returned not length 1, despite not vector, matrix or array"
+
+>    
+> y<-as.array(y)
+> cat("test benbad() with y=as.array(1:10), x=c(1)\n")
+test benbad() with y=as.array(1:10), x=c(1)
+> fc04<-fnchk(x, benbad, trace=1, y)
+Function value at supplied parameters =      [,1]
+ [1,]    0
+ [2,]    1
+ [3,]    4
+ [4,]    9
+ [5,]   16
+ [6,]   25
+ [7,]   36
+ [8,]   49
+ [9,]   64
+[10,]   81
+ num [1:10, 1] 0 1 4 9 16 25 36 49 64 81
+NULL
+[1] FALSE
+Function evaluation returns a matrix list not a scalar 
+Function evaluation returns an array not a scalar 
+Function returned not length 1, despite not vector, matrix or array 
+Function at given point= 0 1 4 9 16 25 36 49 64 81 
+> print(fc04)
+$fval
+      [,1]
+ [1,]    0
+ [2,]    1
+ [3,]    4
+ [4,]    9
+ [5,]   16
+ [6,]   25
+ [7,]   36
+ [8,]   49
+ [9,]   64
+[10,]   81
+
+$infeasible
+[1] TRUE
+
+$excode
+[1] -4
+
+$msg
+[1] "Function returned not length 1, despite not vector, matrix or array"
+
+>    
+> y<-"This is a string"
+> cat("test benbad() with y a string, x=c(1)\n")
+test benbad() with y a string, x=c(1)
+> fc05<-fnchk(x, benbad, trace=1, y)
+Error in x - y : non-numeric argument to binary operator
+Function value at supplied parameters =[1] NA
+attr(,"inadmissible")
+[1] TRUE
+ atomic [1:1] NA
+ - attr(*, "inadmissible")= logi TRUE
+NULL
+[1] FALSE
+Function evaluation returns INADMISSIBLE 
+Function evaluation returned non-numeric value 
+Function evaluation returned Inf or NA (non-computable) 
+Function at given point= NA 
+> print(fc05)
+$fval
+[1] NA
+attr(,"inadmissible")
+[1] TRUE
+
+$infeasible
+[1] TRUE
+
+$excode
+[1] -1
+
+$msg
+[1] "Function evaluation returned Inf or NA (non-computable)"
+
+> 
+> fr <- function(x) {   ## Rosenbrock Banana function
++     x1 <- x[1]
++     x2 <- x[2]
++     100 * (x2 - x1 * x1)^2 + (1 - x1)^2
++ }
+> xtrad<-c(-1.2,1)
+> ros1<-fnchk(xtrad, fr, trace=1)
+Function value at supplied parameters =[1] 24.2
+ num 24.2
+NULL
+[1] TRUE
+Function at given point= 24.2 
+> print(ros1)
+$fval
+[1] 24.2
+
+$infeasible
+[1] FALSE
+
+$excode
+[1] 0
+
+$msg
+[1] "fnchk OK"
+
+> npar<-2
+> opros<-list2env(list(fn=fr, gr=NULL, hess=NULL, MAXIMIZE=FALSE, PARSCALE=rep(1,npar), FNSCALE=1,
++        KFN=0, KGR=0, KHESS=0, dots=NULL))
+> uros1<-fnchk(xtrad, ufn, trace=1, fnuser=opros)
+Error in try(fval <- ffn(xpar, ...)) : object 'ufn' not found
+Function value at supplied parameters =[1] NA
+attr(,"inadmissible")
+[1] TRUE
+ atomic [1:1] NA
+ - attr(*, "inadmissible")= logi TRUE
+NULL
+[1] FALSE
+Function evaluation returns INADMISSIBLE 
+Function evaluation returned non-numeric value 
+Function evaluation returned Inf or NA (non-computable) 
+Function at given point= NA 
+> print(uros1)
+$fval
+[1] NA
+attr(,"inadmissible")
+[1] TRUE
+
+$infeasible
+[1] TRUE
+
+$excode
+[1] -1
+
+$msg
+[1] "Function evaluation returned Inf or NA (non-computable)"
+
+> require(optextras)
+> # require(optimx)
+> cat("Show how fnchk works\n")
+Show how fnchk works
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("gHgen")
+> ### * gHgen
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: gHgen
+> ### Title: Generate gradient and Hessian for a function at given
+> ###   parameters.
+> ### Aliases: gHgen
+> ### Keywords: nonlinear optimize
+> 
+> ### ** Examples
+> 
+> # genrose function code
+> genrose.f<- function(x, gs=NULL){ # objective function
++ ## One generalization of the Rosenbrock banana valley function (n parameters)
++ 	n <- length(x)
++         if(is.null(gs)) { gs=100.0 }
++ 	fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
++         return(fval)
++ }
+> 
+> genrose.g <- function(x, gs=NULL){
++ # vectorized gradient for genrose.f
++ # Ravi Varadhan 2009-04-03
++ 	n <- length(x)
++         if(is.null(gs)) { gs=100.0 }
++ 	gg <- as.vector(rep(0, n))
++ 	tn <- 2:n
++ 	tn1 <- tn - 1
++ 	z1 <- x[tn] - x[tn1]^2
++ 	z2 <- 1 - x[tn]
++ 	gg[tn] <- 2 * (gs * z1 - z2)
++ 	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
++ 	return(gg)
++ }
+> 
+> genrose.h <- function(x, gs=NULL) { ## compute Hessian
++    if(is.null(gs)) { gs=100.0 }
++ 	n <- length(x)
++ 	hh<-matrix(rep(0, n*n),n,n)
++ 	for (i in 2:n) {
++ 		z1<-x[i]-x[i-1]*x[i-1]
++ #		z2<-1.0-x[i]
++                 hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
++                 hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
++                 hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
++                 hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
++ 	}
++         return(hh)
++ }
+> 
+> trad<-c(-1.2,1)
+> ans100fgh<-  gHgen(trad, genrose.f, gr=genrose.g, hess=genrose.h,
++       control=list(ktrace=1)) 
+Compute gradient approximation
+[1] -211.2  -88.0
+Compute Hessian approximation
+is.null(hess) is FALSE -- trying hess()
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+> print(ans100fgh)
+$gn
+[1] -211.2  -88.0
+
+$Hn
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> ans100fg<-  gHgen(trad, genrose.f, gr=genrose.g, 
++       control=list(ktrace=1)) 
+Compute gradient approximation
+[1] -211.2  -88.0
+Compute Hessian approximation
+is.null(gr) is FALSE use numDeriv jacobian()
+Hessian from jacobian:     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+Hn from jacobian is reported non-symmetric with asymmetry ratio 5.09011128647231e-12 
+Warning in gHgen(trad, genrose.f, gr = genrose.g, control = list(ktrace = 1)) :
+  Hn from jacobian is reported non-symmetric with asymmetry ratio 5.09011128647231e-12
+asym, ctrl$asymtol:  5.090111e-12 1e-07 
+Force Hessian symmetric
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+> print(ans100fg)
+$gn
+[1] -211.2  -88.0
+
+$Hn
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> ans100f<-  gHgen(trad, genrose.f, control=list(ktrace=1)) 
+Compute gradient approximation
+[1] -211.2  -88.0
+Compute Hessian approximation
+is.null(gr) is TRUE use numDeriv hessian()
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+> print(ans100f)
+$gn
+[1] -211.2  -88.0
+
+$Hn
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> ans10fgh<-   gHgen(trad, genrose.f, gr=genrose.g, hess=genrose.h,
++       control=list(ktrace=1), gs=10) 
+Compute gradient approximation
+[1] -21.12  -8.80
+Compute Hessian approximation
+is.null(hess) is FALSE -- trying hess()
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+> print(ans10fgh)
+$gn
+[1] -21.12  -8.80
+
+$Hn
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> ans10fg<-   gHgen(trad, genrose.f, gr=genrose.g, 
++       control=list(ktrace=1), gs=10) 
+Compute gradient approximation
+[1] -21.12  -8.80
+Compute Hessian approximation
+is.null(gr) is FALSE use numDeriv jacobian()
+Hessian from jacobian:      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+Hn from jacobian is reported non-symmetric with asymmetry ratio 5.83064342859778e-12 
+Warning in gHgen(trad, genrose.f, gr = genrose.g, control = list(ktrace = 1),  :
+  Hn from jacobian is reported non-symmetric with asymmetry ratio 5.83064342859778e-12
+asym, ctrl$asymtol:  5.830643e-12 1e-07 
+Force Hessian symmetric
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+> print(ans10fg)
+$gn
+[1] -21.12  -8.80
+
+$Hn
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> ans10f<-   gHgen(trad, genrose.f, control=list(ktrace=1), gs=10) 
+Compute gradient approximation
+[1] -21.12  -8.80
+Compute Hessian approximation
+is.null(gr) is TRUE use numDeriv hessian()
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+> print(ans10f)
+$gn
+[1] -21.12  -8.80
+
+$Hn
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("gHgenb")
+> ### * gHgenb
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: gHgenb
+> ### Title: Generate gradient and Hessian for a function at given
+> ###   parameters.
+> ### Aliases: gHgenb
+> ### Keywords: nonlinear optimize
+> 
+> ### ** Examples
+> 
+> # genrose function code
+> genrose.f<- function(x, gs=NULL){ # objective function
++ ## One generalization of the Rosenbrock banana valley function (n parameters)
++ 	n <- length(x)
++         if(is.null(gs)) { gs=100.0 }
++ 	fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
++         return(fval)
++ }
+> 
+> genrose.g <- function(x, gs=NULL){
++ # vectorized gradient for genrose.f
++ # Ravi Varadhan 2009-04-03
++ 	n <- length(x)
++         if(is.null(gs)) { gs=100.0 }
++ 	gg <- as.vector(rep(0, n))
++ 	tn <- 2:n
++ 	tn1 <- tn - 1
++ 	z1 <- x[tn] - x[tn1]^2
++ 	z2 <- 1 - x[tn]
++ 	gg[tn] <- 2 * (gs * z1 - z2)
++ 	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
++ 	return(gg)
++ }
+> 
+> genrose.h <- function(x, gs=NULL) { ## compute Hessian
++    if(is.null(gs)) { gs=100.0 }
++ 	n <- length(x)
++ 	hh<-matrix(rep(0, n*n),n,n)
++ 	for (i in 2:n) {
++ 		z1<-x[i]-x[i-1]*x[i-1]
++ 		z2<-1.0-x[i]
++                 hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
++                 hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
++                 hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
++                 hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
++ 	}
++         return(hh)
++ }
+> 
+> 
+> maxfn<-function(x, top=10) {
++       	n<-length(x)
++ 	ss<-seq(1,n)
++ 	f<-top-(crossprod(x-ss))^2
++ 	f<-as.numeric(f)
++ 	return(f)
++ }
+> 
+> negmaxfn<-function(x) {
++ 	f<-(-1)*maxfn(x)
++ 	return(f)
++ }
+> 
+> parx<-rep(1,4)
+> lower<-rep(-10,4)
+> upper<-rep(10,4)
+> bdmsk<-c(1,1,0,1) # masked parameter 3
+> fval<-genrose.f(parx)
+> gval<-genrose.g(parx)
+> Ahess<-genrose.h(parx)
+> gennog<-gHgenb(parx,genrose.f)
+> cat("results of gHgenb for genrose without gradient code at ")
+results of gHgenb for genrose without gradient code at > print(parx)
+[1] 1 1 1 1
+> print(gennog)
+$gn
+[1] 1.604439e-12 1.604047e-12 1.604047e-12 0.000000e+00
+
+$Hn
+              [,1]          [,2]          [,3]          [,4]
+[1,]  8.000000e+02 -4.000000e+02  9.490508e-13  2.321482e-14
+[2,] -4.000000e+02  1.002000e+03 -4.000000e+02  1.010644e-12
+[3,]  9.490508e-13 -4.000000e+02  1.002000e+03 -4.000000e+02
+[4,]  2.321482e-14  1.010644e-12 -4.000000e+02  2.020000e+02
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> cat("compare to g =")
+compare to g => print(gval)
+[1] 0 0 0 0
+> cat("and Hess\n")
+and Hess
+> print(Ahess)
+     [,1] [,2] [,3] [,4]
+[1,]  800 -400    0    0
+[2,] -400 1002 -400    0
+[3,]    0 -400 1002 -400
+[4,]    0    0 -400  202
+> cat("\n\n")
+
+
+> geng<-gHgenb(parx,genrose.f,genrose.g)
+> cat("results of gHgenb for genrose at ")
+results of gHgenb for genrose at > print(parx)
+[1] 1 1 1 1
+> print(gennog)
+$gn
+[1] 1.604439e-12 1.604047e-12 1.604047e-12 0.000000e+00
+
+$Hn
+              [,1]          [,2]          [,3]          [,4]
+[1,]  8.000000e+02 -4.000000e+02  9.490508e-13  2.321482e-14
+[2,] -4.000000e+02  1.002000e+03 -4.000000e+02  1.010644e-12
+[3,]  9.490508e-13 -4.000000e+02  1.002000e+03 -4.000000e+02
+[4,]  2.321482e-14  1.010644e-12 -4.000000e+02  2.020000e+02
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> cat("compare to g =")
+compare to g => print(gval)
+[1] 0 0 0 0
+> cat("and Hess\n")
+and Hess
+> print(Ahess)
+     [,1] [,2] [,3] [,4]
+[1,]  800 -400    0    0
+[2,] -400 1002 -400    0
+[3,]    0 -400 1002 -400
+[4,]    0    0 -400  202
+> cat("*****************************************\n")
+*****************************************
+> parx<-rep(0.9,4)
+> fval<-genrose.f(parx)
+> gval<-genrose.g(parx)
+> Ahess<-genrose.h(parx)
+> gennog<-gHgenb(parx,genrose.f,control=list(ktrace=TRUE), gs=9.4)
+Compute gradient approximation
+[1] -3.0456 -1.5536 -1.5536  1.4920
+Compute Hessian approximation
+is.null(hess) is TRUE
+is.null(gr) is TRUE use numDeriv hessian()
+              [,1]          [,2]          [,3]          [,4]
+[1,]  5.752800e+01 -3.384000e+01 -1.375487e-12  2.961084e-15
+[2,] -3.384000e+01  7.832800e+01 -3.384000e+01 -1.030281e-13
+[3,] -1.375487e-12 -3.384000e+01  7.832800e+01 -3.384000e+01
+[4,]  2.961084e-15 -1.030281e-13 -3.384000e+01  2.080000e+01
+> cat("results of gHgenb with gs=",9.4," for genrose without gradient code at ")
+results of gHgenb with gs= 9.4  for genrose without gradient code at > print(parx)
+[1] 0.9 0.9 0.9 0.9
+> print(gennog)
+$gn
+[1] -3.0456 -1.5536 -1.5536  1.4920
+
+$Hn
+              [,1]          [,2]          [,3]          [,4]
+[1,]  5.752800e+01 -3.384000e+01 -1.375487e-12  2.961084e-15
+[2,] -3.384000e+01  7.832800e+01 -3.384000e+01 -1.030281e-13
+[3,] -1.375487e-12 -3.384000e+01  7.832800e+01 -3.384000e+01
+[4,]  2.961084e-15 -1.030281e-13 -3.384000e+01  2.080000e+01
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> cat("compare to g =")
+compare to g => print(gval)
+[1] -32.4 -14.6 -14.6  17.8
+> cat("and Hess\n")
+and Hess
+> print(Ahess)
+     [,1] [,2] [,3] [,4]
+[1,]  612 -360    0    0
+[2,] -360  814 -360    0
+[3,]    0 -360  814 -360
+[4,]    0    0 -360  202
+> cat("\n\n")
+
+
+> geng<-gHgenb(parx,genrose.f,genrose.g, control=list(ktrace=TRUE))
+Compute gradient approximation
+[1] -32.4 -14.6 -14.6  17.8
+Compute Hessian approximation
+is.null(hess) is TRUE
+is.null(gr) is FALSE use numDeriv jacobian()
+Hessian from Jacobian:     [,1] [,2] [,3] [,4]
+[1,]  612 -360    0    0
+[2,] -360  814 -360    0
+[3,]    0 -360  814 -360
+[4,]    0    0 -360  202
+> cat("results of gHgenb for genrose at ")
+results of gHgenb for genrose at > print(parx)
+[1] 0.9 0.9 0.9 0.9
+> print(gennog)
+$gn
+[1] -3.0456 -1.5536 -1.5536  1.4920
+
+$Hn
+              [,1]          [,2]          [,3]          [,4]
+[1,]  5.752800e+01 -3.384000e+01 -1.375487e-12  2.961084e-15
+[2,] -3.384000e+01  7.832800e+01 -3.384000e+01 -1.030281e-13
+[3,] -1.375487e-12 -3.384000e+01  7.832800e+01 -3.384000e+01
+[4,]  2.961084e-15 -1.030281e-13 -3.384000e+01  2.080000e+01
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> cat("compare to g =")
+compare to g => print(gval)
+[1] -32.4 -14.6 -14.6  17.8
+> cat("and Hess\n")
+and Hess
+> print(Ahess)
+     [,1] [,2] [,3] [,4]
+[1,]  612 -360    0    0
+[2,] -360  814 -360    0
+[3,]    0 -360  814 -360
+[4,]    0    0 -360  202
+> gst<-5
+> cat("\n\nTest with full calling sequence and gs=",gst,"\n")
+
+
+Test with full calling sequence and gs= 5 
+> gengall<-gHgenb(parx,genrose.f,genrose.g,genrose.h, control=list(ktrace=TRUE),gs=gst)
+Compute gradient approximation
+[1] -1.62 -0.92 -0.92  0.70
+Compute Hessian approximation
+is.null(hess) is FALSE -- trying hess()
+      [,1]  [,2]  [,3] [,4]
+[1,]  30.6 -18.0   0.0    0
+[2,] -18.0  42.6 -18.0    0
+[3,]   0.0 -18.0  42.6  -18
+[4,]   0.0   0.0 -18.0   12
+      [,1]  [,2]  [,3] [,4]
+[1,]  30.6 -18.0   0.0    0
+[2,] -18.0  42.6 -18.0    0
+[3,]   0.0 -18.0  42.6  -18
+[4,]   0.0   0.0 -18.0   12
+> print(gengall)
+$gn
+[1] -1.62 -0.92 -0.92  0.70
+
+$Hn
+      [,1]  [,2]  [,3] [,4]
+[1,]  30.6 -18.0   0.0    0
+[2,] -18.0  42.6 -18.0    0
+[3,]   0.0 -18.0  42.6  -18
+[4,]   0.0   0.0 -18.0   12
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> 
+> 
+> top<-25
+> x0<-rep(2,4)
+> cat("\n\nTest for maximization and top=",top,"\n")
+
+
+Test for maximization and top= 25 
+> cat("Gradient and Hessian will have sign inverted")
+Gradient and Hessian will have sign inverted> maxt<-gHgen(x0, maxfn, control=list(ktrace=TRUE), top=top)
+Compute gradient approximation
+[1] -24   0  24  48
+Compute Hessian approximation
+is.null(gr) is TRUE use numDeriv hessian()
+              [,1]          [,2]          [,3]          [,4]
+[1,] -3.200000e+01  3.126795e-11  8.000000e+00  1.600000e+01
+[2,]  3.126795e-11 -2.400000e+01  3.126227e-11 -9.085401e-12
+[3,]  8.000000e+00  3.126227e-11 -3.200000e+01 -1.600000e+01
+[4,]  1.600000e+01 -9.085401e-12 -1.600000e+01 -5.600000e+01
+> print(maxt)
+$gn
+[1] -24   0  24  48
+
+$Hn
+              [,1]          [,2]          [,3]          [,4]
+[1,] -3.200000e+01  3.126795e-11  8.000000e+00  1.600000e+01
+[2,]  3.126795e-11 -2.400000e+01  3.126227e-11 -9.085401e-12
+[3,]  8.000000e+00  3.126227e-11 -3.200000e+01 -1.600000e+01
+[4,]  1.600000e+01 -9.085401e-12 -1.600000e+01 -5.600000e+01
+
+$gradOK
+[1] TRUE
+
+$hessOK
+[1] TRUE
+
+$nbm
+[1] 0
+
+> 
+> cat("test against negmaxfn\n")
+test against negmaxfn
+> gneg<-grad(negmaxfn, x0)
+> Hneg<-hessian(negmaxfn, x0)
+> # gdiff<-max(abs(gneg-maxt$gn))/max(abs(maxt$gn))
+> # Hdiff<-max(abs(Hneg-maxt$Hn))/max(abs(maxt$Hn))
+> # explicitly change sign 
+> gdiff<-max(abs(gneg-(-1)*maxt$gn))/max(abs(maxt$gn))
+> Hdiff<-max(abs(Hneg-(-1)*maxt$Hn))/max(abs(maxt$Hn))
+> cat("gdiff = ",gdiff,"  Hdiff=",Hdiff,"\n")
+gdiff =  0   Hdiff= 9.516197e-17 
+> 
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("grback")
+> ### * grback
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: grback
+> ### Title: Backward difference numerical gradient approximation.
+> ### Aliases: grback
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> cat("Example of use of grback\n")
+Example of use of grback
+> 
+> myfn<-function(xx, shift=100){
++     ii<-1:length(xx)
++     result<-shift+sum(xx^ii)
++ }
+> 
+> xx<-c(1,2,3,4)
+> ii<-1:length(xx)
+> print(xx)
+[1] 1 2 3 4
+> gn<-grback(xx,myfn, shift=0)
+> print(gn)
+[1]   1.000001   4.000000  27.000000 255.999998
+> ga<-ii*xx^(ii-1)
+> cat("compare to analytic gradient:\n")
+compare to analytic gradient:
+> print(ga)
+[1]   1   4  27 256
+> 
+> cat("change the step parameter to 1e-4\n")
+change the step parameter to 1e-4
+> optsp$deps <- 1e-4
+> gn2<-grback(xx,myfn, shift=0)
+> print(gn2)
+[1]   1.0000   3.9998  26.9973 255.9616
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("grcentral")
+> ### * grcentral
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: grcentral
+> ### Title: Central difference numerical gradient approximation.
+> ### Aliases: grcentral
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> cat("Example of use of grcentral\n")
+Example of use of grcentral
+> 
+> myfn<-function(xx, shift=100){
++     ii<-1:length(xx)
++     result<-shift+sum(xx^ii)
++ }
+> xx<-c(1,2,3,4)
+> ii<-1:length(xx)
+> print(xx)
+[1] 1 2 3 4
+> gn<-grcentral(xx,myfn, shift=0)
+> print(gn)
+[1]   1   4  27 256
+> ga<-ii*xx^(ii-1)
+> cat("compare to\n")
+compare to
+> print(ga)
+[1]   1   4  27 256
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("grchk")
+> ### * grchk
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: grchk
+> ### Title: Run tests, where possible, on user objective function and
+> ###   (optionally) gradient and hessian
+> ### Aliases: grchk
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> # Would like examples of success and failure. What about "near misses"??
+> cat("Show how grchk works\n")
+Show how grchk works
+> require(optextras)
+> require(numDeriv)
+> # require(optimx)
+> 
+> jones<-function(xx){
++   x<-xx[1]
++   y<-xx[2]
++   ff<-sin(x*x/2 - y*y/4)*cos(2*x-exp(y))
++   ff<- -ff
++ }
+> 
+> jonesg <- function(xx) {
++   x<-xx[1]
++   y<-xx[2]
++   gx <-  cos(x * x/2 - y * y/4) * ((x + x)/2) * cos(2 * x - exp(y)) - 
++     sin(x * x/2 - y * y/4) * (sin(2 * x - exp(y)) * 2)
++   gy <- sin(x * x/2 - y * y/4) * (sin(2 * x - exp(y)) * exp(y)) - cos(x * 
++                                                                         x/2 - y * y/4) * ((y + y)/4) * cos(2 * x - exp(y))
++   gg <- - c(gx, gy)
++ }
+> 
+> jonesg2 <- function(xx) {
++   gx <- 1
++   gy <- 2
++   gg <- - c(gx, gy)
++ }
+> 
+> 
+> xx <- c(1, 2)
+> 
+> gcans <- grchk(xx, jones, jonesg, trace=1, testtol=(.Machine$double.eps)^(1/3))
+gradient test tolerance =  6.055454e-06   fval= 0.3002153 
+ compare to max(abs(gn-ga))/(1+abs(fval)) =  1.312852e-11 
+> gcans
+[1] TRUE
+attr(,"ga")
+[1] -1.297122  3.311502
+attr(,"gn")
+[1] -1.297122  3.311502
+> 
+> gcans2 <- grchk(xx, jones, jonesg2, trace=1, testtol=(.Machine$double.eps)^(1/3))
+gradient test tolerance =  6.055454e-06   fval= 0.3002153 
+ compare to max(abs(gn-ga))/(1+abs(fval)) =  4.085094 
+Gradient function might be wrong - check it! 
+> gcans2
+[1] FALSE
+attr(,"ga")
+[1] -1 -2
+attr(,"gn")
+[1] -1.297122  3.311502
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("grfwd")
+> ### * grfwd
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: grfwd
+> ### Title: Forward difference numerical gradient approximation.
+> ### Aliases: grfwd optsp
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> cat("Example of use of grfwd\n")
+Example of use of grfwd
+> 
+> myfn<-function(xx, shift=100){
++     ii<-1:length(xx)
++     result<-shift+sum(xx^ii)
++ }
+> xx<-c(1,2,3,4)
+> ii<-1:length(xx)
+> print(xx)
+[1] 1 2 3 4
+> gn<-grfwd(xx,myfn, shift=0)
+> print(gn)
+[1]   1.0000   4.0002  27.0027 256.0384
+> ga<-ii*xx^(ii-1)
+> cat("compare to\n")
+compare to
+> print(ga)
+[1]   1   4  27 256
+> 
+> 
+> 
+> cleanEx()
+> nameEx("grnd")
+> ### * grnd
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: grnd
+> ### Title: A reorganization of the call to numDeriv grad() function.
+> ### Aliases: grnd
+> ### Keywords: nonlinear optimize
+> 
+> ### ** Examples
+> 
+> cat("Example of use of grnd\n")
+Example of use of grnd
+> require(numDeriv)
+> myfn<-function(xx, shift=100){
++     ii<-1:length(xx)
++     result<-shift+sum(xx^ii)
++ }
+> xx<-c(1,2,3,4)
+> ii<-1:length(xx)
+> print(xx)
+[1] 1 2 3 4
+> gn<-grnd(xx,myfn, shift=0)
+> print(gn)
+[1]   1   4  27 256
+> ga<-ii*xx^(ii-1)
+> cat("compare to\n")
+compare to
+> print(ga)
+[1]   1   4  27 256
+> 
+> 
+> 
+> cleanEx()
+> nameEx("hesschk")
+> ### * hesschk
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: hesschk
+> ### Title: Run tests, where possible, on user objective function and
+> ###   (optionally) gradient and hessian
+> ### Aliases: hesschk
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> # genrose function code
+> genrose.f<- function(x, gs=NULL){ # objective function
++ ## One generalization of the Rosenbrock banana valley function (n parameters)
++ 	n <- length(x)
++         if(is.null(gs)) { gs=100.0 }
++ 	fval<-1.0 + sum (gs*(x[1:(n-1)]^2 - x[2:n])^2 + (x[2:n] - 1)^2)
++         return(fval)
++ }
+> 
+> genrose.g <- function(x, gs=NULL){
++ # vectorized gradient for genrose.f
++ # Ravi Varadhan 2009-04-03
++ 	n <- length(x)
++         if(is.null(gs)) { gs=100.0 }
++ 	gg <- as.vector(rep(0, n))
++ 	tn <- 2:n
++ 	tn1 <- tn - 1
++ 	z1 <- x[tn] - x[tn1]^2
++ 	z2 <- 1 - x[tn]
++ 	gg[tn] <- 2 * (gs * z1 - z2)
++ 	gg[tn1] <- gg[tn1] - 4 * gs * x[tn1] * z1
++ 	return(gg)
++ }
+> 
+> genrose.h <- function(x, gs=NULL) { ## compute Hessian
++    if(is.null(gs)) { gs=100.0 }
++ 	n <- length(x)
++ 	hh<-matrix(rep(0, n*n),n,n)
++ 	for (i in 2:n) {
++ 		z1<-x[i]-x[i-1]*x[i-1]
++ #		z2<-1.0-x[i]
++                 hh[i,i]<-hh[i,i]+2.0*(gs+1.0)
++                 hh[i-1,i-1]<-hh[i-1,i-1]-4.0*gs*z1-4.0*gs*x[i-1]*(-2.0*x[i-1])
++                 hh[i,i-1]<-hh[i,i-1]-4.0*gs*x[i-1]
++                 hh[i-1,i]<-hh[i-1,i]-4.0*gs*x[i-1]
++ 	}
++         return(hh)
++ }
+> 
+> trad<-c(-1.2,1)
+> ans100<-hesschk(trad, genrose.f, genrose.g, genrose.h, trace=1)
+Analytic hessian from function  genrose.h 
+
+hn from hess() is reported non-symmetric with asymmetry ratio 5.09011128647231e-12 
+> print(ans100)
+[1] TRUE
+attr(,"asym")
+[1] 5.090111e-12
+attr(,"ha")
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+attr(,"hn")
+     [,1] [,2]
+[1,] 1328  480
+[2,]  480  202
+> ans10<-hesschk(trad, genrose.f, genrose.g, genrose.h, trace=1, gs=10)
+Analytic hessian from function  genrose.h 
+
+hn from hess() is reported non-symmetric with asymmetry ratio 5.83064342859778e-12 
+> print(ans10)
+[1] TRUE
+attr(,"asym")
+[1] 5.830643e-12
+attr(,"ha")
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+attr(,"hn")
+      [,1] [,2]
+[1,] 132.8   48
+[2,]  48.0   22
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("kktchk")
+> ### * kktchk
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: kktchk
+> ### Title: Check Kuhn Karush Tucker conditions for a supposed function
+> ###   minimum
+> ### Aliases: kktchk
+> ### Keywords: nonlinear optimize
+> 
+> ### ** Examples
+> 
+> cat("Show how kktc works\n")
+Show how kktc works
+> 
+> require(optimx)
+Loading required package: optimx
+
+Attaching package: ‘optimx’
+
+The following objects are masked from ‘package:optextras’:
+
+    axsearch, bmchk, bmstep, fnchk, gHgen, gHgenb, grback, grcentral,
+    grchk, grfwd, grnd, hesschk, kktchk, optsp, scalechk
+
+> require(optextras)
+> 
+> jones<-function(xx){
++    x<-xx[1]
++    y<-xx[2]
++    ff<-sin(x*x/2 - y*y/4)*cos(2*x-exp(y))
++    ff<- -ff
++ }
+> 
+> jonesg <- function(xx) {
++    x<-xx[1]
++    y<-xx[2]
++    gx <-  cos(x * x/2 - y * y/4) * ((x + x)/2) * cos(2 * x - exp(y)) - 
++          sin(x * x/2 - y * y/4) * (sin(2 * x - exp(y)) * 2)
++    gy <- sin(x * x/2 - y * y/4) * (sin(2 * x - exp(y)) * exp(y)) - cos(x * 
++           x/2 - y * y/4) * ((y + y)/4) * cos(2 * x - exp(y))
++    gg <- - c(gx, gy)
++ }
+> 
+> xx<-0.5*c(pi,pi)
+> 
+> ans <- optimr(xx, jones, jonesg, method="Rvmmin")
+> ans
+$par
+[1]  3.154083 -3.689620
+
+$value
+[1] -1
+
+$counts
+function gradient 
+      37       17 
+
+$convergence
+[1] 0
+
+$message
+[1] "Rvmminu appears to have converged"
+
+> 
+> kkans <- kktchk(ans$par, jones, jonesg)
+> kkans
+$gmax
+[1] 2.682194e-09
+
+$evratio
+[1] 0.05221798
+
+$kkt1
+[1] TRUE
+
+$kkt2
+[1] TRUE
+
+$hev
+[1] 16.4910610  0.8611298
+
+$ngatend
+[1]  2.682194e-09 -1.997486e-10
+
+$nhatend
+          [,1]     [,2]
+[1,] 13.948242 5.768722
+[2,]  5.768722 3.403949
+
+> 
+> 
+> 
+> 
+> 
+> 
+> cleanEx()
+
+detaching ‘package:optimx’
+
+> nameEx("scalechk")
+> ### * scalechk
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: scalechk
+> ### Title: Check the scale of the initial parameters and bounds input to an
+> ###   optimization code used in nonlinear optimization
+> ### Aliases: scalechk
+> ### Keywords: nonlinear optimize upper lower bound mask
+> 
+> ### ** Examples
+> 
+> #####################
+>   par <- c(-1.2, 1)
+>   lower <- c(-2, 0)
+>   upper <- c(100000, 10)
+>   srat<-scalechk(par, lower, upper,dowarn=TRUE)
+>   print(srat)
+$lpratio
+[1] 0.07918125
+
+$lbratio
+[1] 4.000009
+
+>   sratv<-c(srat$lpratio, srat$lbratio)
+>   if (max(sratv,na.rm=TRUE) > 3) { # scaletol from ctrldefault in optimx
++      warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
++      cat(warnstr,"\n")
++   }
+Parameters or bounds appear to have different scalings.
+  This can cause poor performance in optimization. 
+  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA. 
+> 
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  1.928 0.008 1.94 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

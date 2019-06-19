@@ -1,0 +1,51 @@
+
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "optimr"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('optimr')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("coef.opm")
+> ### * coef.opm
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: coef.opm
+> ### Title: Summarize opm object
+> ### Aliases: coef.opm coef<-.opm coef<-
+> ### Keywords: nonlinear optimize
+> 
+> ### ** Examples
+> 
+> ans <- opm(fn = function(x) sum(x*x), par = 1:2, method="ALL", control=list(trace=1))
+opm: wrapper to call optimr to run multiple optimizers
+Method:  BFGS 
+Parameter scaling:[1] 1 1
+initial  value 5.000000 
+final  value 0.000000 
+converged
+Post processing for method  BFGS 
+Successful convergence! 
+kkttol= 0.001    kkt2tol= 1e-06   control$trace= 1 
+Error in fn(par, ...) : unused argument (maximize = FALSE)
+Calls: opm -> kktchk
+Execution halted

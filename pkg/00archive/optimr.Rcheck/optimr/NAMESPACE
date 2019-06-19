@@ -1,0 +1,33 @@
+import(
+  optextras,
+  numDeriv
+)
+importFrom("stats", "nlm", "nlminb", "optim")
+importFrom("utils", "str")
+importFrom("optextras", "grnd", "grfwd", "grcentral", "grback")
+importFrom("optextras", "bmchk", "grchk", "scalechk", "kktchk", "fnchk", "hesschk")
+#importFrom("Rcgmin", "Rcgminb", "Rcgminu")
+#importFrom("Rvmmin", "Rvmminb", "Rvmminu")
+#importFrom("BB", "spg")
+#importFrom("ucminf", "ucminf")
+#importFrom("Rtnmin", "tnbc", "tn")
+#importFrom("dfoptim", "nmkb", "nmk", "hjkb", "hjk")
+#importFrom( "lbfgsb3", "lbfgsb3")
+#importFrom( "lbfgs", "lbfgs")
+#importFrom("minqa", "bobyqa", "uobyqa")
+export(
+  "coef<-",
+  "optimr",
+  "opm",
+  "optchk",
+  "polyopt",
+  "multistart",
+  "hjn",
+  "checksolver",
+  "ctrldefault"
+)
+S3method("[", "opm")
+S3method("as.data.frame", "opm")
+S3method("coef", "opm")
+S3method("coef<-", "opm")
+S3method("summary", "opm")

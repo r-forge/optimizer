@@ -86,7 +86,11 @@ if ( class(tquiet) != "try-error") {print(nlsrquiet)}
 #- OK
 rm(y)
 rm(tt)
-test <- try(nlsrdots <- nlxb(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+## this will fail
+## test <- try(nlsrdots <- nlxb(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+## but ...
+mydata<-data.frame(y=ydata, tt=ttdata)
+test <- try(nlsrdots <- nlxb(formula=hobsc, start=ste, data=mydata))
   if (class(test) != "try-error") { print(nlsrdots) } else {cat("Try error\n") }
 #- Note -- does NOT work -- do we need to specify the present env. in nlfb for y, tt??
 test2 <- try(nlsframe <- nls(formula=hobsc, start=ste, data=mydata))
@@ -103,7 +107,7 @@ print(nlsLMquiet)
 rm(y)
 rm(tt)
 ## Dotargs
-tdots <- try(nlsLMdots <- nlsLM(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+tdots <- try(nlsLMdots <- nlsLM(formula=hobsc, start=ste, data=mydata))
 if (class(tdots) != "try-error") { print(nlsLMdots) } else {cat("try-error\n") }
 #-  Note -- does NOT work
 ## dataframe
@@ -111,17 +115,17 @@ tframe <- try(nlsLMframe <- nlsLM(formula=hobsc, start=ste, data=mydata) )
 if (class(tdots) != "try-error") {print(nlsLMframe)} else {cat("try-error\n") }
 #- does not work
 
-detach("package:nlsr", unload=TRUE)
+## detach("package:nlsr", unload=TRUE)
 ## Uses nlmrt here for comparison
-library(nlmrt)
-txq <- try( nlxbquiet <- nlxb(formula=hobsc, start=ste))
-if (class(txq) != "try-error") {print(nlxbquiet)} else { cat("try-error\n")}
+## library(nlmrt)
+## txq <- try( nlxbquiet <- nlxb(formula=hobsc, start=ste))
+## if (class(txq) != "try-error") {print(nlxbquiet)} else { cat("try-error\n")}
 #- Note -- does NOT work
-txdots <- try( nlxbdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt) )
-if (class(txdots) != "try-error") {print(nlxbdots)} else {cat("try-error\n")}
+## txdots <- try( nlxbdots <- nlxb(formula=hobsc, start=ste, y=y, tt=tt) )
+## if (class(txdots) != "try-error") {print(nlxbdots)} else {cat("try-error\n")}
 #- Note -- does NOT work
 ## dataframe
-nlxbframe <- nlxb(formula=hobsc, start=ste, data=mydata)
-print(nlxbframe)
+## nlxbframe <- nlxb(formula=hobsc, start=ste, data=mydata)
+## print(nlxbframe)
 #- OK
 

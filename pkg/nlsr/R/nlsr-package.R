@@ -144,3 +144,17 @@ res <- function(object){
   # How to do this??
   ## Since we may have residuals WITHOUT a model, prediction may not make sense.
 ## }
+
+nlsr.predict <- function(newdata=list(), nlsr.object=NULL, ...) { 
+#  This ONLY works if we have used nlxb
+    if( is.null(nlsr.object) ) stop("nlsr.predict REQUIRES an nlsr solution object")
+    form <- nlsr.object$formula
+    if (is.null(form)) stop("nlsr.predict works only if formula is defined")
+# ?? give more output
+#
+#  we assume a formula of style y~something, and use the something
+#  In some ways need to check this more carefully
+    env4coefs <- list2env(as.list(nlsr.object$coefficients))
+    preds <- eval(form[[3]], as.list(newdata), env4coefs)
+    preds
+}

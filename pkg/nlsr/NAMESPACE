@@ -13,6 +13,7 @@ export(
    modelexpr,
    model2rjfun,
    model2ssgrfun,
+   nlsr.predict,
    print.nlsr,
 #   resid.nlsr,
    summary.nlsr,

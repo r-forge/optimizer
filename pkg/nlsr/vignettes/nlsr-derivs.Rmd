@@ -2,7 +2,7 @@
 title: "nlsr Derivatives"
 author: "John C. Nash"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 bibliography: nlpd.bib
 vignette: >
   %\VignetteIndexEntry{nlsr Derivatives}
@@ -36,13 +36,17 @@ comments in the **R** code are prefaced by '`#- `'.)
 
 **R** has a number of tools for finding analytic derivatives.
 
-- **stats**: tools `D()` and `deriv()`
+- **stats**: tools `D()` and `deriv()` (@Rcite)
 
-- **nlsr**: tools `nlsDeriv()`, `fnDeriv()`, and possibly ?? `model2rjfun`
+- **nlsr**: tools `nlsDeriv()`, `fnDeriv()`, and possibly ?? `model2rjfun` (@nlsr-manual)
 
-- **Deriv**: tools `Deriv()`
+- **Deriv**: tools `Deriv()` (@Deriv-manual)
 
-- **Ryacas**: tools ?? 
+- **Ryacas**: tools ??  @Ryacas-manual
+
+- In 2018, Changcheng Li conducted a Google Summer of Code project to link R to Julia's
+Automatic Differentiation tools, resulting in the experimental package `autodiffr`
+(see https://github.com/Non-Contradiction/autodiffr).
 
 - ?? any other packages that give analytic derivatives?
 
@@ -1036,12 +1040,10 @@ to get the gradients of functions with respect to vectors of parameters
 (Noted also by Sergei Sokol in the manual for package **Deriv**). The 
 following examples illustrate this.
 
-
-
-
 ```{r chunk21}
 try(nlsr::nlsDeriv(zzz, "y[3]"))
 try(nlsr::nlsDeriv(y3*r1+r2,"y3"))
 try(nlsr::nlsDeriv(y[3]*r1+r2,"y[3]"))
 ```
 
+## References

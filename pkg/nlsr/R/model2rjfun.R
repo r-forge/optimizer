@@ -50,6 +50,7 @@ model2rjfun <- function(modelformula, pvec, data = NULL, jacobian = TRUE,
 	if (jacobian && any(bad <- !is.finite(attr(resids, "gradient"))))
 	    stop("Jacobian contains ", unique(attr(resids, "gradient")[bad]))
 	rm(resids, bad)  # Don't want to capture these in the environment of rjfun
+#        attr(rjfun, "resids") <- resids # 190805
     }
     rjfun
 }

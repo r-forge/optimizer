@@ -2,7 +2,7 @@
 title: "Specifying Fixed Parameters"
 author: "John C. Nash"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{Specifying Fixed Parameters}
   %\VignetteEngine{knitr::rmarkdown}

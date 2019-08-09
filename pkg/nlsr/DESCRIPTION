@@ -1,8 +1,8 @@
 Package: nlsr
 Type: Package
 Title: Functions for Nonlinear Least Squares Solutions
-Version: 2018.1.28
-Date: 2018-01-28
+Version: 2019.8.7
+Date: 2019-08-08
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
         c("aut", "cre"), email = "nashjc@uottawa.ca"), 
 	person(given = "Duncan", family =
@@ -19,6 +19,6 @@ Description: Provides tools for working with nonlinear least squares problems.
 License: GPL-2
 Depends: R (>= 3.0)
 Imports: digest
-Suggests: minpack.lm, optimr, Rvmmin, Rcgmin, numDeriv,
+Suggests: minpack.lm, optimx, Rvmmin, Rcgmin, numDeriv,
     knitr, rmarkdown, Ryacas, Deriv
 VignetteBuilder: knitr

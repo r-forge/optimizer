@@ -2,7 +2,7 @@
 title: "nlsr Background, Development, Examples and Discussion"
 author: "John C. Nash"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 bibliography: nlpd.bib
 vignette: >
   %\VignetteIndexEntry{nlsr Background, Development, Examples and Discussion}
@@ -47,6 +47,7 @@ desirable.
 
 ## TODOS
 
+- explain JN approach to relative offset convergence criterion
 - how to insert numerical derivatives when Deriv unable to get result
 - approximations for jacfn beyond fwd approximation. How to specify??
 
@@ -174,7 +175,9 @@ print(wrjdoc)
    The start vector preferably uses named parameters (especially if there is an 
    underlying formula). The attempted minimization of the sum of squares
    uses the Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method.
+   sub-problem is solved by a qr method. We explain how this is done later,
+   as well as giving a short discussion of the relative offset convergence
+   criterion.
 
 ```{r c004}
 shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
@@ -237,8 +240,8 @@ summary(anlxb1)
 #### print.nlsr
 
 Print summary output (but involving some serious computations!) of
-    an object of class nlsr from \code{nlxb} or \code{nlfb} from package
-    \code{nlsr}.
+an object of class nlsr from `nlxb` or `nlfb` from package
+`nlsr`.
 
 ```{r c006}
 ### From examples above
@@ -370,9 +373,9 @@ anls2a  <-  try(wrapnlsr(eunsc, start=start1, trace=TRUE, data=weeddata1))
 ```
 
 
-### Particular features
+## Particular features
 
-#### weighted nonlinear regression
+### weighted nonlinear regression
 
 Weighted regression alters the sum of squares of the parameters `prm` from
 
@@ -483,7 +486,7 @@ coef(Pur.wnlxb) - coef(Pur.wnlfb0)
 wss.MM <- function(prm, rate, conc) {
   ss <- as.numeric(crossprod(wres.MM(prm, rate, conc)))
 }
-library(optimr)
+library(optimx)
 osol <- optimr(stw, fn=wss.MM, gr="grnd", method="Nelder-Mead", control=list(trace=0), 
             rate=Treated$rate, conc=Treated$conc)
 print(osol)
@@ -491,7 +494,82 @@ print(osol)
 osol$par - coef(Pur.wnlxb)
 ```
 
-### Missing capabilities
+## How QR decomposition is used to effect the Levenberg-Marquardt stabilization
+
+If the nonlinear least squares problem is defined by minimizing the sum of
+squares of a vector of residuals that are functions of a vector of parameters `x`
+
+` r =  f(x) `
+
+Then the minimization of ` S(x) = r^T r ` is our goal. 
+
+`nls()` attempts to minimize a sum of squared residuals by a Gauss-Newton method. If we
+compute a Jacobian matrix `J` and a vector of residuals `r` from a vector of parameters `x`, 
+then we can define a linearized problem 
+
+`  J^T J  \delta  = - J^T r `
+
+This leads to an iteration where, from a set of starting parameters `x0`, we compute
+
+` x_{i+1} = x_i + \delta`
+
+This is commonly modified to use a step factor `step`
+
+` x_{i+1} = x_i + step * \delta`
+
+It is in the mechanisms to choose the size of `step` and to decide when to terminate the
+iteration that Gauss-Newton methods differ. Indeed, though I have tried several times, I
+find the very convoluted code behind `nls()` very difficult to decipher. Unfortunately, its
+authors have now (as far as I am aware) all ceased to maintain the code.
+
+Both `nlsr::nlxb()` and `minpack.lm::nlsLM` use a Levenberg-Marquardt stabilization of the iteration.
+(@jncnm79), solving
+
+` (J^T J + \lambda D)   \delta  = - J^T r `
+
+where `D` is some diagonal matrix and lambda is a number of modest size initially. Clearly
+for `\lambda = 0` we have a Gauss-Newton method. Typically, the sum of squares of the residuals
+calculated at the "new" set of parameters is used as a criterion for keeping those parameter
+values. If so, the size of `\lambda` is reduced. If not, we increase the size of `\lambda` and
+compute a new `\delta`. Note that a new 'J`, the expensive step in each iteration, is NOT
+required. 
+
+As for Gauss-Newton methods, the details of how to start, adjust and terminate the iteration
+lead to many variants, increased by different possibilities for specifying `D`. See
+@jncnm79.
+
+We could implement the methods using the equations above. However, the accumulation of
+inner products in `J^T J` occasions some numerical error, and it is generally both safer
+and more efficient to use matrix decompositions. In particular, if we form the QR decomposition
+of `J`
+
+    `Q R = J`
+    
+where Q is an orthonormal matrix and R is Right or Upper triangular, we can easily
+solve
+
+`  R \delta = Q^T r`
+
+But how do we get the Marquardt stabilization?
+
+If we augment `J` with a square matrix ` sqrt(\lambda D)` whose diagonal elements are the
+square roots of `\lambda` times the diagonal elements of `D`, and augment the vector `r` with `n` zeros
+where `n` is the column dimension of `J` and `D`, we achieve our goal. 
+
+Typically we can use `D = 1_n` (the identidy of order n), but @Marq63 showed that using the 
+diagonal elements of `J^T J` for D. @jn77ima pointed out that on computers with limited
+arithmetic (which now are rare since the IEEE 754 standard appeared in 1985), underflow might
+cause a problem of very small elements in `D` and proposed adding `\phi 1_n` to the diagonals
+of `J^T J` before multiplying by `\lambda` in the Marquardt stabilization. This avoids some
+awkward cases with very little extra overhead. It is accomplished with the QR approach by
+appending `sqrt(\phi * \lambda)` times a unit matrix `1_n` to the matrix already augmented
+matrix. We must also append `n` zeros to the augmented `r`. 
+
+## Relative offset convergence criterion
+
+?? 
+
+## Missing capabilities
 
 #### Multi-line function expressions
 
@@ -966,6 +1044,13 @@ fitgnjn20 <- gnjn2(st, trf, trj, data=mydata)
 
 ```
 
+### Implementing the Marquardt stabilization in QR form
+
+?? to add
+
+### Implementing a relative offset convergence test
+
+
 ### Nonlinear equations
 
 Solution of sets of nonlinear equations is generally NOT a problem that
@@ -1134,7 +1219,7 @@ require(nlsr)
 traceval <- FALSE
 # Data for Hobbs problem
 ydat  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
-          38.558, 50.156, 62.948, 75.995, 91.972) # for testing
+            38.558, 50.156, 62.948, 75.995, 91.972) # for testing
 tdat  <-  seq_along(ydat) # for testing
 
 # A simple starting vector -- must have named parameters for nlxb, nls, wrapnlsr.
@@ -1144,19 +1229,13 @@ eunsc  <-   y ~ b1/(1+b2*exp(-b3*tt))
 
 cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
-```
 
 
-```{r usex5}
 weedrj <- model2rjfun(modelformula=eunsc, pvec=start1, data=weeddata1)
-
-
-
 weedrj
 rjfundoc(weedrj) # Note how useful this is to report status
 
 ```
-
 
 ### check modelexpr() works with an ssgrfun ??
 
@@ -1327,18 +1406,11 @@ Use of a dataframe or local (calling) environment objects does work in all.
 
 
 ```{r appx1, cache=FALSE, echo=FALSE}
+## rm(list=ls())
 library(knitr)
-# read chunk (does not run code)
-# read_chunk('/home/john/rsvnall/optimizer/pkg/nlsr/inst/dev-files/nlsdata.R')
-read_chunk(system.file('dev-files/nlsdata.R', package = 'nlsr'))
-# We use this approach to avoid having differences between file here and in inst/extdata/
-```
-
-```{r nlsdata}
-## @knitr nlsdata.R
 # try different ways of supplying data to R nls stuff
 ydata <- c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 38.558,
-50.156, 62.948, 75.995, 91.972)
+           50.156, 62.948, 75.995, 91.972)
 ttdata <- seq_along(ydata) # for testing
 
 mydata <- data.frame(y = ydata, tt = ttdata)
@@ -1350,16 +1422,16 @@ ste <- c(b1 = 2, b2 = 5, b3 = 3)
 # let's try finding the variables
 
 findmainenv <- function(formula, prm) {
-   vn <- all.vars(formula)
-   pnames <- names(prm)
-   ppos <- match(pnames, vn)
-   datvar <- vn[-ppos]
-   cat("Data variables:")
-   print(datvar)
-   cat("Are the variables present in the current working environment?\n")
-   for (i in seq_along(datvar)){
-       cat(datvar[[i]]," : present=",exists(datvar[[i]]),"\n")
-   }
+  vn <- all.vars(formula)
+  pnames <- names(prm)
+  ppos <- match(pnames, vn)
+  datvar <- vn[-ppos]
+  cat("Data variables:")
+  print(datvar)
+  cat("Are the variables present in the current working environment?\n")
+  for (i in seq_along(datvar)){
+    cat(datvar[[i]]," : present=",exists(datvar[[i]]),"\n")
+  }
 }
 
 
@@ -1376,24 +1448,24 @@ rm(tt)
 # let's try finding the variables in dotargs
 
 finddotargs <- function(formula, prm, ...) {
-   dots <- list(...)
-   cat("dots:")
-   print(dots)
-   cat("names in dots:")
-   dtn <- names(dots)
-   print(dtn)
-   vn <- all.vars(formula)
-   pnames <- names(prm)
-   
-   ppos <- match(pnames, vn)
-   datvar <- vn[-ppos]
-   cat("Data variables:")
-   print(datvar)
-   cat("Are the variables present in the dot args?\n")
-   for (i in seq_along(datvar)){
-       dname <- datvar[[i]]
-       cat(dname," : present=",(dname %in% dtn),"\n")
-   }
+  dots <- list(...)
+  cat("dots:")
+  print(dots)
+  cat("names in dots:")
+  dtn <- names(dots)
+  print(dtn)
+  vn <- all.vars(formula)
+  pnames <- names(prm)
+  
+  ppos <- match(pnames, vn)
+  datvar <- vn[-ppos]
+  cat("Data variables:")
+  print(datvar)
+  cat("Are the variables present in the dot args?\n")
+  for (i in seq_along(datvar)){
+    dname <- datvar[[i]]
+    cat(dname," : present=",(dname %in% dtn),"\n")
+  }
 }
 
 finddotargs(hobsc, ste, y=ydata, tt=ttdata)
@@ -1407,8 +1479,11 @@ if (class(tryq) != "try-error") {print(nlsquiet)} else {cat("try-error\n")}
 rm(y)
 rm(tt)
 
-
-tdots<-try(nlsdots <- nls(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+## this will fail
+## tdots<-try(nlsdots <- nls(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+## but ...
+mydata<-data.frame(y=ydata, tt=ttdata)
+tdots<-try(nlsdots <- nls(formula=hobsc, start=ste, data=mydata))
 if ( class(tdots) != "try-error") {print(nlsdots)} else {cat("try-error\n")}
 #- Fails
 tframe <- try(nlsframe <- nls(formula=hobsc, start=ste, data=mydata))
@@ -1424,7 +1499,7 @@ if ( class(tquiet) != "try-error") {print(nlsrquiet)}
 rm(y)
 rm(tt)
 test <- try(nlsrdots <- nlxb(formula=hobsc, start=ste, y=ydata, tt=ttdata))
-  if (class(test) != "try-error") { print(nlsrdots) } else {cat("Try error\n") }
+if (class(test) != "try-error") { print(nlsrdots) } else {cat("Try error\n") }
 #- Note -- does NOT work -- do we need to specify the present env. in nlfb for y, tt??
 test2 <- try(nlsframe <- nls(formula=hobsc, start=ste, data=mydata))
 if (class(test) != "try-error") {print(nlsframe) } else {cat("Try error\n") }
@@ -1440,7 +1515,10 @@ print(nlsLMquiet)
 rm(y)
 rm(tt)
 ## Dotargs
-tdots <- try(nlsLMdots <- nlsLM(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+## Following fails
+## tdots <- try(nlsLMdots <- nlsLM(formula=hobsc, start=ste, y=ydata, tt=ttdata))
+## but ... 
+tdots <- try(nlsLMdots <- nlsLM(formula=hobsc, start=ste, data=mydata))
 if (class(tdots) != "try-error") { print(nlsLMdots) } else {cat("try-error\n") }
 #-  Note -- does NOT work
 ## dataframe

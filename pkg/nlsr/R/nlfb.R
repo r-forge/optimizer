@@ -146,7 +146,6 @@ if (trace) {
 #    cat("resbest:")
 #    print(resbest)
     ssbest<-as.numeric(crossprod(resbest))
-    ss0 <- ssbest # reference value for rofftest
     ssminval <- ssbest*epstol^4
     if (watch) cat("ssminval =",ssminval,"\n")
     feval<-1
@@ -217,8 +216,10 @@ if (trace) {
          print(JJ)
        }
        JQR<-qr(JJ)# ??try
+## ?? need to document more
        rplus<-c(resbest, rep(0,2*npar))
-       roff <- max(abs(as.numeric(crossprod(qr.Q(JQR), rplus))))/ss0
+# 190809 -- add sqrt and use ssbest. ?? add 1 to avoid 0
+       roff <- max(abs(as.numeric(crossprod(qr.Q(JQR), rplus))))/sqrt(ssbest+1.0)
        if (watch) cat("roff =", roff,"  converged = ",(roff <= sqrt(epstol)),"\n")
        if (ctrl$rofftest && (roff <= sqrt(epstol))) roffstop <- TRUE
 #        tmp <- readline('cont')
@@ -308,7 +309,7 @@ if (trace) {
     names(pnum) <- pnames
     result <- list(resid = resbest, jacobian = Jac, feval = feval, 
         jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, 
-        maskidx=maskidx, weights=weights)
+        maskidx=maskidx, weights=weights, formula=NULL) # chg 190805
 ##    attr(result, "pkgname") <- "nlsr"
     class(result) <- "nlsr" ## CAUSES ERRORS
     result

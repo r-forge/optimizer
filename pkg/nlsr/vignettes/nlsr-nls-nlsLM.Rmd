@@ -25,18 +25,20 @@ The following is a summary of the main differences in the tools.
 
 `nlsr::nlxb()` attempts to use symbolic and algorithmic tools to obtain the derivatives
 of the model expression that are needed for the **Jacobian** matrix that is used in creating
-a linearized sub-problem at each iteration of attemted solution of the minimization of the
+a linearized sub-problem at each iteration of an attempted solution of the minimization of the
 sum of squared residuals. `nls()` and `minpack.lm::nlsLM()` use a very simple forward-difference
 approximation for the partial derivatives. For the i'th partial derivative of the modelling
-function with respect to parameter xx, they use
+function with respect to parameter xx, they use (in `C`)
  
    `delta = (xx == 0) ? eps : xx*eps;`
 
 and 
 
-    `REAL(gradient)[start + k] = rDir[i] * (REAL(ans_del)[k] - REAL(ans)[k])/delta;`
+`REAL(gradient)[start + k] = rDir[i] * (REAL(ans_del)[k] - REAL(ans)[k])/delta;`
     
-    where `double eps = sqrt(DOUBLE_EPS), *rDir;`
+where 
+
+`double eps = sqrt(DOUBLE_EPS), *rDir;`
     
 and where `DOUBLE_EPS` in Constants.h in the **R** source code refers to `DBL_EPSILON` in float.h 
 in most C compilers, e.g., 
@@ -46,7 +48,7 @@ in most C compilers, e.g.,
 Thus `delta` is of the order of 1.490116e-08.
 
 Forward difference approximations are less accurate than central differences, and both are subject
-to numerical error when the modelling function it "flat", so that there is a large amount of
+to numerical error when the modelling function is "flat", so that there is a large amount of
 digit cancellation in the subtraction necessary to compute the derivative approximation.
 
 `minpack.lm::nlsLM` uses the same derivatives as far as I can determine. The loss of information 
@@ -54,7 +56,31 @@ compared to the analytic or algorithmic derivatives of `nlsr::nlxb()` is importa
 can lead to Jacobian matrices that are computationally singular, where `nls()` will stop with
 "singular gradient". (It is actually the Jacobian which is singular here, and I will stay with
 that terminology.)  `minpack.lm::nlsLM()` may fail to get started if the initial Jacobian is
-singular, but is less susceptible in general, as described in the next sub-section.
+singular, but is less susceptible in general, as described in the sub-section on Marquardt 
+stabilization.
+
+#### An illustrative problem
+
+So we can illustrate some of the issues, let us create some example data for a family
+of related computational problems.
+
+```{r exprob1}
+# Here we set up an example problem with data
+# Define independent variables
+t1 <- 1:20
+t0 <- 0:19
+t0a <- t0
+t0a[1] <- 1e-7
+y1 <- 4 * (t1^0.25)
+n <- length(t1)
+fuzz <- rnorm(n)
+range <- max(y1)-min(y1)
+y1p <- y1 + 0.1*range*fuzz
+y1q <- y1 + 0.2*range*fuzz
+y1r <- y1 + 0.5*range*fuzz
+edta <- data.frame(t0=t0, t1=t1, t0a=t0a,y1=y1, y1p=y1p, y1q=y1q, y1r=y1r)
+```
+
 
 #### Consequences of different derivative computations
 
@@ -69,8 +95,8 @@ the potential danger. Thanks to Karl Schilling for an example of modelling with 
 
   `a * (x ^ b)`
   
-where `x` is our data and we wish to estimate `a` and `b`'. Now the partial derivative of this
-function w.r.t. `b' is 
+where `x` is our data and we wish to estimate `a` and `b`. Now the partial derivative of this
+function w.r.t. `b` is 
 
 ```{r derivexp, eval=TRUE}
 partialderiv <- D(expression(a * (x ^ b)),"b")
@@ -84,10 +110,69 @@ to provide a very small value instead of zero for the data, though I find this i
 A proper treatment might be to develop the limit of the derivative as the data value goes
 to zero, but finding general software does not seem worth the effort.
 
+Let us try our example modelling `y1` against `t1`. Note that this is a zero-resitdual problem,
+so `nls()` should complain or fail, which it appears to do but by exceeding the iteration limit,
+which is not very communicative of the underlying issue.
+
+```{r extry1}
+start1 <- c(a=1, b=1)
+try(nlsy1t1 <- nls(formula=y1~a*(t1^b), start=start1, data=edta))
+try(nlsy1t1 <- nls(formula=y1~a*(t1^b), start=start1, data=edta, control=nls.control(maxiter=10000)))
+library(nlsr)
+nlsry1t1 <- nlxb(formula=y1~a*(t1^b), start=start1, data=edta)
+nlsry1t1
+library(minpack.lm)
+nlsLMy1t1 <- nlsLM(formula=y1~a*(t1^b), start=start1, data=edta)
+nlsLMy1t1
+
+
+```
+
+```{r extry2}
+try(nlsy1t0 <- nls(formula=y1~a*(t0^b), start=start1, data=edta))
+nlsy1t0
+library(nlsr)
+try(nlsry1t0 <- nlxb(formula=y1~a*(t0^b), start=start1, data=edta))
+##FAIL -- nlsry1t0
+library(minpack.lm)
+nlsLMy1t0 <- nlsLM(formula=y1~a*(t0^b), start=start1, data=edta)
+nlsLMy1t0
+
+try(nlsy1pt1 <- nls(formula=y1p~a*(t1^b), start=start1, data=edta))
+nlsy1pt1
+library(nlsr)
+nlsry1pt1 <- nlxb(formula=y1p~a*(t1^b), start=start1, data=edta)
+nlsry1pt1
+library(minpack.lm)
+nlsLMy1pt1 <- nlsLM(formula=y1p~a*(t1^b), start=start1, data=edta)
+nlsLMy1pt1
+
+try(nlsy1qt1 <- nls(formula=y1q~a*(t1^b), start=start1, data=edta))
+nlsy1qt1
+library(nlsr)
+nlsry1qt1 <- nlxb(formula=y1q~a*(t1^b), start=start1, data=edta)
+nlsry1qt1
+library(minpack.lm)
+nlsLMy1qt1 <- nlsLM(formula=y1q~a*(t1^b), start=start1, data=edta)
+nlsLMy1qt1
+
+try(nlsy1rt1 <- nls(formula=y1r~a*(t1^b), start=start1, data=edta))
+nlsy1rt1
+library(nlsr)
+nlsry1rt1 <- nlxb(formula=y1r~a*(t1^b), start=start1, data=edta)
+nlsry1rt1
+library(minpack.lm)
+nlsLMy1rt1 <- nlsLM(formula=y1r~a*(t1^b), start=start1, data=edta)
+nlsLMy1rt1
+
+
+
+
+```
 
 ### Marquardt stabilization
 
-All three of the functions under consideration try to minimize a tum of squares. If the
+All three of the R functions under consideration try to minimize a sum of squares. If the
 model is provided in the form
 
    `y ~ (some expression)`
@@ -103,31 +188,31 @@ of residual `i` w.r.t. parameter `j`.
 compute a Jacobian matrix `J` and a vector of residuals `r` from a vector of parameters `x`, 
 then we can define a linearized problem 
 
-`  J^T J  \delta  = - J^T r `
+$$  J^T J  \delta  = - J^T r $$
 
 This leads to an iteration where, from a set of starting parameters `x0`, we compute
 
-` x_{i+1} = x_i + \delta`
+$$ x_{i+1} = x_i + \delta$$
 
 This is commonly modified to use a step factor `step`
 
-` x_{i+1} = x_i + step * \delta`
+$$ x_{i+1} = x_i + step * \delta$$
 
 It is in the mechanisms to choose the size of `step` and to decide when to terminate the
 iteration that Gauss-Newton methods differ. Indeed, though I have tried several times, I
 find the very convoluted code behind `nls()` very difficult to decipher. Unfortunately, its
 authors have now (as far as I am aware) all ceased to maintain the code.
 
-Both `nlsr::nlxb()` and `minpack.lm::nlsLM` use a Levanberg-Marquardt stabilization of the iteration.
-(??ref), solving
+Both `nlsr::nlxb()` and `minpack.lm::nlsLM` use a Levenberg-Marquardt stabilization of the iteration.
+(@Marq63, @Levenberg44), solving
 
-` (J^T J + \lambda D)   \delta  = - J^T r `
+$$ (J^T J + \lambda D)   \delta  = - J^T r $$
 
-where `D` is some diagonal matrix and lambda is a number of modest size initially. Clearly
-for `\lambda = 0` we have a Gauss-Newton method. Typically, the sum of squares of the residuals
+where $D$ is some diagonal matrix and lambda is a number of modest size initially. Clearly
+for $\lambda = 0$ we have a Gauss-Newton method. Typically, the sum of squares of the residuals
 calculated at the "new" set of parameters is used as a criterion for keeping those parameter
-values. If so, the size of `\lambda` is reduced. If not, we increase the size of `\lambda` and
-compute a new `\delta`. Note that a new 'J`, the expensive step in each iteration, is NOT
+values. If so, the size of $\lambda$ is reduced. If not, we increase the size of $\lambda$ and
+compute a new $\delta$. Note that a new $J$, the expensive step in each iteration, is NOT
 required. 
 
 As for Gauss-Newton methods, the details of how to start, adjust and terminate the iteration
@@ -136,13 +221,13 @@ lead to many variants, increased by different possibilities for specifying `D`. 
 
 ### Output of the functions
 
-nls_structure
+nls_structure ??
 
-nlsr_structure
+nlsr_structure ??
 
 ### Prediction
 
-predict.nls()
+predict.nls()  ??
 
 
 ### Problems that are NOT regressions

@@ -1,0 +1,22 @@
+\providecommand{\bysame}{\leavevmode\hbox to3em{\hrulefill}\thinspace}
+\providecommand{\MR}{\relax\ifhmode\unskip\space\fi MR }
+% \MRhref is called by the amsart/book/proc definition of \MR.
+\providecommand{\MRhref}[2]{%
+  \href{http://www.ams.org/mathscinet-getitem?mr=#1}{#2}
+}
+\providecommand{\href}[2]{#2}
+\begin{thebibliography}{1}
+
+\bibitem{acton70}
+Forman~S. Acton, \emph{Numerical methods that work}, Harper and Row, New York,
+  1970.
+
+\bibitem{brent73}
+R.~Brent, \emph{Algorithms for minimization without derivatives},
+  Prentice-Hall, Englewood Cliffs, NJ, 1973.
+
+\bibitem{jncnm79}
+J.~C. Nash, \emph{Compact numerical methods for computers : linear algebra and
+  function minimisation}, Hilger, Bristol :, 1979 (English).
+
+\end{thebibliography}

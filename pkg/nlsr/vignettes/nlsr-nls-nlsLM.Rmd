@@ -17,6 +17,14 @@ Here some of the differences are highlighted by comparing the tools from the pac
 `nlsr`, particularly function `nlxb()` with those from base-R `nls()` and the `nlsLM` 
 function of package `minpack.lm`.
 
+# TODO
+
+- shorten example output and put in a table
+- add structure of output
+- show prediction functions, including where they don't work
+
+
+
 ## Principal differences
 
 The following is a summary of the main differences in the tools.
@@ -237,8 +245,11 @@ have a formula `y ~ (some function)` to define the problem. This is another reas
 use the residual in the form `(some function) - y` -- in the case of interest we have
 no `y`.
 
-The Brown and Dennis test problem (??ref) is of this form. Suppose we have `m` observations,
-then we create a scaled index.
+The Brown and Dennis test problem (@More1981TUO, problem 16) is of this form. Suppose we have `m` observations,
+then we create a scaled index `t` which is the "data" for the function. To run the nonlinear least squares
+functions that use a formula, we do, however, need a "y" variable. Clearly adding zero to the residual
+will not change the problem, so we set the data for "y" as all zeros. Note that `nls()` and `nlsLM()`
+need some extra iterations to find the solution to this somewhat nasty problem.
 
 ```{r brownden}
 m <- 20
@@ -268,33 +279,54 @@ nlsLMbd
 
 nlsLMbd10k <- nlsLM(bdform, start=prm0, data=bddata, trace=FALSE, control=nls.lm.control(maxiter=10000, maxfev=10000))
 nlsLMbd10k
+```
 
+Let us try predicting the "residual" for some new data.
+
+```{r browndenpred}
+ndata <- data.frame(t=c(5,6), y=c(0,0))
+predict(nlsLMbd, newdata=ndata)
+
+# now nls
+predict(nlsbd10k, newdata=ndata)
+
+# now nlsr
+nlsr.predict(newdata=ndata, nlsr.object=nlsrbd)
+
+
+```
+
+
+We could, of course, try setting up a different formula.
+However, we discover that the parsing of the model formula for `nls()` and 
+`nlsLM()` fails for this formulation.
+
+```{r brownden2}
 
 bdf2 <-  (x1 + t * x2 - exp(t))^2 ~ - (x3 + x4 * sin(t) - cos(t))^2
 nlsrbd2 <- nlxb(bdf2, start=prm0, data=bddata, trace=FALSE)
 ##summary(nlsrbd2)
 nlsrbd2
 
-nlsLMbd <- nlsLM(bdform, start=prm0, data=bddata, trace=FALSE, control=nls.lm.control(maxiter=10000, maxfev=10000))
-nlsLMbd
+nlsbd2 <- try(nls(bdf2, start=prm0, data=bddata, trace=FALSE))
+nlsbd2
 
-nlsrbdl01 <- nlxb(bdform, start=prm0, data=bddata, trace=FALSE, control=list(lamda=0.01))
-nlsrbdl01
 
-nlsrbdl1 <- nlxb(bdform, start=prm0, data=bddata, trace=FALSE, control=list(lamda=1))
-nlsrbdl1
-
-nlsrbdl1a <- nlxb(bdform, start=nlsrbdl1$coefficients, data=bddata, trace=FALSE, control=list(lamda=1))
-nlsrbdl1a
-
-nlsrbdl1 <- nlxb(bdform, start=prm0, data=bddata, trace=FALSE, control=list(rofftest=FALSE))
-nlsrbdl1
-
+nlsLMbd2 <- try(nlsLM(bdf2, start=prm0, data=bddata, trace=FALSE, control=nls.lm.control(maxiter=10000, maxfev=10000)))
+nlsLMbd2
 
 
 ```
 
-?? for some reason nlsr does NOT complete minimization
+We can try "prediction" again for `nlxb()`. The answers are, of course, rather different, as the
+`nlsr.predict()` function **ONLY** evaluates the right hand side of the formula. We are mis-applying
+the function here, and that is a reason the function has been renamed. It would be good to have more
+checks on the formula, and I welcome collaboration to do this.
+
+```{r brownden2pred}
+ndata <- data.frame(t=c(5,6), y=c(0,0))
+nlsr.predict(nlsrbd2, newdata=ndata)
+```
 
 
 ### Check on above calculation
@@ -419,7 +451,7 @@ brown_den <- function(m = 20) {
 mbd <- brown_den(m=20)
 mbd
 mbd$fg(mbd$x0)
-bdsolnm <- optim(mbd$x0, mbd$fn, control=list(trace=1))
+bdsolnm <- optim(mbd$x0, mbd$fn, control=list(trace=0))
 bdsolnm
 bdsolbfgs <- optim(mbd$x0, mbd$fn, method="BFGS", control=list(trace=0))
 bdsolbfgs

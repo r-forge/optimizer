@@ -2,8 +2,6 @@
 TODO:
          o    does not use dotargs
 
-         o    does not follow nls() style predict()
-       
          o    Should we use model.frame() anywhere?
 
          o    Need to ensure masks consistent between nlfb and nlxb.
@@ -17,6 +15,12 @@ TODO:
          o    Vignette to explain how stabilized Marquardt works, since
               Compact Numerical Methods book is hard to find.
 
+190820   o    nlxb() and nlfb() do not follow nls() in the output
+              structure and hence the use of predict(). A new function
+              nlsr.predict() has been added.
+
+         o    Vignette nlsr-nls-nlsLM added to explain prediction and
+              differences between nlsr and related packages.
 
 180128   o    A minor fix to derivs.R to avoid a bug when multiple
               partials are computed at once

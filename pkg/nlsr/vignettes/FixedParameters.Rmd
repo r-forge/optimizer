@@ -27,7 +27,7 @@ optimization using R tools** Chichester UK: Wiley, in particular chapters
 
 Here are some of the ways fixed parameters may be specified in R packages.
 
-From `nlxb` in package `nlsr` or previously in `nlxb` in package `nlmrt`.
+From `nlxb()` in package `nlsr`. (This approach was previously in defunct package `nlmrt`.)
 
 masked  
 
@@ -35,11 +35,11 @@ Character vector of quoted parameter names. These parameters will NOT be altered
 This approach has a simplicity that is attractive, but introduces an extra argument to calling
 sequences.
 
-From `nlfb`
+From `nlfb()` in `nlsr`.
 
 maskidx  
 
-?? This needs to be changed to use names!?? Vector if indices of the parameters to be masked. 
+Vector of indices of the parameters to be masked. 
 These parameters will NOT be altered by the algorithm. Note that the mechanism here is different 
 from that in nlxb which uses the names of the parameters.
 
@@ -59,7 +59,7 @@ moved to the nearest bound (`parchanged`). It may be useful to use **inadmissibl
 to situations where a lower bound is higher than an upper bound and **infeasible** where
 a parameter is outside the bounds.
 
-From `optimr/optimrx`
+From `optimx`
 
 The function `optimr()` can call many different "optimizers" (actually 
 function minimization methods that may include bounds and possibly masks).
@@ -77,8 +77,6 @@ does not add any special argument for masking, and is relatively obvious
 to novice users. However, such users may be tempted to put in narrow 
 bounds rather than explicit equalities, and this could have deleterious
 consequences.
-
-
 
 ### Internal structures
 
@@ -100,7 +98,7 @@ The -1 and -3 are historical, and arose in the development of BASIC
 codes for Nash J C and Walker-Smith M (1987)
 **Nonlinear parameter estimation: and integrated system in BASIC** New York: Dekker. 
 Now available for free download
-from archive.org. (\url{https://archive.org/details/NLPE87plus}). 
+from archive.org. (https://archive.org/details/NLPE87plus). 
 In particular, adding 2 gives 1 for an upper bound and -1 for a lower bound, 
 simplifying the expression to decide if an optimization trial step will move away from a bound.
 
@@ -131,7 +129,7 @@ Hessian and derived information.
 
 ## Examples of use
 
-?? put them in
+More examples would be useful here. 
 
 ```{r}
 require(Rvmmin)
@@ -174,5 +172,4 @@ weeduf <- nlfb(start=c(200, 50, 0.3),resfn=rfn,weed=weed, ii=ii)
 weeduf
 weedcf <- nlfb(start=c(200, 50, 0.3),resfn=rfn,weed=weed, ii=ii, maskidx=c(1))
 weedcf
-
 ```

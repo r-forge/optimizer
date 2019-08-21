@@ -67,30 +67,57 @@ that terminology.)  `minpack.lm::nlsLM()` may fail to get started if the initial
 singular, but is less susceptible in general, as described in the sub-section on Marquardt 
 stabilization.
 
-#### An illustrative problem
+### Marquardt stabilization
 
-So we can illustrate some of the issues, let us create some example data for a family
-of related computational problems.
+All three of the R functions under consideration try to minimize a sum of squares. If the
+model is provided in the form
 
-```{r exprob1}
-# Here we set up an example problem with data
-# Define independent variables
-t1 <- 1:20
-t0 <- 0:19
-t0a <- t0
-t0a[1] <- 1e-7
-y1 <- 4 * (t1^0.25)
-n <- length(t1)
-fuzz <- rnorm(n)
-range <- max(y1)-min(y1)
-y1p <- y1 + 0.1*range*fuzz
-y1q <- y1 + 0.2*range*fuzz
-y1r <- y1 + 0.5*range*fuzz
-edta <- data.frame(t0=t0, t1=t1, t0a=t0a,y1=y1, y1p=y1p, y1q=y1q, y1r=y1r)
-```
+   `y ~ (some expression)`
+   
+then the residuals are computed by evaluating the difference between `(some expression)` and `y`.
+My own preference, and that of K F Gauss, is to use `(some expression) - y`. This is to avoid
+having to be concerned with the negative sign -- the derivative of the residual defined in this
+way is the same as the derivative of the modelling function, and we avoid the chance of a sign
+error. The Jacobian matrix is made up of elements where element `i, j` is the partial derivative
+of residual `i` w.r.t. parameter `j`. 
+
+`nls()` attempts to minimize a sum of squared residuals by a Gauss-Newton method. If we
+compute a Jacobian matrix `J` and a vector of residuals `r` from a vector of parameters `x`, 
+then we can define a linearized problem 
+
+$$  J^T J  \delta  = - J^T r $$
+
+This leads to an iteration where, from a set of starting parameters `x0`, we compute
+
+$$ x_{i+1} = x_i + \delta$$
+
+This is commonly modified to use a step factor `step`
+
+$$ x_{i+1} = x_i + step * \delta$$
+
+It is in the mechanisms to choose the size of `step` and to decide when to terminate the
+iteration that Gauss-Newton methods differ. Indeed, though I have tried several times, I
+find the very convoluted code behind `nls()` very difficult to decipher. Unfortunately, its
+authors have now (as far as I am aware) all ceased to maintain the code.
+
+Both `nlsr::nlxb()` and `minpack.lm::nlsLM` use a Levenberg-Marquardt stabilization of the iteration.
+(@Marq63, @Levenberg44), solving
+
+$$ (J^T J + \lambda D)   \delta  = - J^T r $$
+
+where $D$ is some diagonal matrix and lambda is a number of modest size initially. Clearly
+for $\lambda = 0$ we have a Gauss-Newton method. Typically, the sum of squares of the residuals
+calculated at the "new" set of parameters is used as a criterion for keeping those parameter
+values. If so, the size of $\lambda$ is reduced. If not, we increase the size of $\lambda$ and
+compute a new $\delta$. Note that a new $J$, the expensive step in each iteration, is NOT
+required. 
+
+As for Gauss-Newton methods, the details of how to start, adjust and terminate the iteration
+lead to many variants, increased by different possibilities for specifying `D`. See
+@jncnm79.
 
 
-#### Consequences of different derivative computations
+### Consequences of different derivative computations
 
 While readers might expect that the precise derivative information of `nlsr::nlxb()` would mean
 a faster solution, this is quite often not the case. Approximate derivatives may allow faster
@@ -117,6 +144,28 @@ a solution, while `nls()` and `minpack.lm::nlsLM()` will generally proceed. A wo
 to provide a very small value instead of zero for the data, though I find this inelegant.
 A proper treatment might be to develop the limit of the derivative as the data value goes
 to zero, but finding general software does not seem worth the effort.
+
+#### An illustrative problem
+
+So we can illustrate some of the issues, let us create some example data for a family
+of related computational problems.
+
+```{r exprob1}
+# Here we set up an example problem with data
+# Define independent variables
+t1 <- 1:20
+t0 <- 0:19
+t0a <- t0
+t0a[1] <- 1e-7
+y1 <- 4 * (t1^0.25)
+n <- length(t1)
+fuzz <- rnorm(n)
+range <- max(y1)-min(y1)
+y1p <- y1 + 0.1*range*fuzz
+y1q <- y1 + 0.2*range*fuzz
+y1r <- y1 + 0.5*range*fuzz
+edta <- data.frame(t0=t0, t1=t1, t0a=t0a,y1=y1, y1p=y1p, y1q=y1q, y1r=y1r)
+```
 
 Let us try our example modelling `y1` against `t1`. Note that this is a zero-resitdual problem,
 so `nls()` should complain or fail, which it appears to do but by exceeding the iteration limit,
@@ -172,77 +221,54 @@ nlsry1rt1
 library(minpack.lm)
 nlsLMy1rt1 <- nlsLM(formula=y1r~a*(t1^b), start=start1, data=edta)
 nlsLMy1rt1
-
-
-
-
 ```
 
-### Marquardt stabilization
+### Output of the modelling functions
 
-All three of the R functions under consideration try to minimize a sum of squares. If the
-model is provided in the form
+`nls()` and `nlsLM()` return the same structure. Let us examine this for one of our 
+example results (we will choose one that does NOT have small residuals, so that all
+the functions "work").
 
-   `y ~ (some expression)`
-   
-then the residuals are computed by evaluating the difference between `(some expression)` and `y`.
-My own preference, and that of K F Gauss, is to use `(some expression) - y`. This is to avoid
-having to be concerned with the negative sign -- the derivative of the residual defined in this
-way is the same as the derivative of the modelling function, and we avoid the chance of a sign
-error. The Jacobian matrix is made up of elements where element `i, j` is the partial derivative
-of residual `i` w.r.t. parameter `j`. 
+```{r nlsstr}
+str(nlsy1pt1)
+```
 
-`nls()` attempts to minimize a sum of squared residuals by a Gauss-Newton method. If we
-compute a Jacobian matrix `J` and a vector of residuals `r` from a vector of parameters `x`, 
-then we can define a linearized problem 
+Note that this structure has a lot of special functions in the sub-list `m`.
+By contrast, the `nlsr()` output is much less flamboyant. There are, in fact,
+no functions as part of the structure. 
 
-$$  J^T J  \delta  = - J^T r $$
+```{r nlsrstr}
+str(nlsry1pt1)
+```
 
-This leads to an iteration where, from a set of starting parameters `x0`, we compute
+Which of these approaches is "better" can be debated. My preference is for the results
+of optimization computations to be essentially data, including messages, though some
+tools within some of my packages will return functions for specific reasons, e.g.,
+to return a function from an expression. However, I prefer to use specified functions
+such as `nlsr.predict()` below to obtain predictions. I welcome comment and discussion,
+as this is not, in my view, a closed topic.
 
-$$ x_{i+1} = x_i + \delta$$
-
-This is commonly modified to use a step factor `step`
-
-$$ x_{i+1} = x_i + step * \delta$$
-
-It is in the mechanisms to choose the size of `step` and to decide when to terminate the
-iteration that Gauss-Newton methods differ. Indeed, though I have tried several times, I
-find the very convoluted code behind `nls()` very difficult to decipher. Unfortunately, its
-authors have now (as far as I am aware) all ceased to maintain the code.
-
-Both `nlsr::nlxb()` and `minpack.lm::nlsLM` use a Levenberg-Marquardt stabilization of the iteration.
-(@Marq63, @Levenberg44), solving
-
-$$ (J^T J + \lambda D)   \delta  = - J^T r $$
-
-where $D$ is some diagonal matrix and lambda is a number of modest size initially. Clearly
-for $\lambda = 0$ we have a Gauss-Newton method. Typically, the sum of squares of the residuals
-calculated at the "new" set of parameters is used as a criterion for keeping those parameter
-values. If so, the size of $\lambda$ is reduced. If not, we increase the size of $\lambda$ and
-compute a new $\delta$. Note that a new $J$, the expensive step in each iteration, is NOT
-required. 
-
-As for Gauss-Newton methods, the details of how to start, adjust and terminate the iteration
-lead to many variants, increased by different possibilities for specifying `D`. See
-@jncnm79.
-
-### Output of the functions
-
-nls_structure ??
-
-nlsr_structure ??
 
 ### Prediction
 
-predict.nls()  ??
+Let us predict our models at the mean of the data.
+Because `nlxb()` returns a different structure from that found by `nls()` and 
+`nlsLM()` we use `nlsr.predict()` rather than `predict()`. As far as I can 
+determine, the latter uses code `predict.nls`. 
+
+```{r  pred1}
+nudta <- colMeans(edta)
+predict(nlsy1pt1, newdata=nudta)
+predict(nlsLMy1pt1, newdata=nudta)
+nlsr.predict(nlsry1pt1, newdata=nudta)
+```
 
 
 ### Problems that are NOT regressions
 
 Some nonlinear least squares problems are NOT nonlinear regressions. That is, we do not
 have a formula `y ~ (some function)` to define the problem. This is another reason to
-use the residual in the form `(some function) - y` -- in the case of interest we have
+use the residual in the form `(some function) - y` In many cases of interest we have
 no `y`.
 
 The Brown and Dennis test problem (@More1981TUO, problem 16) is of this form. Suppose we have `m` observations,
@@ -299,27 +325,25 @@ nlsr.predict(newdata=ndata, nlsr.object=nlsrbd)
 
 We could, of course, try setting up a different formula.
 However, we discover that the parsing of the model formula for `nls()` and 
-`nlsLM()` fails for this formulation.
+`nlsLM()` fails for this formulation, but `nlxb()` proceeds as usual.
 
 ```{r brownden2}
-
 bdf2 <-  (x1 + t * x2 - exp(t))^2 ~ - (x3 + x4 * sin(t) - cos(t))^2
-nlsrbd2 <- nlxb(bdf2, start=prm0, data=bddata, trace=FALSE)
-##summary(nlsrbd2)
-nlsrbd2
 
 nlsbd2 <- try(nls(bdf2, start=prm0, data=bddata, trace=FALSE))
 nlsbd2
 
-
-nlsLMbd2 <- try(nlsLM(bdf2, start=prm0, data=bddata, trace=FALSE, control=nls.lm.control(maxiter=10000, maxfev=10000)))
+nlsLMbd2 <- try(nlsLM(bdf2, start=prm0, data=bddata, trace=FALSE, 
+                      control=nls.lm.control(maxiter=10000, maxfev=10000)))
 nlsLMbd2
 
-
+nlsrbd2 <- nlxb(bdf2, start=prm0, data=bddata, trace=FALSE)
+##summary(nlsrbd2)
+nlsrbd2
 ```
 
 We can try "prediction" again for `nlxb()`. The answers are, of course, rather different, as the
-`nlsr.predict()` function **ONLY** evaluates the right hand side of the formula. We are mis-applying
+`nlsr.predict()` function **ONLY** evaluates the right hand side of the formula. We are **mis-applying**
 the function here, and that is a reason the function has been renamed. It would be good to have more
 checks on the formula, and I welcome collaboration to do this.
 
@@ -329,7 +353,7 @@ nlsr.predict(nlsrbd2, newdata=ndata)
 ```
 
 
-### Check on above calculation
+### A check on the Brown and Dennis calculation via function minimization
 
 ```{r bdcheck}
 #' Brown and Dennis Function

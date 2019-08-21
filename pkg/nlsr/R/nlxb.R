@@ -128,9 +128,9 @@ nlxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
 # ?? should there be any ... arguments
     pnum <- as.vector(resfb$coefficients)
     names(pnum) <- pnames # Make sure names re-attached. ??Is this needed??
-    resfb$coefficients <- pnum
+##    resfb$coefficients <- pnum ## commented 190821
     result <- resfb
 ##    attr(result, "pkgname") <- "nlsr"
-    class(result) <- "nlsr" ## CAUSES ERRORS
+    class(result) <- "nlsr" ## CAUSES ERRORS ?? Does it?? 190821
     result
 }

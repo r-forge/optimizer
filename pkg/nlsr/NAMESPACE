@@ -13,7 +13,7 @@ export(
    modelexpr,
    model2rjfun,
    model2ssgrfun,
-   nlsr.predict,
+#   nlsr.predict,
    print.nlsr,
 #   resid.nlsr,
    summary.nlsr,
@@ -43,4 +43,5 @@ S3method(print, rjfundoc)
 S3method(coef, nlsr)
 S3method(print, nlsr)
 S3method(summary, nlsr)
+S3method(predict, nlsr)
 # S3method(resid, nlsr)

@@ -103,7 +103,7 @@ print(anlxb1)
 # illustrate predict
 newdta <- colMeans(weeddata1)
 newdta["tt"]<-25 # This only works for 1D example -- CAUTION
-predn <- nlsr.predict(as.list(newdta), nlsr.object=anlxb1)
+predn <- predict(anlxb1, as.list(newdta))
 print(predn)
 
 anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))

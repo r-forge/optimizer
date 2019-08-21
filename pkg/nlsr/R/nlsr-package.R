@@ -84,7 +84,7 @@ summary.nlsr <- function(object, ...) {
         list(pnames, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
 
 # Note: We don't return formula because we may be doing nlfb summary 
-#   i.e., resfn and jacfn approach
+#   i.e., resfn and jacfn approach  ?? But could we??
     ans <- list(residuals = res, sigma = sqrt(resvar),  
                 df = c(npar, rdf), cov.unscaled = XtXinv,
                 param = param, resname=resname, ssquares=ss, nobs=nobs, 
@@ -95,10 +95,9 @@ summary.nlsr <- function(object, ...) {
     ans
 }
 
-# ?? coef() function
+# coef() function
 coef.nlsr <- function(object, ...) {
        out <- object$coefficients
-       # print(object$coefficients)
        attr(out,"pkgname")<-"nlsr"
 ##       invisible(out)
        out # JN 170109
@@ -134,27 +133,25 @@ print.nlsr <- function(x, ...) {
   invisible(x)
 }
 
-#resid.nlsr <- function(object, ...) { ## ?? for some reason did not work
+
+## ?? can we do a generic resids??
 res <- function(object){
   resids <- object$resid
   resids # so the function prints
 }
 
-## predict.nlsr <- function(object, ...) {
-  # How to do this??
-  ## Since we may have residuals WITHOUT a model, prediction may not make sense.
-## }
-
-nlsr.predict <- function(newdata=list(), nlsr.object=NULL, ...) { 
-#  This ONLY works if we have used nlxb
-    if( is.null(nlsr.object) ) stop("nlsr.predict REQUIRES an nlsr solution object")
-    form <- nlsr.object$formula
+predict.nlsr <- function(object=NULL, newdata=list(), ...) { 
+#  This ONLY works if we have used nlxb. Do we want to add class 'nlxb'??
+    if( is.null(object) ) stop("predict.nlsr REQUIRES an nlsr solution object")
+    form <- object$formula
     if (is.null(form)) stop("nlsr.predict works only if formula is defined")
 # ?? give more output
 #
 #  we assume a formula of style y~something, and use the something
 #  In some ways need to check this more carefully
-    env4coefs <- list2env(as.list(nlsr.object$coefficients))
+    env4coefs <- list2env(as.list(object$coefficients))
     preds <- eval(form[[3]], as.list(newdata), env4coefs)
+    class(preds)<- "predict.nlsr"
+    attr(preds,"pkgname") <- "nlsr"
     preds
 }

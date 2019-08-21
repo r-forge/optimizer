@@ -311,7 +311,7 @@ if (trace) {
         jeval = jeval, coefficients = pnum, ssquares = ssbest, lower=lower, upper=upper, 
         maskidx=maskidx, weights=weights, formula=NULL) # chg 190805
 ##    attr(result, "pkgname") <- "nlsr"
-    class(result) <- "nlsr" ## CAUSES ERRORS
+    class(result) <- "nlsr" ## CAUSES ERRORS ?? Does it 190821??
     result
 }
 

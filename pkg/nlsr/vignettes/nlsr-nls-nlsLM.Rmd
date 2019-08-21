@@ -245,7 +245,7 @@ Which of these approaches is "better" can be debated. My preference is for the r
 of optimization computations to be essentially data, including messages, though some
 tools within some of my packages will return functions for specific reasons, e.g.,
 to return a function from an expression. However, I prefer to use specified functions
-such as `nlsr.predict()` below to obtain predictions. I welcome comment and discussion,
+such as `predict.nlsr()` below to obtain predictions. I welcome comment and discussion,
 as this is not, in my view, a closed topic.
 
 
@@ -253,14 +253,15 @@ as this is not, in my view, a closed topic.
 
 Let us predict our models at the mean of the data.
 Because `nlxb()` returns a different structure from that found by `nls()` and 
-`nlsLM()` we use `nlsr.predict()` rather than `predict()`. As far as I can 
-determine, the latter uses code `predict.nls`. 
+`nlsLM()` the code for `predict()` is different. (`minpack.lm` uses `predict.nls`
+since the output structure of the modelling step is equivalent to that from `nls()`.)
 
 ```{r  pred1}
 nudta <- colMeans(edta)
 predict(nlsy1pt1, newdata=nudta)
 predict(nlsLMy1pt1, newdata=nudta)
-nlsr.predict(nlsry1pt1, newdata=nudta)
+predict(nlsry1pt1, newdata=nudta)
+
 ```
 
 
@@ -317,7 +318,7 @@ predict(nlsLMbd, newdata=ndata)
 predict(nlsbd10k, newdata=ndata)
 
 # now nlsr
-nlsr.predict(newdata=ndata, nlsr.object=nlsrbd)
+predict(nlsrbd, newdata=ndata)
 
 
 ```
@@ -343,13 +344,13 @@ nlsrbd2
 ```
 
 We can try "prediction" again for `nlxb()`. The answers are, of course, rather different, as the
-`nlsr.predict()` function **ONLY** evaluates the right hand side of the formula. We are **mis-applying**
+`predict.nlsr()` function **ONLY** evaluates the right hand side of the formula. We are **mis-applying**
 the function here, and that is a reason the function has been renamed. It would be good to have more
 checks on the formula, and I welcome collaboration to do this.
 
 ```{r brownden2pred}
 ndata <- data.frame(t=c(5,6), y=c(0,0))
-nlsr.predict(nlsrbd2, newdata=ndata)
+predict(nlsrbd2, newdata=ndata)
 ```
 
 

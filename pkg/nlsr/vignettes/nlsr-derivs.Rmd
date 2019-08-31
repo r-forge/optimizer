@@ -437,11 +437,22 @@ class(dnlsr)
 detach("package:nlsr", unload=TRUE)
 detach("package:Deriv", unload=TRUE)
 
-x <- Sym("x")
-y <- Sym("y")
-dryacas <- deriv(sin(x+y), x)
-print(dryacas)
-class(dryacas)
+## New Ryacas mechanism as of 2019-8-29 from mikl@math.aau.dk (Mikkel Meyer Andersen)
+
+yac_str("D(x) Sin(x+y)") 
+
+# or if an expression is needed:
+ex <- yac_expr("D(x) Sin(x+y)")
+ex
+expression(cos(x + y))
+eval(ex, list(x = pi, y = pi/2))
+
+## Previous syntax for Ryacas was
+## x <- Sym("x")
+## y <- Sym("y")
+## dryacas <- deriv(sin(x+y), x)
+## print(dryacas)
+## class(dryacas)
 
 detach("package:Ryacas", unload=TRUE)
 ```

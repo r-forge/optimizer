@@ -15,6 +15,9 @@ TODO:
          o    Vignette to explain how stabilized Marquardt works, since
               Compact Numerical Methods book is hard to find.
 
+190829   o    Due to changes in Ryacas, vignette nlsr-derivs required 
+              a small edit.
+
 190820   o    nlxb() and nlfb() do not follow nls() in the output
               structure and hence the use of predict(). A new function
               nlsr.predict() has been added.

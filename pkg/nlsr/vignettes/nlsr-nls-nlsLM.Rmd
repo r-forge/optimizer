@@ -409,6 +409,7 @@ predict(nlsrbd2, newdata=ndata)
 #' fun20 <- brown_den(m = 20)
 #' res <- stats::optim(fun20$x0, fun20$fn, fun20$gr, method = "L-BFGS-B")
 #' @export
+#`
 brown_den <- function(m = 20) {
   list(
     fn = function(par) {
@@ -482,7 +483,8 @@ bdsolbfgs <- optim(mbd$x0, mbd$fn, method="BFGS", control=list(trace=0))
 bdsolbfgs
 
 library(optimx)
-solo <- opm(mbd$x0, mbd$fn, mbd$gr, method="ALL", control=list(trace=0))
+methlist <- c("Nelder-Mead","BFGS","Rvmmin","L-BFGS-B","Rcgmin","ucminf")
+solo <- opm(mbd$x0, mbd$fn, mbd$gr, method=methlist, control=list(trace=0))
 summary(solo, order=value)
 
 ```

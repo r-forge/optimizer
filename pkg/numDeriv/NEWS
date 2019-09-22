@@ -7,6 +7,11 @@ Known BUGS
 	a central difference approximation, without any extrapolation. 
  
 
+Changes in numDeriv version 20xx.x-x
+
+   o	Fixed Rbuildignore so that files from building vignettes are 
+    	not omitted in the package build.	
+
 Changes in numDeriv version 2016.8-1
 
    o	simplification of hessian.default() call to jacobian() and grad()

@@ -4,6 +4,11 @@ Known problems
 	algorithm gets stuck and does not improve (so does not converge). The
 	workaround is to restart with a very slightly perturbed starting point.       
 
+Changes in GPArotation version 20xx.x-x
+
+   o	Fixed Rbuildignore so that files from building vignettes are 
+    	not omitted in the package build.	
+
 Changes in GPArotation version 2015.7-1
 
    o	Added default package imports as now required by CRAN.

@@ -1,3 +1,7 @@
+^project.R-(.*)$
+^pg(.*).R$
+^PaulGilbert(.*).R$
+^zzNotes$
 ^Makefile$
 (^|.*/)core$
 (^|.*/)run$

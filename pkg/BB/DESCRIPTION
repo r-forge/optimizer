@@ -10,7 +10,7 @@ Description: Barzilai-Borwein spectral methods for solving nonlinear
 Depends: R (>= 2.6.1)
 Imports: stats, quadprog
 Suggests: setRNG, survival, Hmisc, numDeriv
-BuildVignettes: false
+BuildVignettes: true
 LazyLoad: yes
 ByteCompile: yes
 License: GPL-3

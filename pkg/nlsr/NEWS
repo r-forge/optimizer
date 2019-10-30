@@ -15,6 +15,9 @@ TODO:
          o    Vignette to explain how stabilized Marquardt works, since
               Compact Numerical Methods book is hard to find.
 
+190907   o    Had to remove vignette nlsr-nls-nlsLM as Windows fails to build.
+              Source of issue not yet found.
+
 190829   o    Due to changes in Ryacas, vignette nlsr-derivs required 
               a small edit.
 

@@ -1,14 +1,16 @@
 Package: optimx
-Version: 2019-6.14
-Date: 2019-06-14
-Title: Expanded Replacement and Extension of the 'optim' Function DEVELOPMENT
+Version: 2018-7.10
+Date: 2018-07-10
+Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
     "Ravi", family = "Varadhan", role = "aut", email =
     "RVaradhan@jhmi.edu"), person(given = "Gabor", family =
     "Grothendieck", role = "ctb", email =
     "ggrothendieck@gmail.com") )
-Author: John C Nash [aut, cre], Ravi Varadhan [aut], Gabor Grothendieck [ctb]
+Author: John C Nash [aut, cre],
+  Ravi Varadhan [aut],
+  Gabor Grothendieck [ctb]
 Maintainer: John C Nash <nashjc@uottawa.ca>
 Description: Provides a replacement and extension of the optim()
     function to call to several function minimization codes in R in a single
@@ -22,5 +24,8 @@ LazyLoad: Yes
 Imports: numDeriv
 NeedsCompilation: no
 Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
-        lbfgsb3c, lbfgs, subplex, Rcgmin2, Rcgdescent
+        lbfgsb3, lbfgs, subplex
 VignetteBuilder: knitr
+Packaged: 2018-07-10 16:08:14 UTC; john
+Repository: CRAN
+Date/Publication: 2018-09-30 14:50:05 UTC

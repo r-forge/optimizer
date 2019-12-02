@@ -100,7 +100,7 @@ trace <- control$trace # convenience
     }
     fval <- try(fn(xnew, ...))
     nf <- nf + 1
-    if (class(fval)[1] == "try-error") stop("snewton: function evaluation error")
+    if (inherits(fval, "try-error")) stop("snewton: function evaluation error")
     if (trace > 1) {
        cat("f(xnew)=",fval," at ")
        print(xnew)

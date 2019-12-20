@@ -41,10 +41,6 @@ Additionnal utitilty functions are also available:
  \code{\link{complementarity}} and \code{\link{funSSR}}.
 
 
-TODO:
-\describe{
-\item{-}{write a pdf vignette.}
-}
 
 }
 \value{

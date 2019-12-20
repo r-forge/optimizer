@@ -1,5 +1,11 @@
 === GNE: computation of Nash Equilibria ===
 
+Version 0.99-2
+=============
+
+- remove a NOTE on dynamic symbol on r-devel-linux-x86_64-debian-clang, r-devel-linux-x86_64-debian-gcc, r-devel-linux-x86_64-fedora-clang, r-devel-linux-x86_64-fedora-gcc, r-patched-linux-x86_64, r-release-linux-x86_64
+- remove a NOTE when rebuilding vignette on  r-oldrel-osx-x86_64
+
 Version 0.99-1
 =============
 

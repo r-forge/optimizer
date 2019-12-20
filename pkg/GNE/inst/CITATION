@@ -9,6 +9,6 @@ bibentry(bibtype = "Manual",
          author = c(person("Dutang", "Christophe")),
          year = year,
          note = note,
-         url = "http://CRAN.R-project.org/package=GNE")
+         url = "https://CRAN.R-project.org/package=GNE")
 
 

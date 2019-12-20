@@ -46,7 +46,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 							grconstr, arggrconstr, compl, argcompl, dimmu, joint, argjoint,
 							grjoint, arggrjoint), silent=silent )
 	
-	if(class(test.try) == "try-error")
+	if(is(test.try, "try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -62,7 +62,7 @@ SE.nseq <- function(leaders, init, dimx, dimlam,
 	test.try <- try( jacSSR(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
 					  heconstr, argheconstr, gcompla, gcomplb, argcompl, dimmu, joint, argjoint,
 					  grjoint, arggrjoint, hejoint, arghejoint), silent=silent )
-	if(class(test.try) == "try-error")
+	if(is(test.try, "try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evaluate Jac Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -573,7 +573,7 @@ SE.objleaders <- function(x, leaders, init, dimx, dimlam,
 							grconstr, arggrconstr, compl, argcompl, dimmu, joint, argjoint,
 							grjoint, arggrjoint), silent=silent )
 	
-	if(class(test.try) == "try-error")
+	if(is(test.try, "try-error"))
 	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -589,7 +589,7 @@ SE.objleaders <- function(x, leaders, init, dimx, dimlam,
 	test.try <- try( jacSSR(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
 							heconstr, argheconstr, gcompla, gcomplb, argcompl, dimmu, joint, argjoint,
 							grjoint, arggrjoint, hejoint, arghejoint), silent=silent )
-	if(class(test.try) == "try-error")
+	if(is(test.try, "try-error"))
 	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evaluate Jac Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -727,7 +727,7 @@ SE.bestresponse <- function(x, leaders, init, dimx, dimlam,
 							grconstr, arggrconstr, compl, argcompl, dimmu, joint, argjoint,
 							grjoint, arggrjoint), silent=silent )
 	
-	if(class(test.try) == "try-error")
+	if(is(test.try, "try-error"))
 	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -743,7 +743,7 @@ SE.bestresponse <- function(x, leaders, init, dimx, dimlam,
 	test.try <- try( jacSSR(init[1,], dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
 							heconstr, argheconstr, gcompla, gcomplb, argcompl, dimmu, joint, argjoint,
 							grjoint, arggrjoint, hejoint, arghejoint), silent=silent )
-	if(class(test.try) == "try-error")
+	if(is(test.try, "try-error"))
 	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evaluate Jac Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )

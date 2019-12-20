@@ -92,7 +92,7 @@ eqsolve <- function(xinit, f, jac,
 		if(method == "Broyden")	
 			xkp1 <- try( QuasiNewtonNext(xk, fk, Bk, silent=TRUE, inv=FALSE)	)
 			
-		if(class(xkp1) == "try-error")
+		if(is(xkp1,"try-error"))
 			break
 	
 		if(con$echo >= 1 && is.null(con$echofile))

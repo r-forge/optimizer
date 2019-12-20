@@ -94,7 +94,7 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 
 	#create the objective function
 	test.try <- try( Fn(xinit), silent=silent )
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate fn(init).", fvec=NA) )
 	if(is.na(test.try) || unlist(sapply(test.try, is.nan)) || unlist(sapply(test.try, is.infinite)))
@@ -133,12 +133,12 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 	{
 		Hin <- function(x) -evalwitharglist(hin, x, arghin)
 		test.try <- try( Hin(xinit), silent=silent )
-		if(class(test.try) == "try-error")
+		if(is(test.try,"try-error"))
 		{	
 			Hin <- function(x) -evalwitharglist(hin, x, list(arghin))
 			test.try <- try( Hin(xinit), silent=silent )			
 		}
-		if(class(test.try) == "try-error")
+		if(is(test.try,"try-error"))
 			return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 					 message="Can't evalate hin(init).", fvec=NA) )
 		if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
@@ -157,12 +157,12 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 	{
 		Hin.jac <- function(x) -evalwitharglist(hin.jac, x, arghin.jac)
 		test.try <- try( Hin.jac(xinit), silent=silent )
-		if(class(test.try) == "try-error")
+		if(is(test.try,"try-error"))
 		{	
 			Hin.jac <- function(x) -evalwitharglist(hin.jac, x, list(arghin.jac))
 			test.try <- try( Hin.jac(xinit), silent=silent )			
 		}
-		if(class(test.try) == "try-error")
+		if(is(test.try,"try-error"))
 			return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 					 message="Can't evalate jac.hin(init).", fvec=NA) )
 		if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
@@ -197,7 +197,7 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 			cat("optimization carried out by constrOptim.nl\n")
 		test.try <- try( constrOptim.nl(par=xinit, fn=Fn, gr=Gr, hin=Hin, 
 						hin.jac=Hin.jac, control.outer=conalabama, ...), silent=silent)
-		if(class(test.try) == "try-error")
+		if(is(test.try,"try-error"))
 			res <- list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 					message=paste("Error in the non smooth problem:", test.try, "."))
 		
@@ -205,7 +205,7 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 	if(!silent)
 		cat("end of optimization\n")
 	
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 	{
 		res <- list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				message=paste("Error in the non smooth problem:", test.try, "."))

@@ -116,7 +116,7 @@ fpeq <- function(xinit,	fn, merit,
 		myGNE <- try( fpiter(xinit, wrapfn, wrapmerit, control=confpiter, ...), 
 					 silent=silent)
 		
-		if(class(myGNE) != "try-error")
+		if(!is(myGNE,"try-error"))
 		{
 			if(!silent)
 				print(myGNE)
@@ -151,7 +151,7 @@ fpeq <- function(xinit,	fn, merit,
 	{
 		myGNE <- try( squarem(xinit, wrapfn, control=consquarem, ...), silent=FALSE)
 		
-		if(class(myGNE) != "try-error")
+		if(!is(myGNE,"try-error"))
 		{
 			if(!silent)
 				print(myGNE)
@@ -164,7 +164,7 @@ fpeq <- function(xinit,	fn, merit,
 	}
 	
 	
-	if(class(myGNE) != "try-error")
+	if(!is(myGNE,"try-error"))
 		res <- list(par=myGNE$par, value=myGNE$value,
 			outer.counts=myGNE$counts, outer.iter=myGNE$counts[1], 
 			code=myGNE$code, inner.iter=inner.iter.fpfn+inner.iter.merit, 

@@ -59,7 +59,7 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 							grconstr, arggrconstr, compl, argcompl, dimmu, joint, argjoint,
 							grjoint, arggrjoint), silent=silent )
 	
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -74,7 +74,7 @@ GNE.nseq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	test.try <- try( jacSSR(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, arggrconstr, 
 					  heconstr, argheconstr, gcompla, gcomplb, argcompl, dimmu, joint, argjoint,
 					  grjoint, arggrjoint, hejoint, arghejoint), silent=silent )
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evaluate Jac Phi(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -123,7 +123,7 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	test.try <- try( funCER(init, dimx, dimlam, grobj, arggrobj, constr, argconstr, 
 				grconstr, arggrconstr, dimmu, joint, argjoint, grjoint, arggrjoint), silent=silent )
 
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate H(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )
@@ -138,7 +138,7 @@ GNE.ceq <- function(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 	test.try <- try( jacCER(init, dimx, dimlam, heobj, argheobj, constr, argconstr, grconstr, 
 							arggrconstr, heconstr, argheconstr, dimmu, joint, argjoint,
 							grjoint, arggrjoint, hejoint, arghejoint), silent=silent )
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evaluate Jac H(init).", fvec=NA) )
 	if(any(is.nan(test.try)) || any(is.infinite(test.try)) )

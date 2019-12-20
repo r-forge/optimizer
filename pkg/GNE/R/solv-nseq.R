@@ -38,7 +38,7 @@ nseq <- function(xinit, Phi, jacPhi, argfun, argjac,
 	con[namc <- names(control)] <- control
 
 	test.try <- try( Phi(xinit, argfun, argjac), silent=silent )
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate Phi(init).", fvec=NA) )
 	if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
@@ -46,8 +46,8 @@ nseq <- function(xinit, Phi, jacPhi, argfun, argjac,
 				 message="Phi(init) has infinite, NA or NaN values.", fvec=NA) )
 	
 	test.try <- try( jacPhi(xinit, argfun, argjac), silent=silent )
-	if(class(test.try) == "try-error")
-	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
+	if(is(test.try,"try-error"))
+	  return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate jacPhi(init).", fvec=NA) )
 	if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
 	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
@@ -71,11 +71,11 @@ nseq <- function(xinit, Phi, jacPhi, argfun, argjac,
 	}	
 	
 	
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		res <- list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 					message=paste("Error in the non smooth problem:", test.try, "."), 
 					fvec=NA)
-	if(class(test.try) != "try-error")
+	else
 		res <- list(par = test.try$x, value = sqrt(sum( test.try$fvec^2 )), 
 					counts = c(phicnt = test.try$nfcnt, jaccnt = test.try$njcnt), 
 					iter = test.try$njcnt, code = test.try$termcd, 
@@ -128,7 +128,7 @@ nseq.LM <- function(xinit, Phi, jacPhi, argfun, argjac, control, global, silent=
 
 		mycatch <- try( dk <- qr.solve(A, b) , silent=silent)
 		
-		if(class(mycatch) == "try-error")
+		if(is(mycatch,"try-error"))
 		{
 			termcd <- 5
 			if( length(strsplit(as.character(mycatch), "singul")[[1]]) == 2 )
@@ -315,7 +315,7 @@ nseq.LM.adapt <- function(xinit, Phi, jacPhi, argfun, argjac, control, global, s
 		
 		mycatch <- try( dk <- qr.solve(A, b) , silent=silent )
 		
-		if(class(mycatch) == "try-error")
+		if(is(mycatch,"try-error"))
 		{
 			termcd <- 5
 			if( length(strsplit(as.character(mycatch), "singul")[[1]]) == 2 )

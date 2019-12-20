@@ -52,11 +52,11 @@ ceq <- function(xinit, dimx, dimlam,
 		argfun, argjac, global=global, xscalm=xscalm, 
 		control= control, silent=silent), silent=silent)		
 		
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 		res <- list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 					message=paste("Error in the non smooth problem:", test.try, "."), 
 					fvec=NA)
-	if(class(test.try) != "try-error")
+	else
 		res <- list(par = test.try$x, value = sqrt(sum( test.try$fvec^2 )), 
 					counts = c(phicnt = test.try$nfcnt, jaccnt = test.try$njcnt), 
 					iter = test.try$njcnt, code = test.try$termcd, 

@@ -41,7 +41,7 @@ nseq <- function(xinit, Phi, jacPhi, argfun, argjac,
 	if(is(test.try,"try-error"))
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate Phi(init).", fvec=NA) )
-	if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
+	if(any( is.na(test.try) | is.nan(test.try) | is.infinite(test.try) ) )
 		return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Phi(init) has infinite, NA or NaN values.", fvec=NA) )
 	
@@ -49,7 +49,7 @@ nseq <- function(xinit, Phi, jacPhi, argfun, argjac,
 	if(is(test.try,"try-error"))
 	  return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="Can't evalate jacPhi(init).", fvec=NA) )
-	if(any(is.na(test.try) || is.nan(test.try) || is.infinite(test.try)) )
+	if(any( is.na(test.try) | is.nan(test.try) | is.infinite(test.try) ) )
 	return( list(par= NA, value=NA, counts=NA, iter=NA, code=100, 
 				 message="jacPhi(init) has infinite, NA or NaN values.", fvec=NA) )
 	

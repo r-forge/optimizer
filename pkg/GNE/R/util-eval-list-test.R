@@ -111,7 +111,7 @@ testfunc <- function(f, x=NULL, arg=NULL, echo=TRUE, errmess="", tobelisted=TRUE
 	
 	test.try <- try(do.call(f, arglist), silent=echo >= 2)
 					
-	if(class(test.try) == "try-error")
+	if(is(test.try,"try-error"))
 	{
 		if(echo >= 1)
 		{

@@ -103,7 +103,7 @@ ceq.PR <- function(xinit, dimx, dimlam, Hfinal, jacHfinal, argfun, argjac,
 		dk <- ceq.PR.direction(xk, dimx, dimlam, Hfinal, jacHfinal, 
 			argfun, argjac, sigmak, silent=silent)
 		
-		if(class(dk) == "try-error")
+		if(is(dk,"try-error"))
 		{
 			termcd <- 5
 			if( length(strsplit(as.character(dk), "singul")[[1]]) == 2 )
@@ -136,7 +136,7 @@ ceq.PR <- function(xinit, dimx, dimlam, Hfinal, jacHfinal, argfun, argjac,
 					checkint=checkint, dimx=dimx, dimlam=dimlam, 
 					Hfinal=Hfinal, argfun=argfun, zeta=con$zeta) )
 
-			if(class(LSres) == "try-error")
+			if(is(LSres,"try-error"))
 				stop("internal error in line search function.")
 			
 			if(LSres$stepk <= minstep)
@@ -244,7 +244,7 @@ ceq.PR.direction <- function(z, dimx, dimlam, Hfinal, jacHfinal,
 		vec4x <- bx - Ex %*% diag(1/w) %*% bw + Ex %*% diag(lam/w) %*% blam
 		
 		d4x <- try( qr.solve(mat4x, vec4x), silent=silent)
-		if(class(d4x) != "try-error")
+		if(!is(d4x,"try-error"))
 		{
 			d4w <- blam - Jacgx %*% d4x
 			d4lam <- diag(1/w) %*% (bw - diag(lam) %*% d4w)
@@ -252,7 +252,7 @@ ceq.PR.direction <- function(z, dimx, dimlam, Hfinal, jacHfinal,
 		}else
 		{
 			d4x.LU <- try( solve(mat4x, vec4x), silent=silent)
-			if(class(d4x.LU) != "try-error")
+			if(!is(d4x.LU,"try-error"))
 			{
 				d4w <- blam - Jacgx %*% d4x.LU
 				d4lam <- diag(1/w) %*% (bw - diag(lam) %*% d4w)
@@ -270,12 +270,12 @@ ceq.PR.direction <- function(z, dimx, dimlam, Hfinal, jacHfinal,
 		vec4x <- -Hz
 		
 		d4x <- try( qr.solve(mat4x, vec4x), silent=silent)
-		if(class(d4x) != "try-error")
+		if(!is(d4x,"rror"))
 			return(d4x)
 		else
 		{
 			d4x.LU <- try( solve(mat4x, vec4x), silent=silent)
-			if(class(d4x.LU) != "try-error")
+			if(!is(d4x.LU,"try-error"))
 				return(d4x.LU)
 			else
 				return(d4x)
@@ -334,7 +334,7 @@ ceq.AS <- function(xinit, dimx, dimlam, Hfinal, jacHfinal, argfun, argjac,
 		
 		#Newton point
 		pn <- try( qr.solve(Jfk, -fk), silent=silent)
-		if(class(pn) == "try-error")
+		if(is(pn,"try-error"))
 		{
 			termcd <- 5
 			if( length(strsplit(as.character(pn), "singul")[[1]]) == 2 )

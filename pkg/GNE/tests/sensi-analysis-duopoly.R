@@ -1,5 +1,7 @@
 if(!require("GNE"))stop("this test requires package GNE.")
 
+if(FALSE)
+{
 #-------------------------------------------------------------------------------
 # (2) Duopoly game of Krawczyk and Stanislav Uryasev (2000)
 #-------------------------------------------------------------------------------
@@ -39,15 +41,16 @@ heg <- function(x, i, j, k)
 getNE <- function(myarg, control=list(itermax=100, trace=0))
 {
 	z0 <- rep(0, sum(dimx)+sum(dimlam))
-	GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
+	res <- GNE.nseq(z0, dimx, dimlam, grobj=grobj, myarg, heobj=heobj, myarg, 
 	constr=g, NULL, grconstr=grg, NULL, heconstr=heg, NULL, 
 	compl=phiFB, gcompla=GrAphiFB, gcomplb=GrBphiFB, method="Newton", 
-	control=list(trace=control$trace, maxit=control$itermax))$par[1:length(dimx)]
+	control=list(trace=control$trace, maxit=control$itermax))
+	res$par[1:length(dimx)]
 }
 getNE4sobol <- function(x, control=list(itermax=100, trace=0))
 {
 #	res <- vector("numeric", NROW(x))
-	print(dim(x))
+#	print(dim(x))
 	
 	#for(i in 1:NROW(x))
 	res <- sapply(1:NROW(x), function(i) 
@@ -196,6 +199,6 @@ res12002
 res12007 <- sobol2007(getNE4sobol, X1, X2)
 res12007
 
-
+}
 
 

@@ -92,7 +92,7 @@ A list with components:
  
  C. Dutang (2013), 
  \emph{A survey of GNE computation methods: theory and algorithms},
-preprint on HAL, \url{http://hal.archives-ouvertes.fr/hal-00813531}.
+preprint on HAL, \url{https://hal.archives-ouvertes.fr/hal-00813531}.
 
 
 }

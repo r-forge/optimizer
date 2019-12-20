@@ -1,5 +1,10 @@
 === GNE: computation of Nash Equilibria ===
 
+Version 0.99-3
+=============
+
+- remove an ERROR on bad use of "class()==" detected on r-devel-linux-x86_64-debian-clang 
+
 Version 0.99-2
 =============
 

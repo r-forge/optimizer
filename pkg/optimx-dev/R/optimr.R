@@ -203,7 +203,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
           ans <- try(optim(par=par, fn=efn, gr=egr, 
                 method=method, hessian=FALSE, control=mcontrol, ...))
         }
-        if (class(ans)[1] == "try-error") { # bad result -- What to do?
+        if (inherits(ans,"try-error")) { # bad result -- What to do?
 		ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
                 errmsg <- "optim method failure\n"
@@ -232,7 +232,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	}
         ans <- try(nlminb(start=spar, objective=efn, gradient=egr, hessian=ehess, lower=slower, 
 		upper=supper, control=mcontrol,  ...))
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
 		# Translate output to common format and names
         	ans$value<-ans$objective
                 ans$par <- ans$par*pscale
@@ -272,7 +272,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
           if (! is.null(ctrl$trace) && (ctrl$trace > 0) ) {print.level <- 2 } 
           ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, print.level=print.level, ...))
         }
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
 		if (ans$code == 1 || ans$code == 2 || ans$code == 3) ans$convergence <- 0
 		if (ans$code == 4) ans$convergence <- 1
                 if (ans$code == 5) ans$convergence <- 5
@@ -315,7 +315,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    	     ans <- try(Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	  }
         }
-        if (!is.null(egr) && (class(ans)[1] != "try-error")) {
+        if (!is.null(egr) && !inherits(ans, "try-error")) {
                 ans$par <- ans$par*pscale
 	        ans$message <- NA        
                 ans$hessian <- NULL
@@ -355,7 +355,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    	     ans <- try(Rcgmin2::Rcgminu(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
 	  }
         }
-        if (!is.null(egr) && (class(ans)[1] != "try-error")) {
+        if (!is.null(egr) && (! inherits(ans, "try-error")) ) {
                 ans$par <- ans$par*pscale
 	        ans$message <- NA        
                 ans$hessian <- NULL
@@ -391,7 +391,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    	     ans <- try(Rcgdescent::Rcgdescent(par=spar, fn=efn, gr=egr, ...))
 	  }
         }
-        if (!is.null(egr) && (class(ans)[1] != "try-error")) {
+        if (!is.null(egr) && (! inherits(ans, "try-error")) ) {
                 ans$par <- ans$par*pscale
 	        ans$message <- NA        
                 ans$hessian <- NULL
@@ -429,7 +429,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             cat("Rvmmin ans:")
             print(ans)
         }
-        if (! is.null(egr) && (class(ans)[1] != "try-error")) {
+        if (! is.null(egr) && !inherits(ans, "try-error")) {
             ans$par <- ans$par*pscale
             ans$bdmsk <- NULL
         } else {
@@ -466,7 +466,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             cat("Rvmminq ans:")
             print(ans)
         }
-        if (! is.null(egr) && (class(ans)[1] != "try-error")) {
+        if (! is.null(egr) && !inherits(ans, "try-error")) {
             ans$par <- ans$par*pscale
             ans$bdmsk <- NULL
         } else {
@@ -505,7 +505,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
               cat("snewton returns tans:")
               print(tans)
           }
-          if  (class(tans)[1] == "try-error") { 
+          if  (inherits(tans, "try-error")) { 
              ans$message <- "snewton failed"
              ans$convergence <- 9999
              if (ctrl$trace>0) {
@@ -568,7 +568,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            cat("snewtonm returns tans:")
            print(tans)
       }
-      if  (class(tans)[1] == "try-error") { 
+      if  (inherits(tans, "try-error")) { 
         ans$message <- "snewtonm failed"
         ans$convergence <- 9999
         if (ctrl$trace>0) {
@@ -630,7 +630,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maximize <- NULL # and null out maximize
         ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=msk, 
                         control=mcontrol, ...))
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
             ## Need to check these carefully??
             ans$par <- ans$par*pscale
             ans$value <- ans$value*fnscale
@@ -659,7 +659,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         } else { mcontrol$trace <- FALSE }
         ans <- try(BB::spg(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,  
 		control=mcontrol, ...))
-        if (class(ans)[1] != "try-error") { 
+        if (! inherits(ans, "try-error")) {
            ans$par <- ans$par*pscale
            ans$counts[1] <- ans$feval
            ans$feval<-NULL # to erase conflicting name
@@ -698,7 +698,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
               ans <- try(ucminf::ucminf(par=spar, fn=efn, gr=egr, 
                    hessian = uhessian,  control=mcontrol, ...))
           }
-          if (class(ans)[1] != "try-error") {
+          if (! inherits(ans, "try-error")) {
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
 #                                           2 Stopped by small step (xtol).
 #                                           3 Stopped by function evaluation limit (maxeval).
@@ -754,7 +754,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    	      ans <- try(tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
 	   }
         }
-        if (class(ans)[1] == "try-error") {
+        if (inherits(ans,"try-error")) {
         	if (ctrl$trace>0) cat("Rtnmin failed for current problem \n")
                 ans$convergence <- 9999 # failed in run
 	        ans$message <- "Rtnmin failed fo current problem"        
@@ -793,7 +793,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         mcontrol$rhobeg <- myrhobeg # to avoid 0 when parameters 0
         ans <- try(minqa::bobyqa(par=spar, fn=efn, lower=slower,
                 upper=supper, control=mcontrol,...))
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
 #			ans$convergence <- 1 # too many evaluations
@@ -844,7 +844,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                 ## return(ans)
         }
         ans <- try(minqa::uobyqa(par=spar, fn=efn, control=mcontrol,...))
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
 #			ans$convergence <- 1 # too many evaluations
@@ -896,7 +896,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
                 ## return(ans)
         }
         ans <- try(minqa::newuoa(par=spar, fn=efn, control=mcontrol,...))
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
 #			ans$convergence <- 1 # too many evaluations
@@ -958,7 +958,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             print(ans)
          }
 
-         if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
            ans$value <- as.numeric(ans$value)
            ans$par <- ans$par*pscale
            ans$counts[1] <- ans$feval
@@ -995,7 +995,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
          } else {
             ans <- try(dfoptim::hjk(par=spar, fn=efn, control=mcontrol, ...))
          }
-         if (class(ans)[1] != "try-error") {
+         if (! inherits(ans, "try-error")) {
            ans$value <- as.numeric(ans$value)
            ans$par <- ans$par*pscale
            ans$counts[1] <- ans$feval
@@ -1032,7 +1032,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         } else {
             ans <- try(lbfgsb3c::lbfgsb3(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
 ## Need to check these carefully??
 #            ans$convergence <- 0
             ans$par <- ans$par*pscale
@@ -1073,7 +1073,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         } else {
             ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
         }
-        if (class(ans)[1] != "try-error") {
+        if (inherits(ans,"try-error")) {
  ## Need to check these carefully??
 #            ans$convergence <- 0
             ans$par <- ans$par*pscale
@@ -1118,7 +1118,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             errmsg <- "lbfgs::lbfgs MUST have gradient provided\n"
             class(ans)[1] <- "try-error"            
         }
-        if (class(ans)[1] == "undefined"){
+        if (inherits(ans, "undefined"){
             dotstuff <- list(...)
 	    # cat("dotstuff:\n")
 #	    print(dotstuff)
@@ -1131,7 +1131,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
         }
 #        cat("interim answer:")
 #        print(ans)
-        if (class(ans)[1] != "try-error") {
+        if (! inherits(ans, "try-error")) {
         ## Need to check these carefully??
             ans$par <- ans$par*pscale
             ans$value <- ans$value*fnscale
@@ -1167,7 +1167,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     if (class(ans)[1] == "undefined"){
        ans <- try(subplex::subplex(par=spar, fn=efn, control=list(maxit=ctrl$maxfeval)))
     }
-    if ((class(ans)[1] != "try-error") && (ans$convergence != -2)) {
+       if (!inherits(ans, "try-error") && (ans$convergence != -2)) {
        ## Need to check these carefully??
        ans$par <- ans$par*pscale
        ans$value <- ans$value*fnscale

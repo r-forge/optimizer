@@ -1,23 +1,23 @@
 ##################################################################
 ctrldefault <- function(npar) { 
-# THIS IS FULL VERSION FOR optimrx
+# THIS IS FULL VERSION FOR optimx
 #
      ## These are DEFAULTS. They may be nonsense in some contexts.
 
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
+                "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
                  "spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", 
                  "lbfgs", "subplex")
 
 #  allpkg has package where element of allmeth is found
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
-                "lbfgsb3", "optimx", "optimx", "optimx", "optimx", "optimx",
+                "lbfgsb3c", "optimx", "optimx", "optimx", "optimx", "optimx",
                 "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 
                 "optimx", "lbfgs", "subplex")
 
      # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
-      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "Rcgmin", "Rtnmin", "Rvmmin",  
+      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin",  
                 "bobyqa", "nmkb", "hjkb", "hjn")
 
       maskmeth <- c("Rcgmin", "Rvmmin", "hjn")
@@ -56,6 +56,7 @@ ctrldefault <- function(npar) {
         parchanged = FALSE, # set TRUE when bounds check has changed parameter values
         parscale = rep(1, npar), # vector of scaling factors for parameters. Try to get
         # scaled parameters to have magnitude in range (1, 10)
+        reltest = 100.0,
         save.failures = TRUE,
       	scaletol = 3, 
         stepdec = 0.2, 
@@ -92,7 +93,7 @@ dispdefault <- function(ctrl) { # Display the control vector using cat and print
   cat("kkttol=",ctrl$kkttol,"  kkt2tol=",ctrl$kkt2tol,"  maximize=",ctrl$maximize,"\n")
   cat("maxit=",ctrl$maxit,"  maxfeval=",ctrl$maxfeval,"  offset=",ctrl$offset,
      "  parchanged=",ctrl$parchanged,"\n")
-  cat("  save.failures=",ctrl$save.failures,"  scaletol=",ctrl$scaletol,"\n")
+  cat("reltest=",ctrl$reltest,"  save.failures=",ctrl$save.failures,"  scaletol=",ctrl$scaletol,"\n")
   cat("stepdec=",ctrl$stepdec,"  steplen0=",ctrl$steplen0,"  stepmax=",ctrl$stepmax,
      "  stepmin=",ctrl$stepmin,"\n")
   cat("stepredn=",ctrl$stepredn,"  stopbadupdate=",ctrl$stopbadupdate,"  tol=",ctrl$tol,"\n")

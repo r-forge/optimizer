@@ -39,7 +39,7 @@ showprms<-function(SS, pnum){
     cat("\n")
 } # end showprms
 
-if (is.null(weights)) {cat("no weights\n")}
+if (is.null(weights)) {if (trace) {cat("no weights\n")} }
 else if (trace) {
       cat("weights:")
       print(weights)

@@ -72,7 +72,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         } # 180417
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
-        if (class(ans)[1] != "try-error") { 
+        if (!inherits(ans, "try-error")) { 
                 ans$convcode <- ans$convergence
                 ans$convergence <- NULL
 		#      convergence: An integer code. '0' indicates successful convergence.
@@ -104,7 +104,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	}
         time <- system.time(ans <- try(nlminb(start=par, objective=ufn, gradient=ugr, lower=lower, 
 		upper=upper, control=mcontrol,  ...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if (!inherits(ans, "try-error")) {
 		ans$convcode <- ans$convergence
 	        # Translate output to common format and names
         	ans$value<-ans$objective
@@ -179,7 +179,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 # 110121 -- need to put tufn NOT ufn in call 
         time <- system.time(ans <- try(nlm(f=tufn, p=par, ...,
            iterlim=iterlim, print.level=print.level), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if (!inherits(ans, "try-error")) {
               if (ctrl$trace > 1) {
                 cat("nlm output ans:\n")
                 print(ans)
@@ -211,7 +211,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maximize<-NULL # Use external maximization approach
         time <- system.time(ans <- try(BB::spg(par=par, fn=ufn, gr=ugr, lower=lower, upper=upper,  
 		control=mcontrol, ...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") { 
+        if (!inherits(ans, "try-error")) { 
    	   ans$convcode <- ans$convergence
            ans$fevals<-ans$feval
            ans$feval<-NULL # to erase conflicting name
@@ -240,7 +240,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         mcontrol$maxeval<-mcontrol$maxit # Note it is just function evals for ucminf
         mcontrol$maxit<-NULL
         time <- system.time(ans <- try(ucminf::ucminf(par=par, fn=ufn, gr=ugr,  control=mcontrol, ...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if (!inherits(ans, "try-error")) {
 		ans$convcode <- ans$convergence
 # From ucminf documentation:  convergence = 1 Stopped by small gradient (grtol).
 #                                           2 Stopped by small step (xtol).
@@ -294,7 +294,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
    	   time <- system.time(ans <- try(Rcgminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
-        if (class(ans)[1] != "try-error") {
+        if (!inherits(ans, "try-error")) {
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
@@ -330,7 +330,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
    	   time <- system.time(ans <- try(Rvmminu(par=par, fn=ufn, gr=tugr, 
 		control=mcontrol, ...), silent=TRUE))[1]
 	}
-        if (class(ans)[1] != "try-error") { # 150423 remove  "&& (ans$convergence==0"
+        if (!inherits(ans, "try-error")) { # 150423 remove  "&& (ans$convergence==0"
 		ans$convcode <- ans$convergence
 	        ans$fevals<-ans$counts[1]
 	        ans$gevals<-ans$counts[2]
@@ -366,7 +366,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 #	print(ugr)
         time <- system.time(ans <- try(lbfgsb3c::lbfgsb3(prm=par, fn=ufn, gr=ugr, 
 		lower=lower, upper=upper, control=mcontrol, ...), silent=TRUE))[1]
-        if ((class(ans)[1] != "try-error")) {
+        if (!inherits(ans, "try-error")) {
 		ans$convcode <- 0
 	        ans$fevals<-ans$info$isave[34]
 	        ans$gevals<-ans$fevals
@@ -400,7 +400,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
         time <- system.time(ans <- try(minqa::bobyqa(par=par, fn=ufn, lower=lower, upper=upper, control=mcontrol,...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if (!inherits(ans, "try-error")) {
 		ans$convcode <- 0
                 # cat("bobyqa - ans$feval = ans$feval\n")
                 if (ans$feval > mcontrol$maxfun) {
@@ -435,7 +435,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	mcontrol$trace<-NULL
 
         time <- system.time(ans <- try(minqa::uobyqa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if (!inherits(ans, "try-error")) {
 		ans$convcode <- 0
                 if (ans$feval > mcontrol$maxfun) {
 			ans$convcode <- 1 # too many evaluations
@@ -468,7 +468,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	if (mcontrol$trace) mcontrol$iprint<-1
 	mcontrol$trace<-NULL
         time <- system.time(ans <- try(minqa::newuoa(par=par, fn=ufn, control=mcontrol,...), silent=TRUE))[1]
-        if (class(ans)[1] != "try-error") {
+        if (!inherits(ans, "try-error")) {
 		ans$convcode <- 0
                 if (ans$feval > mcontrol$maxfun) {
 			ans$convcode <- 1 # too many evaluations
@@ -541,7 +541,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             time <- system.time(ans <- try(dfoptim::nmk(par=par, fn=ufn, 
               control=mcontrol, ...), silent=TRUE))[1]
          }
-         if (class(ans)[1] != "try-error") {
+         if (!inherits(ans, "try-error")) {
             ans$convcode <- ans$convergence
             ans$convergence<-NULL
             ans$value<-as.numeric(ans$value)
@@ -598,7 +598,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             time <- system.time(ans <- try(dfoptim::hjk(par=par, fn=ufn, 
                 control=mcontrol, ...), silent=TRUE))[1]
          }
-         if (class(ans)[1] != "try-error") {
+         if (!inherits(ans, "try-error")) {
             ans$convcode <- ans$convergence
             if (ans$convcode == 1) ans$convcode=9999
             ans$convergence<-NULL
@@ -646,7 +646,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
               if (ctrl$trace>0) cat("Compute Hessian approximation at finish of ",method[i],"\n")
               if (!is.null(uhess)){ # check if we have analytic hessian 
                  nhatend<-try(uhess(ans$par, ...), silent=TRUE)
-                 if (class(nhatend) != "try-error") {
+                 if (!inherits(nhatend, "try-error")) {
                     hessOK<-TRUE
                  }
               } else {
@@ -655,7 +655,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                  } else {
                      nhatend<-try(jacobian(ugr,ans$par, ...), silent=TRUE) # change 20100711
                  } # numerical hessian at "solution"
-                 if (class(nhatend) != "try-error") {
+                 if (inherits(nhatend, "try-error")) {
                     hessOK<-TRUE
                  }
               } # end hessian calculation
@@ -669,7 +669,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
              } else {
                  ngatend<-try(ugr(ans$par, ...), silent=TRUE) # Gradient at solution # change 20100711
              }
-             if (class(ngatend) != "try-error") gradOK<-TRUE # 100215 had == rather than != here
+             if (!inherits(ngatend, "try-error")) gradOK<-TRUE # 100215 had == rather than != here
              if ( (! gradOK) && (ctrl$trace>0)) cat("Gradient computation failure!\n") 
              if (gradOK) {
                 # test gradient
@@ -697,7 +697,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                    }  # end symmetry test
                    hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble
                    if (ctrl$kkt){
-   	              if (class(hev) != "try-error") {# answers are OK, check Hessian properties
+   	              if (inherits(hev, "try-error")) {# answers are OK, check Hessian properties
                          if (any(is.complex(hev))){
                             hessOK<-FALSE
                             cat("Complex eigenvalues found for method =",meth,"\n")

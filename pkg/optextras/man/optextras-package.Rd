@@ -2,21 +2,14 @@
 \alias{optextras}
 \docType{package}
 \title{
-A replacement and extension of the optim() function, plus various optimization
-tools
+Tools to Support Optimization Possibly with Bounds and Masks
 }
 \description{
-Provides a replacement and extension of the optim() function to unify
+Provides tools that work with extensions of the optim() function to unify
 and streamline optimization capabilities in R for smooth, possibly box
 constrained functions of several or many parameters
 
-The three functions ufn, ugr and uhess wrap corresponding user functions fn, gr, and 
-hess so that these functions can be executed safely (via try()) and also so parameter or
-function scaling can be applied. The wrapper
-functions also allow for maximization of functions (via minimization of the negative of
-the function) using the logical parameter \code{maximize}.
-
-There are three test functions, fnchk, grchk, and hesschk, to allow the user 
+There are three test functions, fnchk, grchk, and hesschk, to allow the user
 function to be tested for validity and correctness. However, no set of tests is 
 exhaustive, and extensions and improvements are welcome. The package 
 \code{numDeriv} is used for generation of numerical approximations to 

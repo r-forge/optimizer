@@ -29,7 +29,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    if (is.null(control$trace)) control$trace <- 0
    if (is.null(control$kkttol)) kkttol<-1e-3 else kkttol<-control$kkttol
    if (is.null(control$kkt2tol)) kkt2tol<-1e-6 else kkt2tol<-control$kkt2tol
-   if (control$trace > 0) { cat("kkttol=",kkttol,"   kkt2tol=",kkt2tol,
+   if (control$trace > 0) { cat("kktchk: kkttol=",kkttol,"   kkt2tol=",kkt2tol,
             "  control$trace=",control$trace,"\n") }
    dotargs <- list(...)
 #   cat("dotargs:\n")
@@ -97,7 +97,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    # Decided to only provide "constrained" ones
 #   hev<- try(eigen(nHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
 #                                              # 20100711 silent
-#   if (class(hev) != "try-error") {
+#   if (!inherits(hev, "try-error")) {
 #     if (control$trace > 0) {
 #        cat("Hessian eigenvalues of unconstrained Hessian:\n")
 #        print(hev) # ?? no check for errors
@@ -115,7 +115,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    if (nfree > 0) {
      phev<- try(eigen(pHes)$values, silent=TRUE) # 091215 use try in case of trouble, 
                                               # 20100711 silent
-     if (class(phev) != "try-error") {
+     if (! inherits(phev,"try-error")) {
         if (control$trace > 0) {
           cat("Hessian eigenvalues of constrained Hessian:\n")
           print(phev) # ?? no check for errors

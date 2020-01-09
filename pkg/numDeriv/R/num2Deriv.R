@@ -6,7 +6,7 @@ hessian.default <- function(func, x, method="Richardson",
       method.args=list(), ...){  
 
  if(1!=length(func(x, ...)))
-       stop("Richardson method for hessian assumes a scalar valued function.")
+       stop("Richardson method for 'hessian' assumes a scalar valued function.")
 
  if(method=="complex"){ # Complex step hessian
    args <- list(eps=1e-4, d=0.1, 

@@ -1,0 +1,64 @@
+# Translation of r-cran-numderiv to German.
+# Copyright (C) 2006 - 2011 Bank of Canada, 2012 Paul Gilbert.
+# This file is distributed under the same license as the r-cran numderiv package.
+# Copyright of this file 2018, Chris Leick <c.leick@vollbio.de>.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: R 3.6.2\n"
+"Report-Msgid-Bugs-To: bugs.r-project.org\n"
+"POT-Creation-Date: 2014-11-22 15:23\n"
+"PO-Revision-Date: 2020-01-06 15:30+0100\n"
+"Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
+"Language-Team: German <debian-l10n-german@lists.debian.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# https://de.wikipedia.org/wiki/Hesse-Matrix
+msgid "Richardson method for 'hessian' assumes a scalar valued function."
+msgstr ""
+"Richardson-Methode für Hesse-Matrix geht von einer skalar bewerteten Funktion "
+"aus."
+
+msgid "method not implemented."
+msgstr "Methode nicht implementiert."
+
+msgid "BUG! should not get here."
+msgstr "FEHLER! sollte nicht hier stehen."
+
+msgid "The current code assumes v is 2 (the default)."
+msgstr "Der aktuelle Kode geht davon aus, dass v 2 ist (die Voreinstellung)."
+
+msgid "Non-NULL argument 'side' should have the same length as x"
+msgstr "Nicht-NULL-Argument 'side' sollte dieselbe Länge wie x haben"
+
+msgid "Non-NULL argument 'side' should have values NA, +1, or -1."
+msgstr "Nicht-NULL-Argument 'side' sollte die Werte NA, +1 oder -1 haben."
+
+msgid "grad assumes a scalar valued function."
+msgstr "grad unterstellt eine skalar bewertete Funktion."
+
+msgid "method 'complex' does not support non-NULL argument 'side'."
+msgstr "Methode 'complex' unterstützt Nicht-NULL-Argument 'side' nicht"
+
+msgid "function does not accept complex argument as required by method 'complex'."
+msgstr ""
+"Funktion akzeptiert kein komplexes Argument, wie es von der Methode »complex« "
+"benötigt wird"
+
+msgid "function does not return a complex value as required by method 'complex'."
+msgstr "Funktion gibt kein komplexes Argument zurück, wie es von der Methode 'complex' benötigt wird"
+
+msgid "function returns NA at"
+msgstr "Funktion gibt NA zurück bei"
+
+msgid "distance from x."
+msgstr "Abstand von x."
+
+msgid "indicated method"
+msgstr "angegebene Methode"
+
+msgid "not supported."
+msgstr "nicht unterstützt."

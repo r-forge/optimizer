@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-msgid "Richardson method for hessian assumes a scalar valued function."
+msgid "Richardson method for 'hessian' assumes a scalar valued function."
 msgstr ""
 
 msgid "method not implemented."

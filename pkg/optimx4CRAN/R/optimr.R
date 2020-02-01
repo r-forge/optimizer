@@ -962,12 +962,12 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
               if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
               errmsg <- "lbfgs::lbfgs cannot handle bounds\n"
             ##  stop("lbfgs::lbfgs tried with bounds")
-            inherits(ans,"try-error")            
+            class(ans)[1] <- "try-error"            
         }
         if (is.null(egr)) {
             if (control$trace > 0) cat("lbfgs::lbfgs MUST have gradient provided\n")
             errmsg <- "lbfgs::lbfgs MUST have gradient provided\n"
-            inherits(ans,"try-error")            
+            class(ans)[1] <- "try-error"            
         }
         if (inherits(ans, "undefined")){
             dotstuff <- list(...)

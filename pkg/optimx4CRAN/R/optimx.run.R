@@ -655,7 +655,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                  } else {
                      nhatend<-try(jacobian(ugr,ans$par, ...), silent=TRUE) # change 20100711
                  } # numerical hessian at "solution"
-                 if (inherits(nhatend, "try-error")) {
+                 if (!inherits(nhatend, "try-error")) { # no ! found 200127
                     hessOK<-TRUE
                  }
               } # end hessian calculation
@@ -697,7 +697,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                    }  # end symmetry test
                    hev<- try(eigen(nhatend)$values, silent=TRUE) # 091215 use try in case of trouble
                    if (ctrl$kkt){
-   	              if (inherits(hev, "try-error")) {# answers are OK, check Hessian properties
+   	              if (! inherits(hev, "try-error")) {# 200127 missing !
+                         # answers are OK, check Hessian properties
                          if (any(is.complex(hev))){
                             hessOK<-FALSE
                             cat("Complex eigenvalues found for method =",meth,"\n")

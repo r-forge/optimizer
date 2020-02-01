@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2020-1.27
-Date: 2020-01-27
+Version: 2020-1.31
+Date: 2020-01-31
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -19,16 +19,11 @@ Description: Provides a replacement and extension of the optim()
     simplify the incorporation of minimization codes going forward. Also implements some
     utility codes and some extra solvers, including safeguarded Newton methods.
     Many methods previously separate are now included here.
-    This attempt 200126 to try inherits only changes to 180710 version for
-    revdeps.
+    This is the version for CRAN.
 License: GPL-2
 LazyLoad: Yes
-Depends: R (>= 3.5.0)
 Imports: numDeriv
 NeedsCompilation: no
 Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
         lbfgsb3c, lbfgs, subplex
 VignetteBuilder: knitr
-Packaged: 2018-07-10 16:08:14 UTC; john
-Repository: CRAN
-Date/Publication: 2018-09-30 14:50:05 UTC

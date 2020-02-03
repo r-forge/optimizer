@@ -1,7 +1,7 @@
 # This file is distributed under the same license as the R numDeriv package.
 # Maintainer: Paul Gilbert <pgilbert.ttv9z@ncf.ca>
 # Korean translation for R numDeriv package
-# Contributor: Chel Hee Lee <chl948@mail.usask.ca>, 2014.
+# Contributor: Chel Hee Lee <chelhee.lee@ucalgary.ca>, 2014.
 # Copyright: 2006-2011, Bank of Canada. 2012-2014, Paul Gilbert
 #
 msgid ""
@@ -9,55 +9,54 @@ msgstr ""
 "Project-Id-Version: R numDeriv 2014.2-1\n"
 "Report-Msgid-Bugs-To: http://optimizer.r-forge.r-project.org/\n"
 "POT-Creation-Date: 2014-11-22 15:23\n"
-"PO-Revision-Date: 2014-11-22 15:24-0600\n"
-"Last-Translator: Chel Hee Lee <chl948@mail.usask.ca>\n"
-"Language-Team: Chel Hee Lee<chl948@mail.usask.ca>\n"
+"PO-Revision-Date: 2020-01-26 04:06-0700\n"
+"Last-Translator: Chel Hee Lee <chelhee.lee@ucalgary.ca>\n"
+"Language-Team: Chel Hee Lee <chelhee.lee@ucalgary.ca>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.2.4\n"
 
 msgid "Richardson method for 'hessian' assumes a scalar valued function."
-msgstr ""
+msgstr "'hessian'에 대한 Richardson 메서드는 스칼라 값을 가지는 함수를 가정합니다."
 
 msgid "method not implemented."
-msgstr ""
+msgstr "메서드가 구현되지 않습니다."
 
 msgid "BUG! should not get here."
-msgstr ""
+msgstr "버그!  should not get here."
 
 msgid "The current code assumes v is 2 (the default)."
-msgstr ""
+msgstr "현재 코드는 v가 2라고 기본값이라고 가정합니다."
 
 msgid "Non-NULL argument 'side' should have the same length as x"
-msgstr ""
+msgstr "'side' 인자는 NULL이 아니며 x와 같은 길이를 가져야 합니다"
 
 msgid "Non-NULL argument 'side' should have values NA, +1, or -1."
-msgstr ""
+msgstr "'side' 인자는NULL이 아닌 NA, +1, 혹은 -1 을 가져야 합니다."
 
 msgid "grad assumes a scalar valued function."
-msgstr ""
+msgstr "grad는 스칼라 값을 가지는 함수를 가정합니다."
 
 msgid "method 'complex' does not support non-NULL argument 'side'."
-msgstr ""
+msgstr "메서드 'complex'는 NULL 이 아닌 인수 'side'를 지원하지 않습니다."
 
-msgid ""
-"function does not accept complex argument as required by method 'complex'."
-msgstr ""
+msgid "function does not accept complex argument as required by method 'complex'."
+msgstr "메서드 'complex' 에서 요구되는 complex argument를 함수가 허용하지 않습니다."
 
-msgid ""
-"function does not return a complex value as required by method 'complex'."
-msgstr ""
+msgid "function does not return a complex value as required by method 'complex'."
+msgstr "메서드 'complex'에서 요구되는 complex value를 함수가 반환하지 않았습니다."
 
 msgid "function returns NA at"
-msgstr ""
+msgstr "에서 함수가 NA를 반환합니다"
 
 msgid "distance from x."
-msgstr ""
+msgstr "x로부터의 거리."
 
 msgid "indicated method"
-msgstr ""
+msgstr "표시된 방법"
 
 msgid "not supported."
-msgstr ""
+msgstr "지원되지 않습니다."

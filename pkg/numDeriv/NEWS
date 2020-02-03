@@ -7,12 +7,14 @@ Known BUGS
 	a central difference approximation, without any extrapolation. 
  
 
-Changes in numDeriv version 2020.1-1
+Changes in numDeriv version 2020.2-1
 
    o	Fixed Rbuildignore so that files from building vignettes are 
     	not omitted in the package build.	
 
    o	Added German translation of messages (provided by  Chris Leick).
+
+   o	Added Korean translation of messages (provided by Chel Hee Lee).
 
 Changes in numDeriv version 2016.8-1
 

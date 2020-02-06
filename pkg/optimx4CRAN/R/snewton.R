@@ -79,7 +79,7 @@ trace <- control$trace # convenience
     H<-hess(xb,...)
     nh <- nh + 1
     d<-try(solve(H, -grd))
-    if (class(d) == "class-error") {
+    if (inherits(d, "try-error")) {
           stop("Failure of default solve of Newton equations")
     }
     if (trace > 2) {

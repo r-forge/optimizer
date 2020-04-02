@@ -1,19 +1,15 @@
 \name{Rvmminb}
 \alias{Rvmminb}
-\alias{Rvmminqb}
 \encoding{UTF-8}
 \title{Variable metric nonlinear function minimization with bounds constraints}
 \description{A bounds-constarined R implementation of a variable metric method for minimization
 of nonlinear functions subject to bounds (box) constraints and masks 
-(fixed parameters). The "q" version has the line search augmented with one
-step of quadratic inverse interpolation.
+(fixed parameters). 
 
    See manual Rvmmin.Rd for more details and examples.
 }
 \usage{
    Rvmminb(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
-
-   Rvmminqb(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}

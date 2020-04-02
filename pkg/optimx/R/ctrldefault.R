@@ -1,27 +1,27 @@
 ##################################################################
 ctrldefault <- function(npar) { 
-# THIS IS FULL VERSION FOR optimrx
+# THIS IS FULL VERSION FOR optimx
 #
      ## These are DEFAULTS. They may be nonsense in some contexts.
 
       allmeth <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
-                "lbfgsb3", "Rcgmin", "Rcgmin2", "Rcgdescent", "Rtnmin", "Rvmmin",
-                "Rvmminq", "snewton", "snewtonm", "spg", "ucminf", "newuoa",
-                "bobyqa", "nmkb", "hjkb", "hjn", "lbfgs", "subplex", "lbfgsb3c")
+                "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
+                 "spg", "ucminf", "newuoa", "bobyqa", "nmkb", "hjkb", "hjn", 
+                 "lbfgs", "subplex")
 
 #  allpkg has package where element of allmeth is found
 #  This list must match list allmeth in length
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
-                "lbfgsb3c", "optimx", "Rcgmin2", "Rcgdescent", "optimx", "optimx",
-                "optimx", "optimx", "optimx", "BB", "ucminf", "minqa",
-           "minqa", "dfoptim", "dfoptim", "optimx", "lbfgs", "subplex", "lbfgsb3c")
+                "lbfgsb3c", "optimx", "optimx", "optimx", "optimx", "optimx",
+                "BB", "ucminf", "minqa", "minqa", "dfoptim", "dfoptim", 
+                "optimx", "lbfgs", "subplex")
 
      # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
 
-      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3", "lbfgsb3c", "Rcgmin", "Rcgmin2", "Rtnmin",
-                 "Rvmmin", "Rvmminq", "bobyqa", "nmkb", "hjkb", "hjn")
+      bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin",  
+                "bobyqa", "nmkb", "hjkb", "hjn")
 
-      maskmeth <- c("Rcgmin", "Rcgmin2", "Rvmmin", "Rvmminq", "hjn")
+      maskmeth <- c("Rcgmin", "Rvmmin", "hjn")
  
 # offset changed from 100 to 1000 on 180710
       ctrl.default <- list(
@@ -51,32 +51,24 @@ ctrldefault <- function(npar) {
         kkt2tol = 1.0E-6, # tolerance for testing KKT curvature condition
         maskmeth = maskmeth, # list of methods that allow masks (fixed parameters)
         maximize = FALSE, # normally MINIMIZE (see fnscale)
-#        maxit = 500*round(sqrt(npar+1)), # limit on number of iterations or gradient evaluations
-        maxit = 500, # limit on number of iterations or gradient evaluations
-#        maxfeval = 5000*round(sqrt(npar+1)), # limit on function evaluations
-        maxfeval = 500*round(sqrt(npar+1)), # limit on function evaluations
+        maxit = 500*round(sqrt(npar+1)), # limit on number of iterations or gradient evaluations
+        maxfeval = 5000*round(sqrt(npar+1)), # limit on function evaluations
         offset = 1000.0, # used for equality test (a + offset) == (b + offset)
         parchanged = FALSE, # set TRUE when bounds check has changed parameter values
         parscale = rep(1, npar), # vector of scaling factors for parameters. Try to get
         # scaled parameters to have magnitude in range (1, 10)
+        reltest = 100.0,
         save.failures = TRUE,
       	scaletol = 3, 
         stepdec = 0.2, 
-        stepinc = 10.0,
         steplen0 = 0.75, 
-        steplenn = 1.0, 
         stepmax = 5,
         stepmin = 0,
         stepredn = 0.2,
         stopbadupdate = FALSE,
         tol = 0, 
         trace = 0,
-        type = 2, # for optim::CG Polak Ribiere
-        watch = FALSE,
-        cgoffset = 100,
-        cgstepredn = 0.15,
-        cgoldstep = 0.8,
-        qiilev = 0 # 
+        watch = FALSE
       )
 }
 ##################################################################
@@ -102,7 +94,7 @@ dispdefault <- function(ctrl) { # Display the control vector using cat and print
   cat("kkttol=",ctrl$kkttol,"  kkt2tol=",ctrl$kkt2tol,"  maximize=",ctrl$maximize,"\n")
   cat("maxit=",ctrl$maxit,"  maxfeval=",ctrl$maxfeval,"  offset=",ctrl$offset,
      "  parchanged=",ctrl$parchanged,"\n")
-  cat("  save.failures=",ctrl$save.failures,"  scaletol=",ctrl$scaletol,"\n")
+  cat("reltest=",ctrl$reltest,"  save.failures=",ctrl$save.failures,"  scaletol=",ctrl$scaletol,"\n")
   cat("stepdec=",ctrl$stepdec,"  steplen0=",ctrl$steplen0,"  stepmax=",ctrl$stepmax,
      "  stepmin=",ctrl$stepmin,"\n")
   cat("stepredn=",ctrl$stepredn,"  stopbadupdate=",ctrl$stopbadupdate,"  tol=",ctrl$tol,"\n")

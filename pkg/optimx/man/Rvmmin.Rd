@@ -1,6 +1,5 @@
 \name{Rvmmin}
 \alias{Rvmmin}
-\alias{Rvmminq}
 \encoding{UTF-8}
 \title{Variable metric nonlinear function minimization, driver.}
 \description{A driver to call the unconstrained and bounds constrained versions of an 
@@ -10,10 +9,8 @@ of nonlinear functions, possibly subject to bounds (box) constraints and masks
 which is itself drawn from Fletcher's (1970) variable metric code. This is also the basis
 of optim() method 'BFGS' which, however, does not deal with bounds or masks. In the 
 present method, an approximation to the inverse Hessian (B) is used to generate a 
-search direction t = - B \%*\% g. The basic versio uses a simple backtracking line 
-search until an acceptable point is found, and the matrix B is updated using a BFGS formula. 
-A slight modification in the "q" versions of the codes adds one application of quadratic
-inverse interpolation to this line search. If no
+search direction t = - B \%*\% g, a simple backtracking line search is used until an
+acceptable point is found, and the matrix B is updated using a BFGS formula. If no
 acceptable point can be found, we reset B to the identity i.e., the search direction
 becomes the negative gradient. If the search along the negative gradient is unsuccessful,
 the method terminates. 
@@ -25,9 +22,6 @@ the method terminates.
 }
 \usage{
    Rvmmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
-
-   Rvmminq(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
-
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -114,7 +108,7 @@ the method terminates.
        ( f <= fmin + gradproj * steplength * acctol ). This test is used to ensure progress
        is made at each iteration. }
    \item{stepredn}{Step reduction factor for backtrack line search (default 0.2)}
-   \item{offset}{Additive shift for equality test (default 100.0)}
+   \item{reltest}{Additive shift for equality test (default 100.0)}
    \item{stopbadupdate}{A logical flag that if set TRUE will halt the optimization
                 if the Hessian inverse cannot be updated after a steepest descent
                 search. This indicates an ill-conditioned Hessian. A settign of
@@ -140,10 +134,6 @@ the method terminates.
    \describe{
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
-      \item{\code{2}}{indicates that a point has been found with small
-      gradient norm (< (1 + abs(fmin))*eps*eps ).}
-      \item{\code{3}}{indicates approx. inverse Hessian cannot be updated
-       at steepest descent iteration (i.e., something very wrong).}
       \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
 	that the function cannot be computed or returns an infinite, NULL, or NA value.}
       \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}

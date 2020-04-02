@@ -112,7 +112,7 @@ repeat {
        cat("Before call, f=",f,"  task number ",itask," ")
        print(task)
       }
-      result <- .Fortran('lbfgsb3', n = as.integer(n),m = as.integer(m),
+      result <- .Fortran('lbfgsb3f', n = as.integer(n),m = as.integer(m),
                    x = as.double(prm), l = as.double(lower), u = as.double(upper),
                    nbd = as.integer(nbd), f = as.double(f), g = as.double(g),
                    factr = as.double(factr), pgtol = as.double(pgtol),

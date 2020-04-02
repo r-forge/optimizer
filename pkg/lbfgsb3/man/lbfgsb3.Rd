@@ -45,9 +45,8 @@
       \item{\code{trace}}{an integer which if 0 (default) causes no intermediate
          output in the R section of the code, otherwise some diagnostic information.
          The larger the value of \code{trace} the greater the amount of information.
-         In the Fortran code, see the variable \code{iprint}, which is equal to \code{trace} for
-         positive values of \code{trace}, and set to -1 for \code{trace=0}. (\code{iprint=0} is not 
-         possible via this R wrapper.)}
+         Because output from Fortran does not play well with R, much of the 
+         diagnostic output of the Fortran has been suppressed.}
       \item{\code{maxit}}{Maximum number of function/gradient evaluations. }
   }
 

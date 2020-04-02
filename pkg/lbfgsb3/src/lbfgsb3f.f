@@ -240,16 +240,10 @@ c-jlm-jn
       integer   lws,lr,lz,lt,ld,lxp,lwa,
      +          lwy,lsy,lss,lwt,lwn,lsnd
 
-cj      integer ia(10)
-
-cj       ia(1) = itask
-cj      call intpr('  The incoming task no. is ', -1, itask, 1)
-cw      write(6,*) '  The incoming task no. is ', itask
       if ((itask .lt. 1) .or. (itask .gt. 26)) then
-        call intpr("TASK NOT IN VALID RANGE", -1, 0,0)
+cx        call intpr("TASK NOT IN VALID RANGE", -1, 0,0)
         itask = -999
         return
-cj      stop(999)
       endif
 c      if (task .eq. 'START') then
        if (itask .eq. 2) then
@@ -283,7 +277,6 @@ c      if (task .eq. 'START') then
       lt   = isave(14)
       lxp  = isave(15)
       lwa  = isave(16)
-cj      call intpr('Incoming value of iprint =',-1,iprint,1)
 
       call mainlb(n,m,x,l,u,nbd,f,g,factr,pgtol,
      +  wa(lws),wa(lwy),wa(lsy),wa(lss), wa(lwt),
@@ -292,8 +285,6 @@ cj      call intpr('Incoming value of iprint =',-1,iprint,1)
      +  iwa(1),iwa(n+1),iwa(2*n+1),itask,iprint, 
      +  icsave,lsave,isave(22),dsave)
 
-cj      call intpr(" itask on return is ", -1, itask, 1)
-cw      write(6,*) " itask on return is ",itask
 
       return
 
@@ -517,7 +508,6 @@ cj itmp for use in R output
 
          epsmch = epsilon(one)
 
-cj         call timer(time1)
 cj Arbitrarily zero these.
          time1 = 0.0
 
@@ -673,15 +663,11 @@ c     Compute the infinity norm of the (-) projected gradient.
  
       call projgr(n,l,u,nbd,x,g,sbgnrm)
   
-      if (iprint .ge. 1) then
-         call intpr("At iterate", -1, iter, 1)
-         call dblepr(" f=",-1, f, 1)
-         call dblepr(" |proj g|= ",-1, sbgnrm, 1)
-cw         write (6,1002) iter,f,sbgnrm
-cw 1002 format
-cw     +  (/,'At iterate',i5,4x,'f= ',1p,d12.5,4x,'|proj g|= ',1p,d12.5)
-cw         write (itfile,1003) iter,nfgv,sbgnrm,f
-      endif
+cx      if (iprint .ge. 1) then
+cx         call intpr("At iterate", -1, iter, 1)
+cx         call dblepr(" f=",-1, f, 1)
+cx         call dblepr(" |proj g|= ",-1, sbgnrm, 1)
+cx      endif
       if (sbgnrm .le. pgtol) then
 c                                terminate the algorithm.
 c         task = 'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
@@ -694,9 +680,7 @@ c ----------------- the beginning of the loop --------------------------
  222  continue
       if (iprint .ge. 99) then
          itmp = iter + 1
-         call intpr('ITERATION ', -1, itmp, 1)
-cw       write (6,1001) iter + 1
-cw  1001 format (//,'ITERATION ',i5)      
+cx         call intpr('ITERATION ', -1, itmp, 1)
       endif
       iword = -1
 c
@@ -722,14 +706,10 @@ cj      call timer(cpu1)
      +            iprint, sbgnrm, info, epsmch)
       if (info .ne. 0) then 
 c         singular triangular system detected; refresh the lbfgs memory.
-cw         if(iprint .ge. 1) write (6, 1005)
-cw 1005 format (/, 
-cw     +' Singular triangular system detected;',/,
-cw     +'   refresh the lbfgs memory and restart the iteration.')
-         call intpr(' Singular triangular system detected;', -1,0,0)
-         call intpr(
-     +  '   refresh the lbfgs memory and restart the iteration.', 
-     +    -1,0,0)
+cx         call intpr(' Singular triangular system detected;', -1,0,0)
+cx         call intpr(
+cx     +  '   refresh the lbfgs memory and restart the iteration.', 
+cx     +    -1,0,0)
 
          info   = 0
          col    = 0
@@ -737,12 +717,10 @@ cw     +'   refresh the lbfgs memory and restart the iteration.')
          theta  = one
          iupdat = 0
          updatd = .false.
-cj       call timer(cpu2) 
          cpu2 = 0.0d0
          cachyt = cachyt + cpu2 - cpu1
          goto 222
       endif
-cj      call timer(cpu2) 
       cpu2 = 0.0d0
       cachyt = cachyt + cpu2 - cpu1
       nintol = nintol + nseg
@@ -767,7 +745,6 @@ c     Subspace minimization.
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-cj    call timer(cpu1) 
       cpu1 = 0.0d0
 
 c     Form  the LEL^T factorization of the indefinite
@@ -783,12 +760,12 @@ c          nonpositive definiteness in Cholesky factorization;
 c          refresh the lbfgs memory and restart the iteration.
 cw         if(iprint .ge. 1) write (6, 1006)
          if(iprint .ge. 1) then
-           call intpr(
-     + ' Nonpositive definiteness in Cholesky factorization in formk;',
-     + -1, 0, 0)
-           call intpr(
-     + '   refresh the lbfgs memory and restart the iteration.',
-     + -1, 0, 0)
+cx           call intpr(
+cx     + ' Nonpositive definiteness in Cholesky factorization in formk;',
+cx     + -1, 0, 0)
+cx           call intpr(
+cx     + '   refresh the lbfgs memory and restart the iteration.',
+cx     + -1, 0, 0)
 
          endif
 
@@ -819,10 +796,10 @@ c-jlm-jn   call the direct method.
 c          singular triangular system detected;
 c          refresh the lbfgs memory and restart the iteration.
 cw         if(iprint .ge. 1) write (6, 1005)
-         call intpr(' Singular triangular system detected;', -1,0,0)
-         call intpr(
-     +  '   refresh the lbfgs memory and restart the iteration.', 
-     +    -1,0,0)
+cx         call intpr(' Singular triangular system detected;', -1,0,0)
+cx         call intpr(
+cx     +  '   refresh the lbfgs memory and restart the iteration.', 
+cx     +    -1,0,0)
          info   = 0
          col    = 0
          head   = 1
@@ -879,12 +856,12 @@ c            task = 'ABNORMAL_TERMINATION_IN_LNSRCH'
 c             refresh the lbfgs memory and restart the iteration.
 cw            if(iprint .ge. 1) write (6, 1008)
             if(iprint .ge. 1) then
-              call intpr(
-     + ' Bad direction in the line search;',
-     + -1, 0, 0)
-              call intpr(
-     + '   refresh the lbfgs memory and restart the iteration.',
-     + -1, 0, 0)
+cx              call intpr(
+cx     + ' Bad direction in the line search;',
+cx     + -1, 0, 0)
+cx              call intpr(
+cx     + '   refresh the lbfgs memory and restart the iteration.',
+cx     + -1, 0, 0)
             endif
 
             if (info .eq. 0) nfgv = nfgv - 1
@@ -997,12 +974,12 @@ c          nonpositive definiteness in Cholesky factorization;
 c          refresh the lbfgs memory and restart the iteration.
 cw         if(iprint .ge. 1) write (6, 1007)
          if (iprint .ge. 1) then
-            call intpr(
-     +  ' Nonpositive definiteness in Cholesky factorization in formt;',
-     + -1, 0, 0)
-            call intpr(
-     +  '   refresh the lbfgs memory and restart the iteration.',
-     + -1, 0, 0)
+cx            call intpr(
+cx     +  ' Nonpositive definiteness in Cholesky factorization in formt;',
+cx     + -1, 0, 0)
+cx            call intpr(
+cx     +  '   refresh the lbfgs memory and restart the iteration.',
+cx     + -1, 0, 0)
 
          endif
 
@@ -1188,21 +1165,21 @@ c                   this variable is always fixed
          endif
   20  continue
 
-      if (iprint .ge. 0) then
-         if (prjctd) then
-         call intpr('initial X infeasible. Restart with projection.',
-     +  -1, 0, 0)
-         endif
-         if (.not. cnstnd) then
-          call intpr('This problem is unconstrained.', -1, 0,0)
-         endif
-      endif
+cx      if (iprint .ge. 0) then
+cx         if (prjctd) then
+cx         call intpr('initial X infeasible. Restart with projection.',
+cx     +  -1, 0, 0)
+cx         endif
+cx         if (.not. cnstnd) then
+cx          call intpr('This problem is unconstrained.', -1, 0,0)
+cx         endif
+cx      endif
 
 cw      if (iprint .gt. 0) write (6,1001) nbdd
-      if (iprint .gt. 0) then
-         call intpr(' Variables exactly at bounds for X0 ',-1,
-     +      nbdd, 1)
-      endif
+cx      if (iprint .gt. 0) then
+cx         call intpr(' Variables exactly at bounds for X0 ',-1,
+cx     +      nbdd, 1)
+cx      endif
 cw 1001 format (/,'At X0 ',i9,' variables are exactly at the bounds') 
 
       return
@@ -1530,9 +1507,9 @@ c       compute the Cauchy direction d and the breakpoints t; initialize
 c       the derivative f1 and the vector p = W'd (for theta = 1).
  
       if (sbgnrm .le. zero) then
-         if (iprint .ge. 0) then
-            call intpr('Subgnorm =0, GCP = X.', -1, 0, 0)
-         endif       
+cx         if (iprint .ge. 0) then
+cx            call intpr('Subgnorm =0, GCP = X.', -1, 0, 0)
+cx         endif       
 cw         if (iprint .ge. 0) write (6,*) 'Subgnorm = 0.  GCP = X.'
          call dcopy(n,x,1,xcp,1)
          return
@@ -1545,9 +1522,9 @@ cw         if (iprint .ge. 0) write (6,*) 'Subgnorm = 0.  GCP = X.'
       col2 = 2*col
       f1 = zero
 cw      if (iprint .ge. 99) write (6,3010)
-      if (iprint .ge. 99) then 
-        call intpr('--- CAUCHY entered---',-1,0,0)
-      endif 
+cx      if (iprint .ge. 99) then 
+cx        call intpr('--- CAUCHY entered---',-1,0,0)
+cx      endif 
 c     We set p to zero and build it up as we determine d.
 
       do 20 i = 1, col2
@@ -1663,10 +1640,10 @@ c     Initialize derivative f2.
       dtm = -f1/f2
       tsum = zero
       nseg = 1
-      if (iprint .ge. 99) then 
+cx      if (iprint .ge. 99) then 
 cw     +   write (6,*) 'There are ',nbreak,'  breakpoints '
-         call intpr('no. of breakpoints =',-1, nbreak, 1)
-      endif
+cx         call intpr('no. of breakpoints =',-1, nbreak, 1)
+cx      endif
  
 c     If there are no breakpoints, locate the GCP and return. 
  
@@ -1710,18 +1687,18 @@ c           (if iter=2, initialize heap).
          
       dt = tj - tj0
  
-      if (dt .ne. zero .and. iprint .ge. 100) then
+cx      if (dt .ne. zero .and. iprint .ge. 100) then
 cw         write (6,4011) nseg,f1,f2
-         call intpr('Piece ',-1, nseg, 1)
-         call dblepr('f1 at start point =',-1, f1, 1)
-         call dblepr('f2 at start point =',-1, f1, 1)
+cx         call intpr('Piece ',-1, nseg, 1)
+cx         call dblepr('f1 at start point =',-1, f1, 1)
+cx         call dblepr('f2 at start point =',-1, f1, 1)
 cw         write (6,5010) dt 
-         call dblepr('Distance to the next break point =  ',
-     +  -1, dt, 1)
-         call dblepr('Distance to the stationary point =  ',
-     +  -1, dtm, 1)
+cx         call dblepr('Distance to the next break point =  ',
+cx     +  -1, dt, 1)
+cx         call dblepr('Distance to the stationary point =  ',
+cx     +  -1, dtm, 1)
 cw         write (6,6010) dtm
-      endif          
+cx      endif          
  
 c     If a minimizer is within this interval, locate the GCP and return. 
  
@@ -1745,8 +1722,8 @@ c       reset the corresponding component of d to zero.
          iwhere(ibp) = 1
       endif
 cw      if (iprint .ge. 100) write (6,*) 'Variable  ',ibp,'  is fixed.'
-      if (iprint .ge. 100) 
-     +   call intpr('Variable fixed, index ',-1,ibp, 1)
+cx      if (iprint .ge. 100) 
+cx     +   call intpr('Variable fixed, index ',-1,ibp, 1)
       if (nleft .eq. 0 .and. nbreak .eq. n) then
 c                                             all n variables are fixed,
 c                                                return with xcp as GCP.
@@ -1809,18 +1786,18 @@ c                 to repeat the loop for unsearched intervals.
 c------------------- the end of the loop -------------------------------
  
  888  continue
-      if (iprint .ge. 99) then
+cx      if (iprint .ge. 99) then
 cw         write (6,*)
 cw         write (6,*) 'GCP found in this segment'
 cw         write (6,4010) nseg,f1,f2
-         call intpr('Piece ',-1, nseg, 1)
-         call dblepr('f1 at start point =',-1, f1, 1)
-         call dblepr('f2 at start point =',-1, f1, 1)
+cx         call intpr('Piece ',-1, nseg, 1)
+cx         call dblepr('f1 at start point =',-1, f1, 1)
+cx         call dblepr('f2 at start point =',-1, f1, 1)
 cw         write (6,6010) dtm
-         call dblepr('Distance to the stationary point =  ',
-     +  -1, dtm, 1)
+cx         call dblepr('Distance to the stationary point =  ',
+cx     +  -1, dtm, 1)
 
-      endif 
+cx      endif 
       if (dtm .le. zero) dtm = zero
       tsum = tsum + dtm
  
@@ -1841,12 +1818,12 @@ cw         write (6,1010) (xcp(i),i = 1,n)
            if (nprt .gt. 5) nprt = 5
            call dblepr('Cauchy X[1:5] =  ',-1, xcp, nprt)
       endif
-      if (iprint .ge. 99) then 
+cx      if (iprint .ge. 99) then 
 cw       write (6,2010)
-         call intpr('--- exit CAUCHY---',-1, 0,0)
-      endif
+cx         call intpr('--- exit CAUCHY---',-1, 0,0)
+cx      endif
 cw 1010 format ('Cauchy X =  ',/,(4x,1p,6(1x,d11.4)))
- 2010 format (/,'---------------- exit CAUCHY----------------------',/)
+cx 2010 format (/,'---------------- exit CAUCHY----------------------',/)
 cw 3010 format (/,'---------------- CAUCHY entered-------------------')
 cw 4010 format ('Piece    ',i3,' --f1, f2 at start point ',1p,2(1x,d11.4))
 cw 4011 format (/,'Piece    ',i3,' --f1, f2 at start point ',
@@ -1961,18 +1938,18 @@ c     Check the input arguments for errors.
 
       if (n .le. 0) then 
          itask = 13
-         call intpr("  ERROR: N .LE. 0", -1, 0, 0)
+cx         call intpr("  ERROR: N .LE. 0", -1, 0, 0)
          return    
       endif
 c      if (m .le. 0) task = 'ERROR: M .LE. 0'
        if (m .le. 0) then
-           call intpr("  ERROR: M .LE. 0", -1, 0, 0)
+cx           call intpr("  ERROR: M .LE. 0", -1, 0, 0)
            return
        endif
 
 c      if (factr .lt. zero) task = 'ERROR: FACTR .LT. 0'
        if (factr .le. zero) then
-           call intpr('  ERROR: FACTR .LT. 0', -1, 0, 0)
+cx           call intpr('  ERROR: FACTR .LT. 0', -1, 0, 0)
            return
        endif
 
@@ -2458,9 +2435,9 @@ cjn            write(6,*) ' index = ', i
                ileave = ileave - 1
                indx2(ileave) = k
                if (iprint .ge. 100) then
-                  call intpr(
-     +   'Variable k leaves the set of free variables for k =',
-     +   -1, k, 1)
+cx                  call intpr(
+cx     +   'Variable k leaves the set of free variables for k =',
+cx     +   -1, k, 1)
                endif
 cw               if (iprint .ge. 100) write (6,*)
 cw     +             'Variable ',k,' leaves the set of free variables'
@@ -2471,20 +2448,20 @@ cw     +             'Variable ',k,' leaves the set of free variables'
             if (iwhere(k) .le. 0) then
                nenter = nenter + 1
                indx2(nenter) = k
-               if (iprint .ge. 100) then
-                 call intpr('Var entering free vars is k=',-1,k,1)
+cx               if (iprint .ge. 100) then
+cx                 call intpr('Var entering free vars is k=',-1,k,1)
 cw                write (6,*)
 cw     +             'Variable ',k,' enters the set of free variables'
-               endif
+cx               endif
             endif
   22     continue
-         if (iprint .ge. 99) then
+cx         if (iprint .ge. 99) then
 cw            write (6,*)
 cw     +       n+1-ileave,' variables leave; ',nenter,' variables enter'
-            itmp = n+1-ileave
-            call intpr(' no. variables leaving  =',-1,itmp, 1)
-            call intpr(' no. variables entering =',-1,nenter, 1)
-         endif
+cx            itmp = n+1-ileave
+cx            call intpr(' no. variables leaving  =',-1,itmp, 1)
+cx            call intpr(' no. variables entering =',-1,nenter, 1)
+cx         endif
       endif
       wrk = (ileave .lt. n+1) .or. (nenter .gt. 0) .or. updatd
  
@@ -2501,13 +2478,13 @@ c     Find the index set of free and active variables at the GCP.
             index(iact) = i
          endif
   24  continue
-      if (iprint .ge. 99) then
+cx      if (iprint .ge. 99) then
 cw        write (6,*)
 cw     +      nfree,' variables are free at GCP ',iter + 1  
-         call intpr(' no. variables free =',-1, nfree,1)
-         itmp = iter + 1
-         call intpr(' at GCP ',-1,itmp,1)
-      endif 
+cx         call intpr(' no. variables free =',-1, nfree,1)
+cx         itmp = iter + 1
+cx         call intpr(' at GCP ',-1,itmp,1)
+cx      endif 
       return
 
       end
@@ -2883,27 +2860,27 @@ c     ************
 c  limit output to 1st 5 elements
       nprt = n
       if (nprt .gt. 5) nprt = 5
-      if (iprint .ge. 0) then
-         if (iprint .ge. 1) then
+cx      if (iprint .ge. 0) then
+cx         if (iprint .ge. 1) then
 cw         write (6,7001) epsmch
-         call dblepr('RUNNING THE L-BFGS-B CODE with eps=',
-     +     -1, epsmch, 1)
+cx         call dblepr('RUNNING THE L-BFGS-B CODE with eps=',
+cx     +     -1, epsmch, 1)
 cw         write (6,*) 'N = ',n,'    M = ',m
-         call intpr(' N =',-1, n, 1)
-         call intpr(' M =',-1, m, 1)
+cx         call intpr(' N =',-1, n, 1)
+cx         call intpr(' M =',-1, m, 1)
 cw            write (itfile,2001) epsmch
 cw            write (itfile,*)'N = ',n,'    M = ',m
 cw            write (itfile,9001)
-            if (iprint .gt. 100) then
+cx            if (iprint .gt. 100) then
 cw               write (6,1004) 'L =',(l(i),i = 1,n)
 cw               write (6,1004) 'X0 =',(x(i),i = 1,n)
 cw               write (6,1004) 'U =',(u(i),i = 1,n)
-               call dblepr('L =',-1, l, nprt)
-               call dblepr('X0=',-1, x, nprt)
-               call dblepr('U =',-1, u, nprt)
-            endif 
-         endif
-      endif 
+cx               call dblepr('L =',-1, l, nprt)
+cx               call dblepr('X0=',-1, x, nprt)
+cx               call dblepr('U =',-1, u, nprt)
+cx            endif 
+cx         endif
+cx      endif 
 
 cw 1004 format (/,a4, 1p, 6(1x,d11.4),/,(4x,1p,6(1x,d11.4)))
 cw 2001 format ('RUNNING THE L-BFGS-B CODE',/,/,
@@ -2976,22 +2953,22 @@ c                             the truncated Newton step has been used.
       else
          word = '---'
       endif
-      if (iprint .ge. 99) then
+cx      if (iprint .ge. 99) then
 cw         write (6,*) 'LINE SEARCH',iback,' times; norm of step = ',xstep
-         call intpr('LINE SEARCH iback=',-1, iback, 1)
-         call dblepr('norm of step =',-1, xstep, 1)
+cx         call intpr('LINE SEARCH iback=',-1, iback, 1)
+cx         call dblepr('norm of step =',-1, xstep, 1)
 cw         write (6,2001) iter,f,sbgnrm
-         call intpr('At iterate ',-1, iter, 1)
-         call dblepr('f =',-1, f, 1)
-         call dblepr('|proj g| =',-1, sbgnrm, 1)
-         if (iprint .gt. 100) then      
+cx         call intpr('At iterate ',-1, iter, 1)
+cx         call dblepr('f =',-1, f, 1)
+cx         call dblepr('|proj g| =',-1, sbgnrm, 1)
+cx         if (iprint .gt. 100) then      
 cw            write (6,1004) 'X =',(x(i), i = 1, n)
 cw            write (6,1004) 'G =',(g(i), i = 1, n)
-         endif
-      else if (iprint .gt. 0) then 
-         imod = mod(iter,iprint)
+cx         endif
+cx      else if (iprint .gt. 0) then 
+cx         imod = mod(iter,iprint)
 cw         if (imod .eq. 0) write (6,2001) iter,f,sbgnrm
-      endif
+cx      endif
 cw      if (iprint .ge. 1) write (itfile,3001)
 cw     +          iter,nfgv,nseg,nact,word,iback,stp,xstep,sbgnrm,f
 
@@ -3075,88 +3052,88 @@ cw       if (iprint .ge. 1) write (6,*) ' F =',f
          if (iprint .ge. 1) call dblepr(' F =',-1,f, 1)
       endif 
  999  continue
-      if (iprint .ge. 0) then
+cx      if (iprint .ge. 0) then
 cw         write (6,3009) itask
-         if (info .ne. 0) then
+cx         if (info .ne. 0) then
 cw            if (info .eq. -1) write (6,9011)
-           if (info .eq. -1) then
-             call intpr(
-     +' Matrix in 1st Cholesky factorization in formk is not Pos. Def.',
-     +  -1, 0, 0)
-           endif
+cx           if (info .eq. -1) then
+cx             call intpr(
+cx     +' Matrix in 1st Cholesky factorization in formk is not Pos. Def.',
+cx     +  -1, 0, 0)
+cx           endif
 cw            if (info .eq. -2) write (6,9012)
-            if (info .eq. -2) then
-              call intpr(
-     +' Matrix in 2nd Cholesky factorization in formk is not Pos. Def.',
-     +  -1, 0, 0)
+cx            if (info .eq. -2) then
+cx              call intpr(
+cx     +' Matrix in 2nd Cholesky factorization in formk is not Pos. Def.',
+cx     +  -1, 0, 0)
 
-            endif
+cx            endif
 cw            if (info .eq. -3) write (6,9013)
-            if (info .eq. -3) then
-              call intpr(
-     +  ' Matrix in Cholesky factorization in formt is not Pos. Def.',
-     +  -1, 0, 0)
-            endif
+cx            if (info .eq. -3) then
+cx              call intpr(
+cx     +  ' Matrix in Cholesky factorization in formt is not Pos. Def.',
+cx     +  -1, 0, 0)
+cx            endif
 cw            if (info .eq. -4) write (6,9014)
-            if (info .eq. -4) then
-              call intpr(
-     +' Derivative >= 0, backtracking line search impossible.',
-     +  -1, 0, 0)
-              call intpr(
-     +'   Previous x, f and g restored.',
-     +  -1, 0, 0)
-              call intpr(
-     +' Possible causes: 1 error in function or gradient evaluation;',
-     +  -1, 0, 0)
-              call intpr(
-     +'                  2 rounding errors dominate computation.',
-     +  -1, 0, 0)
-            endif
+cx            if (info .eq. -4) then
+cx              call intpr(
+cx     +' Derivative >= 0, backtracking line search impossible.',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +'   Previous x, f and g restored.',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +' Possible causes: 1 error in function or gradient evaluation;',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +'                  2 rounding errors dominate computation.',
+cx     +  -1, 0, 0)
+cx            endif
 cw            if (info .eq. -5) write (6,9015)
-            if (info .eq. -5) then
-              call intpr(
-     +' Warning:  more than 10 function and gradient',
-     +  -1, 0, 0)
-              call intpr(
-     +'   evaluations in the last line search.  Termination',
-     +  -1, 0, 0)
-              call intpr(
-     +'   may possibly be caused by a bad search direction.',
-     +  -1, 0, 0)
-            endif
+cx            if (info .eq. -5) then
+cx              call intpr(
+cx     +' Warning:  more than 10 function and gradient',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +'   evaluations in the last line search.  Termination',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +'   may possibly be caused by a bad search direction.',
+cx     +  -1, 0, 0)
+cx            endif
 cw            if (info .eq. -6) write (6,*)' Input nbd(',k,') is invalid.'
-            if (info .eq. -6) then
-              call intpr(
-     + ' Input nbd(k) is invalid for k = ',
-     +  -1, k, 1)
-            endif
+cx            if (info .eq. -6) then
+cx              call intpr(
+cx     + ' Input nbd(k) is invalid for k = ',
+cx     +  -1, k, 1)
+cx            endif
 cw            if (info .eq. -7) 
-            if (info .eq. -7) then
-              call intpr(
-     +  ' l(k) > u(k).  No feasible solution for k=', -1, k, 1)
-            endif
+cx            if (info .eq. -7) then
+cx              call intpr(
+cx     +  ' l(k) > u(k).  No feasible solution for k=', -1, k, 1)
+cx            endif
 cw     +      write (6,*)' l(',k,') > u(',k,').  No feasible solution.'
 cw            if (info .eq. -8) write (6,9018)
-            if (info .eq. -8) then
-              call intpr(' The triangular system is singular.',
-     +  -1, 0, 0)
-            endif
+cx            if (info .eq. -8) then
+cx              call intpr(' The triangular system is singular.',
+cx     +  -1, 0, 0)
+cx            endif
 cw            if (info .eq. -9) write (6,9019)
-            if (info .eq. -9) then
-              call intpr(
-     +' Line search cannot locate an adequate point after 20 function',
-     +  -1, 0, 0)
-              call intpr(
-     +'  and gradient evaluations.  Previous x, f and g restored.',
-     +  -1, 0, 0)
-              call intpr(
-     +' Possible causes: 1 error in function or gradient evaluation;',
-     +  -1, 0, 0)
-              call intpr(
-     +'                  2 rounding error dominate computation.',
-     +  -1, 0, 0)
-            endif
-         endif
+cx            if (info .eq. -9) then
+cx              call intpr(
+cx     +' Line search cannot locate an adequate point after 20 function',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +'  and gradient evaluations.  Previous x, f and g restored.',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +' Possible causes: 1 error in function or gradient evaluation;',
+cx     +  -1, 0, 0)
+cx              call intpr(
+cx     +'                  2 rounding error dominate computation.',
+cx     +  -1, 0, 0)
+cx            endif
+cx         endif
 cw         if (iprint .ge. 1) 
 cw        write (6,3007) cachyt,sbtime,lnscht
 cw   suppressing time output            
@@ -3180,7 +3157,7 @@ cw               if (info .eq. -9) write (itfile,9019)
 cw            endif
 cw            write (itfile,3008) time
 cw         endif
-      endif
+cx      endif
 
 cw 1004 format (/,a4, 1p, 6(1x,d11.4),/,(4x,1p,6(1x,d11.4)))
 cw 3002 format(2(1x,i4),2(1x,i5),2x,a3,1x,i4,1p,2(2x,d7.1),6x,'-',10x,'-')
@@ -3477,10 +3454,10 @@ c
 
       if (nsub .le. 0) return
 cw      if (iprint .ge. 99) write (6,1001)
-      if (iprint .ge. 99) then
-         call intpr(' ----- SUBSM entered -----', -1, 0, 0)
+cx      if (iprint .ge. 99) then
+cx         call intpr(' ----- SUBSM entered -----', -1, 0, 0)
 cw 1001 format (/,'----------------SUBSM entered-----------------',/)
-      endif
+cx      endif
 c     Compute wv = W'Zd.
 
       pointr = head 
@@ -3572,9 +3549,9 @@ c
  55   continue
       if ( dd_p .gt.zero ) then
          call dcopy( n, xp, 1, x, 1 )
-         call intpr(' Positive dir derivative in projection ', -1,0,0)
+cx         call intpr(' Positive dir derivative in projection ', -1,0,0)
 cw       write(6,*) ' Positive dir derivative in projection '
-         call intpr(' Using the backtracking step ', -1,0,0)
+cx         call intpr(' Using the backtracking step ', -1,0,0)
 cw       write(6,*) ' Using the backtracking step '
       else
          go to 911
@@ -3630,7 +3607,7 @@ cccccc
  911  continue
 
 cw        if (iprint .ge. 99) write (6,1004)
-         if (iprint .ge. 99) call intpr(' exit SUBSM ', -1, 0,0)
+cx         if (iprint .ge. 99) call intpr(' exit SUBSM ', -1, 0,0)
 
 cw 1001 format (/,'----------------SUBSM entered-----------------',/)
 cw 1004 format (/,'----------------exit SUBSM --------------------',/)

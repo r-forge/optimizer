@@ -1,7 +1,6 @@
 NEWS about R package opt
 
 TODO
-      o Rcgmin does not use ctrldefault() yet 181113
       o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
       o Put counters in efn, egr
       o General issue: nlminb and possibly nlm not working as Newton with 
@@ -30,28 +29,17 @@ NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
-VERSION 2019-06-05
-      o Correct mcontrol$iter.max for nlminb in optimr()
-        Thanks to Jonathan Babyn of Dalhousie.
+VERSION 2020-04-02
+      o Repair maximization error in optimr()
 
-VERSION 2019-03-19
-      o Adjust for new lbfgsb3c that incorporates lbfgsb3.
+VERSION 2020-01-18
+      o This version does not call some non-CRAN packages.
 
-VERSION 2018-12-18
-      o Add Rcgdescent
-
-VERSION 2018-12-03
-      o Add possibility of using higher f to trigger quadratic inverse interpolation
-
-VERSION 2018-11-23
-      o Added Rcgmin2 and lbfgsb3c
-
-VERSION 2018-11-19
-      o Added Rvmminq -- quadratic inverse interpolation single step added to
-        backtracking line search. Rcgmin could be cleaned up somewhat.
-
-VERSION 2018-07-10
-      o Rvmmin convergence codes added to opm.Rd etc.
+VERSION 2019-12-02
+      o Replaced all instances of tests on class() with inherits()
+      o Replaced calls to lbfgsb3 package with those to lbfgsb3c,
+        and removed calls to the lbfgsb3() function
+      o Needed to set fval to NA in fnchk when length > 1
 
 VERSION 2018-07-10
       o Added proptimr() compact display of result of optimr

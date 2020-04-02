@@ -1,11 +1,9 @@
 \name{Rvmminu}
 \alias{Rvmminu}
-\alias{Rvmminqu}
 \encoding{UTF-8}
 \title{Variable metric nonlinear function minimization, unconstrained}
 \description{An R implementation of a variable metric method for minimization
-of unconstrained nonlinear functions. The "q" version has the line search augmented with one
-step of quadratic inverse interpolation.
+of unconstrained nonlinear functions.
 
 See the manual Rvmmin.Rd for details.
 }

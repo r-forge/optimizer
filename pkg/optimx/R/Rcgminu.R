@@ -50,7 +50,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     #  Author:  John C Nash
     #  Date:  April 2, 2009; revised July 28, 2009
     #################################################################
-    # control defaults -- idea from spg. ?? Should use ctrldefault()
+    # control defaults -- idea from spg
     ctrl <- list(maxit = 500, maximize = FALSE, trace = 0, eps = 1e-07, 
         dowarn = TRUE, tol=0)
     namc <- names(control)
@@ -101,12 +101,12 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     ifn <- 1  # count function evaluations (we always make 1 try below)
     stepredn <- 0.15  # Step reduction in line search
     acctol <- 1e-04  # acceptable point tolerance
-    offset <- 100  # relative equality test
+    reltest <- 100  # relative equality test
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     #!! getting rid of limit makes it work on negstart BUT inefficient
     # This does not appear to be in Y H Dai & Y Yuan, Annals of
-    #   Operations Research 103, 33--47, 2001
+    # Operations Research 103, 33-47, 2001 aor01.pdf
     # in Alg 22 pascal, we can set this as user. Do we wish to allow that?
     ##    tol <- n * (n * .Machine$double.eps)  # # for gradient test.  
     ## Note -- integer overflow if n*n*d.eps
@@ -125,7 +125,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
     if (trace > 0) {
         cat("Initial function value=", f, "\n")
     }
-    if (class(f) == "try-error") {
+    if (inherits(f, "try-error")) {
         msg <- "Initial point is infeasible."
         if (trace > 0) 
             cat(msg, "\n")
@@ -192,7 +192,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
             }
             c <- g  # save last gradient
             g3 <- 1  # !! Default to 1 to ensure it is defined -- t==0 on first cycle
-            if (gradsqr > tol * (abs(fmin) + offset)) {
+            if (gradsqr > tol * (abs(fmin) + reltest)) {
                 if (g2 > 0) {
                   betaDY <- gradsqr/g2
                   betaHS <- g1/g2
@@ -241,7 +241,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                 changed <- TRUE  # Need to set so loop will start
                 while ((f >= fmin) && changed) {
                   bvec <- par + steplength * t
-                  changed <- (!identical((bvec + offset), (par + offset)))
+                  changed <- (!identical((bvec + reltest), (par + reltest)))
                   if (changed) {
                     # compute newstep, if possible
                     f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
@@ -249,7 +249,7 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                     #   unlikely.
                     ifn <- ifn + 1
                     if (is.na(f) || (!is.finite(f))) {
-                      warning("Rcgminu - undefined function")
+                      warning("Rcgmin - undefined function")
                       f <- .Machine$double.xmax
                     }
                     if (f < fmin) {
@@ -274,8 +274,8 @@ Rcgminu <- function(par, fn, gr, control = list(), ...) {
                       newstep = -(gradproj * steplength * steplength/newstep)
                     }
                     bvec <- par + newstep * t
-                    changed <- (!identical((bvec + offset), 
-                      (par + offset)))
+                    changed <- (!identical((bvec + reltest), 
+                      (par + reltest)))
                     if (changed) {
                       f <- fn(bvec, ...)
                       ifn <- ifn + 1

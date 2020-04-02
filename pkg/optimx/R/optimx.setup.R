@@ -156,6 +156,12 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    if (testload)  allmeth<-c(allmeth,"nmkb", "hjkb")
    else if (ctrl$trace>0) { warning("Package `dfoptim' Not installed", call.=FALSE) }
    
+#   testload <- suppressWarnings(require(lbfgsb3, quietly=TRUE))
+# 180413 -- let's leave out lbfgsb3 
+#   if (testload)  allmeth<-c(allmeth,"lbfgsb3")
+#   else if (ctrl$trace>0) { warning("Package `lbfgsb3' Not installed", call.=FALSE) }
+#   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", 
+#                 "nmkb", "hjkb", "lbfgsb3")
    bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb")
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
@@ -171,7 +177,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   # avoid duplicates here
   # 2011-1-17 JN: to set L-BFGS-B
   method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
-  if (class(method)=="try-error") {
+  if (inherits(method,"try-error")) {
      warning("optimx: No match to available methods")
      method<-NULL
      nmeth<-0

@@ -134,6 +134,7 @@ shobbs.jac  <-  function(x) { # scaled Hobbs weeds problem -- Jacobian
     jj[tt,1]   <-   zz
     jj[tt,2]   <-   -0.1*x[1]*zz*zz*yy
     jj[tt,3]   <-   0.01*x[1]*zz*zz*yy*x[2]*tt
+    attr(jj,"gradient")<-jj # needed for nlfb to function seamlessly with nlxb
     return(jj)
 }
 

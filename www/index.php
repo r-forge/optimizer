@@ -81,13 +81,17 @@ obey some form of summation to a constant are described in
 output file uploaded as <a href="http://optimizer.r-forge.r-project.org/sumscale16.pdf">sumscale16.pdf</a>
 
 
-<p>There was an attempt to build an evolving "handbook" or "cheatsheet"
+<p>There was an attempt circa 2012 to build an evolving "handbook" or "cheatsheet"
 for nonlinear least squares computations for <strong>R</strong>, but this
 seems not to have gained traction. The source file is of type .Rnw and can
 be processed with the <strong>knitR</strong> tools. This is
 <a href="http://optimizer.r-forge.r-project.org/nlshb.Rnw">nlshb.Rnw</a>, with the latest
-output file uploaded as <a href="http://optimizer.r-forge.r-project.org/nlshb.pdf">nlshb.pdf</a>
+output file uploaded as <a href="http://optimizer.r-forge.r-project.org/nlshb.pdf">nlshb.pdf</a></p>
 
+<p>In 2020, Hans Werner Borchers and John Nash developed a short cheatsheet for optimization tools
+in Base R.  The source and pdf of this are  
+<a href="http://optimizer.r-forge.r-project.org/BaseRCheatSheet4a.tex">BaseRCheatSheet4a.tex</a> and
+ <a href="http://optimizer.r-forge.r-project.org/BaseRCheatSheet4a.pdf">BaseRCheatSheet4a.pdf</a>  </p>
 
 </body>
 </html>

@@ -1,0 +1,401 @@
+%% %&pdflatex
+%% \RequirePackage[l2tabu, orthodox]{nag}
+
+% article, report, book, ..., scrartcl, scrreprt, scrbook
+\documentclass[11pt,a4paper,onecolumn,oneside]{extarticle}
+
+%-- Language and font packages
+\usepackage[utf8]{inputenc}    % Umlaute; default: ascii, latin1
+\usepackage[T1]{fontenc}       % European languages support (256 Byte)
+%\usepackage{fixltx2e}         % deprecated LaTeX2e improvements
+\usepackage{lmodern}           % Latin modern fonts, not computer modern
+
+\usepackage{pdflscape}
+\usepackage{multicol}
+\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{0.8cm}
+%% \usepackage[margin=0.5in]{geometry}
+\usepackage{amssymb,amsmath}
+
+%\usepackage[light]{kpfonts}   % for "lighter" printing
+%\usepackage[poorman]{fourier} 
+
+%\usepackage[english,ngerman]{babel}  % 'australian' for European date
+
+% Postscript fonts               % Times etc. obsolete !
+%\usepackage{kmath,kerkis}       % Bookman
+%\usepackage{fouriernc}          % New Century Schoolbook
+%\usepackage{mathpazo}           % Palatino
+%\usepackage{mathptmx}           % Times Roman
+%\usepackage{ccfonts,eulervm}    % Concrete and Euler fonts
+% or:
+%\renewcommand{\rmdefault}{phv}
+%\renewcommand{\sfdefault}{phv}  % Helvetica
+
+\usepackage{microtype}          % improves spacing between words and letters
+%\usepackage{xspace}             % \newcommand{\eg}{e.\,g.\xspace}
+%\usepackage{ulem}               % \u[u]line \sout \xout, but: \emph redefined
+
+%-- Page layout and headings
+\usepackage[margin=1cm]{geometry}
+%\usepackage[top=2.5cm, bottom=3.0cm, left=4.0cm, right=4.0cm]{geometry}
+%\usepackage{fullpage}  % or: \usepackage{a4wide}
+%\usepackage[a4paper]{geometry}
+%\usepackage{layouts}  % \showpage
+
+\usepackage[compact,small]{titlesec}    %\itemsep 0pt
+%\usepackage{sectsty}
+%\sectionfont{
+%  \sectionrule{0pt}{0pt}{-5pt}{0.8pt}  % underline 0.8pt with distance 5pt
+%}
+
+\usepackage{paralist}   % \begin{compactitem}...\item...\end{compactitem}
+%\usepackage{mdwlist}   % \begin{enumerate*,itemize*}...\item...\end{...}
+%\usepackage{multicol}  % \begin{multicols}{2}...\end{multicols}
+
+%-- Footer and header lines
+\pagestyle{empty}  % empty, plain, headings, myheadings
+%\markright{Heading \hrulefill\ }
+%\markboth{Hans W. Borchers \hrulefill\ }{ \hrulefill\ Hans W. Borchers}
+%\usepackage{fancyhdr,lastpage}
+%\setlength{\headheight}{15pt}
+%\pagestyle{fancy}
+%\fancyhead{} \fancyfoot{}  % or \fancyhf{}: remove everything
+%\lhead{\textsc{Project Title}} \chead{\textsl{Draft}} \rhead{}
+%\lfoot{\small Hans W. Borchers \copyright{} 2010} \cfoot{}
+%\rfoot{Page \thepage\ of \pageref{LastPage}}
+%\renewcommand\headrulewidth{0pt}  % 1.2pt
+%\renewcommand\footrulewidth{0pt}  % 0.4pt
+
+%-- Miscellaneous, hyphenation, etc.
+% \setlength{\parindent}{0pt} \setlength{\parskip}{6pt plus3pt minus2pt}
+\usepackage[parfill]{parskip}            
+\usepackage{todonotes}
+\hyphenation{FORTRAN Hy-phen-a-tion}  % or: mbox{FORTRAN}; use \- in text
+%\usepackage{makeidx}
+
+%-- Including graphics
+\usepackage{graphicx}
+%\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+%\graphicspath{{.}}
+
+%-- 'tabularx' and other environments
+\usepackage{tabularx}
+%\usepackage{booktabs}  % professionel
+%\usepackage{supertabular}
+%\usepackage{longtables}
+
+%-- Citation styles
+%\usepackage[backend=biber,sortlocale=de,natbib=true]{biblatex}
+%\usepackage{natbib}  % and use citet{},...
+%\bibliographystyle{plainnat}
+%\bibpunct{(}{)}{;}{a}{,}{,}
+
+%-- Math packages
+%\usepackage{mathtools} %\usepackage{amsmath,amssymb,amsfonts}
+
+%-- Algorithms and listings
+\usepackage{alltt}              % 'alltt' environment
+\usepackage{relsize,fancyvrb}   % 'Verbatim' environment
+\DefineShortVerb{\|}            % \UndefineShortVerb{\|}
+\usepackage{listings}
+
+%-- Packages for including symbols
+%\usepackage[official]{eurosym}  % or: [gen]; \euro
+\usepackage{textcomp}   % \texteuro and \oldstylenums{01234567890}
+%%\usepackage{textgreek}  % \textDelta\textbeta
+\usepackage{pifont}     % \ding{32..126, 161..254}
+
+%-- Utilitiy packages
+\usepackage{color}
+\definecolor{darkred}{rgb}{0.5,0.0,0.0}
+
+%\usepackage{calc}
+%\usepackage{csquotes}  % context sensitive quotation
+%\usepackage{siunitx}   % \num, \si, ex.: \SI{10}{\hertz}, package 'SIunits'
+\usepackage{url}
+
+%-- Last packages to load
+%\usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
+%\hypersetup{colorlinks=true, linkcolor=blue, filecolor=blue, pagecolor=blue, urlcolor=blue}
+%\usepackage{cleveref}  % \cref instead of \ref or \eqref
+
+%-- Utility settings
+\tolerance 1414
+\hbadness 1414
+\emergencystretch 1.5em
+\clubpenalty = 10000    % prevent orphans and widows
+\widowpenalty=10000
+\vfuzz \hfuzz           % \hfuzz 0.3pt
+\raggedbottom           % \sloppy --- is l2tabu
+%% \frenchspacing
+
+%-- New command definitions    
+%\newcommand{\zB}{\mbox{z.\,B.}\xspace}    
+%\newcommand{\tag}[1]{\item [\em #1]\mbox{}  \\}
+%\newcommand{\tick}[1]{\item {\em #1}}
+%\newfont{\dunhill}{cmdunh10 scaled 1000}
+
+%-- Changed commands and settings
+%\renewcommand{\abstractname}{Executive Summary}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+%-- --------------------------------------------------------------------
+\begin{document}
+\typeout{Copyright (c) 2000--2012, Hans W. Borchers}%
+\begin{landscape}
+%% Put document material here. Note title setup
+
+\includegraphics[height=0.4in]{Rlogo.png} 
+\hspace{5mm}
+\Large{\textbf{Base R Optimization Cheat Sheet} \large-- Version 2020-09-30 \hfill JC Nash and HW Borchers (R-optimization at mailbox.org)}
+%\large{Base R Optimization Cheat Sheet \hspace*{9mm}\small{J C Nash  nashjc and H W Borchers -- 2020/09/27}}
+\small
+\begin{multicols}{2}
+\section*{\color{darkred} Purpose and Formulation}
+%23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
+This cheatsheet is a quick guide to optimization tools present in the base 
+distribution of the R software for statistical computing.
+
+\textbf{General problem}:
+
+Find a vector $\mathbf{x}$ of $n$ parameters that minimizes a given function 
+$f(\mathbf{x})$ in a certain domain, i.e. subject to inequality constraints 
+$g(\mathbf{x}) \le 0$, and sometimes also equality constraints $h(\mathbf{x}) = 0$.
+
+Numerical optimization routines will in general only find \textbf{local} minima 
+that are minimal only in their neighborhood. There may exist several or even 
+many minima in a given domain.
+\begin{itemize}
+%%\tightlist
+\setlength\itemsep{0.1em}
+\item
+  Most problems are special cases. Base R mainly treats 
+  problems that are unconstrained minimizations of a few parameters.
+\item
+  There are often several ways to formulate a problem for different software  
+  tools, and some of these may be much more efficient than others.
+\item
+  Bounds constraints \textbf{lb} $\le$ \textbf{x} $\le$
+  \textbf{ub} are a special and easier to handle case of constraints.
+\item
+  To \textit{maximize} a function f(\textbf{x}), minimize -f(\textbf{x}) 
+\item
+  Most tools require suitable starting parameters \textbf{x0}.
+  This is particularly important if there are multiple minima.
+  The minimum found is not guaranteed to be the nearest one to |x0|.
+\item
+  The lowest of all minima is known as the \textbf{global} minimum.\\
+  Unfortunately, Base R has no tools for global optimization.
+\item
+  Iterative algorithms \textbf{converge}, but programs
+  \textbf{terminate} (convergence, computational failure, limit on
+  effort).
+\item
+  The tools in Base R are intended for smooth functions. 
+  Optimizing non-smooth functions usually requires special approaches, though
+  \texttt{optim()} with method \texttt{Nelder-Mead} may sometimes succeed.
+\end{itemize}
+
+For many more optimization tools see the Task View for Optimization.
+
+\textbf{REMARK:} In R syntax below, square brackets indicate an optional element of a command.
+\texttt{...} indicates additional parameters of the function to be minimized.
+%\vfill
+\columnbreak
+
+
+\section*{\color{darkred}One-dimensional optimization (x a scalar)}
+
+%\begin{alltt}
+\texttt{ result <- optimize(f, interval=c(lower, upper), ...,}\\
+\hspace*{15mm}\texttt{                    tol=.Machine\$double\^{}0.25)}
+%\end{alltt}
+\begin{itemize}
+\setlength\itemsep{0.1em}
+
+\item
+  \texttt{f} is a function of just one parameter, and \texttt{interval}
+  gives the end points of the domain in which a minimum is to be found.
+\item
+  See the documentation for alternate syntax, including \texttt{maximum=TRUE}.
+  The \texttt{tol} above is the default value (approx. 0.0001). This default
+  tolerance is not small enough for many applications.
+\item
+  \texttt{result} is a list with elements \texttt{minimum} and
+  \texttt{objective}.
+\item
+  If there are multiple minima, you only get one of them.\\
+  If there are no minima -- you still get a result! CAUTION.
+\end{itemize}
+
+
+\section*{\color{darkred} Unconstrained minimization}
+
+Function \texttt{f(x [, ...])} computes the function to be minimized at 
+\textbf{x}; choose starting parameters \textbf{x0}. Optional, but
+useful: a vector valued function \texttt{grad()} that computes the gradient
+of \texttt{f()} at \textbf{x}.
+
+|optim| is the main optimizer function in Base R. There are two other
+minimizers that may be sometimes useful, \verb|nlm| and \verb|nlminb|.
+
+\begin{alltt}
+ result <- optim(x0, f [, grad][, method = "Method"][,
+                 control = list()])
+\end{alltt}
+where \texttt{Method} is one of 'Nelder-Mead', 'BFGS', 'L-BFGS-B', 'CG', or 'SANN'.
+The default is 'Nelder-Mead', a gradient-free -- but slow -- optimization solver.
+
+NOTE: \texttt{CG} (JN is author!) and \texttt{SANN} are NOT recommended.
+
+The most important control option is the \textit{tolerance}, called 
+\texttt{reltol} for methods 'Nelder-Mead' and 'BFGS', and \texttt{factr} 
+for method 'L-BFGS-B'. Its default value is about |1e-08|.
+
+%\vfill
+%\columnbreak
+
+
+|nlm| carries out a Newton-type algorithm and returns a list with |minimum| 
+for the function value and |estimate| for the solution vector.
+
+\begin{alltt}
+ result <- nlm(f, x0)
+\end{alltt}
+
+\begin{itemize}
+\setlength\itemsep{0.1em}
+ \item
+A separate gradient function is not used. Look at the help page to see how the
+gradient can be defined and used in \verb|nlm|. Also note the order of
+the call for \texttt{nlm}: function first, then the starting parameters.
+\end{itemize}
+
+\section*{\color{darkred} Unconstrained minimization (continued)}
+
+|nlminb| uses the PORT routines, a FORTRAN implementation of quasi-Newton BFGS.
+It has been included with Base R for historical reasons.
+
+\begin{alltt}
+ result <- nlminb(x0, f [, grad])
+\end{alltt}
+
+It returns |par| and |objective| as list (with some more information).
+
+\begin{itemize}
+\setlength\itemsep{0.1em}
+\item
+  To minimize functions of many parameters, use \texttt{optim()} with method 
+  \texttt{L-BFGS-B} or find efficient solvers in the Task View for Optimization.
+\item
+  When a gradient is needed but not specified, methods use numerical
+  approximations (finite differences). This generally gives slightly less
+  satisfactory solutions and may require more computational effort.
+\end{itemize}
+
+
+
+\section*{\color{darkred} Bounds constrained optimization}
+
+From \texttt{optim()}, only method \texttt{L-BFGS-B} can deal with
+bounds. \texttt{nlminb()} also handles bounds. Assume variables
+\texttt{lb} and \texttt{ub} have either single values or else as many 
+values as \textbf{x} to define lower and upper bounds respectively.
+
+\begin{alltt}
+ result <- optim(x0, f [, grad], method = "B-BFGS-B",
+                 lower = lb, upper = ub)
+\end{alltt}
+
+\begin{alltt}
+ result <- nlminb(x0, f [, grad], lower = lb, upper = ub)
+\end{alltt}
+
+\begin{itemize}
+\setlength\itemsep{0.1em}
+\item
+  From a practical viewpoint, methods often fail to find appropriate
+  solutions when lower and upper bounds are specified close together.
+\item
+  Bounds constrained optimization without \verb|grad| may fail when the
+  gradient approximation tries to evaluate the function outside the bounds.
+\end{itemize}
+
+
+\section*{\color{darkred} Linearly constrained optimization}
+
+The function \texttt{constrOptim} will approximate \textit{linearly} 
+constrained optimization problems, where there are k linear constraints 
+such that \textbf{A} \%*\% \textbf{x} $\ge$ \textbf{b}
+with \textbf{A} a k-by-n matrix, n the number of parameters and
+\textbf{b} a length k vector of constants.
+
+\begin{alltt}
+ result <- constrOptim(x0, f [, grad], ui=A, ci=b[, method])
+\end{alltt}
+
+\begin{itemize}
+\setlength\itemsep{0.1em}
+\item
+  \texttt{constrOptim} uses an adaptive barrier method in conjunction
+  with \texttt{optim()}, so it has the same strengths and weaknesses as
+  \texttt{optim()}.
+\item
+  Be careful that the dimensions of \texttt{A} and \texttt{b} are set
+  up correctly.
+\item
+  The default method is 'BFGS', 'L-BFGS-B is likely more efficient.
+\end{itemize}
+
+NOTE: In Base R there are no optimizers for nonlinear inequality constraints
+or even for equality constraints. See the Optimization Task View for CRAN 
+packages solving such problems.
+
+
+\section*{\color{darkred} Nonlinear least squares}
+
+If \texttt{f()} is a sum of squared terms, then special methods can be
+used. Base R has the \texttt{nls()} function for such problems. It has
+many options. Here we will just give an example of the most common task,
+which is modeling.
+
+
+Suppose we have a data frame (or list) \texttt{Data} with columns |x| and
+(the dependent) |y|. The model is given as a formula | y ~ a + b * e^(c x)|
+with parameters | a, b, c | to be determined from the data. The call to 
+\texttt{nls()} looks likely
+
+\begin{alltt}
+  nls(y ~ a + b*exp(c*x), data = DATA, trace = FALSE,
+      start = c(a = 1.0, b = 2.0, c = 0.05),
+      [lower = c(0, 0, 0), upper = c(5.0, 5.0, 1.0),]
+      [control = list(), algorithm = "port"])
+\end{alltt}
+
+If there are bounds constraints, the algorithm must be |port|, else it 
+can be |plinear| or |NULL| (the default), a Gauss-Newton approach.
+|start| will be a named vector with starting values for all parameters to be determined.
+
+\begin{itemize}
+\setlength\itemsep{0.1em}
+%\tightlist
+\item
+  \texttt{nls()} is a powerful tool in the hands of an experienced user,
+  but often leads to ``singular gradient'' errors, that means it has been 
+  unable to find a solutions. Packages \texttt{nlsr} and \texttt{minpack.lm} 
+  should be considered.
+\end{itemize}
+
+
+\section*{\color{darkred} See also}\label{See also}
+
+CRAN Task View on Optimization: \\
+\hspace*{6mm}\url{https://cran.r-project.org/web/views/Optimization.html} 
+
+
+\end{multicols}
+
+\end{landscape}
+\end{document}

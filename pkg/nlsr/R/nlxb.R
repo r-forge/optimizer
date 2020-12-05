@@ -85,8 +85,6 @@ nlxb <- function(formula, start, trace = FALSE, data=NULL, lower = -Inf,
     # in the set xx
     pnum <- start  # may simplify later??
     pnames <- names(pnum)
-#    cat("vn:")
-#    print(vn)
     bdmsk <- rep(1, npar)  # set all params free for now
     # ?? put in  lower==upper mask defn
     maskidx <- union(which(lower==upper), which(pnames %in% masked)) # use both methods for masks  

@@ -18,11 +18,13 @@ long treatment will serve to record these and show how to avoid
 them, and how to reliably compute the derivatives desired.
 Derivative capabilities of **R** are in the base system (essentially
 the functions `D()` and `deriv()`) and in
-different packages, namely `nlsr`, `Deriv`, `Ryacas`. General tools for
+different packages, namely `nlsr`, `Deriv`, and `Ryacas`. General tools for
 approximations to derivatives are found in the package `numDeriv` as
 well as `optextras`. Particular approximations may be embedded in 
 various packages, but not necessarily exported for use in scripts
 or packages.
+
+??cite packages??
 
 As a way of recording where attention is needed either to this document
 or to the functions and methods described, I have put double question marks

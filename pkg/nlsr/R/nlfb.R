@@ -39,11 +39,14 @@ showprms<-function(SS, pnum){
     cat("\n")
 } # end showprms
 
-if (is.null(weights)) {if (trace) {cat("no weights\n")} }
-else if (trace) {
+if (trace) {
+   if (is.null(weights)) {
+       cat("no weights\n") 
+   } else {
       cat("weights:")
       print(weights)
-      }
+   }
+}
 
 # ensure params in vector
 pnames<-names(start)
@@ -141,7 +144,7 @@ if (trace) {
 # cat("Starting pnum=")
 # print(pnum)  ?? add with trace??
 
-    if (is.null(weights) ) {resbest<-resfn(pnum, ...) }
+    if ( is.null(weights) ) {resbest<-resfn(pnum, ...) }
     else {resbest <- resfn(pnum, ...) * sqrt(weights) }
 #    cat("resbest:")
 #    print(resbest)

@@ -132,7 +132,7 @@ Hessian and derived information.
 More examples would be useful here. 
 
 ```{r}
-require(Rvmmin)
+require(optimx)
 sq<-function(x){
    nn<-length(x)
    yy<-1:nn

@@ -17,15 +17,17 @@ Here some of the differences are highlighted by comparing the tools from the pac
 `nlsr` (@nlsr-manual), particularly function `nlxb()` with those from base-R `nls()` and the `nlsLM` 
 function of package `minpack.lm` (@minpacklm12).
 
-# TODO
-
-- shorten example output and put in a table
-- add structure of output
-- show prediction functions, including where they don't work
 
 ## Principal differences
 
-The following is a summary of the main differences in the tools.
+The main differences in the tools relate to the following features:
+
+- the way in which derivative information is computed for the Jacobian of the modelling function
+- the use of a Marquardt stabilization for solution of the linearized least squares problem at
+each iteration
+- details of the criterion used to terminate the iteration
+- the structure of the output of the tools
+- how models are predicted for new data.
 
 ### Derivative information
 
@@ -64,6 +66,36 @@ can lead to Jacobian matrices that are computationally singular, where `nls()` w
 that terminology.)  `minpack.lm::nlsLM()` may fail to get started if the initial Jacobian is
 singular, but is less susceptible in general, as described in the sub-section on Marquardt 
 stabilization which follows.
+
+#### Consequences of different derivative computations
+
+While readers might expect that the precise derivative information of `nlsr::nlxb()` would mean
+a faster solution, this is quite often not the case. Approximate derivatives may allow faster
+approach to the solution by "ironing out" wrinkles in the function surface. In my opinion, the
+main advantage of precise derivative information is in testing that we actually have arrived
+at a solution. 
+
+There are even some cases where the approximation may be helpful, though users may not realize
+the potential danger. Thanks to Karl Schilling for an example of modelling with the function
+
+  `a * (x ^ b)`
+  
+where `x` is our data and we wish to estimate `a` and `b`. Now the partial derivative of this
+function w.r.t. `b` is 
+
+```{r derivexp, eval=TRUE}
+partialderiv <- D(expression(a * (x ^ b)),"b")
+print(partialderiv)
+```
+
+The danger here is that we may have data values `x = 0`, in which case the **derivative** is 
+not defined, though the model can still be evaluated. Thus `nlsr::nlxb()` will not compute
+a solution, while `nls()` and `minpack.lm::nlsLM()` will generally proceed. A workaround is
+to provide a very small value instead of zero for the data, though I find this inelegant.
+Another approach is to drop the offending element of the data, though this risks altering
+the model estimated. A proper treatment might be to develop the limit of the derivative as 
+the data value goes to zero, but finding general software that can detect and deal with 
+this is a large project.
 
 ### Marquardt stabilization
 
@@ -115,38 +147,87 @@ lead to many variants, increased by different possibilities for specifying $D$. 
 @jncnm79. There are also a number of ways to solve the stabilized Gauss-Newton equations,
 some of which do not require the explicit $J^T J$ matrix. 
 
+### Criterion used to terminate the iteration
 
-### Consequences of different derivative computations
+`nls()` and `nlsr` use a form of the relative offset convergence criterion, @BatesWatts81. 
+`minpack.lm` uses a somewhat different and more complicated set of tests. Unfortunately,
+the relative offset criterion as implemented in `nls()` is unsuited to problems where 
+the residuals can be zero. There are ways to work around the difficulties, and `nlsr`
+has used one approach. See *An illustrative nonlinear regression problem* below.
 
-While readers might expect that the precise derivative information of `nlsr::nlxb()` would mean
-a faster solution, this is quite often not the case. Approximate derivatives may allow faster
-approach to the solution by "ironing out" wrinkles in the function surface. In my opinion, the
-main advantage of precise derivative information is in testing that we actually have arrived
-at a solution. 
 
-There are even some cases where the approximation may be helpful, though users may not realize
-the potential danger. Thanks to Karl Schilling for an example of modelling with the function
+### Output of the modelling functions
 
-  `a * (x ^ b)`
-  
-where `x` is our data and we wish to estimate `a` and `b`. Now the partial derivative of this
-function w.r.t. `b` is 
+`nls()` and `nlsLM()` return the same solution structure. Let us examine this for one of our 
+example results (we will choose one that does NOT have small residuals, so that all
+the functions "work").
 
-```{r derivexp, eval=TRUE}
-partialderiv <- D(expression(a * (x ^ b)),"b")
-print(partialderiv)
+```{r hiddenexprob1, echo=FALSE}
+# Here we set up an example problem with data
+# Define independent variable
+t0 <- 0:19
+t0a<-t0
+t0a[1]<-1e-20 # very small value
+# Drop first value in vectors
+t0t<-t0[-1]
+y1 <- 4 * (t0^0.25)
+y1t<-y1[-1]
+n <- length(t0)
+fuzz <- rnorm(n)
+range <- max(y1)-min(y1)
+## add some "error" to the dependent variable
+y1q <- y1 + 0.2*range*fuzz
+edta <- data.frame(t0=t0, t0a=t0a, y1=y1, y1q=y1q)
+edtat <- data.frame(t0t=t0t, y1t=y1t)
+
+start1 <- c(a=1, b=1)
+try(nlsy0t0ax <- nls(formula=y1~a*(t0a^b), start=start1, data=edta, control=nls.control(maxiter=10000)))
+library(nlsr)
+nlsry1t0a <- nlxb(formula=y1~a*(t0a^b), start=start1, data=edta)
+library(minpack.lm)
+nlsLMy1t0a <- nlsLM(formula=y1~a*(t0a^b), start=start1, data=edta)
 ```
 
-The danger here is that we may have data values `x = 0`, in which case the **derivative** is 
-not defined, though the model can still be evaluated. Thus `nlsr::nlxb()` will not compute
-a solution, while `nls()` and `minpack.lm::nlsLM()` will generally proceed. A workaround is
-to provide a very small value instead of zero for the data, though I find this inelegant.
-Another approach is to drop the offending element of the data, though this risks altering
-the model estimated. A proper treatment might be to develop the limit of the derivative as 
-the data value goes to zero, but finding general software that can detect and deal with 
-this is a large project.
+```{r nlsstr}
+str(nlsy0t0ax)
+```
+The `minpack.lm::nlsLM` output has the same structure, which could be revealed by the 
+R command `str(nlsLMy1t0a)`.
+Note that this structure has a lot of special functions in the sub-list `m`.
+By contrast, the `nlsr()` output is much less flamboyant. There are, in fact,
+no functions as part of the structure. 
 
-### An illustrative problem
+```{r nlsrstr}
+str(nlsry1t0a)
+```
+
+
+
+Which of these approaches is "better" can be debated. My preference is for the results
+of optimization computations to be essentially data, including messages, though some
+tools within some of my packages will return functions for specific reasons, e.g.,
+to return a function from an expression. However, I prefer to use specified functions
+such as `predict.nlsr()` below to obtain predictions. I welcome comment and discussion,
+as this is not, in my view, a closed topic.
+
+
+### Prediction
+
+Let us predict our models at the mean of the data.
+Because `nlxb()` returns a different structure from that found by `nls()` and 
+`nlsLM()` the code for `predict()` for an object from `nlsr` is different. 
+`minpack.lm` uses `predict.nls` since the output structure of the modelling step is equivalent to that from `nls()`.
+
+```{r  pred1}
+nudta <- colMeans(edta)
+predict(nlsy0t0ax, newdata=nudta)
+predict(nlsLMy1t0a, newdata=nudta)
+predict(nlsry1t0a, newdata=nudta)
+```
+
+
+
+## An illustrative nonlinear regression problem
 
 So we can illustrate some of the issues, let us create some example data for a seemingly
 straightforward computational problem.
@@ -205,7 +286,7 @@ This adjustment to the convergence test has been in `nlsr` since its creation.
 
 Here is the output.
 
-#### nls
+### nls
 
 ```{r extrynls}
 cprint <- function(obj){
@@ -222,15 +303,17 @@ start1 <- c(a=1, b=1)
 try(nlsy0t0 <- nls(formula=y1~a*(t0^b), start=start1, data=edta))
 cprint(nlsy0t0)
 # Since this fails to converge, let us increase the maximum iterations
-try(nlsy0t0x <- nls(formula=y1~a*(t0^b), start=start1, data=edta, control=nls.control(maxiter=10000)))
+try(nlsy0t0x <- nls(formula=y1~a*(t0^b), start=start1, data=edta,
+                    control=nls.control(maxiter=10000)))
 cprint(nlsy0t0x)
-try(nlsy0t0ax <- nls(formula=y1~a*(t0a^b), start=start1, data=edta, control=nls.control(maxiter=10000)))
+try(nlsy0t0ax <- nls(formula=y1~a*(t0a^b), start=start1, data=edta, 
+                     control=nls.control(maxiter=10000)))
 cprint(nlsy0t0ax)
 try(nlsy0t0t <- nls(formula=y1t~a*(t0t^b), start=start1, data=edtat))
 cprint(nlsy0t0t)
 ```
 
-#### nlsr
+### nlsr
 
 ```{r extry1nlsr}
 library(nlsr)
@@ -241,7 +324,7 @@ cprint(nlsry1t0a)
 nlsry1t0t <- nlxb(formula=y1t~a*(t0t^b), start=start1, data=edtat)
 cprint(nlsry1t0t)
 ```
-#### minpack.lm
+### minpack.lm
 
 ```{r extry1minlm}
 library(minpack.lm)
@@ -257,49 +340,6 @@ We have seemingly found a workaround for our difficulty, but I caution that init
 I found very unsatisfactory results when I set the "very small value" to 1.0e-7. The
 correct approach is clearly to understand what is going on. Getting computers to provide
 that understanding is a serious challenge.
-
-### Output of the modelling functions
-
-`nls()` and `nlsLM()` return the same solution structure. Let us examine this for one of our 
-example results (we will choose one that does NOT have small residuals, so that all
-the functions "work").
-
-```{r nlsstr}
-str(nlsy0t0ax)
-```
-The `minpack.lm::nlsLM` output has the same structure, which could be revealed by the 
-R command `str(nlsLMy1t0a)`.
-Note that this structure has a lot of special functions in the sub-list `m`.
-By contrast, the `nlsr()` output is much less flamboyant. There are, in fact,
-no functions as part of the structure. 
-
-```{r nlsrstr}
-str(nlsry1t0a)
-```
-
-
-
-Which of these approaches is "better" can be debated. My preference is for the results
-of optimization computations to be essentially data, including messages, though some
-tools within some of my packages will return functions for specific reasons, e.g.,
-to return a function from an expression. However, I prefer to use specified functions
-such as `predict.nlsr()` below to obtain predictions. I welcome comment and discussion,
-as this is not, in my view, a closed topic.
-
-
-### Prediction
-
-Let us predict our models at the mean of the data.
-Because `nlxb()` returns a different structure from that found by `nls()` and 
-`nlsLM()` the code for `predict()` for an object from `nlsr` is different. 
-`minpack.lm` uses `predict.nls` since the output structure of the modelling step is equivalent to that from `nls()`.
-
-```{r  pred1}
-nudta <- colMeans(edta)
-predict(nlsy0t0ax, newdata=nudta)
-predict(nlsLMy1t0a, newdata=nudta)
-predict(nlsry1t0a, newdata=nudta)
-```
 
 
 ### Problems that are NOT regressions
@@ -330,10 +370,12 @@ cat("initial sumsquares=",as.numeric(crossprod(fbd(prm0))),"\n")
 nlsrbd <- nlxb(bdform, start=prm0, data=bddata, trace=FALSE)
 nlsrbd
 
-nlsbd10k <- nls(bdform, start=prm0, data=bddata, trace=FALSE, control=nls.control(maxiter=10000))
+nlsbd10k <- nls(bdform, start=prm0, data=bddata, trace=FALSE, 
+                control=nls.control(maxiter=10000))
 nlsbd10k
 
-nlsLMbd10k <- nlsLM(bdform, start=prm0, data=bddata, trace=FALSE, control=nls.lm.control(maxiter=10000, maxfev=10000))
+nlsLMbd10k <- nlsLM(bdform, start=prm0, data=bddata, trace=FALSE, 
+                    control=nls.lm.control(maxiter=10000, maxfev=10000))
 nlsLMbd10k
 ```
 
@@ -353,8 +395,9 @@ predict(nlsrbd, newdata=ndata)
 ```
 
 
-We could, of course, try setting up a different formula, since the "residuals" for
-nonlinear equations should be zero. Therefore we could try moving the exponential
+We could, of course, try setting up a different formula, since the "residuals" can be
+computed in any way such that their absolute value is the same. 
+Therefore we could try moving the exponential
 part of the function for each equation to the left hand side as in `bdf2` below.
 However, we discover that the parsing of the model formula for `nls()` and 
 `nlsLM()` fails for this formulation, while `nlsr::nlxb()` proceeds as usual.
@@ -387,7 +430,7 @@ predict(nlsrbd2, newdata=ndata)
 
 ### A check on the Brown and Dennis calculation via function minimization
 
-We can attach the Brown and Dennis problem by applying nonlinear function minimization
+We can attack the Brown and Dennis problem by applying nonlinear function minimization
 programs to the sum of squared "residuals" as a function of the parameters. The code
 below does this. We omit the output for space reasons.
 

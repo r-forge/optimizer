@@ -20,18 +20,16 @@ Derivative capabilities of **R** are in the base system (essentially
 the functions `D()` and `deriv()`) and in
 different packages, namely `nlsr`, `Deriv`, and `Ryacas`. General tools for
 approximations to derivatives are found in the package `numDeriv` as
-well as `optextras`. Particular approximations may be embedded in 
+well as `optimx`. Other approximations may be embedded in 
 various packages, but not necessarily exported for use in scripts
 or packages.
-
-??cite packages??
 
 As a way of recording where attention is needed either to this document
 or to the functions and methods described, I have put double question marks
 in various places.
 
 Note: To distinguish output results (which are prefaced '`## `' by **knitr**, 
-comments in the **R** code are prefaced by '`#- `'.)
+I have attempted to put comments in the **R** code with the preface '`#- `'.)
 
 
 ## Available analytic differentiation tools
@@ -44,13 +42,13 @@ comments in the **R** code are prefaced by '`#- `'.)
 
 - **Deriv**: tools `Deriv()` (@Deriv-manual)
 
-- **Ryacas**: tools ??  @Ryacas-manual
+- **Ryacas**: tools ??  (@Ryacas-manual)
 
 - In 2018, Changcheng Li conducted a Google Summer of Code project to link R to Julia's
 Automatic Differentiation tools, resulting in the experimental package `autodiffr`
 (see https://github.com/Non-Contradiction/autodiffr).
 
-- ?? any other packages that give analytic derivatives?
+<!-- - ?? any other packages that give analytic derivatives? -->
 
 ## How the tools are used
 
@@ -65,9 +63,10 @@ the quantity output by the tool is passed back into the tool in a form that will
 generate a derivative expression. Some examples are presented. 
 
 We also note that the **Deriv** package will give a result in cases when the input
-is undefined. This is clearly a bug.
+is undefined. This is clearly a bug. There is an example below on the section for
+`Deriv`.
 
-### stats
+### stats (i.e., the base R installation)
 
 `D()`, `deriv()` and `deriv3()`: As `deriv3()` is stated to be the same as `deriv()` but with
 argument `hessian=TRUE`, we will for now only consider the first two.
@@ -1049,8 +1048,8 @@ that is, as a function. Duncan Murdoch pointed out the availability of
 the purposes of derivatives. 
 
 This is not an ideal resolution, especially as we would like to be able
-to get the gradients of functions with respect to vectors of parameters
-(Noted also by Sergei Sokol in the manual for package **Deriv**). The 
+to get the gradients of functions with respect to vectors of parameters,
+noted also by Sergei Sokol in the manual for package **Deriv**. The 
 following examples illustrate this.
 
 ```{r chunk21}

@@ -45,17 +45,25 @@ Differentiation, version 2.0, https://cran.r-project.org/package=Deriv),
 and making the current work "play nicely" with that package is 
 desirable.
 
+As a mechanism for highlighting issues that remain to be resolved, I have
+put double question marks (??) where I believe attention is needed in this
+document.
+
 ## TODOS
 
 - explain JN approach to relative offset convergence criterion
 - how to insert numerical derivatives when Deriv unable to get result
 - approximations for jacfn beyond fwd approximation. How to specify??
+- how to force numerical approximations in nlfb() in a 
+manner consistent with that used in `optimx::optimr()`, that is, to
+surround the name of `jacfn` with quotes if it is a numerical approximation,
+or to provide a logical control to `nlxb()` for this purpose.
 
 ## Summary of capabilities in `nlsr`
 
 ### Functions in **nlsr**
 
-#### coef.nlsr 
+#### coef.nlsr: 
 extracts and displays the coefficients for a model 
     estimated by nlxb() or nlfb() in the nlsr structured object. 
 
@@ -73,7 +81,7 @@ print(coef(sol1))
 ```
 
 
-#### nlsDeriv, codeDeriv, fnDeriv, newDeriv
+#### nlsDeriv, codeDeriv, fnDeriv, newDeriv:
 
 Functions **Deriv** and **fnDeriv** are designed as replacements 
 for the stats package functions **D** and **deriv**
@@ -567,7 +575,22 @@ matrix. We must also append `n` zeros to the augmented `r`.
 
 ## Relative offset convergence criterion
 
-?? 
+In October 2020, I suggested a patch to the `stats::nls()` function to avoid
+a zero-divide in the relative offset convergence criterion. The explanation of 
+this in the proposed manual file `nls.Rd' is
+
+"**Warning**
+
+  **The default settings of `nls` generally fail on small-residual problems.**
+
+  The `nls` function uses a relative-offset convergence criterion
+  that compares the numerical imprecision at the current parameter
+  estimates to the residual sum-of-squares.  To avoid a zero-divide in 
+  computing the test value, a positive constant `convTestAdd` should 
+  be added to the sum-of-squares. This quantity is set via `nls.control()`,
+  as in the example below."
+  
+
 
 ## Missing capabilities
 

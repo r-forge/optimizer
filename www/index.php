@@ -93,5 +93,9 @@ in Base R.  The source and pdf of this are
 <a href="http://optimizer.r-forge.r-project.org/BaseRCheatSheet4a.tex">BaseRCheatSheet4a.tex</a> and
  <a href="http://optimizer.r-forge.r-project.org/BaseRCheatSheet4a.pdf">BaseRCheatSheet4a.pdf</a>  </p>
 
+<p>Original archival documentaion for the GPArotation package is
+ <a href="http://optimizer.r-forge.r-project.org/GPArotation_www/">here.</a>  
+ </p>
+
 </body>
 </html>

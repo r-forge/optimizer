@@ -8,4 +8,4 @@ LazyLoad: yes
 License: GPL (>= 2) | file LICENSE
 Author: Coen Bernaards and Robert Jennrich
 Maintainer: Paul Gilbert <pgilbert.ttv9z@ncf.ca>
-URL: https://r-forge.r-project.org/scm/viewvc.php/pkg/GPArotation/www/?root=optimizer
+URL: https://optimizer.r-forge.r-project.org/GPArotation_www/

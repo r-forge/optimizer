@@ -6,6 +6,9 @@ Known problems
 
 Changes in GPArotation version 20xx.x-x
 
+   o	Revised URL link in DESCRIPTION as the www.stat.ucla.edu link is
+        no longer available.
+
    o	Fixed Rbuildignore so that files from building vignettes are 
     	not omitted in the package build.	
 

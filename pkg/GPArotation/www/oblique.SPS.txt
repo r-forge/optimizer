@@ -1,0 +1,854 @@
+* This file contains the SPSS Matrix language code that appears in the paper:.
+*.
+* Gradient Projection Algorithms and Software for Arbitrary.
+* Rotation Criteria in Factor Analysis.
+*.
+* by.
+*.
+* Coen A. Bernaards and Robert I. Jennrich.
+*.
+* Website: http://www.stat.ucla.edu/research.
+*.
+
+*****************************************************.
+*****************************************************.
+*  QUARTIMIN.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+*.
+* Quartimin.
+*.
+compute L2 = L &* L.
+compute k = ncol(L).
+compute M = make(k,k,1)-Ident(k).
+compute ft = msum(L2 &* (L2 * M))/4.
+compute Gq = L &* (L2 * M).
+*.
+* End Quartimin.
+*.
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+  *.
+  * Quartimin.
+  *.
+  compute L2 = L &* L.
+  compute k = ncol(L).
+  compute M = make(k,k,1)-Ident(k).
+  compute ft = msum(L2 &* (L2 * M))/4.
+  compute Gq = L &* (L2 * M).
+  *.
+  * End Quartimin.
+  *.
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  BENTLER'S CRITERTION.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+* .
+* Bentler Invariant Pattern Simplicity.
+* .
+compute L2 = L&*L.
+compute M = T(L2)*L2.
+compute D=mdiag(diag(M)).
+compute ft=-(ln(det(M))-ln(det(D)))/4.
+compute Gq=-L&*(L2*(inv(M)-inv(D))).
+* .
+* end Bentler Invariant Pattern Simplicity.
+* .
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+  * .
+    * Bentler Invariant Pattern Simplicity.
+    * .
+    compute L2 = L&*L.
+    compute M = T(L2)*L2.
+    compute D=mdiag(diag(M)).
+    compute ft=-(ln(det(M))-ln(det(D)))/4.
+    compute Gq=-L&*(L2*(inv(M)-inv(D))).
+    * .
+    * end Bentler Invariant Pattern Simplicity.
+    * .
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  CRAWFORD-FERGUSON.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+* .
+* Crawford Ferguson.
+*  kappa = 0 Quartimax.
+* kappa = 1/p  Varimax.
+* kappa = k/(2*p) Equamax.
+* kappa = (k-1)/(p+k-2) Parsimax.
+* kappa = 1  Factor parsimony.
+*.
+compute k = ncol(L).
+compute p = nrow(L).
+compute kappa = 1.
+compute N = make(k,k,1) - ident(k).
+compute M = make(p,p,1) - ident(p).
+compute L2 = L&*L.
+compute f1 = (1-kappa)* trace(T(L2) * (L2 * N))/4.
+compute f2 = kappa* trace(T(L2) * (M * L2))/4.
+compute ft = f1 + f2.
+compute Gq = (1-kappa) * (L &* (L2 * N)) + kappa * (L &* (M * L2)).
+* .
+* end Crawford Ferguson.
+* .
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+  * .
+    * Crawford Ferguson.
+    *.
+    compute k = ncol(L).
+    compute p = nrow(L).
+    compute N = make(k,k,1) - ident(k).
+    compute M = make(p,p,1) - ident(p).
+    compute L2 = L&*L.
+    compute f1 = (1-kappa)* trace(T(L2) * (L2 * N))/4.
+    compute f2 = kappa* trace(T(L2) * (M * L2))/4.
+    compute ft = f1 + f2.
+    compute Gq = (1-kappa) * (L &* (L2 * N)) + kappa * (L &* (M * L2)).
+    * .
+    * end Crawford Ferguson. 
+    * .
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  OBLIMIN.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+* .
+* Oblimin.
+*  gamma =0 Quartimin.
+* gamma =.5 Bi-quartimin.
+* gamma = 1 Covarimin. 
+*.
+compute gamma = .5.
+compute k = ncol(L).
+compute p = nrow(L).
+compute N = make(k,k,1) - ident(k).
+compute L2 = L&*L.
+compute ft = msum(L2 &* ((Ident(p)-gamma &* make(p,p,1/p)) * L2 * N))/4.
+compute Gq = L &* ((Ident(p)-gamma &* make(p,p,1/p)) * L2 * N).
+* .
+* end Oblimin.
+* .
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+* .
+* Oblimin.
+*.
+compute k = ncol(L).
+compute p = nrow(L).
+compute N = make(k,k,1) - ident(k).
+compute L2 = L&*L.
+compute ft = msum(L2 &* ((Ident(p)-gamma &* make(p,p,1/p)) * L2 * N))/4.
+compute Gq = L &* ((Ident(p)-gamma &* make(p,p,1/p)) * L2 * N).
+* .
+* end Oblimin.
+* .
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  PARTIALLY SPECIFIED TARGET.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+*.
+*. Partially specified target rotation.
+*.  Needs weight matrix W with 1's at specified values, 0 otherwise
+*.  e.g. W = {1, 0;1 ,0;1 ,0;1, 0; 0 ,1;0 ,1;0 ,1;0, 1}.
+*.  When W has only 1's this is procrustes rotation
+*.  Needs a Target matrix Target with hypothesized factor loadings.
+*.  e.g. Target = make(8,2,0). (i.e. only zeroes)
+*.
+compute W = {1, 0;1 ,0;1 ,0;1, 0; 0 ,1;0 ,1;0 ,1;0, 1}.
+compute Target = make(8,2,0).
+compute Btilde = W &* Target.
+compute ft = msum((W &* L-Btilde)&**2).
+compute Gq = 2*(W &* L-Btilde).
+* .
+* Partially specified target rotation.
+*.
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+*.
+*. Partially specified target rotation.
+*.
+compute Btilde = W &* Target.
+compute ft = msum((W &* L-Btilde)&**2).
+compute Gq = 2*(W &* L-Btilde).
+* .
+* Partially specified target rotation.
+*.
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  SIMPLIMAX.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+*.
+* Simplimax.
+* Needs k: Number of close to zero loadings.
+* NOT BEST IMPLEMENTATION. RELIES ON ROUND OFFS AND APPROXIMATIONS.
+* APPEARS TO WORK IN PRACTICE. THERE IS NO SIGN FUNCTION IN SPSS.
+* IMPROVEMENTS APPRECIATED.
+*.
+compute k = 8.
+compute L2=L&*L.
+compute tr=rnkorder(L2).
+compute etr=tr-k.
+compute etrr = abs(etr+.001).
+compute detr = abs(rnd(etr &/ etrr)-1)/2.
+compute ettr2 = .5*abs(rnd(abs(etr)/etrr)-1).
+compute Imat= detr + ettr2.
+compute ft = msum(Imat &* L2).
+compute Gq = 2*Imat &* L.
+*.
+* End Simplimax.
+*.
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+*.
+* Simplimax.
+*.
+compute L2=L&*L.
+compute tr=rnkorder(L2).
+compute etr=tr-k.
+compute etrr = abs(etr+.001).
+compute detr = abs(rnd(etr &/ etrr)-1)/2.
+compute ettr2 = .5*abs(rnd(abs(etr)/etrr)-1).
+compute Imat= detr + ettr2.
+compute ft = msum(Imat &* L2).
+compute Gq = 2*Imat &* L.
+*.
+* End Simplimax.
+*.
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  OBLIMAX.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+*.
+* Oblimax.
+*.
+compute ft = -(ln(msum(L&**4))-2*ln(msum(L&*L))).
+compute Gq = -(4*(L&**3)/msum(l&**4)-4*L/msum(L&*L)).
+*.
+* End Oblimax.
+*.
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+*.
+* Oblimax.
+*.
+compute ft = -(ln(msum(L&**4))-2*ln(msum(L&*L))).
+compute Gq = -(4*(L&**3)/msum(l&**4)-4*L/msum(L&*L)).
+*.
+* End Oblimax.
+*.
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  GEOMIN.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+*.
+* Geomin. 
+* Needs epsilon.
+*.
+compute k = ncol(L).
+compute p = nrow(L).
+compute eps = 0.01.
+compute L2 = L &* L+eps.
+compute LL2= ln(L2).
+compute SL = rsum(LL2).
+compute pro = exp(SL/k).
+compute ft = msum(pro).
+compute RM = exp(LL2 * make(k,k,1/k)).
+compute Gq = (2/k)*(L&/L2) &* RM.
+*.
+* End Geomin.
+*.
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+*.
+* Geomin. 
+*.
+compute k = ncol(L).
+compute p = nrow(L).
+compute L2 = L &* L+eps.
+compute LL2= ln(L2).
+compute SL = rsum(LL2).
+compute pro = exp(SL/k).
+compute ft = msum(pro).
+compute RM = exp(LL2 * make(k,k,1/k)).
+compute Gq = (2/k)*(L&/L2) &* RM.
+*.
+* End Geomin.
+*.
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+*****************************************************.
+*****************************************************.
+*  INFOMAX.
+*****************************************************.
+*****************************************************.
+
+MATRIX.
+
+compute A  ={.830, -.396;
+      .818, -.469;
+      .777, -.470;
+      .798, -.401;
+      .786,  .500;
+      .672,  .458;
+      .594,  .444;
+      .647,  .333}.
+compute Tmat ={1, 0; 0, 1}.
+
+compute al=1.
+compute Ti=inv(Tmat).
+compute L=A * T(Ti).
+*.
+* Infomax.
+*.
+compute L2 = L&*L.
+compute p = NROW(L2).
+compute k = NCOL(L2).
+compute SS = trace(t(L)*L).
+compute S1 = rsum(L2).
+compute S2 = csum(L2).
+compute E0 = L2/SS.
+compute E1 = S1/SS.
+compute E2 = S2/SS.
+compute Q0 = msum(E0&*ln(E0)).
+compute Q1 = msum(E1&*ln(E1)).
+compute Q2 = msum(E2&*ln(E2)).
+compute ft = ln(k) - Q0 + Q1+ Q2.
+compute H = ln(E0) + 1.
+compute al0 = msum(L2&*H)/(SS*SS).
+compute G0 = H/SS - al0 * make(p, k, 1).
+compute H1 = ln(E1) + 1.
+compute al1 = msum(S1 &* H1)/(SS*SS).
+compute M1 = H1.
+loop #jc=2 to k.
+ compute M1 = {M1,H1}.
+end loop.
+compute G1 = M1/SS - al1 * make(p, k, 1).
+compute H2 = ln(E2) + 1.
+compute al2 = msum(S2 &* H2)/(SS*SS).
+compute M2 = H2.
+loop #jc=2 to p.
+ compute M2 = {M2;H2}.
+end loop.
+compute G2 = M2/SS - al2 * make(p, k, 1).
+compute Gq = 2&*L&*(-G0 + G1 +G2).
+*.
+* End Infomax.
+*.
+compute f=ft.
+compute G=-T(T(L) * Gq * Ti).
+loop #iter=0 to 500.
+ compute TG=Tmat &* G.
+ compute Gp=G - Tmat * mdiag(csum(TG)).
+ compute s=sqrt(trace(T(Gp) * Gp)).
+ compute sl = lg10(s).
+ compute outp ={#iter, ft, sl, al}.
+ print outp.
+ do if (s < 0.00001). 
+     break. 
+ end if. 
+ compute al=2*al.
+ loop #i = 0 to 10.
+  compute X=Tmat-al * Gp.
+  compute X2=X &* X.
+  compute v=1/sqrt(csum(X2)).
+  compute Tt=X * mdiag(v).
+  compute Ti=inv(Tt).
+  compute L=A * T(Ti).
+*.
+* Infomax.
+*.
+compute L2 = L&*L.
+compute p = NROW(L2).
+compute k = NCOL(L2).
+compute SS = trace(t(L)*L).
+compute S1 = rsum(L2).
+compute S2 = csum(L2).
+compute E0 = L2/SS.
+compute E1 = S1/SS.
+compute E2 = S2/SS.
+compute Q0 = msum(E0&*ln(E0)).
+compute Q1 = msum(E1&*ln(E1)).
+compute Q2 = msum(E2&*ln(E2)).
+compute ft = ln(k) - Q0 + Q1+ Q2.
+compute H = ln(E0) + 1.
+compute al0 = msum(L2&*H)/(SS*SS).
+compute G0 = H/SS - al0 * make(p, k, 1).
+compute H1 = ln(E1) + 1.
+compute al1 = msum(S1 &* H1)/(SS*SS).
+compute M1 = H1.
+loop #jc=2 to k.
+ compute M1 = {M1,H1}.
+end loop.
+compute G1 = M1/SS - al1 * make(p, k, 1).
+compute H2 = ln(E2) + 1.
+compute al2 = msum(S2 &* H2)/(SS*SS).
+compute M2 = H2.
+loop #jc=2 to p.
+ compute M2 = {M2;H2}.
+end loop.
+compute G2 = M2/SS - al2 * make(p, k, 1).
+compute Gq = 2&*L&*(-G0 + G1 +G2).
+*.
+* End Infomax.
+*.
+    do if (ft < f-.5*s*s*al).
+      break.
+    end if.
+   do if (ft > f-.5*s*s*al). 
+     compute al=al/2.
+   end if.
+ end loop.
+ compute Tmat=Tt.
+ compute f=ft.
+ compute G=-T(T(L) * Gq * Ti).
+ end loop.
+compute Th=Tmat.
+compute Lh=L.
+compute phi=T(Tmat) * Tmat.
+print Tmat.
+print Lh.
+print phi.
+
+end matrix.
+
+
+
+

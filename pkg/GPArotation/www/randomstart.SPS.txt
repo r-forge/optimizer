@@ -1,0 +1,28 @@
+* This file contains the SPSS code for use with the paper:.
+*.
+* Gradient Projection Algorithms and Software for Arbitrary.
+* Rotation Criteria in Factor Analysis.
+*.
+* by:.
+*.
+* Coen A. Bernaards and Robert I. Jennrich.
+*.
+* Website: http://www.stat.ucla.edu/research.
+* .
+* The function will produce a random.
+* matrix, size k by  k, with orthogonal columns.
+*.
+
+MATRIX.
+
+*.
+* k is number of dimensions (number of factors).
+* Tmat is random matrix.
+*.
+
+compute k = 3.
+compute TR = UNIFORM(k, k).
+compute Tmat = GSCH(TR).
+
+
+END MATRIX.

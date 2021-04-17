@@ -26,15 +26,17 @@ Print messages describing the process.
 \details{
 If \code{do_substitute} is \code{NA}, the following 
 rules are used:
+
 \enumerate{
-\item{An attempt is made to evaluate \code{x}.  If that
-fails, the expression is used.}
-\item{If the evaluation succeeds and the value is
-a character vector, it is parsed.}
-\item{If the value is not a character vector and the
-expression is a single name, the value is used.}
-\item{Otherwise, the expression is used.}
+\item An attempt is made to evaluate \code{x}.  If that fails, the expression is used.
+
+\item If the evaluation succeeds and the value is a character vector, it is parsed.
+
+\item If the value is not a character vector and the expression is a single name, the value is used.
+
+\item Otherwise, the expression is used.
 }
+
 Once the expression is determined it may be simplified,
 by extracting the language object from a length-one
 expression vector, or the right-hand-side from a 

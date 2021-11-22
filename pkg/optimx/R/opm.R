@@ -19,14 +19,15 @@ opm <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   ## 180706: Should we try to streamline?
   if(control$trace > 0) cat("opm: wrapper to call optimr to run multiple optimizers\n")
 
-  fnscale <- 1 # default to ensure defined
-  if (is.null(control$fnscale)) {
-     if (! is.null(control$maximize) && control$maximize ) {fnscale <- -1}
-  else if (! is.null(control$maximize)) {
-          if ( (control$fnscale < 0) && control$maximize) {fnscale <- -1} # this is OK
-          else stop("control$fnscale and control$maximize conflict")
-       } # end ifelse
-  } # end else
+  fnscale <- 1.0 # default to ensure defined and MINIMIZING
+  if (! is.null(control$maximize)){ 
+      if ( control$maximize ) {fnscale <- -1.0} 
+  }
+  else { # control$maximize is NULL, so control$fnscale defines behaviour
+      fnscale <- control$fnscale # default is 1.0
+      if (fnscale < 0) control$maximize<-TRUE # reset maximize if it was null
+      # reset may be needed for kkt check later in opm.
+  } # control$maximize has precedence over control$fnscale
   control$fnscale <- fnscale # to ensure set again
 
   allmeth <- control$allmeth

@@ -6,7 +6,7 @@ require(optimx)
 sessionInfo()
 
 maxfn<-function(x) {# fn to be MAXIMIZED
-  # max = 10 at 1:6
+  # max = 10 at 1:n
   n<-length(x)
   ss<-seq(1,n)
   f<-10-(crossprod(x-ss))^2
@@ -21,6 +21,13 @@ negmaxfn<-function(x) {# explicit negative of maxfn
 
 n<-4
 xx<-rep(1,n) # start at all 1s
+
+# Conflicting controls -- 'maximize' takes precedence over 'fnscale'
+ansconf1<-optimr(xx,maxfn, gr="grfwd", method="Rvmmin", control=list(maximize=TRUE, fnscale=1))
+print(ansconf1) # should work OK
+ansconf2<-optimr(xx,maxfn, gr="grfwd", method="Rvmmin", control=list(maximize=FALSE, fnscale=-1))
+print(ansconf2) # should work OK
+
 
 maxall <- opm(xx, maxfn, gr="grfwd", method="ALL", control=list(maximize=TRUE))
 summary(maxall, order=value)

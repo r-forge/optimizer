@@ -70,12 +70,11 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   }
   else { # control$maximize is NULL, so control$fnscale defines behaviour
       fnscale <- control$fnscale # default is 1.0
+      if (fnscale < 0) control$maximize<-TRUE # reset maximize if it was null and maximizing
   } # control$maximize has precedence over control$fnscale
   control$fnscale <- fnscale # to ensure set again
 #  if (control$trace > 1) cat("B: control$maximize =", control$maximize,
 #         "  control$fnscale=",control$fnscale,"  fnscale=",fnscale, "\n")
-  control$origmaximize <- control$maximize # save the original in case we need it
-  control$maximize <- FALSE # and ensure we minimize
 
 # 160615 -- decided to postpone adding nloptr
 
@@ -517,11 +516,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
            cat("optimr - hjn - msk:")
            print(msk)
         }
-        # 180327 Cannot maximize with hjn itself.
         mcontrol <- control # copy
-        mcontrol$maximize <- NULL # and null out maximize
+        mcontrol$maximize <- NULL # 180327 Cannot maximize within hjn itself.
         ans <- try(hjn(spar, efn, lower=slower, upper=supper, bdmsk=msk, 
-                        control=control, ...))
+                        control=mcontrol, ...))
         if (! inherits(ans, "try-error")) {
             ## Need to check these carefully??
             ans$par <- ans$par*pscale

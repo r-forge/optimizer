@@ -16,8 +16,11 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     cat("optcfg:")
     print(optcfg)
   }
+  cat("optcfg$ufn:") #??
+  print(str(optcfg$ufn))
+
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
-            optcfg$method, itnmax, hessian, optcfg$ctrl, ...)
+            optcfg$method, itnmax, hessian, optcfg$ctrl)
   details <- attr(ansout, "details")
   attr(ansout, "details") <- NULL ## Not sure this necessary, but null here and replace below
   if (optcfg$ctrl$maximize) {

@@ -6,8 +6,8 @@ axsearch<-function(par, fn=NULL, fmin=NULL, lower=NULL, upper=NULL, bdmsk=NULL,
 # For the moment, don't use ANY of the extra stuff except possibly minimize
 # Work ONLY with a minimization in calculations, then translate message using minimize and fnscale.
 bigval<-sqrt(.Machine$double.xmax) # ?? choices?? Should not be needed.
-offset<-100.0 # ?? choices again??
-epst<-offset*.Machine$double.eps^(1/3) # tolerance for step
+reltest<-100.0 # ?? choices again??
+epst<-reltest*.Machine$double.eps^(1/3) # tolerance for step
 npar<-length(par)
 fback<-rep(NA,npar) # for backward step function values
 ffwd <-fback        # for forward step function values
@@ -65,7 +65,7 @@ for (j in 1:npar) { # loop over parameters
       # cat(j, parj, lower[j],"  pstep=",pstep," pkeep=",pkeep,"\n")  #??
       if (parj < lower[j]) { # out of bounds
          fb<-bigval # set to provide tilt and possibly roc, but leave NA in fback[] 
-      } else { if ((offset+parj)==(offset+pkeep)) { # no change in parameter
+      } else { if ((reltest+parj)==(reltest+pkeep)) { # no change in parameter
                   fb<-fmin # no change in function
                } else {
                   par[j]<-parj
@@ -82,7 +82,7 @@ for (j in 1:npar) { # loop over parameters
       parj<-pkeep+pstep # step forward
       if (parj > upper[j]) { # out of bounds
          ff<-bigval # set to provide tilt and possibly roc, but leave NA in ffwd[] 
-      } else { if ((offset+parj)==(offset+pkeep)) { # no change in parameter
+      } else { if ((reltest+parj)==(reltest+pkeep)) { # no change in parameter
                   ff<-fmin # no change in function
                } else {
                   par[j]<-parj

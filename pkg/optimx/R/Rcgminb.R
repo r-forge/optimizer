@@ -98,7 +98,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     #############################################
     # gr MUST be provided
     if (is.null(gr)) {  # if gr function is not provided STOP (Rvmmin has definition)
-       stop("A gradient calculation (analytic or numerical) MUST be provided for Rcgminb") 
+       stop("A gradient calculation (analytic or numerical) MUST be provided for Rcgmin") 
     }
     if ( is.character(gr) ) {
        # Convert string to function call, assuming it is a numerical gradient function
@@ -119,8 +119,8 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     ifn <- 1  # count function evaluations (we always make 1 try below)
     stepredn <- 0.15  # Step reduction in line search
     acctol <- 1e-04  # acceptable point tolerance
-    offset <- 100  # relative equality test
-    ceps <- .Machine$double.eps * offset
+    reltest <- 100  # relative equality test
+    ceps <- .Machine$double.eps * reltest
     accpoint <- as.logical(FALSE)  # so far do not have an acceptable point
     cyclimit <- min(2.5 * n, 10 + sqrt(n))  #!! upper bound on when we restart CG cycle
     fargs <- list(...)  # function arguments
@@ -238,7 +238,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
     if (trace > 0) {
         cat("Initial function value=", f, "\n")
     }
-    if (class(f) == "try-error") {
+    if (inherits(f,"try-error")) {
         msg <- "Initial point is infeasible."
         if (trace > 0) 
             cat(msg, "\n")
@@ -344,7 +344,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
             }
             c <- g  # save last gradient
             g3 <- 1  # !! Default to 1 to ensure it is defined -- t==0 on first cycle
-            if (gradsqr > tol * (abs(fmin) + offset)) {
+            if (gradsqr > tol * (abs(fmin) + reltest)) {
                 if (g2 > 0) {
                   betaDY <- gradsqr/g2
                   betaHS <- g1/g2
@@ -431,7 +431,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                       # end box constraint adjustment of step length
                     }  # end if bounds
                   bvec <- par + steplength * t
-                  changed <- (!identical((bvec + offset), (par + offset)))
+                  changed <- (!identical((bvec + reltest), (par + reltest)))
                   if (changed) {
                     # compute newstep, if possible
                     f <- fn(bvec, ...)  # Because we need the value for linesearch, don't use try()
@@ -439,7 +439,7 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                     #   unlikely.
                     ifn <- ifn + 1
                     if (is.na(f) || (!is.finite(f))) {
-                      warning("Rcgminb - undefined function")
+                      warning("Rcgmin - undefined function")
                       f <- .Machine$double.xmax
                     }
                     if (f < fmin) {
@@ -490,15 +490,15 @@ Rcgminb <- function(par, fn, gr, lower, upper, bdmsk = NULL, control = list(), .
                         # end box constraint adjustment of step length
                       }  # end if bounds
                     bvec <- par + newstep * t
-                    changed <- (!identical((bvec + offset), 
-                      (par + offset)))
+                    changed <- (!identical((bvec + reltest), 
+                      (par + reltest)))
                     if (changed) {
                       f <- fn(bvec, ...)
                       ifn <- ifn + 1
                     }
                     if (trace > 2) 
                       cat("fmin, f1, f: ", fmin, f1, f, "\n")
-                    if (isTRUE(f < min(fmin, f1))) {
+                    if (f < min(fmin, f1)) {
                       # success
                       OKpoint <- TRUE
                       accpoint <- (f <= fmin + gradproj * newstep * 

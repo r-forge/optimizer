@@ -64,10 +64,12 @@ optimr(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 \details{
   Note that arguments after \code{\dots} should be matched exactly.
 
-  By default this function performs minimization, but it will maximize
+  By default \code{optimr} performs minimization, but it will maximize
   if \code{control$maximize} is TRUE. The original optim() function allows
-  \code{control$fnscale} to be set negative to accomplish this. DO NOT
-  use both mechanisms simultaneously. 
+  \code{control$fnscale} to be set negative to accomplish this, and this
+  control can be used. However, if \code{control$maximize} is set, it will
+  take precedence over \code{control$fnscale}. Generally it is a BAD IDEA
+  to use both mechanisms simultaneously. 
 
   Possible method choices are specified by the list \code{allmeth} in the file
   \code{ctrldefault.R} which is part of this package. Fewer methods are available in 
@@ -122,9 +124,6 @@ ans <- optimr(start, myf, myg, lower, upper)
   or you will likely get wrong results. Instead use
   
 ans <-  optimr(start, myf, myg, lower=lower, upper=upper)
-
-  NOTE: The default update formula for the "CG" option of \code{optim()}
-        is \code{type=2} or Polak-Ribiere.
 }
 
 \value{
@@ -136,7 +135,8 @@ ans <-  optimr(start, myf, myg, lower=lower, upper=upper)
    \item{counts}{ A two-element integer vector giving the number of calls to
           ‘fn’ and ‘gr’ respectively. This excludes those calls needed
           to compute the Hessian, if requested, and any calls to ‘fn’
-          to compute a finite-difference approximation to the gradient.}
+          to compute a finite-difference approximation to the gradient.
+          NOT reported for method \code{lbfgs}.}
    \item{convergence}{ An integer code. ‘0’ indicates successful completion. The
    documentation for function \code{opm()} gives some other possible values and
    their meaning. }
@@ -181,7 +181,7 @@ See the manual pages for \code{optim()}.
 
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
-     URL https://www.jstatsoft.org/v43/i09/.
+     URL http://www.jstatsoft.org/v43/i09/.
 
  Nocedal J, and Wright SJ (1999). Numerical optimization. New York: Springer. 2nd Edition 2006.
  

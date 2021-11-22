@@ -76,26 +76,32 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
       }
     }
     optcfg$ctrl <- ctrl
+# 20211028 -- trap variable name clash.
+#  print(...names())
+#  if ("x" %in% names(list(...))) {
+#     stop("You appear to have a variable 'x' in the dot arguments of your function. NOT allowed.")
+#  }
 # reset the function if we are maximizing
-  ufn <- fn
-  ugr <- gr
-  uhess <- hess
+  ufn <- function(par) { fn(par, ...) }
+  if (is.null(gr)) { ugr <- NULL } else { ugr <- function(par) { gr(par, ...) } }
+  if (is.null(hess)) { uhess <- NULL} else{ uhess <- function(par) { hess(par, ...) } }
   if ((! is.null(control$maximize)) && control$maximize ) { 
         cat("Maximizing -- use negfn and neggr\n")
         if (! is.null(control$fnscale)) { 
  		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
         } # moved up 091216
         optcfg$ctrl$maximize<-TRUE
-        ufn <- function (par, ...) { # negate the function for maximizing
-	   val<-(-1.)*fn(par,...)
+#?? can we subsume the ... here?
+        ufn <- function (par){ # negate the function for maximizing
+	   val<-(-1.)*fn(par, ...)
         } # end of ufn = negfn
         if (! is.null(gr)) { 
-           ugr <- function(par, userfn=ufn, ...) {
+           ugr <- function(par) {
                gg <- (-1)*gr(par, ...)
            }
         } else { ugr <- NULL } # ensure it is defined
         if (! is.null(hess) ) {
-           uhess <- function(par, ...) {
+           uhess <- function(par) {
                hh <- (-1)*hess(par, ...)
            }
         } else { uhess <- NULL } # ensure it is defined
@@ -106,11 +112,13 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (is.null(gr) && ctrl$dowarn && ctrl$usenumDeriv) {
      warning("Replacing NULL gr with 'numDeriv' approximation")
      optcfg$usenumDeriv<-TRUE
-     ugr <- function(par, userfn=ufn, ...) { # using grad from numDeriv
-        tryg<-grad(userfn, par, ...)
+     ugr <- function(par) { # using grad from numDeriv
+        tryg<-grad(ufn, par, ...) # assumes ufn defined
      } # Already have negation in ufn if maximizing
   }
   optcfg$ufn <- ufn
+  cat("After assigning optcfg$ufn:")
+  print(str(optcfg$ufn)) # ??
   optcfg$ugr <- ugr
   optcfg$uhess <- uhess
 
@@ -156,6 +164,12 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    if (testload)  allmeth<-c(allmeth,"nmkb", "hjkb")
    else if (ctrl$trace>0) { warning("Package `dfoptim' Not installed", call.=FALSE) }
    
+#   testload <- suppressWarnings(require(lbfgsb3, quietly=TRUE))
+# 180413 -- let's leave out lbfgsb3 
+#   if (testload)  allmeth<-c(allmeth,"lbfgsb3")
+#   else if (ctrl$trace>0) { warning("Package `lbfgsb3' Not installed", call.=FALSE) }
+#   bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", 
+#                 "nmkb", "hjkb", "lbfgsb3")
    bdsmeth<-c("L-BFGS-B", "nlminb", "spg", "Rcgmin", "Rvmmin", "bobyqa", "nmkb", "hjkb")
   # Restrict list of methods if we have bounds
   if (any(is.finite(c(lower, upper)))) allmeth <- allmeth[which(allmeth %in% bdsmeth)]
@@ -171,7 +185,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   # avoid duplicates here
   # 2011-1-17 JN: to set L-BFGS-B
   method <- try(unique(match.arg(method, allmeth, several.ok=TRUE) ),silent=TRUE)
-  if (class(method)=="try-error") {
+  if (inherits(method,"try-error")) {
      warning("optimx: No match to available methods")
      method<-NULL
      nmeth<-0

@@ -43,7 +43,7 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
   #           (default = 1e-07). See code for usage.
   #    stepredn = 0.2 (default). Step reduction factor for backtrack
   #             line search
-  #    offset = 100.0 (local default). Additive shift for equality test.
+  #    reltest = 100.0 (default). Additive shift for equality test.
   #    stopbadupdate = FALSE (default). Don't stop when steepest
   #             descent search point results in failed inverse 
   #             Hessian update
@@ -112,7 +112,9 @@ Rvmmin <- function(par, fn, gr = NULL, lower = NULL,
      } else { # analytic gradient, so check if requested
         if (is.null(control$checkgrad)) control$checkgrad <- TRUE
         if (control$checkgrad) { # check gradient
-           testgrad<-grchk(par, fn, gr, trace=control$trace, ...)
+#           cat("Rvmmin: about to call testgrad\n")
+           # 20211028 made call use explicit argument names. Seems to help but why?
+           testgrad<-grchk(xpar=par, ffn=fn, ggr= gr, trace=control$trace, ...)
            if (! testgrad) warning("Gradient code for Rvmmin may be faulty - check it!")
         }
      } # end else

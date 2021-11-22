@@ -3,7 +3,7 @@
 \alias{snewtonm}
 \encoding{UTF-8}
 \title{Safeguarded Newton methods for function minimization using R functions.}
-\description{These version of the safeguarded Newton solves the equations with
+\description{These versions of the safeguarded Newton solve the Newton equations with
 the R function solve(). In \code{snewton} a backtracking line search is used,
 while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
@@ -53,7 +53,7 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
        is made at each iteration. }
    \item{stepdec}{Step reduction factor for backtrack line search (default 0.2)}
    \item{defstep}{Initial stepsize default (default 1)}
-   \item{offset}{Additive shift for equality test (default 100.0)}
+   \item{reltest}{Additive shift for equality test (default 100.0)}
   }
 }
 

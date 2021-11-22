@@ -89,7 +89,7 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 	comparable in the sense that a unit change in any element produces
 	about a unit change in the scaled value.For \code{optim}.}
     \item{\code{save.failures}}{ = TRUE (default) if we wish to keep "answers" from runs 
-      where the method does not return convcode==0. FALSE otherwise.}
+      where the method does not return convergence==0. FALSE otherwise.}
     \item{\code{maximize}}{ = TRUE if we want to maximize rather than minimize 
       a function. (Default FALSE). Methods nlm, nlminb, ucminf cannot maximize a
       function, so the user must explicitly minimize and carry out the adjustment
@@ -136,29 +136,23 @@ opm(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
    for each method for which results are reported, using the method as the row name,
    with columns
 
-   \code{par_1, .., par_npar, value, fevals, gevals, niter, convcode, kkt1, kkt2, xtimes}
+   \code{par_1, .., par_npar, value, fevals, gevals, niter, convergence, kkt1, kkt2, xtimes}
 
   where
   \describe{
   \item{par_1}{ .. }
   \item{par_npar}{The best set of parameters found.}
   \item{value}{The value of \code{fn} corresponding to \code{par}.}
-  \item{fevals}{The number of calls to \code{fn}.}
+  \item{fevals}{The number of calls to \code{fn}. NOT reported for method \code{lbfgs}.}
   \item{gevals}{The number of calls to \code{gr}. This excludes those calls needed
     to compute the Hessian, if requested, and any calls to \code{fn} to
-    compute a finite-difference approximation to the gradient.}
-  \item{niter}{For those methods where it is reported, the number of ``iterations''. See
-    the documentation or code for particular methods for the meaning of such counts.}
-  \item{convcode}{An integer code. \code{0} indicates successful
+    compute a finite-difference approximation to the gradient.  NOT reported for method \code{lbfgs}.}
+  \item{convergence}{An integer code. \code{0} indicates successful
     convergence. Various methods may or may not return sufficient information
 	to allow all the codes to be specified. An incomplete list of codes includes
     \describe{
       \item{\code{1}}{indicates that the iteration limit \code{maxit}
       had been reached.}
-      \item{\code{2}}{(Rvmmin) indicates that a point has been found with small
-      gradient norm (< (1 + abs(fmin))*eps*eps ).}
-      \item{\code{3}}{(Rvmmin) indicates approx. inverse Hessian cannot be updated
-       at steepest descent iteration (i.e., something very wrong).}
       \item{\code{20}}{indicates that the initial set of parameters is inadmissible, that is,
 	that the function cannot be computed or returns an infinite, NULL, or NA value.}
       \item{\code{21}}{indicates that an intermediate set of parameters is inadmissible.}
@@ -244,11 +238,11 @@ See the manual pages for \code{optim()} and the packages the DESCRIPTION \code{s
 
  Nash JC, and Varadhan R (2011). Unifying Optimization Algorithms to Aid Software System Users: 
     \bold{optimx} for R., \emph{Journal of Statistical Software}, 43(9), 1-14.,  
-     URL https://www.jstatsoft.org/v43/i09/.
+     URL http://www.jstatsoft.org/v43/i09/.
 
  Nash JC (2014). On Best Practice Optimization Methods in R., 
         \emph{Journal of Statistical Software}, 60(2), 1-14.,
-        URL https://www.jstatsoft.org/v60/i02/.
+        URL http://www.jstatsoft.org/v60/i02/.
 
 }
 

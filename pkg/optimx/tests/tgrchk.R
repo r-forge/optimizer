@@ -1,3 +1,6 @@
+# tgrchk.R -- test gradient check for bad inputs or calls
+##  author: John C. Nash
+rm(list=ls())
 cat("Show how grchk works\n")
 require(optimx)
 # require(numDeriv)

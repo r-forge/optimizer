@@ -12,7 +12,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 ## Outputs: ?? failed-checks info.
 
 ###############################################################################
-
+cat("ctrl$starttests=",ctrl$starttests,"\n")
 ## Code more or less common to funtest, funcheck and optimx <<<
 # Check parameters are in right form
   if (!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
@@ -48,7 +48,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 	  } 
   	} # end have.bounds
         # Check if function can be computed
-        firsttry<-try(finit<-ufn(par, ...), silent=TRUE ) # 20100711
+        firsttry<-try(finit<-ufn(par), silent=TRUE ) # 20100711
         # Note: This incurs one EXTRA function evaluation because optimx is a wrapper for other methods
         if (inherits(firsttry, "try-error")) {
     	   infeasible <- TRUE
@@ -64,15 +64,15 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
        }
   }
 
-
-  if (ctrl$starttests) {
+  cat("optimx.check: start the tests\n")
+  if (ctrl$starttests && ! is.null(ugr)) { # add check to see if ugr present
      optchk$grbad <- FALSE
      if (! is.null(ugr) && ! usenumDeriv && ! is.character(ugr)){ # check gradient
        gname <- deparse(substitute(ugr))
        if (ctrl$trace>0) cat("Analytic gradient from function ",gname,"\n\n")
-          fval <- ufn(par,...) 
-          gn <- grad(func=ufn, x=par,...) # 
-          ga <- ugr(par, ...)
+          fval <- ufn(par) 
+          gn <- grad(func=ufn, x=par) # 211015 ?? is this the problem? CHANGED
+          ga <- ugr(par)
 #130929          badgrad<-TRUE
 #130929          if (all(! is.na(ga)) & all(is.finite(ga))) badgrad<-FALSE
           # Now test for equality (090612: ?? There may be better choices for the tolerances.
@@ -87,8 +87,8 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
        if (! is.null(uhess) && ! is.character(uhess)){ # check Hessian - if character then numeric
           hname <- deparse(substitute(uhess))
           if (ctrl$trace>0) cat("Analytic hessian from function ",hname,"\n\n")
-          hn <- hessian(func=ufn, x=par,...) # ?? should we use dotdat
-          ha <- uhess(par, ...)
+          hn <- hessian(func=ufn, x=par) # ?? should we use dotdat
+          ha <- uhess(par)
           # Now test for equality
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) stop("Hessian function might be wrong - check it! \n", call.=FALSE)
@@ -98,8 +98,7 @@ optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf,
 # Scaling check  091219
     if (ctrl$starttests) {
         optchk$scalebad <- FALSE
-        bdmsk<-rep(1,length(par)) # to handle masks in optimx() function
-	srat<-scalechk(par, lower, upper, bdmsk, ctrl$dowarn)
+	srat<-scalecheck(par, lower, upper,ctrl$dowarn)
 	sratv<-c(srat$lpratio, srat$lbratio)
 	if (max(sratv,na.rm=TRUE) > ctrl$scaletol) { 
 		warnstr<-"Parameters or bounds appear to have different scalings.\n  This can cause poor performance in optimization. \n  It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."

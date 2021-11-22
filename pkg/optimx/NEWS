@@ -1,44 +1,54 @@
 NEWS about R package opt
 
 TODO
-      o trig1507.R issue of bounds to avoid multiple minima, note ttrig8b lbfgsb3 etc.
-      o Put counters in efn, egr
+      o variable name clash issue (2021-10-15 etc.) causes crash in getting post-solution
+        gradient. May be related issues elsewhere. This in optimx.run, but likely 
+        in other places as well. ?? fixed with call to fn1??
+      o maxfn -- kkt tests may be misspecified for hjn hjkb
+      o Put counters in efn, egr, ??ehess -- at least as a commented template
       o General issue: nlminb and possibly nlm not working as Newton with 
 	explicit Hessian i.e., may "work", but seemingly not like Newton
-      o Should add examples, esp. of use of summary.
-      o Rationalize tests, examples, unit tests and demos.
-      o can we add bounds and masks easily to Newton methods?
+        20211013 -- snsimple has cat() to show call to hessian. 
+        ?? Note: optimr seems to call hess multiple times??
+      o Rationalize tests, examples, unit tests and demos. ?? in progress
+      o Can we add bounds and masks easily to Newton methods?
       o Drop nmkb from methods for bounds if start is on bound
-      o Add nloptr methods -- there are a number and we need to choose how
+      o NO?? Add nloptr methods -- there are a number and we need to choose how
 	to do so. Seems unable to handle parameter scaling or dot arguments.
         nloptr difficult to incorporate -- for now left outside of optimr()
         Troubles with NAMESPACE collisions NOT resolved for nloptr
-      o Consider how the hyperbolic transformation (transfinite fn)
+      o NO?? Consider how the hyperbolic transformation (transfinite fn)
         could be used in all unconstrained methods
         How can transfinite be made to work when start is on bounds?
 	To work when end is on bounds?
       o Rcgmin seems to report reset of parameters to bounds when parameter
         is apparently on the bound. Could have rounding issues, and should
         avoid this warning if it is really not needed.
-      o Do NOT add ipoptr until non-standard install is fixed up.
-      o Check all failures reported below are fixed! (As at 2018-03-27
-	JN believes they are.)
+      o ?? Agreed. Do NOT add ipoptr until non-standard install is fixed up.
+#?? seems hjkb and hjn fail kkt2
+      o does old "optimx" do the kkt checks correctly for maxfn()??
+
 
 ===================================================================================
 NEWS from the optimx package
 
 Some comments apply to deprecated packages optimr on CRAN and optimrx on R-forge
 
-VERSION 2021-06-12
-      o Consolidated scalecheck() into scalechk() and fixed issue of all-zero
-        parameters.
-
-VERSION 2020-04-02
-      o tnbc for Rtnmin method was not calling lmqnbc function with dotargs,
-	so functions were not using exogenous data. Fixed.
-
-VERSION 2020-04-02
-      o Repair maximization error in optimr()
+VERSION 2021-??
+      o 'convcode' replaced by 'convergence' in opm.Rd
+      o lbfgs does NOT report fevals and gevals -- put in optimr documentation
+      o opm() adjusted so snewton and snewtonm removed from method list when hess()
+        not provided (==NULL)
+      o fixed three cases where setting control$maximize=TRUE was failing to set
+        final function value correctly
+      o removed printout of trace from Rvmminb()
+      o minor edits for grammar in snewton.Rd
+      o moved some tests to ./inst/doc/examples and tidied the files
+      o optimx routines did not check for NULL gradient or hessian routine gr 
+        and would fail in some instances. Check for missing routines now included,
+        and optimx.setup forces ugr and uhess NULL if necessary.
+      o trig1507.R moved from tests to inst/doc/examples/ as the multiple minima 
+	generated are unsuitable as tests
 
 VERSION 2020-01-18
       o This version does not call some non-CRAN packages.

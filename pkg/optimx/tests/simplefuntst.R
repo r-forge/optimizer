@@ -1,9 +1,13 @@
+# simplefuntst.R
+##  author: John C. Nash
+rm(list=ls())
 library(optimx)
+sessionInfo()
+
 # Simple Test Function 1:
 tryfun.f = function(x) { 
      fun <- sum(x^2 )
-## if (trace) ... to be fixed
-	print(c(x = x, fun = fun))
+#	print(c(x = x, fun = fun))
      fun
 }
 tryfun.g = function(x) { 
@@ -21,5 +25,5 @@ ansfgh <- optimr(strt, tryfun.f, tryfun.g, tryfun.h, method="nlm",
      hessian=TRUE, control=list(trace=2))
 ansfgh
 
-
-
+ansall <- opm(strt, tryfun.f, tryfun.g, tryfun.h, method="ALL")
+summary(ansall, order=value)

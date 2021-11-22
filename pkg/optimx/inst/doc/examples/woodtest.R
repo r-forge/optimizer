@@ -1,4 +1,8 @@
+# woodtest.R
+##  author: John C. Nash
+rm(list=ls())
 require(optimx)
+sessionInfo()
 #Example: Wood function
 #
 wood.f <- function(x){
@@ -37,8 +41,6 @@ wood.fgh <- function(x){
 #################################################
 x0 <- c(-3,-1,-3,-1) # Wood standard start
 
-# library(snewton)
-cat("This FAILS to find minimum\n")
 wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wd)
 cat("  with optimr\n")
@@ -48,7 +50,7 @@ print(wdo)
 wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wdm)
 
-cat("\n\n nlm() gives similar results\n")
+cat("\n\n nlm() gives imperfect results in 100 iterations\n")
 t1nlm <- nlm(wood.fgh, x0, print.level=1)
 print(t1nlm)
 
@@ -56,14 +58,13 @@ print(t1nlm)
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method
 t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hessian=wood.h, control=list(trace=1))
 print(t1nlminb)
-# and call them from optimx (i.e., test this gives same results)
+
+# and call them from optimr (i.e., test this gives same results)
 
 t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(trace=1))
 print(t1nlmo)
 
-## FOLLOWING SHOWS UP ERRORS??
 t1nlminbo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlminb", control=list(trace=1))
 print(t1nlminb)
-
 
 # sink()

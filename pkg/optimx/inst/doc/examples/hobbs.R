@@ -1,5 +1,7 @@
 rm(list=ls())
+##  author: John C. Nash
 require(optimx)
+sessionInfo()
 ## Optimization test function HOBBS
 ## ?? refs (put in .doc??)
 ## Nash and Walker-Smith (1987, 1989) ...
@@ -87,29 +89,62 @@ hobbs.h <- function(x) { ## compute Hessian
 }
 
 
+allm <- c("BFGS", "CG", "Nelder-Mead",  "nlm", "nlminb", 
+          "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin",
+          "spg", "ucminf", "bobyqa", "hjkb", "hjn", 
+          "subplex")
+# Dropped "L-BFGS-B", "newuoa", "nmkb", "snewton", "snewtonm","lbfgs",  as they give trouble
+#  Not an optimx problem, but one in underlying methods
+badm <- c("L-BFGS-B", "newuoa", "nmkb", "snewton", "snewtonm","lbfgs")
 
 x0 <- c(200, 50, .3)
-# This start seems to be OK for all methods
+# This start seems to be OK for all methods, and most do a reasonable job
 cat("Start for Hobbs:")
 print(x0)
 cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
-ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
-print(summary(ahobb0, order=value))
 
+## Following revealed typo in optimr() for lbfgsb3c
+# ahobb01 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="lbfgsb3c")
+# ahobb01
+
+ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
+print(summary(ahobb0, order=value))
+# ?? Need to explain failures or convergence code .ne. 0
+
+badhobb0 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method=badm)
+print(summary(badhobb0, order=value))
+# Following shows method tries to evaluate function as inadmissible point
+# LBFGSBhobb0 <- optim(x1, hobbs.f, hobbs.g, method="L-BFGS-B", control=list(trace=2))
 
 x1 <- c(1, 1, 1)
 # Several methods fail because f or g becomes Inf.
 cat("Start for Hobbs:")
 print(x1)
 cat("Initial value of hobbs.f = ",hobbs.f(x1),"\n")
-ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb1, order=value))
+
+badhobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method=badm)
+print(summary(badhobb1, order=value))
+
+# ahobb1lbfgsb<- optim(x1, hobbs.f, hobbs.g, method="L-BFGS-B", control=list(trace=3))
+# Note that optim alone fails in the above
 
 x1s <- c(100, 10, .1)
 # L-BFGS-B and lbfgb3 both fail because f or g becomes Inf.
 cat("Start for Hobbs:")
 print(x1s)
 cat("Initial value of hobbs.f = ",hobbs.f(x1s),"\n")
-ahobb1s <- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method="ALL")
+ahobb1s <- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb1s, order=value))
+bobyqahobb1s <- optimr(x1s, hobbs.f, hobbs.g, method="bobyqa", control=list(maxfeval=20000))
+bobyqahobb1s
+lbgfsb3cahobb1s <- optimr(x1s, hobbs.f, hobbs.g, method="lbfgsb3c", control=list(maxit=20000))
+lbgfsb3cahobb1s
+require(lbfgsb3c)
+lbgfsb3cD1s <- lbfgsb3c(par=x1s, fn=hobbs.f, gr=hobbs.g, control=list(maxit=2000))
+lbgfsb3cD1s
+lbgfsb3cD1sn <- lbfgsb3c(par=x1s, fn=hobbs.f, control=list(maxit=500000))
+# Still fails to get a good answer!
+lbgfsb3cD1sn
 

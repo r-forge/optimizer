@@ -1,4 +1,10 @@
+# ssqbtest.R -- a simple sum of squares showing differences between
+##  author: John C. Nash
+#  opm() and optimx()
+rm(list=ls())
 require(optimx)
+sessionInfo()
+
 ssqb.f<-function(x){
   nn<-length(x)
   yy <- 1:nn

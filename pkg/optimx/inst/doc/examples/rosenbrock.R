@@ -1,9 +1,11 @@
 ## rosenbrock.R -- tests inspired by the 
+##  author: John C. Nash
 ## Rosenbrock banana shaped valley
 rm(list=ls())
 require(optimx)
+sessionInfo()
 
-#Rosenbrock banana valley function -- original
+#Rosenbrock banana valley function -- original 2 parameter version
 f2 <- function(x){
   return(100*(x[2] - x[1]*x[1])^2 + (1-x[1])^2)
 }
@@ -17,7 +19,6 @@ h2 <- function(x) {
   return(matrix(c(a11, a21, a21, 200), 2, 2))
 }
 
-
 # we can also use nlm and nlminb
 fgh2 <- function(x){
   ## combine f, g and h into single function for nlm
@@ -29,7 +30,7 @@ fgh2 <- function(x){
   ff
 }
 
-
+# This version takes n parameters. Can n be odd??
 XRosenbrock.f <- function (x) 
 {
     n <- length(x)

@@ -53,7 +53,7 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
        is made at each iteration. }
    \item{stepdec}{Step reduction factor for backtrack line search (default 0.2)}
    \item{defstep}{Initial stepsize default (default 1)}
-   \item{reltest}{Additive shift for equality test (default 100.0)}
+   \item{offset}{Additive shift for equality test (default 100.0)}
   }
 }
 

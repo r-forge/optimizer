@@ -6,6 +6,9 @@ TODOS
    o    Eventually include different line searches, possibly in a
         separate routine
 
+2022-04-30
+   o    Fix NOTEs generated in Linux checks for Rd files.
+
 2018-11-08
    o    Thanks to Florian Schwendinger for noting that the condition
           (f < min(fmin, f1)) 

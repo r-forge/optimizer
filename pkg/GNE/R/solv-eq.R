@@ -48,7 +48,7 @@ eqsolve <- function(xinit, f, jac,
 		Jacfk <- jac(xinit)
 	iter <- 0
 	
-	if(class(con$echo) == "character")
+	if(inherits(con$echo, "character"))
 		stop("wrong echo parameter.")
 	if(!is.numeric(con$tol) || !is.numeric(con$maxit) || !is.numeric(con$sigma) || !is.numeric(con$btol))	
 		stop("wrong control parameters.")

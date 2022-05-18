@@ -39,16 +39,18 @@ minfinding <- function(xinit, func, gradfunc, method, control, ...)
 	testmyfunc <- func(xinit, ...)
 	testmygrad <- gradfunc(xinit, ...)
 	
-	if(class(testmyfunc) != class(testmygrad))
+	if(inherits(testmyfunc, c("integer", "numeric")) && inherits(testmygrad, "list"))
 		stop("Wrong class for argument results.")
+	if(inherits(testmygrad, c("integer", "numeric")) && inherits(testmyfunc, "list"))
+	  stop("Wrong class for argument results.")
 	
 	
-	if(class(testmyfunc) %in% c("integer", "numeric"))
+	if(inherits(testmyfunc, c("integer", "numeric")))
 	{	
 		inner.counts.fn <- inner.counts.gr <- NULL
 		inner.iter.fn <- inner.iter.gr <- NULL
 		noitercount <- TRUE
-	}else if(class(testmyfunc) == "list")
+	}else if(inherits(testmyfunc, "list"))
 	{
 		noitercount <- FALSE
 		
@@ -184,7 +186,7 @@ NewtonNext <- function(xk, f_xk, jacf_xk, silent=TRUE)
 	b <- -f_xk	
 	mycatch <- try( direction <- qr.solve(A, b) , silent=silent)
 	
-	if(class(mycatch) == "try-error")
+	if(inherits(mycatch, "try-error"))
 	{	
 		if(!silent)
 			cat(mycatch)
@@ -202,7 +204,7 @@ LevenMarqNext <- function(xk, f_xk, jacf_xk, silent=TRUE, delta=1)
 	b <- -crossprod( jacf_xk, f_xk )
 	mycatch <- try( direction <- solve(A, b) , silent=silent)
 	
-	if(class(mycatch) == "try-error")
+	if(inherits(mycatch, "try-error"))
 	{	
 		if(!silent)
 			cat(mycatch)
@@ -219,7 +221,7 @@ QuasiNewtonNext <- function(xk, f_xk, Wk, silent=TRUE, inv=TRUE)
 	if(!inv)
 		mycatch <- try( direction <- solve(Wk, -f_xk), silent=silent)
 		
-	if(class(mycatch) == "try-error")
+	if(inherits(mycatch, "try-error"))
 	{	
 		if(!silent)
 			cat(mycatch)

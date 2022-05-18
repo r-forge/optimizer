@@ -46,7 +46,7 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 	
 	finit <- evalwitharglist(fn, xinit, argfn)
 	
-	if(class(finit) == "list")
+	if(inherits(finit, "list"))
 	Fn <- function(x) 
 	{
 		fx <- evalwitharglist(fn, x, argfn)
@@ -112,7 +112,7 @@ minpb <- function(xinit, fn, argfn, gr=NULL, arggr,
 		#inner iterations to compute gradient function gr
 		inner.counts.gr <- c(0, 0) #call to gap and grad gap
 		inner.iter.gr <- 0 #iter number
-		if(class(grinit) == "list")
+		if(inherits(grinit,"list"))
 			Gr <- function(x)
 			{
 				g <- evalwitharglist(gr, x, arggr)

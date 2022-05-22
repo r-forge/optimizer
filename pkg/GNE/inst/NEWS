@@ -2,7 +2,7 @@
 
 Version 0.99-4
 =============
-- remove a Warning on the vignette 'GNE-howto.pdf' from 907Kb to 555Kb
+- remove a Warning on the vignette 'GNE-howto.pdf'
 - remove an ERROR on bad use of "class()=="
 
 Version 0.99-3

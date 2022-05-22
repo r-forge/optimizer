@@ -337,18 +337,18 @@ print(trueGNE)
 @
 %%%
 
-\subsubsection{Localization of the GNEs}
-
-On figure \ref{GNEs}, we draw contour plots of the function $\frac{1}{2} || \Phi(z) ||^2$ with respect to $x_1$ and $x_2$, given $\lambda_1$ and $\lambda_2$. The second figure \ref{initpoint} just plots the initial points and the 6 GNEs.
-
-\begin{figure}[htb!]
-\begin{center}
-\subfloat[The 4 GNEs]{ \includegraphics[width=.6\textwidth]{img/4GNEPlots} \label{GNEs} }
-\subfloat[The 6 initial points]{ \includegraphics[width=.4\textwidth]{img/4GNEinitialPoints} \label{initpoint} }
-\caption{Contour plots of the norm of $\Phi$}
-\label{4GNE}
-\end{center}
-\end{figure}
+% \subsubsection{Localization of the GNEs}
+% 
+% On figure \ref{GNEs}, we draw contour plots of the function $\frac{1}{2} || \Phi(z) ||^2$ with respect to $x_1$ and $x_2$, given $\lambda_1$ and $\lambda_2$. The second figure \ref{initpoint} just plots the initial points and the 6 GNEs.
+% 
+% \begin{figure}[htb!]
+% \begin{center}
+% \subfloat[The 4 GNEs]{ \includegraphics[width=.6\textwidth]{img/4GNEPlots} \label{GNEs} }
+% \subfloat[The 6 initial points]{ \includegraphics[width=.4\textwidth]{img/4GNEinitialPoints} \label{initpoint} }
+% \caption{Contour plots of the norm of $\Phi$}
+% \label{4GNE}
+% \end{center}
+% \end{figure}
 
 
 

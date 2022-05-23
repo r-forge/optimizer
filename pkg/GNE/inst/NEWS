@@ -1,5 +1,9 @@
 === GNE: computation of Nash Equilibria ===
 
+Version 0.99-5
+=============
+- start new devel version
+
 Version 0.99-4
 =============
 - remove a Warning on the vignette 'GNE-howto.pdf'

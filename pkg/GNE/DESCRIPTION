@@ -1,11 +1,11 @@
 Package: GNE
 Type: Package
 Title: Computation of Generalized Nash Equilibria
-Version: 0.99-4
+Version: 0.99-5
 Author: Christophe Dutang
 Maintainer: Christophe Dutang <dutangc@gmail.com>
-Description: Provide functions to compute standard and generalized Nash Equilibria. 
- Optimization methods are available nonsmooth reformulation, fixed-point formulation, 
+Description: Compute standard and generalized Nash Equilibria of non-cooperative games. 
+ Optimization methods available are nonsmooth reformulation, fixed-point formulation, 
  minimization problem and constrained-equation reformulation. 
  See e.g. Kanzow and Facchinei (2010), <doi:10.1007/s10479-009-0653-x>. 
 Depends: R (>= 3.0.0), alabama, nleqslv, BB, SQUAREM, methods

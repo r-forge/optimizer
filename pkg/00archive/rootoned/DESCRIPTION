@@ -1,0 +1,13 @@
+Package: rootoned
+Version: 2018-8.28
+Date: 2018-08-28
+Title: Roots of one-dimensional functions in R-only code
+Author: John C Nash <nashjc@uottawa.ca>
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Roots of one-dimensional functions in R-only code. Redated for R-forge.
+          Minor fix in 2018 to avoid zero-divide.
+License: GPL-2
+Lazyload: Yes
+Imports: pracma
+Suggests: polynom
+

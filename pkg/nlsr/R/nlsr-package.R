@@ -95,14 +95,6 @@ summary.nlsr <- function(object, ...) {
     ans
 }
 
-# coef() function
-coef.nlsr <- function(object, ...) {
-       out <- object$coefficients
-       attr(out,"pkgname")<-"nlsr"
-##       invisible(out)
-       out # JN 170109
-}
-
 print.nlsr <- function(x, ...) {
     xx<-summary(x)
     with(xx, { 
@@ -154,4 +146,20 @@ predict.nlsr <- function(object=NULL, newdata=list(), ...) {
     class(preds)<- "predict.nlsr"
     attr(preds,"pkgname") <- "nlsr"
     preds
+}
+
+fitted.nlsr <- function(object=NULL, ...) { 
+#  This ONLY works if we have used nlxb. Do we want to add class 'nlxb'??
+    if( is.null(object) ) stop("fitted.nlsr REQUIRES an nlsr solution object")
+    form <- object$formula
+    if (is.null(form)) stop("nlsr.fitted works only if formula is defined")
+# ?? give more output
+#
+#  we assume a formula of style y~something, and use the something
+#  In some ways need to check this more carefully
+    env4coefs <- list2env(as.list(object$coefficients))
+    fits <- eval(form[[3]], as.list(object$data), env4coefs)
+    class(fits)<- "predict.nlsr"
+    attr(fits,"pkgname") <- "nlsr"
+    fits
 }

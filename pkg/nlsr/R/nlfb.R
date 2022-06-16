@@ -227,7 +227,7 @@ if (trace) {
        if (ctrl$rofftest && (roff <= sqrt(epstol))) roffstop <- TRUE
 #        tmp <- readline('cont')
        delta<-try(qr.coef(JQR,-rplus)) # Note appended rows of y)
-       if (class(delta)=="try-error") {
+       if (inherits(delta, "try-error") ) {
           if (lamda<1000*.Machine$double.eps) lamda<-1000*.Machine$double.eps
           lamda<-laminc*lamda
           newjac<-FALSE # increasing lamda -- don't re-evaluate

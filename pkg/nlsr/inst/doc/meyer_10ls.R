@@ -9,9 +9,13 @@ library(minpack.lm)
 library(nlsr)
 cat("nls:\n")
 anls<-nls(formula=modl, start=c(x1=1, x2=1, x3=1), data=df, trace=TRUE)
-summary(anls)
+summary(anls) # fails singular gradient
 anlxb<-nlxb(formula=modl, start=c(x1=1, x2=1, x3=1), data=df, trace=TRUE)
-summary(anlxb)
+summary(anlxb) # gets to min but slowly
 anlxb
 anlsLM<-nlsLM(formula=modl, start=c(x1=1, x2=1, x3=1), data=df, trace=TRUE)
-summary(anlsLM)
+summary(anlsLM) ## not near min
+library(nlsj)
+anlsj<-nlsj(formula=modl, start=c(x1=1, x2=1, x3=1), data=df, trace=TRUE)
+summary(anlsj) # NOT good
+

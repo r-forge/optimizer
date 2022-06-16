@@ -106,7 +106,7 @@ coef.nlsr <- function(object, ...) {
 print.nlsr <- function(x, ...) {
     xx<-summary(x)
     with(xx, { 
-	cat("nlsr object:",resname,"\n")
+#	cat("nlsr object:",resname,"\n")
 	pname<-dimnames(param)[[1]] # param is augmented coefficients with SEs and tstats
 	npar <- dim(param)[1] # ?? previously length(coeff) 
         cat("residual sumsquares = ",ssquares," on ",nobs,"observations\n")

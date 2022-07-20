@@ -8,13 +8,8 @@
 #' 
 #'    coef(object, ...)
 #' 
-#' \arguments{
-#' \item{object}{An object of class 'nlsr'}
-#' \item{\dots}{Any data needed for the function. We do not know of any!}
-#' }
-#' 
 #' @param object An object of class 'nlsr'
-#' @param ... dot-args to provide exogenous data to the problem
+#' @param ... (\dots) dot-args to provide exogenous data to the problem
 #'     Any data needed for the function. We do not know of any!
 #'     
 #' @section Details:
@@ -26,7 +21,6 @@
 #' 
 #'  returns the coefficients from the nlsr object. ?? as a named vector
 #'
-#'
 #' @export
 #'
 #' @author John C Nash <nashjc@uottawa.ca>
@@ -34,7 +28,7 @@
 #' @seealso 
 #'    Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
 #'    
-#' \keyword{nonlinear least squares}
+#' @section keyword: nonlinear least squares
 #' 
 # coef() function
 coef.nlsr <- function(object, ...) {

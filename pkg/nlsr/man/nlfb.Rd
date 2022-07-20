@@ -51,7 +51,7 @@
      parameters. Default Inf.
 } 
   \item{maskidx}{
-     Vector if indices of the parameters to be masked. These parameters will NOT be altered
+     Vector oof indices of the parameters to be masked. These parameters will NOT be altered
      by the algorithm. Note that the mechanism here is different from that in \code{nlxb}
      which uses the names of the parameters.
 

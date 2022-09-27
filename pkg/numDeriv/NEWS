@@ -5,8 +5,13 @@ Known BUGS
    o	When method="Richardson", it does not work when r=1, because of 
 	subscripting issues.  Should fix this such that it does 
 	a central difference approximation, without any extrapolation. 
- 
 
+
+Changes in numDeriv version 2022.9-1
+
+   o	Changed license from GPL-2 to GPL >= 2.
+ 
+ 
 Changes in numDeriv version 2020.2-1
 
    o	Fixed Rbuildignore so that files from building vignettes are 
@@ -15,6 +20,7 @@ Changes in numDeriv version 2020.2-1
    o	Added German translation of messages (provided by  Chris Leick).
 
    o	Added Korean translation of messages (provided by Chel Hee Lee).
+
 
 Changes in numDeriv version 2016.8-1
 

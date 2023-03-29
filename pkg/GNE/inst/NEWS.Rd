@@ -8,6 +8,7 @@
     \itemize{
       \item{remove the dependency on sensitivity package by ignoring corresponding test files.}
       \item{use Rd-type NEWS file.}
+      \item{change vignette format from Rnw to Rmd.}
     }
   }
   \subsection{BUG FIXES}{

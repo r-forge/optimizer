@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 .Rhistory
 share/
+tests/sensi-analysis-duopoly.R
+tests/sensi-analysis-genduopoly.R
+tests/sensi-analysis-riverbasinpollution.R

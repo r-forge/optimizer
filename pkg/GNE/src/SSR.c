@@ -11,7 +11,7 @@
  * remove a warning raised by 
  * > clang -arch arm64 -I"/Library/Frameworks/R.framework/Resources/include" 
  * -DNDEBUG   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall 
- * -Wmisleading-indentation -pedantic -Wstrict-prototypes -g -O2  -c SSR.c -o SSR.o
+ * -Wmisleading-indentation -pedantic -Wuninitialized -Wstrict-prototypes -g -O2  -c SSR.c -o SSR.o
  * 
  */
 

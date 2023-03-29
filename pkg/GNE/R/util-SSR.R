@@ -51,7 +51,7 @@ funSSR <- function(z, dimx, dimlam,
 #2 for joint
 #3 for constr, joint
 	
-	res <- .Call("dofunSSR", as.integer(mode), arg$nplayer, z, 
+	res <- .Call(C_dofunSSR, as.integer(mode), arg$nplayer, z, 
 				 as.integer(arg$dimx), as.integer(arg$dimlam), as.integer(arg$dimmu),
 				 arg$grobj, arg$arggrobj, 
 				 arg$constr, arg$argconstr, 
@@ -86,7 +86,7 @@ jacSSR <- function(z, dimx, dimlam,
 #2 for joint
 #3 for constr, joint
 	
-	res <- .Call("dojacSSR", as.integer(mode), arg$nplayer, z, 
+	res <- .Call(C_dojacSSR, as.integer(mode), arg$nplayer, z, 
 				 as.integer(arg$dimx), as.integer(arg$dimlam), as.integer(arg$dimmu),
 				 arg$heobj, arg$argheobj, 
 				 arg$constr, arg$argconstr, 

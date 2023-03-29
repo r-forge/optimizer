@@ -60,4 +60,4 @@ export(potential.ce, gradpotential.ce, psi.ce, gradpsi.ce)
 
 
 ### C code
-useDynLib(GNE, .registration = TRUE)
+useDynLib(GNE, .registration = TRUE, .fixes = "C_")

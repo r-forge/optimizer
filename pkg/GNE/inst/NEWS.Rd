@@ -13,7 +13,8 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item{remove a C warning ("this 'if' clause does not guard... [-Wmisleading-indentation]") in SSR.c.}
-      \item{remove an error ("DLL requires the use of native symbols").}
+      \item{remove an error ("DLL requires the use of native symbols") for C entry points.}
+      \item{remove a warning ("Recycling array of length 1 in vector-array arithmetic is deprecated.").}
     }
   }
   

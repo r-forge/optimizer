@@ -364,9 +364,9 @@ extrapolFP <- function(xinit, fn, merit, control, method, ...)
 		Delta2_xk <- xkp1 - 2*xk + xk_1
 
 		if(method == "RRE" || method == "SqRRE")
-			mystep <- crossprod(Delta2_xk, Delta1_xk) / crossprod(Delta2_xk, Delta2_xk)
+			mystep <- as.vector(crossprod(Delta2_xk, Delta1_xk) / crossprod(Delta2_xk, Delta2_xk))
 		if(method == "MPE" || method == "SqMPE")
-			mystep <- crossprod(Delta1_xk, Delta1_xk) / crossprod(Delta1_xk, Delta2_xk)
+			mystep <- as.vector(crossprod(Delta1_xk, Delta1_xk) / crossprod(Delta1_xk, Delta2_xk))
 
 		if(is.nan(mystep) || is.infinite(mystep))
 		{

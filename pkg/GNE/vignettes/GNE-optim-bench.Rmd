@@ -8,7 +8,9 @@ output:
     number_sections: yes
     includes:
       in_header: "GNE-howto-preamble.tex"
+    citation_package: natbib  
 bibliography: "GNE-howto.bib"
+biblio-style: plainnat
 geometry: margin=2cm
 documentclass: article
 classoption: a4paper
@@ -775,7 +777,7 @@ Using two regularization parameters $0<\alpha<\beta$, $x^\star$ is the global mi
 \end{equation}
 
 Furthermore, the VI reformulation leads to a fixed-point problem as shown in the following proposition.
-Assuming that $\theta_i$ and $g$ are C\expo{1} functions, $g$ is convex and $\theta_i$ player-convex, then $x^\star$ solves the VI (\ref{eq:VI}) if and only if $x^\star$ is a fixed point of the function 
+Assuming that $\theta_i$ and $g$ are C\expo{1} functions, $g$ is convex and $\theta_i$ player-convex, then $x^\star$ solves the VI ($V_{\alpha VI}(x^\star)=0$ and $x^\star \in X$) if and only if $x^\star$ is a fixed point of the function 
 \begin{equation}
 x \mapsto y_{VI}(x) = \underset{y\in X}{\arg\max}~ \psi_{\alpha VI}(x, y).
 \label{eq:fpVIa:joint}
@@ -880,8 +882,8 @@ $$
 
 
 \newpage
-\bibliographystyle{agsm}
-\bibliography{GNE-howto}
+<!--\bibliographystyle{agsm}
+\bibliography{GNE-howto}-->
 
 
 \appendix

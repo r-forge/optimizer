@@ -6,7 +6,7 @@ note <- sprintf("R package version %s", meta$Version)
 
 bibentry(bibtype = "Manual",
          title = "{GNE}: computation of generalized Nash Equilibria",
-         author = c(person("Dutang", "Christophe")),
+         author = person("Christophe", "Dutang"),
          year = year,
          note = note,
          url = "https://CRAN.R-project.org/package=GNE")

@@ -3,8 +3,7 @@ Type: Package
 Title: Computation of Generalized Nash Equilibria
 Version: 0.99-5
 Authors@R: person("Christophe", "Dutang", role = c("aut", "cre"),
-                     email = "dutangc@gmail.com")
-Author: Christophe Dutang [aut, cre]
+                     email = "dutangc@gmail.com", comment = c(ORCID = "0000-0001-6732-1501"))
 Maintainer: Christophe Dutang <dutangc@gmail.com>
 Description: Compute standard and generalized Nash Equilibria of non-cooperative games. 
  Optimization methods available are nonsmooth reformulation, fixed-point formulation, 

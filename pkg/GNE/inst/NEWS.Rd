@@ -2,6 +2,13 @@
 \title{\pkg{GNE} News}
 \encoding{UTF-8}
 
+\section{CHANGES IN \pkg{GNE} VERSION 0.99-6}{
+  \subsection{NEW}{
+    \itemize{
+      \item{start devel version.}
+    }
+  }
+}
 
 \section{CHANGES IN \pkg{GNE} VERSION 0.99-5}{
   \subsection{NEW}{

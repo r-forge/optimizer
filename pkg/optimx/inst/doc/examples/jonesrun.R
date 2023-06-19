@@ -3,7 +3,11 @@
 rm(list=ls())
 require(optimx)
 sessionInfo()
-# test function from book by Owen Jones et al
+# test function from book by Owen Jones
+# Robert Maillardet, and Andrew Robinson
+# Scientific Programming and Simulation Using R 
+# Second Edition, Chapman & Hall/CRC, Boca Raton Page 230
+#
 # function is 2 variables to be maximized
 #  f(x,y)=sin(x^2/2 - y^2/4)*cos(2x-exp(y))
 

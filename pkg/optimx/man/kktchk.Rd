@@ -1,7 +1,8 @@
 % File src/library/stats/man/kktchk.Rd
-% Part of the R package, https://www.R-project.org
+% Part of the R package, http://www.R-project.org
 % Copyright 1995-2007 R Core Development Team
 % Distributed under GPL 2 or later
+
 
 \name{kktchk}
 \alias{kktchk}
@@ -33,6 +34,11 @@
   kktchk computes the gradient and Hessian measures for BOTH unconstrained and 
   bounds (and masks) constrained parameters, but the kkt measures are evaluated
   only for the constrained case.
+
+  Note that evaluated Hessians are often not symmetric, and many, possibly most,
+  examples will fail the \code{is.Symmetric()} function. In such cases, the 
+  check on the Hessian uses the mean of the Hessian and its transpose.
+
 }
 
 \value{
@@ -46,7 +52,8 @@
   \item{kkt2}{A logical value that is TRUE if we consider the second (i.e., positive
       definite Hessian) KKT condition to be satisfied. WARNING: The decision is dependent 
       on tolerances and scaling that may be inappropriate for some problems.}
-  \item{hev}{The calculated hessian eigenvalues, sorted largest to smallest??}
+  \item{hev}{The calculated hessian eigenvalues, sorted largest to smallest. 
+     Sorting is a property of the \code{eigen()} function.}
   \item{ngatend}{The computed (unconstrained) gradient at the solution parameters.}
   \item{nnatend}{The computed (unconstrained) hessian at the solution parameters.}
 }

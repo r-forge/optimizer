@@ -31,9 +31,13 @@ hi <- c(0.999, Inf, Inf)
 
 y <- poissmix.dat$freq
 p <- runif(3,c(0.3,1,1),c(0.7,5,8))
-system.time(ans.optx <- optimx(par=p, fn=poissmix.loglik, y=y, lower=lo, upper=hi,
-    control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
+# system.time(ans.optx <- optimx(par=p, fn=poissmix.loglik, y=y, lower=lo, upper=hi,
+#     control=list(maxit=2500,save.failures=TRUE,all.methods=TRUE)))[1]
 
-print(ans.optx)
+# print(ans.optx)
 
+ads <- opm(par=p, fn=poissmix.loglik, method=c("nmkb", "bobyqa"), lower=lo, upper=hi, control=list(trace=1), y=y)
+summary(ads, order=value)
 
+amost <- opm(par=p, fn=poissmix.loglik, method="MOST", lower=lo, upper=hi, control=list(trace=1), y=y)
+summary(amost, order=value)

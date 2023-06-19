@@ -1,5 +1,6 @@
 \name{snewton}
 \alias{snewton}
+\alias{snewtonmu}
 \alias{snewtonm}
 \encoding{UTF-8}
 \title{Safeguarded Newton methods for function minimization using R functions.}
@@ -8,9 +9,9 @@ the R function solve(). In \code{snewton} a backtracking line search is used,
 while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
 \usage{
-   snewton(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
+   snewtonm(par, fn, gr, hess, lower, upper, control = list(trace=0, maxit=500), \dots)
 
-   snewtonm(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
+   snewton(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -23,6 +24,13 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
    returns the gradient as a numeric vector.}
  \item{hess}{A function to compute the Hessian matrix. This should be provided as a square,
       symmetric matrix.}
+ \item{lower}{A numeric vector of lower bounds on the parameters. Must be same length as
+            \code{par} or a single numeric scalar which is the lower bound on every parameter.}
+ \item{upper}{A numeric vector of upper bounds on the parameters. Must be same length as
+            \code{par} or a single numeric scalar which is the upper bound on every parameter.}
+      
+      
+      
  \item{control}{
     An optional list of control settings.
  }
@@ -55,17 +63,23 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
    \item{defstep}{Initial stepsize default (default 1)}
    \item{reltest}{Additive shift for equality test (default 100.0)}
   }
+  The (unconstrained) solver \code{snewtonmu} proved to be slower than the bounded solver
+  called without bounds, so has been withdrawn.
+
+  The \code{snewton} safeguarded Newton uses a simple line search but no linear solution
+  stabilization and has demonstrated POOR performance and reliability. NOT recommended.
 }
 
 \value{
   A list with components:
   
   \describe{
-  \item{xs}{The best set of parameters found.}
-  \item{fv}{The value of the objective at the best set of parameters found.}
-  \item{grd}{The value of the gradient at the best set of parameters found. A vector.}
-  \item{H}{The value of the Hessian at the best set of parameters found. A matrix.}
-  \item{niter}{The number of Newton iterations used in finding the solution.}
+  \item{par}{The best set of parameters found.}
+  \item{value}{The value of the objective at the best set of parameters found.}
+  \item{grad}{The value of the gradient at the best set of parameters found. A vector.}
+  \item{hessian}{The value of the Hessian at the best set of parameters found. A matrix.}
+  \item{counts}{A vector of 4 integers giving number of Newton equation solutions, the number of function
+      evaluations, the number of gradient evaluations and the number of hessian evaluations.}
   \item{message}{A message giving some information on the status of the solution.}
   }
 
@@ -112,6 +126,13 @@ print(sr)
 
 srm <- snewtonm(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
 print(srm)
+
+# bounds constrained example
+
+lo <- rep((min(x0)-0.1), 2)
+up <- rep((max(x0)+0.1), 2)
+srmb <- snewtonm(x0, fn=f, gr=gr, hess=h, lower=lo, upper=up, control=list(trace=1))
+proptimr(srmb)
 
 
 #Example 2: Wood function

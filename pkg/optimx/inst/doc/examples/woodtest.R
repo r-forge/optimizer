@@ -2,7 +2,8 @@
 ##  author: John C. Nash
 rm(list=ls())
 require(optimx)
-sessionInfo()
+# woodfn.R
+##  author: John C. Nash
 #Example: Wood function
 #
 wood.f <- function(x){
@@ -30,41 +31,87 @@ wood.h <- function(x){
 }
 
 wood.fgh <- function(x){
-      fval <- wood.f(x)
-      gval <- wood.g(x)
-      hval <- wood.h(x)
-      attr(fval,"gradient") <- gval
-      attr(fval,"hessian")<- hval
-      fval
+  fval <- wood.f(x)
+  gval <- wood.g(x)
+  hval <- wood.h(x)
+  attr(fval,"gradient") <- gval
+  attr(fval,"hessian")<- hval
+  fval
 }
- 
+
 #################################################
+sessionInfo()
 x0 <- c(-3,-1,-3,-1) # Wood standard start
+lo <- c(-5, -5, -5, -5)
+up <- c(0, 10, 10, 10)
+
+xncg <- ncg(x0, fn=wood.f, gr=wood.g, lower=lo, upper=up, bdmsk=NULL, control=list(trace=4, maxit=600))
+print(xncg)
+wdoncg <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="ncg", control=list(trace=4))
+proptimr(wdoncg)
+wdoncg$scounts
 
 wd <- snewton(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wd)
 cat("  with optimr\n")
 wdo <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="snewton", control=list(trace=1))
-print(wdo)
+proptimr(wdo)
 
-wdm <- snewtonm(x0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
-print(wdm)
+wdm <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="snewtonm", control=list(trace=1))
+proptimr(wdm)
+
+wbvm <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, lower=lo,
+               upper=up, method="Rvmmin", control=list(trace=1))
+proptimr(wbvm)
+
+wbcg <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, lower=lo,
+               upper=up, method="Rcgmin", control=list(trace=3, maxit=4))
+proptimr(wbcg)
+
 
 cat("\n\n nlm() gives imperfect results in 100 iterations\n")
-t1nlm <- nlm(wood.fgh, x0, print.level=1)
-print(t1nlm)
+# t1nlm <- nlm(wood.fgh, x0, print.level=1)
+# print(t1nlm)
+wdnlm <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="nlm", control=list(trace=1))
+proptimr(wdnlm)
 
+wdsb <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, lower=lo,
+   upper=up, method="snewtonm", control=list(trace=4))
+proptimr(wdsb)
 
 ## BUT ... it looks like nlminb is NOT using a true Newton-type method
-t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hessian=wood.h, control=list(trace=1))
-print(t1nlminb)
+# t1nlminb <- nlminb(x0, wood.f, gradient=wood.g, hessian=wood.h, control=list(trace=1))
+# print(t1nlminb)
+wdnlminb <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, method="nlminb", control=list(trace=1))
+proptimr(wdnlminb)
 
-# and call them from optimr (i.e., test this gives same results)
+cat("\n\nNow try with bounds\n")
 
-t1nlmo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlm", control=list(trace=1))
-print(t1nlmo)
+x0 <- c(-3,-1,-3,-1) # Wood standard start
+lo <- c(-5, -5, -5, -5)
+up <- c(0, 10, 10, 10)
+up2 <- c(-1, 10, 10, 10)
 
-t1nlminbo <- optimr(x0, wood.f, wood.g, hess=wood.h, method="nlminb", control=list(trace=1))
-print(t1nlminb)
+mlst<-c("snewtonm", "nlminb", "Rvmmin", "Rcgmin")
 
-# sink()
+bdtst <- opm(x0, fn=wood.f, gr=wood.g, hess=wood.h, lower=lo, upper=up, method=mlst, control=list(trace=1))
+summary(bdtst, order=value)
+
+wdsb <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, lower=lo, upper=up, 
+                method="snewtonm", control=list(trace=1))
+proptimr(wdsb)
+
+wdsb2 <- optimr(x0, fn=wood.f, gr=wood.g, hess=wood.h, lower=lo,
+               upper=up2, method="snewtonm", control=list(trace=4))
+proptimr(wdsb2)
+
+
+mth <- c("snewtonm", "Rvmmin", "L-BFGS-B", "nlminb", "Rcgmin")
+wdo2<-opm(x0, fn=wood.f, gr=wood.g, hess=wood.h, lower=lo,
+          upper=up2, method=mth, control=list(trace=4))
+summary(wdo2, order=value)
+
+mth <- c("ncg", "Rcgmin", "CG")
+wdo <- opm(x0, fn=wood.f, gr=wood.g, hess=wood.h, method=mth)
+summary(wdo, order=value)
+

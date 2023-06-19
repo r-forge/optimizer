@@ -13,3 +13,5 @@ ansoneb<-optimx(c(1), f1, lower=c(-1), upper=c(10),control=list(all.methods=TRUE
 print(ansoneb)
 ansoneb2<-optimx(1, f1, lower=-1, upper=10,control=list(all.methods=TRUE))
 print(ansoneb2)
+ansoneb3<-opm(1, f1, lower=-1, upper=10,method="ALL")
+print(ansoneb3)

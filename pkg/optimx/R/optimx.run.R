@@ -1,8 +1,6 @@
 optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf, 
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             ctrl) {
-#??
-  cat("Check:",ufn(par),"\n")
 
 # Run methods
   have.bounds<-ctrl$have.bounds
@@ -27,9 +25,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
   for (i in 1:nmeth) { # loop over the methods
       meth <- method[i] # extract the method name
       conv <- -1 # indicate that we have not yet converged
-#      cat("optimx.run with method ",meth," ctrl:")
-#      tmp <- readline("CONTINUE")
-#     print(ctrl)
       # 20100608 - take care of polyalgorithms
       if (! is.null(itnmax) ) {
 	if (length(itnmax) == 1) {ctrl$maxit <- itnmax} # Note we will execute this FIRST
@@ -61,28 +56,20 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       ans.ret[i, "value"] <- .Machine$double.xmax # to ensure value defined for sort
 # Methods from optim()
       if (meth=="Nelder-Mead" || meth == "BFGS" || meth == "L-BFGS-B" || meth == "CG" || meth == "SANN") {
-        cat("About to call optim methods from \n")
-        print(par)
-        cat("ufn:")
-        print(str(ufn))
-        cat("CheckB:",ufn(par),"\n") # seems OK here ??
-
-#       if (meth == "SANN") mcontrol$maxit<-10000 # !! arbitrary for now, though SANN NOT really included
+#        cat("About to call optim methods from \n"); print(par)
+#        cat("ufn:"); cat(ufn(par),"\n") 
+#       if (meth == "SANN") mcontrol$maxit<-10000 
+#       !! arbitrary for now, though SANN NOT really included
         # Take care of methods   from optim(): Nelder-Mead, BFGS, L-BFGS-B, CG
         if (have.bounds) { # 180417 to avoid issues with bounds
-#           cat("Have bounds\n") #??
            if (meth != "L-BFGS-B") stop("Bounds constraints for optim() require L-BFGS-B")
            else { time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, 
                              lower=lower, upper=upper, method=meth, 
                              control=mcontrol), silent=TRUE))[1]
            }
         } else {
-#           cat("Unbounded\n") # ??
-#           ansB <- optim(par=par, fn=ufn, gr=ugr, method=meth, control=mcontrol) # ?? take out dots
-#           print(ansB)
-
            time <- system.time(ans <- try(optim(par=par, fn=ufn, gr=ugr, 
-                           method=meth, control=mcontrol), silent=TRUE))[1]
+                          method=meth, control=mcontrol), silent=TRUE))[1]
         } # 180417
         # The time is the index=1 element of the system.time for the process, 
         # which is a 'try()' of the regular optim() function
@@ -136,7 +123,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 	        ans$objective<-NULL
 		ans$par<-rep(NA,npar)
         	ans$nitns<-NA # not used
-                ans$gevals<-NA ## ?? missing 130929
+                ans$gevals<-NA ## missing 130929
                 ans$gevals<-NA ## 160826 added
 	        ans$objective<-NULL
 	#       ans$fevals<-ans$evaluations[1] ## 160826 removed
@@ -159,13 +146,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       }  ## end if using nlminb
 ## --------------------------------------------
       else if (meth == "nlm") { # Use stats package nlm routine
-##??        tufn <- ufn # don't want to change user function object, so create copy
         if (!is.null(ugr)) {
-##??	   attr(tufn, "gradient") <- ugr(par) # seems to be evaluating it!
-##??	   attr(tufn, "gradient") <- ugr
-##??           if (!is.null(uhess)) {
-##??		attr(tufn, "hessian") <-  uhess(par)
-##??           } else attr(tufn, "hessian") <- NULL
             tufn <- function(x) {
                res <- ufn(x)
                attr(res,"gradient") <- ugr(x)
@@ -174,10 +155,6 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         } else {
             tufn <- ufn # use function without explicit gradient
         }
-#        cat("ugr in nlm:\n")
-#        print(ugr)
-#        cat("tufn in nlm:\n")
-#        print(tufn)
 	## 091215 added control for iteration limit
 	if (! is.null(mcontrol$maxit)) { 
 	    iterlim<-mcontrol$maxit 
@@ -207,7 +184,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		ans$estimate<-NULL
 		ans$minimum<-NULL
         	ans$fevals<-NA
-        	ans$gevals<-NA # ?? need to fix this somehow in nlm code
+        	ans$gevals<-NA # need to fix this somehow in nlm code !!?
         	ans$nitns<-ans$iterations
         	ans$iterations<-NULL
 	} else {
@@ -229,7 +206,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
    	   ans$convcode <- ans$convergence
            ans$fevals<-ans$feval
            ans$feval<-NULL # to erase conflicting name
-           ans$gevals<-NA # ??fixup needed
+           ans$gevals<-NA # fixup needed!!?
            ans$nitns<-ans$iter
            ans$iter<-NULL
         } else { # spg failed
@@ -409,7 +386,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfun<-mcontrol$maxit
 	} else {
-		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # default at 100215, Change?!!
 	}
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
@@ -443,7 +420,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfun<-mcontrol$maxit
 	} else {
-		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # default at 100215, Changed?!!
 	}
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
@@ -477,7 +454,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
         if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfun<-mcontrol$maxit
 	} else {
-		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+		mcontrol$maxfun<-5000*round(sqrt(npar+1)) # default at 100215, Change?!!
 	}
         mcontrol$iprint<-0
 	if (mcontrol$trace) mcontrol$iprint<-1
@@ -514,7 +491,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
             ans<-list(fevals=NA) # ans not yet defined, so set as list
             ans$value= ctrl$badval
             ans$par<-rep(NA,npar)
-            ans$convcode<-9999 # failed in run - ?? need special code for nmkb on bounds
+            ans$convcode<-9999 # failed in run - need special code for nmkb on bounds!!?
             ans$fevals<-NA 
             ans$gevals<-NA 
             ans$nitns<-NA
@@ -522,7 +499,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfeval<-mcontrol$maxit
  	 } else {
-		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # default at 100215, Changed!!
 	 }
          mcontrol$maxit<-NULL # and null out control that is NOT used
          if (mcontrol$trace > 0) {
@@ -567,7 +544,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 		ans$convcode <- 1 # too many evaluations
             }
       	    ans$nitns<-NA # not used
-           # What about 'restarts' and 'message'??
+           # What about 'restarts' and 'message'?
            # warning(ans$message,"  Restarts for stagnation =",ans$restarts)
             ans$message<-NULL
             ans$restarts<-NULL
@@ -589,7 +566,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfeval<-mcontrol$maxit
          } else {
-		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # default at 100215, Change?!!
 	 }
          mcontrol$info<-FALSE # no trace printed
          if (mcontrol$trace > 0) {
@@ -603,7 +580,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
          if (! is.null(mcontrol$maxit)) { 
 		mcontrol$maxfeval<-mcontrol$maxit
  	 } else {
-		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # ?? default at 100215, but should it be changed?!!
+		mcontrol$maxfeval<-5000*round(sqrt(npar+1)) # default at 100215, Changed?!!
 	 }
          mcontrol$maxit<-NULL # and null out control that is NOT used
          if (have.bounds) {
@@ -644,8 +621,10 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
 ## --------------------------------------------
 ## Post-processing -- Kuhn Karush Tucker conditions
 #  Ref. pg 77, Gill, Murray and Wright (1981) Practical Optimization, Academic Press
-      if (ctrl$trace>0) { cat("Post processing for method ",meth,"\n") }
-      cat("hessian = ", hessian,"    ctrl$kkt = ",ctrl$kkt,"\n")
+      if (ctrl$trace>0) { 
+         cat("Post processing for method ",meth,"\n") 
+         cat("hessian = ", hessian,"    ctrl$kkt = ",ctrl$kkt,"\n")
+      }
       if (exists("ans$message")) {
            amsg<-ans$message
            ans$message <- NULL
@@ -667,7 +646,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                  }
               } else {
                  if (is.null(ugr)) {
-                     nhatend<-try(hessian(ufn, ans$par), silent=TRUE) # change 20100711
+                     nhatend<-try(numDeriv::hessian(ufn, ans$par), silent=TRUE) # change 20100711
                  } else {
                      nhatend<-try(jacobian(ugr,ans$par), silent=TRUE) # change 20100711
                  } # numerical hessian at "solution"
@@ -680,10 +659,8 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
           ans$kkt2<-NA
           if ((hessian || ctrl$kkt) && (ans$convcode != 9999)) {# avoid test when method failed
              if (ctrl$trace>0) cat("Compute gradient approximation at finish of ",method[i],"\n")
-             cat("ugr:")
-             print(str(ugr))
              if (is.null(ugr)) {
-                 ngatend<-try(grad(ufn, ans$par), silent=TRUE) # change 20100711
+                 ngatend<-try(numDeriv::grad(ufn, ans$par), silent=TRUE) # change 20100711
              } else {
                  ngatend<-try(ugr(ans$par), silent=TRUE) # Gradient at solution # change 20100711
              }
@@ -691,7 +668,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
              if ( (! gradOK) && (ctrl$trace>0)) cat("Gradient computation failure!\n") 
              if (gradOK) {
                 # test gradient
-                ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # ?? sensible?
+                ans$kkt1<-(max(abs(ngatend)) <= ctrl$kkttol*(1.0+abs(ans$value)) ) # sensible?
                 if (hessOK) {
                    # For bounds constraints, we need to "project" the gradient and Hessian
                    bset<-sort(unique(c(which(ans$par<=lower), which(ans$par>=upper))))
@@ -708,7 +685,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
                       asym, sep = "")
                       if (ctrl$trace > 1) cat(asw, "\n")
                       if (ctrl$dowarn) warning(asw)
-                      ### if (asym > ctrl$asymtol) stop("Hessian too asymmetric") ##??as yet don't stop
+                      ### if (asym > ctrl$asymtol) stop("Hessian too asymmetric") ##!!? don't stop
                       if (ctrl$trace > 1) cat("Force Hessian symmetric\n")
                       if (ctrl$dowarn) warning("Hessian forced symmetric", call. = FALSE)
                       nhatend <- 0.5 * (t(nhatend) + nhatend)
@@ -773,7 +750,7 @@ optimx.run <- function(par, ufn, ugr=NULL, uhess=NULL, lower=-Inf, upper=Inf,
       row.names(ans.details)[[i]]>=meth
       	if (ctrl$follow.on) {
 		par <- ans$par # save parameters for next method
-		if (i < nmeth && (ctrl$trace>0)) cat("FOLLOW ON!\n") # NOT trace ??
+		if (i < nmeth && (ctrl$trace>0)) cat("FOLLOW ON!\n") # NOT trace?
 	}
     } ## end loop over method (index i)
     ansout <- NULL # default if no answers

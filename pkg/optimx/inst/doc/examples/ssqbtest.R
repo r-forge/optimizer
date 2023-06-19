@@ -1,6 +1,6 @@
 # ssqbtest.R -- a simple sum of squares showing differences between
-##  author: John C. Nash
 #  opm() and optimx()
+##  author: John C. Nash
 rm(list=ls())
 require(optimx)
 sessionInfo()
@@ -30,3 +30,4 @@ summary(all4bx, order=value)
 cat("\n\nShow structure differences in solution of opm and optimx\n\n")
 str(all4b)
 str(all4bx)
+

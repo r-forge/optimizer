@@ -244,7 +244,7 @@ lo <- c(-1000, -1000, 2, 2, -1000, -1000)
 up <- c(1000, 1000, 2, 2, 1000, 1000) # mid two values equal
 bd<-c(1,1,0,0,1,1) # NOT used
 startx<-c(pi, pi, 2, 2, pi, pi)
-grbds6<-optimr(startx,genrose.f, genrose.g, lower=lo, upper=up, method="Rvmmin") 
+grbds6<-try(optimr(startx,genrose.f, genrose.g, lower=lo, upper=up, method="Rvmmin") )
 print(grbds6)
 
 cat("test upper bound on first two elements only\n")

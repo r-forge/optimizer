@@ -6,7 +6,7 @@ grchk <- function(xpar, ffn, ggr, trace=0, testtol=(.Machine$double.eps)^(1/3), 
    # assume function ffn already passes checks in fnchk
    if (is.null(trace)) trace <- 0 else trace<-trace
    if (is.null(testtol)) testtol<-(.Machine$double.eps)^(1/3) else testtol<- testtol
-   gname <- deparse(substitute(ggr)) # ?? May be embedded in ugr
+   gname <- deparse(substitute(ggr)) 
    if (trace>1) cat("Gradient test with tolerance = ",testtol,"\n")
    if (trace>1) cat("Analytic gradient uses function ",gname,"\n")
    fval <- ffn(xpar, ...)
@@ -19,10 +19,10 @@ grchk <- function(xpar, ffn, ggr, trace=0, testtol=(.Machine$double.eps)^(1/3), 
    if (trace>1) print(ga)
    if (trace>1) cat("Compute numeric gradient\n")
    # Possible issue if x appears in ...
-   ffn1 <- function(xpar) ffn(xpar, ...) # to avoid the issue, not next line change
+   ffn1 <- function(xpar) ffn(xpar, ...) # to avoid dotarg name class change
    gn <- grad(func=ffn1, x=xpar) # numerically approximated gradient
    if (trace>1) print(gn)
-   # Now test for equality (090612: ?? There may be better choices for the tolerances.
+   # Now test for equality (090612: There may be better choices for the tolerances.
    if (trace>0) {
       cat("gradient test tolerance = ",testtol,"  fval=",fval,"\n")
       cat(" compare to max(abs(gn-ga))/(1+abs(fval)) = ",max(abs(gn-ga))/(1+abs(fval)),"\n")
@@ -33,6 +33,7 @@ grchk <- function(xpar, ffn, ggr, trace=0, testtol=(.Machine$double.eps)^(1/3), 
    } else gradchk<-TRUE
    attr(gradchk, "ga")<-ga
    attr(gradchk, "gn")<-gn
+   attr(gradchk, "maxdiff")<-max(abs(ga-gn))
    gradchk
 } # end gradchk
 

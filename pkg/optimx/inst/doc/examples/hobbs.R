@@ -1,4 +1,4 @@
-rm(list=ls())
+rm(list=ls()) # comment out this line if you do not want the workspace cleared
 ##  author: John C. Nash
 require(optimx)
 sessionInfo()
@@ -103,24 +103,20 @@ cat("Start for Hobbs:")
 print(x0)
 cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
 
-## Following revealed typo in optimr() for lbfgsb3c
-# ahobb01 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method="lbfgsb3c")
-# ahobb01
-
 ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb0, order=value))
 # ?? Need to explain failures or convergence code .ne. 0
 
-badhobb0 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method=badm)
-print(summary(badhobb0, order=value))
-# Following shows method tries to evaluate function as inadmissible point
-# LBFGSBhobb0 <- optim(x1, hobbs.f, hobbs.g, method="L-BFGS-B", control=list(trace=2))
-
-x1 <- c(1, 1, 1)
 # Several methods fail because f or g becomes Inf.
+x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
 cat("Initial value of hobbs.f = ",hobbs.f(x1),"\n")
+badhobb0 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method=badm)
+print(summary(badhobb0, order=value))
+# Following shows method tries to evaluate function as inadmissible point
+LBFGSBhobb0 <- try(ptim(x1, hobbs.f, hobbs.g, method="L-BFGS-B", control=list(trace=2)))
+
 ahobb1 <- opm(x1, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb1, order=value))
 
@@ -144,7 +140,20 @@ lbgfsb3cahobb1s
 require(lbfgsb3c)
 lbgfsb3cD1s <- lbfgsb3c(par=x1s, fn=hobbs.f, gr=hobbs.g, control=list(maxit=2000))
 lbgfsb3cD1s
-lbgfsb3cD1sn <- lbfgsb3c(par=x1s, fn=hobbs.f, control=list(maxit=500000))
+# lbgfsb3cD1sn <- lbfgsb3c(par=x1s, fn=hobbs.f, control=list(maxit=500000))
 # Still fails to get a good answer!
-lbgfsb3cD1sn
+# lbgfsb3cD1sn
+
+tscale <- optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=TRUE, parscale=c(100, 10, 0.1)))
+tscale1 <- optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=TRUE, parscale=c(1, 1, 1)))
+tscalex <- optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=TRUE, parscale=c(.01, .1, 10)))
+
+btscale <- optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=TRUE, parscale=c(100, 10, 0.1)))
+btscale1 <- optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=TRUE, parscale=c(1, 1, 1)))
+btscalex <- optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=TRUE, parscale=c(.01, .1, 10)))
+
+otscale <- optimr(par=c(1,1,1), fn=hobbs.f, gr=hobbs.g, method="Rvmmin", control=list(trace=TRUE, parscale=c(100, 10, 0.1)))
+otscale1 <- optimr(par=c(1,1,1), fn=hobbs.f, gr=hobbs.g, method="Rvmmin", control=list(trace=TRUE, parscale=c(1, 1, 1)))
+proptimr(otscale)
+proptimr(otscale1)
 

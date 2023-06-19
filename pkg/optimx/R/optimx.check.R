@@ -1,18 +1,23 @@
 optimx.check <- function(par, ufn, ugr, uhess, lower=-Inf, upper=Inf, 
              hessian=FALSE, ctrl, have.bounds=FALSE, usenumDeriv=FALSE, ...) {
-##            method=NULL, itnmax=NULL, hessian=FALSE,
-##            ctrl=list(),...) {
-
 ## Should be run whenever we are not sure parameters and function are
 ## admissible. 
 ##
-## Inputs: ?? 
-##   control list -- ctrl. ufn, ugr
+## Inputs:  
+# par - a vector of initial values for the parameters 
+# ufn  - A function to be minimized (or maximized)
+# ugr  - A function to return (as a vector) the gradient 
+# uhess- A function to return (as a symmetric matrix) the Hessian of the objective 
+# lower, upper - Bounds on the variables
+# control - A list of control parameters. 
+# ... - further arguments to be passed to fn and gr
 
-## Outputs: ?? failed-checks info.
+## Output: optchk -- a list of three elements
+#     - grbad -- TRUE if gradient failed-check
+#     - hessbad -- TRUE if hessian failed-check
+#     - scalebad -- TRUE if scale of parameters or bounds too severe
 
 ###############################################################################
-cat("ctrl$starttests=",ctrl$starttests,"\n")
 ## Code more or less common to funtest, funcheck and optimx <<<
 # Check parameters are in right form
   if (!is.null(dim(par))) stop("Parameter should be a vector, not a matrix!", call. = FALSE)
@@ -20,15 +25,15 @@ cat("ctrl$starttests=",ctrl$starttests,"\n")
 	stop("The parameters are NOT in a vector")
   }
   npar<-length(par)
-  optchk<-list() # output of the checks
+  optchk<-list(grbad=FALSE, hessbad=FALSE, scalebad=FALSE) # output of the checks
   if (ctrl$starttests) {
-	# Check parameters in bounds (090601: As yet not dealing with masks ??)
+	# Check parameters in bounds (090601: As yet not dealing with masks?)
 	#  bdmsk<-as.vector(bdmset[k, ])
 	infeasible<-FALSE
 	if (ctrl$trace > 0) cat("Function has ",npar," arguments\n")
 	if (have.bounds) {
     	  # Expand bounds to vectors if needed
-          # Note 20100610: we do not check if there is a vector of wrong length.??
+          # Note 20100610: we do not check if there is a vector of wrong length.!!?
     	  if (length(lower)==1 ) lower <- rep(lower, npar)
     	  if (length(upper)==1 ) upper <- rep(upper, npar)
     	  bstate<-vector(mode="character", length=npar)
@@ -43,7 +48,7 @@ cat("ctrl$starttests=",ctrl$starttests,"\n")
             } # end if in bounds
             if (ctrl$trace > 0) cat("par[",i,"]: ",lower[i],"  <?",par[i],"  <?",upper[i],"  ",bstate[i],"\n") # fix to add index 150604
           } # end of for loop over parameter vector elements
-	  if (infeasible) { ## ?? maybe don't want to stop ??
+	  if (infeasible) { ## maybe don't want to stop!!?
         	stop("Infeasible point, no further tests")
 	  } 
   	} # end have.bounds
@@ -64,40 +69,36 @@ cat("ctrl$starttests=",ctrl$starttests,"\n")
        }
   }
 
-  cat("optimx.check: start the tests\n")
   if (ctrl$starttests && ! is.null(ugr)) { # add check to see if ugr present
-     optchk$grbad <- FALSE
      if (! is.null(ugr) && ! usenumDeriv && ! is.character(ugr)){ # check gradient
        gname <- deparse(substitute(ugr))
        if (ctrl$trace>0) cat("Analytic gradient from function ",gname,"\n\n")
           fval <- ufn(par) 
-          gn <- grad(func=ufn, x=par) # 211015 ?? is this the problem? CHANGED
+          gn <- numDeriv::grad(func=ufn, x=par) # 211015 Is this the problem? CHANGED
           ga <- ugr(par)
-#130929          badgrad<-TRUE
-#130929          if (all(! is.na(ga)) & all(is.finite(ga))) badgrad<-FALSE
-          # Now test for equality (090612: ?? There may be better choices for the tolerances.
+          # Now test for equality (090612: There may be better choices for the tolerances.
           teps <- (.Machine$double.eps)^(1/3)
           if (max(abs(gn-ga))/(1 + abs(fval)) >= teps) {
-            stop("Gradient function might be wrong - check it! \n", call.=FALSE)
-            optchk$grbad <- TRUE # Never get here if we stop ??
+            # stop("Gradient function might be wrong - check it! \n", call.=FALSE)
+            optchk$grbad <- TRUE # Never get here if we stop 
           }
        } else if (ctrl$trace>0) cat("Analytic gradient not made available.\n")
 
-       optchk$hessbad <- FALSE
        if (! is.null(uhess) && ! is.character(uhess)){ # check Hessian - if character then numeric
           hname <- deparse(substitute(uhess))
           if (ctrl$trace>0) cat("Analytic hessian from function ",hname,"\n\n")
-          hn <- hessian(func=ufn, x=par) # ?? should we use dotdat
+          hn <- numDeriv::hessian(func=ufn, x=par) # dotargs are in ufn
           ha <- uhess(par)
           # Now test for equality
           teps <- (.Machine$double.eps)^(1/3)
-          if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) stop("Hessian function might be wrong - check it! \n", call.=FALSE)
-          optchk$hessbad <- TRUE
+          if (max(abs(hn-ha))/(1 + abs(fval)) >= teps) {
+             # stop("Hessian function might be wrong - check it! \n", call.=FALSE)
+             optchk$hessbad <- TRUE
+          }
        } else if (ctrl$trace>0) cat("Analytic Hessian not made available.\n")
    }
 # Scaling check  091219
     if (ctrl$starttests) {
-        optchk$scalebad <- FALSE
 	srat<-scalecheck(par, lower, upper,ctrl$dowarn)
 	sratv<-c(srat$lpratio, srat$lbratio)
 	if (max(sratv,na.rm=TRUE) > ctrl$scaletol) { 
@@ -110,8 +111,7 @@ cat("ctrl$starttests=",ctrl$starttests,"\n")
 	}
     }
 # end scaling check
-
-## ?? what to return
+## return
     optchk
 } ## end of optimx.check
 

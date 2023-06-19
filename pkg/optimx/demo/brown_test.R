@@ -1,7 +1,5 @@
-# J C Nash 2010-2-11 for optimx
-# test results in these files are indicated for
-# not yet included
-
+# J C Nash 2023-6-15
+# ?? NOT WORKING FOR nlm()
 options(digits=12)
 if(!require("optimx"))stop("this test requires package optimx.")
 if(!require("setRNG"))stop("this test requires setRNG.")
@@ -11,7 +9,7 @@ test.rng <- list(kind="Wichmann-Hill", normal.kind="Box-Muller", seed=c(979,1479
 old.seed <- setRNG(test.rng)
 
 ##########
-cat("optimx test brown-x.f ...\n")
+cat("optimx::opm test brown-x.f ...\n")
 
 brown.f <- function(x) {
 p <- x
@@ -23,20 +21,10 @@ sum((p[odd]^2)^(p[even]^2 + 1) + (p[even]^2)^(p[odd]^2 + 1))
 
 npar<-50 # Down from 500
 p0 <- rnorm(npar,sd=2)
-system.time(ans.optx <- optimx(par=p0, fn=brown.f, control=list(all.methods=TRUE, save.failures=TRUE, maxit=2500)))[1]
+system.time(ans.opm <- opm(par=p0, fn=brown.f, method="MOST", control=list(save.failures=TRUE, maxit=2500)))[1]
+print(ans.opm)
+# Why does nlm fail?
 
-
-print(ans.optx)
-
-#allpar<-ans.optx$par # ans.optx is a dataframe!
-#allmeth<-ans.optx$method
-#nanswer<-length(allpar)
-#
-#for (i in 1:nanswer) {
-#	curmeth<-allmeth[[i]]
-#	z <- sum(ans.optx$par[[i]])
-#	cat(curmeth,": ")
-#	print(z, digits=16)
-#}
- 
-
+# aa <- optimr(par=p0, fn=brown.f, gr="grpracma", method="nlm", control=list(trace=1))
+aa <- optimr(par=p0, fn=brown.f, method="nlm", control=list(trace=1))
+aa

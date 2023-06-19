@@ -1,6 +1,6 @@
 Package: optimx
-Version: 2021-11.20
-Date: 2021-11-20
+Version: 2023-6.12
+Date: 2023-06-12
 Title: Expanded Replacement and Extension of the 'optim' Function
 Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
     c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
@@ -22,8 +22,20 @@ Description: Provides a replacement and extension of the optim()
     This is the version for CRAN.
 License: GPL-2
 LazyLoad: Yes
-Imports: numDeriv
+Imports: numDeriv, nloptr, pracma
 NeedsCompilation: no
-Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
-        lbfgsb3c, lbfgs, subplex
+Suggests: 
+    knitr,
+    rmarkdown,
+    setRNG,
+    BB,
+    ucminf,
+    minqa,
+    dfoptim,
+    lbfgsb3c,
+    lbfgs,
+    subplex,
+    marqLevAlg,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3

@@ -1,5 +1,7 @@
 \name{Rcgmin}
 \alias{Rcgmin}
+\alias{ncg}
+\alias{ncgqs}
 \encoding{UTF-8}
 \title{An R implementation of a nonlinear conjugate gradient algorithm with the Dai / Yuan
    update and restart. Based on Nash (1979) Algorithm 22 for its main structure.}
@@ -16,6 +18,8 @@
 }
 \usage{
    Rcgmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
+
+   ncg(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -96,7 +100,8 @@
 	numerical approximations. Default is FALSE.}
    \item{\code{checkbounds}}{= TRUE if we want bounds verified. Default is 
      TRUE.}
-   \item{}{The source code \code{Rcgmin} for R is likely to remain a work in progress 
+
+    {The source code \code{Rcgmin} for R is likely to remain a work in progress 
     for some time, so users should watch the console output.}
   }
 
@@ -226,13 +231,12 @@ lower<-NULL
 upper<-NULL
 bdmsk<-NULL
 genrosea<-Rcgmin(xx,genrose.f, genrose.g, gs=10)
-genrosenn<-Rcgmin(xx,genrose.f, gs=10) # use local numerical gradient
+genrosen<-optimr(xx, genrose.f, "grfwd", method="Rcgmin", gs=10)
+genrosenn<-try(Rcgmin(xx,genrose.f, gs=10)) # use local numerical gradient
 cat("genrosea uses analytic gradient\n")
 print(genrosea)
-cat("genrosenn uses default gradient approximation\n")
-print(genrosenn)
-
-
+cat("genrosen uses default gradient approximation\n")
+print(genrosen)
 
 cat("timings B vs U\n")
 lo<-rep(-100,10)
@@ -247,8 +251,6 @@ cat("solution Rcgminb\n")
 print(ab)
 cat("diff fu-fb=",au$value-ab$value,"\n")
 cat("max abs parameter diff = ", max(abs(au$par-ab$par)),"\n")
-
-
 
 maxfn<-function(x) {
       	n<-length(x)
@@ -274,12 +276,12 @@ cat("test that maximize=TRUE works correctly\n")
 
 n<-6
 xx<-rep(1,n)
-ansmax<-Rcgmin(xx,maxfn, control=list(maximize=TRUE,trace=1))
+ansmax<-Rcgmin(xx,maxfn, gmaxfn, control=list(maximize=TRUE,trace=1))
 print(ansmax)
 
 cat("using the negmax function should give same parameters\n")
-ansnegmax<-Rcgmin(xx,negmaxfn, control=list(trace=1))
-print(ansnegmax)
+ansnegmaxn<-optimr(xx,negmaxfn, "grfwd", method="Rcgmin", control=list(trace=1))
+print(ansnegmaxn)
 
 
 #####################  From Rvmmin.Rd

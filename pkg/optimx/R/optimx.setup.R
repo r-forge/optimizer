@@ -3,7 +3,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             control=list(),
              ...) {
 
-### To return in optcfg: fname, npar ??, method, ufn, ugr, ctrl, have.bounds
+### To return in optcfg: fname, npar, method, ufn, ugr, ctrl, have.bounds
 
 # Get real name of function to be minimized
   fname<-deparse(substitute(fn))
@@ -16,66 +16,34 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
 # Only one ref to parameters -- to get npar here
   npar <- length(par) # !! NOT CHECKED in case par not well-defined
   optcfg$npar <- npar
-
-# Set control defaults
-    ctrl <- list(
-	follow.on=FALSE, 
-	save.failures=TRUE,
-	trace=0,
-	kkt=TRUE,
-	all.methods=FALSE,
-	starttests=TRUE,
-	maximize=FALSE,
-	dowarn=TRUE, 
-        usenumDeriv=FALSE,
-	kkttol=0.001,
-	kkt2tol=1.0E-6,
-	badval=(0.5)*.Machine$double.xmax,
-	scaletol=3
-    ) 
-    
-# Note that we do NOT want to check on the names, because we may introduce 
-#    new names in the control lists of added methods
-#    if (!all(namc %in% names(ctrl))) 
-#        stop("unknown names in control: ", namc[!(namc %in% names(ctrl))])
-# However, we do want to substitute the appropriate information. 
-# removed copy of hessian to control$kkt
-    ncontrol <- names(control)
-    nctrl <- names(ctrl)
-    for (onename in ncontrol) {
-       if (onename %in% nctrl) {
-           ctrl[onename]<-control[onename]
-       } else {
-           ctrl[onename]<-control[onename]
-       }
-    }
-    if (is.null(control$kkt)) { # turn off kkt for large matrices
-      ctrl$kkt<-TRUE # default it to compute KKT tests
-      if (is.null(gr)) { # no analytic gradient
-         if (npar > 50) {
-           ctrl$kkt=FALSE # too much work when large number of parameters
-           if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
-         }
-      } else {
-         if (npar > 500) {
-            ctrl$kkt=FALSE # too much work when large number of parameters, even with analytic gradient
-            if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
-         }
-      }
-    } else { # kkt is set
-      if (control$kkt) {
-        if (is.null(gr)) {
-           if (npar > 50) {
-             if ((ctrl$trace>0) && ctrl$dowarn) warning("Computing hessian for gr NULL, npar > 50, can be slow\n")
-           }
-        } else {
-           if (npar > 500) {
-             if ((ctrl$trace>0) && ctrl$dowarn) warning("Computing hessian with gr code, npar > 500, can be slow\n")
-           }
+  ctrl<-ctrldefault(npar) # 211219 new approach to controls
+  if (is.null(control$kkt)) { # turn off kkt for large matrices
+     ctrl$kkt<-TRUE # default it to compute KKT tests
+     if (is.null(gr)) { # no analytic gradient
+        if (npar > 50) {
+          ctrl$kkt=FALSE # too much work when large number of parameters
+          if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
         }
-      }
-    }
-    optcfg$ctrl <- ctrl
+     } else {
+        if (npar > 500) {
+           ctrl$kkt=FALSE # large number of parameters, even with analytic gradient
+           if (ctrl$trace>0) cat("gr NULL, npar > 50, kkt set FALSE\n")
+        }
+     }
+  }
+  else {
+    if (npar > 50) warning("kkt checks can be slow for many parameters (>50)")
+  }
+  ncontrol <- names(control)
+  nctrl <- names(ctrl)
+  for (onename in ncontrol) {
+     if (onename %in% nctrl) {
+       if (! is.null(control[onename]) || ! is.na(control[onename]) )
+       ctrl[onename]<-control[onename]
+     }
+  }
+  control <- ctrl # note the copy back! control now has a FULL set of values
+  optcfg$ctrl <- ctrl
 # 20211028 -- trap variable name clash.
 #  print(...names())
 #  if ("x" %in% names(list(...))) {
@@ -87,11 +55,11 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
   if (is.null(hess)) { uhess <- NULL} else{ uhess <- function(par) { hess(par, ...) } }
   if ((! is.null(control$maximize)) && control$maximize ) { 
         cat("Maximizing -- use negfn and neggr\n")
-        if (! is.null(control$fnscale)) { 
+        if (! is.null(control$fnscale) && (control$fnscale < 0)) { 
  		stop("Mixing controls maximize and fnscale is dangerous. Please correct.")
         } # moved up 091216
         optcfg$ctrl$maximize<-TRUE
-#?? can we subsume the ... here?
+        # we subsume the ... here
         ufn <- function (par){ # negate the function for maximizing
 	   val<-(-1.)*fn(par, ...)
         } # end of ufn = negfn
@@ -109,16 +77,16 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
      optcfg$ctrl$maximize <- FALSE # ensure defined
   } # define maximize if NULL
   optcfg$usenumDeriv<-FALSE # JN130703
-  if (is.null(gr) && ctrl$dowarn && ctrl$usenumDeriv) {
+  if (is.null(gr) && ctrl$dowarn) {
      warning("Replacing NULL gr with 'numDeriv' approximation")
      optcfg$usenumDeriv<-TRUE
      ugr <- function(par) { # using grad from numDeriv
-        tryg<-grad(ufn, par, ...) # assumes ufn defined
+        tryg<-numDeriv::grad(ufn, par, ...) # assumes ufn defined
      } # Already have negation in ufn if maximizing
   }
   optcfg$ufn <- ufn
-  cat("After assigning optcfg$ufn:")
-  print(str(optcfg$ufn)) # ??
+#  cat("After assigning optcfg$ufn:")
+#  print(str(optcfg$ufn)) 
   optcfg$ugr <- ugr
   optcfg$uhess <- uhess
 
@@ -210,6 +178,7 @@ optimx.setup <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
     cat("Methods to be used:")
     print(method)
   }
+  if ("SANN" %in% method) warning("optim::SANN is inappropriate for use with optimx package!") 
   optcfg$method <- method
   optcfg # return the structure
 } ## end of optimx.setup

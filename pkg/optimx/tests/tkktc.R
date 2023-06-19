@@ -1,6 +1,6 @@
 # tkktc.R -- test how kkt check works
 ##  author: John C. Nash
-rm(list=ls())
+# rm(list=ls())
 cat("Show how kktc works\n")
 require(optimx)
 sessionInfo()

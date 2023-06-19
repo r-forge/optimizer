@@ -1,6 +1,6 @@
 # run1param.R
 ##  author: John C. Nash
-rm(list=ls())
+# rm(list=ls())
 require(optimx)
 sessionInfo()
 

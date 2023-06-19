@@ -1,6 +1,6 @@
 # tfnchk.R
 ##  author: John C. Nash
-rm(list=ls())
+# rm(list=ls())
 cat("Show how fnchk works\n")
 require(optimx)
 sessionInfo()

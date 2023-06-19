@@ -9,7 +9,7 @@ hjn <- function(par, fn, lower=-Inf, upper=Inf, bdmsk=NULL, control=list(trace=0
   } else { stepsize <- control$stepsize }
   # Want stepsize positive or bounds get messed up
   if (is.null(control$stepredn)) {
-     stepredn <- .1 # defined step reduction (again in control()??)
+     stepredn <- .1 # defined step reduction (again in control()?)
   } else { stepredn <- control$stepredn }
   if (is.null(control$maxfeval)) control$maxfeval<-2000*n
   if (is.null(control$eps)) control$epsl<-1e-07

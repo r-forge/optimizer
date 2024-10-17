@@ -5,3 +5,6 @@ share/
 tests/sensi-analysis-duopoly.R
 tests/sensi-analysis-genduopoly.R
 tests/sensi-analysis-riverbasinpollution.R
+vignettes/river-basin-pollution-game*
+AUTHORS
+LICENCE

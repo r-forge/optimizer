@@ -73,7 +73,7 @@ direction with all possible global schemes) for a given initial point.
 \code{bench.GNE.nseq.LM} carries out a benchmark of the Levenberg-Marquardt computation method.
 
 This approach consists in solving the extended Karush-Kuhn-Tucker 
-(KKT) system denoted by \eqn{\Phi(z)=0}{Phi(z)=0}, where eqn{z} is formed by the players strategy 
+(KKT) system denoted by \eqn{\Phi(z)=0}{Phi(z)=0}, where \eqn{z} is formed by the players strategy 
 \eqn{x} and the Lagrange multiplier \eqn{\lambda}{lambda}.
 The root problem \eqn{\Phi(z)=0}{Phi(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
 where the direction \eqn{d_n} is computed in three different ways. Let \eqn{J(x)=Jac\Phi(x)}{J(x)=Jac Phi(x)}.
@@ -116,7 +116,7 @@ equation framework, see Dennis & Moree (1977), Dennis & Schnabel (1996) or Noced
 
 
 The implementation relies heavily on the 
-\code{\link{nleqslv}} function of the package of the same name. So full details on the control parameters are
+\code{\link[nleqslv]{nleqslv}} function of the package of the same name. So full details on the control parameters are
 to be found in the help page of this function. We briefly recall here the main parameters.
 The \code{control} argument is a list that can supply any of the following components:
 \describe{
@@ -144,7 +144,7 @@ The \code{control} argument is a list that can supply any of the following compo
 that is \code{global}, \code{xscalm}, \code{silent}. See above for the globalization scheme. 
 The \code{xscalm} is a scaling parameter to used, either \code{"fixed"} (default)
 or \code{"auto"}, for which scaling factors are calculated from the euclidean norms of the 
-columns of the jacobian matrix. See \code{\link{nleqslv}} for details.
+columns of the jacobian matrix. See \code{\link[nleqslv]{nleqslv}} for details.
 The \code{silent} argument is a logical to report or not the optimization process, default
 to \code{FALSE}.
  
@@ -224,7 +224,7 @@ for other approaches; \code{\link{funSSR}} and
 \code{\link{jacSSR}} for template functions of \eqn{\Phi} and \eqn{Jac\Phi} and
 \code{\link{complementarity}} for complementarity functions.
 
-See also \code{\link{nleqslv}} for some optimization details.
+See also \code{\link[nleqslv]{nleqslv}} for some optimization details.
 }
 \author{
  Christophe Dutang

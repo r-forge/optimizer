@@ -7,9 +7,9 @@ output:
     toc: yes
     number_sections: yes
     includes:
-      in_header: "GNE-howto-preamble.tex"
+      in_header: "GNE-preamble.tex"
     citation_package: natbib  
-bibliography: "GNE-howto.bib"
+bibliography: "GNE.bib"
 biblio-style: plainnat
 geometry: margin=2cm
 documentclass: article
@@ -38,11 +38,11 @@ library(GNE)
 \begin{mydef}[GNEP]
 We define the generalized Nash equilibrium problem GNEP($N, \theta_i, X_i$) as the solutions $x^\star$ of the $N$ sub-problems
 $$
-\forall i = 1, \dots, N, x_i^\star \txtm{solves} 
+\forall i = 1, \dots, N, x_i^\star \text{ solves } 
 \underset{ y_i }{\min} 
 \quad
 \theta_i(y_i, x_{-i}^\star)
-\txtm{such that} x_i^\star \in X_i(x_{-i}^\star),
+\text{ such that } x_i^\star \in X_i(x_{-i}^\star),
 $$
 where $X_i(x_{-i})$ is the action space of player $i$ given others player actions $x_{-i}$.
 \end{mydef}
@@ -54,11 +54,11 @@ We denote by $X(x)$ the action set $X(x) = X_1(x_{-1}) \times \dots \times X_N(x
 The following example seems very basic, but in fact it has particular features, one of them is to have four solutions, i.e. four GNEs.
 Let $N=2$. The objective functions are defined as
 $$
-\theta_1(x) = (x_1-2)^2 (x_2-4)^4 \txtm{and} \theta_2(x) = (x_2-3)^2 (x_1)^4,
+\theta_1(x) = (x_1-2)^2 (x_2-4)^4 text{ and } \theta_2(x) = (x_2-3)^2 (x_1)^4,
 $$
 for $x\in \R^2$, while the constraint functions are given by
 $$
-g_1(x) = x_1+x_2-1 \leq 0 \txtm{and} g_2(x) = 2x_1+x_2-2 \leq 0.
+g_1(x) = x_1+x_2-1 \leq 0 \text{ and } g_2(x) = 2x_1+x_2-2 \leq 0.
 $$
 Objective functions can be rewritten as $\theta_i(x) = (x_i - c_i)^2 (x_{-i} d_i)^4$, with $c = (2, 3)$ and
 $d=(4,0)$.
@@ -69,7 +69,7 @@ $$
 and
 $$
 \nabla_j g_1(x) = 1
-\txtm{and}
+\text{ and }
 \nabla_j g_2(x) = 2 \delta_{j1} + \delta_{j2}.
 $$
 Second-order derivatives are
@@ -113,7 +113,7 @@ Regrouping the $N$ subproblems, we get the following system.
 For the $N$ optimization subproblems for the functions $\theta_i: \R^{n} \mapsto \R$, with constraints $g_i: \R^{n} \mapsto \R^{m_i}$, the KKT conditions can be regrouped such that
 there exists $\lambda \in \R^m$ and 
 $$
-\tilde L(x, \lambda) = 0 \txtm{and} 0 \leq \lambda \perp  G(x) \leq  0,
+\tilde L(x, \lambda) = 0 \text{ and } 0 \leq \lambda \perp  G(x) \leq  0,
 $$
 where $L$ and $G$ are given by
 $$
@@ -126,7 +126,7 @@ $$
 \end{matrix}
 \right)  
 \in \R^{n}
-\txtm{and}
+\text{ and }
 G(x) = 
 \left( 
 \begin{matrix}
@@ -453,7 +453,7 @@ $$
 g^i(x) \\
 h(x) 
 \end{matrix} \right)
-\txtm{and}
+\text{ and }
 \tilde \lambda^i = 
 \left( \begin{matrix}
 \lambda^i \\
@@ -471,7 +471,7 @@ $$
 For the $N$ optimization subproblems for the functions $\theta_i: \R^{n} \mapsto \R$, with constraints $g_i: \R^{n} \mapsto \R^{m_i}$ and shared constraint $h:\R^n \mapsto \R^l$, the KKT conditions can be regrouped such that
 there exists $\lambda \in \R^m$ and 
 $$
-\bar L(x, \lambda, \mu) = 0 \txtm{and} 0 \leq \lambda, 0 \leq \mu \perp g(x) \leq  0,
+\bar L(x, \lambda, \mu) = 0 \text{ and } 0 \leq \lambda, 0 \leq \mu \perp g(x) \leq  0,
 $$
 where $L$ and $G$ are given by
 $$
@@ -484,7 +484,7 @@ $$
 \end{matrix}
 \right)  
 \in \R^{n}
-\txtm{and}
+\text{ and }
 g(x) = 
 \left( 
 \begin{matrix}
@@ -536,7 +536,7 @@ $$
 \tilde \lambda \circ \tilde w 
 \end{matrix}
 \right) ,
-\txtm{with}
+\text{ with }
 \tilde \lambda = 
 \left( 
 \begin{matrix}
@@ -556,7 +556,7 @@ w^N \\
 y
 \end{matrix}
 \right) 
-\txtm{and}
+\text{ and }
 \tilde g(x) = 
 \left( 
 \begin{matrix}
@@ -614,7 +614,7 @@ If objective functions $\theta_i$ are continuous, then  $x^\star$ solves the GNE
 is a minimimum of $\hat V$ such that
 \begin{equation}
 \hat V(x) = 0
-\txtm{and} 
+\text{ and } 
 x \in X(x),
 \label{eq:NIF:general}
 \end{equation}
@@ -626,7 +626,7 @@ There is no particular algorithm able to solve this problem for a general constr
 Assuming the differentiability of objective functions, the GNEP can be reformulated as a QVI problem  
 \begin{equation}
 \forall y \in X(x), (y-x)^T F(x) \geq 0,
-\txtm{with}
+\text{ with }
 F(x) = 
 \left( 
 \begin{matrix}
@@ -693,18 +693,18 @@ is convex.
 We consider the following example based on the previous example.
 Let $N=2$. The objective functions are defined as
 $$
-\theta_1(x) = (x_1-2)^2 (x_2-4)^4 \txtm{and} \theta_2(x) = (x_2-3)^2 (x_1)^4,
+\theta_1(x) = (x_1-2)^2 (x_2-4)^4 \text{ and } \theta_2(x) = (x_2-3)^2 (x_1)^4,
 $$
 for $x\in \R^2$, while the constraint function $g(x)=(g_1(x), g_2(x))$ is given by
 $$
-g_1(x) = x_1+x_2-1 \leq 0 \txtm{and} g_2(x) = 2x_1+x_2-2 \leq 0.
+g_1(x) = x_1+x_2-1 \leq 0 \text{ and } g_2(x) = 2x_1+x_2-2 \leq 0.
 $$
 Objective functions can be rewritten as $\theta_i(x) = (x_i - c_i)^2 (x_{-i} - d_i)^4$, with $c = (2, 3)$ and
 $d=(4,0)$.
 First-order and second-order derivatives are given in the introduction. 
 $$
 \nabla_j g_1(x) = 1
-\txtm{and}
+\text{ and }
 \nabla_j g_2(x) = 2 \delta_{j1} + \delta_{j2}.
 $$
 
@@ -796,7 +796,7 @@ where $X$ is defined in (\ref{eq:feasibleset:joint}) and $\psi_{\alpha VI}$ is d
 We consider a two-player game defined by 
 $$
 O_1(x) = (x_1-1)^2 
-\txtm{and}
+\text{ and }
 O_2(x) = (x_2-1/2)^2,  
 $$
 with a shared constraint function
@@ -809,14 +809,14 @@ The nonsmooth reformulation of the KKT system uses the following terms
 $$
 \nabla_1 O_1(x) = 2(x_1-1),
 \nabla_2 O_2(x) = 2(x_2-1/2),
-\txtm{and}
+\text{ and }
 \nabla_1 g(x) = \nabla_2 g(x) = 1.
 $$
 and 
 $$
 \nabla_i^2 O_i(x) = 2,
 \nabla_j \nabla_k O_i(x) = 0,
-\txtm{and}
+\text{ and }
 \nabla_j \nabla_k g(x) = 0.
 $$
 
@@ -833,13 +833,13 @@ where $d = 20$, $\lambda = 4$, $\rho = 1$.
 Derivatives are given by
 $$
 \nabla_j O_i(x) = -( -\rho x_i + (d- \lambda -\rho(x_1+x_2))\delta_{ij} )
-\txtm{and}
+\text{ and }
 \nabla_j g_i(x) = - \delta_{ij},
 $$
 and
 $$
 \nabla_k \nabla_j O_i(x) = -( -\rho \delta_{ik} - \rho\delta_{ij})
-\txtm{and}
+\text{ and }
 \nabla_k \nabla_j g_i(x) = 0.
 $$
 There is a unique solution given by $x^\star = (d-\lambda)/(3\rho)$.
@@ -860,7 +860,7 @@ $$
 Derivatives are given by
 $$
 \nabla_j O_i(x) = - ( - d_2  - c_{2i} \delta_{ij})x_i - (d_1 - d_2 (x_1+x_2+x_3) - c_{1i} - c_{2i} x_i)\delta_{ij}
-\txtm{and}
+\text{ and }
 \nabla_j g(x) = 
 \left( \begin{matrix}
 u_{j1} e_j  \\
@@ -870,7 +870,7 @@ $$
 and
 $$
 \nabla_k \nabla_j O_i(x) = -( - d_2\delta_{ik} - d_2\delta_{ij}  - 2 c_{2i} \delta_{ij}\delta_{ik})
-\txtm{and}
+\text{ and }
 \nabla_k \nabla_j g(x) = 
 \left( \begin{matrix}
 0 & 0  \\
@@ -1153,7 +1153,7 @@ $$
 The diagonal matrices $D_i^a$ and $D_i^b$ are given by
 $$
 D_i^a(x, \lambda^i) = \diag[ a^i(x, \lambda^i) ]
-\txtm{and}
+\text{ and }
 D_i^b(x, \lambda^i) = \diag[ b^i(x, \lambda^i) ],
 $$
 with $a^i(x, \lambda^i), b^i(x, \lambda^i) \in \R^{m_i}$  defined as
@@ -1162,9 +1162,9 @@ $$
 \left\{
 \begin{array}{cl} %\frac{ \partial \phi }{ \partial a}
 \left(  \phi'_a( -g^i_j(x), \lambda_j^i ), \phi'_b ( -g^i_j(x), \lambda_j^i ) \right) 
-& \txtm{if} ( -g^i_j(x), \lambda_j^i ) \neq (0, 0), \\
+& \text{if } ( -g^i_j(x), \lambda_j^i ) \neq (0, 0), \\
   (\xi_{ij} , \zeta_{ij} )
-& \txtm{if} ( -g^i_j(x), \lambda_j^i ) = (0, 0), 
+& \text{if } ( -g^i_j(x), \lambda_j^i ) = (0, 0), 
 \end{array}
 \right.
 $$
@@ -1232,7 +1232,7 @@ $$
 The diagonal matrices $D_a$ and $D_b$ are given by
 $$
 D_h^a(x, \mu) = \diag[ \tilde a(x, \mu) ]
-\txtm{and}
+\text{ and }
 D_h^b(x, \mu) = \diag[ \tilde b(x, \mu) ],
 $$
 with $\tilde a(x, \mu), \tilde b(x, \mu) \in \R^{l}$  defined as
@@ -1241,9 +1241,9 @@ $$
 \left\{
 \begin{array}{cl} %\frac{ \partial \phi }{ \partial a}
 \left(  \phi'_a( -h_j(x), \mu_j ), \phi'_b ( -h_j(x), \mu_j ) \right) 
-& \txtm{if} ( -h_j(x), \mu_j ) \neq (0, 0), \\
+& \text{if } ( -h_j(x), \mu_j ) \neq (0, 0), \\
   (\tilde \xi_{j} ,\tilde \zeta_{j} )
-& \txtm{if} ( -h_j(x), \mu_j ) = (0, 0), 
+& \text{if } ( -h_j(x), \mu_j ) = (0, 0), 
 \end{array}
 \right.
 $$

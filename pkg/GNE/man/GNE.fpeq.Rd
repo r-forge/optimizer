@@ -101,10 +101,10 @@ For details on fixed point methods, see Varadhan & Roland (2004).
 
 The \code{control.outer} argument is a list that can supply any of the following components:
 \describe{
-	\item{\code{merit="FP"} and \code{method="pure"}}{see \code{\link{fpiter}}.
+	\item{\code{merit="FP"} and \code{method="pure"}}{see \code{\link[SQUAREM]{fpiter}}.
 		the default parameters are \code{list(tol=1e-6, maxiter=100, trace=TRUE)}.
 		}
-	\item{\code{merit="FP"} and \code{method!="pure"}}{see \code{\link{squarem}}.
+	\item{\code{merit="FP"} and \code{method!="pure"}}{see \code{\link[SQUAREM]{squarem}}.
 		the default parameters are \code{list(tol=1e-6, maxiter=100, trace=TRUE)}.
 		}
 	\item{\code{merit!="FP"}}{parameters are 

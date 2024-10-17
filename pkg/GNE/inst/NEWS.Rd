@@ -5,7 +5,8 @@
 \section{CHANGES IN \pkg{GNE} VERSION 0.99-6}{
   \subsection{NEW}{
     \itemize{
-      \item{start devel version.}
+      \item{add README}
+      \item{remove NOTEs in the manual}
     }
   }
 }

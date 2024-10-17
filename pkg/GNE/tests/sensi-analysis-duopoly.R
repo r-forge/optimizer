@@ -185,7 +185,7 @@ if(FALSE)
   ressrrc <- src(data.frame(x1, x2, x3), y, rank=TRUE)
   ressrrc
   
-  n <- 10
+  n <- 100
   X1 <- data.frame(x1 = runif(n, 10, 30), x2 = runif(n, 2, 6), x3 = runif(n, 1/2, 3))
   X2 <- data.frame(x1 = runif(n, 10, 30), x2 = runif(n, 2, 6), x3 = runif(n, 1/2, 3))
   

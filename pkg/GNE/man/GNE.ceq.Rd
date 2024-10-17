@@ -47,7 +47,7 @@ GNE.ceq(init, dimx, dimlam, grobj, arggrobj, heobj, argheobj,
 \code{GNE.ceq} solves the GNE problem via a constrained equation reformulation of the KKT system. 
 
 This approach consists in solving the extended Karush-Kuhn-Tucker 
-(KKT) system denoted by \eqn{H(z)=0}, for \eqn{z \in \Omega} where eqn{z} is formed by the players strategy 
+(KKT) system denoted by \eqn{H(z)=0}, for \eqn{z \in \Omega} where \eqn{z} is formed by the players strategy 
 \eqn{x}, the Lagrange multiplier \eqn{\lambda}{lambda} and the slate variable \eqn{w}.
 The root problem \eqn{H(z)=0} is solved by an iterative scheme \eqn{z_{n+1} = z_n + d_n},
 where the direction \eqn{d_n} is computed in two different ways. Let \eqn{J(x)=Jac H(x)}.

@@ -51,7 +51,7 @@ A list with components:
 }
 
 \seealso{
-See \code{\link{nleqslv}} from the package of the same name.
+See \code{\link[nleqslv]{nleqslv}} from the package of the same name.
 }
 \author{
  Christophe Dutang

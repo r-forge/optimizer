@@ -1,7 +1,7 @@
 Package: GNE
 Type: Package
 Title: Computation of Generalized Nash Equilibria
-Version: 0.99-6
+Version: 0.99-7
 Authors@R: person("Christophe", "Dutang", role = c("aut", "cre"),
                      email = "dutangc@gmail.com", comment = c(ORCID = "0000-0001-6732-1501"))
 Description: Compute standard and generalized Nash Equilibria of non-cooperative games. 

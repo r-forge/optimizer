@@ -51,7 +51,12 @@ double F77_NAME(calfun)(int const *n, double const x[], int const *ip) {
 	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
 	Rprintf("\n");
     }
-
+    if (*ip > 3 && cc[0] % *ip == 0) { // print eval info every *ip if *ip >3
+      Rprintf("%3d:%#14.8g:", cc[0], f);
+      for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
+      Rprintf("\n");
+    }
+    
     return f;
 }
 
@@ -215,7 +220,7 @@ void F77_NAME(minqit)(const int *iprint, const double *rho, const int *nf,
 		      const double *fopt, const int *n, const double xbase[],
 		      const double xopt[]) {
     if (*iprint >= 2) {
-	Rprintf("%#8.2g: %3d: %#12g;", *rho, *nf, *fopt);
+	Rprintf("rho: %#8.2g eval: %3d fn: %#12g par:", *rho, *nf, *fopt);
 	for(int i = 0; i < *n; i++) Rprintf("%#8g ", xbase[i] + xopt[i]);
 	Rprintf("\n");
     }
@@ -227,7 +232,7 @@ F77_NAME(minqir)(const int *iprint, const double *f, const int *nf,
 		 const int *n, const double x[]) {
     if (*iprint > 0) {
 	Rprintf("At return\n");
-	Rprintf("%3d:%#14.8g:", *nf, *f);
+	Rprintf("eval: %3d fn: %#14.8g par:", *nf, *f);
 	for (int i = 0; i < *n; i++) Rprintf(" %#8g", x[i]);
 	Rprintf("\n");
     }

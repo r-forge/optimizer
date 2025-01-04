@@ -97,44 +97,44 @@ C     partitions of W, in order to provide useful and exact information about
 C     components of X that become within distance RHOBEG from their bounds.
 C
       ZERO=0.0D0
-      DO 30 J=1,N
-      TEMP=XU(J)-XL(J)
-      IF (TEMP .LT. RHOBEG+RHOBEG) THEN
-CJN         CALL minqer(20)
-c$$$          PRINT 20
-c$$$   20     FORMAT (/4X,'Return from BOBYQA because one of the',
-c$$$     1      ' differences XU(I)-XL(I)'/6X,' is less than 2*RHOBEG.')
-c$$$          GO TO 40
-         IERR = 20
-         GOTO 40
+      DO J=1,N
+         TEMP=XU(J)-XL(J)
+         IF (TEMP .LT. RHOBEG+RHOBEG) THEN
+C     JN         CALL minqer(20)
+c$$$  PRINT 20
+c$$$  20     FORMAT (/4X,'Return from BOBYQA because one of the',
+c$$$  1      ' differences XU(I)-XL(I)'/6X,' is less than 2*RHOBEG.')
+c$$$  GO TO 40
+            IERR = 20
+            GOTO 40
+         END IF
+         JSL=ISL+J-1
+         JSU=JSL+N
+         W(JSL)=XL(J)-X(J)
+         W(JSU)=XU(J)-X(J)
+         IF (W(JSL) .GE. -RHOBEG) THEN
+            IF (W(JSL) .GE. ZERO) THEN
+               X(J)=XL(J)
+               W(JSL)=ZERO
+               W(JSU)=TEMP
+            ELSE
+               X(J)=XL(J)+RHOBEG
+               W(JSL)=-RHOBEG
+               W(JSU)=DMAX1(XU(J)-X(J),RHOBEG)
+            END IF
+         ELSE IF (W(JSU) .LE. RHOBEG) THEN
+            IF (W(JSU) .LE. ZERO) THEN
+               X(J)=XU(J)
+               W(JSL)=-TEMP
+               W(JSU)=ZERO
+            ELSE
+               X(J)=XU(J)-RHOBEG
+               W(JSL)=DMIN1(XL(J)-X(J),-RHOBEG)
+               W(JSU)=RHOBEG
+         END IF
       END IF
-      JSL=ISL+J-1
-      JSU=JSL+N
-      W(JSL)=XL(J)-X(J)
-      W(JSU)=XU(J)-X(J)
-      IF (W(JSL) .GE. -RHOBEG) THEN
-          IF (W(JSL) .GE. ZERO) THEN
-              X(J)=XL(J)
-              W(JSL)=ZERO
-              W(JSU)=TEMP
-          ELSE
-              X(J)=XL(J)+RHOBEG
-              W(JSL)=-RHOBEG
-              W(JSU)=DMAX1(XU(J)-X(J),RHOBEG)
-          END IF
-      ELSE IF (W(JSU) .LE. RHOBEG) THEN
-          IF (W(JSU) .LE. ZERO) THEN
-              X(J)=XU(J)
-              W(JSL)=-TEMP
-              W(JSU)=ZERO
-          ELSE
-              X(J)=XU(J)-RHOBEG
-              W(JSL)=DMIN1(XL(J)-X(J),-RHOBEG)
-              W(JSU)=RHOBEG
-          END IF
-      END IF
-   30 CONTINUE
-C
+      END DO
+C     
 C     Make the call of BOBYQB.
 C
       CALL BOBYQB (N,NPT,X,XL,XU,RHOBEG,RHOEND,IPRINT,MAXFUN,W(IXB),

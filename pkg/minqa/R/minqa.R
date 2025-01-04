@@ -78,6 +78,9 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
       names(x) <- nn 
       fn(x, ...) 
     }
+    checkObj <- fn1(par)
+    if(length(checkObj) > 1 || !is.numeric(checkObj))
+      stop("Objective function must return a single numeric value.")
     ## check the upper and lower arguments, adjusting if necessary
     lower <- as.double(lower); upper <- as.double(upper)
     if (length(lower) == 1) lower <- rep(lower, n)
@@ -93,34 +96,37 @@ bobyqa <- function(par, fn, lower = -Inf, upper = Inf, control = list(), ...)
     }
     rng <- upper - lower
 
-    
     if (any(rng < 2 * ctrl$rhobeg)) {
         warning("All upper - lower must be >= 2*rhobeg. Changing rhobeg") 
         ctrl$rhobeg <- 0.2 * min(rng)
     }
+    
     verb <- 1 < (ctrl$iprint <- as.integer(ctrl$iprint))
-    if (verb) {
-        cat("npt =", ctrl$npt, ", n = ",n,"\n")
-        cat("rhobeg = ", ctrl$rhobeg,", rhoend = ", ctrl$rhoend, "\n")
-    }
     ## Modifications to par if too close to boundary
     if (all(is.finite(upper)) && all(is.finite(lower)) &&
         all(par >= lower) && all(par <= upper) ) {
-        if (verb) cat("ctrl$force.start = ", ctrl$force.start,"\n")
-        if (!ctrl$force.start) {
-            i <- rng < ctrl$rhobeg # Jens modification
-            if (any(i)) {
-                par[i] <- lower[i] + ctrl$rhobeg
-                warning("Some parameters adjusted away from lower bound")
-            }
-            i <- rng < ctrl$rhobeg      # Jens modification
-            if (any(i)) {
+      if (verb) cat("ctrl$force.start = ", ctrl$force.start,"\n")
+      if (!ctrl$force.start) {
+        i <- rng < ctrl$rhobeg # Jens modification
+        if (any(i)) {
+          par[i] <- lower[i] + ctrl$rhobeg
+          warning("Some parameters adjusted away from lower bound")
+        }
+        i <- rng < ctrl$rhobeg      # Jens modification
+        if (any(i)) {
                 par[i] <- upper[i] - ctrl$rhobeg
                 warning("Some parameters adjusted away from upper bound")
-            }
-        }
+              }
+      }
     }
-
+    if (verb) {
+      cat("npt =", ctrl$npt, ", n = ",n,"\n")
+      cat("rhobeg = ", ctrl$rhobeg,", rhoend = ", ctrl$rhoend, "\n")
+      
+    }
+    if(ctrl$iprint > 0)
+      cat("start par. = ", par, "fn = ", checkObj, "\n")      
+        
     retlst<- .Call(bobyqa_cpp, par, lower, upper, ctrl, fn1)
 # JN 20100810 
     if (retlst$ierr > 0){
@@ -165,11 +171,22 @@ newuoa <- function(par, fn, control = list(), ...)
 {
     nn <- names(par) 
     ctrl <- commonArgs(par + 0, fn, control, environment())
-    
+    n <- length(par)
     fn1 <- function(x) {  # fn1 takes exactly 1 argument
       names(x) <- nn 
       fn(x, ...) 
     }
+    checkObj <- fn1(par)
+    if(length(checkObj) > 1 || !is.numeric(checkObj))
+      stop("Objective function must return a single numeric value.")
+    verb <- 1 < (ctrl$iprint <- as.integer(ctrl$iprint))
+    if (verb) {
+      cat("npt =", ctrl$npt, ", n = ",n,"\n")
+      cat("rhobeg = ", ctrl$rhobeg,", rhoend = ", ctrl$rhoend, "\n")
+    }
+    if(ctrl$iprint > 0)
+      cat("start par. = ", par, "fn = ", checkObj, "\n")
+      
     retlst<-.Call(newuoa_cpp, par, ctrl, fn1)
 # JN 20100810 
     if (retlst$ierr > 0){
@@ -213,13 +230,24 @@ newuoa <- function(par, fn, control = list(), ...)
 uobyqa <- function(par, fn, control = list(), ...)
 {   nn <- names(par) 
     ctrl <- commonArgs(par + 0, fn, control, environment())
-    
+    n <- length(par)
     fn1 <- function(x) {  # fn1 takes exactly 1 argument
       names(x) <- nn 
       fn(x, ...) 
     }
-     retlst<-.Call(uobyqa_cpp, par, ctrl, fn1)
-
+    checkObj <- fn1(par)
+    if(length(checkObj) > 1 || !is.numeric(checkObj))
+      stop("Objective function must return a single numeric value.")
+    verb <- 1 < (ctrl$iprint <- as.integer(ctrl$iprint))
+    if (verb) {
+      cat("npt =", ctrl$npt, ", n = ",n,"\n")
+      cat("rhobeg = ", ctrl$rhobeg,", rhoend = ", ctrl$rhoend, "\n")
+    }
+    if(ctrl$iprint > 0)
+      cat("start par. = ", par, "fn = ", checkObj, "\n")
+      
+    retlst<-.Call(uobyqa_cpp, par, ctrl, fn1)
+    
 # JN 20100810 
     if (retlst$ierr > 0){
 ##	cat("ierr = ",retlst$ierr,"\n")

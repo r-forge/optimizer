@@ -33,18 +33,24 @@ C
 C     Set XBASE to the initial vector of variables, and set the initial
 C     elements of XPT, BMAT, HQ, PQ and ZMAT to zero.
 C
-      DO 20 J=1,N
-      XBASE(J)=X(J)
-      DO 10 K=1,NPT
-   10 XPT(K,J)=ZERO
-      DO 20 I=1,NDIM
-   20 BMAT(I,J)=ZERO
-      DO 30 IH=1,(N*NP)/2
-   30 HQ(IH)=ZERO
-      DO 40 K=1,NPT
-      PQ(K)=ZERO
-      DO 40 J=1,NPT-NP
-   40 ZMAT(K,J)=ZERO
+      DO J=1,N
+         XBASE(J)=X(J)
+         DO K=1,NPT
+            XPT(K,J)=ZERO
+         END DO
+         DO I=1,NDIM
+            BMAT(I,J)=ZERO
+         END DO
+      END DO
+      DO IH=1,(N*NP)/2
+         HQ(IH)=ZERO
+      END DO
+      DO K=1,NPT
+         PQ(K)=ZERO
+         DO J=1,NPT-NP
+            ZMAT(K,J)=ZERO
+         END DO
+      END DO
 C
 C     Begin the initialization procedure. NF becomes one more than the number
 C     of function values so far. The coordinates of the displacement of the
@@ -82,11 +88,11 @@ C
 C     Calculate the next value of F. The least function value so far and
 C     its index are required.
 C
-      DO 60 J=1,N
-      X(J)=DMIN1(DMAX1(XL(J),XBASE(J)+XPT(NF,J)),XU(J))
-      IF (XPT(NF,J) .EQ. SL(J)) X(J)=XL(J)
-      IF (XPT(NF,J) .EQ. SU(J)) X(J)=XU(J)
-   60 CONTINUE
+      DO J=1,N
+         X(J)=DMIN1(DMAX1(XL(J),XBASE(J)+XPT(NF,J)),XU(J))
+         IF (XPT(NF,J) .EQ. SL(J)) X(J)=XL(J)
+         IF (XPT(NF,J) .EQ. SU(J)) X(J)=XU(J)
+      END DO
       F = CALFUN (N,X,IPRINT)
 c$$$      IF (IPRINT .EQ. 3) THEN
 c$$$          PRINT 70, NF,F,(X(I),I=1,N)

@@ -44,35 +44,40 @@ C
       RHO=RHOBEG
       RHOSQ=RHO*RHO
       NF=0
-      DO 10 I=1,N
-      XBASE(I)=X(I)
-      DO 10 K=1,NPT
-   10 XPT(K,I)=ZERO
-      DO 20 K=1,NPT
-      DO 20 J=1,NPTM
-   20 PL(K,J)=ZERO
+      DO I=1,N
+         XBASE(I)=X(I)
+         DO K=1,NPT
+            XPT(K,I)=ZERO
+         END DO
+      END DO
+      DO K=1,NPT
+         DO J=1,NPTM
+            PL(K,J)=ZERO
+         END DO
+      END DO
 C
 C     The branch to label 120 obtains a new value of the objective function
 C     and then there is a branch back to label 50, because the new function
 C     value is needed to form the initial quadratic model. The least function
 C     value so far and its index are noted below.
 C
-   30 DO 40 I=1,N
-   40 X(I)=XBASE(I)+XPT(NF+1,I)
+   30 DO I=1,N
+         X(I)=XBASE(I)+XPT(NF+1,I)
+      END DO
       GOTO 120
-   50 IF (NF .EQ. 1) THEN
-          FOPT=F
-          KOPT=NF
-          FBASE=F
-          J=0
-          JSWITCH=-1
-          IH=N
+ 50   IF (NF .EQ. 1) THEN
+         FOPT=F
+         KOPT=NF
+         FBASE=F
+         J=0
+         JSWITCH=-1
+         IH=N
       ELSE
-          IF (F .LT. FOPT) THEN
-              FOPT=F
+         IF (F .LT. FOPT) THEN
+            FOPT=F
               KOPT=NF
-          END IF
-      END IF
+           END IF
+        END IF
 C
 C     Form the gradient and diagonal second derivatives of the initial
 C     quadratic model and Lagrange functions.
@@ -167,14 +172,16 @@ C     Form the gradient of the quadratic model at the trust region centre.
 C
    70 KNEW=0
       IH=N
-      DO 80 J=1,N
-      XOPT(J)=XPT(KOPT,J)
-      G(J)=PQ(J)
-      DO 80 I=1,J
-      IH=IH+1
-      G(I)=G(I)+PQ(IH)*XOPT(J)
-      IF (I .LT. J) G(J)=G(J)+PQ(IH)*XOPT(I)
-   80 H(I,J)=PQ(IH)
+      DO J=1,N
+         XOPT(J)=XPT(KOPT,J)
+         G(J)=PQ(J)
+         DO I=1,J
+            IH=IH+1
+            G(I)=G(I)+PQ(IH)*XOPT(J)
+            IF (I .LT. J) G(J)=G(J)+PQ(IH)*XOPT(I)
+            H(I,J)=PQ(IH)
+         END DO
+      END DO
 C
 C     Generate the next trust region step and test its length. Set KNEW
 C     to -1 if the purpose of the next F will be to improve conditioning,
@@ -183,8 +190,9 @@ C
       CALL TRSTEP (N,G,H,DELTA,TOL,D,W(1),W(N+1),W(2*N+1),W(3*N+1),
      1  W(4*N+1),W(5*N+1),EVALUE)
       TEMP=ZERO
-      DO 90 I=1,N
-   90 TEMP=TEMP+D(I)**2
+      DO I=1,N
+         TEMP=TEMP+D(I)**2
+      END DO
       DNORM=DMIN1(DELTA,DSQRT(TEMP))
       ERRTOL=-ONE
       IF (DNORM .LT. HALF*RHO) THEN
@@ -196,10 +204,11 @@ C
 C
 C     Calculate the next value of the objective function.
 C
-  100 DO 110 I=1,N
+  100 DO I=1,N
          XNEW(I)=XOPT(I)+D(I)
- 110     X(I)=XBASE(I)+XNEW(I)
-  120 IF (NF .GE. NFTEST) THEN
+         X(I)=XBASE(I)+XNEW(I)
+      END DO
+ 120  IF (NF .GE. NFTEST) THEN
 C$$$          IF (IPRINT .GT. 0) PRINT 130
 C$$$  130     FORMAT (/4X,'Return from UOBYQA because CALFUN has been',
 C$$$     1      ' called MAXFUN times')
@@ -224,19 +233,23 @@ C     and find the values of the Lagrange functions at the new point.
 C
       VQUAD=ZERO
       IH=N
-      DO 150 J=1,N
-      W(J)=D(J)
-      VQUAD=VQUAD+W(J)*PQ(J)
-      DO 150 I=1,J
-      IH=IH+1
-      W(IH)=D(I)*XNEW(J)+D(J)*XOPT(I)
-      IF (I .EQ. J) W(IH)=HALF*W(IH)
-  150 VQUAD=VQUAD+W(IH)*PQ(IH)
-      DO 170 K=1,NPT
-      TEMP=ZERO
-      DO 160 J=1,NPTM
-  160 TEMP=TEMP+W(J)*PL(K,J)
-  170 VLAG(K)=TEMP
+      DO J=1,N
+         W(J)=D(J)
+         VQUAD=VQUAD+W(J)*PQ(J)
+         DO I=1,J
+            IH=IH+1
+            W(IH)=D(I)*XNEW(J)+D(J)*XOPT(I)
+            IF (I .EQ. J) W(IH)=HALF*W(IH)
+            VQUAD=VQUAD+W(IH)*PQ(IH)
+         END DO
+      END DO
+      DO K=1,NPT
+         TEMP=ZERO
+         DO J=1,NPTM
+            TEMP=TEMP+W(J)*PL(K,J)
+         END DO
+         VLAG(K)=TEMP
+      END DO
       VLAG(KOPT)=VLAG(KOPT)+ONE
 C
 C     Update SIXTHM, which is a lower bound on one sixth of the greatest
@@ -244,22 +257,25 @@ C     third derivative of F.
 C
       DIFF=F-FOPT-VQUAD
       SUM=ZERO
-      DO 190 K=1,NPT
-      TEMP=ZERO
-      DO 180 I=1,N
-  180 TEMP=TEMP+(XPT(K,I)-XNEW(I))**2
-      TEMP=DSQRT(TEMP)
-  190 SUM=SUM+DABS(TEMP*TEMP*TEMP*VLAG(K))
+      DO K=1,NPT
+         TEMP=ZERO
+         DO I=1,N
+            TEMP=TEMP+(XPT(K,I)-XNEW(I))**2
+         END DO
+         TEMP=DSQRT(TEMP)
+         SUM=SUM+DABS(TEMP*TEMP*TEMP*VLAG(K))
+      END DO
       SIXTHM=DMAX1(SIXTHM,DABS(DIFF)/SUM)
-C
+C     
 C     Update FOPT and XOPT if the new F is the least value of the objective
 C     function so far. Then branch if D is not a trust region step.
 C
       FSAVE=FOPT
       IF (F .LT. FOPT) THEN
           FOPT=F
-          DO 200 I=1,N
-  200     XOPT(I)=XNEW(I)
+          DO I=1,N
+             XOPT(I)=XNEW(I)
+          END DO
       END IF
       KSAVE=KNEW
       IF (KNEW .GT. 0) GOTO 240
@@ -292,36 +308,40 @@ C
           KTEMP=KOPT
           DETRAT=ONE
       END IF
-      DO 230 K=1,NPT
-      SUM=ZERO
-      DO 220 I=1,N
-  220 SUM=SUM+(XPT(K,I)-XOPT(I))**2
-      TEMP=DABS(VLAG(K))
-      IF (SUM .GT. RHOSQ) TEMP=TEMP*(SUM/RHOSQ)**1.5D0
-      IF (TEMP .GT. DETRAT .AND. K .NE. KTEMP) THEN
-          DETRAT=TEMP
-          DDKNEW=SUM
-          KNEW=K
-      END IF
-  230 CONTINUE
+      DO K=1,NPT
+         SUM=ZERO
+         DO I=1,N
+            SUM=SUM+(XPT(K,I)-XOPT(I))**2
+         END DO
+         TEMP=DABS(VLAG(K))
+         IF (SUM .GT. RHOSQ) TEMP=TEMP*(SUM/RHOSQ)**1.5D0
+         IF (TEMP .GT. DETRAT .AND. K .NE. KTEMP) THEN
+            DETRAT=TEMP
+            DDKNEW=SUM
+            KNEW=K
+         END IF
+      END DO
       IF (KNEW .EQ. 0) GOTO 290
 C
 C     Replace the interpolation point that has index KNEW by the point XNEW,
 C     and also update the Lagrange functions and the quadratic model.
 C
-  240 DO 250 I=1,N
-  250 XPT(KNEW,I)=XNEW(I)
+  240 DO I=1,N
+         XPT(KNEW,I)=XNEW(I)
+      END DO
       TEMP=ONE/VLAG(KNEW)
-      DO 260 J=1,NPTM
-      PL(KNEW,J)=TEMP*PL(KNEW,J)
-  260 PQ(J)=PQ(J)+DIFF*PL(KNEW,J)
-      DO 280 K=1,NPT
-      IF (K .NE. KNEW) THEN
-          TEMP=VLAG(K)
-          DO 270 J=1,NPTM
-  270     PL(K,J)=PL(K,J)-TEMP*PL(KNEW,J)
+      DO J=1,NPTM
+         PL(KNEW,J)=TEMP*PL(KNEW,J)
+         PQ(J)=PQ(J)+DIFF*PL(KNEW,J)
+      END DO
+      DO K=1,NPT
+         IF (K .NE. KNEW) THEN
+         TEMP=VLAG(K)
+          DO J=1,NPTM
+             PL(K,J)=PL(K,J)-TEMP*PL(KNEW,J)
+          END DO
       END IF
-  280 CONTINUE
+      END DO
 C
 C     Update KOPT if F is the least calculated value of the objective
 C     function. Then branch for another trust region calculation. The
@@ -338,39 +358,43 @@ C
 C     Alternatively, find out if the interpolation points are close
 C     enough to the best point so far.
 C
-  290 DO 300 K=1,NPT
-      W(K)=ZERO
-      DO 300 I=1,N
-  300 W(K)=W(K)+(XPT(K,I)-XOPT(I))**2
-  310 KNEW=-1
+ 290  DO K=1,NPT
+         W(K)=ZERO
+         DO I=1,N
+            W(K)=W(K)+(XPT(K,I)-XOPT(I))**2
+         END DO
+      END DO
+ 310  KNEW=-1
       DISTEST=TWORSQ
-      DO 320 K=1,NPT
+      DO K=1,NPT
       IF (W(K) .GT. DISTEST) THEN
-          KNEW=K
+         KNEW=K
           DISTEST=W(K)
-      END IF
-  320 CONTINUE
+       END IF
+      END DO
 C
 C     If a point is sufficiently far away, then set the gradient and Hessian
 C     of its Lagrange function at the centre of the trust region, and find
 C     half the sum of squares of components of the Hessian.
 C
       IF (KNEW .GT. 0) THEN
-          IH=N
-          SUMH=ZERO
-          DO 340 J=1,N
-          G(J)=PL(KNEW,J)
-          DO 330 I=1,J
-          IH=IH+1
-          TEMP=PL(KNEW,IH)
-          G(J)=G(J)+TEMP*XOPT(I)
-          IF (I .LT. J) THEN
-              G(I)=G(I)+TEMP*XOPT(J)
-              SUMH=SUMH+TEMP*TEMP
-          END IF
-  330     H(I,J)=TEMP
-  340     SUMH=SUMH+HALF*TEMP*TEMP
-C
+         IH=N
+         SUMH=ZERO
+         DO J=1,N
+            G(J)=PL(KNEW,J)
+            DO I=1,J
+               IH=IH+1
+               TEMP=PL(KNEW,IH)
+               G(J)=G(J)+TEMP*XOPT(I)
+               IF (I .LT. J) THEN
+                  G(I)=G(I)+TEMP*XOPT(J)
+                  SUMH=SUMH+TEMP*TEMP
+               END IF
+               H(I,J)=TEMP
+            END DO
+            SUMH=SUMH+HALF*TEMP*TEMP
+         END DO
+C     
 C     If ERRTOL is positive, test whether to replace the interpolation point
 C     with index KNEW, using a bound on the maximum modulus of its Lagrange
 C     function in the trust region.
@@ -378,8 +402,9 @@ C
           IF (ERRTOL .GT. ZERO) THEN
               W(KNEW)=ZERO
               SUMG=ZERO
-              DO 350 I=1,N
-  350         SUMG=SUMG+G(I)**2
+              DO I=1,N
+                 SUMG=SUMG+G(I)**2
+              END DO
               ESTIM=RHO*(DSQRT(SUMG)+RHO*DSQRT(HALF*SUMH))
               WMULT=SIXTHM*DISTEST**1.5D0
               IF (WMULT*ESTIM .LE. ERRTOL) GOTO 310
@@ -403,20 +428,25 @@ C     functions and the quadratic model.
 C
       IF (RHO .GT. RHOEND) THEN
           IH=N
-          DO 380 J=1,N
-          XBASE(J)=XBASE(J)+XOPT(J)
-          DO 360 K=1,NPT
-  360     XPT(K,J)=XPT(K,J)-XOPT(J)
-          DO 380 I=1,J
-          IH=IH+1
-          PQ(I)=PQ(I)+PQ(IH)*XOPT(J)
-          IF (I .LT. J) THEN
-              PQ(J)=PQ(J)+PQ(IH)*XOPT(I)
-              DO 370 K=1,NPT
-  370         PL(K,J)=PL(K,J)+PL(K,IH)*XOPT(I)
-          END IF
-          DO 380 K=1,NPT
-  380     PL(K,I)=PL(K,I)+PL(K,IH)*XOPT(J)
+          DO J=1,N
+             XBASE(J)=XBASE(J)+XOPT(J)
+             DO K=1,NPT
+                XPT(K,J)=XPT(K,J)-XOPT(J)
+             END DO
+             DO I=1,J
+                IH=IH+1
+                PQ(I)=PQ(I)+PQ(IH)*XOPT(J)
+                IF (I .LT. J) THEN
+                   PQ(J)=PQ(J)+PQ(IH)*XOPT(I)
+                   DO K=1,NPT
+                      PL(K,J)=PL(K,J)+PL(K,IH)*XOPT(I)
+                   END DO
+                END IF
+                DO K=1,NPT
+                   PL(K,I)=PL(K,I)+PL(K,IH)*XOPT(J)
+                END DO
+             END DO
+          END DO
 C
 C     Pick the next values of RHO and DELTA.
 C
@@ -449,12 +479,13 @@ C     it is too short to have been tried before.
 C
       IF (ERRTOL .GE. ZERO) GOTO 100
   420 IF (FOPT .LE. F) THEN
-          DO 430 I=1,N
-  430     X(I)=XBASE(I)+XOPT(I)
+          DO I=1,N
+             X(I)=XBASE(I)+XOPT(I)
+          END DO
           F=FOPT
-      END IF
-      IF (IPRINT .GE. 1) THEN
-         CALL minqir(IPRINT, F, NF, N, X)
+       END IF
+       IF (IPRINT .GE. 1) THEN
+          CALL minqir(IPRINT, F, NF, N, X)
 C$$$          PRINT 440, NF
 C$$$  440     FORMAT (/4X,'At the return from UOBYQA',5X,
 C$$$     1      'Number of function values =',I6)

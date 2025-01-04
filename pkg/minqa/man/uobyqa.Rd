@@ -38,15 +38,20 @@ uobyqa(par, fn, control = list(), \dots)
       not defined, then 1e-6 times the value set for \code{rhobeg} will be
       used.
     }
-    \item{iprint}{
-      The value of \code{iprint} should be set to \code{0, 1, 2 or 3},
+      \item{iprint}{
+      The value of \code{iprint} should be set to an integer value in
+      \code{0, 1, 2, 3, ...},
       which controls the amount of printing. Specifically, there is no
-      output if \code{iprint=0} and there is output only at the return if
+      output if \code{iprint=0} and there is output only at the start
+      and the return if
       \code{iprint=1}. Otherwise, each new value of \code{rho} is printed,
       with the best vector of variables so far and the corresponding value
       of the objective function. Further, each new value of the objective
-      function with its variables are output if \code{iprint=3}.  Default
-      value is \code{0}.
+      function with its variables are output if \code{iprint=3}.
+      If \code{iprint > 3}, the objective
+      function value and corresponding variables are output every \code{iprint}
+      evaluations.
+      Default value is \code{0}.
     }
     \item{maxfun}{
       The maximum allowed number of function evaluations. If this is

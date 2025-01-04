@@ -29,20 +29,22 @@ C
       ITERC=0
       ITERMAX=N
       ITERSW=ITERMAX
-      DO 10 I=1,N
-   10 D(I)=XOPT(I)
+      DO I=1,N
+         D(I)=XOPT(I)
+      END DO
       GOTO 170
 C
 C     Prepare for the first line search.
 C
    20 QRED=ZERO
       DD=ZERO
-      DO 30 I=1,N
-      STEP(I)=ZERO
-      HS(I)=ZERO
-      G(I)=GQ(I)+HD(I)
-      D(I)=-G(I)
-   30 DD=DD+D(I)**2
+      DO I=1,N
+         STEP(I)=ZERO
+         HS(I)=ZERO
+         G(I)=GQ(I)+HD(I)
+         D(I)=-G(I)
+         DD=DD+D(I)**2
+      END DO
       CRVMIN=ZERO
       IF (DD .EQ. ZERO) GOTO 160
       DS=ZERO
@@ -57,8 +59,9 @@ C
       BSTEP=TEMP/(DS+DSQRT(DS*DS+DD*TEMP))
       GOTO 170
    50 DHD=ZERO
-      DO 60 J=1,N
-   60 DHD=DHD+D(J)*HD(J)
+      DO J=1,N
+         DHD=DHD+D(J)*HD(J)
+      END DO
 C
 C     Update CRVMIN and set the step-length ALPHA.
 C
@@ -76,10 +79,11 @@ C     Update STEP and HS.
 C
       GGSAV=GG
       GG=ZERO
-      DO 70 I=1,N
-      STEP(I)=STEP(I)+ALPHA*D(I)
-      HS(I)=HS(I)+ALPHA*HD(I)
-   70 GG=GG+(G(I)+HS(I))**2
+      DO I=1,N
+         STEP(I)=STEP(I)+ALPHA*D(I)
+         HS(I)=HS(I)+ALPHA*HD(I)
+         GG=GG+(G(I)+HS(I))**2
+      END DO
 C
 C     Begin another conjugate direction iteration if required.
 C
@@ -91,11 +95,12 @@ C
           DD=ZERO
           DS=ZERO
           SS=ZERO
-          DO 80 I=1,N
-          D(I)=TEMP*D(I)-G(I)-HS(I)
-          DD=DD+D(I)**2
-          DS=DS+D(I)*STEP(I)
-   80     SS=SS+STEP(I)**2
+          DO I=1,N
+             D(I)=TEMP*D(I)-G(I)-HS(I)
+             DD=DD+D(I)**2
+             DS=DS+D(I)*STEP(I)
+             SS=SS+STEP(I)**2
+          END DO
           IF (DS .LE. ZERO) GOTO 160
           IF (SS .LT. DELSQ) GOTO 40
       END IF
@@ -107,9 +112,10 @@ C
    90 IF (GG .LE. 1.0D-4*GGBEG) GOTO 160
       SG=ZERO
       SHS=ZERO
-      DO 100 I=1,N
-      SG=SG+STEP(I)*G(I)
-  100 SHS=SHS+STEP(I)*HS(I)
+      DO I=1,N
+         SG=SG+STEP(I)*G(I)
+         SHS=SHS+STEP(I)*HS(I)
+      END DO
       SGK=SG+SHS
       ANGTEST=SGK/DSQRT(GG*DELSQ)
       IF (ANGTEST .LE. -0.99D0) GOTO 160
@@ -121,16 +127,18 @@ C
       TEMP=DSQRT(DELSQ*GG-SGK*SGK)
       TEMPA=DELSQ/TEMP
       TEMPB=SGK/TEMP
-      DO 110 I=1,N
-  110 D(I)=TEMPA*(G(I)+HS(I))-TEMPB*STEP(I)
+      DO I=1,N
+         D(I)=TEMPA*(G(I)+HS(I))-TEMPB*STEP(I)
+      END DO
       GOTO 170
   120 DG=ZERO
       DHD=ZERO
       DHS=ZERO
-      DO 130 I=1,N
-      DG=DG+D(I)*G(I)
-      DHD=DHD+HD(I)*D(I)
-  130 DHS=DHS+HD(I)*STEP(I)
+      DO I=1,N
+         DG=DG+D(I)*G(I)
+         DHD=DHD+HD(I)*D(I)
+         DHS=DHS+HD(I)*STEP(I)
+      END DO
 C
 C     Seek the value of the angle that minimizes Q.
 C
@@ -140,20 +148,21 @@ C
       QMIN=QBEG
       ISAVE=0
       IU=49
-      TEMP=TWOPI/DFLOAT(IU+1)
-      DO 140 I=1,IU
-      ANGLE=DFLOAT(I)*TEMP
-      CTH=DCOS(ANGLE)
-      STH=DSIN(ANGLE)
-      QNEW=(SG+CF*CTH)*CTH+(DG+DHS*CTH)*STH
-      IF (QNEW .LT. QMIN) THEN
-          QMIN=QNEW
-          ISAVE=I
-          TEMPA=QSAV
-      ELSE IF (I .EQ. ISAVE+1) THEN
-          TEMPB=QNEW
-      END IF
-  140 QSAV=QNEW
+      TEMP=TWOPI/DBLE(IU+1)
+      DO I=1,IU
+         ANGLE=DBLE(I)*TEMP
+         CTH=DCOS(ANGLE)
+         STH=DSIN(ANGLE)
+         QNEW=(SG+CF*CTH)*CTH+(DG+DHS*CTH)*STH
+         IF (QNEW .LT. QMIN) THEN
+            QMIN=QNEW
+            ISAVE=I
+            TEMPA=QSAV
+         ELSE IF (I .EQ. ISAVE+1) THEN
+            TEMPB=QNEW
+         END IF
+         QSAV=QNEW
+      END DO
       IF (ISAVE .EQ. ZERO) TEMPA=QNEW
       IF (ISAVE .EQ. IU) TEMPB=QBEG
       ANGLE=ZERO
@@ -162,7 +171,7 @@ C
           TEMPB=TEMPB-QMIN
           ANGLE=HALF*(TEMPA-TEMPB)/(TEMPA+TEMPB)
       END IF
-      ANGLE=TEMP*(DFLOAT(ISAVE)+ANGLE)
+      ANGLE=TEMP*(DBLE(ISAVE)+ANGLE)
 C
 C     Calculate the new STEP and HS. Then test for convergence.
 C
@@ -170,10 +179,11 @@ C
       STH=DSIN(ANGLE)
       REDUC=QBEG-(SG+CF*CTH)*CTH-(DG+DHS*CTH)*STH
       GG=ZERO
-      DO 150 I=1,N
-      STEP(I)=CTH*STEP(I)+STH*D(I)
-      HS(I)=CTH*HS(I)+STH*HD(I)
-  150 GG=GG+(G(I)+HS(I))**2
+      DO I=1,N
+         STEP(I)=CTH*STEP(I)+STH*D(I)
+         HS(I)=CTH*HS(I)+STH*HD(I)
+         GG=GG+(G(I)+HS(I))**2
+      END DO
       QRED=QRED+REDUC
       RATIO=REDUC/QRED
       IF (ITERC .LT. ITERMAX .AND. RATIO .GT. 0.01D0) GOTO 90
@@ -184,23 +194,29 @@ C     HD to the vector D multiplied by the second derivative matrix of Q.
 C     They are called from three different places, which are distinguished
 C     by the value of ITERC.
 C
-  170 DO 180 I=1,N
-  180 HD(I)=ZERO
-      DO 200 K=1,NPT
-      TEMP=ZERO
-      DO 190 J=1,N
-  190 TEMP=TEMP+XPT(K,J)*D(J)
-      TEMP=TEMP*PQ(K)
-      DO 200 I=1,N
-  200 HD(I)=HD(I)+TEMP*XPT(K,I)
+  170 DO I=1,N
+         HD(I)=ZERO
+      END DO
+      DO K=1,NPT
+         TEMP=ZERO
+         DO J=1,N
+            TEMP=TEMP+XPT(K,J)*D(J)
+         END DO
+         TEMP=TEMP*PQ(K)
+         DO I=1,N
+            HD(I)=HD(I)+TEMP*XPT(K,I)
+         END DO
+      END DO
       IH=0
-      DO 210 J=1,N
-      DO 210 I=1,J
-      IH=IH+1
-      IF (I .LT. J) HD(J)=HD(J)+HQ(IH)*D(I)
-  210 HD(I)=HD(I)+HQ(IH)*D(J)
+      DO J=1,N
+         DO I=1,J
+            IH=IH+1
+            IF (I .LT. J) HD(J)=HD(J)+HQ(IH)*D(I)
+            HD(I)=HD(I)+HQ(IH)*D(J)
+         END DO
+      END DO
       IF (ITERC .EQ. 0) GOTO 20
       IF (ITERC .LE. ITERSW) GOTO 50
       GOTO 120
       END
-
+      

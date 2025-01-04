@@ -35,70 +35,81 @@ C
       DELSQ=DELTA*DELTA
       EVALUE=ZERO
       NM=N-1
-      DO 10 I=1,N
-      D(I)=ZERO
-      TD(I)=H(I,I)
-      DO 10 J=1,I
-   10 H(I,J)=H(J,I)
-C
+      DO I=1,N
+         D(I)=ZERO
+         TD(I)=H(I,I)
+         DO J=1,I
+            H(I,J)=H(J,I)
+         END DO
+      END DO
+C     
 C     Apply Householder transformations to obtain a tridiagonal matrix that
 C     is similar to H, and put the elements of the Householder vectors in
 C     the lower triangular part of H. Further, TD and TN will contain the
 C     diagonal and other nonzero elements of the tridiagonal matrix.
 C
-      DO 80 K=1,NM
-      KP=K+1
-      SUM=ZERO
-      IF (KP .LT. N) THEN
-          KPP=KP+1
-          DO 20 I=KPP,N
-   20     SUM=SUM+H(I,K)**2
-      END IF
-      IF (SUM .EQ. ZERO) THEN
-          TN(K)=H(KP,K)
-          H(KP,K)=ZERO
-      ELSE
-          TEMP=H(KP,K)
-          TN(K)=DSIGN(DSQRT(SUM+TEMP*TEMP),TEMP)
-          H(KP,K)=-SUM/(TEMP+TN(K))
-          TEMP=DSQRT(TWO/(SUM+H(KP,K)**2))
-          DO 30 I=KP,N
-          W(I)=TEMP*H(I,K)
-          H(I,K)=W(I)
-   30     Z(I)=TD(I)*W(I)
-          WZ=ZERO
-          DO 50 J=KP,NM
-          JP=J+1
-          DO 40 I=JP,N
-          Z(I)=Z(I)+H(I,J)*W(J)
-   40     Z(J)=Z(J)+H(I,J)*W(I)
-   50     WZ=WZ+W(J)*Z(J)
-          WZ=WZ+W(N)*Z(N)
-          DO 70 J=KP,N
+      DO K=1,NM
+         KP=K+1
+         SUM=ZERO
+         IF (KP .LT. N) THEN
+            KPP=KP+1
+            DO I=KPP,N
+               SUM=SUM+H(I,K)**2
+            END DO
+         END IF
+         IF (SUM .EQ. ZERO) THEN
+            TN(K)=H(KP,K)
+            H(KP,K)=ZERO
+         ELSE
+            TEMP=H(KP,K)
+            TN(K)=DSIGN(DSQRT(SUM+TEMP*TEMP),TEMP)
+            H(KP,K)=-SUM/(TEMP+TN(K))
+            TEMP=DSQRT(TWO/(SUM+H(KP,K)**2))
+            DO I=KP,N
+               W(I)=TEMP*H(I,K)
+               H(I,K)=W(I)
+               Z(I)=TD(I)*W(I)
+            END DO
+            WZ=ZERO
+            DO J=KP,NM
+               JP=J+1
+               DO I=JP,N
+                  Z(I)=Z(I)+H(I,J)*W(J)
+                  Z(J)=Z(J)+H(I,J)*W(I)
+               END DO
+               WZ=WZ+W(J)*Z(J)
+            END DO
+            WZ=WZ+W(N)*Z(N)
+            DO J=KP,N
           TD(J)=TD(J)+W(J)*(WZ*W(J)-TWO*Z(J))
           IF (J .LT. N) THEN
-              JP=J+1
-              DO 60 I=JP,N
-   60         H(I,J)=H(I,J)-W(I)*Z(J)-W(J)*(Z(I)-WZ*W(I))
+             JP=J+1
+             DO I=JP,N
+                H(I,J)=H(I,J)-W(I)*Z(J)-W(J)*(Z(I)-WZ*W(I))
+             END DO
           END IF
-   70     CONTINUE
+       END DO
       END IF
-   80 CONTINUE
+      END DO
 C
 C     Form GG by applying the similarity transformation to G.
 C
       GSQ=ZERO
-      DO 90 I=1,N
-      GG(I)=G(I)
-   90 GSQ=GSQ+G(I)**2
+      DO I=1,N
+         GG(I)=G(I)
+         GSQ=GSQ+G(I)**2
+      END DO
       GNORM=DSQRT(GSQ)
-      DO 110 K=1,NM
-      KP=K+1
-      SUM=ZERO
-      DO 100 I=KP,N
-  100 SUM=SUM+GG(I)*H(I,K)
-      DO 110 I=KP,N
-  110 GG(I)=GG(I)-SUM*H(I,K)
+      DO K=1,NM
+         KP=K+1
+         SUM=ZERO
+         DO I=KP,N
+            SUM=SUM+GG(I)*H(I,K)
+         END DO
+         DO I=KP,N
+            GG(I)=GG(I)-SUM*H(I,K)
+         END DO
+      END DO
 C
 C     Begin the trust region calculation with a tridiagonal matrix by
 C     calculating the norm of H. Then treat the case when H is zero.
@@ -106,15 +117,17 @@ C
       HNORM=DABS(TD(1))+DABS(TN(1))
       TDMIN=TD(1)
       TN(N)=ZERO
-      DO 120 I=2,N
-      TEMP=DABS(TN(I-1))+DABS(TD(I))+DABS(TN(I))
-      HNORM=DMAX1(HNORM,TEMP)
-  120 TDMIN=DMIN1(TDMIN,TD(I))
+      DO I=2,N
+         TEMP=DABS(TN(I-1))+DABS(TD(I))+DABS(TN(I))
+         HNORM=DMAX1(HNORM,TEMP)
+         TDMIN=DMIN1(TDMIN,TD(I))
+      END DO
       IF (HNORM .EQ. ZERO) THEN
           IF (GNORM .EQ. ZERO) GOTO 400
           SCALE=DELTA/GNORM
-          DO 130 I=1,N
-  130     D(I)=-SCALE*GG(I)
+          DO I=1,N
+             D(I)=-SCALE*GG(I)
+          END DO
           GOTO 370
       END IF
 C
@@ -183,8 +196,9 @@ C
               DSQ=DSQ+D(K)**2
               GOTO 170
           END IF
-          DO 180 I=1,K
-  180     D(I)=ZERO
+          DO I=1,K
+             D(I)=ZERO
+          END DO
       END IF
       PARL=PAR
       PARLEST=PAR-DHD/DSQ
@@ -196,14 +210,16 @@ C
       IF (GSQ .EQ. ZERO) TEMP=TEMP*(ONE-TOL)
       IF (PARUEST .GT. ZERO .AND. PARLEST .GE. TEMP) THEN
           DTG=ZERO
-          DO 200 I=1,N
-  200     DTG=DTG+D(I)*GG(I)
+          DO I=1,N
+             DTG=DTG+D(I)*GG(I)
+          END DO
           SCALE=-DSIGN(DELTA/DSQRT(DSQ),DTG)
-          DO 210 I=1,N
-  210     D(I)=SCALE*D(I)
+          DO I=1,N
+             D(I)=SCALE*D(I)
+          END DO
           GOTO 370
-      END IF
-C
+       END IF
+C     
 C     Pick the value of PAR for the next iteration.
 C
   220 IF (PARU .EQ. ZERO) THEN
@@ -218,19 +234,22 @@ C
 C     Calculate D for the current PAR in the positive definite case.
 C
   230 W(1)=-GG(1)/PIV(1)
-      DO 240 I=2,N
-  240 W(I)=(-GG(I)-TN(I-1)*W(I-1))/PIV(I)
+      DO I=2,N
+         W(I)=(-GG(I)-TN(I-1)*W(I-1))/PIV(I)
+      END DO
       D(N)=W(N)
-      DO 250 I=NM,1,-1
-  250 D(I)=W(I)-TN(I)*D(I+1)/PIV(I)
+      DO I=NM,1,-1
+         D(I)=W(I)-TN(I)*D(I+1)/PIV(I)
+      END DO
 C
 C     Branch if a Newton-Raphson step is acceptable.
 C
       DSQ=ZERO
       WSQ=ZERO
-      DO 260 I=1,N
-      DSQ=DSQ+D(I)**2
-  260 WSQ=WSQ+PIV(I)*W(I)**2
+      DO I=1,N
+         DSQ=DSQ+D(I)**2
+         WSQ=WSQ+PIV(I)*W(I)**2
+      END DO
       IF (PAR .EQ. ZERO .AND. DSQ .LE. DELSQ) GOTO 320
 C
 C     Make the usual test for acceptability of a full trust region step.
@@ -240,11 +259,12 @@ C
       TEMP=TOL*(ONE+PAR*DSQ/WSQ)-DSQ*PHI*PHI
       IF (TEMP .GE. ZERO) THEN
           SCALE=DELTA/DNORM
-          DO 270 I=1,N
-  270     D(I)=SCALE*D(I)
+          DO I=1,N
+             D(I)=SCALE*D(I)
+          END DO
           GOTO 370
-      END IF
-      IF (ITERC .GE. 2 .AND. PAR .LE. PARL) GOTO 370
+       END IF
+       IF (ITERC .GE. 2 .AND. PAR .LE. PARL) GOTO 370
       IF (PARU .GT. ZERO .AND. PAR .GE. PARU) GOTO 370
 C
 C     Complete the iteration when PHI is negative.
@@ -271,19 +291,22 @@ C     If required, calculate Z for the alternative test for convergence.
 C
       IF (POSDEF .EQ. ZERO) THEN
           W(1)=ONE/PIV(1)
-          DO 280 I=2,N
-          TEMP=-TN(I-1)*W(I-1)
-  280     W(I)=(DSIGN(ONE,TEMP)+TEMP)/PIV(I)
+          DO I=2,N
+             TEMP=-TN(I-1)*W(I-1)
+             W(I)=(DSIGN(ONE,TEMP)+TEMP)/PIV(I)
+          END DO
           Z(N)=W(N)
-          DO 290 I=NM,1,-1
-  290     Z(I)=W(I)-TN(I)*Z(I+1)/PIV(I)
+          DO I=NM,1,-1
+             Z(I)=W(I)-TN(I)*Z(I+1)/PIV(I)
+          END DO
           WWSQ=ZERO
           ZSQ=ZERO
           DTZ=ZERO
-          DO 300 I=1,N
-          WWSQ=WWSQ+PIV(I)*W(I)**2
-          ZSQ=ZSQ+Z(I)**2
-  300     DTZ=DTZ+D(I)*Z(I)
+          DO I=1,N
+             WWSQ=WWSQ+PIV(I)*W(I)**2
+             ZSQ=ZSQ+Z(I)**2
+             DTZ=DTZ+D(I)*Z(I)
+          END DO
 C
 C     Apply the alternative test for convergence.
 C
@@ -292,8 +315,9 @@ C
           GAM=TEMPA/(DSIGN(TEMPB,DTZ)+DTZ)
           TEMP=TOL*(WSQ+PAR*DELSQ)-GAM*GAM*WWSQ
           IF (TEMP .GE. ZERO) THEN
-              DO 310 I=1,N
-  310         D(I)=D(I)+GAM*Z(I)
+              DO I=1,N
+                 D(I)=D(I)+GAM*Z(I)
+              END DO
               GOTO 370
           END IF
           PARLEST=DMAX1(PARLEST,PAR-WWSQ/ZSQ)
@@ -322,9 +346,10 @@ C
   320 SHFMIN=ZERO
       PIVOT=TD(1)
       SHFMAX=PIVOT
-      DO 330 K=2,N
-      PIVOT=TD(K)-TN(K-1)**2/PIVOT
-  330 SHFMAX=DMIN1(SHFMAX,PIVOT)
+      DO K=2,N
+         PIVOT=TD(K)-TN(K-1)**2/PIVOT
+         SHFMAX=DMIN1(SHFMAX,PIVOT)
+      END DO
 C
 C     Find EVALUE by a bisection method, but occasionally SHFMAX may be
 C     adjusted by the rule of false position.
@@ -363,14 +388,17 @@ C
 C
 C     Apply the inverse Householder transformations to D.
 C
-  370 NM=N-1
-      DO 390 K=NM,1,-1
-      KP=K+1
-      SUM=ZERO
-      DO 380 I=KP,N
-  380 SUM=SUM+D(I)*H(I,K)
-      DO 390 I=KP,N
-  390 D(I)=D(I)-SUM*H(I,K)
+ 370  NM=N-1
+      DO K=NM,1,-1
+         KP=K+1
+         SUM=ZERO
+         DO I=KP,N
+            SUM=SUM+D(I)*H(I,K)
+         END DO
+         DO I=KP,N
+            D(I)=D(I)-SUM*H(I,K)
+         END DO
+      END DO
 C
 C     Return from the subroutine.
 C

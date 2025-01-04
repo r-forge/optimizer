@@ -1,0 +1,16 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Geradin}{Geradin}{1971}]{Geradin71}
+Geradin, M. (1971).
+\newblock The computational efficiency of a new minimization algorithm for
+  eigenvalue analysis.
+\newblock {\em J. Sound Vib.\/}~{\em 19}, 319--331.
+
+\bibitem[\protect\citeauthoryear{Nash}{Nash}{1979}]{cnm79}
+Nash, J.~C. (1979).
+\newblock {\em Compact Numerical Methods for Computers: Linear Algebra and
+  Function Minimisation}.
+\newblock Bristol: Adam Hilger.
+\newblock Second Edition, 1990, Bristol: Institute of Physics Publications.
+
+\end{thebibliography}

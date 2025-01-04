@@ -33,10 +33,6 @@ nlsDeriv( ~ -x, "x")
 nlsDeriv( ~ abs(x), "x")
 nlsDeriv( ~ sign(x), "x")
 
-# This was wrong...
-
-nlsDeriv(expression(y), c("x", "y"))
-
 # Various simplifications
 
 nlsSimplify(quote(+(a+b)))
@@ -99,3 +95,30 @@ nlsSimplify(quote(if (cond) a+b else a+b))
 
 # This one was wrong...
 nlsSimplify(quote(--(a+b)))
+
+
+# From the Weeds problem
+
+  modelformula <- y ~ ms * b1/(1 + b2 * exp(-b3 * tt))
+  pvec <- c(b1=1, b2=1, b3=1)
+  cat("model2rjfunx: modelformula = ")
+  print(modelformula)
+  print(class(modelformula))
+
+  if (length(modelformula) == 2) {
+       residexpr <- modelformula[[2]]
+  } else if (length(modelformula) == 3) {
+       residexpr <- call("-", modelformula[[3]], modelformula[[2]])
+  } else stop("Unrecognized formula")
+    
+  if (is.null(names(pvec)))
+    names(pvec) <- paste0("p", seq_along(pvec))
+    
+  residexpr1 <- nlsDeriv( ~ residexpr, names(pvec))
+  cat("residexpr1:\n")
+  print(residexpr1) 
+## SHOULD TRY:
+  residexpr2 <- fnDeriv(residexpr, names(pvec))
+  cat("residexpr2:\n")
+  print(residexpr2)
+

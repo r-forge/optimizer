@@ -1,5 +1,3 @@
-# R-based replacement for deriv() function
-
 dex <- function(x, do_substitute = NA, verbose = FALSE) {
   expr <- substitute(x)
   if (is.na(do_substitute) || !do_substitute)
@@ -43,12 +41,13 @@ dex <- function(x, do_substitute = NA, verbose = FALSE) {
 }
 
 sysDerivs <- new.env(parent = emptyenv())
+
 sysSimplifications <- new.env(parent = emptyenv())
 
 newDeriv <- function(expr, deriv, derivEnv = sysDerivs) {
     if (missing(expr))
     	return(ls(derivEnv))
-    expr <- substitute(expr)
+    expr <- substitute(expr) # Get parse tree of expr 
     if (!is.call(expr))
     	stop("expr must be a call to a function")
     fn <- as.character(expr[[1]])
@@ -67,10 +66,11 @@ newDeriv <- function(expr, deriv, derivEnv = sysDerivs) {
     if (!is.null(oldval <- derivEnv[[fn]]) && !identical(value, oldval))
       warning(gettextf("changed derivative for %s", dQuote(fn)))
     assign(fn, value, envir = derivEnv)
-    invisible(value)
-}
+    invisible(value) # returns but does not print
+} 
 
-newSimplification <- function(expr, test, simplification, do_eval = FALSE, simpEnv = sysSimplifications) {
+newSimplification <- function(expr, test, simplification, 
+                              do_eval = FALSE, simpEnv = sysSimplifications) {
     if (missing(expr))
     	return(ls(simpEnv))
     expr <- substitute(expr)
@@ -108,7 +108,6 @@ newSimplification <- function(expr, test, simplification, do_eval = FALSE, simpE
     assign(fn, simps, envir = simpEnv)
 }
     	
-# This is a more general version of D()
 nlsDeriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, verbose = FALSE, ...) {
     Recurse <- function(expr) {
     	if (is.call(expr)) {
@@ -169,22 +168,26 @@ nlsDeriv <- function(expr, name, derivEnv = sysDerivs, do_substitute = FALSE, ve
         return( as.numeric(as.character(expr) == name) )
 }
 
-# This is a more general version of deriv(), since it allows user specified 
-# derivatives and simplifications
-
 codeDeriv <- function(expr, namevec, 
        hessian = FALSE, derivEnv = sysDerivs, 
        do_substitute = FALSE, verbose = FALSE, ...) {
+  
+  # Make sure expr is a single expression object
   expr <- dex(expr, do_substitute = do_substitute, verbose = verbose)
   expr <- as.expression(expr)
   if (length(expr) > 1)
     stop("Only single expressions allowed")
+  
+  # Set exprs[[1]] to exprs, fill in the rest with the derivatives
+  # that were requested
   exprs <- as.list(expr)
   n <- length(namevec)
   length(exprs) <- n + 1L
   for (i in seq_len(n))
     exprs[[i + 1]] <- nlsDeriv(expr[[1]], namevec[i], derivEnv = derivEnv, do_substitute = FALSE, verbose = verbose, ...)
   names(exprs) <- c(".value", namevec)
+  
+  # If a Hessian is requested, extend exprs to hold its entries
   if (hessian) {
     m <- length(exprs)
 	  length(exprs) <- m + n*(n+1)/2
@@ -195,6 +198,8 @@ codeDeriv <- function(expr, namevec,
 		                    do_substitute = FALSE, verbose = verbose, ...)
 	    }
   }
+  
+  # Find common subexpressions in the result 
   exprs <- as.expression(exprs)
   subexprs <- findSubexprs(exprs)
   m <- length(subexprs)
@@ -229,20 +234,29 @@ codeDeriv <- function(expr, namevec,
   m <- length(subexprs)
   subexprs[[m+1]] <- quote(attr(.value, "gradient") <- .grad)
   subexprs[[m+2]] <- quote(.value)
+  
+  # Return the version that reuses common subexpressions
   subexprs
 }
 
 fnDeriv <- function(expr, namevec, args = all.vars(expr), env = environment(expr),
                     do_substitute = FALSE, verbose = FALSE, ...) {
+  # Create a dummy function
   fn <- function() NULL
+  
+  # Set the body to the sequence of computations returned by codeDeriv
   expr <- dex(expr, do_substitute = do_substitute, verbose = verbose)
   body(fn) <- codeDeriv(expr, namevec, do_substitute = FALSE, verbose = verbose, ...)
+  
+  # Set the args 
   if (is.character(args)) {
     formals <- rep(list(bquote()), length = length(args))
     names(formals) <- args
     args <- formals
   }
   formals(fn) <- args
+  
+  # Set the environment and return it
   if (is.null(env))
     environment(fn) <- parent.frame()
   else
@@ -250,14 +264,14 @@ fnDeriv <- function(expr, namevec, args = all.vars(expr), env = environment(expr
   fn
 }
 
-if (getRversion() < "3.5.0") {
-  isFALSE <- function(x) identical(FALSE, x)
-} else 
-  isFALSE <- isFALSE
 isZERO <- function(x) is.numeric(x) && length(x) == 1 && x == 0
+
 isONE  <- function(x) is.numeric(x) && length(x) == 1 && x == 1
+
 isMINUSONE <- function(x) is.numeric(x) && length(x) == 1 && x == -1
+
 isCALL <- function(x, name) is.call(x) && as.character(x[[1]]) == name
+
 
 nlsSimplify <- function(expr, simpEnv = sysSimplifications, verbose = FALSE) {
     
@@ -304,46 +318,43 @@ findSubexprs <- function(expr, simplify = FALSE, tag = ".expr", verbose = FALSE,
     
     record <- function(index) {
         if (simplify)
-	    expr[[index]] <<- subexpr <- nlsSimplify(expr[[index]], verbose = verbose, ...)
-	else
-	    subexpr <- expr[[index]]
-	if (is.call(subexpr)) {
-	    digest <- digest(subexpr)
-	    for (i in seq_along(subexpr))
-		record(c(index,i))
-	    prev <- digests[[digest]]
-	    if (is.null(prev)) 
-		assign(digest, index, envir = digests)
-	    else if (is.numeric(prev))  { # the index where we last saw this
-	        subcount <<- subcount + 1
-		name <- as.name(paste0(tag, subcount))
-		assign(digest, name, envir = digests)
-	    }
-	}
-    }
+	         expr[[index]] <<- subexpr <- nlsSimplify(expr[[index]], 
+	                     verbose = verbose, ...)
+      	else
+     	    subexpr <- expr[[index]]
+        	if (is.call(subexpr)) {
+	           digest <- digest(subexpr)
+	           for (i in seq_along(subexpr))
+		         record(c(index,i))
+	           prev <- digests[[digest]]
+	           if (is.null(prev)) assign(digest, index, envir = digests)
+        	   else if (is.numeric(prev))  { # the index where we last saw this
+      	        subcount <<- subcount + 1
+		            name <- as.name(paste0(tag, subcount))
+		            assign(digest, name, envir = digests)
+        	   }
+	        }
+     }
     
-    edit <- function(index) {
-	subexpr <- expr[[index]]
-	if (is.call(subexpr)) {
-	    digest <- digest(subexpr)	    
-	    for (i in seq_along(subexpr))
-		edit(c(index,i))
-	    prev <- digests[[digest]]
-	    if (is.name(prev)) {
-		num <- as.integer(substring(as.character(prev), nchar(tag)+1L))
-		subexprs[[num]] <<- call("<-", prev, expr[[index]])
-		expr[[index]] <<- prev
-	    } 
-	}
-    }
-
-    
-    for (i in seq_along(expr)) record(i)
-    for (i in seq_along(expr)) edit(i)
-    result <- quote({})
-    result[seq_along(subexprs)+1] <- subexprs
-    result[[length(result)+1]] <- expr
-    result
+     edit <- function(index) {
+	     subexpr <- expr[[index]]
+	     if (is.call(subexpr)) {
+	       digest <- digest(subexpr)	    
+	       for (i in seq_along(subexpr)) edit(c(index,i))
+    	   prev <- digests[[digest]]
+	       if (is.name(prev)) {
+		       num <- as.integer(substring(as.character(prev), nchar(tag)+1L))
+		       subexprs[[num]] <<- call("<-", prev, expr[[index]])
+		       expr[[index]] <<- prev
+	       } 
+	     }
+     }
+     for (i in seq_along(expr)) record(i)
+     for (i in seq_along(expr)) edit(i)
+     result <- quote({})
+     result[seq_along(subexprs)+1] <- subexprs
+     result[[length(result)+1]] <- expr
+     result
 }
     
 # These are the derivatives supported by deriv()
@@ -467,3 +478,4 @@ newSimplification(if (cond) a else b, identical(a, b), a)
 # This one is used to fix up the unary -
 newSimplification(missing(a), identical(a, quote(.MissingVal)), TRUE)
 newSimplification(missing(a), !identical(a, quote(.MissingVal)), FALSE)
+

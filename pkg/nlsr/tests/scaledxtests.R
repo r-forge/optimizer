@@ -1,3 +1,4 @@
+# require(nlsr)
 require(nlsr)
 traceval  <-  TRUE  # traceval set TRUE to debug or give full history
 
@@ -16,9 +17,9 @@ cat("LOCAL DATA IN DATA FRAMES\n")
 weeddata1  <-  data.frame(y=ydat, tt=tdat)
 weeddata2  <-  data.frame(y=1.5*ydat, tt=tdat)
 
-anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data= weeddata1))
+anlxb1  <-  try(nlxb(eunsc, start=start1, trace=traceval, data= weeddata1, control=list(watch=TRUE)))
 print(anlxb1)
-
+summary(anlxb1)
 anlxb2  <-  try(nlxb(eunsc, start=start1, trace=traceval, data=weeddata2))
 print(anlxb2)
 

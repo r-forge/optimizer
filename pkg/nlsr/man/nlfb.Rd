@@ -1,143 +1,161 @@
 \name{nlfb}
 \alias{nlfb}
-\title{Nash variant of Marquardt nonlinear least squares solution via
-     qr linear solver.
-}
-\description{
-   Given a nonlinear model expressed as a vector valued residual function
-   \code{resfn} and a start vector of parameter values for that function, 
-   attempts to find the minimum of the residual sum of squares using the
-   Nash variant (Nash, 1979) of the Marquardt algorithm, where the linear 
-   sub-problem is solved by a qr method. This is a restructured version
-   of a function by the same name from package \code{nlmrt} which is now
-   deprecated.
-}
+\title{nlfb: nonlinear least squares modeling by functions}
 \usage{
-   nlfb(start, resfn, jacfn=NULL, trace=FALSE, lower=-Inf, upper=Inf, 
-         maskidx=NULL, weights=NULL, data=NULL, control, ...)
+nlfb(
+  start,
+  resfn,
+  jacfn = NULL,
+  trace = FALSE,
+  lower = -Inf,
+  upper = Inf,
+  weights = NULL,
+  data = NULL,
+  ctrlcopy = FALSE,
+  control = list(),
+  ...
+)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{resfn}{
-     A function that evaluates the residual vector for computing the elements of
-     the sum of squares function at the set of parameters \code{start}. Where this
-     function is created by actions on a formula or expression in \code{nlxb}, this
-     residual vector will be created by evaluation of the 'model - data', rather than
-     the conventional 'data - model' approach. The sum of squares is the same.
-}
-  \item{jacfn}{
-     A function that evaluates the Jacobian of the sum of squares function, that
-     is, the matrix of partial derivatives of the residuals with respect to each
-     of the parameters. If NULL (default), uses an approximation.
+\item{start}{a numeric vector with all elements present
+e.g., start=c(b1=200, b2=50, b3=0.3) 
+The start vector for this \code{nlfb}, unlike \code{nlxb}, does
+not need to be named.}
 
-     The Jacobian MUST be returned as the attribute "gradient" of this function,
-     allowing \code{jacfn} to have the same name and be the same code block
-     as \code{resfn}, which may permit some efficiencies of computation.
-}
-  \item{start}{
-     A named parameter vector. For our example, we could use
-        start=c(b1=1, b2=2.345, b3=0.123)
-     \code{nls()} takes a list, and that is permitted here also.
-}
-  \item{trace}{
-     Logical TRUE if we want intermediate progress to be reported. Default is FALSE.
-} 
-  \item{lower}{
-     Lower bounds on the parameters. If a single number, this will be applied to all
-     parameters. Default -Inf.
-} 
-  \item{upper}{
-     Upper bounds on the parameters. If a single number, this will be applied to all
-     parameters. Default Inf.
-} 
-  \item{maskidx}{
-     Vector oof indices of the parameters to be masked. These parameters will NOT be altered
-     by the algorithm. Note that the mechanism here is different from that in \code{nlxb}
-     which uses the names of the parameters.
+\item{resfn}{A function that evaluates the residual vector for 
+computing the elements of the sum of squares function at the set of 
+parameters \code{start}. Where this function is created by actions on 
+a formula or expression in \code{nlxb}, this residual vector will be 
+created by evaluation of the 'model - data', rather than 
+the conventional 'data - model' approach. The sum of squares is the same.}
 
-} 
+\item{jacfn}{A function that evaluates the Jacobian of the sum of squares 
+function, that is, the matrix of partial derivatives of the residuals 
+with respect to each of the parameters. If NULL (default), uses an 
+approximation.
 
-  \item{weights}{
-     A vector of fixed weights. The objective function that will be minimized is the
-     sum of squares where each residual is multiplied by the square root of the 
-     corresponding weight.  Default (NULL) implies unit weights.
-} 
-
-  \item{data}{
-     Data frame of variables used by resfn and jacfn to compute the
-     required residuals and Jacobian.
+The Jacobian MUST be returned as the attribute "gradient" of this function,
+allowing \code{jacfn} to have the same name and be the same code block
+as \code{resfn}, which may permit some efficiencies of computation.
 }
 
-  \item{control}{ 
-     A list of controls for the algorithm. These are:
-     \describe{
-      \item{\code{watch}}{Monitor progress if TRUE. Default is FALSE.}
-      \item{\code{phi}}{Default is phi=1, which adds phi*Identity to Jacobian inner product.}
-      \item{\code{lamda}}{Initial Marquardt adjustment (Default 0.0001). Odd spelling is deliberate.}
-      \item{\code{offset}}{Shift to test for floating-point equality. Default is 100.}
-      \item{\code{laminc}}{Factor to use to increase lamda. Default is 10.}
-      \item{\code{lamdec}}{Factor to use to decrease lamda is lamdec/laminc. Default lamdec=4.}
-      \item{\code{femax}}{Maximum function (sum of squares) evaluations. Default is 10000,
-            which is extremely aggressive.}
-      \item{\code{jemax}}{Maximum number of Jacobian evaluations. Default is 5000.}
-      \item{\code{ndstep}}{Stepsize to use to computer numerical Jacobian approximatin. Default
-            is 1e-7.}
-      \item{\code{rofftest}}{Default is TRUE. Use a termination test of the relative offset 
-            orthogonality type. Useful for nonlinear regression problems.}
-      \item{\code{smallsstest}}{Default is TRUE. Exit the function if the sum of squares falls
-            below (100 * .Machine$double.eps)^4 times the initial sumsquares. This is a test
-            for a ``small'' sum of squares, but there are problems which are very extreme 
-            for which this control needs to be set FALSE.}
-     }
-}
+\item{trace}{TRUE for console output during execution}
 
-  \item{\dots}{
-     Any data needed for computation of the residual vector from the expression
-       rhsexpression - lhsvar. Note that this is the negative of the usual residual,
-     but the sum of squares is the same. It is not clear how the dot variables should
-     be used, since data should be in 'data'.
-}
-}
-\details{
-    \code{nlfb} attempts to solve the nonlinear sum of squares problem by using
-    a variant of Marquardt's approach to stabilizing the Gauss-Newton method using
-    the Levenberg-Marquardt adjustment. This is explained in Nash (1979 or 1990) in
-    the sections that discuss Algorithm 23.
+\item{lower}{a vector of lower bounds on the parameters. 
+If a single number, this will be applied to all. Default \code{-Inf}.}
 
-    In this code, we solve the (adjusted) Marquardt equations by use of the 
-    \code{qr.solve()}. Rather than forming the J'J + lambda*D matrix, we augment
-    the J matrix with extra rows and the y vector with null elements. 
+\item{upper}{a vector of upper bounds on the parameters. If a single number, 
+this will be applied to all parameters. Default \code{Inf}.}
+
+\item{weights}{A vector of fixed weights or a function producing one.
+See the Details below.}
+
+\item{data}{a data frame of variables used by resfn and jacfn to compute the
+required residuals and Jacobian.}
+
+\item{ctrlcopy}{If TRUE use control supplied as is.
+           This avoids reprocessing controls.}
+
+\item{control}{a list of control parameters. See nlsr.control().}
+
+\item{...}{additional data needed to evaluate the modeling functions}
 }
 \value{
-  A list of the following items
-  \item{coefficients}{A named vector giving the parameter values at the supposed solution.}
+{
+  A list of the following items: \describe{
+  \item{coefficients}{A named vector giving the parameter values at
+         the supposed solution.}
   \item{ssquares}{The sum of squared residuals at this set of parameters.}
-  \item{resid}{The residual vector at the returned parameters.}
-  \item{jacobian}{The jacobian matrix (partial derivatives of residuals w.r.t. the parameters)
-           at the returned parameters.}
-  \item{feval}{The number of residual evaluations (sum of squares computations) used.}
+  \item{resid}{The weighted residual vector at the returned parameters.}
+  \item{jacobian}{The jacobian matrix (partial derivatives of residuals w.r.t.
+         the parameters) at the returned parameters.}
+  \item{feval}{The number of residual evaluations (sum of squares
+         computations) used.}
   \item{jeval}{The number of Jacobian evaluations used.}
+  \item{weights0}{The weights argument as specified.}
+  \item{weights}{The weights vector at the final fit.}
+}            
 }
-\references{
-%% ~put references to the literature/web site here ~
-     Nash, J. C. (1979, 1990) _Compact Numerical Methods for Computers.
-     Linear Algebra and Function Minimisation._ Adam Hilger./Institute
-     of Physics Publications
+}
+\description{
+A simplified and hopefully robust alternative to finding
+the nonlinear least squares minimizer that causes
+'formula' to give a minimal residual sum of squares.
+}
+\details{
+nlfb is particularly intended to allow for the
+resolution of very ill-conditioned or else near
+zero-residual problems for which the regular nls()
+function is ill-suited. 
 
-     others!!
+This variant uses a qr solution without forming the sum
+of squares and cross products t(J)%*%J
 
+Neither this function nor \code{nlxb} have provision for parameter
+scaling (as in the \code{parscale} control of \code{optim} and
+package \code{optimx}). This would be more tedious than difficult to
+introduce, but does not seem to be a priority feature to add.
+
+The \code{weights} argument can be a vector of fixed weights, in which
+case the objective function that will be 
+minimized is the sum of squares where each residual is multiplied by the 
+square root of the corresponding weight. Default \code{NULL} implies 
+unit weights.  \code{weights} may alternatively be a function with header \code{function(parms, resids)} to compute such a vector.
+}
+\examples{
+library(nlsr)
+# Scaled Hobbs problem
+shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
+  # This variant uses looping
+  if(length(x) != 3) stop("shobbs.res -- parameter vector n!=3")
+  y  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443,
+           38.558, 50.156, 62.948, 75.995, 91.972)
+  tt  <-  1:12
+  res  <-  100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*tt)) - y
+}
+shobbs.jac  <-  function(x) { # scaled Hobbs weeds problem -- Jacobian
+  jj  <-  matrix(0.0, 12, 3)
+  tt  <-  1:12
+  yy  <-  exp(-0.1*x[3]*tt)
+  zz  <-  100.0/(1+10.*x[2]*yy)
+  jj[tt,1]   <-   zz
+  jj[tt,2]   <-   -0.1*x[1]*zz*zz*yy
+  jj[tt,3]   <-   0.01*x[1]*zz*zz*yy*x[2]*tt
+  attr(jj, "gradient") <- jj
+  jj
+}
+st <- c(b1=2, b2=1, b3=1) # a default starting vector (named!)
+# Default controls, standard Nash-Marquardt algorithm
+anlf0 <- nlfb(start=st, resfn=shobbs.res, jacfn=shobbs.jac,
+               trace=TRUE, control=list(prtlvl=1))
+anlf0
+
+# Hartley with step reduction factor of .2
+anlf0h <- nlfb(start=st, resfn=shobbs.res, jacfn=shobbs.jac,
+              trace=TRUE, control=list(prtlvl=1, lamda=0, laminc=1.0,
+              lamdec=1.0, phi=0, stepredn=0.2))
+anlf0h
+
+anlf1bm <- nlfb(start=st, resfn=shobbs.res, jacfn=shobbs.jac, lower=c(2,0,0),
+                upper=c(2,6,3), trace=TRUE, control=list(prtlvl=1))
+anlf1bm
+cat("backtrack using stepredn=0.2\n")
+anlf1bmbt <- nlfb(start=st, resfn=shobbs.res, jacfn=shobbs.jac, lower=c(2,0,0),
+                upper=c(2,6,3), trace=TRUE, control=list(stepredn=0.2, prtlvl=1))
+anlf1bmbt
+## Short output
+pshort(anlf1bm)
+anlf2bm <- nlfb(start=st, resfn=shobbs.res, jacfn=shobbs.jac, lower=c(2,0,0),
+                upper=c(2,6,9), trace=TRUE, control=list(prtlvl=1))
+anlf2bm
+cat("backtrack using stepredn=0.2\n")
+
+anlf2bmbt <- nlfb(start=st, resfn=shobbs.res, jacfn=shobbs.jac, lower=c(2,0,0),
+                upper=c(2,6,9), trace=TRUE, control=list(stepredn=0.2, prtlvl=1))
+anlf2bmbt
+## Short output
+pshort(anlf2bm)
 }
 \author{
-John C Nash <nashjc@uottawa.ca>
+J C Nash 2014-7-16   nashjc _at_ uottawa.ca
 }
-
-\seealso{
-    Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
-}
-
-\examples{
-cat("See examples in nls-package.Rd\n")
-
-}
-\keyword{ nonlinear least squares }
-

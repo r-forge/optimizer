@@ -1,87 +1,40 @@
 \name{resgr}
 \alias{resgr}
-\title{Compute gradient from residuals and Jacobian.
-}
+\title{resgr}
 \description{
-   For a nonlinear model originally expressed as an expression of the form
-         lhs ~ formula_for_rhs
-   assume we have a resfn and jacfn that compute the residuals and the 
-   Jacobian at a set of parameters. This routine computes the gradient, 
-   that is, t(Jacobian) . residuals. 
+Computes the gradient of the sum of squares function for nonlinear least
+squares where \code{resfn} and \code{jacfn} supply the residuals and Jacobian
 }
 \usage{
-   resgr(prm, resfn, jacfn, ...)
+resgr(prm, resfn, jacfn, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{prm}{
-     A parameter vector. For our example, we could use
-        start=c(b1=1, b2=2.345, b3=0.123)
-     However, the names are NOT used, only positions in the vector.
-}
-  \item{resfn}{
-     A function to compute the residuals of our model at a parameter vector.
-}
-  \item{jacfn}{
-     A function to compute the Jacobian of the residuals at a paramter vector.
-}
-  \item{\dots}{
-     Any data needed for computation of the residual vector from the expression
-       rhsexpression - lhsvar. Note that this is the negative of the usual residual,
-     but the sum of squares is the same.
-}
+\item{prm}{a numeric vector of parameters to the model}
+
+\item{resfn}{a function to compute a vector of residuals}
+
+\item{jacfn}{a function to compute the Jacobian of the sum of squares. If
+    the value is quoted, then the function is assumed to be a numerical
+    approximation. Currently one of \code{"jafwd"}, \code{"jaback"}, 
+    \code{"jacentral"}, or  \code{"jand"}.}
+
+\item{...}{Extra information needed to compute the residuals}
 }
 \details{
-    \code{resgr} calls resfn to compute residuals and jacfn to compute the
-    Jacobian at the parameters \code{prm} using external data in the dot arguments.
-    It then computes the gradient using t(Jacobian) . residuals.
-
-    Note that it appears awkward to use this function in calls to optimization
-    routines. The author would like to learn why. 
+Does NOT (yet) handle calling of code built into selfStart models. That
+is, codes that in \code{nlxb} employ control \code{japprox="SSJac"}.
 }
 \value{
-    The numeric vector with the gradient of the sum of squares at the paramters.
-}
-\references{
-
-     Nash, J. C. (1979, 1990) _Compact Numerical Methods for Computers.
-     Linear Algebra and Function Minimisation._ Adam Hilger./Institute
-     of Physics Publications
-
+The main object returned is the numeric vector of residuals computed at \code{prm}
+by means of the function \code{resfn}. 
+There are \code{Jacobian} and \code{gradient} attributes giving the Jacobian
+(matrix of 1st partial derivatives whose row i contains the partial derivative
+of the i'th residual w.r.t. each of the parameters) and the gradient of the
+sum of squared residuals w.r.t. each of the parameters. Moreover, the Jacobian
+is repeated within the \code{gradient} attribute of the Jacobian. This somewhat
+bizarre structure is present for compatibility with \code{nls()} and some other
+legacy functions, as well as to simplify the call to \code{nlfb()}.
 }
 \author{
-John C Nash <nashjc@uottawa.ca>
+J C Nash 2014-7-16 revised 2022-11-22   nashjc _at_ uottawa.ca
 }
-
-\seealso{
-    Function \code{nls()}, packages \code{\link{optim}} and \code{optimx}.
-}
-
-\examples{
-shobbs.res  <-  function(x){ # scaled Hobbs weeds problem -- residual
-  # This variant uses looping
-  if(length(x) != 3) stop("hobbs.res -- parameter vector n!=3")
-  y  <-  c(5.308, 7.24, 9.638, 12.866, 17.069, 23.192, 31.443, 
-           38.558, 50.156, 62.948, 75.995, 91.972)
-  tt  <-  1:12
-  res  <-  100.0*x[1]/(1+x[2]*10.*exp(-0.1*x[3]*tt)) - y
-}
-
-shobbs.jac  <-  function(x) { # scaled Hobbs weeds problem -- Jacobian
-  jj  <-  matrix(0.0, 12, 3)
-  tt  <-  1:12
-  yy  <-  exp(-0.1*x[3]*tt)
-  zz  <-  100.0/(1+10.*x[2]*yy)
-  jj[tt,1]   <-   zz
-  jj[tt,2]   <-   -0.1*x[1]*zz*zz*yy
-  jj[tt,3]   <-   0.01*x[1]*zz*zz*yy*x[2]*tt
-  attr(jj, "gradient") <- jj
-  jj
-}
-
-st  <-  c(b1=1, b2=1, b3=1)
-RG <- resgr(st, shobbs.res, shobbs.jac)
-RG
-}
-\keyword{ nonlinear least squares }
-

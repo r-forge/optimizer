@@ -1,47 +1,21 @@
 \name{predict.nlsr}
 \alias{predict.nlsr}
-\title{Predictions for models specified as a formula of style y ~ (something)
+\title{predict.nlsr}
+\usage{
+\method{predict}{nlsr}(object = NULL, newdata = list(), ...)
+}
+\arguments{
+\item{object}{an object of class \code{nlsr}}
+
+\item{newdata}{a dataframe containing columns that match the original dataframe
+used to estimate the nonlinear model in the \code{nlsr} object}
+
+\item{...}{additional data needed to evaluate the modeling functions
+Default FALSE}
 }
 \description{
-    Function to allow predictions from nonlinear models estimated with
-    \code{nlxb} from package \code{nlsr} if the model is specified by
-    a formula with the structure y ~ (something).
-}
-\usage{
-## S3 method for class 'nlsr'
- \method{predict}{nlsr}(object, newdata,...)
-}
-%- maybe also 'usage' for other objects documented here.
-\arguments{
-  \item{object}{
-     The output object of executing \code{nlxb} to estimate the model.
-     An object of class 'nlsr'.}
-  \item{newdata}{
-     A named list containing the new data. This should be derived from
-     a data frame of the same structure as the data used to estimate the
-     model.}
-  \item{\dots}{
-     Any data needed for the function. We do not know of any! This is NOT
-     currently used.
-}
-}
-\details{
-
-    To be added.
-}
-\value{
-    Returns the predictions.
+prepare and display predictions from an \code{nlsr} model
 }
 \author{
-John C Nash <nashjc@uottawa.ca>
+J C Nash 2014-7-16   nashjc _at_ uottawa.ca
 }
-\examples{
-
-cat("See examples in nlsr-package.Rd and in vignettes.\n")
-
-}
-\seealso{
-    Function \code{nls()}.
-}
-\keyword{ nonlinear least squares }
-

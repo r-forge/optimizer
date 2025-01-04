@@ -23,7 +23,7 @@ simfun.h = function(x) {
 strt <- c(1,2,3)
 ansfgh <- optimr(strt, simfun.f, simfun.g, simfun.h, method="nlm", 
      hessian=TRUE, control=list(trace=2))
-ansfgh
+proptimr(ansfgh)
 
 ansall <- opm(strt, simfun.f, simfun.g, simfun.h, method="ALL")
 summary(ansall, order=value)

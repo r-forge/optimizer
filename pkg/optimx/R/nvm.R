@@ -1,12 +1,12 @@
-nvm <- function(par, fn, gr = NULL, lower = NULL, 
-  upper = NULL, bdmsk = NULL, control = list(), ...) {
+nvm <- function(par, fn, gr, bds, control = list()) {
   #
   #  Author:  John C Nash
-  #  Date:    Dec 6, 2021 update, 2022-6-11 revision to single code
+  #  Date:    Jan 22, 2023 update
   #
   ## An R version of the Nash version of Fletcher's Variable
   #   Metric minimization -- bounds constrained parameters
   # This uses a simple backtracking line search.
+  # This version to be called from optimr()
   #
   # Input:
   # par  = a vector containing the starting point
@@ -14,16 +14,7 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
   #   differentiable)
   # gr = gradient of objective function, provided as a function
   #   or the character name of a numerical approximation function
-  #  lower = vector of lower bounds on parameters
-  #  upper = vector of upper bounds on parameters
-  # Note: free parameters outside bounds will be adjusted to
-  #   bounds unless control$keepinputpar = TRUE.
-  # bdmsk = control vector for bounds and masks. Parameters
-  #   for which bdmsk are 1 are unconstrained or 'free', 
-  #   those with bdmsk 0 are masked i.e., fixed.
-  # For historical reasons, we use the same array as an
-  #   indicator that a parameter is at a lower bound (-3) 
-  #   or upper bound (-1) 
+  # bds = output of bmchk for bounds and masks. 
   #   # control = list of control parameters
   #    maxit = a limit on the number of iterations (default 500)
   #    trace = 0 (default) for no output,
@@ -35,7 +26,7 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
   #             500 + 2*n )
   #    maxfeval = a limit on the function evaluations (default
   #             3000 + 10*n )
-  #    maximize = TRUE to maximize the function (default FALSE)
+  #  ###NOT ALLOWED###  maximize = TRUE to maximize the function (default FALSE)
   #    reltest = 100.0 (default). Additive shift for equality test.
   #    stopbadupdate = TRUE (default). Don't stop when steepest
   #             descent search point results in failed inverse 
@@ -83,7 +74,7 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
   #################################################################
   # control defaults
   n <- as.integer(length(par))  # number of elements in par vector
-  maxit <- 500 + 2L * n
+  maxit <- 500 + 2L * n  
   maxfeval <- 3000 + 10L * n
   ctrl <- list(maxit = maxit, maxfeval = maxfeval, maximize = FALSE, 
     trace = 0, eps = 1e-07, dowarn = TRUE, acctol = 0.0001, stepredn=0.2,
@@ -94,34 +85,39 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
   ctrl[namc] <- control  #
   maxit <- ctrl$maxit  #
   maxfeval <- ctrl$maxfeval  #
-  maximize <- ctrl$maximize  # TRUE to maximize the function
+  # ONLY MINIMIZE -- max in optimr(): maximize <- ctrl$maximize # TRUE to maximize 
   trace <- ctrl$trace  #
   eps <- ctrl$eps  #
   acctol <- ctrl$acctol # 130125
   dowarn <- ctrl$dowarn  #
   stepredn <- ctrl$stepredn
   reltest <- ctrl$reltest
+  smallstep <- reltest*.Machine$double.eps
   stopbadupdate <- ctrl$stopbadupdate
-  fargs <- list(...)  # the ... arguments that are extra function / gradient data
-  #################################################################
-  cat("lower:"); print(lower)
-  cat("upper:"); print(upper)
-  cat("par:"); print(par)
-  # check if there are bounds
-  if (is.null(lower) || !any(is.finite(lower))) nolower = TRUE
-  else nolower = FALSE
-  if (is.null(upper) || !any(is.finite(upper))) noupper = TRUE
-  else noupper = FALSE
-  # Next test bdmsk
-  if (nolower && noupper && all(as.logical(bdmsk)) ) { bounds = FALSE } else { bounds = TRUE }
-  if (trace > 1) { cat("Bounds: nolower = ", nolower, "  noupper = ", noupper, 
-           " bounds = ", bounds, "\n") }
-  #################################################################
+  lower <- bds$lower
+  upper <- bds$upper
+  # fargs <- list(...)  # the ... arguments that are extra function / gradient data
   ## Set working parameters (See CNM Alg 22)
   if (trace > 0) { cat("nvm -- J C Nash 2009-2015 - an R implementation of Alg 21\n") }
+  #################################################################
+  if (trace > 1) {
+    cat("lower:"); print(lower)
+    cat("upper:"); print(upper)
+    cat("par:"); print(par)
+  }
+  # check if there are bounds
+  if (is.null(bds)) {
+     bounds <- FALSE; bdmsk<-rep(1,n)
+  } else {
+    bounds <- bds$bounds
+    if (trace > 1) { cat("Bounds: nolower = ", bds$nolower, "  noupper = ",
+        bds$noupper, " bounds = ", bounds, "\n") }
+    bdmsk <- bds$bdmsk
+  }
+  #################################################################
   bvec <- par  # copy the parameter vector
-  n <- length(bvec)  # number of elements in par vector
-  if (trace > 0) { cat("Problem of size n=", n, "  Dot arguments:\n"); print(fargs) }
+#  n <- length(bvec)  # number of elements in par vector
+  if (trace > 0)  cat("Problem of size n=", n,"\n")
   ifn <- 1  # count function evaluations
   ceps <- .Machine$double.eps * reltest
   dblmax <- .Machine$double.xmax  # used to flag bad function
@@ -130,14 +126,9 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
   if (is.null(gr)) {  # if gr function is not provided STOP 
     stop("A gradient calculation (analytic or numerical) MUST be provided for nvm")
   }
-  if (is.character(gr)) { # assume numerical gradient
-  # Convert string to function call, assuming it is a numerical gradient function
-    if (trace > 0) cat("WARNING: using gradient approximation '",gr,"'\n")
-    mygr<-function(par=par, userfn=fn, ...){ do.call(gr, list(par, userfn, ...)) }
-  } else {  mygr<-gr } # end else
+  else {  mygr<-gr } # end else
   ############# end test gr ####################
-  # Assume bounds already checked 150108
-  f<-try(fn(bvec, ...), silent=TRUE) # Compute the function.
+  f<-try(fn(bvec), silent=FALSE) # Compute the function. NO dotargs!!!
   if (inherits(f,"try-error") | is.na(f) | is.null(f) | is.infinite(f)) {
      msg <- "Initial point gives inadmissible function value"
      conv <- 20
@@ -148,15 +139,15 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
        "message", "bdmsk")
      return(ans)
   }
-  if (maximize) f <- -f
+#  if (maximize) f <- -f
   if (trace > 0) cat("Initial fn=", f, "\n")
   if (trace > 2) print(bvec)
   keepgoing <- TRUE  # to ensure loop continues until we are finished
   ig <- 1  # count gradient evaluations
   ilast <- ig  # last time we used gradient as search direction
   fmin <- f  # needed for numerical gradients
-  g <- mygr(bvec, ...)  # Do we need to use try() ?
-  if (maximize) g <- -g
+  g <- mygr(bvec)  # Do we need to use try() ?
+#  if (maximize) g <- -g
   if (trace > 2) { cat("g:"); print(g) }
   oldstep <- 1
   conv <- -1
@@ -217,6 +208,8 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
       # Must be going downhill OR be converged
       ########################################################
       ####      Backtrack only Line search                ####
+#      btlim <- 6 # limit to 6 steps
+#      btst <- 0 # number of backtrack steps
       changed <- TRUE  # Need to set so loop will start
       steplength <- oldstep # 131202 - 1 seems best value (Newton step)
       while (changed && (!accpoint)) {
@@ -235,6 +228,7 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
               }
               if (trace > 2) cat("steplength, trystep:", steplength, trystep, "\n")
               steplength <- min(steplength, trystep)  # reduce as necessary
+              if (steplength <= smallstep) { steplength <- 0 } # no progress
             }  # end steplength reduction
           }  # end loop on i to reduce step length
           if (trace > 1) cat("reset steplength=", steplength, "\n")
@@ -245,9 +239,9 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
         if (trace > 2) cat("changed =",changed,"\n")
         if (changed) {
           # compute new step, if possible
-          f <- try(fn(bvec, ...))
+          f <- try(fn(bvec))
           if (inherits(f, "try-error")) f <- .Machine$double.xmax
-          if (maximize) f <- -f
+#          if (maximize) f <- -f
           if (trace > 2) cat("New f=",f," lower = ",(f < fmin),"\n")
           ifn <- ifn + 1
           if (ifn > maxfeval) {
@@ -274,8 +268,21 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
           if (trace > 2) cat("accpoint = ", accpoint,"\n")
           if (! accpoint) {
             steplength <- steplength * stepredn
+#            btst <- btst + 1
             if (trace > 0) cat("*")
           }
+#          if (btst >= btlim) {
+#             if (trace > 0) cat(" ",btlim," reductions ",fmin," ",f,"\n")
+#             t <- -g
+#             btst <- 0 # start again
+#             if (ig == ilast+1) {
+#               keepgoing=FALSE # stop on update failure for s.d. search
+#             #  if (trace > 2) cat("keepgoing = ",keepgoing,"\n")
+#               conv <- 3
+#               break
+#             }
+#             ilast <- ig  # note gradient evaluation when update failed
+#          }  # end bad backtrack
         } # end changed
         else { # NOT changed in step reduction
           if (trace > 1) cat("Unchanged in step redn \n")
@@ -301,11 +308,11 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
           }  # end test on free params
         }  # end reactivate constraints loop
       }  # if bounds
-      test <- try(g <- mygr(bvec, ...), silent = TRUE) 
+      test <- try(g <- mygr(bvec), silent = FALSE)
       if (inherits(test, "try-error")) stop("Bad gradient!!")
       if (any(is.nan(g))) stop("NaN in gradient")
       ig <- ig + 1
-      if (maximize) g <- -g
+#      if (maximize) g <- -g
       if (ig > maxit) {
         keepgoing = FALSE
         msg = "Too many gradient evaluations"
@@ -380,7 +387,7 @@ nvm <- function(par, fn, gr = NULL, lower = NULL,
       }  # end else ig != ilast
     }  # end else no accpoint
   }  # end main loop  (while keepgoing)
-  if (maximize) fmin <- (-1) * fmin
+#  if (maximize) fmin <- (-1) * fmin
   if (trace > 0) cat("Seem to be done nvm\n")
   msg <- "nvm appears to have converged"
   counts <- c(ifn, ig)

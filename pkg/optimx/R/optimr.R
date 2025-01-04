@@ -1,14 +1,19 @@
-# optimrt -- try to avoid arg clash issues
 optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=Inf, 
             hessian=FALSE, control=list(), ...) {
-
+  parOK<-is.vector(par, mode="double")
+  if (! parOK) {
+     warning("optimr: par is NOT a vector of type double -- coercing")
+     par <- as.vector(as.double(par))
+  }
+  npar <- length(par)
+  parnam<-names(par)
+  fname <- as.list(sys.call())$fn # Following FAILED rlang::as_name(as.list(sys.call())$fn)
   if (length(method) > 1) stop("optimr requires single method")
   if (is.null(method)) method <- control$defmethod # Set a default method
   fn1 <- function(par) fn(par,...) # avoid dotarg clashes
   gr1 <- if (!is.null(gr) && !is.character(gr)) function(par) gr(par,...) # ?? will this fail for quoted names
   he1 <- if (!is.null(hess) && !is.character(hess)) function(par) hess(par,...) 
 
-  npar <- length(par)
   ctrl <- ctrldefault(npar)
   ncontrol <- names(control)
   nctrl <- names(ctrl)
@@ -34,7 +39,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
      }
      mcontrol <- sctrl
   }
-  fname<-attr(fn,"fname")
   if (is.null(fname)) fname <- "(no_name)"
   control <- ctrl # note the copy back! control now has a FULL set of values
   # select numerical approx for jacobian and hessian
@@ -47,15 +51,16 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
   if (is.null(outmethod)) {
 		if (control$trace > 0) cat("Solver ",method," missing\n")
 		ans<-list() # ans not yet defined, so set as list
-                ans$convergence <- 8888 # failed in run
+    ans$convergence <- 8888 # failed in run
 		ans$value <- control$badval
 		ans$par<-rep(NA,npar)
-                attr(ans$par, "status")<-rep("?",npar)
-	        ans$counts[1] <- NA # save function and gradient count information
-	        ans$counts[2] <- NA # save function and gradient count information
-	        ans$message <- paste("Missing method ",method)
-                ans$hessian <- NULL
-                return(ans) # can't proceed without solver
+    attr(ans$par, "status")<-rep("?",npar)
+	  ans$counts[1] <- NA # save function and gradient count information
+	  ans$counts[2] <- NA # save function and gradient count information
+	  ans$message <- paste("Missing method ",method)
+    ans$hessian <- NULL
+    names(ans$par) <- parnam # restore the names
+    return(ans) # can't proceed without solver
   }
 
 # Check if bounded
@@ -63,11 +68,13 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 # ?? check if method is a bounded method?
 
   bdmsk <- bmchk(par, lower=lower, upper=upper, shift2bound=TRUE, trace=control$trace)
-  if (bdmsk$parchanged) {
-      warning("Parameter(s) changed to nearest bounds")
-      par <- bdmsk$bvec
-  }
+  if (! bdmsk$feasible) stop("infeasible starting parameters")
+#  if (bdmsk$parchanged) {
+#      warning("Parameter(s) changed to nearest bounds")
+#      par <- bdmsk$bvec
+#  }
   control$have.bounds <- bdmsk$bounds # and set a control value
+  if (control$have.bounds && !(method %in% control$bdmeth)) stop("Bounded problem with unsuitable method")
 
   orig.method <- method
   if (!is.null(gr) && !is.character(gr)) { orig.gr <- gr1 } else {orig.gr <- gr }
@@ -114,6 +121,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 
   efn <- function(spar) { # dotargs removed 230619
       optsp$kfn<-optsp$kfn+1 # counter
+# Emergency stop mechanism commented out as it will not stop gracefully from opm()
+#      cat("efn::control$maxfeval=",control$maxfeval," optsp$kfn=",optsp$kfn,"\n")
+#      if (optsp$kfn > 2 * control$maxfeval) stop("Emergency stop on function evaluation count")
       # rely on pscale being defined in this enclosing environment
       par <- spar*pscale
       val <- fn1(par) * fnscale
@@ -123,9 +133,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 
   if (is.character(gr)) { # approximation to gradient
      if ( ! (gr %in% control$grapprox)) stop(gr," is not a valid gradient approximation code")
+     if (control$trace>0) cat("Using numerical approximation '",gr,"' to gradient in optimr()\n")
      egr <- function(spar){ 
-       optsp$kgr<-optsp$kgr+1 # counter
-       if (control$trace>0) cat("Using numerical approximation '",gr,"' to gradient in optimr()\n")
+       optsp$kgr<-optsp$kgr+1 # counter # 20241202 -- was missing from scounts
        if (control$trace > 2) {
          cat("par:"); print(par)
          cat("fnscale =",fnscale,"  pscale="); print(pscale)
@@ -140,6 +150,9 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
     else {
        egr <- function(spar) {
          optsp$kgr<-optsp$kgr+1 # counter
+# Emergency stop mechanism commented out as it will not stop gracefully from opm()
+#         cat("egr::control$maxit=",control$maxit," optsp$kgr=",optsp$kgr,"\n")
+#         if (optsp$kgr > 2 * control$maxit) stop("Emergency stop on gradient evaluation count")
          par <- spar*pscale
          result <- gr1(par) * pscale * fnscale
        }
@@ -213,11 +226,10 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
   optsp$kgr <- 0
   optsp$khe <- 0
 
-
-  
-  nlmfn <- NULL # ensure fn for nlm and Rtnmin is undefined unless we need it
-  if (("Rtnmin" == method) || ("nlm" == method)) {
-    nlmfn <- function(spar){ # dotargs removed 230619
+  fghfn <- NULL # ensure fn for nlm is undefined unless we need it
+  fgfn <- NULL # ensure fn for nlm is undefined unless we need it
+  if ("nlm" == method) {
+    fghfn <- function(spar){ # dotargs removed 230619
       f <- efn(spar) # dotargs removed 230619
       if (is.null(egr)) {g <- NULL} else {g <- egr(spar)} # dotargs removed 230619 
       attr(f,"gradient") <- g
@@ -225,7 +237,15 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       attr(f,"hessian") <- h
       f
     }
-  } # end definition of nlmfn
+  } # end definition of fghfn
+  if ("Rtnmin" == method) {
+    fgfn <- function(spar){ # dotargs removed 230619
+      f <- efn(spar) # dotargs removed 230619
+      if (is.null(egr)) {g <- NULL} else {g <- egr(spar)} # dotargs removed 230619 
+      attr(f,"gradient") <- g
+      f
+    }
+  } # end definition of fgfn
 
 ## Masks 
    maskmeth <- control$maskmeth
@@ -279,13 +299,12 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             if(control$trace > 3) cat("L-BFGS-B start: ")
             ans <- try(optim(par=par, fn=efn, gr=egr, 
                       lower=lower, upper=upper, method="L-BFGS-B", hessian=FALSE, 
-                       control=mcontrol, ...))
+                       control=mcontrol)) # remove , ... 231016
             if(control$trace > 3) cat(" ans$value=",ans$value,"\n")
           }
         } else {
           ans <- try(optim(par=par, fn=efn, gr=egr, 
-                method=method, hessian=FALSE, control=mcontrol))
-#                method=method, hessian=FALSE, control=mcontrol, ...))
+                method=method, hessian=FALSE, control=mcontrol)) # remove , ... 231016
         }
         if (inherits(ans,"try-error")) { # bad result -- What to do?
 		  ans<-list() # ans not yet defined, so set as list
@@ -318,7 +337,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         ans <- try(nlminb(start=spar, objective=efn, gradient=egr, hessian=ehess, lower=slower, 
 		upper=supper, control=mcontrol))
-#		upper=supper, control=mcontrol,  ...))
         if (! inherits(ans, "try-error")) {
 		# Translate output to common format and names
         	ans$value<-ans$objective
@@ -358,8 +376,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             class(ans)[1] <- "try-error"
         } else {
           if (! is.null(control$trace) && (control$trace > 0) ) {print.level <- 2 } 
-#          ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, print.level=print.level, ...))
-           ans <- try(nlm(f=nlmfn, p=spar, iterlim=iterlim, print.level=print.level))
+#          ans <- try(nlm(f=fghfn, p=spar, iterlim=iterlim, print.level=print.level, ...))
+           ans <- try(nlm(f=fghfn, p=spar, iterlim=iterlim, print.level=print.level))
         }
         if (! inherits(ans, "try-error")) {
 		if (ans$code == 1 || ans$code == 2 || ans$code == 3) ans$convergence <- 0
@@ -396,11 +414,11 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
         mcontrol$stepredn <- control$stepredn # 220217
+        mcontrol$maxfeval <- control$maxfeval # 241023
+#        print(mcontrol)
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         if (! is.null(egr)) { #?? why not slower, supper?
-   	     ans <- try(ncg(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,
-#                        bdmsk=bdmsk$bdmsk, control=mcontrol, ...))
-                         bdmsk=bdmsk$bdmsk, control=mcontrol))
+   	     ans <- try(ncg(par=spar, fn=efn, gr=egr, bds=bdmsk, control=mcontrol))
         }
         if (!is.null(egr) && !inherits(ans, "try-error")) {
                 ans$par <- ans$par*pscale
@@ -431,6 +449,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       else if (method == "Rcgmin") { # Use Rcgmin routine (ignoring masks)
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
+        mcontrol$maxfeval <- control$maxfeval # 241023
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         if (! is.null(egr)) {
   	  if (control$have.bounds) { # 151220 -- this was not defined
@@ -472,10 +491,13 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         mcontrol$trace <- control$trace
         mcontrol$maxit <- control$maxit # 151217 JN
         mcontrol$stepredn <- control$stepredn # 220217
+        mcontrol$maxfeval <- control$maxfeval # 241023
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         if (! is.null(egr)) { #?? why not slower, supper?
-   	     ans <- try(nvm(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,
-                         bdmsk=bdmsk$bdmsk, control=mcontrol))
+# 230622 update to simplify call
+   	     ans <- try(nvm(par=spar, fn=efn, gr=egr, bds=bdmsk, control=mcontrol))
+#   	     ans <- try(nvm(par=spar, fn=efn, gr=egr, lower=slower, upper=supper,
+#                         bdmsk=bdmsk$bdmsk, control=mcontrol))
 #                        bdmsk=bdmsk$bdmsk, control=mcontrol, ...))
         }
         if (!is.null(egr) && !inherits(ans, "try-error")) {
@@ -576,7 +598,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
        	   }
        	   if(is.null(ehess)) {
        	     ans$message <- "Must specify Hessian function (hess) for snewton"
-       	     ans$convergence <- 9997 # for no gradient where needed
+       	     ans$convergence <- 9997 # for no Hessian where needed
        	     warning("Note: snewton needs Hessian function (hess) specified")
        	   }
        	}
@@ -609,7 +631,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
          ## return(ans)
       }  ## end if using snewton
   ## --------------------------------------------
-  else if (method == "snewtonm") { # Use snewtonm routine
+  else if ((method == "snewtm") || (method=="snewtonm")) { # Use snewtm/snewtonm routine
     mcontrol$maxit <- control$maxit
     mcontrol$maxfeval <- control$maxfeval # changed from maxfevals 180321
     mcontrol$trace <- control$trace # 140902 Note no check on validity of values
@@ -618,13 +640,15 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
     ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
     if ( (! is.null(egr)) && (! is.null(ehess)) ) {
       if (control$have.bounds) { # 170919 make package explicit
-        tans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, lower=slower,
-                upper=supper, control=mcontrol))
+        tans <- try( snewtm(par=spar, fn=efn, gr=egr, hess=ehess, bds=bdmsk, control=mcontrol))
+#        tans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, lower=slower,
+#                upper=supper, control=mcontrol))
 #                upper=supper, control=mcontrol, ...))
         # added 20220210. masks NOT checked yet??
       }
 #      else tans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol,...))
-       else tans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol))
+#       else tans <- try( snewtonm(par=spar, fn=efn, gr=egr, hess=ehess, control=mcontrol))
+        else tans <- try( snewtm(par=spar, fn=efn, gr=egr, hess=ehess, bds=bdmsk, control=mcontrol))
       if (control$trace>0) {
            cat("snewtonm returns tans:")
            print(tans)
@@ -677,7 +701,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       }
     } # end have answer
     ## return(ans)
-  }  ## end if using snewtonm
+  }  ## end if using snewtm
   ## --------------------------------------------
       else if (method == "hjn") {# Use JN Hooke and Jeeves
         if (control$trace > 1) { 
@@ -786,17 +810,17 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             ans$invhessian.lt <- NULL
 		        if (control$trace > 0) cat("ucminf message:",ans$message,"\n")
             } else { # ucminf failed
-            		if (control$trace > 0) cat("ucminf failed for this problem\n")
-		            ans<-list() # ans not yet defined, so set as list
+      		if (control$trace > 0) cat("ucminf failed for this problem\n")
+	        ans<-list() # ans not yet defined, so set as list
                 ans$convergence <- 9999 # failed in run
-		            ans$value <- control$badval
-		            ans$par<-rep(NA,npar)
-	               ans$counts[1] <- NA # save function and gradient count information
-	               ans$counts[2] <- NA # save function and gradient count information
-	               ans$message <- errmsg
+	        ans$value <- control$badval
+	        ans$par<-rep(NA,npar)
+	        ans$counts[1] <- NA # save function and gradient count information
+	        ans$counts[2] <- NA # save function and gradient count information
+	        ans$message <- errmsg
                 ans$hessian <- NULL
-          }
-          uhessian <- NULL
+            }
+            uhessian <- NULL
           ## return(ans)
       }  ## end if using ucminf
 ## --------------------------------------------
@@ -806,47 +830,48 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         errmsg <- NA
         class(ans)[1] <- "undefined" # initial setting
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
+## Count limits NOT working for Rtnmin
+##        mcontrol$maxit <- control$maxit
+##        mcontrol$maxfun <- control$maxfevals        
         if (is.null(egr)) { ## fixed msg below (referred to lbfgs) 170214
             if (control$trace > 0) cat("Rtnmin MUST have gradient provided\n")
             errmsg <- "Rtnmin MUST have gradient provided"
             class(ans)[1] <- "try-error"            
         } else {
            if (control$have.bounds) {
-   	      ans <- try(tnbc(x=spar, fgfun=nlmfn, lower=slower,
-                   upper=supper, trace=mcontrol$trace))
-#                   upper=supper, trace=mcontrol$trace, ...))
+   	      ans <- try(tnbc(x=spar, fgfun=fgfn, lower=slower,
+                   upper=supper, trace=mcontrol$trace, control=mcontrol))
            } else {
-#   	      ans <- try(tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace, ...))
-   	      ans <- try(tn(x=spar, fgfun=nlmfn, trace=mcontrol$trace))
+   	      ans <- try(tn(x=spar, fgfun=fgfn, trace=mcontrol$trace, control=mcontrol))
 	   }
         }
         if (inherits(ans,"try-error")) {
-        	if (control$trace>0) cat("Rtnmin failed for current problem \n")
-                ans$convergence <- 9999 # failed in run
-	        ans$message <- "Rtnmin failed fo current problem"        
-                if (is.null(egr)) {
-                   ans$convergence <- 9998
-                   ans$message <- errmsg
-                   ans$value <- 1234567E20
-                } 
-		ans$value <- control$badval
-		ans$par<-rep(NA,npar)
-	        ans$counts[1] <- NA # save function and gradient count information
-	        ans$counts[2] <- NA 
-                ans$hessian <- NULL
+           if (control$trace>0) cat("Rtnmin failed for current problem \n")
+           ans$convergence <- 9999 # failed in run
+	   ans$message <- "Rtnmin failed fo current problem"        
+           if (is.null(egr)) {
+              ans$convergence <- 9998
+              ans$message <- errmsg
+              ans$value <- 1234567E20
+           } 
+	   ans$value <- control$badval
+	   ans$par<-rep(NA,npar)
+	   ans$counts[1] <- NA # save function and gradient count information
+	   ans$counts[2] <- NA 
+           ans$hessian <- NULL
         } else {
-                ans$par <- ans$xstar*pscale
-                ans$xstar <- NULL
-                ans$value <- as.numeric(ans$f)
-                ans$f <- NULL
-                ans$g <- NULL
-		ans$convergence <- ans$ierror
-                ans$ierror <- NULL
-	        ans$counts[1] <- ans$nfngr
-	        ans$counts[2] <- ans$nfngr
-                ans$nfngr <- NULL
-                ans$hessian <- NULL
-	        ans$message <- NA
+           ans$par <- ans$xstar*pscale
+           ans$xstar <- NULL
+           ans$value <- as.numeric(ans$f)
+           ans$f <- NULL
+           ans$g <- NULL
+	   ans$convergence <- ans$ierror
+           ans$ierror <- NULL
+	   ans$counts[1] <- ans$nfngr
+	   ans$counts[2] <- ans$nfngr
+           ans$nfngr <- NULL
+           ans$hessian <- NULL
+	   ans$message <- NA
         }
         ## return(ans)
       }  ## end if using Rtnmin
@@ -875,7 +900,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
         ans <- try(minqa::bobyqa(par=spar, fn=efn, lower=slower,
                 upper=supper, control=mcontrol))
-#                upper=supper, control=mcontrol,...))
         if (! inherits(ans, "try-error")) {
 		ans$convergence <- 0
 #                if (ans$feval > mcontrol$maxfun) {
@@ -1041,7 +1065,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
               upper = supper, control=mcontrol))
 #              upper = supper, control=mcontrol, ...))
          } else {# 170919 explicit package in call
-            ans <- try(dfoptim::nmk(par=spar, fn=efn, control=mcontrol, ...))
+#            ans <- try(dfoptim::nmk(par=spar, fn=efn, control=mcontrol, ...))
+             ans <- try(dfoptim::nmk(par=spar, fn=efn, control=mcontrol))
          }
          if (control$trace > 1) {
             cat("Outputting ans for nmkb:\n")
@@ -1056,7 +1081,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
            ans$counts[2] <- NA
       	   ans$nitns <- NA # not used
            # What about 'restarts' and 'message'?!!
-           warning(ans$message,"  Restarts for stagnation =",ans$restarts)
+           ans$message <- paste(ans$msg," Restarts for stagnation =",ans$restarts)
            ans$restarts <- NULL
            ans$hessian <- NULL
          } else {
@@ -1085,7 +1110,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
                 upper = supper, control=mcontrol))
 #                upper = supper, control=mcontrol, ...))
          } else {
-            ans <- try(dfoptim::hjk(par=spar, fn=efn, control=mcontrol, ...))
+            ans <- try(dfoptim::hjk(par=spar, fn=efn, control=mcontrol))
          }
          if (! inherits(ans, "try-error")) {
            ans$value <- as.numeric(ans$value)
@@ -1110,6 +1135,7 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 ## --------------------------------------------
       else if (method == "lbfgsb3c") {# Use 2011 L-BFGS-B wrapper
         if (control$trace > 1) cat("lbfgsb3c\n")
+        mcontrol$maxit <- control$maxit # 151217 JN
         mcontrol$trace <- control$trace
 # 170924 no longer needed
 ##        if (control$trace < 1) {mcontrol$iprint <- -1} else {mcontrol$iprint <- control$trace} 
@@ -1119,36 +1145,22 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             slower <- lower/pscale
             supper <- upper/pscale
             ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, lower = slower, 
-                upper = supper, control=mcontrol, ...)) # explicit pkg in call 170919
+                upper = supper, control=mcontrol)) # explicit pkg in call 170919
             if (! is.numeric(ans$convergence) ) {
                 ans$convergence <- 7777 # ?? fixup later
                 if (control$trace > 0) {
                    cat("lbfgsb3c - code 7777, non-numeric value of ans$convergence\n")
                    print(ans)
-#            tmp<-readline("after try lbfgsb3c bounded")
                 }
              }
         } else {
             ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, control=mcontrol))
-#            ans <- try(lbfgsb3c::lbfgsb3c(par=spar, fn=efn, gr=egr, control=mcontrol, ...))
-#            print(ans)
-#            tmp<-readline("after try lbfgsb3c unbounded")
         }
-#        cat("lbfgsb3c: convergence=",ans$convergence,"\n")
         if (! inherits(ans, "try-error")) {
  ## Need to check these carefully. Changed 20191202 for lbfgsb3c !!?
-#            ans$convergence <- 0
             ans$par <- ans$par*pscale
-#            ans$prm <- NULL
-#            ans$value<-as.numeric(ans$f)
-#            ans$f <- NULL
-#            ans$counts[1] <- ans$info$isave[34]
-#            ans$counts[2] <- ans$counts[1]
-#            ans$info <- NULL ## Note -- throwing away a lot of information
-#            ans$g <- NULL ## perhaps keep -- but how?
-#            ans$hessian <- NULL
-#            ans$message <- NA
             ans$niter <- NULL # loss of information
+            if (is.na(ans$convergence)){ ans$convergence <- 9995 }
          } else {
             if (control$trace>0) cat("lbfgsb3c failed for current problem \n")
             ans<-list(fevals=NA) # ans not yet defined, so set as list
@@ -1157,10 +1169,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             ans$convergence<-9999 # failed in run
             ans$counts[1] <- NA
             ans$counts[1] <- NA
-#            ans$hessian <- NULL
-#            ans$message <- NA
          }
-         ## return(ans)
+#         return(ans)
       }  ## end if using lbfgsb3c
 ## --------------------------------------------
       else if (method == "lbfgs") {# Use unconstrained method from lbfgs package
@@ -1171,7 +1181,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
         ans <- list() # to define the answer object
         errmsg <- NA
         class(ans)[1] <- "undefined" # initial setting
-##      cat("in lbfgs section, control$have.bounds=",control$have.bounds,"\n")
         if (control$have.bounds) {
               cat("control$have.bounds seems TRUE\n")
               if (control$trace > 0) cat("lbfgs::lbfgs cannot handle bounds\n")
@@ -1185,14 +1194,12 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
             class(ans)[1] <- "try-error"            
         }
         ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
-        if (inherits(ans, "undefined")){ #?? need to explain why no dots??
-            ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, 
+        if (inherits(ans, "undefined")){ 
+            ans <- try(lbfgs::lbfgs(efn, egr, vars=spar, max_iterations=control$maxit,
                     invisible=invisible))
         }
-#        cat("interim answer:")
-#        print(ans)
         if (! inherits(ans, "try-error")) {
-        ## Need to check these carefully!!?
+        ## Need to check these carefully!!??
             ans$par <- ans$par*pscale
             ans$counts[1] <- NA # lbfgs seems to have no output like this
             ans$counts[2] <- NA
@@ -1314,22 +1321,14 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
 #      nlalg <- "NLOPT_LD_SLSQP"
       class(ans)[1] <- "undefined" # initial setting
       if (inherits(ans, "undefined")){
-#         print_level=control$trace
-#         if (print_level > 3) print_level <- 3
-#         lopts <- list(print_level=print_level, algorithm=nlalg)
-#         cat("lopts:"); print(lopts)
          dotstuff<-list(...)
          if (is.null(dotstuff)) { cat("No ...\n") }
-#         tans <- try(nloptr::nloptr(x0=spar, eval_f=efn, eval_grad_f=egr, 
-#                     lower=slower, upper=supper, opts=lopts, dotstuff) )
-#         control$print_level <- NULL
           maxeval<-control$maxfeval
           ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
           if (length(slower) == 1) slower<-rep(slower, npar)
           if (length(supper) == 1) supper<-rep(supper, npar)
           tans <- try(nloptr::slsqp(x0=spar, efn, egr, lower=slower, upper=supper,
                         control=list(maxeval=maxeval)) )
-#                        control=list(maxeval=maxeval),...) )
       }
       if (control$trace > 3) {
         cat("interim answer:")
@@ -1340,7 +1339,8 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
           ans$value <- tans$value
           ans$counts[1] <- NA 
           ans$counts[2] <- tans$iter
-          if (tans$convergence > 1) { ans$convergence <- 0 }
+          if (tans$convergence >= 1) { ans$convergence <- 0 }
+          # ?? >1 is supposed to be OK, <0 an error, but 1 not defined.
           else { if (tans$convergence == 0) {ans$convergence <- 9991 }
                  else { ans$convergence <- 9999+tans$convergence }
           if (ans$convergence > 2) { ans$convergence <- 9999 }
@@ -1361,7 +1361,52 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
          }
       }  ## end if using slsqp
 ## --------------------------------------------
-  else if (method == "anms") {# Use unconstrained method from marqLevAlg
+  else if (method == "tnewt") {# tnewton from nloptr
+      if (control$trace > 1) cat("tnewt: Note that trace control not available for nloptr::tnewton\n")
+      ans <- list() # to define the answer object
+      errmsg <- NA
+#      nlalg <- "NLOPT_LD_SLSQP"
+      class(ans)[1] <- "undefined" # initial setting
+      if (inherits(ans, "undefined")){
+         dotstuff<-list(...)
+         if (is.null(dotstuff)) { cat("No ...\n") }
+          if (length(slower) == 1) slower<-rep(slower, npar)
+          if (length(supper) == 1) supper<-rep(supper, npar)
+          tans <- try(nloptr::tnewton(x0=spar, efn, egr, lower=slower, upper=supper,
+                        control=list(maxeval=control$maxfeval)) )
+      }
+      if (control$trace > 3) {
+        cat("interim answer:")
+        str(tans)
+      }
+      if (! inherits(tans, "try-error")) { ## Need to check these carefully!!?
+          ans$par <- tans$par*pscale
+          ans$value <- tans$value
+          ans$counts[1] <- NA 
+          ans$counts[2] <- tans$iter
+          if (tans$convergence >= 1) { ans$convergence <- 0 }
+          # ?? >1 is supposed to be OK, <0 an error, but 1 not defined.
+          else { if (tans$convergence == 0) {ans$convergence <- 9991 }
+                 else { ans$convergence <- 9999+tans$convergence }
+          if (ans$convergence > 2) { ans$convergence <- 9999 }
+          }
+          if (ans$convergence > 2) ans$convergence <- 9999
+          tans <- NULL # cleanup
+         } else {
+            if (control$trace>0) cat("tnewt failed for current problem \n")
+            ans<-list() # ans not yet defined, so set as list
+            ans$value <- control$badval
+            ans$par <- rep(NA,npar)
+            ans$convergence <- 9999 # failed in run
+            if (is.null(egr)) ans$convergence <- 9998 # no gradient
+            ans$counts[1] <- NA
+            ans$counts[2] <- NA # was [1] until 20211122
+            ans$hessian <- NULL
+            if (! is.na(errmsg)) ans$message <- errmsg
+         }
+      }  ## end if using tnewton
+## --------------------------------------------
+  else if (method == "anms") {# Use nelder-mead method from pracma
       if (control$trace > 1) cat("anms\n")
       # Following seems to be needed to avoid unwanted output
       #  if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
@@ -1403,7 +1448,103 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
          }
       }  ## end if using anms
 ## --------------------------------------------
-## END OF optimrx extra methods
+  else if (method == "pracmanm") {# Use nelder_mead from pracma, Gao-Han adaptive NelderMead 
+    if (control$trace > 1) cat("pracmanm\n")
+    # Following seems to be needed to avoid unwanted output
+    #  if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
+    ans <- list() # to define the answer object
+    errmsg <- NA
+    class(ans)[1] <- "undefined" # initial setting
+    ## if(nsctrl > 0) { stop("There are no extra controls set up for ",method) }
+    if (inherits(ans, "undefined")){
+      if (control$have.bounds) {
+        if (control$trace > 0) cat("pracmanm cannot handle bounds\n")
+        errmsg <- "pracmanm cannot handle bounds\n"
+        stop(errmsg)
+        ans <- list()
+        class(ans)[1] <- "try-error"
+      } else {
+        pnmtol <- 1.0e-08 # default in pracma
+        if (! is.null(mcontrol$pracmanmtol)) pnmtol <- mcontrol$pracmanmtol
+        tans <- try(pracma::nelder_mead(fn=efn, x0=spar, tol=pnmtol, maxfeval=control$maxfeval))
+      }
+    }
+    if (control$trace > 3) {
+        cat("interim answer:")
+        str(tans)
+    }
+    if (! inherits(tans, "try-error")) { ## Need to check these carefully!!?
+      ans$par <- tans$xmin*pscale
+      ans$value <- tans$fmin
+      ans$counts[1] <- tans$count
+      ans$counts[2] <- NA
+      ans$convergence<-0
+      attr(ans$convergence, "restarts") <- tans$info$restarts
+      ans$hessian <- NULL
+      ans$message <- tans$errmess
+      if (tans$count >= control$maxfeval) { ans$convergence <- 1 }
+      tans <- NULL # cleanup
+    } else {
+      if (control$trace>0) cat("pracmanm failed for current problem \n")
+      ans<-list() # ans not yet defined, so set as list
+      ans$value <- control$badval
+      ans$par <- rep(NA,npar)
+      ans$convergence <- 9999 # failed in run
+      ans$counts[1] <- NA
+      ans$counts[2] <- NA # was [1] until 20211122
+      ans$hessian <- NULL
+      if (! is.na(errmsg)) ans$message <- errmsg
+    }
+  }  ## end if using pracmanm
+  ## --------------------------------------------
+  else if (method == "nlnm") {# neldermead from nloptr
+      if (control$trace > 1) cat("nlnm\n")
+      # Following seems to be needed to avoid unwanted output
+      #  if (control$trace < 1) {invisible <- 1} else {invisible <- 0}
+      ans <- list() # to define the answer object
+      errmsg <- NA
+      class(ans)[1] <- "undefined" # initial setting
+      if (inherits(ans, "undefined")){
+         dotstuff<-list(...)
+         if (is.null(dotstuff)) { cat("No ...\n") }
+          maxeval<-control$maxfeval
+          if (length(slower) == 1) slower<-rep(slower, npar)
+          if (length(supper) == 1) supper<-rep(supper, npar)
+          tans <- try(nloptr::neldermead(x0=spar, efn, lower=slower, upper=supper,
+                        control=list(maxeval=maxeval)) )
+      }
+      if (control$trace > 3) {
+        cat("interim answer:")
+        str(tans)
+      }
+      if (! inherits(tans, "try-error")) { ## Need to check these carefully!!?
+          ans$par <- tans$par*pscale
+          ans$value <- tans$value
+          ans$counts[1] <- NA 
+          ans$counts[2] <- tans$iter
+          if (tans$convergence >= 1) { ans$convergence <- 0 }
+          # ?? >1 is supposed to be OK, <0 an error, but 1 not defined.
+          else { if (tans$convergence == 0) {ans$convergence <- 9991 }
+                 else { ans$convergence <- 9999+tans$convergence }
+          if (ans$convergence > 2) { ans$convergence <- 9999 }
+          }
+          if (ans$convergence > 2) ans$convergence <- 9999
+          tans <- NULL # cleanup
+         } else {
+            if (control$trace>0) cat("nlnm failed for current problem \n")
+            ans<-list() # ans not yet defined, so set as list
+            ans$value <- control$badval
+            ans$par <- rep(NA,npar)
+            ans$convergence <- 9999 # failed in run
+            if (is.null(egr)) ans$convergence <- 9998 # no gradient
+            ans$counts[1] <- NA
+            ans$counts[2] <- NA # was [1] until 20211122
+            ans$hessian <- NULL
+            if (! is.na(errmsg)) ans$message <- errmsg
+         }
+      }  ## end if using nlnm (nloptr::neldermead)
+## --------------------------------------------
+  ## END OF optimrx extra methods
 # ---  UNDEFINED METHOD ---
       else { errmsg<-paste("UNDEFINED METHOD:", method, sep='')
              stop(errmsg, call.=FALSE)
@@ -1416,14 +1557,16 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
       ans$scounts<-c(optsp$kfn, optsp$kgr, optsp$khe) # counts from function calls
       if ((ans$convergence < 3) && control$have.bounds) { # add indicators !!! Note poss non conv.
          attr(ans$value, "ptype") <- "C"
-         solbds<-bmchk(ans$par, lower = lower, upper = upper, bdmsk = msk,
-            trace = control$trace, shift2bound = FALSE)
+#         solbds<-bmchk(ans$par, lower = lower, upper = upper, bdmsk = msk,
+         solbds<-bmchk(ans$par, lower = lower, upper = upper, bdmsk = NULL,
+             trace = control$trace, shift2bound = FALSE)
          attr(ans$par, "status") <- solbds$bchar
       }
       else {
          attr(ans$par, "status") <- rep(" ",npar)
          attr(ans$value, "ptype") <- "U"
-      }         
+      }
+      names(ans$par) <- parnam # restore the names
       if (savehess) { # compute hessian
          if (is.null(orig.hess)){
            if (is.null(orig.gr) || is.character(orig.gr) ) {
@@ -1439,5 +1582,6 @@ optimr <- function(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=I
          }
       } else { hes <- NULL } # to ensure it is defined
       ans$hessian <- hes
+      attr(ans, "maximize") <- control$maximize # added 241224
       ans # last statement of routine
 } ## end of optimr

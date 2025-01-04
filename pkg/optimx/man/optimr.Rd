@@ -18,12 +18,15 @@ optimr(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=Inf,
 \arguments{
  \item{par}{a vector of initial values for the parameters 
    for which optimal values are to be found. Names on the elements
-   of this vector are preserved and used in the results data frame.}  
+   of this vector are preserved and used in the results data frame.
+   Names are also (re-)attached to the parameter vector on output.}  
  \item{fn}{A function to be minimized (or maximized), with first
    argument the vector of parameters over which minimization is to take
    place.  It should return a scalar result.}
  \item{gr}{A function to return (as a vector) the gradient for those methods that 
-   can use this information.
+   can use this information. The first argument of this function is the supplied 
+   set of parameters \code{par}, with auxiliary data in \dots. This function 
+   returns the gradient as a numeric vector.
 
    If \code{gr} is \code{NULL}, then this is passed forward and 
    whatever default action is specified for the 
@@ -36,11 +39,27 @@ optimr(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=Inf,
    a gradient approximation function, for example, "grfwd", "grback" and
    "grcentral" for standard forward, backward and central approximations.
    Method "grnd" uses the \code{grad()} function from package \code{numDeriv}.
+   Method "grpracma" uses the approximation from package \code{pracma}.
+
+   The use of numerical gradients is generally discouraged, and particularly
+   for \code{ncg}, \code{Rcgmin}, \code{nvm} and \code{Rvmmin}.
+   First, the termination tests use a size measure on the gradient, and 
+   numerical gradient approximations can sometimes give results that are 
+   too large. Second, if there are bounds constraints, the step(s) taken 
+   to calculate the approximation to the derivative are NOT checked to see 
+   if they are out of bounds, and the function may be undefined at the evaluation
+   point. If an approximation must be used, "grcentral" is recommended in the 
+   absence of other considerations.
+
+   Note that all but the \code{grnd} routine use a stepsize parameter that
+   can be redefined in a special environment \code{optsp} in variable \code{deps}.
+   The default is \code{optsp$deps = 1e-06}. 
+   However, redefining this is discouraged unless you understand what
+   you are doing.
  }   
   \item{hess}{A function to return (as a matrix) the hessian for those methods that
-   can use this information.
-
-  If \code{hess} is the character string "approx", then ??
+   can use this information. At time of writing, quoted arguments (as for \code{gr})
+   are not offered as a mechanism for providing a numerical approximation.
 
   If \code{hess} is \code{NULL}, then this is passed forward and 
    whatever default action is specified for the 
@@ -68,7 +87,19 @@ optimr(par, fn, gr=NULL, hess=NULL, method=NULL, lower=-Inf, upper=Inf,
 }
 \details{
   Note that arguments after \code{\dots} should be matched exactly.
-
+  
+  CAUTION: It has been noted that users may be tempted to use \code{with()}
+  to extract named variables from a named list. The objective \code{fn} and
+  corresponding gradient and hessian use a vector of parameters, and some
+  solvers will strip the names. \code{with()} does NOT work with vectors.
+  Thus, if your third parameter is used in your function as \code{PKb}, you 
+  need to explicitly include a line in the function \code{PKb <- par[3]}, 
+  and similarly for other quantities. The situation is made more confusing 
+  in that some solvers will accept \code{with()} satisfactorily.
+  
+  As of December 2024, optimr() will issue a warning if \code{par} is not
+  a vector of doubles and will coerce \code{par} to such an object.
+  
   By default \code{optimr} performs minimization, but it will maximize
   if \code{control$maximize} is TRUE. The original optim() function allows
   \code{control$fnscale} to be set negative to accomplish this, and this
@@ -168,10 +199,15 @@ simfun.h = function(x) {
      hess<-diag(t)
 }
 
+# library(optimx) ## May be needed for independent running.
 strt <- c(1,2,3)
 ansfgh <- optimr(strt, simfun.f, simfun.g, simfun.h, method="nlm",
      hessian=TRUE, control=list(trace=2))
 proptimr(ansfgh) # compact output of result
+cat("nlm does not return good counts\n")
+cat("ansfgh$counts:")
+print(ansfgh$counts)
+
 
 
 }

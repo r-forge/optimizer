@@ -2,36 +2,25 @@ optimx <- function(par, fn, gr=NULL, hess=NULL, lower=-Inf, upper=Inf,
             method=c("Nelder-Mead","BFGS"), itnmax=NULL, hessian=FALSE,
             control=list(),
              ...) {
-## NOTE: optimx is NOT easily maintainable, but is here for legacy purposes.
-##  Please use opm, optimr, polyopt and multistart.
-  if (is.null(control$trace)) control$trace<-0
-  optcfg <- optimx.setup(par, fn, gr, hess, lower, upper, 
-            method, itnmax, hessian, control, ...)
+
+  fn1 <- function(par) fn(par,...) # avoid dotarg clashes
+  gr1 <- if (!is.null(gr)) function(par) gr(par,...) # ?? will this fail for quoted names
+  he1 <- if (!is.null(hess)) function(par) hess(par,...) 
+
+
+  optcfg <- optimx.setup(par, fn1, gr1, he1, lower, upper, 
+            method, itnmax, hessian, control) # NO dotargs now
 # Parse and use optcfg
   if (optcfg$ctrl$starttests) {
-    if (! is.null(gr)) {
-       tg<-grchk(par, ffn=fn, ggr=gr, trace=control$trace, ...)
-       if (! tg) stop("optimx: Gradient function may be incorrect.")
-    }
-    if (! is.null(hess)) {
-       th<-hesschk(par, ffn=fn, ggr=gr, hhess=hess, trace=control$trace, ...)
-       if (! th) stop("optimx: Hessian function may be incorrect.")   
-    }
-    srat<-scalechk(par, lower, upper, dowarn=TRUE)
-    print(srat) # Always print if starttests selected. Overrides trace.
-    sratv<-c(srat$lpratio, srat$lbratio)
-    if (max(sratv,na.rm=TRUE) > 3) { # scaletol from ctrldefault in optimx
-      warnstr<-"Parameters or bounds appear to have different scalings.\n
-      This can cause poor performance in optimization. \n
-      It is important for derivative free methods like BOBYQA, UOBYQA, NEWUOA."
-      cat(warnstr,"\n")
-    }
+    optchk <- optimx.check(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower,
+           upper, hessian, optcfg$ctrl, have.bounds=optcfg$have.bounds,
+           usenumDeriv=optcfg$usenumDeriv)
   }
   optcfg$ctrl$have.bounds<-optcfg$have.bounds # to pass boundedness
   if (! is.null(control$trace) && control$trace > 1) {
-    cat("optcfg:"); print(optcfg)
+    cat("optcfg:")
+    print(optcfg)
   }
-
   ansout <- optimx.run(par, optcfg$ufn, optcfg$ugr, optcfg$uhess, lower, upper,
             optcfg$method, itnmax, hessian, optcfg$ctrl)
   details <- attr(ansout, "details")

@@ -7,29 +7,50 @@ ctrldefault <- function(npar) {
                 "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
                  "spg", "ucminf", "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", 
                  "hjn", "lbfgs", "subplex", "ncg", "nvm", "mla", 
-                 "slsqp", "anms")
+                 "slsqp", "tnewt", "anms", "pracmanm", "nlnm", "snewtm")
+
+      truename <- c("BFGS", "CG", "Nelder-Mead", "L-BFGS-B", "nlm", "nlminb", 
+                "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin", "snewton", "snewtonm",
+                 "spg", "ucminf", "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb", 
+                 "hjn", "lbfgs", "subplex", "ncg", "nvm", "mla", 
+                 "slsqp", "tnewton", "anms", "nelder_mead", "neldermead", "snewtm")
 
 #  allpkg has package where element of allmeth is found
       allpkg <-  c("stats", "stats", "stats", "stats", "stats", "stats",
                 "lbfgsb3c", "optimx", "optimx", "optimx", "optimx", "optimx",
                 "BB", "ucminf", "minqa", "minqa", "minqa", "dfoptim", "dfoptim", 
                  "optimx", "lbfgs", "subplex", "optimx", "optimx", "marqLevAlg", 
-                 "nloptr", "pracma")
+                 "nloptr", "nloptr", "pracma", "pracma", "nloptr", "optimx")
 
 ## These are DEFAULTS. They may be nonsense in some contexts.
 
       mostmeth <- c("Nelder-Mead", "nlm", "nlminb", 
-                "lbfgsb3c", "Rtnmin", "snewtonm",
+                "lbfgsb3c", "Rtnmin", "snewtm",
                  "spg", "ucminf", "bobyqa", "nmkb", 
-                 "subplex", "ncg", "nvm", "mla", 
-                 "slsqp")
+                 "subplex", "ncg", "Rcgmin", "nvm", 
+                 "Rvmmin", "mla", "slsqp", "tnewt",
+                 "pracmanm", "nlnm")
+
+      nogrmeth <- c("Nelder-Mead", "newuoa", "bobyqa", "uobyqa", "nmkb", "hjkb",
+                 "hjn", "subplex", "anms", "pracmanm", "nlnm")
+
+
+      grmeth <- c("BFGS", "CG", "L-BFGS-B", "nlm", "nlminb", 
+                "lbfgsb3c", "Rcgmin", "Rtnmin", "Rvmmin", 
+                 "spg", "ucminf", "lbfgs", "ncg", "nvm", "mla", 
+                 "slsqp", "tnewt")
+
+     hessmeth <- c("nlm", "nlminb", "snewton", "snewtonm", "snewtm")
+# NOTE: snewtm and snewtonm are synonyms
+
+
 
 #  allpkg has package where element of allmeth is found
 #      mostpkg <-  c("stats", "stats", "stats",
 #                "lbfgsb3c", "optimx", "optimx", 
 #                "BB", "ucminf", "minqa", "dfoptim",  
 #                "subplex", "optimx", "optimx", "marqLevAlg", 
-#                "nloptr")
+#                "nloptr", "pracma", "nloptr")
 
 # Adjust for packages not installed. 
 # !! COMMENTED OUT TO AVOID UNNECESSARY WORK
@@ -51,17 +72,17 @@ ctrldefault <- function(npar) {
      #    OKmeth <- allmeth[ - badm ] # leave only packages not 
      #    OKpkg <- allpkg[ OK]
      # }
-     # 160628: uobyqa removed as it fails hobbs from 1,1,1 unscaled
       weakmeth <- c("snewton", "uobyqa")
 
       bdmeth <- c("L-BFGS-B", "nlminb", "lbfgsb3c", "Rcgmin", "Rtnmin", "nvm",  
-                "bobyqa", "nmkb", "hjkb", "hjn", "snewtonm", "ncg", "slsqp")
-                 # snewtonmb added 20220210
+                "Rvmmin", "bobyqa", "nmkb", "hjkb", "hjn", "snewtonm", "ncg", 
+                "slsqp", "tnewt", "nlnm", "snewtm", "spg")
+                 # snewtonmb added 20220210, removed 20230625 for snewtm
 
       bdmeth <- bdmeth[ which(bdmeth %in% OKmeth) ]
    
 
-      maskmeth <- c("Rcgmin", "nvm", "hjn", "ncg", "snewtonm", "nlminb") 
+      maskmeth <- c("Rcgmin", "nvm", "hjn", "ncg", "snewtonm", "nlminb", "L-BFGS-B") 
       maskmeth <- maskmeth[ which(maskmeth %in% OKmeth) ]
   
 #     valid gradient approximations
@@ -72,6 +93,7 @@ ctrldefault <- function(npar) {
         acctol = 0.0001, # used for acceptable point test in backtrack linesearch
         all.methods = FALSE, # we do NOT want all methods to be the default
         allmeth = OKmeth, # to define the set of all methods
+        truename = truename, # true names
         allpkg = OKpkg, # to list all the packages required
         appgr = FALSE, # assume we are NOT using a numerical approximation to the gradient
 #        avoidmeth = avoidmeth, # methods to avoid using
@@ -106,12 +128,11 @@ ctrldefault <- function(npar) {
         maxit = 500*round(sqrt(npar+1)), # limit on number of iterations or gradient evaluations
         maxfeval = 5000*round(sqrt(npar+1)), # limit on function evaluations
         mostmeth = mostmeth,
-        offset = 1000.0, # used for equality test (a + offset) == (b + offset)
         parchanged = FALSE, # set TRUE when bounds check has changed parameter values
         # ?? do we want this as a CONTROL? It is returned how??
         parscale = rep(1, npar), # vector of scaling factors for parameters. Try to get
         # scaled parameters to have magnitude in range (1, 10)
-        reltest = 100.0, # see offset. Do we need both??
+        reltest = 100.0, # used for equality test (a + offset) == (b + offset)
         save.failures = TRUE, # ?? where used. optimx() saves failed runs. opm?
       	scaletol = 3, 
         starttests = FALSE, 

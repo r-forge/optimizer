@@ -97,25 +97,20 @@ bmchk <- function(par, lower = NULL, upper = NULL,
             else { stop("1<length(lower)<n") }
         }  # else lower OK
         if (!noupper & (length(upper) < n)) 
-        {   if (length(upper) == 1) {
-                  upper <- rep(upper, n)
-                }
-                else {
-                  stop("1<length(upper)<n")
-                }
+        {   if (length(upper) == 1) { upper <- rep(upper, n) }
+            else { stop("1<length(upper)<n") }
         }  # else upper OK
         # At this point, we have full bounds in play
         ######## check admissibility ########
         if (any(lower[which(bdmsk != 0)] > upper[which(bdmsk != 0)])) admissible <- FALSE
         if (trace > 0) cat("admissible = ", admissible, "\n")
         if ( any((upper+offset) == (lower + offset)) ) { # essentially masked
-            makemask<-which((upper+offset) == (lower + offset))
+            makemask<-which((upper + offset) == (lower + offset))
             if (trace > 0) {
                cat("Imposing mask as lower ~= upper for following parameters\n")
                print(makemask)
             }
             # force parameters to the masked values
-            ## cat("bvec:"); print(bvec)
             bvec[makemask] <- lower[makemask] + 0.5*(upper[makemask] - lower[makemask])
             if (any(bvec != par)) { 
                parchanged <- TRUE 
@@ -123,7 +118,6 @@ bmchk <- function(par, lower = NULL, upper = NULL,
             }
             bdmsk[makemask] <- 0 # set bchar below
             maskadded <- TRUE
-            ## tmp<-readline("temporary halt:")
         }
         if (trace > 0) cat("maskadded = ", maskadded, "\n")
         ######## check feasibility ########
@@ -152,9 +146,8 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                   }
                 }
                 else { # par[i] not masked, so must be free or active constraint
-                  if (!nolower) { # there are upper bounds
-                    if (bvec[i] <= lower[i]) { # Gave trouble 130924 -- <= not < -- bmtest in nlpor
-                      # changed 090814 to ensure bdmsk is set; 110105 < not <=
+                  if (!nolower) { # there are lower bounds
+                    if (bvec[i] <= lower[i]) { # on or below lower bound
                       if ((offset+bvec[i]) < (offset+lower[i])){
                          bdmsk[i] <- -3.5 # OUT OF BOUNDS LOW
                          bchar[i] <- "-"
@@ -172,11 +165,10 @@ bmchk <- function(par, lower = NULL, upper = NULL,
                          bchar[i] <- "L"
                       }
                     }
-                  } # nolower
+                  } # ! nolower
                   if (!noupper) { # there are upper bounds
-                    if ((offset+bvec[i]) >= (offset+upper[i])) {
-                      # changed 090814 to ensure bdmsk is set; 110105 > not >=
-                      if (bvec[i] != upper[i]){
+                    if (bvec[i] >= upper[i]){ # on or above upper bound
+                      if ((offset+bvec[i]) > (offset+upper[i])) {
                          bdmsk[i] <- -0.5 # OUT OF BOUNDS HIGH
                          bchar[i] <- "+"
                          feasible<-FALSE

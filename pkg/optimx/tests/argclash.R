@@ -33,8 +33,8 @@ t2
 o1 <- optim(st, fn=sqmod,  x=2)
 o1
 
-# Try grchk -- The argclash is fixed in the code.
-tgr <- grchk(xpar=st, ffn=sqmod, ggr=sqmod.g, trace=2, x=2)
+# Try grchk -- The argclash is fixed in the optimx.run code and in optimr().
+tgr <- try(grchk(xpar=st, ffn=sqmod, ggr=sqmod.g, trace=2, x=2))
 tgr
 # One way that x gets into the dot arguments
 xval <- 2
@@ -62,7 +62,8 @@ t2x
 t2fm <- optimx(st, fn=sqmod, method="BFGS", x=2)
 t2fm
 
-t2fgm <- optimx(st, fn=sqmod, gr=sqmod.g, method="BFGS", x=2)
+# Following illustrates collision of arguments in gradient after solve
+t2fgm <- try(optimx(st, fn=sqmod, gr=sqmod.g, method="BFGS", x=2))
 t2fgm
 
 

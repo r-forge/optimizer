@@ -333,7 +333,7 @@ lmqnbc <- function (x, sfun, lower, upper, maxit, maxfun, stepmx, accrcy, trace,
           ## ############################
           cat('    |g|     = ', norm2(g), "\n") 
           cat('    |p|     = ', norm2(p), "\n") 
-          tmp <- readline('Hit any key to continue')
+#          tmp <- readline('Hit any key to continue')
           ## ############################
       } 
       ## #######################

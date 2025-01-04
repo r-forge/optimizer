@@ -24,4 +24,4 @@ t1 <- try(optimx(strt, simfun.f, simfun.g, method=meth, control=list(trace=1, st
 # sink()
 # sink(file="~/temp/st2.txt", split=TRUE)
 t2 <- try(optimx(strt, simfun.f, simfun.g, method=meth, control=list(trace=1, starttests=FALSE))) 
-# sink()
+# sink(

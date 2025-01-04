@@ -54,31 +54,30 @@ trig.g <- function(x) { # unvectorized
 x<-rep(2,2)
 cat("optim BFGS and optimr Rvmmin from (2,2)\n")
 opt2<-optim(x, trig.f, trig.g, method="BFGS")
-opt2
+proptimr(opt2)
 cat("optimr Rvmmin from (2,2)\n")
 opt2r<-optimr(x, trig.f, trig.g, method="Rvmmin")
-opt2r
+proptimr(opt2r)
 cat("====================")
 x<-rep(2,4)
 cat("optim(BFGS) vs optimr(BFGS) from rep(2,4)\n")
 opt4<-optim(x, trig.f, trig.g, method="BFGS")
-opt4
+proptimr(opt4)
 opt4r<-optimr(x, trig.f, trig.g, method="Rvmmin")
-opt4r
+proptimr(opt4r)
 cat("====================")
 x<-rep(2,8)
 cat("optim BFGS vs optrimr Rvmmin from rep(2,8)\n")
 opt8<-optim(x, trig.f, trig.g, method="BFGS")
-opt8
+proptimr(opt8)
 opt8r<-optimr(x, trig.f, trig.g, method="Rvmmin")
-opt8r
+proptimr(opt8r)
 
 cat("opm ALL from rep(2,2) -- several solutions\n")
 ttrig2<-opm(rep(2,2), trig.f, trig.g, method="ALL")
 summary(ttrig2, order=value)
 cat("reorder by p1")
 summary(ttrig2, order=p1)
-ttrig2
 
 cat("opm ALL from rep(2,4)\n")
 ttrig4<-opm(rep(2,4), trig.f, trig.g, method="ALL")

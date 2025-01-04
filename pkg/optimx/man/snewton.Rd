@@ -1,7 +1,6 @@
 \name{snewton}
 \alias{snewton}
-\alias{snewtonmu}
-\alias{snewtonm}
+\alias{snewtm}
 \encoding{UTF-8}
 \title{Safeguarded Newton methods for function minimization using R functions.}
 \description{These versions of the safeguarded Newton solve the Newton equations with
@@ -9,9 +8,9 @@ the R function solve(). In \code{snewton} a backtracking line search is used,
 while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
 \usage{
-   snewtonm(par, fn, gr, hess, lower, upper, control = list(trace=0, maxit=500), \dots)
-
    snewton(par, fn, gr, hess, control = list(trace=0, maxit=500), \dots)
+
+   snewtm(par, fn, gr, hess, bds, control = list(trace=0, maxit=500))
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -24,13 +23,7 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
    returns the gradient as a numeric vector.}
  \item{hess}{A function to compute the Hessian matrix. This should be provided as a square,
       symmetric matrix.}
- \item{lower}{A numeric vector of lower bounds on the parameters. Must be same length as
-            \code{par} or a single numeric scalar which is the lower bound on every parameter.}
- \item{upper}{A numeric vector of upper bounds on the parameters. Must be same length as
-            \code{par} or a single numeric scalar which is the upper bound on every parameter.}
-      
-      
-      
+ \item{bds}{Result of \code{bmchk()} for the current problem. Contains lower and upper etc.}
  \item{control}{
     An optional list of control settings.
  }
@@ -38,6 +31,8 @@ while in \code{snewtonm} we rely on a Marquardt stabilization.
 }
 
 \details{
+  \code{snewtm} is intended to be called from \code{optimr()}.
+
   Functions \code{fn} must return a numeric value. \code{gr} must return a vector.
   \code{hess} must return a matrix. 
    The \code{control} argument is a list. See the code for \code{snewton.R} for completeness.
@@ -123,15 +118,16 @@ x0 <- c(-1.2, 1)
 
 sr <- snewton(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
 print(sr)
-
-srm <- snewtonm(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
+# Call through optimr to get correct calling sequence, esp. with bounds
+srm <- optimr(x0, fn=f, gr=gr, hess=h, control=list(trace=1))
 print(srm)
 
 # bounds constrained example
 
 lo <- rep((min(x0)-0.1), 2)
 up <- rep((max(x0)+0.1), 2)
-srmb <- snewtonm(x0, fn=f, gr=gr, hess=h, lower=lo, upper=up, control=list(trace=1))
+# Call through optimr to get correct calling sequence, esp. with bounds
+srmb <- optimr(x0, fn=f, gr=gr, hess=h, lower=lo, upper=up, control=list(trace=1))
 proptimr(srmb)
 
 
@@ -166,10 +162,9 @@ w0 <- c(-3, -1, -3, -1)
 wd <- snewton(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wd)
 
-wdm <- snewtonm(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
+# Call through optimr to get correct calling sequence, esp. with bounds
+wdm <- optimr(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
 print(wdm)
-
-
 
 }
 

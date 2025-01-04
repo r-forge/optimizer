@@ -1,4 +1,5 @@
-kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALSE, control=list(), ...) {
+kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALSE, 
+          control=list(dowarn=TRUE), ...) {
 # Provide a check on Kuhn-Karush-Tucker conditions based on quantities
 # already computed. Some of these used only for reporting.
 ##
@@ -7,7 +8,7 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
 #  fval = objective function value
 #  ngr = gradient evaluated at parameters par
 #  nHes = Hessian matrix evaluated at the parameters par
-#  nbm = number of active bounds and masks from gHgenb (gHgen returns 0)
+#  nbm = number of active bounds and masks
 #  maximize = logical TRUE if we want to maximize the function. Default FALSE.
 #  control = list of controls, currently, 
 #            kkttol=1e-3, kkt2tol=1e-6, ktrace=FALSE
@@ -110,7 +111,9 @@ kktchk <- function(par, fn, gr, hess=NULL, upper=NULL, lower=NULL, maximize=FALS
    pHes <- nHes # projected Hessian
 #   cat("max asymmetry:", max(abs(pHes-t(pHes))), "\n")
    if (! isSymmetric(unname(pHes))  ) {
+      if (control$dowarn) {
       warning("kktchk: pHes not symmetric -- symmetrizing")
+      }
       pHes <- 0.5*(pHes + t(pHes))
    }
    pHes[which(bdout$bdmsk != 1), ] <- 0.0

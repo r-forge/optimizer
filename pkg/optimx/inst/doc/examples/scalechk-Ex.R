@@ -17,6 +17,6 @@ if (max(sratv,na.rm=TRUE) > 3) { # scaletol from ctrldefault in optimx
 par<-c(Inf, -Inf, 1, 1000)
 lower<- -Inf
 upper<- Inf
-srat2<-try(scalechk(par, lower, upper,dowarn=TRUE))
+srat2<-try(scalechk(par, lower, upper, dowarn=TRUE))
 print(srat2)
 

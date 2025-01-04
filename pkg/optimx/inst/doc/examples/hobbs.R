@@ -3,9 +3,7 @@ rm(list=ls()) # comment out this line if you do not want the workspace cleared
 require(optimx)
 sessionInfo()
 ## Optimization test function HOBBS
-## ?? refs (put in .doc??)
 ## Nash and Walker-Smith (1987, 1989) ...
-
 
 hobbs.f<- function(x){ # # Hobbs weeds problem -- function
     if (abs(12*x[3]) > 500) { # check computability
@@ -94,7 +92,6 @@ allm <- c("BFGS", "CG", "Nelder-Mead",  "nlm", "nlminb",
           "spg", "ucminf", "bobyqa", "hjkb", "hjn", 
           "subplex")
 # Dropped "L-BFGS-B", "newuoa", "nmkb", "snewton", "snewtonm","lbfgs",  as they give trouble
-#  Not an optimx problem, but one in underlying methods
 badm <- c("L-BFGS-B", "newuoa", "nmkb", "snewton", "snewtonm","lbfgs")
 
 x0 <- c(200, 50, .3)
@@ -105,9 +102,11 @@ cat("Initial value of hobbs.f = ",hobbs.f(x0),"\n")
 
 ahobb0 <- opm(x0, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb0, order=value))
-# ?? Need to explain failures or convergence code .ne. 0
+# conv code 1 means method does not consider it has returned a solution
+#           3 implies line search failure (may not be serious)
 
 # Several methods fail because f or g becomes Inf.
+# Try the "BAD" methods -- which may still work sometimes
 x1 <- c(1, 1, 1)
 cat("Start for Hobbs:")
 print(x1)
@@ -134,26 +133,28 @@ cat("Initial value of hobbs.f = ",hobbs.f(x1s),"\n")
 ahobb1s <- opm(x1s, hobbs.f, hobbs.g, hess=hobbs.h, method=allm)
 print(summary(ahobb1s, order=value))
 bobyqahobb1s <- optimr(x1s, hobbs.f, hobbs.g, method="bobyqa", control=list(maxfeval=20000))
-bobyqahobb1s
+proptimr(bobyqahobb1s)
 lbgfsb3cahobb1s <- optimr(x1s, hobbs.f, hobbs.g, method="lbfgsb3c", control=list(maxit=20000))
-lbgfsb3cahobb1s
+proptimr(lbgfsb3cahobb1s)
 require(lbfgsb3c)
 lbgfsb3cD1s <- lbfgsb3c(par=x1s, fn=hobbs.f, gr=hobbs.g, control=list(maxit=2000))
-lbgfsb3cD1s
+proptimr(lbgfsb3cD1s)
 # lbgfsb3cD1sn <- lbfgsb3c(par=x1s, fn=hobbs.f, control=list(maxit=500000))
 # Still fails to get a good answer!
 # lbgfsb3cD1sn
 
-tscale <- optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=TRUE, parscale=c(100, 10, 0.1)))
-tscale1 <- optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=TRUE, parscale=c(1, 1, 1)))
-tscalex <- optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=TRUE, parscale=c(.01, .1, 10)))
+# Note the following examples run with optim(), not optimr()
+tscale <- try(optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=1, parscale=c(100, 10, 0.1))))
+tscale1 <- try(optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=1, parscale=c(1, 1, 1))))
+tscalex <- try(optim(par=c(1,1,1), fn=hobbs.f, method="Nelder-Mead", control=list(trace=1, parscale=c(.01, .1, 10))))
 
-btscale <- optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=TRUE, parscale=c(100, 10, 0.1)))
-btscale1 <- optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=TRUE, parscale=c(1, 1, 1)))
-btscalex <- optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=TRUE, parscale=c(.01, .1, 10)))
+btscale <- try(optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=1, parscale=c(100, 10, 0.1))))
+btscale1 <- try(optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=1, parscale=c(1, 1, 1))))
+btscalex <- try(optim(par=c(1,1,1), fn=hobbs.f, method="BFGS", control=list(trace=1, parscale=c(.01, .1, 10))))
+btscalexr <- try(optimr(par=c(1,1,1), fn=hobbs.f, gr="grcentral", method="BFGS", control=list(trace=1, parscale=c(.01, .1, 10))))
 
-otscale <- optimr(par=c(1,1,1), fn=hobbs.f, gr=hobbs.g, method="Rvmmin", control=list(trace=TRUE, parscale=c(100, 10, 0.1)))
-otscale1 <- optimr(par=c(1,1,1), fn=hobbs.f, gr=hobbs.g, method="Rvmmin", control=list(trace=TRUE, parscale=c(1, 1, 1)))
+otscale <- optimr(par=c(1,1,1), fn=hobbs.f, gr=hobbs.g, method="Rvmmin", control=list(trace=1, parscale=c(100, 10, 0.1)))
+otscale1 <- optimr(par=c(1,1,1), fn=hobbs.f, gr=hobbs.g, method="Rvmmin", control=list(trace=1, parscale=c(1, 1, 1)))
 proptimr(otscale)
 proptimr(otscale1)
 

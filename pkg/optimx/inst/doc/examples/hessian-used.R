@@ -18,27 +18,12 @@ rb.h <- function(x) {
   return(matrix(c(a11, a21, a21, 200), 2, 2))
 }
 
-## rb.fg <- function(x){ #function and gradient
-##   val <- f(x)
-##   attr(val,"gradient") <- gr(x)
-##   val
-## }
-## rb.fgh <- function(x){ #function and gradient
-## val <- f(x)
-##   attr(val,"gradient") <- gr(x)
-##   attr(val,"hessian") <- h(x)
-##   val
-## }
-
-
-
 x0 <- c(-1.2, 1)
 
 sr <- snewton(x0, fn=rb.f, gr=rb.g, hess=rb.h, control=list(trace=1))
-print(sr)
-
+proptimr(sr)
 srm <- snewtonm(x0, fn=rb.f, gr=rb.g, hess=rb.h, control=list(trace=1))
-print(srm)
+proptimr(srm)
 
 meth <- c("snewton", "snewtonm", "nlm", "nlminb")
 trb <- opm(x0, rb.f, rb.g, hess=rb.h, method=meth)
@@ -80,10 +65,10 @@ wood.h <- function(x){
 w0 <- c(-3, -1, -3, -1)
 
 wd <- snewton(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
-print(wd)
+proptimr(wd)
 
 wdm <- snewtonm(w0, fn=wood.f, gr=wood.g, hess=wood.h, control=list(trace=1))
-print(wdm)
+proptimr(wdm)
 
 
 twood <- opm(w0, wood.f, wood.g, hess=wood.h, method=meth)
@@ -94,4 +79,3 @@ summary(twoodg, order=value)
 
 twoodf <- opm(w0, wood.f, method=meth)
 summary(twoodf, order=value)
-

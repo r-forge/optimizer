@@ -1,25 +1,28 @@
 \name{Rcgmin}
 \alias{Rcgmin}
-\alias{ncg}
-\alias{ncgqs}
+\alias{Rcgminu}
+\alias{Rcgminb}
 \encoding{UTF-8}
-\title{An R implementation of a nonlinear conjugate gradient algorithm with the Dai / Yuan
-   update and restart. Based on Nash (1979) Algorithm 22 for its main structure.}
+\title{An R implementation of a  Dai / Yuan nonlinear conjugate gradient algorithm.}
 \description{
-  The purpose of \code{Rcgmin} is to minimize an unconstrained or bounds
-  (box) and mask constrained function 
-  of many parameters by a nonlinear conjugate gradients method. This code is
-  entirely in R to allow users to explore and understand the method. It also
-  allows bounds (or box) constraints and masks (equality constraints) to be
-  imposed on parameters. 
+  Attempts to minimize an unconstrained or bounds (box) and mask constrained function 
+  of many parameters by a nonlinear conjugate gradients method using the Dai / Yuan
+   update and restart. Based on Nash (1979) Algorithm 22 for its main structure,
+   which is method "CG" of the \code{optim()} function that has rarely performed well.
+  Bounds (or box) constraints and masks (equality constraints) can be imposed on 
+  parameters. This code is entirely in R to allow users to explore and understand 
+  the method. 
 
   \code{Rcgmin} is a wrapper that calls \code{Rcgminu} for unconstrained 
-   problems, else \code{Rcgminb}.
+   problems, else \code{Rcgminb}. The direct call of the subsidiary routines
+   is discouraged.
 }
 \usage{
    Rcgmin(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
 
-   ncg(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)
+   Rcgminu(par, fn, gr, control = list(), \dots) 
+
+   Rcgminb(par, fn, gr, lower, upper, bdmsk, control = list(), \dots)     
 }
 \arguments{
  \item{par}{A numeric vector of starting estimates.}
@@ -27,40 +30,9 @@
    supplied set of parameters \code{par} using auxiliary data in \dots.
    The first argument of \code{fn} must be \code{par}. }
  \item{gr}{A function that returns the gradient of the objective at the
-   supplied set of parameters \code{par} using auxiliary data in \dots.
-   The first argument of \code{fn} must be \code{par}. This function 
-   returns the gradient as a numeric vector.
-
-   If \code{gr} is not provided or is NULL, then the simple forward 
-   gradient code \code{grfwd} is used. However,
-   we recommend
-   carefully coded and checked analytic derivatives for Rcgmin.
-
-   The use of numerical gradients for Rcgmin is discouraged.
-   First, the termination
-   test uses a size measure on the gradient, and numerical gradient 
-   approximations can sometimes give results that are too large. Second,
-   if there are bounds constraints, the step(s) taken to calculate the
-   approximation to the derivative are NOT checked to see if they are
-   out of bounds, and the function may be undefined at the evaluation
-   point. 
-
-   There is also the option of using the routines \code{grfwd}, \code{grback}, 
-   \code{grcentral} or \code{grnd}. The last
-   of these calls the \code{grad()} function from package numDeriv. These 
-   are called by putting the name of the (numerical) gradient function in 
-   quotation marks, e.g.,
-
-      gr="grfwd"
-
-   to use the standard forward difference numerical approximation.
-
-   Note that all but the \code{grnd} routine use a stepsize parameter that
-   can be redefined in a special scratchpad storage variable \code{deps}.
-   The default is \code{deps = 1e-07}.
-   However, redefining this is discouraged unless you understand what
-   you are doing. 
-}
+   supplied set of parameters \code{par} using auxiliary data in \dots
+   as a numeric vector.
+   The first argument of \code{gr} must be \code{par}.}
  \item{lower}{A vector of lower bounds on the parameters.}
  \item{upper}{A vector of upper bounds on the parameters.}
  \item{bdmsk}{An indicator vector, having 1 for each parameter that is "free" or
@@ -72,8 +44,28 @@
  \item{\dots}{Further arguments to be passed to \code{fn}.}
 }
 \details{
-   Functions \code{fn} must return a numeric value.
+   Function \code{fn} must return a numeric value.
+   
+   \code{gr} must be provided, either as a user-supplied function, or as the quoted name
+    of one of the gradient approximation routines provided in this package. Choices are 
+   routines \code{grfwd}, \code{grback}, \code{grcentral} or \code{grnd}. The last
+   of these calls the \code{grad()} function from package \code{numDeriv}. These 
+   are called by putting the name of the (numerical) gradient function in 
+   quotation marks, e.g.,
 
+      gr="grcentral"
+
+   to use the central difference numerical approximation. (This is the recommended choice
+   in the absence of other considerations.)
+
+   Note that all but the \code{grnd} routine use a stepsize parameter that
+   can be redefined in a special environment \code{optsp} in variable \code{deps}.
+   The default is \code{optsp$deps = 1e-06}.
+   However, redefining this is discouraged unless you understand what
+   you are doing. 
+
+
+   
    The \code{control} argument is a list.
    \describe{
    \item{maxit}{A limit on the number of iterations (default 500). Note that this is 
@@ -101,8 +93,6 @@
    \item{\code{checkbounds}}{= TRUE if we want bounds verified. Default is 
      TRUE.}
 
-    {The source code \code{Rcgmin} for R is likely to remain a work in progress 
-    for some time, so users should watch the console output.}
   }
 
   As of 2011-11-21 the following controls have been REMOVED

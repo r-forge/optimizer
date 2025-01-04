@@ -12,9 +12,7 @@ jones<-function(xx){
    ff<- -ff
 }
 
-
 # Note: No hessian, so newton methods will fail
-
 xx<-0.5*c(pi,pi)
 ans<-optimr(xx, jones, "grcentral", method="Rvmmin", control=list(trace=0))
 proptimr(ans)
